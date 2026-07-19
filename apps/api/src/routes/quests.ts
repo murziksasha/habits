@@ -46,7 +46,7 @@ async function ensureDailyQuests(userId: string, date = todayUtc()) {
 /** Bump progress for metrics (lessons / xp / focus_min). Safe no-op if already complete. */
 export async function bumpDailyQuests(
   userId: string,
-  metric: "lessons" | "xp" | "focus_min",
+  metric: "lessons" | "xp" | "focus_min" | "exams",
   amount: number,
 ) {
   if (amount <= 0) return;

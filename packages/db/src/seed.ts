@@ -1,12 +1,21 @@
 import { and, eq } from "drizzle-orm";
 import {
   chessContent,
+  cssLayoutContent,
   englishContent,
   FLASHCARD_DECKS,
+  htmlSemanticsContent,
+  jsFundamentalsContent,
   logicContent,
   programmingContent,
+  qaTheoryContent,
+  reactFundamentalsContent,
   speedReadingContent,
+  sqlFundamentalsContent,
+  nodeFundamentalsContent,
+  expressFundamentalsContent,
   typingContent,
+  typescriptContent,
   type CourseContent,
 } from "@eduforge/content";
 import bcrypt from "bcryptjs";
@@ -31,6 +40,15 @@ const allCourses: CourseContent[] = [
   speedReadingContent,
   logicContent,
   programmingContent,
+  typescriptContent,
+  htmlSemanticsContent,
+  cssLayoutContent,
+  qaTheoryContent,
+  jsFundamentalsContent,
+  reactFundamentalsContent,
+  sqlFundamentalsContent,
+  nodeFundamentalsContent,
+  expressFundamentalsContent,
 ];
 
 async function seedCourse(
@@ -125,6 +143,8 @@ async function seedCourse(
           baseXp: lesson.baseXp,
           difficulty: lesson.difficulty,
           isFree: lesson.isFree ?? false,
+          isExam: lesson.isExam ?? false,
+          passThreshold: lesson.passThreshold ?? null,
           exercises: lesson.exercises,
         });
         console.log(`  + lesson ${content.slug}/${unit.slug}/${lesson.slug}`);
@@ -138,6 +158,8 @@ async function seedCourse(
             baseXp: lesson.baseXp,
             difficulty: lesson.difficulty,
             isFree: lesson.isFree ?? false,
+            isExam: lesson.isExam ?? false,
+            passThreshold: lesson.passThreshold ?? null,
             exercises: lesson.exercises,
           })
           .where(eq(lessons.id, existing.id));
@@ -225,6 +247,33 @@ async function seedAdmin(db: ReturnType<typeof createDb>) {
   }
 }
 
+/** Demo premium user for local / Docker testing (not admin). */
+async function seedPremiumTestUser(db: ReturnType<typeof createDb>) {
+  const email = process.env.TEST_USER_EMAIL ?? "premium@eduforge.ua";
+  const password = process.env.TEST_USER_PASSWORD ?? "premium12345";
+  let user = await db.query.users.findFirst({ where: eq(users.email, email) });
+  if (!user) {
+    const passwordHash = await bcrypt.hash(password, 10);
+    const [created] = await db
+      .insert(users)
+      .values({ email, passwordHash, role: "user", plan: "premium" })
+      .returning();
+    user = created;
+    await db.insert(characters).values({
+      userId: user.id,
+      displayName: "Premium Test",
+      avatarKey: "default",
+    });
+    await db.insert(chessRatings).values({ userId: user.id });
+    console.log(`Premium test user created: ${email} / ${password}`);
+  } else if (user.plan !== "premium") {
+    await db.update(users).set({ plan: "premium" }).where(eq(users.id, user.id));
+    console.log(`Upgraded ${email} to premium`);
+  } else {
+    console.log(`Premium test user exists: ${email}`);
+  }
+}
+
 async function seedAchievements(db: ReturnType<typeof createDb>) {
   for (const a of ACHIEVEMENT_CATALOG) {
     const existing = await db.query.achievements.findFirst({
@@ -239,10 +288,12 @@ async function seedAchievements(db: ReturnType<typeof createDb>) {
 
 async function main() {
   const db = createDb();
+  // Users first so accounts exist even if a course seed fails (e.g. missing enum value).
+  await seedAdmin(db);
+  await seedPremiumTestUser(db);
   for (const [i, c] of allCourses.entries()) {
     await seedCourse(db, c, i);
   }
-  await seedAdmin(db);
   await seedAchievements(db);
   await seedFlashcards(db);
   console.log("Seed complete");

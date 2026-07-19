@@ -37,6 +37,9 @@ export default function DashboardPage() {
     me: { rank: number; score: number; canClaim: boolean } | null;
     raceMeta: { slug: string; completedThisWeek: boolean; lessonId: string | null }[];
   } | null>(null);
+  const [examBoard, setExamBoard] = useState<{
+    summary: { totalExams: number; passed: number; ready: number; locked: number };
+  } | null>(null);
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
@@ -58,6 +61,9 @@ export default function DashboardPage() {
     })
       .then(setMinisRace)
       .catch(() => setMinisRace(null));
+    void api<NonNullable<typeof examBoard>>("/learning/exams/me", { token })
+      .then((d) => setExamBoard({ summary: d.summary }))
+      .catch(() => setExamBoard(null));
   }, [token]);
 
   if (loading || !user) {
@@ -177,15 +183,44 @@ export default function DashboardPage() {
         </section>
       )}
 
+      {examBoard && examBoard.summary.totalExams > 0 && (
+        <section className="card flex flex-col gap-2 border-sky/30 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs font-bold text-sky uppercase">📝 {t.learn.examsBoard}</p>
+            <p className="text-sm font-black">
+              {t.learn.examsPassed}: {examBoard.summary.passed} · {t.learn.examsReady}:{" "}
+              {examBoard.summary.ready} · {t.learn.examsLocked}: {examBoard.summary.locked}
+            </p>
+          </div>
+          <Link href="/learn" className="btn-secondary !py-2 text-sm">
+            {t.nav.learn} →
+          </Link>
+        </section>
+      )}
+
+      {next[0] && (
+        <section className="card border-brand/40 bg-brand-soft/20 space-y-1">
+          <p className="text-xs font-black uppercase text-brand-dark">{t.learn.recommended}</p>
+          <Link href={next[0].href} className="text-lg font-black hover:underline">
+            {locale === "en" ? next[0].titleEn : next[0].titleUk} →
+          </Link>
+        </section>
+      )}
+
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4">
         {[
+          { href: "/learn", icon: "🗺️", label: t.nav.learn },
           { href: "/programming", icon: "💻", label: t.nav.programming },
+          { href: "/js-fundamentals", icon: "⚡", label: t.nav.jsFundamentals },
+          { href: "/react-fundamentals", icon: "⚛️", label: t.nav.reactFundamentals },
+          { href: "/sql-fundamentals", icon: "🗄️", label: t.nav.sqlFundamentals },
+          { href: "/node-fundamentals", icon: "🟢", label: t.nav.nodeFundamentals },
+          { href: "/express-fundamentals", icon: "🚂", label: t.nav.expressFundamentals },
+          { href: "/css-layout", icon: "🎨", label: t.nav.cssLayout },
+          { href: "/qa-theory", icon: "🧪", label: t.nav.qaTheory },
           { href: "/playground", icon: "🖥️", label: t.nav.playground },
           { href: "/flashcards", icon: "🃏", label: t.nav.flashcards },
           { href: "/tutor", icon: "🤖", label: t.nav.tutor },
-          { href: "/calendar", icon: "📅", label: t.nav.calendar },
-          { href: "/placement", icon: "🧭", label: t.nav.placement },
-          { href: "/quests", icon: "✅", label: t.nav.quests },
           { href: "/review", icon: "🔁", label: t.nav.review },
           { href: "/shop", icon: "🛒", label: t.nav.shop },
         ].map((x) => (
@@ -196,11 +231,11 @@ export default function DashboardPage() {
         ))}
       </section>
 
-      {next.length > 0 && (
+      {next.length > 1 && (
         <section>
           <h2 className="mb-3 text-xl font-black">{t.learning.nextSteps}</h2>
           <div className="space-y-2">
-            {next.map((r, i) => (
+            {next.slice(0, 5).map((r, i) => (
               <Link
                 key={`${r.href}-${i}`}
                 href={r.href}

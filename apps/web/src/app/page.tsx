@@ -31,12 +31,15 @@ export default function LandingPage() {
           </h1>
           <p className="text-lg text-ink-muted">
             {locale === "en"
-              ? "English, chess, typing, speed reading, logic, and a Mimo-style Programming path (HTML→QA) — with XP, schools, AI tutor, and SRS."
-              : "Англійська, шахи, друк, швидкочитання, логіка та path Програмування (HTML→QA) — з XP, школами, AI-репетитором і SRS."}
+              ? "English, chess, skills, and a Mimo-style Programming path — plus deep tracks (TS, HTML, CSS, JS, React, SQL, Node, Express, QA), exams, playground, schools, AI tutor."
+              : "Англійська, шахи, навички та path Програмування — плюс deep tracks (TS, HTML, CSS, JS, React, SQL, Node, Express, QA), контрольні, playground, школи, AI-репетитор."}
           </p>
           <div className="flex flex-wrap gap-3">
             <Link href="/register" className="btn-primary">
               {t.landing.ctaStart}
+            </Link>
+            <Link href="/learn" className="btn-secondary">
+              🗺️ {t.nav.learn}
             </Link>
             <Link href="/pricing" className="btn-secondary">
               {t.landing.ctaPricing}
@@ -69,7 +72,7 @@ export default function LandingPage() {
                 </p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 max-h-72 overflow-y-auto">
               {courses.map((c) => (
                 <div
                   key={c.slug}
@@ -77,9 +80,12 @@ export default function LandingPage() {
                   style={{ borderColor: `${c.color}33` }}
                 >
                   <div className="text-2xl">{c.icon}</div>
-                  <div className="mt-1 font-bold">
+                  <div className="mt-1 text-sm font-bold">
                     {locale === "en" ? c.titleEn : c.titleUk}
                   </div>
+                  {c.group === "deep" && (
+                    <span className="text-[10px] font-black text-grape">Deep</span>
+                  )}
                 </div>
               ))}
             </div>

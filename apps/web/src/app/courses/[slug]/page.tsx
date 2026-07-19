@@ -18,6 +18,9 @@ type Lesson = {
   locked: boolean;
   status: string;
   bestScore: number;
+  isExam?: boolean;
+  examLocked?: boolean;
+  passThreshold?: number | null;
 };
 
 type Unit = { id: string; titleUk: string; titleEn?: string; lessons: Lesson[] };
@@ -25,7 +28,7 @@ type Unit = { id: string; titleUk: string; titleEn?: string; lessons: Lesson[] }
 export default function CourseHubPage() {
   const { slug } = useParams<{ slug: string }>();
   const { token, user, loading } = useAuth();
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const router = useRouter();
   const [data, setData] = useState<{
     course: {
@@ -37,6 +40,12 @@ export default function CourseHubPage() {
       color: string;
     };
     units: Unit[];
+    freemium?: {
+      freeLessonCount: number;
+      freeCompleted: number;
+      freeLeft: number;
+      isPremium: boolean;
+    };
     progress: {
       xp: number;
       level: number;
@@ -92,6 +101,15 @@ export default function CourseHubPage() {
           <p className="text-sm font-bold text-ink-muted">
             Завершено уроків: {data.progress.completedLessons}
           </p>
+          {data.freemium && !data.freemium.isPremium && (
+            <p className="text-xs font-bold text-grape">
+              {t.learn.freeLeft}: ~{data.freemium.freeLeft}
+              {" · "}
+              <Link href="/pricing" className="underline">
+                Premium
+              </Link>
+            </p>
+          )}
           {(data.progress.hearts ?? 5) <= 0 && user?.plan !== "premium" && (
             <div className="rounded-2xl bg-red-50 p-3 text-sm font-bold text-red-600">
               {UI.hearts.empty}. {UI.hearts.emptyHint}{" "}
@@ -112,12 +130,20 @@ export default function CourseHubPage() {
             {unit.lessons.map((lesson, i) => (
               <div key={lesson.id} className="w-full">
                 {lesson.locked ? (
-                  <div className="card flex items-center justify-between opacity-70">
+                  <div
+                    className={clsx(
+                      "card flex items-center justify-between opacity-70",
+                      lesson.isExam && "border-grape/40",
+                    )}
+                  >
                     <div>
                       <p className="font-black">
+                        {lesson.isExam ? "📝 " : ""}
                         {pickLocale(locale, lesson.titleUk, lesson.titleEn)}
                       </p>
-                      <p className="text-sm text-ink-muted">{UI.common.locked}</p>
+                      <p className="text-sm text-ink-muted">
+                        {lesson.examLocked ? t.lesson.examLocked : UI.common.locked}
+                      </p>
                     </div>
                     <Link href="/pricing" className="btn-secondary !py-2 !px-3 text-xs">
                       Premium
@@ -129,21 +155,35 @@ export default function CourseHubPage() {
                     className={clsx(
                       "card flex items-center justify-between transition hover:border-brand/50",
                       lesson.status === "completed" && "border-brand/40 bg-brand-soft/30",
+                      lesson.isExam && "border-grape/40",
                     )}
                     style={{ marginLeft: i % 2 === 0 ? 0 : "12%" }}
                   >
                     <div>
                       <p className="font-black">
+                        {lesson.isExam ? "📝 " : ""}
                         {pickLocale(locale, lesson.titleUk, lesson.titleEn)}
+                        {lesson.isExam ? (
+                          <span className="ml-2 rounded-full bg-grape/15 px-2 py-0.5 text-[10px] font-black text-grape">
+                            {t.lesson.exam}
+                          </span>
+                        ) : null}
                       </p>
                       <p className="text-sm text-ink-muted">
                         {lesson.status === "completed"
                           ? `✓ ${Math.round(lesson.bestScore * 100)}%`
-                          : "Доступно"}
+                          : lesson.isExam
+                            ? t.lesson.exam
+                            : "Доступно"}
                       </p>
                     </div>
-                    <span className="grid h-12 w-12 place-items-center rounded-full bg-brand text-xl text-white shadow-btn">
-                      {lesson.status === "completed" ? "★" : "▶"}
+                    <span
+                      className={clsx(
+                        "grid h-12 w-12 place-items-center rounded-full text-xl text-white shadow-btn",
+                        lesson.isExam ? "bg-grape" : "bg-brand",
+                      )}
+                    >
+                      {lesson.status === "completed" ? "★" : lesson.isExam ? "📝" : "▶"}
                     </span>
                   </Link>
                 )}

@@ -57,7 +57,13 @@ export function gradeExercise(
     case "code_project": {
       // answer: { files: Record<fileId, content> } or { files: { id, content }[] }
       const checks =
-        (exercise.checks as { fileId: string; contains: string[] }[]) ?? [];
+        (exercise.checks as {
+          fileId?: string;
+          contains?: string[];
+          containsHtml?: string[];
+          kind?: string;
+          selector?: string;
+        }[]) ?? [];
       if (!checks.length) return { correct: false };
       const raw = answer as {
         files?: Record<string, string> | { id: string; content: string }[];
@@ -68,15 +74,41 @@ export function gradeExercise(
       } else if (raw?.files && typeof raw.files === "object") {
         for (const [k, v] of Object.entries(raw.files)) map.set(k, String(v ?? ""));
       }
+      const allJoined = [...map.values()].join("\n");
       const cs = exercise.caseSensitive !== false;
       const failed: string[] = [];
       for (const ch of checks) {
-        let content = map.get(ch.fileId) ?? "";
-        if (!cs) content = content.toLowerCase();
-        for (const needle of ch.contains ?? []) {
-          const n = cs ? needle : needle.toLowerCase();
-          if (!content.includes(n)) {
-            failed.push(`${ch.fileId}:${needle}`);
+        if (ch.kind === "dom" && ch.selector) {
+          const html = allJoined;
+          const sel = ch.selector;
+          let ok = false;
+          if (sel.startsWith(".")) {
+            const cls = sel.slice(1);
+            ok = new RegExp(`class=["'][^"']*\\b${cls}\\b`).test(html);
+          } else if (sel.startsWith("#")) {
+            const id = sel.slice(1);
+            ok = html.includes(`id="${id}"`) || html.includes(`id='${id}'`);
+          } else {
+            const tag = sel.replace(/[^a-z0-9-]/gi, "") || sel;
+            ok = new RegExp(`<${tag}[\\s>]`, "i").test(html);
+          }
+          if (!ok) failed.push(`dom:${sel}`);
+          continue;
+        }
+        if (ch.containsHtml?.length) {
+          let content = allJoined;
+          if (!cs) content = content.toLowerCase();
+          for (const needle of ch.containsHtml) {
+            const n = cs ? needle : needle.toLowerCase();
+            if (!content.includes(n)) failed.push(`html:${needle}`);
+          }
+        }
+        if (ch.fileId && ch.contains?.length) {
+          let content = map.get(ch.fileId) ?? "";
+          if (!cs) content = content.toLowerCase();
+          for (const needle of ch.contains) {
+            const n = cs ? needle : needle.toLowerCase();
+            if (!content.includes(n)) failed.push(`${ch.fileId}:${needle}`);
           }
         }
       }

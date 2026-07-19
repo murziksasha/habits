@@ -391,6 +391,7 @@ export type ChildDigest = {
   programmingLessonsWeek: number;
   playgroundSolvedWeek: number;
   homeworkCompletedWeek: number;
+  examsPassedWeek: number;
   parentId: string;
   parentName: string;
   parentEmail: string;
@@ -414,7 +415,7 @@ export async function buildChildDigest(
   });
   if (!parentUser) return null;
 
-  const [lessons] = await db
+  const [lessonActivity] = await db
     .select({ n: sql<number>`count(*)::int` })
     .from(activityEvents)
     .where(
@@ -472,6 +473,19 @@ export async function buildChildDigest(
       ),
     );
 
+  const [examDone] = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(userLessonProgress)
+    .innerJoin(lessons, eq(lessons.id, userLessonProgress.lessonId))
+    .where(
+      and(
+        eq(userLessonProgress.userId, studentId),
+        eq(userLessonProgress.status, "completed"),
+        eq(lessons.isExam, true),
+        gte(userLessonProgress.completedAt, since),
+      ),
+    );
+
   return {
     periodDays: 7,
     since: since.toISOString(),
@@ -479,11 +493,12 @@ export async function buildChildDigest(
     childName: ch?.displayName ?? "Learner",
     globalLevel: ch?.globalLevel ?? 1,
     streakDays: ch?.streakDays ?? 0,
-    lessonsCompleted: lessons?.n ?? 0,
+    lessonsCompleted: lessonActivity?.n ?? 0,
     xpApprox: xpRow?.xp ?? 0,
     programmingLessonsWeek,
     playgroundSolvedWeek,
     homeworkCompletedWeek: hwDone?.n ?? 0,
+    examsPassedWeek: examDone?.n ?? 0,
     parentId: parentUserId,
     parentName: parentCh?.displayName ?? "Parent",
     parentEmail: parentUser.email ?? "",

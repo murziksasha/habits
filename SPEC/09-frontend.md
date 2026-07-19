@@ -22,10 +22,17 @@
 | `/` | Marketing landing |
 | `/register`, `/login` | Auth |
 | `/forgot-password`, `/reset-password` | Password recovery |
-| `/dashboard` | Character, next steps, programming/race teaser |
+| `/dashboard` | Character, next steps, exams, programming/race teaser |
+| `/learn` | Learning map: recommended, exams, groups, toolkit |
 | `/courses`, `/courses/[slug]` | Catalog + path map |
 | `/courses/[slug]/lessons/[lessonId]` | Lesson player (soft-grade, skip, solution) |
 | `/programming`, `/programming/[stack]` | Programming hub + stack filter |
+| `/typescript` | TypeScript course hub |
+| `/html-semantics` | HTML Semantics deep hub |
+| `/css-layout` | CSS Flex/Grid deep hub |
+| `/qa-theory` | QA Theory deep hub |
+| `/feedback` | User → developer feedback |
+| `/admin/feedback` | Admin feedback triage |
 | `/playground` | Client sandbox + challenges + races |
 | `/embed/playground` | Public embed / share |
 | `/placement`, `/placement/programming` | Placement tests |

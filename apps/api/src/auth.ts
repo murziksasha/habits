@@ -41,7 +41,21 @@ export async function getUserFromToken(token: string | undefined) {
   });
   if (!row) return null;
   const user = await db.query.users.findFirst({ where: eq(users.id, row.userId) });
-  return user ?? null;
+  if (!user) return null;
+  // Expire premium when planExpiresAt is in the past (trial / demo)
+  if (
+    user.plan === "premium" &&
+    user.planExpiresAt &&
+    user.planExpiresAt.getTime() < Date.now()
+  ) {
+    const [updated] = await db
+      .update(users)
+      .set({ plan: "free", planExpiresAt: null, updatedAt: new Date() })
+      .where(eq(users.id, user.id))
+      .returning();
+    return updated ?? { ...user, plan: "free" as const, planExpiresAt: null };
+  }
+  return user;
 }
 
 export type AuthedUser = NonNullable<Awaited<ReturnType<typeof getUserFromToken>>>;

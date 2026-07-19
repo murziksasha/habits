@@ -74,6 +74,10 @@ export default function ClassPage() {
   >([]);
   const [progCourseId, setProgCourseId] = useState("");
   const [bulkUnitSlug, setBulkUnitSlug] = useState("");
+  const [progExams, setProgExams] = useState<{ id: string; titleUk: string; slug: string }[]>(
+    [],
+  );
+  const [examLessonId, setExamLessonId] = useState("");
   const [pgChallengeId, setPgChallengeId] = useState(PLAYGROUND_CHALLENGES[0]?.id ?? "");
   const [pgClassAssigns, setPgClassAssigns] = useState<
     {
@@ -174,10 +178,17 @@ export default function ClassPage() {
     }>("/homework/catalog?course=programming", { token })
       .then((d) => {
         setProgCourseId(d.course.id);
-        setProgUnits(d.units);
+        setProgUnits(d.units as typeof progUnits);
         if (d.units[0]) setBulkUnitSlug(d.units[0].slug);
+        const exams =
+          (d as { exams?: { id: string; titleUk: string; slug: string }[] }).exams ?? [];
+        setProgExams(exams);
+        if (exams[0]) setExamLessonId(exams[0].id);
       })
-      .catch(() => setProgUnits([]));
+      .catch(() => {
+        setProgUnits([]);
+        setProgExams([]);
+      });
   }, [token]);
 
   useEffect(() => {
@@ -267,6 +278,29 @@ export default function ClassPage() {
         body: { challengeIds: [pgChallengeId] },
       });
       setMsg(`${t.playground.classChallenges}: ${d.count}`);
+      await load();
+    } catch {
+      setMsg(t.common.error);
+    }
+  }
+
+  async function assignProgrammingExam() {
+    if (!token || !progCourseId || !examLessonId) return;
+    const exam = progExams.find((e) => e.id === examLessonId);
+    try {
+      await api("/homework", {
+        method: "POST",
+        token,
+        body: {
+          classId,
+          titleUk: `📝 Exam: ${exam?.titleUk ?? "Control"}`,
+          titleEn: `📝 Exam: ${exam?.titleUk ?? "Control"}`,
+          courseId: progCourseId,
+          lessonId: examLessonId,
+          dueAt: dueAt ? new Date(dueAt).toISOString() : null,
+        },
+      });
+      setMsg("Exam assigned");
       await load();
     } catch {
       setMsg(t.common.error);
@@ -520,6 +554,29 @@ export default function ClassPage() {
               Free pack (≤12)
             </button>
           </div>
+          {progExams.length > 0 && (
+            <div className="space-y-2 border-t border-slate-100 pt-3 dark:border-slate-800">
+              <p className="text-sm font-black">📝 Assign unit exam</p>
+              <select
+                className="input"
+                value={examLessonId}
+                onChange={(e) => setExamLessonId(e.target.value)}
+              >
+                {progExams.map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {e.titleUk}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => void assignProgrammingExam()}
+              >
+                Assign exam
+              </button>
+            </div>
+          )}
         </section>
       )}
 

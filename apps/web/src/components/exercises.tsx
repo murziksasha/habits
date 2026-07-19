@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
 import { exercisePrompt, UI } from "@eduforge/shared";
@@ -31,6 +31,8 @@ export type Exercise = {
   [key: string]: unknown;
 };
 
+const ExamModeCtx = createContext(false);
+
 function usePrompt(exercise: Exercise) {
   const { locale } = useLocale();
   return exercisePrompt(locale, exercise);
@@ -39,45 +41,52 @@ function usePrompt(exercise: Exercise) {
 export function ExercisePlayer({
   exercise,
   onAnswer,
+  examMode = false,
 }: {
   exercise: Exercise;
   onAnswer: (answer: unknown) => void;
+  /** Unit exams: no skip / solution reveal */
+  examMode?: boolean;
 }) {
-  switch (exercise.type) {
-    case "mcq":
-    case "logic_puzzle":
-    case "code_read":
-      return <McqExercise exercise={exercise} onAnswer={onAnswer} />;
-    case "code_output":
-      return exercise.options
-        ? <McqExercise exercise={exercise} onAnswer={onAnswer} />
-        : <CodeFillExercise exercise={exercise} onAnswer={onAnswer} />;
-    case "code_fill":
-      return <CodeFillExercise exercise={exercise} onAnswer={onAnswer} />;
-    case "code_order":
-      return <OrderWordsExercise exercise={exercise} onAnswer={onAnswer} />;
-    case "code_project":
-      return <CodeProjectExercise exercise={exercise} onAnswer={onAnswer} />;
-    case "translate":
-    case "fill_blank":
-      return <TextExercise exercise={exercise} onAnswer={onAnswer} />;
-    case "match":
-      return <MatchExercise exercise={exercise} onAnswer={onAnswer} />;
-    case "order_words":
-      return <OrderWordsExercise exercise={exercise} onAnswer={onAnswer} />;
-    case "typing":
-      return <TypingExercise exercise={exercise} onAnswer={onAnswer} />;
-    case "rsvp":
-      return <RsvpExercise exercise={exercise} onAnswer={onAnswer} />;
-    case "comprehension":
-      return <ComprehensionExercise exercise={exercise} onAnswer={onAnswer} />;
-    case "chess_puzzle":
-      return <ChessPuzzleExercise exercise={exercise} onAnswer={onAnswer} />;
-    case "chess_lesson":
-      return <ChessLessonExercise exercise={exercise} onAnswer={onAnswer} />;
-    default:
-      return <p>Невідомий тип: {exercise.type}</p>;
-  }
+  const body = (() => {
+    switch (exercise.type) {
+      case "mcq":
+      case "logic_puzzle":
+      case "code_read":
+        return <McqExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "code_output":
+        return exercise.options
+          ? <McqExercise exercise={exercise} onAnswer={onAnswer} />
+          : <CodeFillExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "code_fill":
+        return <CodeFillExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "code_order":
+        return <OrderWordsExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "code_project":
+        return <CodeProjectExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "translate":
+      case "fill_blank":
+        return <TextExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "match":
+        return <MatchExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "order_words":
+        return <OrderWordsExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "typing":
+        return <TypingExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "rsvp":
+        return <RsvpExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "comprehension":
+        return <ComprehensionExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "chess_puzzle":
+        return <ChessPuzzleExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "chess_lesson":
+        return <ChessLessonExercise exercise={exercise} onAnswer={onAnswer} />;
+      default:
+        return <p>Невідомий тип: {exercise.type}</p>;
+    }
+  })();
+
+  return <ExamModeCtx.Provider value={examMode}>{body}</ExamModeCtx.Provider>;
 }
 
 function CodeBlock({ code, language }: { code: string; language?: string }) {
@@ -129,6 +138,7 @@ function useExerciseHint(exercise: Exercise) {
 const SOFT_MAX_ATTEMPTS = 3;
 
 function useSoftAttempts(hintOpen: (v: boolean | ((b: boolean) => boolean)) => void) {
+  const examMode = useContext(ExamModeCtx);
   const [attempts, setAttempts] = useState(0);
   const [wrong, setWrong] = useState(false);
   const [detail, setDetail] = useState<string | null>(null);
@@ -138,7 +148,7 @@ function useSoftAttempts(hintOpen: (v: boolean | ((b: boolean) => boolean)) => v
     setDetail(msg ?? null);
     setAttempts((a) => {
       const n = a + 1;
-      if (n >= 1) hintOpen(true);
+      if (n >= 1 && !examMode) hintOpen(true);
       return n;
     });
   }
@@ -148,7 +158,7 @@ function useSoftAttempts(hintOpen: (v: boolean | ((b: boolean) => boolean)) => v
     setDetail(null);
   }
 
-  const canSkip = attempts >= SOFT_MAX_ATTEMPTS;
+  const canSkip = !examMode && attempts >= SOFT_MAX_ATTEMPTS;
 
   return {
     attempts,

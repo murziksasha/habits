@@ -210,6 +210,69 @@ test.describe("EduForge smoke", () => {
     });
   });
 
+  test("typescript hub and feedback page load", async ({ page }) => {
+    await page.goto("/login");
+    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
+    await page.locator('input[type="password"]').fill("admin12345");
+    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
+    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    await page.goto("/typescript");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/TypeScript|типи|types|Контрольн|Exam/i).first()).toBeVisible({
+      timeout: 15_000,
+    });
+    await page.goto("/feedback");
+    await expect(page.getByText(/Відгук|Feedback|розробник|developer|bug/i).first()).toBeVisible({
+      timeout: 15_000,
+    });
+  });
+
+  test("mobile-friendly learn and bottom destinations exist", async ({ page }) => {
+    await page.goto("/login");
+    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
+    await page.locator('input[type="password"]').fill("admin12345");
+    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
+    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    for (const path of ["/learn", "/programming", "/play", "/profile"]) {
+      await page.goto(path);
+      await expect(page.locator("main")).toBeVisible({ timeout: 15_000 });
+    }
+  });
+
+  test("learn map page loads", async ({ page }) => {
+    await page.goto("/login");
+    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
+    await page.locator('input[type="password"]').fill("admin12345");
+    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
+    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    await page.goto("/learn");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await expect(
+      page.getByText(/Навчання|Learn|Deep|Контрольн|Exam|Код|Skills/i).first(),
+    ).toBeVisible({ timeout: 15_000 });
+  });
+
+  test("deep track hubs load", async ({ page }) => {
+    await page.goto("/login");
+    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
+    await page.locator('input[type="password"]').fill("admin12345");
+    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
+    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    for (const path of [
+      "/html-semantics",
+      "/css-layout",
+      "/qa-theory",
+      "/js-fundamentals",
+      "/react-fundamentals",
+      "/sql-fundamentals",
+      "/node-fundamentals",
+      "/express-fundamentals",
+    ]) {
+      await page.goto(path);
+      await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    }
+  });
+
   test("profile shows push and programming blocks", async ({ page }) => {
     await page.goto("/login");
     await page.locator('input[type="email"]').fill("admin@eduforge.ua");

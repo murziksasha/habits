@@ -130,6 +130,31 @@ describe("gradeExercise", () => {
     expect(gradeExercise(ex, 0).correct).toBe(true);
   });
 
+  it("grades code_project dom selector soft-check on HTML source", () => {
+    const ex = {
+      id: "cp-dom",
+      type: "code_project",
+      files: [{ id: "html", name: "index.html", language: "html", starter: "" }],
+      checks: [
+        { kind: "dom", selector: "main" },
+        { kind: "dom", selector: ".wrap" },
+        { containsHtml: ["<header"] },
+      ],
+    };
+    expect(
+      gradeExercise(ex, {
+        files: {
+          html: '<header></header><main class="wrap">Hi</main>',
+        },
+      }).correct,
+    ).toBe(true);
+    expect(
+      gradeExercise(ex, {
+        files: { html: "<div>no main</div>" },
+      }).correct,
+    ).toBe(false);
+  });
+
   it("grades code_project multi-file contains checks", () => {
     const ex = {
       id: "cp1",

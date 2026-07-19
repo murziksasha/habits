@@ -76,6 +76,12 @@ export default function AdminHomePage() {
           <Link href="/admin/metrics" className="btn-secondary !py-2">
             📈 {t.admin.metrics}
           </Link>
+          <Link href="/admin/feedback" className="btn-secondary !py-2">
+            💬 {t.feedback.title}
+          </Link>
+          <Link href="/admin/audit" className="btn-secondary !py-2">
+            📋 Audit
+          </Link>
           <Link href="/admin/users" className="btn-secondary !py-2">
             {t.admin.users}
           </Link>

@@ -126,6 +126,18 @@ export default function ProfilePage() {
             <dd className="text-xl font-black">{character?.globalLevel}</dd>
           </div>
           <div className="rounded-2xl bg-slate-50 p-3 dark:bg-slate-900">
+            <dt className="text-ink-muted">Plan</dt>
+            <dd className="text-sm font-black capitalize">
+              {user.plan}
+              {user.plan === "premium" && user.planExpiresAt ? (
+                <span className="block text-[10px] font-bold text-ink-muted normal-case">
+                  {locale === "en" ? "until" : "до"}{" "}
+                  {new Date(user.planExpiresAt).toLocaleDateString()}
+                </span>
+              ) : null}
+            </dd>
+          </div>
+          <div className="rounded-2xl bg-slate-50 p-3 dark:bg-slate-900">
             <dt className="text-ink-muted">{t.dashboard.streak}</dt>
             <dd className="text-xl font-black">{character?.streakDays}</dd>
           </div>

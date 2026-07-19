@@ -117,6 +117,11 @@ export default function ProgrammingHubPage() {
 
   useEffect(() => {
     if (!token) return;
+    void api("/auth/onboarding/complete", {
+      method: "POST",
+      token,
+      body: { key: "triedProgramming" },
+    }).catch(() => undefined);
     void api<{
       course: { titleUk: string; titleEn?: string; color: string };
       units: Unit[];
@@ -229,6 +234,33 @@ export default function ProgrammingHubPage() {
               className="btn-primary !py-2 text-sm inline-flex"
             >
               {t.programming.takePlacement}
+            </Link>
+            <Link href="/typescript" className="btn-secondary !py-2 text-sm inline-flex">
+              📘 {t.courses.typescript}
+            </Link>
+            <Link href="/html-semantics" className="btn-secondary !py-2 text-sm inline-flex">
+              🌐 {t.courses.html_semantics}
+            </Link>
+            <Link href="/css-layout" className="btn-secondary !py-2 text-sm inline-flex">
+              🎨 {t.courses.css_layout}
+            </Link>
+            <Link href="/qa-theory" className="btn-secondary !py-2 text-sm inline-flex">
+              🧪 {t.courses.qa_theory}
+            </Link>
+            <Link href="/js-fundamentals" className="btn-secondary !py-2 text-sm inline-flex">
+              ⚡ {t.courses.js_fundamentals}
+            </Link>
+            <Link href="/react-fundamentals" className="btn-secondary !py-2 text-sm inline-flex">
+              ⚛️ {t.courses.react_fundamentals}
+            </Link>
+            <Link href="/sql-fundamentals" className="btn-secondary !py-2 text-sm inline-flex">
+              🗄️ {t.courses.sql_fundamentals}
+            </Link>
+            <Link href="/node-fundamentals" className="btn-secondary !py-2 text-sm inline-flex">
+              🟢 {t.courses.node_fundamentals}
+            </Link>
+            <Link href="/express-fundamentals" className="btn-secondary !py-2 text-sm inline-flex">
+              🚂 {t.courses.express_fundamentals}
             </Link>
             <Link href="/playground" className="btn-secondary !py-2 text-sm inline-flex">
               🖥️ {t.nav.playground}

@@ -64,8 +64,21 @@ This folder is the **source of truth** for the EduForge educational SaaS monorep
 | 56 | [Profile hub](./56-profile-hub.md) | Own profile minis + cert badges |
 | 57 | [Nav primary](./57-nav-primary.md) | Desktop primary + More menu |
 | 58 | [Docs freeze](./58-docs-freeze.md) | SPEC closeout + core doc sync |
+| 59 | [TypeScript course](./59-typescript-course.md) | Full TS track (separate from programming unit) |
+| 60 | [Unit exams](./60-unit-exams.md) | Control tests per unit, ≥70% pass |
+| 61 | [User feedback](./61-user-feedback.md) | Feedback to developers + admin triage |
+| 62 | [HTML Semantics](./62-html-semantics.md) | Deep semantic HTML track |
+| 63 | [CSS Flex & Grid](./63-css-layout-flex-grid.md) | Deep layout Flexbox + Grid |
+| 64 | [QA Theory](./64-qa-theory-deep.md) | Deep testing theory track |
+| 65 | [Learning maturity](./65-learning-maturity.md) | Learn map, exams board, DOM checks, tutor, metrics |
+| 66 | [Mobile / onboarding / harden](./66-mobile-onboarding-hardening.md) | Bottom nav, onboarding, submit limits |
+| 67 | [JS deep + trial + audit](./67-js-fundamentals-trial-audit.md) | js_fundamentals course, trial 7d, admin audit |
+| 68 | [React + trial expiry](./68-react-fundamentals-trial-expiry.md) | react_fundamentals, plan expiry, audit UI |
+| 69 | [SQL + exam quest](./69-sql-fundamentals-exam-quest.md) | sql_fundamentals deep track, exams daily quest |
+| 70 | [Node fundamentals](./70-node-fundamentals.md) | node_fundamentals deep track |
+| 71 | [Express fundamentals](./71-express-fundamentals.md) | express_fundamentals deep track |
 
-**Status:** SPECs **01–58** implemented (see [58-docs-freeze](./58-docs-freeze.md)).
+**Status:** SPECs **01–71** implemented.
 
 ## Product name
 

@@ -16,6 +16,7 @@ import {
   canStartLesson,
   chessPuzzleXpAward,
   globalXpFromCourseGain,
+  lessonCompleteThreshold,
   lessonXpAward,
   levelFromXp,
   logicXpAward,
@@ -29,6 +30,7 @@ import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 import { evaluateAchievements, logActivity, notifyUser } from "../engagement.js";
 import { gradeExercise } from "../grade.js";
+import { rateLimit } from "../rate-limit.js";
 import { maybeIssueCertificate } from "./certificates.js";
 import { addWeeklyXp } from "./challenges.js";
 import { completeHomeworkForLesson } from "./homework.js";
@@ -140,15 +142,27 @@ courseRoutes.get("/:slug", authMiddleware, async (c) => {
           l.isFree ||
           canAccessLesson({ plan, lessonIndexInCourse: idx });
         const lp = lpMap.get(l.id);
+        const nonExam = sorted.filter(
+          (x) => x.unitId === u.id && !x.isExam,
+        );
+        const nonExamDone = nonExam.every(
+          (x) => lpMap.get(x.id)?.status === "completed",
+        );
+        const isExam = Boolean(l.isExam);
+        const examLocked = isExam && !nonExamDone && lp?.status !== "completed";
         return {
           id: l.id,
           slug: l.slug,
           titleUk: l.titleUk,
+          titleEn: l.titleEn,
           sortOrder: l.sortOrder,
           baseXp: l.baseXp,
           difficulty: l.difficulty,
           isFree: l.isFree,
-          locked: !accessible,
+          isExam,
+          passThreshold: l.passThreshold ?? (isExam ? 0.7 : null),
+          examLocked,
+          locked: !accessible || examLocked,
           status: lp?.status ?? "available",
           bestScore: lp?.bestScore ?? 0,
           completedAt: lp?.completedAt ?? null,
@@ -157,9 +171,25 @@ courseRoutes.get("/:slug", authMiddleware, async (c) => {
   }));
 
   const hearts = progress?.hearts ?? maxHearts(plan);
+  const freeLessonCount = sorted.filter(
+    (l, i) =>
+      l.isFree || canAccessLesson({ plan: "free" as Plan, lessonIndexInCourse: i }),
+  ).length;
+  const freeCompleted = sorted.filter((l, i) => {
+    const free =
+      l.isFree || canAccessLesson({ plan: "free" as Plan, lessonIndexInCourse: i });
+    return free && lpMap.get(l.id)?.status === "completed";
+  }).length;
+
   return c.json({
     course,
     units: unitsPayload,
+    freemium: {
+      freeLessonCount,
+      freeCompleted,
+      freeLeft: Math.max(0, freeLessonCount - freeCompleted),
+      isPremium: plan === "premium",
+    },
     progress: progress
       ? {
           xp: progress.xp,
@@ -202,6 +232,23 @@ courseRoutes.get("/:slug/lessons/:lessonId", authMiddleware, async (c) => {
   const accessible =
     lesson.isFree || canAccessLesson({ plan, lessonIndexInCourse: idx });
   if (!accessible) return c.json({ error: "premium_required" }, 402);
+
+  if (lesson.isExam) {
+    const unitLessons = sorted.filter((l) => l.unitId === lesson.unitId && !l.isExam);
+    const lpRows = await db.query.userLessonProgress.findMany({
+      where: and(
+        eq(userLessonProgress.userId, user.id),
+        eq(userLessonProgress.courseId, course.id),
+      ),
+    });
+    const done = new Set(
+      lpRows.filter((p) => p.status === "completed").map((p) => p.lessonId),
+    );
+    const unitReady = unitLessons.every((l) => done.has(l.id));
+    if (!unitReady) {
+      return c.json({ error: "exam_locked", message: "Finish unit lessons first" }, 403);
+    }
+  }
 
   let progress = await db.query.userCourseProgress.findFirst({
     where: and(
@@ -247,7 +294,11 @@ courseRoutes.get("/:slug/lessons/:lessonId", authMiddleware, async (c) => {
   }
 
   return c.json({
-    lesson,
+    lesson: {
+      ...lesson,
+      isExam: Boolean(lesson.isExam),
+      passThreshold: lesson.passThreshold ?? (lesson.isExam ? 0.7 : null),
+    },
     course,
     indexInCourse: idx,
     hearts: progress.hearts,
@@ -257,6 +308,14 @@ courseRoutes.get("/:slug/lessons/:lessonId", authMiddleware, async (c) => {
 
 courseRoutes.post("/:slug/lessons/:lessonId/submit", authMiddleware, async (c) => {
   const user = c.get("user");
+  const limited = await rateLimit({
+    key: `submit:${user.id}`,
+    limit: 60,
+    windowMs: 60_000,
+  });
+  if (!limited.ok) {
+    return c.json({ error: "rate_limited", retryAfter: limited.retryAfterSec }, 429);
+  }
   const lessonId = c.req.param("lessonId") as string;
   const body = await c.req.json().catch(() => null);
   const answers = (body?.answers ?? []) as {
@@ -278,6 +337,12 @@ courseRoutes.post("/:slug/lessons/:lessonId/submit", authMiddleware, async (c) =
 
   const correctCount = results.filter((r) => r.correct).length;
   const accuracy = exercises.length ? correctCount / exercises.length : 0;
+  const isExam = Boolean(lesson.isExam);
+  const completeBar = lessonCompleteThreshold({
+    isExam,
+    passThreshold: lesson.passThreshold,
+  });
+  const passed = accuracy + 1e-9 >= completeBar;
 
   // XP by course type
   let xpGain = 0;
@@ -323,9 +388,15 @@ courseRoutes.post("/:slug/lessons/:lessonId/submit", authMiddleware, async (c) =
       eq(userLessonProgress.lessonId, lesson.id),
     ),
   });
-  const firstClear = !prevLp || prevLp.status !== "completed";
-  if (!firstClear) {
+  // firstClear XP only when this attempt newly completes the lesson
+  const firstClear = passed && (!prevLp || prevLp.status !== "completed");
+  if (isExam && !passed) {
+    // Failed exam: no XP (non-exam lessons keep previous partial XP behavior)
+    xpGain = 0;
+  } else if (prevLp && prevLp.status === "completed") {
     xpGain = Math.max(1, Math.floor(xpGain * 0.35));
+  } else if (!isExam && !passed) {
+    // Unchanged product rule: incomplete normal lessons still grant computed XP
   }
 
   // Upsert lesson progress
@@ -333,11 +404,10 @@ courseRoutes.post("/:slug/lessons/:lessonId/submit", authMiddleware, async (c) =
     await db
       .update(userLessonProgress)
       .set({
-        status: accuracy >= 0.5 ? "completed" : prevLp.status,
+        status: passed ? "completed" : prevLp.status,
         bestScore: Math.max(prevLp.bestScore, accuracy),
         attempts: prevLp.attempts + 1,
-        completedAt:
-          accuracy >= 0.5 ? prevLp.completedAt ?? new Date() : prevLp.completedAt,
+        completedAt: passed ? prevLp.completedAt ?? new Date() : prevLp.completedAt,
       })
       .where(eq(userLessonProgress.id, prevLp.id));
   } else {
@@ -345,10 +415,10 @@ courseRoutes.post("/:slug/lessons/:lessonId/submit", authMiddleware, async (c) =
       userId: user.id,
       lessonId: lesson.id,
       courseId: course.id,
-      status: accuracy >= 0.5 ? "completed" : "available",
+      status: passed ? "completed" : "available",
       bestScore: accuracy,
       attempts: 1,
-      completedAt: accuracy >= 0.5 ? new Date() : null,
+      completedAt: passed ? new Date() : null,
     });
   }
 
@@ -395,7 +465,7 @@ courseRoutes.post("/:slug/lessons/:lessonId/submit", authMiddleware, async (c) =
   // Lose a heart on failed lesson (free plan only)
   let hearts = cp.hearts;
   let heartLost = false;
-  if (plan !== "premium" && accuracy < 0.5) {
+  if (plan !== "premium" && !passed) {
     hearts = Math.max(0, hearts - 1);
     heartLost = true;
   }
@@ -403,7 +473,7 @@ courseRoutes.post("/:slug/lessons/:lessonId/submit", authMiddleware, async (c) =
   const newCourseXp = cp.xp + xpGain;
   const newCourseLevel = levelFromXp(newCourseXp);
   const completedLessons =
-    firstClear && accuracy >= 0.5 ? cp.completedLessons + 1 : cp.completedLessons;
+    firstClear && passed ? cp.completedLessons + 1 : cp.completedLessons;
 
   await db
     .update(userCourseProgress)
@@ -481,7 +551,7 @@ courseRoutes.post("/:slug/lessons/:lessonId/submit", authMiddleware, async (c) =
   if (character) {
     const o = { ...(character.onboarding ?? {}) };
     let dirty = false;
-    if (!o.completedFirstLesson && accuracy >= 0.5) {
+    if (!o.completedFirstLesson && passed) {
       o.completedFirstLesson = true;
       dirty = true;
     }
@@ -498,17 +568,27 @@ courseRoutes.post("/:slug/lessons/:lessonId/submit", authMiddleware, async (c) =
   }
 
   let homeworkCompleted = 0;
-  if (accuracy >= 0.5) {
-    await logActivity(db, user.id, "lesson_completed", {
+  if (passed) {
+    await logActivity(db, user.id, isExam ? "exam_passed" : "lesson_completed", {
       courseSlug: course.slug,
       lessonId: lesson.id,
       xpGain,
+      isExam,
+      accuracy,
     });
     await addWeeklyXp(user.id, globalGain);
     homeworkCompleted = await completeHomeworkForLesson(user.id, lesson.id, accuracy);
     const { bumpDailyQuests } = await import("./quests.js");
     await bumpDailyQuests(user.id, "lessons", 1);
     if (globalGain > 0) await bumpDailyQuests(user.id, "xp", globalGain);
+    if (isExam) await bumpDailyQuests(user.id, "exams", 1);
+  } else if (isExam) {
+    await logActivity(db, user.id, "exam_failed", {
+      courseSlug: course.slug,
+      lessonId: lesson.id,
+      accuracy,
+      passThreshold: completeBar,
+    });
   }
 
   const chAfter = await db.query.characters.findFirst({
@@ -521,27 +601,34 @@ courseRoutes.post("/:slug/lessons/:lessonId/submit", authMiddleware, async (c) =
   );
 
   const newAchievements = await evaluateAchievements(db, user.id, {
-    lessonCompleted: accuracy >= 0.5,
+    lessonCompleted: passed,
     courseSlug: course.slug,
     streakDays: chAfter?.streakDays,
     globalLevel: chAfter?.globalLevel,
     dailyGoalMet,
+    examPassed: isExam && passed,
   });
-  if (accuracy >= 0.5) {
+  if (passed) {
     const { evaluateLearningMilestones } = await import("./learning.js");
     await evaluateLearningMilestones(user.id);
   }
 
   let certificate = null;
-  if (accuracy >= 0.5) {
+  if (passed) {
     certificate = await maybeIssueCertificate(
       user.id,
       course.id,
       course.slug,
-      course.slug === "programming" ? "Програмування" : course.titleUk,
+      course.slug === "programming"
+        ? "Програмування"
+        : course.slug === "typescript"
+          ? "TypeScript"
+          : course.titleUk,
       course.slug === "programming"
         ? "Programming"
-        : course.titleEn || course.titleUk,
+        : course.slug === "typescript"
+          ? "TypeScript"
+          : course.titleEn || course.titleUk,
     );
   }
 
@@ -572,5 +659,9 @@ courseRoutes.post("/:slug/lessons/:lessonId/submit", authMiddleware, async (c) =
       ? { code: certificate.code, titleUk: certificate.titleUk }
       : null,
     homeworkCompleted,
+    isExam,
+    passed,
+    passThreshold: completeBar,
+    examFailed: isExam && !passed,
   });
 });

@@ -78,6 +78,7 @@ type Digest = {
   xpApprox: number;
   streakDays: number;
   programmingLessonsWeek: number;
+  examsPassedWeek?: number;
   playgroundSolvedWeek: number;
   homeworkCompletedWeek: number;
   childName: string;
@@ -179,6 +180,10 @@ export default function ChildProgressPage() {
             <div className="rounded-xl bg-slate-50 p-2 dark:bg-slate-900">
               <p className="text-[10px] font-bold text-ink-muted">{t.parents.hwWeek}</p>
               <p className="text-xl font-black">{digest.homeworkCompletedWeek}</p>
+            </div>
+            <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-900">
+              <p className="text-xs font-bold text-ink-muted">📝 Exams</p>
+              <p className="text-xl font-black">{digest.examsPassedWeek ?? 0}</p>
             </div>
           </div>
           {digestMsg && (

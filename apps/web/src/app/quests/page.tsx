@@ -61,6 +61,7 @@ export default function QuestsPage() {
     if (q.metric === "lessons") return `📚 1 урок / 1 lesson`;
     if (q.metric === "xp") return `⭐ ${q.target} XP`;
     if (q.metric === "focus_min") return `⏱️ ${q.target} ${t.focus.minutes} focus`;
+    if (q.metric === "exams") return `📝 1 exam / контрольна`;
     return q.questKey;
   }
 

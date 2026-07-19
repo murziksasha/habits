@@ -11,6 +11,7 @@ import { NotificationsBell } from "@/components/notifications-bell";
 
 const PRIMARY_HREFS = new Set([
   "/dashboard",
+  "/learn",
   "/courses",
   "/programming",
   "/playground",
@@ -31,8 +32,18 @@ export function Nav() {
   if (pathname.startsWith("/embed")) return null;
   const baseLinks = [
     { href: "/dashboard", label: t.nav.home, icon: "🏠" },
+    { href: "/learn", label: t.nav.learn, icon: "🗺️" },
     { href: "/courses", label: t.nav.courses, icon: "📚" },
     { href: "/programming", label: t.nav.programming, icon: "💻" },
+    { href: "/typescript", label: t.nav.typescript, icon: "📘" },
+    { href: "/html-semantics", label: t.nav.htmlSemantics, icon: "🌐" },
+    { href: "/css-layout", label: t.nav.cssLayout, icon: "🎨" },
+    { href: "/qa-theory", label: t.nav.qaTheory, icon: "🧪" },
+    { href: "/js-fundamentals", label: t.nav.jsFundamentals, icon: "⚡" },
+    { href: "/react-fundamentals", label: t.nav.reactFundamentals, icon: "⚛️" },
+    { href: "/sql-fundamentals", label: t.nav.sqlFundamentals, icon: "🗄️" },
+    { href: "/node-fundamentals", label: t.nav.nodeFundamentals, icon: "🟢" },
+    { href: "/express-fundamentals", label: t.nav.expressFundamentals, icon: "🚂" },
     { href: "/playground", label: t.nav.playground, icon: "🖥️" },
     { href: "/search", label: t.nav.search, icon: "🔍" },
     { href: "/play", label: t.nav.play, icon: "♟️" },
@@ -59,6 +70,7 @@ export function Nav() {
     { href: "/schools", label: t.nav.schools, icon: "🏫" },
     { href: "/leaderboard", label: t.nav.leaderboard, icon: "🏆" },
     { href: "/pricing", label: t.nav.pricing, icon: "💎" },
+    { href: "/feedback", label: t.nav.feedback, icon: "💬" },
   ];
   const links =
     user?.role === "admin"
@@ -257,12 +269,24 @@ export function Nav() {
         )}
       </header>
 
-      {/* Mobile bottom bar — primary 5 */}
+      {/* Mobile bottom bar — Home · Learn · Code · Play · Profile */}
       {user && (
-        <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur pb-[env(safe-area-inset-bottom)]">
+        <nav
+          className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur pb-[env(safe-area-inset-bottom)] dark:border-slate-800 dark:bg-slate-950/95"
+          aria-label="Primary"
+        >
           <div className="mx-auto grid max-w-lg grid-cols-5">
-            {baseLinks.slice(0, 5).map((l) => {
-              const active = pathname.startsWith(l.href);
+            {[
+              { href: "/dashboard", label: t.nav.home, icon: "🏠" },
+              { href: "/learn", label: t.nav.learn, icon: "🗺️" },
+              { href: "/programming", label: t.nav.programming, icon: "💻" },
+              { href: "/play", label: t.nav.play, icon: "♟️" },
+              { href: "/profile", label: t.nav.profile, icon: "🧙" },
+            ].map((l) => {
+              const active =
+                l.href === "/dashboard"
+                  ? pathname === "/dashboard"
+                  : pathname.startsWith(l.href);
               return (
                 <Link
                   key={l.href}
@@ -272,7 +296,9 @@ export function Nav() {
                     active ? "text-brand-dark" : "text-ink-muted",
                   )}
                 >
-                  <span className="text-lg leading-none">{l.icon}</span>
+                  <span className="text-lg leading-none" aria-hidden>
+                    {l.icon}
+                  </span>
                   {l.label}
                 </Link>
               );

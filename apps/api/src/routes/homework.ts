@@ -156,9 +156,19 @@ homeworkRoutes.get("/catalog", authMiddleware, async (c) => {
           titleUk: l.titleUk,
           titleEn: l.titleEn,
           isFree: l.isFree,
+          isExam: Boolean(l.isExam),
           difficulty: l.difficulty,
         })),
     })),
+    exams: courseLessons
+      .filter((l) => l.isExam)
+      .map((l) => ({
+        id: l.id,
+        slug: l.slug,
+        unitId: l.unitId,
+        titleUk: l.titleUk,
+        titleEn: l.titleEn,
+      })),
     // silence unused
     _viewer: user.id,
   });

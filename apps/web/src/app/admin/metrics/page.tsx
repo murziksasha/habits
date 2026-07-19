@@ -41,6 +41,12 @@ type Metrics = {
     raceParticipantsThisWeek: number;
     raceFeatured: number;
   };
+  exams?: {
+    catalog: number;
+    passedAllTime: number;
+    passedWindow: number;
+    deepTrackLearners: number;
+  };
   topActivityKinds: { kind: string; n: number }[];
 };
 
@@ -194,6 +200,18 @@ export default function AdminMetricsPage() {
               <Stat label={t.admin.solvesAll} value={data.playground.solvesAllTime} />
             </div>
           </section>
+
+          {data.exams && (
+            <section className="space-y-2">
+              <h2 className="font-black">📝 Exams & deep tracks</h2>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <Stat label="Exam lessons" value={data.exams.catalog} />
+                <Stat label="Passed (window)" value={data.exams.passedWindow} />
+                <Stat label="Passed all" value={data.exams.passedAllTime} />
+                <Stat label="Deep track learners" value={data.exams.deepTrackLearners} />
+              </div>
+            </section>
+          )}
 
           {data.minis && (
             <section className="space-y-2">

@@ -4,7 +4,7 @@ Base URL (local): `http://localhost:4000`
 CORS: configured for `WEB_ORIGIN` with credentials.  
 Auth header: `Authorization: Bearer <session_token>` (or cookie `eduforge_session`).
 
-Machine-readable: `GET /openapi.json` (v1.5) · human: `GET /docs`.
+Machine-readable: `GET /openapi.json` (v1.8) · human: `GET /docs`.
 
 ## Health & ops
 
@@ -37,14 +37,15 @@ Machine-readable: `GET /openapi.json` (v1.5) · human: `GET /docs`.
 | GET | `/courses/progress/me` | Yes | Per-course progress |
 | GET | `/courses/:slug` | Yes | Units, lessons, locks, hearts |
 | GET | `/courses/:slug/lessons/:id` | Yes | Lesson payload |
-| POST | `/courses/:slug/lessons/:id/submit` | Yes | Grade + XP; may return `streakProtected` |
+| POST | `/courses/:slug/lessons/:id/submit` | Yes | Grade + XP; exams need ≥70%; returns `isExam` / `passed` / `examFailed` |
 
 ## Learning OS (`/learning`)
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | GET | `/learning/calendar` | Yes | Heatmap days |
-| GET | `/learning/next` | Yes | Smart next (incl. race minis) |
+| GET | `/learning/next` | Yes | Smart next (exams ready, minis, deep tracks) |
+| GET | `/learning/exams/me` | Yes | Unit exam board locked/ready/passed |
 | GET | `/learning/export` | Yes | Progress JSON export |
 | GET/POST | `/learning/placement/english` | Yes | English placement |
 | GET/POST | `/learning/placement/programming` | Yes | Programming placement |
@@ -116,6 +117,10 @@ Realtime: [07-chess-realtime](./07-chess-realtime.md). Coach: `POST /coach/hint`
 | GET | `/certificates/mine` | Yes | My certificates |
 | GET | `/certificates/verify/:code` | No | Public verify |
 | GET | `/profiles/:userId` | Yes | Public profile + minis |
+| POST | `/feedback` | Yes | User → developer feedback |
+| GET | `/feedback/mine` | Yes | My feedback |
+| GET | `/feedback/admin` | Admin | All feedback |
+| PATCH | `/feedback/admin/:id` | Admin | Triage status |
 
 ## Schools, homework, gradebook, parents
 

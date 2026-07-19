@@ -20,6 +20,15 @@ export const courseSlugEnum = pgEnum("course_slug", [
   "speed_reading",
   "logic",
   "programming",
+  "typescript",
+  "html_semantics",
+  "css_layout",
+  "qa_theory",
+  "js_fundamentals",
+  "react_fundamentals",
+  "sql_fundamentals",
+  "node_fundamentals",
+  "express_fundamentals",
 ]);
 export const lessonStatusEnum = pgEnum("lesson_status", [
   "locked",
@@ -74,6 +83,8 @@ export const characters = pgTable("characters", {
       triedTyping?: boolean;
       viewedLeaderboard?: boolean;
       exploredPricing?: boolean;
+      viewedLearnMap?: boolean;
+      triedProgramming?: boolean;
     }>()
     .notNull()
     .default({}),
@@ -136,6 +147,10 @@ export const lessons = pgTable("lessons", {
   baseXp: integer("base_xp").notNull().default(15),
   difficulty: integer("difficulty").notNull().default(1),
   isFree: boolean("is_free").notNull().default(false),
+  /** Unit control test / exam lesson */
+  isExam: boolean("is_exam").notNull().default(false),
+  /** Pass bar 0..1 when isExam; null → app default 0.7 */
+  passThreshold: real("pass_threshold"),
   exercises: jsonb("exercises").notNull().$type<unknown[]>().default([]),
 });
 
@@ -810,3 +825,31 @@ export const pushSubscriptions = pgTable(
   },
   (t) => [uniqueIndex("push_endpoint").on(t.endpoint)],
 );
+
+/* ——— Admin audit log ——— */
+export const adminAuditLog = pgTable("admin_audit_log", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  actorUserId: uuid("actor_user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  action: varchar("action", { length: 64 }).notNull(),
+  targetType: varchar("target_type", { length: 64 }).notNull().default(""),
+  targetId: varchar("target_id", { length: 128 }).notNull().default(""),
+  meta: jsonb("meta").$type<Record<string, unknown>>().notNull().default({}),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+/* ——— User → developer feedback ——— */
+export const feedbackMessages = pgTable("feedback_messages", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  category: varchar("category", { length: 32 }).notNull().default("other"),
+  message: text("message").notNull(),
+  pagePath: varchar("page_path", { length: 512 }).notNull().default(""),
+  status: varchar("status", { length: 32 }).notNull().default("new"),
+  adminNote: text("admin_note"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});

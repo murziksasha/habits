@@ -35,7 +35,28 @@ billingRoutes.post("/dev-upgrade", authMiddleware, async (c) => {
     .update(users)
     .set({ plan: "premium", planExpiresAt: expires, updatedAt: new Date() })
     .where(eq(users.id, user.id));
-  return c.json({ plan: "premium", planExpiresAt: expires });
+  return c.json({ plan: "premium", planExpiresAt: expires, kind: "demo_30d" });
+});
+
+/** 7-day Premium trial (dev / no Stripe) */
+billingRoutes.post("/trial", authMiddleware, async (c) => {
+  if (getStripe() && process.env.NODE_ENV === "production") {
+    return c.json({ error: "use_checkout" }, 400);
+  }
+  const user = c.get("user");
+  if (user.plan === "premium") {
+    return c.json({
+      plan: "premium",
+      planExpiresAt: user.planExpiresAt,
+      kind: "already_premium",
+    });
+  }
+  const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  await db
+    .update(users)
+    .set({ plan: "premium", planExpiresAt: expires, updatedAt: new Date() })
+    .where(eq(users.id, user.id));
+  return c.json({ plan: "premium", planExpiresAt: expires, kind: "trial_7d" });
 });
 
 billingRoutes.post("/dev-downgrade", authMiddleware, async (c) => {

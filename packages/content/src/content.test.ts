@@ -1,11 +1,20 @@
 import { describe, expect, it } from "vitest";
 import {
   chessContent,
+  cssLayoutContent,
   englishContent,
+  htmlSemanticsContent,
+  jsFundamentalsContent,
   logicContent,
   programmingContent,
+  qaTheoryContent,
+  reactFundamentalsContent,
   speedReadingContent,
+  sqlFundamentalsContent,
+  nodeFundamentalsContent,
+  expressFundamentalsContent,
   typingContent,
+  typescriptContent,
   type CourseContent,
   type Exercise,
 } from "./index.js";
@@ -44,6 +53,15 @@ const courses: CourseContent[] = [
   speedReadingContent,
   logicContent,
   programmingContent,
+  typescriptContent,
+  htmlSemanticsContent,
+  cssLayoutContent,
+  qaTheoryContent,
+  jsFundamentalsContent,
+  reactFundamentalsContent,
+  sqlFundamentalsContent,
+  nodeFundamentalsContent,
+  expressFundamentalsContent,
 ];
 
 const EXERCISE_TYPES = new Set([
@@ -70,10 +88,134 @@ function collectExercises(course: CourseContent): Exercise[] {
 }
 
 describe("course content integrity", () => {
-  it("includes all course slugs including programming", () => {
+  it("includes all course slugs including deep tracks", () => {
     expect(courses.map((c) => c.slug).sort()).toEqual(
-      ["chess", "english", "logic", "programming", "speed_reading", "typing"].sort(),
+      [
+        "chess",
+        "css_layout",
+        "english",
+        "html_semantics",
+        "js_fundamentals",
+        "logic",
+        "programming",
+        "qa_theory",
+        "react_fundamentals",
+        "speed_reading",
+        "node_fundamentals",
+        "express_fundamentals",
+        "sql_fundamentals",
+        "typing",
+        "typescript",
+      ].sort(),
     );
+  });
+
+  describe("deep tracks suite", () => {
+    it("html_semantics volume + exams", () => {
+      expect(htmlSemanticsContent.units.length).toBeGreaterThanOrEqual(8);
+      const lessons = htmlSemanticsContent.units.flatMap((u) => u.lessons);
+      expect(lessons.length).toBeGreaterThanOrEqual(20);
+      const exams = lessons.filter((l) => l.isExam);
+      expect(exams.length).toBeGreaterThanOrEqual(7);
+      expect(lessons.some((l) => l.isFree)).toBe(true);
+      for (const e of exams) {
+        expect(e.exercises.length).toBeGreaterThanOrEqual(4);
+      }
+    });
+
+    it("css_layout has flex + grid units", () => {
+      const slugs = cssLayoutContent.units.map((u) => u.slug);
+      expect(slugs.some((s) => s.includes("flex"))).toBe(true);
+      expect(slugs.some((s) => s.includes("grid"))).toBe(true);
+      const lessons = cssLayoutContent.units.flatMap((u) => u.lessons);
+      expect(lessons.length).toBeGreaterThanOrEqual(22);
+      expect(lessons.filter((l) => l.isExam).length).toBeGreaterThanOrEqual(7);
+    });
+
+    it("qa_theory deep volume", () => {
+      expect(qaTheoryContent.units.length).toBeGreaterThanOrEqual(12);
+      const lessons = qaTheoryContent.units.flatMap((u) => u.lessons);
+      expect(lessons.length).toBeGreaterThanOrEqual(40);
+      expect(lessons.filter((l) => l.isExam).length).toBeGreaterThanOrEqual(10);
+      expect(lessons.some((l) => l.isFree)).toBe(true);
+    });
+
+    it("every deep-track unit has an exam", () => {
+      for (const c of [
+        htmlSemanticsContent,
+        cssLayoutContent,
+        qaTheoryContent,
+        jsFundamentalsContent,
+        reactFundamentalsContent,
+        sqlFundamentalsContent,
+        nodeFundamentalsContent,
+        expressFundamentalsContent,
+      ]) {
+        for (const u of c.units) {
+          expect(u.lessons.some((l) => l.isExam)).toBe(true);
+        }
+      }
+    });
+
+    it("js_fundamentals volume", () => {
+      expect(jsFundamentalsContent.units.length).toBeGreaterThanOrEqual(7);
+      const lessons = jsFundamentalsContent.units.flatMap((u) => u.lessons);
+      expect(lessons.length).toBeGreaterThanOrEqual(18);
+      expect(lessons.filter((l) => l.isExam).length).toBeGreaterThanOrEqual(7);
+      expect(lessons.some((l) => l.isFree)).toBe(true);
+    });
+
+    it("react_fundamentals volume", () => {
+      expect(reactFundamentalsContent.units.length).toBeGreaterThanOrEqual(6);
+      const lessons = reactFundamentalsContent.units.flatMap((u) => u.lessons);
+      expect(lessons.length).toBeGreaterThanOrEqual(14);
+      expect(lessons.filter((l) => l.isExam).length).toBeGreaterThanOrEqual(6);
+      expect(lessons.some((l) => l.isFree)).toBe(true);
+    });
+
+    it("sql_fundamentals volume", () => {
+      expect(sqlFundamentalsContent.units.length).toBeGreaterThanOrEqual(6);
+      const lessons = sqlFundamentalsContent.units.flatMap((u) => u.lessons);
+      expect(lessons.length).toBeGreaterThanOrEqual(14);
+      expect(lessons.filter((l) => l.isExam).length).toBeGreaterThanOrEqual(6);
+      expect(lessons.some((l) => l.isFree)).toBe(true);
+    });
+
+    it("node_fundamentals volume", () => {
+      expect(nodeFundamentalsContent.units.length).toBeGreaterThanOrEqual(6);
+      const lessons = nodeFundamentalsContent.units.flatMap((u) => u.lessons);
+      expect(lessons.length).toBeGreaterThanOrEqual(16);
+      expect(lessons.filter((l) => l.isExam).length).toBeGreaterThanOrEqual(6);
+      expect(lessons.some((l) => l.isFree)).toBe(true);
+    });
+
+    it("express_fundamentals volume", () => {
+      expect(expressFundamentalsContent.units.length).toBeGreaterThanOrEqual(6);
+      const lessons = expressFundamentalsContent.units.flatMap((u) => u.lessons);
+      expect(lessons.length).toBeGreaterThanOrEqual(16);
+      expect(lessons.filter((l) => l.isExam).length).toBeGreaterThanOrEqual(6);
+      expect(lessons.some((l) => l.isFree)).toBe(true);
+    });
+  });
+
+  it("typescript course has units, lessons, and exams", () => {
+    expect(typescriptContent.units.length).toBeGreaterThanOrEqual(6);
+    const lessons = typescriptContent.units.flatMap((u) => u.lessons);
+    expect(lessons.length).toBeGreaterThanOrEqual(15);
+    const exams = lessons.filter((l) => l.isExam);
+    expect(exams.length).toBeGreaterThanOrEqual(6);
+    for (const e of exams) {
+      expect(e.exercises.length).toBeGreaterThanOrEqual(4);
+      expect(e.passThreshold ?? 0.7).toBeGreaterThanOrEqual(0.7);
+    }
+  });
+
+  it("programming units have control exams", () => {
+    for (const u of programmingContent.units) {
+      const exam = u.lessons.find((l) => l.isExam);
+      expect(exam).toBeTruthy();
+      expect(exam!.exercises.length).toBeGreaterThanOrEqual(4);
+    }
   });
 
   it("each course has units and lessons", () => {

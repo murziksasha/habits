@@ -40,6 +40,7 @@ import { analyticsRoutes } from "./routes/analytics.js";
 import { speechRoutes } from "./routes/speech.js";
 import { playgroundRoutes } from "./routes/playground.js";
 import { tournamentRoutes } from "./routes/tournaments.js";
+import { feedbackRoutes } from "./routes/feedback.js";
 
 export function createApp() {
   const app = new Hono();
@@ -76,6 +77,7 @@ export function createApp() {
   app.route("/orgs", orgRoutes);
   app.route("/engagement", engagementRoutes);
   app.route("/friends", friendsRoutes);
+  app.route("/feedback", feedbackRoutes);
   app.route("/challenges", challengeRoutes);
   app.route("/certificates", certificateRoutes);
   app.route("/homework", homeworkRoutes);

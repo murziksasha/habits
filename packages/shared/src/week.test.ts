@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { weeklyMinisRaceSlugs, weeklyMinisRaceXpBonus } from "./courses.js";
+import {
+  COURSE_GROUP,
+  COURSE_SLUGS,
+  weeklyMinisRaceSlugs,
+  weeklyMinisRaceXpBonus,
+} from "./courses.js";
 import { isoWeekBounds, isoWeekKey } from "./week.js";
 
 describe("iso week", () => {
@@ -27,5 +32,21 @@ describe("weekly minis race", () => {
     expect(weeklyMinisRaceXpBonus(1)).toBe(30);
     expect(weeklyMinisRaceXpBonus(3)).toBe(12);
     expect(weeklyMinisRaceXpBonus(4)).toBe(0);
+  });
+});
+
+describe("course groups", () => {
+  it("every COURSE_SLUGS has a group", () => {
+    for (const s of COURSE_SLUGS) {
+      expect(COURSE_GROUP[s]).toBeTruthy();
+    }
+    expect(COURSE_GROUP.programming).toBe("code");
+    expect(COURSE_GROUP.css_layout).toBe("deep");
+    expect(COURSE_GROUP.js_fundamentals).toBe("deep");
+    expect(COURSE_GROUP.react_fundamentals).toBe("deep");
+    expect(COURSE_GROUP.sql_fundamentals).toBe("deep");
+    expect(COURSE_GROUP.node_fundamentals).toBe("deep");
+    expect(COURSE_GROUP.express_fundamentals).toBe("deep");
+    expect(COURSE_GROUP.english).toBe("skill");
   });
 });

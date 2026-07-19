@@ -1,5 +1,5 @@
 FROM node:22-alpine AS base
-RUN corepack enable && corepack prepare pnpm@10.6.5 --activate
+RUN corepack enable && corepack prepare pnpm@11.14.0 --activate
 WORKDIR /app
 
 FROM base AS deps
@@ -12,10 +12,12 @@ COPY apps/realtime/package.json apps/realtime/
 RUN pnpm install --frozen-lockfile=false
 
 FROM deps AS build
+# Source only — node_modules stay from deps (must not be overwritten by host)
 COPY packages ./packages
 COPY apps/realtime ./apps/realtime
 COPY turbo.json ./
 RUN pnpm --filter @eduforge/shared build \
+ && pnpm --filter @eduforge/content build \
  && pnpm --filter @eduforge/chess-core build \
  && pnpm --filter @eduforge/db build \
  && pnpm --filter @eduforge/realtime build

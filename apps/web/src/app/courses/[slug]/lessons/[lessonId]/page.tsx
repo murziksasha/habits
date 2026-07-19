@@ -19,6 +19,8 @@ export default function LessonPage() {
     id: string;
     titleUk: string;
     exercises: Exercise[];
+    isExam?: boolean;
+    passThreshold?: number | null;
   } | null>(null);
   const [hearts, setHearts] = useState(5);
   const [maxHearts, setMaxHearts] = useState(5);
@@ -33,6 +35,10 @@ export default function LessonPage() {
     hearts: number;
     heartLost: boolean;
     streakProtected?: boolean;
+    isExam?: boolean;
+    passed?: boolean;
+    examFailed?: boolean;
+    passThreshold?: number;
   } | null>(null);
   const [error, setError] = useState("");
   const [bookmarked, setBookmarked] = useState(false);
@@ -50,7 +56,13 @@ export default function LessonPage() {
   useEffect(() => {
     if (!token) return;
     void api<{
-      lesson: { id: string; titleUk: string; exercises: Exercise[] };
+      lesson: {
+        id: string;
+        titleUk: string;
+        exercises: Exercise[];
+        isExam?: boolean;
+        passThreshold?: number | null;
+      };
       hearts?: number;
       maxHearts?: number;
     }>(`/courses/${slug}/lessons/${lessonId}`, { token })
@@ -60,7 +72,9 @@ export default function LessonPage() {
         if (typeof d.maxHearts === "number") setMaxHearts(d.maxHearts);
       })
       .catch((e: Error & { status?: number; data?: { error?: string } }) => {
-        if (e.status === 402) {
+        if (e.status === 403 && e.data?.error === "exam_locked") {
+          setError("exam_locked");
+        } else if (e.status === 402) {
           if (e.data && (e.data as { error?: string }).error === "no_hearts") {
             setError("no_hearts");
           } else {
@@ -152,6 +166,10 @@ export default function LessonPage() {
           hearts?: number;
           heartLost?: boolean;
           streakProtected?: boolean;
+          isExam?: boolean;
+          passed?: boolean;
+          examFailed?: boolean;
+          passThreshold?: number;
         }>(`/courses/${slug}/lessons/${lessonId}/submit`, {
           method: "POST",
           token,
@@ -167,6 +185,10 @@ export default function LessonPage() {
           hearts: result.hearts ?? hearts,
           heartLost: Boolean(result.heartLost),
           streakProtected: Boolean(result.streakProtected),
+          isExam: Boolean(result.isExam),
+          passed: result.passed,
+          examFailed: Boolean(result.examFailed),
+          passThreshold: result.passThreshold,
         });
       } catch (e: unknown) {
         const err = e as Error & { data?: { error?: string } };
@@ -174,6 +196,18 @@ export default function LessonPage() {
         else setError("submit_failed");
       }
     }
+  }
+
+  if (error === "exam_locked") {
+    return (
+      <div className="card mx-auto max-w-lg text-center space-y-4">
+        <h1 className="text-2xl font-black">📝 {t.lesson.exam}</h1>
+        <p className="text-ink-muted font-bold">{t.lesson.examLocked}</p>
+        <Link href={`/courses/${slug}`} className="btn-primary">
+          {UI.common.back}
+        </Link>
+      </div>
+    );
   }
 
   if (error === "premium_required") {
@@ -209,15 +243,27 @@ export default function LessonPage() {
   if (!lesson) return <p className="text-ink-muted">{error || UI.common.loading}</p>;
 
   if (summary) {
+    const examFail = summary.examFailed || (summary.isExam && summary.passed === false);
     return (
       <div className="card mx-auto max-w-lg space-y-4 text-center">
-        <h1 className="text-3xl font-black">{UI.lesson.completed}</h1>
-        <p className="text-lg font-bold text-brand-dark">
-          +{summary.xpGain} {UI.lesson.xpGained}
-        </p>
+        <h1 className="text-3xl font-black">
+          {examFail
+            ? t.lesson.examFailed
+            : summary.isExam
+              ? t.lesson.examPassed
+              : UI.lesson.completed}
+        </h1>
+        {!examFail && (
+          <p className="text-lg font-bold text-brand-dark">
+            +{summary.xpGain} {UI.lesson.xpGained}
+          </p>
+        )}
         <p>
-          Точність: {Math.round(summary.accuracy * 100)}% · {UI.dashboard.level} курсу:{" "}
-          {summary.courseLevel}
+          Точність: {Math.round(summary.accuracy * 100)}%
+          {summary.isExam && summary.passThreshold != null
+            ? ` · ≥${Math.round(summary.passThreshold * 100)}%`
+            : ""}{" "}
+          · {UI.dashboard.level} курсу: {summary.courseLevel}
         </p>
         <div className="flex justify-center">
           <HeartsBar hearts={summary.hearts} max={maxHearts} />
@@ -231,12 +277,38 @@ export default function LessonPage() {
         {summary.streakProtected && (
           <p className="text-sm font-black text-sky">🛡️ {t.streak.protected}</p>
         )}
-        <div className="flex justify-center gap-3">
+        <div className="flex flex-wrap justify-center gap-3">
+          {examFail ? (
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={() => {
+                setSummary(null);
+                setIdx(0);
+                setAnswers([]);
+              }}
+            >
+              {t.lesson.tryAgain}
+            </button>
+          ) : null}
+          {examFail ? (
+            <Link href="/review" className="btn-secondary">
+              🔁 {t.nav.review}
+            </Link>
+          ) : null}
+          {examFail ? (
+            <Link
+              href={`/tutor?course=${encodeURIComponent(slug)}`}
+              className="btn-secondary"
+            >
+              🤖 {t.nav.tutor}
+            </Link>
+          ) : null}
           <Link href={`/courses/${slug}`} className="btn-primary">
             До курсу
           </Link>
-          <Link href="/dashboard" className="btn-secondary">
-            {UI.nav.home}
+          <Link href="/learn" className="btn-secondary">
+            {t.nav.learn}
           </Link>
         </div>
       </div>
@@ -268,9 +340,19 @@ export default function LessonPage() {
       <div className="h-3 overflow-hidden rounded-full bg-slate-200">
         <div className="h-full bg-brand transition-all" style={{ width: `${progress}%` }} />
       </div>
+      {lesson.isExam && (
+        <div className="rounded-2xl border-2 border-grape/40 bg-grape/10 px-4 py-3 text-sm font-bold text-grape">
+          📝 {t.lesson.examBanner}
+        </div>
+      )}
       <div className="card">
         <p className="mb-4 text-sm font-bold text-ink-muted">{lesson.titleUk}</p>
-        <ExercisePlayer key={ex.id} exercise={ex} onAnswer={handleAnswer} />
+        <ExercisePlayer
+          key={ex.id}
+          exercise={ex}
+          onAnswer={handleAnswer}
+          examMode={Boolean(lesson.isExam)}
+        />
         {feedback === "ok" && (
           <p className="mt-4 font-bold text-brand-dark">{UI.lesson.correct}</p>
         )}

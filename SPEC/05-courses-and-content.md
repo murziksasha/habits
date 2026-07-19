@@ -9,7 +9,16 @@
 | `typing` | edclub-like trainer | WPM, accuracy, EN/UK layouts |
 | `speed_reading` | Best practices | RSVP, chunking, skimming, comprehension |
 | `logic` | LogicLike-like | Sequences, patterns, verbal, syllogisms |
-| `programming` | Mimo-style path | HTML → CSS → JS → TS → React → Git → Node → Express → SQL → QA (+ mini-projects) |
+| `programming` | Mimo-style path | HTML → CSS → JS → TS → React → Git → Node → Express → SQL → QA (+ mini-projects + unit exams) |
+| `typescript` | Full TypeScript course | basics → generics → narrowing → utilities → modules + unit exams |
+| `html_semantics` | Semantic HTML deep track | landmarks, forms a11y, ARIA + exams |
+| `css_layout` | CSS Flex & Grid | flexbox, grid, responsive + exams |
+| `qa_theory` | QA theory deep track | principles, levels, types, techniques, STLC + exams |
+| `js_fundamentals` | JavaScript deep track | types, functions, arrays, async, DOM, modules + exams |
+| `react_fundamentals` | React deep track | components, props, state, lists, effects, forms + exams |
+| `sql_fundamentals` | SQL deep track | SELECT, JOINs, aggregates, DML, keys + exams |
+| `node_fundamentals` | Node.js deep track | runtime, modules, fs, env, http, npm, async + exams |
+| `express_fundamentals` | Express deep track | app, routes, middleware, REST, errors, Router + exams |
 
 ## Content pipeline
 

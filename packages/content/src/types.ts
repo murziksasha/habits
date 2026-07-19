@@ -158,8 +158,19 @@ export type Exercise =
         language: string;
         starter: string;
       }[];
-      /** Each file must contain all listed substrings */
-      checks: { fileId: string; contains: string[] }[];
+      /**
+       * Source checks: file substrings and/or HTML-wide needles.
+       * Optional kind "dom" is for client soft-grade / preview (selector present in HTML).
+       */
+      checks: {
+        fileId?: string;
+        contains?: string[];
+        /** Search all files joined (for multi-file HTML structures) */
+        containsHtml?: string[];
+        kind?: "source" | "dom";
+        selector?: string;
+        minCount?: number;
+      }[];
       caseSensitive?: boolean;
       hintUk?: string;
       hintEn?: string;
@@ -174,6 +185,10 @@ export type LessonContent = {
   baseXp: number;
   difficulty: number;
   isFree?: boolean;
+  /** Unit control test — higher pass bar, no solution reveal */
+  isExam?: boolean;
+  /** 0..1 accuracy required when isExam (default 0.7 in app) */
+  passThreshold?: number;
   exercises: Exercise[];
 };
 
@@ -185,7 +200,22 @@ export type UnitContent = {
 };
 
 export type CourseContent = {
-  slug: "english" | "chess" | "typing" | "speed_reading" | "logic" | "programming";
+  slug:
+    | "english"
+    | "chess"
+    | "typing"
+    | "speed_reading"
+    | "logic"
+    | "programming"
+    | "typescript"
+    | "html_semantics"
+    | "css_layout"
+    | "qa_theory"
+    | "js_fundamentals"
+    | "react_fundamentals"
+    | "sql_fundamentals"
+    | "node_fundamentals"
+    | "express_fundamentals";
   titleUk: string;
   titleEn: string;
   descriptionUk: string;

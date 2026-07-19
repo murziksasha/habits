@@ -61,8 +61,9 @@ docker compose --profile tools run --rm migrate
 
 | Область | Що є |
 |---------|------|
-| Курси | english, chess, typing, speed_reading, logic, **programming** |
+| Курси | english, chess, typing, speed_reading, logic, **programming**, **typescript**, **html_semantics**, **css_layout**, **qa_theory** |
 | Programming | path units, Monaco drills, mini-projects, weekly race, stack hubs |
+| Deep tracks | HTML semantics, CSS Flex/Grid, QA theory (+ unit exams) |
 | Playground | client sandbox, challenges, race, embed share |
 | Соціальне | friends, minis vs friends, weekly race vs friends, certificates |
 | Клас / батьки | orgs, homework, gradebook CSV, parent digests |
@@ -84,12 +85,14 @@ docker compose --profile tools run --rm migrate
 
 ## Admin CMS
 
-Після `pnpm db:seed` створюється адмін:
+Після `pnpm db:seed` створюються акаунти:
 
-- email: `admin@eduforge.ua`
-- password: `admin12345`
+| Роль | Email | Password | Plan |
+|------|-------|----------|------|
+| Admin | `admin@eduforge.ua` | `admin12345` | premium |
+| Test user | `premium@eduforge.ua` | `premium12345` | premium |
 
-Сторінки: `/admin`, `/admin/users`, `/admin/content`, `/admin/metrics`
+Сторінки адміна: `/admin`, `/admin/users`, `/admin/content`, `/admin/metrics`
 
 ## Password reset
 

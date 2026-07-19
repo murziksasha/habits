@@ -362,8 +362,171 @@ learningRoutes.get("/next", authMiddleware, async (c) => {
     priority: 6,
   });
 
+  // Unit exams ready (all non-exam lessons in unit completed, exam not passed)
+  const examLessons = await db.query.lessons.findMany({
+    where: eq(lessons.isExam, true),
+  });
+  if (examLessons.length) {
+    const lpAll = await db.query.userLessonProgress.findMany({
+      where: eq(userLessonProgress.userId, user.id),
+    });
+    const doneSet = new Set(
+      lpAll.filter((p) => p.status === "completed").map((p) => p.lessonId),
+    );
+    const unitIds = [...new Set(examLessons.map((l) => l.unitId))];
+    const unitLessons = await db.query.lessons.findMany({
+      where: inArray(lessons.unitId, unitIds),
+    });
+    const byUnit = new Map<string, typeof unitLessons>();
+    for (const l of unitLessons) {
+      const list = byUnit.get(l.unitId) ?? [];
+      list.push(l);
+      byUnit.set(l.unitId, list);
+    }
+    const courseMap = new Map(
+      (await db.query.courses.findMany()).map((c) => [c.id, c]),
+    );
+    let examRecs = 0;
+    for (const ex of examLessons) {
+      if (examRecs >= 3) break;
+      if (doneSet.has(ex.id)) continue;
+      const peers = byUnit.get(ex.unitId) ?? [];
+      const nonExam = peers.filter((l) => !l.isExam);
+      if (!nonExam.length || !nonExam.every((l) => doneSet.has(l.id))) continue;
+      const course = courseMap.get(ex.courseId);
+      if (!course) continue;
+      recommendations.push({
+        kind: "exam_ready",
+        titleUk: `📝 Контрольна: ${ex.titleUk}`,
+        titleEn: `📝 Exam: ${ex.titleEn || ex.titleUk}`,
+        href: `/courses/${course.slug}/lessons/${ex.id}`,
+        priority: 19,
+        meta: { courseSlug: course.slug, lessonId: ex.id, isExam: true },
+      });
+      examRecs += 1;
+    }
+  }
+
+  // Deep tracks not started
+  for (const slug of [
+    "html_semantics",
+    "css_layout",
+    "qa_theory",
+    "typescript",
+    "js_fundamentals",
+    "react_fundamentals",
+    "sql_fundamentals",
+    "node_fundamentals",
+    "express_fundamentals",
+  ] as const) {
+    const c = allCourses.find((x) => x.slug === slug);
+    if (!c || started.has(c.id)) continue;
+    recommendations.push({
+      kind: "deep_track",
+      titleUk: `Deep track: ${c.titleUk}`,
+      titleEn: `Deep track: ${c.titleEn || c.titleUk}`,
+      href: `/courses/${slug}`,
+      priority: 8,
+      meta: { courseSlug: slug },
+    });
+  }
+
   recommendations.sort((a, b) => b.priority - a.priority);
-  return c.json({ recommendations: recommendations.slice(0, 10), placement, progPlacement });
+  return c.json({ recommendations: recommendations.slice(0, 12), placement, progPlacement });
+});
+
+/** Per-user unit exam board across all courses */
+learningRoutes.get("/exams/me", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const courseFilter = c.req.query("course");
+
+  const allCourses = await db.query.courses.findMany({
+    orderBy: [asc(courses.sortOrder)],
+  });
+  const courseList = courseFilter
+    ? allCourses.filter((c) => c.slug === courseFilter)
+    : allCourses;
+
+  const lpAll = await db.query.userLessonProgress.findMany({
+    where: eq(userLessonProgress.userId, user.id),
+  });
+  const lpMap = new Map(lpAll.map((p) => [p.lessonId, p]));
+
+  const summary = {
+    totalExams: 0,
+    passed: 0,
+    ready: 0,
+    locked: 0,
+  };
+
+  const byCourse: {
+    courseSlug: string;
+    titleUk: string;
+    titleEn: string;
+    icon: string;
+    exams: {
+      lessonId: string;
+      unitId: string;
+      unitSlug: string;
+      unitTitleUk: string;
+      titleUk: string;
+      titleEn: string;
+      status: "locked" | "ready" | "passed";
+      bestScore: number;
+      passThreshold: number;
+      href: string;
+    }[];
+  }[] = [];
+
+  for (const course of courseList) {
+    const courseUnits = await db.query.units.findMany({
+      where: eq(units.courseId, course.id),
+      orderBy: [asc(units.sortOrder)],
+    });
+    const courseLessons = await db.query.lessons.findMany({
+      where: eq(lessons.courseId, course.id),
+      orderBy: [asc(lessons.sortOrder)],
+    });
+    const exams = courseLessons.filter((l) => l.isExam);
+    if (!exams.length) continue;
+
+    const rows = [];
+    for (const ex of exams) {
+      const unit = courseUnits.find((u) => u.id === ex.unitId);
+      const nonExam = courseLessons.filter((l) => l.unitId === ex.unitId && !l.isExam);
+      const unitDone = nonExam.every((l) => lpMap.get(l.id)?.status === "completed");
+      const lp = lpMap.get(ex.id);
+      const passed = lp?.status === "completed";
+      let status: "locked" | "ready" | "passed" = "locked";
+      if (passed) status = "passed";
+      else if (unitDone) status = "ready";
+      summary.totalExams += 1;
+      if (status === "passed") summary.passed += 1;
+      else if (status === "ready") summary.ready += 1;
+      else summary.locked += 1;
+      rows.push({
+        lessonId: ex.id,
+        unitId: ex.unitId,
+        unitSlug: unit?.slug ?? "",
+        unitTitleUk: unit?.titleUk ?? "",
+        titleUk: ex.titleUk,
+        titleEn: ex.titleEn || ex.titleUk,
+        status,
+        bestScore: lp?.bestScore ?? 0,
+        passThreshold: ex.passThreshold ?? 0.7,
+        href: `/courses/${course.slug}/lessons/${ex.id}`,
+      });
+    }
+    byCourse.push({
+      courseSlug: course.slug,
+      titleUk: course.titleUk,
+      titleEn: course.titleEn || course.titleUk,
+      icon: course.icon,
+      exams: rows,
+    });
+  }
+
+  return c.json({ summary, courses: byCourse });
 });
 
 /** Full progress export for the learner */

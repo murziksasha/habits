@@ -47,6 +47,29 @@ export default function PricingPage() {
     }
   }
 
+  async function startTrial() {
+    if (!token) {
+      router.push("/register");
+      return;
+    }
+    try {
+      const r = await api<{ kind?: string; planExpiresAt?: string }>("/billing/trial", {
+        method: "POST",
+        token,
+      });
+      await refresh();
+      if (r.kind === "already_premium") {
+        setMsg("У вас уже Premium.");
+      } else {
+        setMsg(
+          `Trial 7 днів активовано${r.planExpiresAt ? ` до ${new Date(r.planExpiresAt).toLocaleDateString()}` : ""}.`,
+        );
+      }
+    } catch {
+      setMsg("Не вдалося стартувати trial");
+    }
+  }
+
   async function downgrade() {
     if (!token) return;
     await api("/billing/dev-downgrade", { method: "POST", token });
@@ -88,9 +111,14 @@ export default function PricingPage() {
               Зняти Premium (demo)
             </button>
           ) : (
-            <button className="btn-primary w-full" onClick={() => void upgrade()}>
-              {UI.pricing.upgrade}
-            </button>
+            <div className="space-y-2">
+              <button className="btn-primary w-full" onClick={() => void upgrade()}>
+                {UI.pricing.upgrade}
+              </button>
+              <button className="btn-secondary w-full" onClick={() => void startTrial()}>
+                🎁 Trial 7 днів (demo)
+              </button>
+            </div>
           )}
         </div>
       </div>

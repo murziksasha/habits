@@ -75,6 +75,7 @@ const userPatchSchema = z.object({
 });
 
 adminRoutes.patch("/users/:id", async (c) => {
+  const actor = c.get("user");
   const id = c.req.param("id") as string;
   const body = await c.req.json().catch(() => null);
   const parsed = userPatchSchema.safeParse(body);
@@ -89,6 +90,14 @@ adminRoutes.patch("/users/:id", async (c) => {
     .where(eq(users.id, id))
     .returning();
   if (!updated) return c.json({ error: "not_found" }, 404);
+  const { writeAdminAudit } = await import("../audit.js");
+  await writeAdminAudit(db, {
+    actorUserId: actor.id,
+    action: "user_patch",
+    targetType: "user",
+    targetId: id,
+    meta: parsed.data,
+  });
   return c.json({
     user: {
       id: updated.id,
@@ -97,6 +106,16 @@ adminRoutes.patch("/users/:id", async (c) => {
       plan: updated.plan,
     },
   });
+});
+
+adminRoutes.get("/audit", async (c) => {
+  const { adminAuditLog } = await import("@eduforge/db");
+  const rows = await db
+    .select()
+    .from(adminAuditLog)
+    .orderBy(desc(adminAuditLog.createdAt))
+    .limit(50);
+  return c.json({ entries: rows });
 });
 
 adminRoutes.get("/courses", async (c) => {
@@ -369,6 +388,12 @@ export type AdminMetrics = {
     raceParticipantsThisWeek: number;
     raceFeatured: number;
   };
+  exams: {
+    catalog: number;
+    passedAllTime: number;
+    passedWindow: number;
+    deepTrackLearners: number;
+  };
   topActivityKinds: { kind: string; n: number }[];
 };
 
@@ -582,6 +607,62 @@ export async function buildAdminMetrics(daysRaw?: number): Promise<AdminMetrics>
       raceParticipantsThisWeek: raceParticipants,
       raceFeatured: raceSlugs.length,
     },
+    exams: await (async () => {
+      const [catalog] = await db
+        .select({ n: sql<number>`count(*)::int` })
+        .from(lessons)
+        .where(eq(lessons.isExam, true));
+      const [passedAll] = await db
+        .select({ n: sql<number>`count(*)::int` })
+        .from(userLessonProgress)
+        .innerJoin(lessons, eq(lessons.id, userLessonProgress.lessonId))
+        .where(
+          and(
+            eq(userLessonProgress.status, "completed"),
+            eq(lessons.isExam, true),
+          ),
+        );
+      const [passedW] = await db
+        .select({ n: sql<number>`count(*)::int` })
+        .from(userLessonProgress)
+        .innerJoin(lessons, eq(lessons.id, userLessonProgress.lessonId))
+        .where(
+          and(
+            eq(userLessonProgress.status, "completed"),
+            eq(lessons.isExam, true),
+            gte(userLessonProgress.completedAt, since),
+          ),
+        );
+      const deepSlugs = [
+        "typescript",
+        "html_semantics",
+        "css_layout",
+        "qa_theory",
+        "js_fundamentals",
+        "react_fundamentals",
+        "sql_fundamentals",
+        "node_fundamentals",
+        "express_fundamentals",
+      ];
+      const deepCourses = await db.query.courses.findMany();
+      const deepIds = deepCourses.filter((c) => deepSlugs.includes(c.slug)).map((c) => c.id);
+      let deepTrackLearners = 0;
+      if (deepIds.length) {
+        const [row] = await db
+          .select({
+            n: sql<number>`count(distinct ${userCourseProgress.userId})::int`,
+          })
+          .from(userCourseProgress)
+          .where(inArray(userCourseProgress.courseId, deepIds));
+        deepTrackLearners = row?.n ?? 0;
+      }
+      return {
+        catalog: catalog?.n ?? 0,
+        passedAllTime: passedAll?.n ?? 0,
+        passedWindow: passedW?.n ?? 0,
+        deepTrackLearners,
+      };
+    })(),
     topActivityKinds: topKinds,
   };
 }
@@ -615,6 +696,10 @@ function metricsToCsv(m: AdminMetrics): string {
     ["minisCompletionsAllTime", m.minis.completionsAllTime],
     ["minisRaceParticipantsWeek", m.minis.raceParticipantsThisWeek],
     ["minisRaceFeatured", m.minis.raceFeatured],
+    ["examsCatalog", m.exams.catalog],
+    ["examsPassedAllTime", m.exams.passedAllTime],
+    ["examsPassedWindow", m.exams.passedWindow],
+    ["deepTrackLearners", m.exams.deepTrackLearners],
   ];
   for (const k of m.topActivityKinds) {
     rows.push([`activity:${k.kind}`, k.n]);

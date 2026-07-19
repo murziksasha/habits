@@ -26,9 +26,9 @@ const doc = {
   openapi: "3.0.3",
   info: {
     title: "EduForge API",
-    version: "1.5.0",
+    version: "2.3.0",
     description:
-      "Educational SaaS: courses, programming path + minis race, playground, friends social, schools, parents digests, admin metrics, chess, SRS, tutor.",
+      "Educational SaaS: learn map, exams, deep tracks (TS/HTML/CSS/QA/JS/React/SQL/Node/Express), trial+expiry, admin audit, feedback, minis, playground, schools, parents, metrics, chess, SRS, tutor.",
   },
   servers: [{ url: "/", description: "Current host" }],
   tags: [
@@ -250,9 +250,17 @@ const doc = {
     "/learning/next": {
       get: {
         tags: ["learning"],
-        summary: "Smart next steps (incl. unfinished programming minis)",
+        summary: "Smart next steps (exams ready, minis, courses, deep tracks)",
         security: [{ bearerAuth: [] }],
         responses: { "200": { description: "Recommendations" } },
+      },
+    },
+    "/learning/exams/me": {
+      get: {
+        tags: ["learning"],
+        summary: "Unit exam board (locked/ready/passed) across courses",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "summary + courses[].exams" } },
       },
     },
     "/learning/programming/minis": {
@@ -528,6 +536,54 @@ const doc = {
             description: "weekKey, raceSlugs, entries ranked by this-week race score",
           },
         },
+      },
+    },
+    "/billing/trial": {
+      post: {
+        tags: ["auth"],
+        summary: "Start 7-day Premium trial (dev/demo)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "plan + expires" } },
+      },
+    },
+    "/admin/audit": {
+      get: {
+        tags: ["admin"],
+        summary: "Recent admin audit log",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "entries[]" } },
+      },
+    },
+    "/feedback": {
+      post: {
+        tags: ["engagement"],
+        summary: "Submit user feedback to developers",
+        security: [{ bearerAuth: [] }],
+        responses: { "201": { description: "Created feedback" } },
+      },
+    },
+    "/feedback/mine": {
+      get: {
+        tags: ["engagement"],
+        summary: "List my feedback",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "feedback[]" } },
+      },
+    },
+    "/feedback/admin": {
+      get: {
+        tags: ["admin"],
+        summary: "List all feedback (admin)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "feedback[]" } },
+      },
+    },
+    "/feedback/admin/{id}": {
+      patch: {
+        tags: ["admin"],
+        summary: "Update feedback status (admin)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "Updated" } },
       },
     },
     "/learning/placement/programming": {

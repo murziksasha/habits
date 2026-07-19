@@ -142,6 +142,8 @@ export type UnlockContext = {
   /** Weekly programming minis race: score this week / rank after claim */
   minisRaceScore?: number;
   minisRaceRank?: number;
+  /** Unit exam just passed */
+  examPassed?: boolean;
 };
 
 /** Evaluate and unlock achievements; returns newly unlocked list */
@@ -185,6 +187,50 @@ export async function evaluateAchievements(
       ),
     });
     if (eng.length >= 5) await tryUnlock("english_path");
+  }
+
+  if (ctx.examPassed) {
+    await tryUnlock("exam_first");
+    const [examCnt] = await db
+      .select({ n: sql<number>`count(*)::int` })
+      .from(userLessonProgress)
+      .innerJoin(lessons, eq(lessons.id, userLessonProgress.lessonId))
+      .where(
+        and(
+          eq(userLessonProgress.userId, userId),
+          eq(userLessonProgress.status, "completed"),
+          eq(lessons.isExam, true),
+        ),
+      );
+    if ((examCnt?.n ?? 0) >= 3) await tryUnlock("exam_three");
+  }
+
+  if (ctx.lessonCompleted && ctx.courseSlug === "typescript") {
+    await tryUnlock("ts_course_start");
+  }
+  if (ctx.lessonCompleted && ctx.courseSlug === "html_semantics") {
+    await tryUnlock("html_semantics_start");
+  }
+  if (ctx.lessonCompleted && ctx.courseSlug === "css_layout") {
+    await tryUnlock("css_layout_start");
+  }
+  if (ctx.lessonCompleted && ctx.courseSlug === "qa_theory") {
+    await tryUnlock("qa_theory_start");
+  }
+  if (ctx.lessonCompleted && ctx.courseSlug === "js_fundamentals") {
+    await tryUnlock("js_fundamentals_start");
+  }
+  if (ctx.lessonCompleted && ctx.courseSlug === "react_fundamentals") {
+    await tryUnlock("react_fundamentals_start");
+  }
+  if (ctx.lessonCompleted && ctx.courseSlug === "sql_fundamentals") {
+    await tryUnlock("sql_fundamentals_start");
+  }
+  if (ctx.lessonCompleted && ctx.courseSlug === "node_fundamentals") {
+    await tryUnlock("node_fundamentals_start");
+  }
+  if (ctx.lessonCompleted && ctx.courseSlug === "express_fundamentals") {
+    await tryUnlock("express_fundamentals_start");
   }
 
   if (ctx.lessonCompleted && ctx.courseSlug === "programming") {

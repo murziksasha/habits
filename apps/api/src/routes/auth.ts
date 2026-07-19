@@ -176,36 +176,56 @@ authRoutes.get("/onboarding", authMiddleware, async (c) => {
     {
       id: "profile",
       titleUk: "Створіть персонажа",
+      titleEn: "Create your character",
       done: true,
       href: "/profile",
     },
     {
+      id: "learn_map",
+      titleUk: "Відкрийте карту навчання",
+      titleEn: "Open the learning map",
+      done: Boolean(o.viewedLearnMap),
+      href: "/learn",
+    },
+    {
       id: "first_lesson",
       titleUk: "Пройдіть перший урок",
+      titleEn: "Complete your first lesson",
       done: Boolean(o.completedFirstLesson) || character.globalXp > 0,
-      href: "/courses/english",
+      href: "/learn",
+    },
+    {
+      id: "programming",
+      titleUk: "Спробуйте Programming path",
+      titleEn: "Try the Programming path",
+      done: Boolean(o.triedProgramming),
+      href: "/programming",
     },
     {
       id: "chess",
       titleUk: "Зіграйте в шахи (бот або online)",
+      titleEn: "Play chess (bot or online)",
       done: Boolean(o.triedChess),
       href: "/play",
     },
     {
       id: "typing",
       titleUk: "Спробуйте урок друку",
+      titleEn: "Try a typing lesson",
       done: Boolean(o.triedTyping),
       href: "/courses/typing",
     },
     {
       id: "leaderboard",
       titleUk: "Подивіться рейтинг",
+      titleEn: "View the leaderboard",
       done: Boolean(o.viewedLeaderboard),
       href: "/leaderboard",
     },
     {
       id: "pricing",
       titleUk: "Перегляньте тарифи",
+      titleEn: "Check pricing",
       done: Boolean(o.exploredPricing),
       href: "/pricing",
     },
@@ -225,6 +245,8 @@ authRoutes.post("/onboarding/complete", authMiddleware, async (c) => {
   const body = await c.req.json().catch(() => ({}));
   const key = String(body.key ?? "");
   const allowed = [
+    "viewedLearnMap",
+    "triedProgramming",
     "completedFirstLesson",
     "triedChess",
     "triedTyping",
