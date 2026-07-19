@@ -1,0 +1,12 @@
+node_modules
+.turbo
+dist
+.next
+.env
+.env.local
+*.log
+coverage
+.DS_Store
+docker-data
+apps/web/public/sw.js
+*.tsbuildinfo

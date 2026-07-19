@@ -1,0 +1,40 @@
+{
+  "name": "@eduforge/api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo ok",
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "test:integration": "vitest run src/integration.test.ts --config vitest.integration.config.ts"
+  },
+  "dependencies": {
+    "@eduforge/chess-core": "workspace:*",
+    "@eduforge/db": "workspace:*",
+    "@eduforge/shared": "workspace:*",
+    "@hono/node-server": "^1.14.1",
+    "bcryptjs": "^3.0.2",
+    "chess.js": "^1.1.0",
+    "drizzle-orm": "^0.41.0",
+    "hono": "^4.7.7",
+    "ioredis": "^5.6.0",
+    "nodemailer": "^6.10.0",
+    "stripe": "^17.7.0",
+    "web-push": "^3.6.7",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^22.14.0",
+    "@types/nodemailer": "^6.4.17",
+    "@types/web-push": "^3.6.4",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.1"
+  }
+}

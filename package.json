@@ -1,0 +1,28 @@
+{
+  "name": "eduforge",
+  "private": true,
+  "packageManager": "pnpm@11.14.0",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:unit": "turbo run test --filter=@eduforge/shared --filter=@eduforge/chess-core --filter=@eduforge/content --filter=@eduforge/api --filter=@eduforge/realtime",
+    "test:integration": "pnpm --filter @eduforge/api test:integration",
+    "test:e2e": "pnpm --filter @eduforge/web test:e2e",
+    "ci": "pnpm typecheck && pnpm test:unit",
+    "ci:full": "pnpm ci && pnpm test:integration",
+    "db:generate": "pnpm --filter @eduforge/db generate",
+    "db:migrate": "pnpm --filter @eduforge/db migrate",
+    "db:seed": "pnpm --filter @eduforge/db seed",
+    "db:studio": "pnpm --filter @eduforge/db studio",
+    "docker:up": "docker compose up --build -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.4",
+    "typescript": "^5.8.3"
+  }
+}

@@ -1,0 +1,29 @@
+FROM node:22-alpine AS base
+RUN corepack enable && corepack prepare pnpm@10.6.5 --activate
+WORKDIR /app
+
+FROM base AS deps
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* ./
+COPY packages/shared/package.json packages/shared/
+COPY packages/content/package.json packages/content/
+COPY packages/chess-core/package.json packages/chess-core/
+COPY packages/db/package.json packages/db/
+COPY apps/api/package.json apps/api/
+RUN pnpm install --frozen-lockfile=false
+
+FROM deps AS build
+COPY packages ./packages
+COPY apps/api ./apps/api
+COPY turbo.json ./
+RUN pnpm --filter @eduforge/shared build \
+ && pnpm --filter @eduforge/content build \
+ && pnpm --filter @eduforge/chess-core build \
+ && pnpm --filter @eduforge/db build \
+ && pnpm --filter @eduforge/api build
+
+FROM base AS runner
+ENV NODE_ENV=production
+COPY --from=build /app /app
+WORKDIR /app
+EXPOSE 4000
+CMD ["pnpm", "--filter", "@eduforge/api", "start"]
