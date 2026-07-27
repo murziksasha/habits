@@ -27,6 +27,7 @@ jobs:
       - run: pnpm --filter @eduforge/shared build
       - run: pnpm --filter @eduforge/content build
       - run: pnpm --filter @eduforge/chess-core build
+      - run: pnpm --filter @eduforge/judge build
       - run: pnpm --filter @eduforge/db build
       - name: Unit tests
         run: pnpm test:unit
@@ -75,10 +76,13 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # API imports @eduforge/judge — must build before integration tests
       - run: pnpm --filter @eduforge/shared build
       - run: pnpm --filter @eduforge/content build
       - run: pnpm --filter @eduforge/chess-core build
+      - run: pnpm --filter @eduforge/judge build
       - run: pnpm --filter @eduforge/db build
+      - run: pnpm --filter @eduforge/api build
       - run: pnpm db:migrate
       - run: pnpm db:seed
       - run: pnpm --filter @eduforge/api test:integration
@@ -137,6 +141,7 @@ jobs:
           pnpm --filter @eduforge/shared build
           pnpm --filter @eduforge/content build
           pnpm --filter @eduforge/chess-core build
+          pnpm --filter @eduforge/judge build
           pnpm --filter @eduforge/db build
           pnpm --filter @eduforge/api build
           pnpm --filter @eduforge/realtime build
@@ -147,9 +152,10 @@ jobs:
           pnpm db:seed
       - name: Start API + realtime + web
         run: |
-          pnpm --filter @eduforge/api start &
-          pnpm --filter @eduforge/realtime start &
-          pnpm --filter @eduforge/web start &
+          set -e
+          pnpm --filter @eduforge/api start > /tmp/api.log 2>&1 &
+          pnpm --filter @eduforge/realtime start > /tmp/realtime.log 2>&1 &
+          pnpm --filter @eduforge/web start > /tmp/web.log 2>&1 &
           for i in $(seq 1 60); do
             if curl -sf http://localhost:4000/health >/dev/null \
               && curl -sf http://localhost:4001/health >/dev/null \
@@ -160,6 +166,9 @@ jobs:
             sleep 2
           done
           echo "stack failed to become ready"
+          echo "=== api.log ===" && cat /tmp/api.log || true
+          echo "=== realtime.log ===" && cat /tmp/realtime.log || true
+          echo "=== web.log ===" && tail -n 80 /tmp/web.log || true
           exit 1
       - name: Install Playwright Chromium
         run: pnpm --filter @eduforge/web exec playwright install --with-deps chromium
