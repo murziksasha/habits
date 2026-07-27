@@ -8,6 +8,8 @@ import { useLocale } from "@/lib/locale-context";
 import { XpBar } from "@/components/xp-bar";
 import { api } from "@/lib/api";
 import { PushToggle } from "@/components/push-toggle";
+import { ShareProfileCard } from "@/components/share-card";
+import { Badge, Button } from "@/components/ui";
 
 const BASE_AVATARS = ["default", "wizard", "knight", "scholar", "fox", "robot"];
 
@@ -25,6 +27,104 @@ function certBadge(title: string, t: { badgePath: string; badgeMinis: string; ba
   if (lower.includes("path")) return t.badgePath;
   if (lower.includes("programming")) return t.badgeCourse;
   return null;
+}
+
+type SessionRow = {
+  id: string;
+  createdAt: string;
+  expiresAt: string;
+  current: boolean;
+};
+
+function SessionsCard({
+  token,
+  locale,
+}: {
+  token: string | null;
+  locale: string;
+}) {
+  const [sessions, setSessions] = useState<SessionRow[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  useEffect(() => {
+    if (!token) return;
+    void api<{ sessions: SessionRow[] }>("/auth/sessions", { token })
+      .then((d) => setSessions(d.sessions ?? []))
+      .catch(() => setSessions([]));
+  }, [token]);
+
+  async function logoutOthers() {
+    if (!token || busy) return;
+    setBusy(true);
+    setMsg("");
+    try {
+      const d = await api<{ revoked: number }>("/auth/logout-others", {
+        method: "POST",
+        token,
+        body: {},
+      });
+      const next = await api<{ sessions: SessionRow[] }>("/auth/sessions", { token });
+      setSessions(next.sessions ?? []);
+      setMsg(
+        locale === "en"
+          ? `Signed out ${d.revoked} other device(s).`
+          : `Вийшли з ${d.revoked} інших пристроїв.`,
+      );
+    } catch {
+      setMsg(locale === "en" ? "Could not revoke sessions" : "Не вдалося завершити сесії");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="card space-y-3">
+      <h2 className="text-lg font-black">
+        {locale === "en" ? "🔒 Active sessions" : "🔒 Активні сесії"}
+      </h2>
+      <p className="text-sm font-bold text-ink-muted">
+        {locale === "en"
+          ? `${sessions.length} device session(s). Sign out others if you lost a device.`
+          : `${sessions.length} сес. Пристрої. Вийдіть з інших, якщо втратили пристрій.`}
+      </p>
+      <ul className="space-y-2 text-sm">
+        {sessions.map((s) => (
+          <li
+            key={s.id}
+            className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-100 px-3 py-2 dark:border-slate-800"
+          >
+            <span className="font-bold">
+              {new Date(s.createdAt).toLocaleString()}
+              {s.current && (
+                <Badge tone="brand" className="ml-2">
+                  {locale === "en" ? "This device" : "Цей пристрій"}
+                </Badge>
+              )}
+            </span>
+            <span className="text-xs text-ink-muted font-mono">
+              exp {new Date(s.expiresAt).toLocaleDateString()}
+            </span>
+          </li>
+        ))}
+        {!sessions.length && (
+          <li className="text-ink-muted font-bold">
+            {locale === "en" ? "No active sessions listed" : "Немає активних сесій"}
+          </li>
+        )}
+      </ul>
+      <Button
+        type="button"
+        variant="secondary"
+        size="sm"
+        disabled={busy || sessions.filter((s) => !s.current).length === 0}
+        onClick={() => void logoutOthers()}
+      >
+        {locale === "en" ? "Sign out other devices" : "Вийти з інших пристроїв"}
+      </Button>
+      {msg && <p className="text-sm font-bold text-sky">{msg}</p>}
+    </div>
+  );
 }
 
 export default function ProfilePage() {
@@ -87,9 +187,40 @@ export default function ProfilePage() {
   if (loading || !user) return <p>{t.common.loading}</p>;
 
   const ratio = minis && minis.total > 0 ? Math.min(1, minis.completed / minis.total) : 0;
+  const avatarEmoji =
+    avatar === "knight"
+      ? "⚔️"
+      : avatar === "scholar"
+        ? "📚"
+        : avatar === "fox"
+          ? "🦊"
+          : avatar === "robot"
+            ? "🤖"
+            : avatar === "wizard"
+              ? "🧙‍♂️"
+              : "🧙";
 
   return (
     <div className="mx-auto max-w-lg space-y-4">
+      {character && (
+        <ShareProfileCard
+          userId={user.id}
+          displayName={character.displayName}
+          globalLevel={character.globalLevel}
+          globalXp={character.globalXp}
+          streakDays={character.streakDays}
+          avatarEmoji={avatarEmoji}
+          showFriendInvite
+        />
+      )}
+      <div className="flex flex-wrap gap-2">
+        <Link href={`/u/${user.id}`}>
+          <Button size="sm" variant="secondary">
+            {locale === "en" ? "Public profile" : "Публічний профіль"} →
+          </Button>
+        </Link>
+        {user.plan === "premium" && <Badge tone="grape">Premium</Badge>}
+      </div>
       <div className="card space-y-4">
         <div className="flex items-center gap-4">
           <span className="text-5xl">
@@ -220,6 +351,8 @@ export default function ProfilePage() {
         <h2 className="text-lg font-black">🔔 Push</h2>
         <PushToggle />
       </div>
+
+      <SessionsCard token={token} locale={locale} />
 
       <form onSubmit={save} className="card space-y-4">
         <h2 className="text-lg font-black">

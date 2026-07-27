@@ -2,18 +2,33 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { UI } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
 import { ExercisePlayer, type Exercise } from "@/components/exercises";
 import { HeartsBar } from "@/components/hearts";
+import { PaywallCard } from "@/components/paywall";
+
+type ExerciseResult = {
+  exerciseId: string;
+  type?: string;
+  correct: boolean;
+  meta?: Record<string, unknown>;
+};
+
+function newIdempotencyKey() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID().replace(/-/g, "");
+  }
+  return `k${Date.now().toString(36)}${Math.random().toString(36).slice(2, 12)}`;
+}
 
 export default function LessonPage() {
   const { slug, lessonId } = useParams<{ slug: string; lessonId: string }>();
   const { token, user, loading, setCharacter } = useAuth();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const router = useRouter();
   const [lesson, setLesson] = useState<{
     id: string;
@@ -39,6 +54,9 @@ export default function LessonPage() {
     passed?: boolean;
     examFailed?: boolean;
     passThreshold?: number;
+    results?: ExerciseResult[];
+    correctCount?: number;
+    total?: number;
   } | null>(null);
   const [error, setError] = useState("");
   const [bookmarked, setBookmarked] = useState(false);
@@ -48,10 +66,61 @@ export default function LessonPage() {
     { id: string; body: string; displayName: string | null; createdAt: string }[]
   >([]);
   const [commentText, setCommentText] = useState("");
+  const [focusMode, setFocusMode] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const idempotencyKeyRef = useRef(newIdempotencyKey());
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
   }, [loading, user, router]);
+
+  // Focus mode: hide global nav/header via html class
+  useEffect(() => {
+    const root = document.documentElement;
+    if (focusMode && lesson && !summary && !error) {
+      root.classList.add("lesson-focus");
+    } else {
+      root.classList.remove("lesson-focus");
+    }
+    return () => root.classList.remove("lesson-focus");
+  }, [focusMode, lesson, summary, error]);
+
+  // Fresh idempotency key per lesson load / retry
+  useEffect(() => {
+    idempotencyKeyRef.current = newIdempotencyKey();
+  }, [lessonId]);
+
+  // Escape → exit lesson (confirm if mid-progress); F toggles focus
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+
+      if (e.key === "f" || e.key === "F") {
+        if (!e.metaKey && !e.ctrlKey && !e.altKey) {
+          e.preventDefault();
+          setFocusMode((v) => !v);
+        }
+        return;
+      }
+
+      if (e.key !== "Escape") return;
+      if (summary) {
+        router.push(`/courses/${slug}`);
+        return;
+      }
+      if (answers.length > 0 || idx > 0) {
+        const ok =
+          typeof window !== "undefined"
+            ? window.confirm(t.lesson?.exit ? `${t.lesson.exit}?` : "Exit lesson?")
+            : true;
+        if (!ok) return;
+      }
+      router.push(`/courses/${slug}`);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [answers.length, idx, router, slug, summary, t.lesson?.exit]);
 
   useEffect(() => {
     if (!token) return;
@@ -141,7 +210,7 @@ export default function LessonPage() {
   }
 
   async function handleAnswer(answer: unknown) {
-    if (!lesson) return;
+    if (!lesson || submitting) return;
     const ex = lesson.exercises[idx];
     const nextAnswers = [
       ...answers.filter((a) => a.exerciseId !== ex.id),
@@ -156,6 +225,7 @@ export default function LessonPage() {
         setIdx((i) => i + 1);
       }, 400);
     } else {
+      setSubmitting(true);
       try {
         const result = await api<{
           xpGain: number;
@@ -170,10 +240,16 @@ export default function LessonPage() {
           passed?: boolean;
           examFailed?: boolean;
           passThreshold?: number;
+          results?: ExerciseResult[];
+          correctCount?: number;
+          total?: number;
         }>(`/courses/${slug}/lessons/${lessonId}/submit`, {
           method: "POST",
           token,
-          body: { answers: nextAnswers },
+          body: {
+            answers: nextAnswers,
+            idempotencyKey: idempotencyKeyRef.current,
+          },
         });
         if (result.character) setCharacter(result.character);
         if (typeof result.hearts === "number") setHearts(result.hearts);
@@ -189,11 +265,16 @@ export default function LessonPage() {
           passed: result.passed,
           examFailed: Boolean(result.examFailed),
           passThreshold: result.passThreshold,
+          results: result.results,
+          correctCount: result.correctCount,
+          total: result.total,
         });
       } catch (e: unknown) {
         const err = e as Error & { data?: { error?: string } };
         if (err.data?.error === "no_hearts") setError("no_hearts");
         else setError("submit_failed");
+      } finally {
+        setSubmitting(false);
       }
     }
   }
@@ -211,30 +292,15 @@ export default function LessonPage() {
   }
 
   if (error === "premium_required") {
-    return (
-      <div className="card mx-auto max-w-lg text-center space-y-4">
-        <h1 className="text-2xl font-black">{UI.common.locked}</h1>
-        <p className="text-ink-muted">Цей урок доступний у Premium.</p>
-        <Link href="/pricing" className="btn-primary">
-          {UI.common.unlockPremium}
-        </Link>
-      </div>
-    );
+    return <PaywallCard reason="premium_required" backHref={`/courses/${slug}`} />;
   }
 
   if (error === "no_hearts") {
     return (
-      <div className="card mx-auto max-w-lg text-center space-y-4">
-        <h1 className="text-2xl font-black">{UI.hearts.empty}</h1>
-        <p className="text-ink-muted">{UI.hearts.emptyHint}</p>
-        <HeartsBar hearts={0} max={maxHearts} />
-        <div className="flex justify-center gap-3">
-          <Link href={`/courses/${slug}`} className="btn-secondary">
-            {UI.common.back}
-          </Link>
-          <Link href="/pricing" className="btn-primary">
-            Premium
-          </Link>
+      <div className="space-y-4">
+        <PaywallCard reason="no_hearts" backHref={`/courses/${slug}`} />
+        <div className="flex justify-center">
+          <HeartsBar hearts={0} max={maxHearts} />
         </div>
       </div>
     );
@@ -244,6 +310,7 @@ export default function LessonPage() {
 
   if (summary) {
     const examFail = summary.examFailed || (summary.isExam && summary.passed === false);
+    const wrong = (summary.results ?? []).filter((r) => !r.correct);
     return (
       <div className="card mx-auto max-w-lg space-y-4 text-center">
         <h1 className="text-3xl font-black">
@@ -259,12 +326,40 @@ export default function LessonPage() {
           </p>
         )}
         <p>
-          Точність: {Math.round(summary.accuracy * 100)}%
+          {locale === "en" ? "Accuracy" : "Точність"}: {Math.round(summary.accuracy * 100)}%
+          {summary.correctCount != null && summary.total != null
+            ? ` · ${summary.correctCount}/${summary.total}`
+            : ""}
           {summary.isExam && summary.passThreshold != null
             ? ` · ≥${Math.round(summary.passThreshold * 100)}%`
             : ""}{" "}
-          · {UI.dashboard.level} курсу: {summary.courseLevel}
+          · {UI.dashboard.level}: {summary.courseLevel}
         </p>
+        {wrong.length > 0 && (
+          <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3 text-left dark:border-slate-800 dark:bg-slate-900">
+            <p className="mb-2 text-xs font-black uppercase text-ink-muted">
+              {locale === "en" ? "Review misses" : "Що виправити"}
+            </p>
+            <ul className="space-y-2 text-sm font-bold">
+              {wrong.map((r, i) => {
+                const missing = Array.isArray(r.meta?.missing)
+                  ? (r.meta!.missing as string[]).slice(0, 3).join(", ")
+                  : null;
+                return (
+                  <li key={r.exerciseId || i} className="flex flex-wrap gap-2">
+                    <span className="text-red-500">✗</span>
+                    <span className="font-mono text-xs text-ink-muted">
+                      {r.type ?? "exercise"}
+                    </span>
+                    {missing ? (
+                      <span className="text-xs text-ink-muted">· {missing}</span>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
         <div className="flex justify-center">
           <HeartsBar hearts={summary.hearts} max={maxHearts} />
         </div>
@@ -283,6 +378,7 @@ export default function LessonPage() {
               type="button"
               className="btn-primary"
               onClick={() => {
+                idempotencyKeyRef.current = newIdempotencyKey();
                 setSummary(null);
                 setIdx(0);
                 setAnswers([]);
@@ -292,7 +388,7 @@ export default function LessonPage() {
             </button>
           ) : null}
           {examFail ? (
-            <Link href="/review" className="btn-secondary">
+            <Link href="/review?from=exam" className="btn-secondary">
               🔁 {t.nav.review}
             </Link>
           ) : null}
@@ -305,7 +401,7 @@ export default function LessonPage() {
             </Link>
           ) : null}
           <Link href={`/courses/${slug}`} className="btn-primary">
-            До курсу
+            {locale === "en" ? "Back to course" : "До курсу"}
           </Link>
           <Link href="/learn" className="btn-secondary">
             {t.nav.learn}
@@ -320,24 +416,46 @@ export default function LessonPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
-      <div className="flex items-center justify-between gap-2">
-        <Link href={`/courses/${slug}`} className="text-sm font-bold text-ink-muted">
-          ← {UI.lesson.exit}
-        </Link>
-        <button
-          type="button"
-          className="text-sm font-bold"
-          onClick={() => void toggleBookmark()}
-          title="Bookmark"
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Link
+          href={`/courses/${slug}`}
+          className="text-sm font-bold text-ink-muted"
+          title="Esc"
         >
-          {bookmarked ? "⭐" : "☆"}
-        </button>
-        <HeartsBar hearts={hearts} max={maxHearts} compact />
-        <span className="text-sm font-bold text-ink-muted">
-          {idx + 1}/{lesson.exercises.length}
-        </span>
+          ← {UI.lesson.exit}
+          <span className="ml-1 text-[10px] opacity-60">Esc</span>
+        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="rounded-xl border-2 border-slate-200 px-2 py-1 text-xs font-black dark:border-slate-700"
+            onClick={() => setFocusMode((v) => !v)}
+            title={locale === "en" ? "Toggle focus (F)" : "Режим фокусу (F)"}
+            aria-pressed={focusMode}
+          >
+            {focusMode
+              ? locale === "en"
+                ? "🎯 Focus"
+                : "🎯 Фокус"
+              : locale === "en"
+                ? "🗒 Full"
+                : "🗒 Усе"}
+          </button>
+          <button
+            type="button"
+            className="text-sm font-bold"
+            onClick={() => void toggleBookmark()}
+            title="Bookmark"
+          >
+            {bookmarked ? "⭐" : "☆"}
+          </button>
+          <HeartsBar hearts={hearts} max={maxHearts} compact />
+          <span className="text-sm font-bold text-ink-muted">
+            {idx + 1}/{lesson.exercises.length}
+          </span>
+        </div>
       </div>
-      <div className="h-3 overflow-hidden rounded-full bg-slate-200">
+      <div className="h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
         <div className="h-full bg-brand transition-all" style={{ width: `${progress}%` }} />
       </div>
       {lesson.isExam && (
@@ -356,58 +474,79 @@ export default function LessonPage() {
         {feedback === "ok" && (
           <p className="mt-4 font-bold text-brand-dark">{UI.lesson.correct}</p>
         )}
-      </div>
-      <div className="card space-y-2 !py-3">
-        <label className="text-xs font-bold text-ink-muted">📔 Note</label>
-        <textarea
-          className="input min-h-[72px] text-sm"
-          value={noteBody}
-          onChange={(e) => setNoteBody(e.target.value)}
-          placeholder="…"
-        />
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="btn-secondary !py-1.5 !px-3 text-sm"
-            onClick={() => void saveNote()}
-          >
-            {UI.common.save}
-          </button>
-          {noteMsg === "OK" && <span className="text-xs font-bold text-green-600">✓</span>}
-        </div>
+        {submitting && (
+          <p className="mt-4 text-sm font-bold text-ink-muted">
+            {locale === "en" ? "Submitting…" : "Надсилаємо…"}
+          </p>
+        )}
       </div>
 
-      <div className="card space-y-3">
-        <h3 className="font-black">💬 Discussion</h3>
-        {comments.length === 0 && (
-          <p className="text-sm text-ink-muted font-bold">No comments yet</p>
-        )}
-        {comments.map((c) => (
-          <div key={c.id} className="rounded-xl bg-slate-50 p-3 text-sm dark:bg-slate-900">
-            <p className="font-bold text-xs text-ink-muted">
-              {c.displayName ?? "—"} · {new Date(c.createdAt).toLocaleString()}
-            </p>
-            <p className="mt-1 whitespace-pre-wrap">{c.body}</p>
+      {!focusMode && (
+        <>
+          <div className="card space-y-2 !py-3">
+            <label className="text-xs font-bold text-ink-muted">📔 Note</label>
+            <textarea
+              className="input min-h-[72px] text-sm"
+              value={noteBody}
+              onChange={(e) => setNoteBody(e.target.value)}
+              placeholder="…"
+            />
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                className="btn-secondary !py-1.5 !px-3 text-sm"
+                onClick={() => void saveNote()}
+              >
+                {UI.common.save}
+              </button>
+              {noteMsg === "OK" && (
+                <span className="text-xs font-bold text-green-600">✓</span>
+              )}
+            </div>
           </div>
-        ))}
-        <div className="flex gap-2">
-          <input
-            className="input flex-1"
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            placeholder="Comment…"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                void postComment();
-              }
-            }}
-          />
-          <button type="button" className="btn-primary !py-2" onClick={() => void postComment()}>
-            →
-          </button>
-        </div>
-      </div>
+
+          <div className="card space-y-3">
+            <h3 className="font-black">💬 Discussion</h3>
+            {comments.length === 0 && (
+              <p className="text-sm text-ink-muted font-bold">
+                {locale === "en" ? "No comments yet" : "Коментарів ще немає"}
+              </p>
+            )}
+            {comments.map((c) => (
+              <div
+                key={c.id}
+                className="rounded-xl bg-slate-50 p-3 text-sm dark:bg-slate-900"
+              >
+                <p className="font-bold text-xs text-ink-muted">
+                  {c.displayName ?? "—"} · {new Date(c.createdAt).toLocaleString()}
+                </p>
+                <p className="mt-1 whitespace-pre-wrap">{c.body}</p>
+              </div>
+            ))}
+            <div className="flex gap-2">
+              <input
+                className="input flex-1"
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder={locale === "en" ? "Comment…" : "Коментар…"}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    void postComment();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                className="btn-primary !py-2"
+                onClick={() => void postComment()}
+              >
+                →
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

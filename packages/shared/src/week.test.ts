@@ -36,6 +36,15 @@ describe("weekly minis race", () => {
 });
 
 describe("course groups", () => {
+  it("isCourseSlug / listCourseRegistry", async () => {
+    const { isCourseSlug, listCourseRegistry, parseCourseSlug } = await import("./courses.js");
+    expect(isCourseSlug("programming")).toBe(true);
+    expect(isCourseSlug("nope")).toBe(false);
+    expect(parseCourseSlug("english")).toBe("english");
+    expect(parseCourseSlug("x")).toBeNull();
+    expect(listCourseRegistry().length).toBe(COURSE_SLUGS.length);
+  });
+
   it("every COURSE_SLUGS has a group", () => {
     for (const s of COURSE_SLUGS) {
       expect(COURSE_GROUP[s]).toBeTruthy();

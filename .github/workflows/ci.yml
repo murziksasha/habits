@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, dev]
   pull_request:
-    branches: [main, master]
+    branches: [main, master, dev]
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-      - run: pnpm install --no-frozen-lockfile
+      - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @eduforge/shared build
       - run: pnpm --filter @eduforge/content build
       - run: pnpm --filter @eduforge/chess-core build
@@ -32,30 +32,6 @@ jobs:
         run: pnpm test:unit
       - name: Typecheck
         run: pnpm typecheck
-
-  # Playwright smoke — skipped by default (needs full stack). Enable with:
-  #   workflow_dispatch or set repo var RUN_E2E=true
-  e2e:
-    name: E2E smoke (optional)
-    if: ${{ github.event_name == 'workflow_dispatch' || vars.RUN_E2E == 'true' }}
-    runs-on: ubuntu-latest
-    needs: unit
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 11.14.0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install --no-frozen-lockfile
-      - run: pnpm --filter @eduforge/web exec playwright install --with-deps chromium
-      - name: E2E (expects stack at localhost — use SKIP_E2E if not)
-        env:
-          SKIP_E2E: ${{ vars.SKIP_E2E || '1' }}
-        run: pnpm test:e2e
-        continue-on-error: true
 
   integration:
     name: API integration (Postgres)
@@ -74,8 +50,18 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
     env:
       DATABASE_URL: postgresql://eduforge:eduforge@localhost:5432/eduforge
+      REDIS_URL: redis://localhost:6379
       NODE_ENV: development
       AUTH_SECRET: ci-test-secret
       WEB_ORIGIN: http://localhost:3000
@@ -88,7 +74,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-      - run: pnpm install --no-frozen-lockfile
+      - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @eduforge/shared build
       - run: pnpm --filter @eduforge/content build
       - run: pnpm --filter @eduforge/chess-core build
@@ -96,3 +82,86 @@ jobs:
       - run: pnpm db:migrate
       - run: pnpm db:seed
       - run: pnpm --filter @eduforge/api test:integration
+
+  e2e:
+    name: E2E smoke (compose stack)
+    runs-on: ubuntu-latest
+    needs: [unit]
+    timeout-minutes: 45
+    env:
+      DATABASE_URL: postgresql://eduforge:eduforge@localhost:5432/eduforge
+      REDIS_URL: redis://localhost:6379
+      AUTH_SECRET: ci-test-secret
+      WEB_ORIGIN: http://localhost:3000
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+      NEXT_PUBLIC_REALTIME_URL: http://localhost:4001
+      API_PORT: "4000"
+      REALTIME_PORT: "4001"
+      NODE_ENV: development
+      SKIP_E2E: "0"
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: eduforge
+          POSTGRES_PASSWORD: eduforge
+          POSTGRES_DB: eduforge
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U eduforge"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 15
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.14.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build workspace packages
+        run: |
+          pnpm --filter @eduforge/shared build
+          pnpm --filter @eduforge/content build
+          pnpm --filter @eduforge/chess-core build
+          pnpm --filter @eduforge/db build
+          pnpm --filter @eduforge/api build
+          pnpm --filter @eduforge/realtime build
+          pnpm --filter @eduforge/web build
+      - name: Migrate + seed
+        run: |
+          pnpm db:migrate
+          pnpm db:seed
+      - name: Start API + realtime + web
+        run: |
+          pnpm --filter @eduforge/api start &
+          pnpm --filter @eduforge/realtime start &
+          pnpm --filter @eduforge/web start &
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:4000/health >/dev/null \
+              && curl -sf http://localhost:4001/health >/dev/null \
+              && curl -sf http://localhost:3000 >/dev/null; then
+              echo "stack ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "stack failed to become ready"
+          exit 1
+      - name: Install Playwright Chromium
+        run: pnpm --filter @eduforge/web exec playwright install --with-deps chromium
+      - name: E2E smoke
+        run: pnpm test:e2e

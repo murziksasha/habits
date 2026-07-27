@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
+import { Badge, Button, Card, EmptyState, Skeleton } from "@/components/ui";
 
 type ChildProgress = {
   character: {
@@ -122,19 +123,41 @@ export default function ChildProgressPage() {
     }
   }
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
-  if (!data) return <p>{t.common.loading}</p>;
+  if (loading || !user) {
+    return (
+      <div className="space-y-3" aria-busy="true">
+        <Skeleton className="h-8 w-40" />
+        <Skeleton className="h-28 w-full" />
+      </div>
+    );
+  }
+  if (!data) {
+    return (
+      <EmptyState
+        title={t.common.loading}
+        description={locale === "en" ? "Loading child progress…" : "Завантаження прогресу…"}
+      />
+    );
+  }
 
   const ch = data.character;
   const prog = data.programming;
   const pg = data.playground;
+  const quietWeek =
+    digest &&
+    digest.lessonsCompleted === 0 &&
+    digest.xpApprox === 0 &&
+    digest.programmingLessonsWeek === 0 &&
+    digest.playgroundSolvedWeek === 0 &&
+    digest.homeworkCompletedWeek === 0 &&
+    (digest.examsPassedWeek ?? 0) === 0;
 
   return (
     <div className="space-y-6">
       <Link href="/parents" className="text-sm font-bold text-ink-muted">
         ← {t.common.back}
       </Link>
-      <div className="card">
+      <Card>
         <h1 className="text-3xl font-black">
           {t.parents.progress}: {ch?.displayName}
         </h1>
@@ -142,21 +165,33 @@ export default function ChildProgressPage() {
           L{ch?.globalLevel ?? 1} · {ch?.globalXp ?? 0} XP · 🔥 {ch?.streakDays ?? 0} ·
           daily {ch?.dailyXp ?? 0}/{ch?.dailyGoalXp ?? 50}
         </p>
-      </div>
+      </Card>
 
       {digest && (
-        <section className="card space-y-3 border-sky/30">
+        <Card className="space-y-3 border-sky/30">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="font-black">📧 {t.parents.weeklyDigest}</h2>
-            <button
-              type="button"
-              className="btn-primary !py-2 !px-3 text-sm"
-              onClick={() => void sendDigest()}
-            >
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="font-black">📧 {t.parents.weeklyDigest}</h2>
+              {quietWeek ? (
+                <Badge tone="muted">
+                  {locale === "en" ? "Quiet week" : "Тихий тиждень"}
+                </Badge>
+              ) : (
+                <Badge tone="sky">7d</Badge>
+              )}
+            </div>
+            <Button size="sm" onClick={() => void sendDigest()}>
               {t.parents.sendDigest}
-            </button>
+            </Button>
           </div>
-          <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-6 text-center">
+          {quietWeek && (
+            <p className="text-sm font-bold text-ink-muted">
+              {locale === "en"
+                ? "Little activity this week — email will gently nudge the family to start one lesson."
+                : "Мало активності — лист м’яко нагадає почати хоча б один урок."}
+            </p>
+          )}
+          <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-4 text-center">
             <div className="rounded-xl bg-slate-50 p-2 dark:bg-slate-900">
               <p className="text-[10px] font-bold text-ink-muted">{t.parents.lessonsWeek}</p>
               <p className="text-xl font-black">{digest.lessonsCompleted}</p>
@@ -181,8 +216,10 @@ export default function ChildProgressPage() {
               <p className="text-[10px] font-bold text-ink-muted">{t.parents.hwWeek}</p>
               <p className="text-xl font-black">{digest.homeworkCompletedWeek}</p>
             </div>
-            <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-900">
-              <p className="text-xs font-bold text-ink-muted">📝 Exams</p>
+            <div className="rounded-xl bg-slate-50 p-2 dark:bg-slate-900">
+              <p className="text-[10px] font-bold text-ink-muted">
+                📝 {locale === "en" ? "Exams" : "Контрольні"}
+              </p>
               <p className="text-xl font-black">{digest.examsPassedWeek ?? 0}</p>
             </div>
           </div>
@@ -191,7 +228,7 @@ export default function ChildProgressPage() {
               {digestMsg}
             </pre>
           )}
-        </section>
+        </Card>
       )}
 
       {prog && (

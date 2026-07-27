@@ -3,10 +3,13 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { pickLocale } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
 import { XpBar } from "@/components/xp-bar";
+import { ShareProfileCard } from "@/components/share-card";
+import { Badge, Button, Card, EmptyState, Skeleton } from "@/components/ui";
 
 type Profile = {
   userId: string;
@@ -23,6 +26,7 @@ type Profile = {
   courseProgress: {
     slug: string;
     titleUk: string;
+    titleEn?: string;
     icon: string;
     color: string;
     xp: number;
@@ -32,6 +36,7 @@ type Profile = {
   recentAchievements: {
     code: string;
     titleUk: string;
+    titleEn?: string;
     icon: string;
   }[];
   programmingMinis?: {
@@ -58,7 +63,7 @@ const AVATAR_EMOJI: Record<string, string> = {
 export default function PublicProfilePage() {
   const { userId } = useParams<{ userId: string }>();
   const { user, token, loading } = useAuth();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [error, setError] = useState("");
@@ -84,50 +89,84 @@ export default function PublicProfilePage() {
     setProfile({ ...profile, friendship: "pending_out" });
   }
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
-  if (error) return <p className="text-red-500 font-bold">{error}</p>;
-  if (!profile) return <p>{t.common.loading}</p>;
+  if (loading || !user) {
+    return (
+      <div className="space-y-3" aria-busy="true">
+        <Skeleton className="h-28 w-full" />
+        <Skeleton className="h-40 w-full" />
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <EmptyState
+        title={t.common.error}
+        description={error}
+        actionHref="/friends"
+        actionLabel={t.nav.friends}
+      />
+    );
+  }
+  if (!profile) {
+    return (
+      <div className="space-y-3" aria-busy="true">
+        <Skeleton className="h-28 w-full" />
+        <p className="sr-only">{t.common.loading}</p>
+      </div>
+    );
+  }
+
+  const emoji = AVATAR_EMOJI[profile.avatarKey] ?? "🧙";
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div className="card flex flex-col gap-4 sm:flex-row sm:items-center">
-        <span className="text-6xl">
-          {AVATAR_EMOJI[profile.avatarKey] ?? "🧙"}
+      <Card className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <span className="text-6xl" aria-hidden>
+          {emoji}
         </span>
         <div className="flex-1">
           <p className="text-sm font-bold text-ink-muted">{t.publicProfile.title}</p>
           <h1 className="text-2xl font-black">{profile.displayName}</h1>
-          <p className="text-sm text-ink-muted">
-            {t.dashboard.level} {profile.globalLevel} · 🔥 {profile.streakDays} ·{" "}
-            {profile.plan}
+          <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-ink-muted">
+            <Badge tone="brand">
+              {t.dashboard.level} {profile.globalLevel}
+            </Badge>
+            <Badge tone="sky">🔥 {profile.streakDays}</Badge>
+            <Badge tone={profile.plan === "premium" ? "grape" : "muted"}>
+              {profile.plan}
+            </Badge>
           </p>
           <div className="mt-2 max-w-sm">
             <XpBar xp={profile.globalXp} />
           </div>
         </div>
         {!profile.isSelf && profile.friendship === "none" && (
-          <button type="button" className="btn-primary" onClick={() => void addFriend()}>
-            {t.social.addFriend}
-          </button>
+          <Button onClick={() => void addFriend()}>{t.social.addFriend}</Button>
         )}
         {profile.friendship === "friends" && (
-          <span className="rounded-full bg-brand-soft px-3 py-1 text-sm font-bold">
-            👥 {t.social.friends}
-          </span>
+          <Badge tone="brand">👥 {t.social.friends}</Badge>
         )}
         {profile.friendship === "pending_out" && (
           <span className="text-sm font-bold text-ink-muted">{t.social.pending}</span>
         )}
-      </div>
+      </Card>
+
+      <ShareProfileCard
+        userId={profile.userId}
+        displayName={profile.displayName}
+        globalLevel={profile.globalLevel}
+        globalXp={profile.globalXp}
+        streakDays={profile.streakDays}
+        avatarEmoji={emoji}
+        showFriendInvite={!profile.isSelf}
+      />
 
       {profile.programmingMinis && profile.programmingMinis.total > 0 && (
-        <section className="card space-y-2 border-sky/30">
+        <Card className="space-y-2 border-sky/30">
           <div className="flex items-center justify-between gap-2">
             <h2 className="font-black">🧩 {t.publicProfile.minis}</h2>
             {profile.programmingMinis.allDone ? (
-              <span className="rounded-full bg-brand/15 px-2 py-0.5 text-xs font-black text-brand-dark">
-                {t.publicProfile.minisComplete}
-              </span>
+              <Badge tone="brand">{t.publicProfile.minisComplete}</Badge>
             ) : null}
           </div>
           <p className="text-sm font-bold text-ink-muted">
@@ -151,20 +190,23 @@ export default function PublicProfilePage() {
               {t.programming.continueCode} →
             </Link>
           )}
-        </section>
+        </Card>
       )}
 
       <section>
         <h2 className="mb-3 text-xl font-black">{t.publicProfile.courses}</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           {profile.courseProgress.map((c) => (
-            <div key={c.slug} className="card">
+            <Card key={c.slug}>
               <span className="text-2xl">{c.icon}</span>
-              <p className="font-black">{c.titleUk}</p>
-              <p className="text-sm text-ink-muted">
-                {t.dashboard.level} {c.level} · {c.completedLessons} lessons
+              <p className="font-black">
+                {pickLocale(locale, c.titleUk, c.titleEn)}
               </p>
-            </div>
+              <p className="text-sm text-ink-muted">
+                {t.dashboard.level} {c.level} · {c.completedLessons}{" "}
+                {locale === "en" ? "lessons" : "уроків"}
+              </p>
+            </Card>
           ))}
           {profile.courseProgress.length === 0 && (
             <p className="text-ink-muted text-sm">—</p>
@@ -180,9 +222,9 @@ export default function PublicProfilePage() {
           {profile.recentAchievements.map((a) => (
             <span
               key={a.code}
-              className="rounded-2xl border-2 border-slate-100 px-3 py-2 text-sm font-bold"
+              className="rounded-2xl border-2 border-slate-100 px-3 py-2 text-sm font-bold dark:border-slate-800"
             >
-              {a.icon} {a.titleUk}
+              {a.icon} {pickLocale(locale, a.titleUk, a.titleEn)}
             </span>
           ))}
         </div>
@@ -197,7 +239,7 @@ export default function PublicProfilePage() {
               href={`/certificates/${c.code}`}
               className="card block hover:border-brand/40"
             >
-              📜 {c.titleUk}
+              📜 {pickLocale(locale, c.titleUk, c.titleEn)}
             </Link>
           ))}
           {profile.certificates.length === 0 && (

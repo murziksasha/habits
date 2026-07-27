@@ -20,6 +20,15 @@ export const COURSE_SLUGS = [
 
 export type CourseSlug = (typeof COURSE_SLUGS)[number];
 
+/** App-level registry guard (DB stores free-form varchar). */
+export function isCourseSlug(value: string): value is CourseSlug {
+  return (COURSE_SLUGS as readonly string[]).includes(value);
+}
+
+export function parseCourseSlug(value: string): CourseSlug | null {
+  return isCourseSlug(value) ? value : null;
+}
+
 /** Catalog grouping for discoverability */
 export type CourseGroup = "skill" | "code" | "deep" | "chess";
 
@@ -274,6 +283,14 @@ export function isProgrammingMiniSlug(s: string): boolean {
   return (PROGRAMMING_MINI_LESSON_SLUGS as readonly string[]).includes(s);
 }
 
+/** Flat registry rows for admin / hub tooling */
+export function listCourseRegistry() {
+  return COURSE_SLUGS.map((slug) => ({
+    ...COURSE_META[slug],
+    hubHref: COURSE_HUB_HREF[slug] ?? `/courses/${slug}`,
+  }));
+}
+
 /**
  * Weekly race: 3 mini lesson slugs rotated by ISO week.
  * Score = how many of these 3 the user completed this week.
@@ -409,4 +426,6 @@ export type ExerciseType =
   | "code_output"
   | "code_fill"
   | "code_order"
-  | "code_project";
+  | "code_project"
+  | "video"
+  | "code_judge";

@@ -1,14 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 import { UI } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
+import { isFriendInviteId, sendFriendInvite } from "@/lib/friend-invite";
 
-export default function LoginPage() {
+function LoginForm() {
   const { login } = useAuth();
   const router = useRouter();
+  const params = useSearchParams();
+  const friendId = params.get("friend");
+  const nextPath = params.get("next");
+  const hasFriendInvite = isFriendInviteId(friendId);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -20,6 +25,15 @@ export default function LoginPage() {
     setError("");
     try {
       await login(email, password);
+      if (hasFriendInvite && friendId) {
+        await sendFriendInvite(friendId);
+        router.push("/friends");
+        return;
+      }
+      if (nextPath && nextPath.startsWith("/") && !nextPath.startsWith("//")) {
+        router.push(nextPath);
+        return;
+      }
       router.push("/dashboard");
     } catch {
       setError("Невірний email або пароль");
@@ -31,6 +45,11 @@ export default function LoginPage() {
   return (
     <div className="mx-auto max-w-md card">
       <h1 className="text-2xl font-black">{UI.auth.loginTitle}</h1>
+      {hasFriendInvite && (
+        <p className="mt-2 rounded-xl bg-brand-soft/40 px-3 py-2 text-sm font-bold text-ink">
+          👥 Friend invite — we will send a request after you sign in.
+        </p>
+      )}
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
         <div>
           <label className="label">{UI.auth.email}</label>
@@ -64,10 +83,21 @@ export default function LoginPage() {
       </p>
       <p className="mt-2 text-center text-sm text-ink-muted">
         {UI.auth.noAccount}{" "}
-        <Link href="/register" className="font-bold text-sky">
+        <Link
+          href={hasFriendInvite && friendId ? `/register?friend=${friendId}` : "/register"}
+          className="font-bold text-sky"
+        >
           {UI.nav.register}
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<p>{UI.common.loading}</p>}>
+      <LoginForm />
+    </Suspense>
   );
 }

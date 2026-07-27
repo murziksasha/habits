@@ -41,7 +41,7 @@ leaderboardRoutes.get("/chess", async (c) => {
 });
 
 leaderboardRoutes.get("/course/:slug", async (c) => {
-  const slug = c.req.param("slug") as typeof courses.slug.enumValues[number];
+  const slug = c.req.param("slug");
   const course = await db.query.courses.findFirst({ where: eq(courses.slug, slug) });
   if (!course) return c.json({ error: "not_found" }, 404);
   const rows = await db

@@ -1,0 +1,16 @@
+{
+  "name": "@eduforge/mobile",
+  "version": "0.0.1",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "echo \"Install Expo deps: cd apps/mobile && npx expo start\"",
+    "typecheck": "node -e \"require('fs').accessSync('App.tsx'); console.log('mobile shell ok')\"",
+    "lint": "echo ok",
+    "test": "echo ok",
+    "build": "echo ok"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

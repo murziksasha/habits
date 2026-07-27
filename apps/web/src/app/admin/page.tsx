@@ -146,6 +146,32 @@ export default function AdminHomePage() {
           >
             {busy === "wl" ? "…" : `📬 ${t.admin.runWeeklyLearners}`}
           </button>
+          <button
+            type="button"
+            className="btn-sky !py-2 text-sm"
+            disabled={Boolean(busy)}
+            onClick={() =>
+              void (async () => {
+                if (!token) return;
+                setBusy("re");
+                setOpsMsg("");
+                try {
+                  const r = await api<Record<string, unknown>>("/admin/ops/push-reengage", {
+                    method: "POST",
+                    token,
+                    body: { days: 3 },
+                  });
+                  setOpsMsg(`Push re-engage 3d: ${JSON.stringify(r)}`);
+                } catch (e) {
+                  setOpsMsg((e as Error).message || t.common.error);
+                } finally {
+                  setBusy(null);
+                }
+              })()
+            }
+          >
+            {busy === "re" ? "…" : "🔔 Push re-engage (3d)"}
+          </button>
         </div>
         {opsMsg && (
           <pre className="max-h-40 overflow-auto whitespace-pre-wrap rounded-xl bg-slate-50 p-3 text-xs font-bold dark:bg-slate-900">

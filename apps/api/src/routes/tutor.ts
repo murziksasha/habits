@@ -1,6 +1,7 @@
 import { Hono } from "hono";
-import { desc, eq } from "drizzle-orm";
-import { tutorMessages } from "@eduforge/db";
+import { and, desc, eq } from "drizzle-orm";
+import { activityEvents, tutorMessages } from "@eduforge/db";
+import { sanitizeUserText } from "@eduforge/shared";
 import { z } from "zod";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
@@ -105,10 +106,19 @@ tutorRoutes.post("/chat", authMiddleware, async (c) => {
   const parsed = chatSchema.safeParse(body);
   if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
 
+  const cleanMessage = sanitizeUserText(parsed.data.message, 4000);
+  if (!cleanMessage) return c.json({ error: "invalid_input" }, 400);
+
+  // Guardrail: refuse full solution dumps when user asks for answer without attempt context
+  const wantsDump =
+    /\b(give me the (full )?solution|just the answer|дай повну відповідь|дай готовий код рішення)\b/i.test(
+      cleanMessage,
+    );
+
   await db.insert(tutorMessages).values({
     userId: user.id,
     role: "user",
-    content: parsed.data.message,
+    content: cleanMessage,
     courseSlug: parsed.data.courseSlug ?? null,
   });
 
@@ -119,6 +129,29 @@ tutorRoutes.post("/chat", authMiddleware, async (c) => {
   });
   const chronological = history.reverse();
 
+  // Last fail context from learning loop
+  let failHint = "";
+  const lastFail = await db.query.activityEvents.findFirst({
+    where: and(
+      eq(activityEvents.userId, user.id),
+      eq(activityEvents.kind, "lesson_fail_context"),
+    ),
+    orderBy: [desc(activityEvents.createdAt)],
+  });
+  if (lastFail?.payload && typeof lastFail.payload === "object") {
+    const p = lastFail.payload as {
+      courseSlug?: string;
+      lessonId?: string;
+      wrong?: { type?: string; missing?: unknown }[];
+      accuracy?: number;
+    };
+    const wrongSummary = (p.wrong ?? [])
+      .slice(0, 4)
+      .map((w) => `${w.type ?? "?"}${w.missing ? ` missing=${JSON.stringify(w.missing)}` : ""}`)
+      .join("; ");
+    failHint = `Recent fail context: course=${p.courseSlug ?? "?"} accuracy=${p.accuracy ?? "?"} wrong=[${wrongSummary}]. Use this to give targeted hints, not full dumps until the learner tried.`;
+  }
+
   const localeHint =
     parsed.data.locale === "en"
       ? "Prefer English answers."
@@ -126,7 +159,7 @@ tutorRoutes.post("/chat", authMiddleware, async (c) => {
   const slug = (parsed.data.courseSlug ?? "").toLowerCase();
   const isCodeMsg =
     /```|\b(html|css|javascript|typescript|react|node|express|sql|git|flexbox|grid)\b/i.test(
-      parsed.data.message,
+      cleanMessage,
     );
   const baseSystem =
     SYSTEM_BY_COURSE[slug] ??
@@ -134,9 +167,16 @@ tutorRoutes.post("/chat", authMiddleware, async (c) => {
   const courseHint = slug
     ? `Focus course slug: ${slug}. Keep answers aligned with EduForge curriculum for that course.`
     : "";
+  const guard =
+    wantsDump
+      ? "User asked for a full solution dump — refuse full answers; give a scaffold, 1–2 hints, and ask them to try first."
+      : "Do not dump full solutions on the first ask; prefer Socratic hints and partial scaffolding.";
 
   const messages = [
-    { role: "system" as const, content: `${baseSystem}\n${localeHint}\n${courseHint}` },
+    {
+      role: "system" as const,
+      content: `${baseSystem}\n${localeHint}\n${courseHint}\n${guard}\n${failHint}`,
+    },
     ...chronological.map((m) => ({
       role: (m.role === "assistant" ? "assistant" : "user") as "assistant" | "user",
       content: m.content,

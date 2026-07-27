@@ -176,6 +176,32 @@ export type Exercise =
       hintEn?: string;
       explanationUk?: string;
       explanationEn?: string;
+    }
+  | {
+      id: string;
+      type: "video";
+      promptUk: string;
+      promptEn?: string;
+      videoUrl: string;
+      durationSec?: number;
+      minWatchRatio?: number;
+      explanationUk?: string;
+      explanationEn?: string;
+    }
+  | {
+      id: string;
+      type: "code_judge";
+      promptUk: string;
+      promptEn?: string;
+      language: "javascript" | "typescript" | "python" | "bash";
+      starter: string;
+      tests: {
+        type: "stdout_contains" | "stdout_equals" | "exit_code" | "not_stdout_contains";
+        value: string | number;
+      }[];
+      timeoutMs?: number;
+      explanationUk?: string;
+      explanationEn?: string;
     };
 
 export type LessonContent = {
