@@ -6,16 +6,10 @@ export const contentType = "image/png";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
-type Props = { params: Promise<{ code: string }> | { code: string } };
-
-async function resolveParams(params: Props["params"]) {
-  return typeof (params as Promise<{ code: string }>).then === "function"
-    ? await (params as Promise<{ code: string }>)
-    : (params as { code: string });
-}
+type Props = { params: Promise<{ code: string }> };
 
 export default async function Image({ params }: Props) {
-  const { code } = await resolveParams(params);
+  const { code } = await params;
   const upper = code.toUpperCase();
   let title = "EduForge Certificate";
   let displayName = "Learner";

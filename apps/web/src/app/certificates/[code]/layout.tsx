@@ -1,18 +1,16 @@
 import type { Metadata } from "next";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
-const WEB_ORIGIN = process.env.NEXT_PUBLIC_WEB_ORIGIN ?? process.env.WEB_ORIGIN ?? "http://localhost:3000";
+const WEB_ORIGIN =
+  process.env.NEXT_PUBLIC_WEB_ORIGIN ?? process.env.WEB_ORIGIN ?? "http://localhost:3000";
 
-type Props = { params: Promise<{ code: string }> | { code: string }; children: React.ReactNode };
-
-async function resolveParams(params: Props["params"]) {
-  return typeof (params as Promise<{ code: string }>).then === "function"
-    ? await (params as Promise<{ code: string }>)
-    : (params as { code: string });
-}
+type Props = {
+  params: Promise<{ code: string }>;
+  children: React.ReactNode;
+};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { code } = await resolveParams(params);
+  const { code } = await params;
   const upper = code.toUpperCase();
   try {
     const res = await fetch(`${API_URL}/certificates/verify/${upper}`, {
@@ -43,7 +41,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         url,
         siteName: "EduForge",
         type: "article",
-        // opengraph-image.tsx auto-attached by Next.js
       },
       twitter: {
         card: "summary_large_image",
@@ -57,6 +54,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default function CertificateLayout({ children }: { children: React.ReactNode }) {
+export default function CertificateLayout({ children }: Props) {
   return children;
 }

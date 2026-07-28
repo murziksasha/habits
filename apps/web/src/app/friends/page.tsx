@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
@@ -18,7 +18,7 @@ type Friend = {
   globalXp: number;
 };
 
-export default function FriendsPage() {
+function FriendsPageInner() {
   const { user, token, loading } = useAuth();
   const { t, locale } = useLocale();
   const router = useRouter();
@@ -313,5 +313,13 @@ export default function FriendsPage() {
         </section>
       )}
     </div>
+  );
+}
+
+export default function FriendsPage() {
+  return (
+    <Suspense fallback={<p>…</p>}>
+      <FriendsPageInner />
+    </Suspense>
   );
 }

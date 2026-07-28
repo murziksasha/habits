@@ -1,18 +1,16 @@
 import type { Metadata } from "next";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
-const WEB_ORIGIN = process.env.NEXT_PUBLIC_WEB_ORIGIN ?? process.env.WEB_ORIGIN ?? "http://localhost:3000";
+const WEB_ORIGIN =
+  process.env.NEXT_PUBLIC_WEB_ORIGIN ?? process.env.WEB_ORIGIN ?? "http://localhost:3000";
 
-type Props = { params: Promise<{ userId: string }> | { userId: string }; children: React.ReactNode };
-
-async function resolveParams(params: Props["params"]) {
-  return typeof (params as Promise<{ userId: string }>).then === "function"
-    ? await (params as Promise<{ userId: string }>)
-    : (params as { userId: string });
-}
+type Props = {
+  params: Promise<{ userId: string }>;
+  children: React.ReactNode;
+};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { userId } = await resolveParams(params);
+  const { userId } = await params;
   try {
     const res = await fetch(`${API_URL}/profiles/card/${userId}`, {
       next: { revalidate: 120 },
@@ -44,7 +42,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         siteName: "EduForge",
         type: "profile",
         locale: "uk_UA",
-        // opengraph-image.tsx auto-attached by Next.js
       },
       twitter: {
         card: "summary_large_image",
@@ -58,6 +55,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default function PublicProfileLayout({ children }: { children: React.ReactNode }) {
+export default function PublicProfileLayout({ children }: Props) {
   return children;
 }
