@@ -732,9 +732,9 @@ io.on("connection", (socket) => {
 });
 
 void setupSocketAdapter().finally(() => {
-  httpServer.listen(PORT, () => {
+  httpServer.listen(PORT, "0.0.0.0", () => {
     console.log(
-      `Realtime listening on http://localhost:${PORT} (matchmaking=${seekStore.backend})`,
+      `Realtime listening on http://0.0.0.0:${PORT} (matchmaking=${seekStore.backend})`,
     );
   });
 });

@@ -18,8 +18,11 @@ test.describe("EduForge smoke", () => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("lang", "uk");
-    await expect(page.getByText(/EduForge|Навчайся|Learn/i).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: /Почати|Start free|безкоштовно/i }).first()).toBeVisible();
+    await expect(page.getByText(/EduForge|Навчайся|Learn|Learning OS/i).first()).toBeVisible();
+    // Register CTA (uk UI strings) or EN marketing fallbacks
+    await expect(
+      page.getByRole("link", { name: /Почати|Start free|безкоштовно|Реєстрація|Sign up/i }).first(),
+    ).toBeVisible();
   });
 
   test("register → dashboard → english course → lesson", async ({ page }) => {

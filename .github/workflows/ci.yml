@@ -61,11 +61,12 @@ jobs:
           --health-timeout 3s
           --health-retries 10
     env:
-      DATABASE_URL: postgresql://eduforge:eduforge@localhost:5432/eduforge
-      REDIS_URL: redis://localhost:6379
+      DATABASE_URL: postgresql://eduforge:eduforge@127.0.0.1:5432/eduforge
+      REDIS_URL: redis://127.0.0.1:6379
       NODE_ENV: development
       AUTH_SECRET: ci-test-secret
-      WEB_ORIGIN: http://localhost:3000
+      WEB_ORIGIN: http://127.0.0.1:3000
+      COOKIE_SECURE: "0"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -93,16 +94,22 @@ jobs:
     needs: [unit]
     timeout-minutes: 45
     env:
-      DATABASE_URL: postgresql://eduforge:eduforge@localhost:5432/eduforge
-      REDIS_URL: redis://localhost:6379
+      # Prefer 127.0.0.1 over localhost (IPv6 quirks on GHA runners)
+      DATABASE_URL: postgresql://eduforge:eduforge@127.0.0.1:5432/eduforge
+      REDIS_URL: redis://127.0.0.1:6379
       AUTH_SECRET: ci-test-secret
-      WEB_ORIGIN: http://localhost:3000
-      NEXT_PUBLIC_API_URL: http://localhost:4000
-      NEXT_PUBLIC_REALTIME_URL: http://localhost:4001
+      WEB_ORIGIN: http://127.0.0.1:3000
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:4000
+      NEXT_PUBLIC_REALTIME_URL: http://127.0.0.1:4001
+      NEXT_PUBLIC_WEB_ORIGIN: http://127.0.0.1:3000
+      PLAYWRIGHT_BASE_URL: http://127.0.0.1:3000
       API_PORT: "4000"
       REALTIME_PORT: "4001"
+      # Keep non-production for session cookies on http://
       NODE_ENV: development
+      COOKIE_SECURE: "0"
       SKIP_E2E: "0"
+      CI: "true"
     services:
       postgres:
         image: postgres:16-alpine
@@ -145,32 +152,49 @@ jobs:
           pnpm --filter @eduforge/db build
           pnpm --filter @eduforge/api build
           pnpm --filter @eduforge/realtime build
+          # next build embeds NEXT_PUBLIC_* from env above
           pnpm --filter @eduforge/web build
       - name: Migrate + seed
         run: |
           pnpm db:migrate
           pnpm db:seed
+      - name: Install Playwright Chromium
+        run: pnpm --filter @eduforge/web exec playwright install --with-deps chromium
       - name: Start API + realtime + web
         run: |
-          set -e
+          set +e
           pnpm --filter @eduforge/api start > /tmp/api.log 2>&1 &
+          echo $! > /tmp/api.pid
           pnpm --filter @eduforge/realtime start > /tmp/realtime.log 2>&1 &
+          echo $! > /tmp/realtime.pid
           pnpm --filter @eduforge/web start > /tmp/web.log 2>&1 &
-          for i in $(seq 1 60); do
-            if curl -sf http://localhost:4000/health >/dev/null \
-              && curl -sf http://localhost:4001/health >/dev/null \
-              && curl -sf http://localhost:3000 >/dev/null; then
-              echo "stack ready"
-              exit 0
+          echo $! > /tmp/web.pid
+          ready=0
+          for i in $(seq 1 90); do
+            api_ok=0; rt_ok=0; web_ok=0
+            curl -sf http://127.0.0.1:4000/health >/dev/null && api_ok=1
+            curl -sf http://127.0.0.1:4001/health >/dev/null && rt_ok=1
+            curl -sf http://127.0.0.1:3000 >/dev/null && web_ok=1
+            echo "wait $i api=$api_ok rt=$rt_ok web=$web_ok"
+            if [ "$api_ok" = "1" ] && [ "$rt_ok" = "1" ] && [ "$web_ok" = "1" ]; then
+              ready=1
+              break
             fi
             sleep 2
           done
-          echo "stack failed to become ready"
+          if [ "$ready" != "1" ]; then
+            echo "stack failed to become ready"
+            echo "=== api.log ===" && cat /tmp/api.log || true
+            echo "=== realtime.log ===" && cat /tmp/realtime.log || true
+            echo "=== web.log ===" && tail -n 120 /tmp/web.log || true
+            exit 1
+          fi
+          echo "stack ready"
+      - name: E2E smoke
+        run: pnpm --filter @eduforge/web test:e2e
+      - name: Dump logs on failure
+        if: failure()
+        run: |
           echo "=== api.log ===" && cat /tmp/api.log || true
           echo "=== realtime.log ===" && cat /tmp/realtime.log || true
-          echo "=== web.log ===" && tail -n 80 /tmp/web.log || true
-          exit 1
-      - name: Install Playwright Chromium
-        run: pnpm --filter @eduforge/web exec playwright install --with-deps chromium
-      - name: E2E smoke
-        run: pnpm test:e2e
+          echo "=== web.log ===" && tail -n 120 /tmp/web.log || true

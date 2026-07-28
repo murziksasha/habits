@@ -136,12 +136,22 @@ export async function optionalAuth(c: Context, next: Next) {
 }
 
 export function setSessionCookie(c: Context, token: string, expiresAt: Date) {
+  // Secure cookies only on real HTTPS. CI/local use http://127.0.0.1 — must stay non-secure
+  // or Playwright never stores the session cookie.
+  const origin = process.env.WEB_ORIGIN ?? "";
+  const forceInsecure =
+    process.env.COOKIE_SECURE === "0" ||
+    origin.startsWith("http://localhost") ||
+    origin.startsWith("http://127.0.0.1");
+  const secure =
+    process.env.COOKIE_SECURE === "1" ||
+    (process.env.NODE_ENV === "production" && !forceInsecure);
   setCookie(c, COOKIE, token, {
     httpOnly: true,
     sameSite: "Lax",
     path: "/",
     expires: expiresAt,
-    secure: process.env.NODE_ENV === "production",
+    secure,
   });
 }
 
