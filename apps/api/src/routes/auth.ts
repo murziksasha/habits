@@ -8,9 +8,11 @@ import {
   authMiddleware,
   clearSessionCookie,
   createSession,
+  destroyOtherSessions,
   destroySession,
   hashPassword,
   hashToken,
+  listUserSessions,
   registerUser,
   setSessionCookie,
   verifyPassword,
@@ -112,6 +114,33 @@ authRoutes.post("/logout", authMiddleware, async (c) => {
   return c.json({ ok: true });
 });
 
+/** List active sessions for the current user (current device flagged). */
+authRoutes.get("/sessions", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const token = c.get("sessionToken");
+  const list = await listUserSessions(user.id, token);
+  return c.json({ sessions: list, count: list.length });
+});
+
+/**
+ * Sign out every other device (keeps the calling session).
+ * Body optional: `{ all: true }` also ends the current session (full logout-all).
+ */
+authRoutes.post("/logout-others", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const token = c.get("sessionToken");
+  if (!token) return c.json({ error: "unauthorized" }, 401);
+  const body = await c.req.json().catch(() => ({}));
+  const revokeCurrent = Boolean((body as { all?: boolean }).all);
+  const { revoked } = await destroyOtherSessions(user.id, token);
+  if (revokeCurrent) {
+    await destroySession(token);
+    clearSessionCookie(c);
+    return c.json({ ok: true, revoked: revoked + 1, currentRevoked: true });
+  }
+  return c.json({ ok: true, revoked, currentRevoked: false });
+});
+
 authRoutes.get("/me", authMiddleware, async (c) => {
   const user = c.get("user");
   let character = await db.query.characters.findFirst({
@@ -172,27 +201,24 @@ authRoutes.get("/onboarding", authMiddleware, async (c) => {
   });
   if (!character) return c.json({ error: "not_found" }, 404);
   const o = character.onboarding ?? {};
+  // Onboarding v2: core loop only (learn map → first lesson → code path → play)
+  // Secondary items remain trackable via complete keys but are not shown by default.
   const items = [
-    {
-      id: "profile",
-      titleUk: "Створіть персонажа",
-      titleEn: "Create your character",
-      done: true,
-      href: "/profile",
-    },
     {
       id: "learn_map",
       titleUk: "Відкрийте карту навчання",
       titleEn: "Open the learning map",
       done: Boolean(o.viewedLearnMap),
       href: "/learn",
+      key: "viewedLearnMap",
     },
     {
       id: "first_lesson",
-      titleUk: "Пройдіть перший урок",
-      titleEn: "Complete your first lesson",
+      titleUk: "Пройдіть перший урок сьогодні",
+      titleEn: "Complete your first lesson today",
       done: Boolean(o.completedFirstLesson) || character.globalXp > 0,
       href: "/learn",
+      key: "completedFirstLesson",
     },
     {
       id: "programming",
@@ -200,34 +226,15 @@ authRoutes.get("/onboarding", authMiddleware, async (c) => {
       titleEn: "Try the Programming path",
       done: Boolean(o.triedProgramming),
       href: "/programming",
+      key: "triedProgramming",
     },
     {
       id: "chess",
-      titleUk: "Зіграйте в шахи (бот або online)",
-      titleEn: "Play chess (bot or online)",
+      titleUk: "Зіграйте партію (бот або online)",
+      titleEn: "Play a game (bot or online)",
       done: Boolean(o.triedChess),
       href: "/play",
-    },
-    {
-      id: "typing",
-      titleUk: "Спробуйте урок друку",
-      titleEn: "Try a typing lesson",
-      done: Boolean(o.triedTyping),
-      href: "/courses/typing",
-    },
-    {
-      id: "leaderboard",
-      titleUk: "Подивіться рейтинг",
-      titleEn: "View the leaderboard",
-      done: Boolean(o.viewedLeaderboard),
-      href: "/leaderboard",
-    },
-    {
-      id: "pricing",
-      titleUk: "Перегляньте тарифи",
-      titleEn: "Check pricing",
-      done: Boolean(o.exploredPricing),
-      href: "/pricing",
+      key: "triedChess",
     },
   ];
   const doneCount = items.filter((i) => i.done).length;
@@ -237,6 +244,7 @@ authRoutes.get("/onboarding", authMiddleware, async (c) => {
     doneCount,
     total: items.length,
     complete: doneCount === items.length,
+    version: 2,
   });
 });
 

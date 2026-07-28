@@ -2,7 +2,7 @@
 
 Освітній SaaS: **англійська**, **шахи** (уроки + online PvP), **друк**, **швидкочитання**, **логіка**, **програмування** (Mimo-style path + playground + mini-projects).
 
-UI: **українська + англійська** · повна технічна документація: [`SPEC/`](./SPEC/) (English, 01–58).
+UI: **українська + англійська** · повна технічна документація: [`SPEC/`](./SPEC/) (English, 01–71) · surface freeze: [`SPEC/CURRENT.md`](./SPEC/CURRENT.md).
 
 - Monorepo: **pnpm + Turborepo**
 - Apps: `web` (Next.js), `api` (Hono), `realtime` (Socket.IO)
@@ -112,13 +112,14 @@ packages/db       Drizzle schema / migrate / seed
 packages/content  Seed-уроки (incl. programming)
 packages/shared   XP, Elo, entitlements, i18n, minis race
 packages/chess-core
-SPEC/             Product & technical docs (English) 01–58
+SPEC/             Product & technical docs (English) 01–71 + CURRENT
 ```
 
 ## Documentation
 
 - [`SPEC/README.md`](./SPEC/README.md) — full index  
-- [`SPEC/58-docs-freeze.md`](./SPEC/58-docs-freeze.md) — completion status  
+- [`SPEC/CURRENT.md`](./SPEC/CURRENT.md) — product surface freeze & IA map  
+- [`SPEC/58-docs-freeze.md`](./SPEC/58-docs-freeze.md) — historical closeout 01–58  
 - [`.env.example`](./.env.example) — environment variables  
 
 ## Tests

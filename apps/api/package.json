@@ -16,6 +16,7 @@
   "dependencies": {
     "@eduforge/chess-core": "workspace:*",
     "@eduforge/db": "workspace:*",
+    "@eduforge/judge": "workspace:*",
     "@eduforge/shared": "workspace:*",
     "@hono/node-server": "^1.14.1",
     "bcryptjs": "^3.0.2",

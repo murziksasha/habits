@@ -20,6 +20,37 @@ type Vars = { user: AuthedUser };
 
 export const profileRoutes = new Hono<{ Variables: Vars }>();
 
+/**
+ * Public card for Open Graph / unfurl (no auth).
+ * Limited fields only — no email, friendship, or private progress detail.
+ */
+profileRoutes.get("/card/:userId", async (c) => {
+  const userId = c.req.param("userId") ?? "";
+  const u = await db.query.users.findFirst({ where: eq(users.id, userId) });
+  if (!u) return c.json({ error: "not_found" }, 404);
+  const ch = await db.query.characters.findFirst({
+    where: eq(characters.userId, userId),
+  });
+  if (!ch) return c.json({ error: "not_found" }, 404);
+
+  const [achCount] = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(userAchievements)
+    .where(eq(userAchievements.userId, userId));
+
+  return c.json({
+    card: {
+      userId,
+      displayName: ch.displayName,
+      avatarKey: ch.avatarKey,
+      globalLevel: ch.globalLevel,
+      globalXp: ch.globalXp,
+      streakDays: ch.streakDays,
+      achievementsUnlocked: achCount?.n ?? 0,
+    },
+  });
+});
+
 profileRoutes.get("/:userId", authMiddleware, async (c) => {
   const me = c.get("user");
   const userId = c.req.param("userId") as string;

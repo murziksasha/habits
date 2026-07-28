@@ -18,8 +18,11 @@ test.describe("EduForge smoke", () => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("lang", "uk");
-    await expect(page.getByText(/EduForge|Навчайся|Learn/i).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: /Почати|Start free|безкоштовно/i }).first()).toBeVisible();
+    await expect(page.getByText(/EduForge|Навчайся|Learn|Learning OS/i).first()).toBeVisible();
+    // Register CTA (uk UI strings) or EN marketing fallbacks
+    await expect(
+      page.getByRole("link", { name: /Почати|Start free|безкоштовно|Реєстрація|Sign up/i }).first(),
+    ).toBeVisible();
   });
 
   test("register → dashboard → english course → lesson", async ({ page }) => {
@@ -151,6 +154,10 @@ test.describe("EduForge smoke", () => {
       await expect(
         page.getByRole("button", { name: /Перевірити|Check/i }).first(),
       ).toBeVisible({ timeout: 10_000 });
+      // Focus mode chrome control
+      await expect(
+        page.getByRole("button", { name: /Focus|Фокус|Full|Усе/i }).first(),
+      ).toBeVisible({ timeout: 5_000 });
     }
   });
 
@@ -195,6 +202,8 @@ test.describe("EduForge smoke", () => {
     expect(json.paths["/friends/minis"]).toBeTruthy();
     expect(json.paths["/friends/race"]).toBeTruthy();
     expect(json.paths["/learning/programming/minis/race"]).toBeTruthy();
+    expect(json.paths["/auth/sessions"]).toBeTruthy();
+    expect(json.paths["/auth/logout-others"]).toBeTruthy();
   });
 
   test("friends page loads social minis sections", async ({ page }) => {
@@ -284,5 +293,69 @@ test.describe("EduForge smoke", () => {
     await expect(
       page.getByText(/minis|Сертифікат|Certificate|Щит|Shield|XP/i).first(),
     ).toBeVisible({ timeout: 15_000 });
+  });
+
+  test("profile share card and public profile load", async ({ page }) => {
+    await page.goto("/login");
+    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
+    await page.locator('input[type="password"]').fill("admin12345");
+    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
+    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    await page.goto("/profile");
+    await expect(
+      page.getByRole("button", { name: /Поділитися|Share|Копіювати|Copy/i }).first(),
+    ).toBeVisible({ timeout: 15_000 });
+    await page.getByRole("link", { name: /Public profile|Публічний профіль/i }).click();
+    await page.waitForURL(/\/u\//, { timeout: 15_000 });
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await expect(
+      page.getByRole("button", { name: /Поділитися|Share|Копіювати|Copy/i }).first(),
+    ).toBeVisible();
+  });
+
+  test("friends invite link section visible", async ({ page }) => {
+    await page.goto("/login");
+    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
+    await page.locator('input[type="password"]').fill("admin12345");
+    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
+    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    await page.goto("/friends");
+    await expect(
+      page.getByText(/invite|Запросити|invite-посилання|Your invite/i).first(),
+    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/register|реєстрац|friend=/i).first()).toBeVisible();
+  });
+
+  test("register friend invite banner from query", async ({ page }) => {
+    const fakeFriend = "11111111-1111-4111-8111-111111111111";
+    await page.goto(`/register?friend=${fakeFriend}`);
+    await expect(page.getByText(/Friend invite|friend request/i).first()).toBeVisible({
+      timeout: 10_000,
+    });
+  });
+
+  test("profile shows session security controls", async ({ page }) => {
+    await page.goto("/login");
+    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
+    await page.locator('input[type="password"]').fill("admin12345");
+    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
+    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    await page.goto("/profile");
+    await expect(
+      page.getByText(/Active sessions|Активні сесії|Sign out other|інших пристро/i).first(),
+    ).toBeVisible({ timeout: 15_000 });
+  });
+
+  test("certificate verify page is public", async ({ page, request }) => {
+    // Public API card + page shell (may 404 without certs — still should not require login for route)
+    await page.goto("/certificates/NOTREAL");
+    await expect(page.locator("main")).toBeVisible({ timeout: 15_000 });
+    // Either empty state 404 or loading finished
+    await expect(
+      page.getByText(/404|not found|не знайдено|EduForge|Certificate|Сертифікат/i).first(),
+    ).toBeVisible({ timeout: 15_000 });
+    const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+    const card = await request.get(`${apiBase}/profiles/card/00000000-0000-0000-0000-000000000000`);
+    expect([404, 200]).toContain(card.status());
   });
 });

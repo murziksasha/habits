@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { and, asc, eq, lt, or, sql } from "drizzle-orm";
-import { courses, lessons, userLessonProgress } from "@eduforge/db";
+import { and, asc, desc, eq, lt, or, sql } from "drizzle-orm";
+import { activityEvents, courses, lessons, userLessonProgress } from "@eduforge/db";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 
@@ -10,15 +10,18 @@ export const reviewRoutes = new Hono<{ Variables: Vars }>();
 
 /**
  * Lessons worth reviewing: completed with low score, or many attempts without high mastery.
+ * Query `from=exam` prioritizes recent exam_failed activity context (wrong types).
  */
 reviewRoutes.get("/", authMiddleware, async (c) => {
   const user = c.get("user");
   const threshold = Number(c.req.query("threshold") ?? 0.85);
+  const fromExam = c.req.query("from") === "exam";
 
   const rows = await db
     .select({
       lessonId: lessons.id,
       lessonTitleUk: lessons.titleUk,
+      lessonTitleEn: lessons.titleEn,
       courseSlug: courses.slug,
       courseTitleUk: courses.titleUk,
       courseIcon: courses.icon,
@@ -26,6 +29,7 @@ reviewRoutes.get("/", authMiddleware, async (c) => {
       attempts: userLessonProgress.attempts,
       status: userLessonProgress.status,
       completedAt: userLessonProgress.completedAt,
+      isExam: lessons.isExam,
     })
     .from(userLessonProgress)
     .innerJoin(lessons, eq(lessons.id, userLessonProgress.lessonId))
@@ -48,14 +52,50 @@ reviewRoutes.get("/", authMiddleware, async (c) => {
     .orderBy(asc(userLessonProgress.bestScore))
     .limit(40);
 
+  // Optional: pull last exam_failed wrong types for coaching banner
+  let examContext: {
+    courseSlug?: string;
+    wrongTypes?: string[];
+    accuracy?: number;
+  } | null = null;
+  if (fromExam) {
+    const last = await db.query.activityEvents.findFirst({
+      where: and(eq(activityEvents.userId, user.id), eq(activityEvents.kind, "exam_failed")),
+      orderBy: [desc(activityEvents.createdAt)],
+    });
+    if (last?.payload && typeof last.payload === "object") {
+      const p = last.payload as Record<string, unknown>;
+      examContext = {
+        courseSlug: typeof p.courseSlug === "string" ? p.courseSlug : undefined,
+        wrongTypes: Array.isArray(p.wrongTypes) ? (p.wrongTypes as string[]) : undefined,
+        accuracy: typeof p.accuracy === "number" ? p.accuracy : undefined,
+      };
+    }
+  }
+
+  const items = rows.map((r) => ({
+    ...r,
+    masteryPct: Math.round((r.bestScore ?? 0) * 100),
+    needsReview: true,
+    leech: (r.attempts ?? 0) >= 4 && (r.bestScore ?? 0) < 0.7,
+  }));
+
+  // Boost non-exam lessons in same course as last failed exam
+  if (examContext?.courseSlug) {
+    items.sort((a, b) => {
+      const aBoost = a.courseSlug === examContext!.courseSlug && !a.isExam ? 1 : 0;
+      const bBoost = b.courseSlug === examContext!.courseSlug && !b.isExam ? 1 : 0;
+      if (aBoost !== bBoost) return bBoost - aBoost;
+      return (a.bestScore ?? 0) - (b.bestScore ?? 0);
+    });
+  }
+
   return c.json({
     threshold,
-    items: rows.map((r) => ({
-      ...r,
-      masteryPct: Math.round((r.bestScore ?? 0) * 100),
-      needsReview: true,
-    })),
-    count: rows.length,
+    items,
+    count: items.length,
+    examContext,
+    fromExam,
   });
 });
 

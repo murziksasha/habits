@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { UI } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api";
+import { ExercisePlayer, type Exercise } from "@/components/exercises";
+import { Badge, Button, Card } from "@/components/ui";
 
 type Course = { id: string; slug: string; titleUk: string; icon: string };
 type Lesson = {
@@ -33,6 +35,23 @@ export default function AdminContentPage() {
   const [difficulty, setDifficulty] = useState(1);
   const [exercisesJson, setExercisesJson] = useState("[]");
   const [msg, setMsg] = useState("");
+  const [previewIdx, setPreviewIdx] = useState(0);
+  const [showPreview, setShowPreview] = useState(true);
+
+  const parsedExercises = useMemo(() => {
+    try {
+      const arr = JSON.parse(exercisesJson) as unknown;
+      if (!Array.isArray(arr)) return { ok: false as const, exercises: [] as Exercise[], err: "not array" };
+      return { ok: true as const, exercises: arr as Exercise[], err: null };
+    } catch (e) {
+      return { ok: false as const, exercises: [] as Exercise[], err: (e as Error).message };
+    }
+  }, [exercisesJson]);
+
+  const previewEx =
+    parsedExercises.ok && parsedExercises.exercises.length
+      ? parsedExercises.exercises[Math.min(previewIdx, parsedExercises.exercises.length - 1)]
+      : null;
 
   useEffect(() => {
     if (!loading && (!user || user.role !== "admin")) router.replace("/dashboard");
@@ -66,6 +85,8 @@ export default function AdminContentPage() {
     setBaseXp(lesson.baseXp);
     setDifficulty(lesson.difficulty);
     setExercisesJson(JSON.stringify(lesson.exercises ?? [], null, 2));
+    setPreviewIdx(0);
+    setShowPreview(true);
     setMsg("");
   }
 
@@ -190,61 +211,141 @@ export default function AdminContentPage() {
           ))}
         </div>
 
-        <div className="card space-y-3 sticky top-20 h-fit">
-          <h2 className="text-xl font-black">
-            {editId ? UI.admin.editLesson : "Оберіть урок"}
-          </h2>
-          {editId ? (
-            <>
-              <div>
-                <label className="label">Назва (UK)</label>
-                <input className="input" value={titleUk} onChange={(e) => setTitleUk(e.target.value)} />
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                <div>
-                  <label className="label">XP</label>
-                  <input
-                    className="input"
-                    type="number"
-                    value={baseXp}
-                    onChange={(e) => setBaseXp(Number(e.target.value))}
-                  />
+        <div className="space-y-4 sticky top-20 h-fit">
+          <Card className="space-y-3">
+            <h2 className="text-xl font-black">
+              {editId ? UI.admin.editLesson : "Оберіть урок"}
+            </h2>
+            {editId ? (
+              <>
+                <div className="flex flex-wrap gap-2">
+                  {isFree && <Badge tone="brand">Free</Badge>}
+                  <Badge tone="muted">XP {baseXp}</Badge>
+                  <Badge tone="sky">★ {difficulty}</Badge>
+                  {editId && (
+                    <Link
+                      href={`/courses/${slug}/lessons/${editId}`}
+                      className="text-xs font-bold text-sky hover:underline"
+                      target="_blank"
+                    >
+                      Open live →
+                    </Link>
+                  )}
                 </div>
                 <div>
-                  <label className="label">Складність</label>
-                  <input
-                    className="input"
-                    type="number"
-                    min={1}
-                    max={5}
-                    value={difficulty}
-                    onChange={(e) => setDifficulty(Number(e.target.value))}
-                  />
+                  <label className="label">Назва (UK)</label>
+                  <input className="input" value={titleUk} onChange={(e) => setTitleUk(e.target.value)} />
                 </div>
-                <label className="flex items-end gap-2 pb-3 font-bold text-sm">
-                  <input
-                    type="checkbox"
-                    checked={isFree}
-                    onChange={(e) => setIsFree(e.target.checked)}
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="label">XP</label>
+                    <input
+                      className="input"
+                      type="number"
+                      value={baseXp}
+                      onChange={(e) => setBaseXp(Number(e.target.value))}
+                    />
+                  </div>
+                  <div>
+                    <label className="label">Складність</label>
+                    <input
+                      className="input"
+                      type="number"
+                      min={1}
+                      max={5}
+                      value={difficulty}
+                      onChange={(e) => setDifficulty(Number(e.target.value))}
+                    />
+                  </div>
+                  <label className="flex items-end gap-2 pb-3 font-bold text-sm">
+                    <input
+                      type="checkbox"
+                      checked={isFree}
+                      onChange={(e) => setIsFree(e.target.checked)}
+                    />
+                    Free
+                  </label>
+                </div>
+                <div>
+                  <label className="label">Exercises JSON</label>
+                  <textarea
+                    className="input min-h-48 font-mono text-xs"
+                    value={exercisesJson}
+                    onChange={(e) => {
+                      setExercisesJson(e.target.value);
+                      setPreviewIdx(0);
+                    }}
+                    spellCheck={false}
                   />
-                  Free
-                </label>
+                  {!parsedExercises.ok && (
+                    <p className="mt-1 text-xs font-bold text-red-500">
+                      JSON: {parsedExercises.err}
+                    </p>
+                  )}
+                  {parsedExercises.ok && (
+                    <p className="mt-1 text-xs font-bold text-ink-muted">
+                      {parsedExercises.exercises.length} exercises · types:{" "}
+                      {[
+                        ...new Set(
+                          parsedExercises.exercises.map((e) => String(e.type ?? "?")),
+                        ),
+                      ].join(", ")}
+                    </p>
+                  )}
+                </div>
+                {msg && <p className="text-sm font-bold text-sky">{msg}</p>}
+                <Button fullWidth onClick={() => void save()}>
+                  {UI.common.save}
+                </Button>
+              </>
+            ) : (
+              <p className="text-ink-muted text-sm">Клікніть урок зліва, щоб редагувати.</p>
+            )}
+          </Card>
+
+          {editId && parsedExercises.ok && previewEx && (
+            <Card className="space-y-3 border-grape/30">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="font-black">👁 Player preview</h3>
+                <button
+                  type="button"
+                  className="text-xs font-bold text-ink-muted"
+                  onClick={() => setShowPreview((v) => !v)}
+                >
+                  {showPreview ? "Hide" : "Show"}
+                </button>
               </div>
-              <div>
-                <label className="label">Exercises JSON</label>
-                <textarea
-                  className="input min-h-64 font-mono text-xs"
-                  value={exercisesJson}
-                  onChange={(e) => setExercisesJson(e.target.value)}
-                />
-              </div>
-              {msg && <p className="text-sm font-bold text-sky">{msg}</p>}
-              <button type="button" className="btn-primary w-full" onClick={() => void save()}>
-                {UI.common.save}
-              </button>
-            </>
-          ) : (
-            <p className="text-ink-muted text-sm">Клікніть урок зліва, щоб редагувати.</p>
+              {showPreview && (
+                <>
+                  <div className="flex flex-wrap gap-1">
+                    {parsedExercises.exercises.map((ex, i) => (
+                      <button
+                        key={String(ex.id ?? i)}
+                        type="button"
+                        className={
+                          i === previewIdx
+                            ? "btn-primary !py-1 !px-2 text-xs"
+                            : "btn-secondary !py-1 !px-2 text-xs"
+                        }
+                        onClick={() => setPreviewIdx(i)}
+                      >
+                        {i + 1}. {String(ex.type ?? "?")}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="rounded-2xl border border-slate-100 p-3 dark:border-slate-800">
+                    <ExercisePlayer
+                      key={`${previewEx.id}-${previewIdx}`}
+                      exercise={previewEx}
+                      onAnswer={() => undefined}
+                    />
+                  </div>
+                  <p className="text-[10px] font-bold text-ink-muted">
+                    Soft-grade only — answers are not submitted to the API.
+                  </p>
+                </>
+              )}
+            </Card>
           )}
         </div>
       </div>

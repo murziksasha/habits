@@ -2,6 +2,12 @@ import { Hono } from "hono";
 import { eq } from "drizzle-orm";
 import Stripe from "stripe";
 import { users } from "@eduforge/db";
+import {
+  freemiumMatrix,
+  isPremiumActive,
+  planFeatureMatrix,
+  type Plan,
+} from "@eduforge/shared";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 import { env } from "../env.js";
@@ -17,9 +23,24 @@ function getStripe() {
 
 billingRoutes.get("/status", authMiddleware, async (c) => {
   const user = c.get("user");
-  return c.json({
-    plan: user.plan,
+  const premium = isPremiumActive({
+    plan: user.plan as Plan,
     planExpiresAt: user.planExpiresAt,
+  });
+  return c.json({
+    plan: premium ? "premium" : "free",
+    planExpiresAt: user.planExpiresAt,
+    stripeConfigured: Boolean(getStripe()),
+    premiumActive: premium,
+  });
+});
+
+/** Public freemium matrix (also returned authenticated for client paywalls). */
+billingRoutes.get("/entitlements", async (c) => {
+  const matrix = freemiumMatrix();
+  return c.json({
+    matrix,
+    features: planFeatureMatrix(),
     stripeConfigured: Boolean(getStripe()),
   });
 });
@@ -103,6 +124,33 @@ billingRoutes.post("/checkout", authMiddleware, async (c) => {
     metadata: { userId: user.id },
   });
   return c.json({ url: session.url });
+});
+
+/** Stripe Customer Portal for subscription management */
+billingRoutes.post("/portal", authMiddleware, async (c) => {
+  const stripe = getStripe();
+  if (!stripe) {
+    return c.json({ error: "stripe_not_configured", hint: "use /billing/dev-downgrade in demo" }, 503);
+  }
+  const user = c.get("user");
+  if (!user.stripeCustomerId) {
+    return c.json({ error: "no_customer", hint: "complete checkout first" }, 400);
+  }
+  try {
+    const session = await stripe.billingPortal.sessions.create({
+      customer: user.stripeCustomerId,
+      return_url: `${env.webOrigin}/pricing`,
+    });
+    return c.json({ url: session.url });
+  } catch (e) {
+    return c.json(
+      {
+        error: "portal_failed",
+        message: e instanceof Error ? e.message : "portal_error",
+      },
+      502,
+    );
+  }
 });
 
 billingRoutes.post("/webhook", async (c) => {

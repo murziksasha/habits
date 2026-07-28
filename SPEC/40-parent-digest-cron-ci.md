@@ -16,11 +16,13 @@ For each **active** parent→child link (skip self-placeholder):
 
 1. Throttle: skip if `parent_digest_sent` activity for that pair in last **6 days**
 2. Build digest via `buildChildDigest`
-3. Skip empty weeks (no lessons/XP/PG/HW)
-4. `sendMail(parentChildDigestEmail(...))`
+3. Build digest (includes exams; quiet weeks send soft check-in email)
+4. `sendMail(parentChildDigestEmail(...))` with CTA to parent portal
 5. Log `parent_digest_sent` with `{ studentId, source: "cron" }`
 
 Returns: `{ sent, skipped, errors, links }`
+
+See also **[CRON.md](./CRON.md)** for full schedule (digests, weekly email, push re-engage).
 
 ### Example cron
 

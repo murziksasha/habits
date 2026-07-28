@@ -26,13 +26,14 @@ const doc = {
   openapi: "3.0.3",
   info: {
     title: "EduForge API",
-    version: "2.3.0",
+    version: "2.4.0",
     description:
-      "Educational SaaS: learn map, exams, deep tracks (TS/HTML/CSS/QA/JS/React/SQL/Node/Express), trial+expiry, admin audit, feedback, minis, playground, schools, parents, metrics, chess, SRS, tutor.",
+      "Educational SaaS: learn map, exams, deep tracks (TS/HTML/CSS/QA/JS/React/SQL/Node/Express), trial+expiry, admin audit, feedback, minis, playground, schools, parents, metrics, chess, SRS, tutor. BFF: GET /me/home.",
   },
   servers: [{ url: "/", description: "Current host" }],
   tags: [
     { name: "auth" },
+    { name: "me" },
     { name: "courses" },
     { name: "engagement" },
     { name: "social" },
@@ -52,6 +53,77 @@ const doc = {
       get: {
         tags: ["ops"],
         summary: "Health check",
+        responses: { "200": { description: "OK" } },
+      },
+    },
+    "/ready": {
+      get: {
+        tags: ["ops"],
+        summary: "Readiness probe (DB required; Redis if REDIS_URL set)",
+        responses: {
+          "200": { description: "Ready" },
+          "503": { description: "Not ready" },
+        },
+      },
+    },
+    "/me/home": {
+      get: {
+        tags: ["me"],
+        summary: "Dashboard home aggregate (progress, next, exams, race, activity)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "OK" } },
+      },
+    },
+    "/me/flags": {
+      get: {
+        tags: ["me"],
+        summary: "Non-secret feature flags for clients",
+        responses: { "200": { description: "flags object" } },
+      },
+    },
+    "/judge/status": {
+      get: {
+        tags: ["judge"],
+        summary: "Code judge mode and languages",
+        responses: { "200": { description: "mode + langs" } },
+      },
+    },
+    "/judge/run": {
+      post: {
+        tags: ["judge"],
+        summary: "Run multi-lang code job (local or Docker)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "JudgeResult" } },
+      },
+    },
+    "/review": {
+      get: {
+        tags: ["learning"],
+        summary: "Review queue; ?from=exam adds exam fail context",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "items + optional examContext" } },
+      },
+    },
+    "/billing/entitlements": {
+      get: {
+        tags: ["ops"],
+        summary: "Public freemium matrix + plan feature rows",
+        responses: { "200": { description: "OK" } },
+      },
+    },
+    "/billing/status": {
+      get: {
+        tags: ["ops"],
+        summary: "Current plan + premiumActive",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "OK" } },
+      },
+    },
+    "/billing/portal": {
+      post: {
+        tags: ["ops"],
+        summary: "Stripe Customer Portal session",
+        security: [{ bearerAuth: [] }],
         responses: { "200": { description: "OK" } },
       },
     },
@@ -101,6 +173,22 @@ const doc = {
         responses: { "200": { description: "User + character" } },
       },
     },
+    "/auth/sessions": {
+      get: {
+        tags: ["auth"],
+        summary: "List active sessions (current device flagged)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "sessions[] + count" } },
+      },
+    },
+    "/auth/logout-others": {
+      post: {
+        tags: ["auth"],
+        summary: "Revoke other sessions; body { all: true } also ends current",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "revoked count" } },
+      },
+    },
     "/courses": path("List courses"),
     "/courses/{slug}": {
       get: {
@@ -114,9 +202,21 @@ const doc = {
     "/courses/{slug}/lessons/{lessonId}/submit": {
       post: {
         tags: ["courses"],
-        summary: "Submit lesson answers",
+        summary: "Submit lesson answers (optional idempotencyKey body/header)",
         security: [{ bearerAuth: [] }],
-        responses: { "200": { description: "Graded result + XP" } },
+        parameters: [
+          {
+            name: "Idempotency-Key",
+            in: "header",
+            required: false,
+            schema: { type: "string", maxLength: 64 },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Graded result + XP; replay sets idempotentReplay=true",
+          },
+        },
       },
     },
     "/coach/hint": {
@@ -492,6 +592,14 @@ const doc = {
         summary: "Ops summary (parent links, digests)",
         security: [{ bearerAuth: [] }],
         responses: { "200": { description: "Summary" } },
+      },
+    },
+    "/admin/ops/push-reengage": {
+      post: {
+        tags: ["admin"],
+        summary: "Web push re-engage inactive learners (default 3d)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "OK" } },
       },
     },
     "/admin/ops/parent-digests": {

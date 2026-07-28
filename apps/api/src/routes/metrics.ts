@@ -9,8 +9,13 @@ import {
   tournaments,
   users,
 } from "@eduforge/db";
+import { getJudgeMode } from "@eduforge/judge";
+import { resolveFeatureFlags } from "@eduforge/shared";
 import { db } from "../db.js";
+import { latencyStats } from "../logger.js";
+import { spanStats } from "../otel.js";
 import { getRedis } from "../redis.js";
+import { checkReady } from "../ready.js";
 
 export const metricsRoutes = new Hono();
 
@@ -21,12 +26,6 @@ metricsRoutes.get("/", async (c) => {
     const auth = c.req.header("authorization")?.replace(/^Bearer\s+/i, "");
     if (auth !== token) return c.json({ error: "unauthorized" }, 401);
   }
-
-  const count = async (table: { _: { name: string } } | unknown) => {
-    // use raw counts via sql
-    return 0;
-  };
-  void count;
 
   const [u] = await db.select({ n: sql<number>`count(*)::int` }).from(users);
   const [l] = await db.select({ n: sql<number>`count(*)::int` }).from(lessons);
@@ -48,11 +47,27 @@ metricsRoutes.get("/", async (c) => {
     }
   }
 
+  const ready = await checkReady();
+  const latency = latencyStats();
+
+  const flags = resolveFeatureFlags();
+
   return c.json({
     service: "eduforge-api",
     ts: new Date().toISOString(),
     uptimeSec: Math.floor(process.uptime()),
     redis: redisOk,
+    ready: ready.ok,
+    checks: ready.checks,
+    flags: {
+      strictCsrf: flags.strict_csrf,
+      parentDigest: flags.parent_digest,
+      pushReengage: flags.push_reengage,
+      tutorAi: flags.tutor_ai,
+    },
+    judge: { mode: getJudgeMode() },
+    otel: spanStats(),
+    latency,
     counts: {
       users: u?.n ?? 0,
       lessons: l?.n ?? 0,

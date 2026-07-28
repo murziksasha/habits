@@ -155,6 +155,20 @@
       "when": 1740000021000,
       "tag": "0021_express_fundamentals",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1740000022000,
+      "tag": "0022_hot_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1740000023000,
+      "tag": "0023_course_slug_varchar",
+      "breakpoints": true
     }
   ]
 }

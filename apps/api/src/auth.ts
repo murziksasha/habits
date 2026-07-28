@@ -1,6 +1,6 @@
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import bcrypt from "bcryptjs";
-import { and, eq, gt } from "drizzle-orm";
+import { and, desc, eq, gt, ne } from "drizzle-orm";
 import { characters, chessRatings, sessions, users } from "@eduforge/db";
 import type { Context, Next } from "hono";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
@@ -33,6 +33,31 @@ export async function destroySession(token: string) {
   await db.delete(sessions).where(eq(sessions.tokenHash, hashToken(token)));
 }
 
+/** Active sessions for a user (no token hashes exposed). */
+export async function listUserSessions(userId: string, currentToken?: string) {
+  const rows = await db.query.sessions.findMany({
+    where: and(eq(sessions.userId, userId), gt(sessions.expiresAt, new Date())),
+    orderBy: [desc(sessions.createdAt)],
+  });
+  const currentHash = currentToken ? hashToken(currentToken) : null;
+  return rows.map((r) => ({
+    id: r.id,
+    createdAt: r.createdAt,
+    expiresAt: r.expiresAt,
+    current: currentHash !== null && r.tokenHash === currentHash,
+  }));
+}
+
+/** Revoke all sessions except the one identified by keepToken (this device). */
+export async function destroyOtherSessions(userId: string, keepToken: string) {
+  const keepHash = hashToken(keepToken);
+  const deleted = await db
+    .delete(sessions)
+    .where(and(eq(sessions.userId, userId), ne(sessions.tokenHash, keepHash)))
+    .returning({ id: sessions.id });
+  return { revoked: deleted.length };
+}
+
 export async function getUserFromToken(token: string | undefined) {
   if (!token) return null;
   const tokenHash = hashToken(token);
@@ -60,39 +85,73 @@ export async function getUserFromToken(token: string | undefined) {
 
 export type AuthedUser = NonNullable<Awaited<ReturnType<typeof getUserFromToken>>>;
 
+/** Resolve session from httpOnly cookie first, then Bearer (dual-support). */
+function readSessionToken(c: Context): { token?: string; fromCookie: boolean } {
+  const cookieToken = getCookie(c, COOKIE);
+  if (cookieToken) return { token: cookieToken, fromCookie: true };
+  const headerToken = c.req.header("authorization")?.replace(/^Bearer\s+/i, "");
+  if (headerToken) return { token: headerToken, fromCookie: false };
+  return { token: undefined, fromCookie: false };
+}
+
+/** When client still sends Bearer only, re-issue httpOnly cookie for future requests. */
+async function promoteBearerToCookie(c: Context, token: string, fromCookie: boolean) {
+  if (fromCookie || !token) return;
+  const sess = await db.query.sessions.findFirst({
+    where: and(eq(sessions.tokenHash, hashToken(token)), gt(sessions.expiresAt, new Date())),
+  });
+  if (sess) setSessionCookie(c, token, sess.expiresAt);
+}
+
 export async function authMiddleware(c: Context, next: Next) {
-  const token = getCookie(c, COOKIE) ?? c.req.header("authorization")?.replace(/^Bearer\s+/i, "");
+  const { token, fromCookie } = readSessionToken(c);
   const user = await getUserFromToken(token);
   if (!user) return c.json({ error: "unauthorized" }, 401);
   c.set("user", user);
   c.set("sessionToken", token);
+  await promoteBearerToCookie(c, token!, fromCookie);
   await next();
 }
 
 export async function adminMiddleware(c: Context, next: Next) {
-  const token = getCookie(c, COOKIE) ?? c.req.header("authorization")?.replace(/^Bearer\s+/i, "");
+  const { token, fromCookie } = readSessionToken(c);
   const user = await getUserFromToken(token);
   if (!user) return c.json({ error: "unauthorized" }, 401);
   if (user.role !== "admin") return c.json({ error: "forbidden" }, 403);
   c.set("user", user);
   c.set("sessionToken", token);
+  await promoteBearerToCookie(c, token!, fromCookie);
   await next();
 }
 
 export async function optionalAuth(c: Context, next: Next) {
-  const token = getCookie(c, COOKIE) ?? c.req.header("authorization")?.replace(/^Bearer\s+/i, "");
+  const { token, fromCookie } = readSessionToken(c);
   const user = await getUserFromToken(token);
-  if (user) c.set("user", user);
+  if (user) {
+    c.set("user", user);
+    c.set("sessionToken", token);
+    if (token) await promoteBearerToCookie(c, token, fromCookie);
+  }
   await next();
 }
 
 export function setSessionCookie(c: Context, token: string, expiresAt: Date) {
+  // Secure cookies only on real HTTPS. CI/local use http://127.0.0.1 — must stay non-secure
+  // or Playwright never stores the session cookie.
+  const origin = process.env.WEB_ORIGIN ?? "";
+  const forceInsecure =
+    process.env.COOKIE_SECURE === "0" ||
+    origin.startsWith("http://localhost") ||
+    origin.startsWith("http://127.0.0.1");
+  const secure =
+    process.env.COOKIE_SECURE === "1" ||
+    (process.env.NODE_ENV === "production" && !forceInsecure);
   setCookie(c, COOKIE, token, {
     httpOnly: true,
     sameSite: "Lax",
     path: "/",
     expires: expiresAt,
-    secure: process.env.NODE_ENV === "production",
+    secure,
   });
 }
 

@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { and, asc, eq } from "drizzle-orm";
 import { characters, lessonComments, lessons } from "@eduforge/db";
+import { sanitizeUserText } from "@eduforge/shared";
 import { z } from "zod";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
@@ -71,12 +72,15 @@ commentRoutes.post("/lesson/:lessonId", authMiddleware, async (c) => {
     if (!parent) return c.json({ error: "parent_not_found" }, 404);
   }
 
+  const cleanBody = sanitizeUserText(parsed.data.body, 2000);
+  if (!cleanBody) return c.json({ error: "invalid_input" }, 400);
+
   const [created] = await db
     .insert(lessonComments)
     .values({
       lessonId,
       userId: user.id,
-      body: parsed.data.body.trim(),
+      body: cleanBody,
       parentId: parsed.data.parentId ?? null,
     })
     .returning();

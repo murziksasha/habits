@@ -24,6 +24,7 @@ import {
 import { z } from "zod";
 import { adminMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
+import { runInactivePushReengage } from "../services/reengage.js";
 import { runParentDigestBatch } from "./parents.js";
 import { runHomeworkReminders } from "./reminders.js";
 import { buildWeeklyStats } from "./reports.js";
@@ -124,7 +125,7 @@ adminRoutes.get("/courses", async (c) => {
 });
 
 adminRoutes.get("/courses/:slug/tree", async (c) => {
-  const slug = c.req.param("slug") as typeof courses.slug.enumValues[number];
+  const slug = c.req.param("slug");
   const course = await db.query.courses.findFirst({ where: eq(courses.slug, slug) });
   if (!course) return c.json({ error: "not_found" }, 404);
   const courseUnits = await db.query.units.findMany({
@@ -308,6 +309,13 @@ adminRoutes.get("/ops/summary", async (c) => {
       createdAt: r.createdAt,
     })),
   });
+});
+
+adminRoutes.post("/ops/push-reengage", async (c) => {
+  const body = await c.req.json().catch(() => ({}));
+  const days = Math.min(30, Math.max(1, Number(body.days ?? 3)));
+  const result = await runInactivePushReengage(days);
+  return c.json({ ok: true, ...result });
 });
 
 adminRoutes.post("/ops/parent-digests", async (c) => {

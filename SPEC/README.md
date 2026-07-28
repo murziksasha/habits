@@ -77,8 +77,16 @@ This folder is the **source of truth** for the EduForge educational SaaS monorep
 | 69 | [SQL + exam quest](./69-sql-fundamentals-exam-quest.md) | sql_fundamentals deep track, exams daily quest |
 | 70 | [Node fundamentals](./70-node-fundamentals.md) | node_fundamentals deep track |
 | 71 | [Express fundamentals](./71-express-fundamentals.md) | express_fundamentals deep track |
+| — | **[CURRENT.md](./CURRENT.md)** | **Active product surface freeze, IA, improvement checklist** |
+| — | [CONTENT-DX.md](./CONTENT-DX.md) | Content authoring DX + EN gate |
+| — | [CRON.md](./CRON.md) | Digest / re-engage cron runbook |
+| — | [COURSE-REGISTRY.md](./COURSE-REGISTRY.md) | Slug → hub → freemium matrix |
+| — | [OPS.md](./OPS.md) | Backups, multi-instance, flags, incidents |
+| — | [P2-STRATEGIC.md](./P2-STRATEGIC.md) | Judge, OTel, MDX, video, classroom, mobile foundations |
 
-**Status:** SPECs **01–71** implemented.
+> **Note:** Specs 01–71 are historical feature logs. Day-to-day product truth is **[CURRENT.md](./CURRENT.md)**.
+
+**Status:** SPECs **01–71** implemented. Active product surface: **[CURRENT.md](./CURRENT.md)** (IA freeze + improvement priorities). Content authoring: **[CONTENT-DX.md](./CONTENT-DX.md)**. Cron jobs: **[CRON.md](./CRON.md)**.
 
 ## Product name
 

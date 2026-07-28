@@ -14,6 +14,7 @@ import {
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
+import { Card, Skeleton } from "@/components/ui";
 
 type NextRec = {
   kind: string;
@@ -48,6 +49,7 @@ export default function LearnPage() {
   const router = useRouter();
   const [next, setNext] = useState<NextRec[]>([]);
   const [exams, setExams] = useState<ExamSummary | null>(null);
+  const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
@@ -55,21 +57,39 @@ export default function LearnPage() {
 
   useEffect(() => {
     if (!token) return;
-    void api<{ recommendations: NextRec[] }>("/learning/next", { token })
-      .then((d) => setNext(d.recommendations.slice(0, 5)))
-      .catch(() => setNext([]));
-    void api<ExamSummary>("/learning/exams/me", { token })
-      .then(setExams)
-      .catch(() => setExams(null));
-    // Onboarding: mark learn map visited
-    void api("/auth/onboarding/complete", {
-      method: "POST",
-      token,
-      body: { key: "viewedLearnMap" },
-    }).catch(() => undefined);
+    setDataLoading(true);
+    Promise.all([
+      api<{ recommendations: NextRec[] }>("/learning/next", { token })
+        .then((d) => setNext(d.recommendations.slice(0, 5)))
+        .catch(() => setNext([])),
+      api<ExamSummary>("/learning/exams/me", { token })
+        .then(setExams)
+        .catch(() => setExams(null)),
+      api("/auth/onboarding/complete", {
+        method: "POST",
+        token,
+        body: { key: "viewedLearnMap" },
+      }).catch(() => undefined),
+    ]).finally(() => setDataLoading(false));
   }, [token]);
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
+  if (loading || !user || (token && dataLoading && !next.length && !exams)) {
+    return (
+      <div className="space-y-4" aria-busy="true">
+        <Skeleton className="h-10 w-48" />
+        <Card className="space-y-3">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-8 w-3/4" />
+          <Skeleton className="h-11 w-40" />
+        </Card>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Skeleton className="h-20" />
+          <Skeleton className="h-20" />
+        </div>
+        <p className="sr-only">{t.common.loading}</p>
+      </div>
+    );
+  }
 
   const readyExams =
     exams?.courses.flatMap((c) =>
@@ -78,6 +98,12 @@ export default function LearnPage() {
         .map((e) => ({ ...e, icon: c.icon, course: c.titleUk })),
     ) ?? [];
 
+  const primary = next[0];
+  const secondary = next.slice(1, 4);
+  const showExams =
+    exams &&
+    (exams.summary.ready > 0 || exams.summary.passed > 0 || exams.summary.locked > 0);
+
   return (
     <div className="space-y-8">
       <div>
@@ -85,21 +111,24 @@ export default function LearnPage() {
         <p className="text-sm font-bold text-ink-muted">{t.learn.mapTitle}</p>
       </div>
 
-      {next[0] && (
-        <section className="card border-brand/40 space-y-2 bg-brand-soft/20">
+      {primary && (
+        <section className="card border-brand/40 space-y-3 bg-brand-soft/20">
           <p className="text-xs font-black uppercase text-brand-dark">
             {t.learn.recommended}
           </p>
-          <Link href={next[0].href} className="text-xl font-black hover:underline">
-            {locale === "en" ? next[0].titleEn : next[0].titleUk} →
+          <p className="text-xl font-black">
+            {locale === "en" ? primary.titleEn : primary.titleUk}
+          </p>
+          <Link href={primary.href} className="btn-primary inline-flex">
+            {locale === "en" ? "Continue" : "Продовжити"} →
           </Link>
         </section>
       )}
 
-      {next.length > 1 && (
+      {secondary.length > 0 && (
         <section className="space-y-2">
           <h2 className="text-lg font-black">{t.learning.nextSteps}</h2>
-          {next.slice(1).map((r, i) => (
+          {secondary.map((r, i) => (
             <Link
               key={`${r.href}-${i}`}
               href={r.href}
@@ -112,7 +141,7 @@ export default function LearnPage() {
         </section>
       )}
 
-      {exams && (
+      {showExams && exams && (
         <section className="card space-y-3 border-grape/30">
           <h2 className="text-xl font-black">📝 {t.learn.examsBoard}</h2>
           <div className="grid grid-cols-3 gap-2 text-center text-sm">
@@ -129,7 +158,7 @@ export default function LearnPage() {
               <p className="text-2xl font-black">{exams.summary.locked}</p>
             </div>
           </div>
-          {readyExams.slice(0, 5).map((e) => (
+          {readyExams.slice(0, 3).map((e) => (
             <Link
               key={e.lessonId}
               href={e.href}
@@ -184,8 +213,6 @@ export default function LearnPage() {
             { href: "/flashcards", label: t.nav.flashcards },
             { href: "/tutor", label: t.nav.tutor },
             { href: "/quests", label: t.nav.quests },
-            { href: "/focus", label: t.nav.focus },
-            { href: "/notes", label: t.nav.notes },
           ].map((x) => (
             <Link key={x.href} href={x.href} className="btn-secondary !py-1.5 !px-3 text-sm">
               {x.label}
