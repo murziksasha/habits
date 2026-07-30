@@ -77,6 +77,7 @@ This folder is the **source of truth** for the EduForge educational SaaS monorep
 | 69 | [SQL + exam quest](./69-sql-fundamentals-exam-quest.md) | sql_fundamentals deep track, exams daily quest |
 | 70 | [Node fundamentals](./70-node-fundamentals.md) | node_fundamentals deep track |
 | 71 | [Express fundamentals](./71-express-fundamentals.md) | express_fundamentals deep track |
+| 72 | [Email verification](./72-email-verification.md) | Confirm email; inactive 7d / delete 30d unverified |
 | — | **[CURRENT.md](./CURRENT.md)** | **Active product surface freeze, IA, improvement checklist** |
 | — | [CONTENT-DX.md](./CONTENT-DX.md) | Content authoring DX + EN gate |
 | — | [CRON.md](./CRON.md) | Digest / re-engage cron runbook |

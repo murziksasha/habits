@@ -16,6 +16,9 @@ export type User = {
   plan: "free" | "premium";
   role?: "user" | "admin";
   planExpiresAt?: string | null;
+  emailVerified?: boolean;
+  emailVerifiedAt?: string | null;
+  accountStatus?: "active" | "inactive" | string;
 };
 
 export type Character = {

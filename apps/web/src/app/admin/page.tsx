@@ -24,6 +24,7 @@ export default function AdminHomePage() {
     parentLinksActive: number;
     digestsSentLast7d: number;
     weeklyEmailOptIn: number;
+    unverifiedUsers?: number;
     recentDigests: {
       parentUserId: string;
       parentName: string;
@@ -120,6 +121,10 @@ export default function AdminHomePage() {
             <p className="text-xs font-bold text-ink-muted">{t.admin.weeklyOptIn}</p>
             <p className="text-2xl font-black">{ops?.weeklyEmailOptIn ?? "…"}</p>
           </div>
+          <div className="rounded-2xl bg-slate-50 p-3 dark:bg-slate-900">
+            <p className="text-xs font-bold text-ink-muted">{t.admin.unverifiedUsers}</p>
+            <p className="text-2xl font-black">{ops?.unverifiedUsers ?? "…"}</p>
+          </div>
         </div>
         <div className="flex flex-wrap gap-2">
           <button
@@ -145,6 +150,14 @@ export default function AdminHomePage() {
             onClick={() => void runOps("/admin/ops/weekly-learners", "wl")}
           >
             {busy === "wl" ? "…" : `📬 ${t.admin.runWeeklyLearners}`}
+          </button>
+          <button
+            type="button"
+            className="btn-secondary !py-2 text-sm"
+            disabled={Boolean(busy)}
+            onClick={() => void runOps("/admin/ops/unverified-lifecycle", "uv")}
+          >
+            {busy === "uv" ? "…" : `🧹 ${t.admin.runUnverifiedLifecycle}`}
           </button>
           <button
             type="button"

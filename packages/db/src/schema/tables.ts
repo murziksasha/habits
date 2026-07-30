@@ -30,22 +30,33 @@ export const chessGameStatusEnum = pgEnum("chess_game_status", [
   "aborted",
 ]);
 
-export const users = pgTable("users", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  email: varchar("email", { length: 255 }).notNull().unique(),
-  passwordHash: text("password_hash").notNull(),
-  role: varchar("role", { length: 32 }).notNull().default("user"),
-  plan: planEnum("plan").notNull().default("free"),
-  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
-  stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
-  planExpiresAt: timestamp("plan_expires_at", { withTimezone: true }),
-  /** Preferred UI/content locale */
-  preferredLocale: varchar("preferred_locale", { length: 8 }).notNull().default("uk"),
-  weeklyEmailEnabled: boolean("weekly_email_enabled").notNull().default(true),
-  lastWeeklyEmailAt: timestamp("last_weekly_email_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const users = pgTable(
+  "users",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    email: varchar("email", { length: 255 }).notNull().unique(),
+    passwordHash: text("password_hash").notNull(),
+    role: varchar("role", { length: 32 }).notNull().default("user"),
+    plan: planEnum("plan").notNull().default("free"),
+    stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
+    stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
+    planExpiresAt: timestamp("plan_expires_at", { withTimezone: true }),
+    /** Preferred UI/content locale */
+    preferredLocale: varchar("preferred_locale", { length: 8 }).notNull().default("uk"),
+    weeklyEmailEnabled: boolean("weekly_email_enabled").notNull().default(true),
+    lastWeeklyEmailAt: timestamp("last_weekly_email_at", { withTimezone: true }),
+    /** null = email not confirmed yet */
+    emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true }),
+    /** active | inactive — inactive after 7d without verification */
+    accountStatus: varchar("account_status", { length: 16 }).notNull().default("active"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index("users_unverified_created_idx").on(t.emailVerifiedAt, t.createdAt),
+    index("users_account_status_idx").on(t.accountStatus),
+  ],
+);
 
 export const characters = pgTable("characters", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -87,6 +98,17 @@ export const characters = pgTable("characters", {
 });
 
 export const passwordResetTokens = pgTable("password_reset_tokens", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  usedAt: timestamp("used_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const emailVerificationTokens = pgTable("email_verification_tokens", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: uuid("user_id")
     .notNull()

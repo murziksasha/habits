@@ -1,12 +1,20 @@
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import bcrypt from "bcryptjs";
-import { and, desc, eq, gt, ne } from "drizzle-orm";
-import { characters, chessRatings, sessions, users } from "@eduforge/db";
+import { and, desc, eq, gt, isNull, ne } from "drizzle-orm";
+import {
+  characters,
+  chessRatings,
+  emailVerificationTokens,
+  sessions,
+  users,
+} from "@eduforge/db";
 import type { Context, Next } from "hono";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { db } from "./db.js";
 
 const SESSION_DAYS = 14;
+/** Verification link must remain valid until the 30-day delete deadline. */
+const EMAIL_VERIFY_DAYS = 30;
 const COOKIE = "eduforge_session";
 
 export function hashToken(token: string) {
@@ -85,6 +93,77 @@ export async function getUserFromToken(token: string | undefined) {
 
 export type AuthedUser = NonNullable<Awaited<ReturnType<typeof getUserFromToken>>>;
 
+export function isAccountActive(user: { accountStatus?: string | null }) {
+  return (user.accountStatus ?? "active") !== "inactive";
+}
+
+export function publicUser(user: AuthedUser | (typeof users.$inferSelect)) {
+  return {
+    id: user.id,
+    email: user.email,
+    plan: user.plan,
+    role: user.role,
+    planExpiresAt: user.planExpiresAt ?? null,
+    emailVerified: Boolean(user.emailVerifiedAt),
+    emailVerifiedAt: user.emailVerifiedAt ?? null,
+    accountStatus: user.accountStatus ?? "active",
+  };
+}
+
+/** Issue a fresh email verification token (raw returned once for email link). */
+export async function createEmailVerificationToken(userId: string) {
+  const raw = randomBytes(32).toString("hex");
+  const tokenHash = hashToken(raw);
+  const expiresAt = new Date(Date.now() + EMAIL_VERIFY_DAYS * 24 * 60 * 60 * 1000);
+  await db.insert(emailVerificationTokens).values({
+    userId,
+    tokenHash,
+    expiresAt,
+  });
+  return { raw, expiresAt };
+}
+
+/** Confirm email from raw token; reactivates inactive accounts. */
+export async function consumeEmailVerificationToken(raw: string) {
+  const tokenHash = hashToken(raw);
+  const row = await db.query.emailVerificationTokens.findFirst({
+    where: and(
+      eq(emailVerificationTokens.tokenHash, tokenHash),
+      gt(emailVerificationTokens.expiresAt, new Date()),
+      isNull(emailVerificationTokens.usedAt),
+    ),
+  });
+  if (!row) return null;
+
+  const user = await db.query.users.findFirst({ where: eq(users.id, row.userId) });
+  if (!user) return null;
+
+  if (user.emailVerifiedAt) {
+    await db
+      .update(emailVerificationTokens)
+      .set({ usedAt: new Date() })
+      .where(eq(emailVerificationTokens.id, row.id));
+    return { user, alreadyVerified: true as const };
+  }
+
+  const [updated] = await db
+    .update(users)
+    .set({
+      emailVerifiedAt: new Date(),
+      accountStatus: "active",
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, user.id))
+    .returning();
+
+  await db
+    .update(emailVerificationTokens)
+    .set({ usedAt: new Date() })
+    .where(eq(emailVerificationTokens.id, row.id));
+
+  return { user: updated ?? user, alreadyVerified: false as const };
+}
+
 /** Resolve session from httpOnly cookie first, then Bearer (dual-support). */
 function readSessionToken(c: Context): { token?: string; fromCookie: boolean } {
   const cookieToken = getCookie(c, COOKIE);
@@ -107,6 +186,9 @@ export async function authMiddleware(c: Context, next: Next) {
   const { token, fromCookie } = readSessionToken(c);
   const user = await getUserFromToken(token);
   if (!user) return c.json({ error: "unauthorized" }, 401);
+  if (!isAccountActive(user)) {
+    return c.json({ error: "account_inactive" }, 403);
+  }
   c.set("user", user);
   c.set("sessionToken", token);
   await promoteBearerToCookie(c, token!, fromCookie);
@@ -117,6 +199,9 @@ export async function adminMiddleware(c: Context, next: Next) {
   const { token, fromCookie } = readSessionToken(c);
   const user = await getUserFromToken(token);
   if (!user) return c.json({ error: "unauthorized" }, 401);
+  if (!isAccountActive(user)) {
+    return c.json({ error: "account_inactive" }, 403);
+  }
   if (user.role !== "admin") return c.json({ error: "forbidden" }, 403);
   c.set("user", user);
   c.set("sessionToken", token);
@@ -127,7 +212,7 @@ export async function adminMiddleware(c: Context, next: Next) {
 export async function optionalAuth(c: Context, next: Next) {
   const { token, fromCookie } = readSessionToken(c);
   const user = await getUserFromToken(token);
-  if (user) {
+  if (user && isAccountActive(user)) {
     c.set("user", user);
     c.set("sessionToken", token);
     if (token) await promoteBearerToCookie(c, token, fromCookie);

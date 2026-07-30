@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { parentChildDigestEmail, weeklyReportEmail } from "./email.js";
+import {
+  parentChildDigestEmail,
+  registrationVerifyEmail,
+  weeklyReportEmail,
+} from "./email.js";
 
 describe("retention emails", () => {
   it("parent digest includes exams, portal CTA, and inactive copy", () => {
@@ -55,5 +59,31 @@ describe("retention emails", () => {
     });
     expect(mail.subject).toMatch(/miss you/i);
     expect(mail.html).toMatch(/Continue learning|Back to learning|learn/i);
+  });
+
+  it("registration verify email includes policy and CTA", () => {
+    const mail = registrationVerifyEmail({
+      to: "new@test.com",
+      displayName: "Nova",
+      verifyUrl: "http://localhost:3000/verify-email?token=abc",
+      locale: "uk",
+    });
+    expect(mail.subject).toMatch(/Підтвердіть|акаунт/i);
+    expect(mail.text).toMatch(/7 днів/);
+    expect(mail.text).toMatch(/30 днів/);
+    expect(mail.html).toMatch(/verify-email\?token=abc/);
+    expect(mail.html).toMatch(/#58CC02/);
+  });
+
+  it("registration verify email EN policy", () => {
+    const mail = registrationVerifyEmail({
+      to: "new@test.com",
+      displayName: "Nova",
+      verifyUrl: "https://app.example/verify-email?token=xyz",
+      locale: "en",
+    });
+    expect(mail.subject).toMatch(/Confirm/i);
+    expect(mail.text).toMatch(/7 days/i);
+    expect(mail.text).toMatch(/30 days/i);
   });
 });

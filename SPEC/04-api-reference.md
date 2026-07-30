@@ -19,15 +19,18 @@ Machine-readable: `GET /openapi.json` (v1.8) · human: `GET /docs`.
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| POST | `/auth/register` | No | `{ email, password, displayName, referralCode? }` |
-| POST | `/auth/login` | No | `{ email, password }` |
+| POST | `/auth/register` | No | `{ email, password, displayName, referralCode? }` → user includes `emailVerified`; sends verify email; dev may return `verifyUrl` |
+| POST | `/auth/login` | No | `{ email, password }`; `403 account_inactive` if unverified past grace |
 | POST | `/auth/logout` | Yes | Invalidate session |
-| GET | `/auth/me` | Yes | User + character |
+| GET | `/auth/me` | Yes | User + character (`emailVerified`, `accountStatus`) |
 | PATCH | `/auth/me/character` | Yes | `displayName` / `avatarKey` |
 | GET | `/auth/onboarding` | Yes | Checklist |
 | POST | `/auth/onboarding/complete` | Yes | `{ key }` |
 | POST | `/auth/forgot-password` | No | `{ email }` |
 | POST | `/auth/reset-password` | No | `{ token, password }` |
+| POST | `/auth/verify-email` | No | `{ token }` confirm email; issues session |
+| POST | `/auth/resend-verification` | No | `{ email }` generic success |
+| POST | `/auth/cron/unverified-lifecycle` | Cron | Inactivate 7d+ unverified; delete 30d+ |
 
 ## Courses (`/courses`)
 

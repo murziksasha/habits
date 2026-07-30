@@ -138,7 +138,7 @@ const doc = {
     "/auth/register": {
       post: {
         tags: ["auth"],
-        summary: "Register",
+        summary: "Register (sends verification email; 7d/30d policy)",
         requestBody: {
           content: {
             "application/json": {
@@ -155,20 +155,70 @@ const doc = {
             },
           },
         },
-        responses: { "200": { description: "User + token" } },
+        responses: {
+          "200": {
+            description: "User + token; emailVerified false; dev may include verifyUrl",
+          },
+        },
       },
     },
     "/auth/login": {
       post: {
         tags: ["auth"],
         summary: "Login",
-        responses: { "200": { description: "User + token" } },
+        responses: {
+          "200": { description: "User + token" },
+          "403": { description: "account_inactive" },
+        },
+      },
+    },
+    "/auth/verify-email": {
+      post: {
+        tags: ["auth"],
+        summary: "Confirm email from registration link",
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["token"],
+                properties: { token: { type: "string" } },
+              },
+            },
+          },
+        },
+        responses: { "200": { description: "Verified user + session" } },
+      },
+    },
+    "/auth/resend-verification": {
+      post: {
+        tags: ["auth"],
+        summary: "Resend verification email (no enumeration)",
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["email"],
+                properties: { email: { type: "string" } },
+              },
+            },
+          },
+        },
+        responses: { "200": { description: "Generic ok" } },
+      },
+    },
+    "/auth/cron/unverified-lifecycle": {
+      post: {
+        tags: ["ops"],
+        summary: "Inactivate 7d+ unverified; delete 30d+ (CRON_SECRET)",
+        responses: { "200": { description: "inactivated + deleted counts" } },
       },
     },
     "/auth/me": {
       get: {
         tags: ["auth"],
-        summary: "Current user",
+        summary: "Current user (includes emailVerified, accountStatus)",
         security: [{ bearerAuth: [] }],
         responses: { "200": { description: "User + character" } },
       },

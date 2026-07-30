@@ -21,6 +21,7 @@
 |------|---------|
 | `/` | Marketing landing |
 | `/register`, `/login` | Auth |
+| `/verify-email` | Confirm email from registration mail (`?token=`) |
 | `/forgot-password`, `/reset-password` | Password recovery |
 | `/dashboard` | Character, next steps, exams, programming/race teaser |
 | `/learn` | Learning map: recommended, exams, groups, toolkit |
@@ -51,6 +52,14 @@
 | `/profile` | Character, push, minis, certificates |
 | `/admin/*` | CMS, users, metrics, ops |
 | `/tournaments/*` | Chess tournaments |
+
+## Email verification UX
+
+- After register: `sessionStorage` flag + global **EmailVerifyBanner** (7d inactive / 30d delete policy + resend)  
+- `/verify-email?token=` confirms via API and routes to dashboard  
+- Login maps `account_inactive` to policy copy  
+
+See [SPEC 72](./72-email-verification.md).
 
 ## Navigation
 

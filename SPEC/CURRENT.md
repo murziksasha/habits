@@ -9,7 +9,7 @@ EduForge is a **Learning OS** for skills + coding (with chess as a strong pillar
 
 Primary journeys:
 
-1. Register → first free lesson → daily return (streak / next step)
+1. Register → confirm email (7d/30d policy) → first free lesson → daily return (streak / next step)
 2. Programming path + playground (+ deep tracks via hub)
 3. Freemium → Premium
 4. Schools / homework / parents (B2B, supporting)
@@ -60,6 +60,7 @@ Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, 
 
 1. ~~IA + onboarding consolidation~~ (nav + CURRENT freeze)  
 2. ~~Auth session hygiene~~ (cookie-first + Bearer dual-support), error contract, `/me/home`  
+2b. Email verification + unverified lifecycle (7d inactive / 30d delete) — SPEC 72  
 3. Backend modularization of learning core:  
    `services/exam-board`, `next-steps`, `minis-race`, `home`, `submit-lesson`  
 4. Exercise type safety + EN gate (all courses; skill tracks via `skill-prompt-en` map)  

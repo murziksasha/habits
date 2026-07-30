@@ -46,8 +46,21 @@ describeIntegration("API integration", () => {
     });
     expect(r.status).toBe(200);
     expect(r.data.user.email).toBe(email);
+    expect(r.data.user.emailVerified).toBe(false);
     expect(r.data.token).toBeTruthy();
+    expect(r.data.verifyUrl || r.data.devToken).toBeTruthy();
     token = r.data.token as string;
+
+    const verifyToken =
+      (r.data.devToken as string) ||
+      String(r.data.verifyUrl).split("token=").pop();
+    const v = await json("/auth/verify-email", {
+      method: "POST",
+      body: { token: verifyToken },
+    });
+    expect(v.status).toBe(200);
+    expect(v.data.user.emailVerified).toBe(true);
+    token = (v.data.token as string) || token;
   });
 
   it("rejects duplicate email", async () => {

@@ -25,6 +25,10 @@ import { z } from "zod";
 import { adminMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 import { runInactivePushReengage } from "../services/reengage.js";
+import {
+  countUnverifiedUsers,
+  runUnverifiedLifecycle,
+} from "../services/unverified-lifecycle.js";
 import { runParentDigestBatch } from "./parents.js";
 import { runHomeworkReminders } from "./reminders.js";
 import { buildWeeklyStats } from "./reports.js";
@@ -297,10 +301,13 @@ adminRoutes.get("/ops/summary", async (c) => {
     .orderBy(desc(activityEvents.createdAt))
     .limit(15);
 
+  const unverified = await countUnverifiedUsers();
+
   return c.json({
     parentLinksActive: linkCount?.n ?? 0,
     digestsSentLast7d: digests7?.n ?? 0,
     weeklyEmailOptIn: weeklyOptIn?.n ?? 0,
+    unverifiedUsers: unverified,
     recentDigests: recentDigests.map((r) => ({
       parentUserId: r.userId,
       parentName: r.displayName ?? "—",
@@ -335,6 +342,12 @@ adminRoutes.get("/ops/weekly-preview/:userId", async (c) => {
   if (!stats) return c.json({ error: "not_found" }, 404);
   const mail = weeklyReportEmail(stats);
   return c.json({ stats, preview: mail.text, subject: mail.subject });
+});
+
+/** Mark 7d+ unverified inactive; hard-delete 30d+ unverified */
+adminRoutes.post("/ops/unverified-lifecycle", async (c) => {
+  const result = await runUnverifiedLifecycle();
+  return c.json({ ok: true, ...result });
 });
 
 /** Admin: trigger learner weekly send-all (same as reports, admin-gated here) */

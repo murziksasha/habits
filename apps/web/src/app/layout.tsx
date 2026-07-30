@@ -4,6 +4,7 @@ import { AuthProvider } from "@/lib/auth-context";
 import { LocaleProvider } from "@/lib/locale-context";
 import { ThemeProvider } from "@/lib/theme-context";
 import { Nav } from "@/components/nav";
+import { EmailVerifyBanner } from "@/components/email-verify-banner";
 import { PwaRegister } from "@/components/pwa-register";
 import "./globals.css";
 
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 id="main-content"
                 className="mx-auto max-w-6xl px-4 py-8 pb-24 md:pb-8"
               >
+                <EmailVerifyBanner />
                 {children}
               </main>
             </AuthProvider>

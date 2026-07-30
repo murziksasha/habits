@@ -229,7 +229,14 @@ async function seedAdmin(db: ReturnType<typeof createDb>) {
     const passwordHash = await bcrypt.hash(password, 10);
     const [created] = await db
       .insert(users)
-      .values({ email, passwordHash, role: "admin", plan: "premium" })
+      .values({
+        email,
+        passwordHash,
+        role: "admin",
+        plan: "premium",
+        emailVerifiedAt: new Date(),
+        accountStatus: "active",
+      })
       .returning();
     user = created;
     await db.insert(characters).values({
@@ -240,9 +247,23 @@ async function seedAdmin(db: ReturnType<typeof createDb>) {
     await db.insert(chessRatings).values({ userId: user.id });
     console.log(`Admin created: ${email} / ${password}`);
   } else if (user.role !== "admin") {
-    await db.update(users).set({ role: "admin", plan: "premium" }).where(eq(users.id, user.id));
+    await db
+      .update(users)
+      .set({
+        role: "admin",
+        plan: "premium",
+        emailVerifiedAt: user.emailVerifiedAt ?? new Date(),
+        accountStatus: "active",
+      })
+      .where(eq(users.id, user.id));
     console.log(`Promoted ${email} to admin`);
   } else {
+    if (!user.emailVerifiedAt) {
+      await db
+        .update(users)
+        .set({ emailVerifiedAt: new Date(), accountStatus: "active" })
+        .where(eq(users.id, user.id));
+    }
     console.log(`Admin exists: ${email}`);
   }
 }
@@ -256,7 +277,14 @@ async function seedPremiumTestUser(db: ReturnType<typeof createDb>) {
     const passwordHash = await bcrypt.hash(password, 10);
     const [created] = await db
       .insert(users)
-      .values({ email, passwordHash, role: "user", plan: "premium" })
+      .values({
+        email,
+        passwordHash,
+        role: "user",
+        plan: "premium",
+        emailVerifiedAt: new Date(),
+        accountStatus: "active",
+      })
       .returning();
     user = created;
     await db.insert(characters).values({
@@ -267,9 +295,22 @@ async function seedPremiumTestUser(db: ReturnType<typeof createDb>) {
     await db.insert(chessRatings).values({ userId: user.id });
     console.log(`Premium test user created: ${email} / ${password}`);
   } else if (user.plan !== "premium") {
-    await db.update(users).set({ plan: "premium" }).where(eq(users.id, user.id));
+    await db
+      .update(users)
+      .set({
+        plan: "premium",
+        emailVerifiedAt: user.emailVerifiedAt ?? new Date(),
+        accountStatus: "active",
+      })
+      .where(eq(users.id, user.id));
     console.log(`Upgraded ${email} to premium`);
   } else {
+    if (!user.emailVerifiedAt) {
+      await db
+        .update(users)
+        .set({ emailVerifiedAt: new Date(), accountStatus: "active" })
+        .where(eq(users.id, user.id));
+    }
     console.log(`Premium test user exists: ${email}`);
   }
 }

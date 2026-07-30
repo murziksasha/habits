@@ -67,6 +67,32 @@ export function passwordResetEmail(opts: {
   };
 }
 
+/** Welcome + email confirmation with unverified lifecycle policy (7d inactive / 30d delete). */
+export function registrationVerifyEmail(opts: {
+  to: string;
+  displayName: string;
+  verifyUrl: string;
+  locale?: string;
+}): MailPayload {
+  const uk = (opts.locale ?? "uk") === "uk";
+  const name = opts.displayName.trim() || (uk ? "друже" : "friend");
+  const subject = uk
+    ? "Підтвердіть акаунт EduForge"
+    : "Confirm your EduForge account";
+  const policyUk =
+    "Без підтвердження: через 7 днів акаунт стане неактивним, а через 30 днів буде видалений.";
+  const policyEn =
+    "Without confirmation: after 7 days the account becomes inactive, and after 30 days it is deleted.";
+  const text = uk
+    ? `Привіт, ${name}!\n\nВітаємо в EduForge. Підтвердіть email, щоб зберегти акаунт:\n${opts.verifyUrl}\n\n${policyUk}\n\nЯкщо ви не реєструвались — ігноруйте цей лист.\n— Команда EduForge`
+    : `Hi, ${name}!\n\nWelcome to EduForge. Confirm your email to keep your account:\n${opts.verifyUrl}\n\n${policyEn}\n\nIf you did not sign up, ignore this email.\n— EduForge team`;
+  const cta = ctaButton(opts.verifyUrl, uk ? "Підтвердити email" : "Confirm email");
+  const html = uk
+    ? `<div style="font-family:system-ui,sans-serif;max-width:520px"><h2 style="color:#1a1a1a">Вітаємо в EduForge</h2><p>Привіт, <b>${name}</b>!</p><p>Підтвердіть email, щоб зберегти акаунт.</p>${cta}<p style="color:#444">${policyUk}</p><p style="color:#666;font-size:12px"><a href="${opts.verifyUrl}">${opts.verifyUrl}</a></p><p style="color:#666;font-size:12px">EduForge</p></div>`
+    : `<div style="font-family:system-ui,sans-serif;max-width:520px"><h2 style="color:#1a1a1a">Welcome to EduForge</h2><p>Hi <b>${name}</b>!</p><p>Confirm your email to keep your account.</p>${cta}<p style="color:#444">${policyEn}</p><p style="color:#666;font-size:12px"><a href="${opts.verifyUrl}">${opts.verifyUrl}</a></p><p style="color:#666;font-size:12px">EduForge</p></div>`;
+  return { to: opts.to, subject, text, html };
+}
+
 export function weeklyReportEmail(stats: {
   email: string;
   displayName: string;

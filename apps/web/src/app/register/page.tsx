@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { UI } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
+import { REGISTER_NOTICE_KEY } from "@/components/email-verify-banner";
 import { isFriendInviteId, sendFriendInvite } from "@/lib/friend-invite";
 
 function RegisterForm() {
@@ -26,6 +27,11 @@ function RegisterForm() {
     setError("");
     try {
       await register(email, password, displayName, referralCode || undefined);
+      try {
+        sessionStorage.setItem(REGISTER_NOTICE_KEY, "1");
+      } catch {
+        /* ignore */
+      }
       if (hasFriendInvite && friendId) {
         await sendFriendInvite(friendId);
       }

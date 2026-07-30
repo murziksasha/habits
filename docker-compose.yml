@@ -5,8 +5,10 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-eduforge}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-eduforge}
       POSTGRES_DB: ${POSTGRES_DB:-eduforge}
+    # Host 5433 avoids clashing with other local Postgres (e.g. another compose project on 5432).
+    # In-container hostname remains postgres:5432 for api/realtime.
     ports:
-      - "5432:5432"
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -14,6 +16,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - default
 
   redis:
     image: redis:7-alpine

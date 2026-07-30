@@ -35,8 +35,13 @@ function LoginForm() {
         return;
       }
       router.push("/dashboard");
-    } catch {
-      setError("Невірний email або пароль");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "error";
+      if (msg === "account_inactive") {
+        setError(UI.auth.accountInactive);
+      } else {
+        setError(UI.auth.invalidCredentials);
+      }
     } finally {
       setLoading(false);
     }

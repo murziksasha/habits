@@ -13,6 +13,17 @@
 3. Log reset URL; in non-production include `resetUrl` in JSON  
 4. `POST /auth/reset-password` validates unused non-expired token, updates password  
 
+### Email verification & account lifecycle
+
+See **[SPEC/72-email-verification.md](./72-email-verification.md)** for full detail.
+
+1. On `POST /auth/register`, create `email_verification_tokens` (30d TTL) and send `registrationVerifyEmail`  
+2. Client shows post-register notice: confirm email or account becomes **inactive after 7 days** and is **deleted after 30 days**  
+3. `POST /auth/verify-email` confirms; reactivates if inactive  
+4. `POST /auth/resend-verification` (public, no enumeration)  
+5. Cron / admin ops: inactivate unverified ≥7d; hard-delete ≥30d  
+6. Pre-migration users are backfilled as verified  
+
 ## Roles
 
 | Role | Access |

@@ -7,21 +7,26 @@ import { randomBytes } from "node:crypto";
 import {
   authMiddleware,
   clearSessionCookie,
+  createEmailVerificationToken,
   createSession,
+  consumeEmailVerificationToken,
   destroyOtherSessions,
   destroySession,
   hashPassword,
   hashToken,
+  isAccountActive,
   listUserSessions,
+  publicUser,
   registerUser,
   setSessionCookie,
   verifyPassword,
   type AuthedUser,
 } from "../auth.js";
 import { db } from "../db.js";
-import { passwordResetEmail, sendMail } from "../email.js";
+import { passwordResetEmail, registrationVerifyEmail, sendMail, webOrigin } from "../email.js";
 import { env } from "../env.js";
 import { clientIp, rateLimit } from "../rate-limit.js";
+import { runUnverifiedLifecycle } from "../services/unverified-lifecycle.js";
 import { ensureReferralCode, redeemReferralCode } from "./referrals.js";
 
 type Vars = { user: AuthedUser; sessionToken?: string };
@@ -65,15 +70,32 @@ authRoutes.post("/register", async (c) => {
     if (parsed.data.referralCode) {
       await redeemReferralCode(user.id, parsed.data.referralCode);
     }
+
+    const { raw: verifyRaw } = await createEmailVerificationToken(user.id);
+    const verifyUrl = `${webOrigin()}/verify-email?token=${verifyRaw}`;
+    const mail = await sendMail(
+      registrationVerifyEmail({
+        to: user.email,
+        displayName: parsed.data.displayName,
+        verifyUrl,
+        locale: user.preferredLocale ?? "uk",
+      }),
+    );
+    console.log(`[email-verify] ${user.email} → ${verifyUrl}`);
+
     const { token, expiresAt } = await createSession(user.id);
     setSessionCookie(c, token, expiresAt);
     const character = await db.query.characters.findFirst({
       where: eq(characters.userId, user.id),
     });
+    // Expose link in non-prod OR when SMTP is not configured (docker/local console mail)
+    const exposeVerify = process.env.NODE_ENV !== "production" || Boolean(mail.dev);
     return c.json({
-      user: { id: user.id, email: user.email, plan: user.plan, role: user.role },
+      user: publicUser(user),
       character,
       token,
+      verificationEmailSent: mail.sent || Boolean(mail.dev),
+      ...(exposeVerify ? { verifyUrl, devToken: verifyRaw } : {}),
     });
   } catch (e) {
     if (e instanceof Error && e.message === "email_taken") {
@@ -95,16 +117,108 @@ authRoutes.post("/login", async (c) => {
   if (!user || !(await verifyPassword(parsed.data.password, user.passwordHash))) {
     return c.json({ error: "invalid_credentials" }, 401);
   }
+  if (!isAccountActive(user)) {
+    return c.json({ error: "account_inactive" }, 403);
+  }
   const { token, expiresAt } = await createSession(user.id);
   setSessionCookie(c, token, expiresAt);
   const character = await db.query.characters.findFirst({
     where: eq(characters.userId, user.id),
   });
   return c.json({
-    user: { id: user.id, email: user.email, plan: user.plan, role: user.role },
+    user: publicUser(user),
     character,
     token,
   });
+});
+
+const verifyEmailSchema = z.object({ token: z.string().min(20) });
+const resendSchema = z.object({ email: z.string().email() });
+
+authRoutes.post("/verify-email", async (c) => {
+  const limited = await guardAuth(c, "verify-email");
+  if (limited) return limited;
+  const body = await c.req.json().catch(() => null);
+  const parsed = verifyEmailSchema.safeParse(body);
+  if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
+
+  const result = await consumeEmailVerificationToken(parsed.data.token);
+  if (!result) return c.json({ error: "invalid_or_expired_token" }, 400);
+
+  // Issue session so user lands authenticated after confirm
+  const { token, expiresAt } = await createSession(result.user.id);
+  setSessionCookie(c, token, expiresAt);
+  const character = await db.query.characters.findFirst({
+    where: eq(characters.userId, result.user.id),
+  });
+  return c.json({
+    ok: true,
+    alreadyVerified: result.alreadyVerified,
+    user: publicUser(result.user),
+    character,
+    token,
+  });
+});
+
+/**
+ * Public resend — always generic success (no email enumeration).
+ * Works for active or inactive unverified accounts.
+ */
+authRoutes.post("/resend-verification", async (c) => {
+  const limited = await guardAuth(c, "resend-verification");
+  if (limited) return limited;
+  const body = await c.req.json().catch(() => null);
+  const parsed = resendSchema.safeParse(body);
+  if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
+
+  const generic = {
+    ok: true,
+    message:
+      "Якщо акаунт існує і ще не підтверджений, ми надіслали лист (у dev — див. verifyUrl).",
+  };
+
+  const user = await db.query.users.findFirst({
+    where: eq(users.email, parsed.data.email.toLowerCase()),
+  });
+  if (!user || user.emailVerifiedAt) {
+    return c.json(generic);
+  }
+
+  const character = await db.query.characters.findFirst({
+    where: eq(characters.userId, user.id),
+  });
+  const { raw } = await createEmailVerificationToken(user.id);
+  const verifyUrl = `${webOrigin()}/verify-email?token=${raw}`;
+  const mail = await sendMail(
+    registrationVerifyEmail({
+      to: user.email,
+      displayName: character?.displayName ?? "friend",
+      verifyUrl,
+      locale: user.preferredLocale ?? "uk",
+    }),
+  );
+  console.log(`[email-verify:resend] ${user.email} → ${verifyUrl}`);
+
+  const exposeVerify = process.env.NODE_ENV !== "production" || Boolean(mail.dev);
+  return c.json({
+    ...generic,
+    emailSent: mail.sent || Boolean(mail.dev),
+    ...(exposeVerify ? { verifyUrl, devToken: raw } : {}),
+  });
+});
+
+/** Cron: inactivate 7d+ unverified; delete 30d+ unverified. If CRON_SECRET set, require it. */
+authRoutes.post("/cron/unverified-lifecycle", async (c) => {
+  const cron = process.env.CRON_SECRET;
+  const secret =
+    c.req.header("x-cron-secret") ??
+    c.req.header("authorization")?.replace(/^Bearer\s+/i, "");
+  // Same pattern as homework reminders: secret required only when configured
+  if (cron && secret !== cron) {
+    return c.json({ error: "unauthorized" }, 401);
+  }
+  const result = await runUnverifiedLifecycle();
+  return c.json({ ok: true, ...result });
 });
 
 authRoutes.post("/logout", authMiddleware, async (c) => {
@@ -159,13 +273,7 @@ authRoutes.get("/me", authMiddleware, async (c) => {
     }
   }
   return c.json({
-    user: {
-      id: user.id,
-      email: user.email,
-      plan: user.plan,
-      role: user.role,
-      planExpiresAt: user.planExpiresAt,
-    },
+    user: publicUser(user),
     character,
   });
 });
