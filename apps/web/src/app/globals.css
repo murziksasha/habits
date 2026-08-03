@@ -36,9 +36,33 @@ html.dark body {
     radial-gradient(circle at 90% 0%, rgba(28, 176, 246, 0.1), transparent 35%);
 }
 
+/* Lesson focus mode: hide global chrome so the exercise is full-width */
+html.lesson-focus header {
+  display: none !important;
+}
+html.lesson-focus nav[aria-label="Primary"] {
+  display: none !important;
+}
+html.lesson-focus main {
+  @apply max-w-3xl py-4 pb-8;
+}
+
+@layer base {
+  :focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-sky;
+  }
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-sky;
+  }
+}
+
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-bold transition active:translate-y-0.5 active:shadow-none disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-bold transition active:translate-y-0.5 active:shadow-none disabled:opacity-50 disabled:pointer-events-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky;
   }
   .btn-primary {
     @apply btn bg-brand text-white shadow-btn hover:bg-brand-dark;

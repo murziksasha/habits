@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
-import { api } from "@/lib/api";
+import { api, apiBlob } from "@/lib/api";
 import { PLAYGROUND_CHALLENGES, pickLocale } from "@eduforge/shared";
 
 type ClassData = {
@@ -445,19 +445,14 @@ export default function ClassPage() {
             onClick={(e) => {
               e.preventDefault();
               if (!token) return;
-              void fetch(
-                `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000"}/gradebook/class/${classId}.csv`,
-                { headers: { Authorization: `Bearer ${token}` } },
-              )
-                .then((r) => r.blob())
-                .then((blob) => {
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = `gradebook-${data.class.name}.csv`;
-                  a.click();
-                  URL.revokeObjectURL(url);
-                });
+              void apiBlob(`/gradebook/class/${classId}.csv`, { token }).then((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `gradebook-${data.class.name}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+              });
             }}
           >
             📊 {t.gradebook.exportCsv}

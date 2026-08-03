@@ -8,7 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { api } from "./api";
+import { api, COOKIE_SESSION, LEGACY_TOKEN_KEY } from "./api";
 
 export type User = {
   id: string;
@@ -40,6 +40,12 @@ export type Character = {
 type AuthState = {
   user: User | null;
   character: Character | null;
+  /**
+   * Session marker for page `if (!token)` guards.
+   * - COOKIE_SESSION when httpOnly cookie is active
+   * - legacy Bearer string only during one-shot migration
+   * Prefer cookie; do not put secrets in localStorage.
+   */
   token: string | null;
   loading: boolean;
   refresh: () => Promise<void>;
@@ -59,7 +65,14 @@ type AuthState = {
 };
 
 const AuthContext = createContext<AuthState | null>(null);
-const TOKEN_KEY = "eduforge_token";
+
+function clearLegacyToken() {
+  try {
+    localStorage.removeItem(LEGACY_TOKEN_KEY);
+  } catch {
+    /* ignore */
+  }
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -68,24 +81,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
-    const t = typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
-    setToken(t);
+    // 1) Cookie-first (credentials: include)
     try {
-      const data = await api<{ user: User; character: Character }>("/auth/me", {
-        token: t,
-      });
+      const data = await api<{ user: User; character: Character }>("/auth/me");
       setUser(data.user);
       setCharacter(data.character);
+      setToken(COOKIE_SESSION);
+      clearLegacyToken();
+      return;
     } catch {
-      setUser(null);
-      setCharacter(null);
-    } finally {
-      setLoading(false);
+      /* fall through to legacy Bearer */
     }
+
+    // 2) Dual-support: migrate localStorage Bearer → cookie via promote-on-auth
+    let legacy: string | null = null;
+    try {
+      legacy = typeof window !== "undefined" ? localStorage.getItem(LEGACY_TOKEN_KEY) : null;
+    } catch {
+      legacy = null;
+    }
+    if (legacy) {
+      try {
+        const data = await api<{ user: User; character: Character }>("/auth/me", {
+          token: legacy,
+        });
+        setUser(data.user);
+        setCharacter(data.character);
+        // Server re-issues httpOnly cookie on Bearer success
+        setToken(COOKIE_SESSION);
+        clearLegacyToken();
+        return;
+      } catch {
+        clearLegacyToken();
+      }
+    }
+
+    setUser(null);
+    setCharacter(null);
+    setToken(null);
   }, []);
 
   useEffect(() => {
-    void refresh();
+    void refresh().finally(() => setLoading(false));
   }, [refresh]);
 
   const login = useCallback(async (email: string, password: string) => {
@@ -100,9 +137,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (data.mfaRequired && data.mfaToken) {
       return { mfaRequired: true, mfaToken: data.mfaToken };
     }
-    if (!data.token) throw new Error("login_failed");
-    localStorage.setItem(TOKEN_KEY, data.token);
-    setToken(data.token);
+    // Set-Cookie from API is primary; do not persist Bearer in localStorage
+    clearLegacyToken();
+    setToken(COOKIE_SESSION);
     setUser(data.user);
     setCharacter(data.character ?? null);
   }, []);
@@ -112,8 +149,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       "/auth/mfa/totp/verify",
       { method: "POST", body: { mfaToken, code } },
     );
-    localStorage.setItem(TOKEN_KEY, data.token);
-    setToken(data.token);
+    // Set-Cookie from API is primary; do not persist Bearer in localStorage
+    clearLegacyToken();
+    setToken(COOKIE_SESSION);
     setUser(data.user);
     setCharacter(data.character);
   }, []);
@@ -132,8 +170,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           },
         },
       );
-      localStorage.setItem(TOKEN_KEY, data.token);
-      setToken(data.token);
+      clearLegacyToken();
+      setToken(COOKIE_SESSION);
       setUser(data.user);
       setCharacter(data.character);
     },
@@ -142,11 +180,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
+      // Cookie session: no Bearer needed
       await api("/auth/logout", { method: "POST", token });
     } catch {
       /* ignore */
     }
-    localStorage.removeItem(TOKEN_KEY);
+    clearLegacyToken();
     setToken(null);
     setUser(null);
     setCharacter(null);

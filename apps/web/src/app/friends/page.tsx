@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
+import { ShareLinkButtons } from "@/components/share-link";
+import { Badge, Card } from "@/components/ui";
 
 type Friend = {
   friendshipId: string;
@@ -16,15 +18,17 @@ type Friend = {
   globalXp: number;
 };
 
-export default function FriendsPage() {
+function FriendsPageInner() {
   const { user, token, loading } = useAuth();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [friends, setFriends] = useState<Friend[]>([]);
   const [incoming, setIncoming] = useState<Friend[]>([]);
   const [outgoing, setOutgoing] = useState<Friend[]>([]);
   const [email, setEmail] = useState("");
   const [msg, setMsg] = useState("");
+  const [inviteHandled, setInviteHandled] = useState(false);
   const [minisVs, setMinisVs] = useState<{
     totalMinis: number;
     entries: {
@@ -70,18 +74,100 @@ export default function FriendsPage() {
   }
 
   useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
+    if (loading || user) return;
+    const addId = searchParams.get("add");
+    // Guest opened invite deep link → register with friend prefill
+    if (addId) {
+      router.replace(`/register?friend=${encodeURIComponent(addId)}`);
+      return;
+    }
+    router.replace("/login");
+  }, [loading, user, router, searchParams]);
 
   useEffect(() => {
     if (token) void load().catch(() => undefined);
   }, [token]);
+
+  // Deep link: /friends?add=<userId>
+  useEffect(() => {
+    if (!token || !user || inviteHandled) return;
+    const addId = searchParams.get("add");
+    if (!addId || addId === user.id) {
+      setInviteHandled(true);
+      return;
+    }
+    void api("/friends/request", {
+      method: "POST",
+      token,
+      body: { userId: addId },
+    })
+      .then(() => {
+        setMsg(
+          locale === "en"
+            ? "Friend request sent from invite link."
+            : "Запит у друзі надіслано з invite-посилання.",
+        );
+        return load();
+      })
+      .catch((e: Error) => {
+        setMsg(e.message || t.common.error);
+      })
+      .finally(() => {
+        setInviteHandled(true);
+        if (typeof window !== "undefined") {
+          const u = new URL(window.location.href);
+          u.searchParams.delete("add");
+          window.history.replaceState({}, "", u.pathname + u.search);
+        }
+      });
+  }, [token, user, searchParams, inviteHandled, locale, t.common.error]);
 
   if (loading || !user) return <p>{t.common.loading}</p>;
 
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-black">👥 {t.social.friends}</h1>
+
+      <Card className="max-w-lg space-y-3 border-brand/20">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="font-black">
+            {locale === "en" ? "Your invite links" : "Ваші invite-посилання"}
+          </h2>
+          <Badge tone="sky">?friend=</Badge>
+        </div>
+        <div className="space-y-2">
+          <p className="text-xs font-bold text-ink-muted">
+            {locale === "en"
+              ? "New users (register + auto request)"
+              : "Нові користувачі (реєстрація + авто-запит)"}
+          </p>
+          <ShareLinkButtons
+            path={`/register?friend=${user.id}`}
+            title={locale === "en" ? "Join me on EduForge" : "Приєднуйся до EduForge"}
+            text={
+              locale === "en"
+                ? "Sign up with this link to join EduForge and connect with me."
+                : "Зареєструйся за цим посиланням і додай мене в друзі."
+            }
+          />
+        </div>
+        <div className="space-y-2 border-t border-slate-100 pt-3 dark:border-slate-800">
+          <p className="text-xs font-bold text-ink-muted">
+            {locale === "en"
+              ? "Already on EduForge (logged-in deep link)"
+              : "Вже в EduForge (deep link для авторизованих)"}
+          </p>
+          <ShareLinkButtons
+            path={`/friends?add=${user.id}`}
+            title={locale === "en" ? "Add me on EduForge" : "Додай мене в EduForge"}
+            text={
+              locale === "en"
+                ? "Open while logged in to send a friend request."
+                : "Відкрий, увійшовши в акаунт, щоб надіслати запит у друзі."
+            }
+          />
+        </div>
+      </Card>
 
       <div className="card max-w-lg space-y-3">
         <h2 className="font-black">{t.social.addFriend}</h2>
@@ -227,5 +313,13 @@ export default function FriendsPage() {
         </section>
       )}
     </div>
+  );
+}
+
+export default function FriendsPage() {
+  return (
+    <Suspense fallback={<p>…</p>}>
+      <FriendsPageInner />
+    </Suspense>
   );
 }

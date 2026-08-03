@@ -82,8 +82,16 @@ This folder is the **source of truth** for the EduForge educational SaaS monorep
 | 74 | [Client C++ runner](./74-cpp-wasm-playground.md) | JSCPP/mock playground + code_run (no server judge) |
 | 75 | [React Studio + WebContainers roadmap](./75-react-studio-webcontainers-roadmap.md) | In-app React preview; WC Phase W → SPEC 76 |
 | 76 | [WebContainers Node Studio](./76-webcontainers-node-studio.md) | /studio/node Node+npm+Express/Next preview |
+| — | **[CURRENT.md](./CURRENT.md)** | **Active product surface freeze, IA, improvement checklist** |
+| — | [CONTENT-DX.md](./CONTENT-DX.md) | Content authoring DX + EN gate |
+| — | [CRON.md](./CRON.md) | Digest / re-engage cron runbook |
+| — | [COURSE-REGISTRY.md](./COURSE-REGISTRY.md) | Slug → hub → freemium matrix |
+| — | [OPS.md](./OPS.md) | Backups, multi-instance, flags, incidents |
+| — | [P2-STRATEGIC.md](./P2-STRATEGIC.md) | Judge, OTel, MDX, video, classroom, mobile foundations |
 
-**Status:** SPECs **01–71** implemented.
+> **Note:** Specs 01–71 are historical feature logs. Day-to-day product truth is **[CURRENT.md](./CURRENT.md)**.
+
+**Status:** SPECs **01–71** implemented. Active product surface: **[CURRENT.md](./CURRENT.md)** (IA freeze + improvement priorities). Content authoring: **[CONTENT-DX.md](./CONTENT-DX.md)**. Cron jobs: **[CRON.md](./CRON.md)**.
 
 ## Product name
 

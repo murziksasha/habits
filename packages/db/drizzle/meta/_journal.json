@@ -160,21 +160,35 @@
       "idx": 22,
       "version": "7",
       "when": 1740000022000,
-      "tag": "0022_admin_platform_v2",
+      "tag": "0022_hot_indexes",
       "breakpoints": true
     },
     {
       "idx": 23,
       "version": "7",
       "when": 1740000023000,
-      "tag": "0023_mfa_backup_codes",
+      "tag": "0023_course_slug_varchar",
       "breakpoints": true
     },
     {
       "idx": 24,
       "version": "7",
       "when": 1740000024000,
-      "tag": "0024_embedded_cpp",
+      "tag": "0024_admin_platform_v2",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1740000025000,
+      "tag": "0025_mfa_backup_codes",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1740000026000,
+      "tag": "0026_embedded_cpp",
       "breakpoints": true
     }
   ]

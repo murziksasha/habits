@@ -70,3 +70,56 @@ export function canUseUnlimitedHints(plan: Plan): boolean {
 }
 
 export const FREE_HINTS_PER_DAY = 3;
+
+/** Single source of freemium limits for API, pricing UI, paywalls. */
+export type FreemiumMatrix = {
+  freeLessonsPerCourse: number;
+  freeHearts: number;
+  heartRegenMinutes: number;
+  freeRatedChessPerDay: number;
+  freeHintsPerDay: number;
+  trialDays: number;
+  demoUpgradeDays: number;
+};
+
+export function freemiumMatrix(): FreemiumMatrix {
+  return {
+    freeLessonsPerCourse: FREE_LESSONS_PER_COURSE,
+    freeHearts: FREE_HEARTS,
+    heartRegenMinutes: HEART_REGEN_MINUTES,
+    freeRatedChessPerDay: FREE_RATED_CHESS_PER_DAY,
+    freeHintsPerDay: FREE_HINTS_PER_DAY,
+    trialDays: 7,
+    demoUpgradeDays: 30,
+  };
+}
+
+export type PlanFeatureRow = {
+  id: string;
+  free: string | boolean | number;
+  premium: string | boolean | number;
+};
+
+/** Comparable feature matrix for pricing tables (locale-agnostic values). */
+export function planFeatureMatrix(): PlanFeatureRow[] {
+  const m = freemiumMatrix();
+  return [
+    { id: "lessons", free: m.freeLessonsPerCourse, premium: "unlimited" },
+    { id: "hearts", free: m.freeHearts, premium: "unlimited" },
+    { id: "heartRegen", free: `${m.heartRegenMinutes}m`, premium: "n/a" },
+    { id: "ratedChess", free: m.freeRatedChessPerDay, premium: "unlimited" },
+    { id: "hints", free: m.freeHintsPerDay, premium: "unlimited" },
+    { id: "tutor", free: "limited", premium: "priority" },
+  ];
+}
+
+export function isPremiumActive(opts: {
+  plan: Plan;
+  planExpiresAt?: Date | string | null;
+  now?: Date;
+}): boolean {
+  if (opts.plan !== "premium") return false;
+  if (!opts.planExpiresAt) return true; // lifetime / stripe open-ended
+  const exp = new Date(opts.planExpiresAt).getTime();
+  return exp > (opts.now ?? new Date()).getTime();
+}

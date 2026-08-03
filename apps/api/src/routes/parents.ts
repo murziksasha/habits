@@ -549,18 +549,6 @@ export async function runParentDigestBatch() {
       continue;
     }
 
-    // Skip empty weeks (optional noise reduction)
-    if (
-      digest.lessonsCompleted === 0 &&
-      digest.xpApprox === 0 &&
-      digest.programmingLessonsWeek === 0 &&
-      digest.playgroundSolvedWeek === 0 &&
-      digest.homeworkCompletedWeek === 0
-    ) {
-      skipped += 1;
-      continue;
-    }
-
     try {
       const mail = parentChildDigestEmail({
         email: digest.parentEmail,
@@ -573,6 +561,7 @@ export async function runParentDigestBatch() {
         programmingLessonsWeek: digest.programmingLessonsWeek,
         playgroundSolvedWeek: digest.playgroundSolvedWeek,
         homeworkCompletedWeek: digest.homeworkCompletedWeek,
+        examsPassedWeek: digest.examsPassedWeek,
         globalLevel: digest.globalLevel,
       });
       await sendMail(mail);
@@ -624,6 +613,7 @@ parentRoutes.post("/children/:studentId/digest/send", authMiddleware, async (c) 
     programmingLessonsWeek: digest.programmingLessonsWeek,
     playgroundSolvedWeek: digest.playgroundSolvedWeek,
     homeworkCompletedWeek: digest.homeworkCompletedWeek,
+    examsPassedWeek: digest.examsPassedWeek,
     globalLevel: digest.globalLevel,
   });
   const result = await sendMail(mail);

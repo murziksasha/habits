@@ -74,6 +74,16 @@ describeIntegration("API integration", () => {
     expect(r.data.character.displayName).toContain("ITest");
   });
 
+  it("returns home aggregate", async () => {
+    const r = await json("/me/home", { token });
+    expect(r.status).toBe(200);
+    expect(Array.isArray(r.data.progress)).toBe(true);
+    expect(Array.isArray(r.data.recommendations)).toBe(true);
+    expect(Array.isArray(r.data.activity)).toBe(true);
+    expect(r.data.meta?.progressOk).toBe(true);
+    expect(r.data.meta?.nextOk).toBe(true);
+  });
+
   it("lists courses and english path", async () => {
     const list = await json("/courses");
     expect(list.status).toBe(200);

@@ -271,6 +271,31 @@ describe("course content integrity", () => {
     }
   });
 
+  it("EN gate: course / unit / lesson titles have titleEn", () => {
+    for (const c of courses) {
+      expect(c.titleEn.trim().length).toBeGreaterThan(0);
+      for (const u of c.units) {
+        expect(u.titleEn?.trim().length ?? 0).toBeGreaterThan(0);
+        for (const l of u.lessons) {
+          expect(l.titleEn?.trim().length ?? 0).toBeGreaterThan(0);
+        }
+      }
+    }
+  });
+
+  it("EN gate: all course exercises with promptUk have promptEn", () => {
+    for (const c of courses) {
+      for (const ex of collectExercises(c)) {
+        if (ex.promptUk?.trim()) {
+          expect(
+            (ex as { promptEn?: string }).promptEn?.trim().length ?? 0,
+            `${c.slug}/${ex.id}`,
+          ).toBeGreaterThan(0);
+        }
+      }
+    }
+  });
+
   it("mcq / logic / code_read have valid correctIndex", () => {
     for (const c of courses) {
       for (const ex of collectExercises(c)) {

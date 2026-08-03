@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
-import { api } from "@/lib/api";
+import { api, apiBlob } from "@/lib/api";
 
 type Metrics = {
   windowDays: number;
@@ -121,11 +121,7 @@ export default function AdminMetricsPage() {
             disabled={!token}
             onClick={() => {
               if (!token) return;
-              const base = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
-              void fetch(`${base}/admin/metrics.csv?days=${days}`, {
-                headers: { Authorization: `Bearer ${token}` },
-              })
-                .then((r) => r.blob())
+              void apiBlob(`/admin/metrics.csv?days=${days}`, { token })
                 .then((blob) => {
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement("a");

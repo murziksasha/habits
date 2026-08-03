@@ -16,3 +16,8 @@ export * from "./playground.js";
 export * from "./exam.js";
 export * from "./theme.js";
 export * from "./exercises.js";
+export * from "./grade.js";
+export * from "./sanitize.js";
+export * from "./js-static.js";
+export * from "./feature-flags.js";
+export * from "./adaptive-next.js";

@@ -3,7 +3,10 @@ import {
   canAccessLesson,
   canPlayRatedChess,
   canStartLesson,
+  freemiumMatrix,
+  isPremiumActive,
   maxHearts,
+  planFeatureMatrix,
   regenerateHearts,
 } from "./entitlements.js";
 
@@ -58,5 +61,29 @@ describe("rated chess quota", () => {
     expect(canPlayRatedChess({ plan: "free", ratedGamesToday: 4 })).toBe(true);
     expect(canPlayRatedChess({ plan: "free", ratedGamesToday: 5 })).toBe(false);
     expect(canPlayRatedChess({ plan: "premium", ratedGamesToday: 100 })).toBe(true);
+  });
+});
+
+describe("freemium matrix", () => {
+  it("exposes stable free limits", () => {
+    const m = freemiumMatrix();
+    expect(m.freeLessonsPerCourse).toBe(5);
+    expect(m.freeHearts).toBe(5);
+    expect(m.trialDays).toBe(7);
+  });
+
+  it("builds plan feature rows", () => {
+    const rows = planFeatureMatrix();
+    expect(rows.some((r) => r.id === "lessons")).toBe(true);
+    expect(rows.find((r) => r.id === "hearts")?.premium).toBe("unlimited");
+  });
+
+  it("isPremiumActive respects expiry", () => {
+    expect(isPremiumActive({ plan: "free" })).toBe(false);
+    expect(isPremiumActive({ plan: "premium", planExpiresAt: null })).toBe(true);
+    const past = new Date(Date.now() - 60_000);
+    expect(isPremiumActive({ plan: "premium", planExpiresAt: past })).toBe(false);
+    const future = new Date(Date.now() + 60_000);
+    expect(isPremiumActive({ plan: "premium", planExpiresAt: future })).toBe(true);
   });
 });

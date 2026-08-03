@@ -1,20 +1,38 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 import { UI } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
+import { isFriendInviteId, sendFriendInvite } from "@/lib/friend-invite";
 
-export default function LoginPage() {
+function LoginForm() {
   const { login, completeMfaLogin } = useAuth();
   const router = useRouter();
+  const params = useSearchParams();
+  const friendId = params.get("friend");
+  const nextPath = params.get("next");
+  const hasFriendInvite = isFriendInviteId(friendId);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mfaToken, setMfaToken] = useState<string | null>(null);
   const [mfaCode, setMfaCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  async function postLoginRedirect() {
+    if (hasFriendInvite && friendId) {
+      await sendFriendInvite(friendId);
+      router.push("/friends");
+      return;
+    }
+    if (nextPath && nextPath.startsWith("/") && !nextPath.startsWith("//")) {
+      router.push(nextPath);
+      return;
+    }
+    router.push("/dashboard");
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -23,7 +41,7 @@ export default function LoginPage() {
     try {
       if (mfaToken) {
         await completeMfaLogin(mfaToken, mfaCode);
-        router.push("/dashboard");
+        await postLoginRedirect();
         return;
       }
       const result = await login(email, password);
@@ -31,7 +49,7 @@ export default function LoginPage() {
         setMfaToken(result.mfaToken);
         return;
       }
-      router.push("/dashboard");
+      await postLoginRedirect();
     } catch {
       setError(mfaToken ? "Невірний код 2FA" : "Невірний email або пароль");
     } finally {
@@ -42,6 +60,11 @@ export default function LoginPage() {
   return (
     <div className="mx-auto max-w-md card">
       <h1 className="text-2xl font-black">{UI.auth.loginTitle}</h1>
+      {hasFriendInvite && (
+        <p className="mt-2 rounded-xl bg-brand-soft/40 px-3 py-2 text-sm font-bold text-ink">
+          👥 Friend invite — we will send a request after you sign in.
+        </p>
+      )}
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
         {!mfaToken ? (
           <>
@@ -94,10 +117,21 @@ export default function LoginPage() {
       </p>
       <p className="mt-2 text-center text-sm text-ink-muted">
         {UI.auth.noAccount}{" "}
-        <Link href="/register" className="font-bold text-sky">
+        <Link
+          href={hasFriendInvite && friendId ? `/register?friend=${friendId}` : "/register"}
+          className="font-bold text-sky"
+        >
           {UI.nav.register}
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<p>{UI.common.loading}</p>}>
+      <LoginForm />
+    </Suspense>
   );
 }

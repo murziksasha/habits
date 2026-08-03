@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { logger } from "hono/logger";
 import { env } from "./env.js";
+import { log, latencyStats, newRequestId, recordLatency } from "./logger.js";
+import { checkReady } from "./ready.js";
 import { adminRoutes } from "./routes/admin.js";
 import { authRoutes } from "./routes/auth.js";
 import { billingRoutes } from "./routes/billing.js";
@@ -42,20 +43,60 @@ import { playgroundRoutes } from "./routes/playground.js";
 import { tournamentRoutes } from "./routes/tournaments.js";
 import { feedbackRoutes } from "./routes/feedback.js";
 import { publicBrandingRoutes } from "./routes/public-branding.js";
+import { meRoutes } from "./routes/me.js";
+import { judgeRoutes } from "./routes/judge.js";
+import { csrfOriginMiddleware } from "./csrf.js";
+import { withSpan } from "./otel.js";
 
 export function createApp() {
   const app = new Hono();
 
-  app.use("*", logger());
+  // Request id + structured access log + latency samples + OTel span
+  app.use("*", async (c, next) => {
+    const requestId =
+      c.req.header("x-request-id")?.trim() ||
+      c.req.header("x-correlation-id")?.trim() ||
+      newRequestId();
+    c.set("requestId" as never, requestId as never);
+    c.header("x-request-id", requestId);
+    const start = Date.now();
+    await withSpan(
+      "http.request",
+      { method: c.req.method, path: c.req.path, requestId },
+      async () => {
+        await next();
+      },
+    );
+    const ms = Date.now() - start;
+    recordLatency(ms);
+    log.info("request", {
+      requestId,
+      method: c.req.method,
+      path: c.req.path,
+      status: c.res.status,
+      ms,
+    });
+  });
+
   app.use(
     "*",
     cors({
       origin: env.webOrigin,
       credentials: true,
-      allowHeaders: ["Content-Type", "Authorization", "X-Admin-StepUp"],
+      allowHeaders: [
+        "Content-Type",
+        "Authorization",
+        "X-Request-Id",
+        "Idempotency-Key",
+        "X-Admin-StepUp",
+      ],
       allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      exposeHeaders: ["X-Request-Id"],
     }),
   );
+
+  // Optional strict Origin check for cookie-authenticated mutations (FEATURE_STRICT_CSRF=1)
+  app.use("*", csrfOriginMiddleware);
 
   app.get("/health", (c) =>
     c.json({
@@ -66,6 +107,18 @@ export function createApp() {
       uptimeSec: Math.floor(process.uptime()),
     }),
   );
+
+  app.get("/ready", async (c) => {
+    const status = await checkReady();
+    return c.json(status, status.ok ? 200 : 503);
+  });
+
+  // Test-only path to exercise onError sanitization (vitest or non-production)
+  if (process.env.NODE_ENV !== "production" || process.env.VITEST) {
+    app.get("/__test/throw", () => {
+      throw new Error("secret_internal_detail");
+    });
+  }
 
   app.route("/", openapiRoutes);
   app.route("/public", publicBrandingRoutes);
@@ -107,12 +160,29 @@ export function createApp() {
   app.route("/playground", playgroundRoutes);
   app.route("/metrics", metricsRoutes);
   app.route("/admin", adminRoutes);
+  app.route("/me", meRoutes);
+  app.route("/judge", judgeRoutes);
 
   app.notFound((c) => c.json({ error: "not_found" }, 404));
   app.onError((err, c) => {
-    console.error(err);
-    return c.json({ error: "internal", message: err.message }, 500);
+    const requestId = (c.get("requestId" as never) as string | undefined) ?? undefined;
+    log.error("unhandled", {
+      requestId,
+      err: err instanceof Error ? err.message : String(err),
+      stack: err instanceof Error ? err.stack : undefined,
+    });
+    const isProd = process.env.NODE_ENV === "production";
+    return c.json(
+      {
+        error: "internal",
+        requestId,
+        ...(isProd ? {} : { message: err instanceof Error ? err.message : "error" }),
+      },
+      500,
+    );
   });
 
   return app;
 }
+
+export { latencyStats };

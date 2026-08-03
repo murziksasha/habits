@@ -1,4 +1,5 @@
 import {
+  detectJsHazards,
   stripSimpleTypescript,
   type DomAssert,
   type PlaygroundLang,
@@ -193,7 +194,19 @@ export function runJsInIframe(
     return Promise.resolve(runJs(code, asTypescript));
   }
   const src = asTypescript ? stripSimpleTypescript(code) : code;
+  // Static preflight: hard hazards never enter the sandbox
+  const hazards = detectJsHazards(src).filter((h) => h.severity === "error");
+  if (hazards.length) {
+    return Promise.resolve({
+      ok: false,
+      stdout: "",
+      stderr: hazards.map((h) => h.message).join("; "),
+      isolated: true,
+    });
+  }
   const id = `pg-${Math.random().toString(36).slice(2)}`;
+  // Cap timeout (P1b: isolated iframe worker timeouts)
+  const ms = Math.min(Math.max(timeoutMs, 500), 8000);
 
   return new Promise((resolve) => {
     const iframe = document.createElement("iframe");
@@ -257,10 +270,10 @@ export function runJsInIframe(
       finish({
         ok: false,
         stdout: "",
-        stderr: "timeout (possible infinite loop)",
+        stderr: `timeout after ${ms}ms (possible infinite loop)`,
         isolated: true,
       });
-    }, timeoutMs);
+    }, ms);
   });
 }
 
