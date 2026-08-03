@@ -155,14 +155,41 @@ Realtime: [07-chess-realtime](./07-chess-realtime.md). Coach: `POST /coach/hint`
 | `/push` | VAPID, subscribe, test |
 | `/tournaments` | chess tournaments |
 
-## Admin (`/admin`) — role `admin`
+## Public branding
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/public/branding` | No | Published theme + product name |
+
+## Auth MFA (admin TOTP)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/auth/mfa/status` | totpEnabled / enforce |
+| POST | `/auth/mfa/totp/setup` | Generate secret |
+| POST | `/auth/mfa/totp/confirm` | Enable TOTP |
+| POST | `/auth/mfa/totp/verify` | Complete MFA login (TOTP or backup code) |
+| POST | `/auth/mfa/step-up` | Issue step-up token (TOTP or backup) |
+| POST | `/auth/mfa/backup-codes/regenerate` | New backup codes (TOTP required) |
+| GET | `/auth/sessions` | List own sessions |
+| DELETE | `/auth/sessions/:id` | Revoke session |
+| POST | `/auth/sessions/revoke-others` | Revoke all except current |
+
+## Admin (`/admin`) — role `admin` (+ MFA when enforced)
 
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/admin/stats` | Counts |
-| GET/PATCH | `/admin/users` | Users |
+| GET/PATCH | `/admin/users` | Users (role → step-up) |
+| POST | `/admin/users/:id/reset-mfa` | Clear TOTP (step-up) |
 | GET | `/admin/courses`, `/admin/courses/:slug/tree` | CMS tree |
+| POST/PATCH | `/admin/courses`, `/admin/courses/:id` | Draft create / metadata |
+| POST | `/admin/courses/:id/publish` | Publish (step-up + validation) |
+| POST | `/admin/courses/:id/archive` | Archive (step-up) |
+| DELETE | `/admin/courses/:id` | Delete draft (step-up) |
 | CRUD | `/admin/lessons`, POST `/admin/units` | Content CMS |
+| GET/PUT/POST | `/admin/appearance*` | Theme draft / publish / revert |
+| GET | `/admin/overview/*` | Billing, classroom, engagement, programming |
 | GET | `/admin/progress/overview` | Aggregates |
 | GET | `/admin/ops/summary` | Digests / links |
 | POST | `/admin/ops/parent-digests` | Run digests |
@@ -171,6 +198,8 @@ Realtime: [07-chess-realtime](./07-chess-realtime.md). Coach: `POST /coach/hint`
 | GET | `/admin/ops/weekly-preview/:userId` | Preview |
 | GET | `/admin/metrics` | Product metrics JSON |
 | GET | `/admin/metrics.csv` | Metrics CSV |
+
+See [SPEC 72](./72-admin-platform-v2.md).
 
 ## Error shape
 

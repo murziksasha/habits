@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import {
   chessContent,
@@ -14,6 +15,7 @@ import {
   sqlFundamentalsContent,
   nodeFundamentalsContent,
   expressFundamentalsContent,
+  embeddedCppContent,
   typingContent,
   typescriptContent,
   type CourseContent,
@@ -49,6 +51,7 @@ const allCourses: CourseContent[] = [
   sqlFundamentalsContent,
   nodeFundamentalsContent,
   expressFundamentalsContent,
+  embeddedCppContent,
 ];
 
 async function seedCourse(
@@ -59,6 +62,26 @@ async function seedCourse(
   let course = await db.query.courses.findFirst({
     where: eq(courses.slug, content.slug),
   });
+
+  const category =
+    content.slug === "chess"
+      ? "chess"
+      : content.slug === "programming"
+        ? "code"
+        : [
+              "typescript",
+              "html_semantics",
+              "css_layout",
+              "qa_theory",
+              "js_fundamentals",
+              "react_fundamentals",
+              "sql_fundamentals",
+              "node_fundamentals",
+              "express_fundamentals",
+              "embedded_cpp",
+            ].includes(content.slug)
+          ? "deep"
+          : "skill";
 
   if (!course) {
     const [created] = await db
@@ -72,10 +95,17 @@ async function seedCourse(
         icon: content.icon,
         color: content.color,
         sortOrder,
+        status: "published",
+        category,
+        contentSource: "seed",
+        publishedAt: new Date(),
       })
       .returning();
     course = created;
     console.log(`Created course ${content.slug}`);
+  } else if (course.contentSource === "cms") {
+    console.log(`Skip seed overwrite for CMS course ${content.slug}`);
+    return;
   } else {
     await db
       .update(courses)
@@ -87,6 +117,10 @@ async function seedCourse(
         icon: content.icon,
         color: content.color,
         sortOrder,
+        status: "published",
+        category,
+        contentSource: "seed",
+        publishedAt: course.publishedAt ?? new Date(),
       })
       .where(eq(courses.id, course.id));
   }
@@ -245,6 +279,39 @@ async function seedAdmin(db: ReturnType<typeof createDb>) {
   } else {
     console.log(`Admin exists: ${email}`);
   }
+
+  // Optional: pre-enroll admin TOTP for local/e2e (base32 secret)
+  // Default test secret is well-known; set SEED_ADMIN_TOTP_SECRET empty to skip.
+  const totpSecret =
+    process.env.SEED_ADMIN_TOTP_SECRET ??
+    (process.env.NODE_ENV === "production" ? "" : "JBSWY3DPEHPK3PXP");
+  if (totpSecret && user) {
+    // Known backup code for e2e: SEED_ADMIN_BACKUP_CODE or AAAA-BBBB
+    const backupPlain = process.env.SEED_ADMIN_BACKUP_CODE ?? "AAAA-BBBB";
+    const backupHash = createHash("sha256")
+      .update(`backup:${backupPlain.replace(/[\s-]/g, "").toUpperCase()}`)
+      .digest("hex");
+    if (!user.totpEnabled) {
+      await db
+        .update(users)
+        .set({
+          totpSecretEnc: `plain:${totpSecret}`,
+          totpEnabled: true,
+          totpVerifiedAt: new Date(),
+          mfaBackupCodeHashes: [backupHash],
+        })
+        .where(eq(users.id, user.id));
+      console.log(
+        `Admin TOTP seeded (secret default/test); backup code: ${backupPlain}`,
+      );
+    } else if (!(user.mfaBackupCodeHashes?.length)) {
+      await db
+        .update(users)
+        .set({ mfaBackupCodeHashes: [backupHash], updatedAt: new Date() })
+        .where(eq(users.id, user.id));
+      console.log(`Admin backup code seeded: ${backupPlain}`);
+    }
+  }
 }
 
 /** Demo premium user for local / Docker testing (not admin). */
@@ -287,6 +354,8 @@ async function seedAchievements(db: ReturnType<typeof createDb>) {
 }
 
 async function main() {
+  const { loadRootEnv } = await import("./load-env.js");
+  loadRootEnv();
   const db = createDb();
   // Users first so accounts exist even if a course seed fails (e.g. missing enum value).
   await seedAdmin(db);

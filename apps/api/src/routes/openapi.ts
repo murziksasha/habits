@@ -28,7 +28,7 @@ const doc = {
     title: "EduForge API",
     version: "2.4.0",
     description:
-      "Educational SaaS: learn map, exams, deep tracks (TS/HTML/CSS/QA/JS/React/SQL/Node/Express), trial+expiry, admin audit, feedback, minis, playground, schools, parents, metrics, chess, SRS, tutor. BFF: GET /me/home.",
+      "Educational SaaS: learn map, exams, deep tracks, admin platform v2 (TOTP MFA, theming, CMS draft/publish, backup codes), trial+expiry, feedback, minis, playground, schools, parents, metrics, chess, SRS, tutor. BFF: GET /me/home.",
   },
   servers: [{ url: "/", description: "Current host" }],
   tags: [
@@ -173,6 +173,73 @@ const doc = {
         responses: { "200": { description: "User + character" } },
       },
     },
+    "/auth/mfa/status": {
+      get: {
+        tags: ["auth"],
+        summary: "Admin MFA status",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "totpEnabled, backupCodesRemaining" } },
+      },
+    },
+    "/auth/mfa/totp/setup": {
+      post: {
+        tags: ["auth"],
+        summary: "Start TOTP enroll",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "secret + otpauthUrl" } },
+      },
+    },
+    "/auth/mfa/totp/confirm": {
+      post: {
+        tags: ["auth"],
+        summary: "Confirm TOTP enroll (returns backup codes once)",
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: { type: "object", properties: { code: { type: "string" } } },
+            },
+          },
+        },
+        responses: { "200": { description: "ok + backupCodes" } },
+      },
+    },
+    "/auth/mfa/totp/verify": {
+      post: {
+        tags: ["auth"],
+        summary: "Complete login with TOTP or backup code",
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  mfaToken: { type: "string" },
+                  code: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+        responses: { "200": { description: "session token" } },
+      },
+    },
+    "/auth/mfa/step-up": {
+      post: {
+        tags: ["auth"],
+        summary: "Issue short-lived admin step-up token",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "stepUpToken" } },
+      },
+    },
+    "/auth/mfa/backup-codes/regenerate": {
+      post: {
+        tags: ["auth"],
+        summary: "Regenerate backup codes (TOTP required)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "new backupCodes" } },
+      },
+    },
     "/auth/sessions": {
       get: {
         tags: ["auth"],
@@ -181,12 +248,36 @@ const doc = {
         responses: { "200": { description: "sessions[] + count" } },
       },
     },
+    "/auth/sessions/{id}": {
+      delete: {
+        tags: ["auth"],
+        summary: "Revoke a session",
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { "200": { description: "ok" } },
+      },
+    },
     "/auth/logout-others": {
       post: {
         tags: ["auth"],
         summary: "Revoke other sessions; body { all: true } also ends current",
         security: [{ bearerAuth: [] }],
         responses: { "200": { description: "revoked count" } },
+      },
+    },
+    "/auth/sessions/revoke-others": {
+      post: {
+        tags: ["auth"],
+        summary: "Alias of logout-others",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "revoked count" } },
+      },
+    },
+    "/public/branding": {
+      get: {
+        tags: ["ops"],
+        summary: "Published theme + product branding",
+        responses: { "200": { description: "theme" } },
       },
     },
     "/courses": path("List courses"),
@@ -568,6 +659,101 @@ const doc = {
         tags: ["parents", "ops"],
         summary: "Cron batch parent digests (CRON_SECRET or admin)",
         responses: { "200": { description: "sent/skipped counts" } },
+      },
+    },
+    "/admin/courses": {
+      get: {
+        tags: ["admin"],
+        summary: "List all courses (any status)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "courses" } },
+      },
+      post: {
+        tags: ["admin"],
+        summary: "Create draft course",
+        security: [{ bearerAuth: [] }],
+        responses: { "201": { description: "course" } },
+      },
+    },
+    "/admin/courses/{id}/publish": {
+      post: {
+        tags: ["admin"],
+        summary: "Publish course (step-up)",
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { "200": { description: "course" } },
+      },
+    },
+    "/admin/units": {
+      post: {
+        tags: ["admin"],
+        summary: "Create unit",
+        security: [{ bearerAuth: [] }],
+        responses: { "201": { description: "unit" } },
+      },
+    },
+    "/admin/units/{id}": {
+      patch: {
+        tags: ["admin"],
+        summary: "Patch unit",
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { "200": { description: "unit" } },
+      },
+      delete: {
+        tags: ["admin"],
+        summary: "Delete unit (step-up)",
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { "200": { description: "ok" } },
+      },
+    },
+    "/admin/units/reorder": {
+      post: {
+        tags: ["admin"],
+        summary: "Reorder units",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "ok" } },
+      },
+    },
+    "/admin/lessons/reorder": {
+      post: {
+        tags: ["admin"],
+        summary: "Reorder lessons",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "ok" } },
+      },
+    },
+    "/admin/appearance": {
+      get: {
+        tags: ["admin"],
+        summary: "Theme draft + published",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "appearance" } },
+      },
+    },
+    "/admin/appearance/draft": {
+      put: {
+        tags: ["admin"],
+        summary: "Save theme draft",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "ok" } },
+      },
+    },
+    "/admin/appearance/publish": {
+      post: {
+        tags: ["admin"],
+        summary: "Publish theme (step-up)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "published" } },
+      },
+    },
+    "/admin/overview/parents": {
+      get: {
+        tags: ["admin"],
+        summary: "Parents links + digests overview",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "counts" } },
       },
     },
     "/admin/metrics": {

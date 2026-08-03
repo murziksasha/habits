@@ -56,6 +56,7 @@ describe("course groups", () => {
     expect(COURSE_GROUP.sql_fundamentals).toBe("deep");
     expect(COURSE_GROUP.node_fundamentals).toBe("deep");
     expect(COURSE_GROUP.express_fundamentals).toBe("deep");
+    expect(COURSE_GROUP.embedded_cpp).toBe("deep");
     expect(COURSE_GROUP.english).toBe("skill");
   });
 });

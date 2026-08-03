@@ -6,20 +6,20 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          DEFAULT: "#58CC02",
-          dark: "#46A302",
-          soft: "#D7FFB8",
+          DEFAULT: "var(--ef-brand)",
+          dark: "var(--ef-brand-dark)",
+          soft: "var(--ef-brand-soft)",
         },
         ink: {
-          DEFAULT: "#3C3C3C",
-          muted: "#777777",
+          DEFAULT: "var(--ef-ink)",
+          muted: "var(--ef-ink-muted)",
         },
-        sky: "#1CB0F6",
-        grape: "#CE82FF",
-        sun: "#FF9600",
+        sky: "var(--ef-sky)",
+        grape: "var(--ef-grape)",
+        sun: "var(--ef-sun)",
       },
       boxShadow: {
-        card: "0 4px 0 0 rgba(0,0,0,0.08)",
+        card: "var(--ef-shadow-card)",
         btn: "0 4px 0 0 rgba(0,0,0,0.15)",
       },
       fontFamily: {

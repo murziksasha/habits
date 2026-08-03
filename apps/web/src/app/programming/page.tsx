@@ -262,9 +262,22 @@ export default function ProgrammingHubPage() {
             <Link href="/express-fundamentals" className="btn-secondary !py-2 text-sm inline-flex">
               🚂 {t.courses.express_fundamentals}
             </Link>
+            <Link href="/embedded-cpp" className="btn-secondary !py-2 text-sm inline-flex">
+              🪖 {t.courses.embedded_cpp}
+            </Link>
             <Link href="/playground" className="btn-secondary !py-2 text-sm inline-flex">
               🖥️ {t.nav.playground}
             </Link>
+            <Link
+              href="/playground"
+              className="btn-secondary !py-2 text-sm inline-flex"
+              title="React Studio"
+            >
+              ⚛️ React Studio
+            </Link>
+            <a href="/studio/node" className="btn-secondary !py-2 text-sm inline-flex">
+              📦 Node Studio
+            </a>
             <Link href="/tutor" className="btn-secondary !py-2 text-sm inline-flex">
               🤖 {t.nav.tutor}
             </Link>

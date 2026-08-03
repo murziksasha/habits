@@ -232,6 +232,9 @@ export async function evaluateAchievements(
   if (ctx.lessonCompleted && ctx.courseSlug === "express_fundamentals") {
     await tryUnlock("express_fundamentals_start");
   }
+  if (ctx.lessonCompleted && ctx.courseSlug === "embedded_cpp") {
+    await tryUnlock("embedded_cpp_start");
+  }
 
   if (ctx.lessonCompleted && ctx.courseSlug === "programming") {
     await tryUnlock("code_first_lesson");

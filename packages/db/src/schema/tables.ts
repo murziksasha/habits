@@ -18,6 +18,11 @@ export const planEnum = pgEnum("plan", ["free", "premium"]);
  * Course slugs are app-registry validated (`COURSE_SLUGS` in @eduforge/shared).
  * Stored as varchar so new courses do not require ALTER TYPE migrations.
  */
+export const coursePublishStatusEnum = pgEnum("course_publish_status", [
+  "draft",
+  "published",
+  "archived",
+]);
 export const lessonStatusEnum = pgEnum("lesson_status", [
   "locked",
   "available",
@@ -43,6 +48,12 @@ export const users = pgTable("users", {
   preferredLocale: varchar("preferred_locale", { length: 8 }).notNull().default("uk"),
   weeklyEmailEnabled: boolean("weekly_email_enabled").notNull().default(true),
   lastWeeklyEmailAt: timestamp("last_weekly_email_at", { withTimezone: true }),
+  /** Encrypted TOTP secret (AES-GCM); null until enroll */
+  totpSecretEnc: text("totp_secret_enc"),
+  totpEnabled: boolean("totp_enabled").notNull().default(false),
+  totpVerifiedAt: timestamp("totp_verified_at", { withTimezone: true }),
+  /** SHA-256 hashes of one-time backup codes (plaintext shown once at generation) */
+  mfaBackupCodeHashes: jsonb("mfa_backup_code_hashes").$type<string[]>().notNull().default([]),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
@@ -99,6 +110,7 @@ export const passwordResetTokens = pgTable("password_reset_tokens", {
 
 export const courses = pgTable("courses", {
   id: uuid("id").defaultRandom().primaryKey(),
+  /** Free-form slug (CMS can create new courses; app registry still lists built-ins) */
   slug: varchar("slug", { length: 64 }).notNull().unique(),
   titleUk: varchar("title_uk", { length: 128 }).notNull(),
   titleEn: varchar("title_en", { length: 128 }).notNull().default(""),
@@ -107,6 +119,13 @@ export const courses = pgTable("courses", {
   icon: varchar("icon", { length: 16 }).notNull(),
   color: varchar("color", { length: 16 }).notNull(),
   sortOrder: integer("sort_order").notNull().default(0),
+  status: coursePublishStatusEnum("status").notNull().default("published"),
+  /** Catalog group: code | deep | skill | chess */
+  category: varchar("category", { length: 32 }).notNull().default("skill"),
+  isVisible: boolean("is_visible").notNull().default(true),
+  publishedAt: timestamp("published_at", { withTimezone: true }),
+  /** seed | cms — seed may overwrite seed-owned courses */
+  contentSource: varchar("content_source", { length: 16 }).notNull().default("seed"),
 });
 
 export const units = pgTable("units", {
@@ -241,7 +260,42 @@ export const sessions = pgTable("sessions", {
     .references(() => users.id, { onDelete: "cascade" }),
   tokenHash: text("token_hash").notNull().unique(),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  /** Set after successful admin TOTP (or when MFA not required) */
+  mfaVerifiedAt: timestamp("mfa_verified_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+/** Short-lived challenge after password login when admin has TOTP enabled */
+export const mfaPending = pgTable("mfa_pending", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+/** Step-up re-auth tokens for dangerous admin actions */
+export const adminStepUpTokens = pgTable("admin_step_up_tokens", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+/** Platform-wide settings (theme draft/published, etc.) */
+export const platformSettings = pgTable("platform_settings", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  key: varchar("key", { length: 64 }).notNull().unique(),
+  value: jsonb("value").$type<Record<string, unknown>>().notNull().default({}),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedByUserId: uuid("updated_by_user_id").references(() => users.id, {
+    onDelete: "set null",
+  }),
 });
 
 /* ——— Tournaments ——— */

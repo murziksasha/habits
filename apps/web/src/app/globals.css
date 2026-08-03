@@ -4,6 +4,18 @@
 
 :root {
   color-scheme: light;
+  --ef-brand: #58cc02;
+  --ef-brand-dark: #46a302;
+  --ef-brand-soft: #d7ffb8;
+  --ef-sky: #1cb0f6;
+  --ef-grape: #ce82ff;
+  --ef-sun: #ff9600;
+  --ef-ink: #3c3c3c;
+  --ef-ink-muted: #777777;
+  --ef-bg: #f8fafc;
+  --ef-card-bg: #ffffff;
+  --ef-radius: 24px;
+  --ef-shadow-card: 0 4px 0 0 rgba(0, 0, 0, 0.08);
 }
 
 html.dark {

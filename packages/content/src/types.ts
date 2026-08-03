@@ -167,6 +167,8 @@ export type Exercise =
         contains?: string[];
         /** Search all files joined (for multi-file HTML structures) */
         containsHtml?: string[];
+        /** Must not appear in the file */
+        forbidden?: string[];
         kind?: "source" | "dom";
         selector?: string;
         minCount?: number;
@@ -176,6 +178,27 @@ export type Exercise =
       hintEn?: string;
       explanationUk?: string;
       explanationEn?: string;
+    }
+  | {
+      id: string;
+      type: "code_run";
+      promptUk: string;
+      promptEn?: string;
+      language: string;
+      starter: string;
+      /** Client-run tests (e.g. C++ via JSCPP); all must match stdout */
+      tests: { stdin?: string; stdout: string }[];
+      /** Server-side source needles (anti-cheat / offline grade) */
+      requiredSource?: string[];
+      forbiddenSource?: string[];
+      timeLimitMs?: number;
+      caseSensitive?: boolean;
+      hintUk?: string;
+      hintEn?: string;
+      explanationUk?: string;
+      explanationEn?: string;
+      solutionUk?: string;
+      solutionEn?: string;
     }
   | {
       id: string;
@@ -226,22 +249,8 @@ export type UnitContent = {
 };
 
 export type CourseContent = {
-  slug:
-    | "english"
-    | "chess"
-    | "typing"
-    | "speed_reading"
-    | "logic"
-    | "programming"
-    | "typescript"
-    | "html_semantics"
-    | "css_layout"
-    | "qa_theory"
-    | "js_fundamentals"
-    | "react_fundamentals"
-    | "sql_fundamentals"
-    | "node_fundamentals"
-    | "express_fundamentals";
+  /** Seed-known or CMS free-form slug */
+  slug: string;
   titleUk: string;
   titleEn: string;
   descriptionUk: string;

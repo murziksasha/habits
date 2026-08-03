@@ -7,7 +7,9 @@ export type PlaygroundLang =
   | "typescript"
   | "sql"
   | "bash"
-  | "json";
+  | "json"
+  | "cpp"
+  | "react";
 
 export type PlaygroundExample = {
   id: string;
@@ -18,17 +20,21 @@ export type PlaygroundExample = {
   /** For css/html multi-pane demos */
   html?: string;
   css?: string;
+  /** Multi-file React studio */
+  files?: Record<string, string>;
 };
 
 export const PLAYGROUND_LANGS: {
   id: PlaygroundLang;
   label: string;
-  runnable: "preview" | "js" | "sql" | "bash" | "json";
+  runnable: "preview" | "js" | "sql" | "bash" | "json" | "cpp" | "react";
 }[] = [
   { id: "html", label: "HTML", runnable: "preview" },
   { id: "css", label: "CSS", runnable: "preview" },
   { id: "js", label: "JavaScript", runnable: "js" },
   { id: "typescript", label: "TypeScript", runnable: "js" },
+  { id: "react", label: "React", runnable: "react" },
+  { id: "cpp", label: "C++", runnable: "cpp" },
   { id: "sql", label: "SQL", runnable: "sql" },
   { id: "bash", label: "Bash (sim)", runnable: "bash" },
   { id: "json", label: "JSON", runnable: "json" },
@@ -112,6 +118,112 @@ ls`,
   "roles": ["student"]
 }`,
   },
+  {
+    id: "cpp-hello",
+    lang: "cpp",
+    titleUk: "C++ hello",
+    titleEn: "C++ hello",
+    code: `#include <iostream>
+using namespace std;
+
+int main() {
+  cout << "Hello EduForge" << endl;
+  return 0;
+}
+`,
+  },
+  {
+    id: "cpp-sum",
+    lang: "cpp",
+    titleUk: "C++ sum",
+    titleEn: "C++ sum",
+    code: `#include <iostream>
+using namespace std;
+
+int main() {
+  int a = 2, b = 3;
+  cout << (a + b) << endl;
+  return 0;
+}
+`,
+  },
+  {
+    id: "cpp-pid-step",
+    lang: "cpp",
+    titleUk: "C++ PID-ish step",
+    titleEn: "C++ PID-ish step",
+    code: `#include <iostream>
+using namespace std;
+
+int main() {
+  double e = 10.0;
+  double Kp = 0.5;
+  double u = Kp * e;
+  cout << u << endl;
+  return 0;
+}
+`,
+  },
+  {
+    id: "react-hello",
+    lang: "react",
+    titleUk: "React hello",
+    titleEn: "React hello",
+    code: `export default function App() {
+  return (
+    <div className="app">
+      <h1>Hello React</h1>
+      <p>EduForge React Studio</p>
+    </div>
+  );
+}
+`,
+    css: `body { font-family: system-ui, sans-serif; margin: 16px; }
+.app h1 { color: #0ea5e9; }`,
+    files: {
+      "App.tsx": `export default function App() {
+  return (
+    <div className="app">
+      <h1>Hello React</h1>
+      <p>EduForge React Studio</p>
+    </div>
+  );
+}
+`,
+      "styles.css": `body { font-family: system-ui, sans-serif; margin: 16px; }
+.app h1 { color: #0ea5e9; }`,
+    },
+  },
+  {
+    id: "react-counter",
+    lang: "react",
+    titleUk: "React counter",
+    titleEn: "React counter",
+    code: `export default function App() {
+  const [n, setN] = useState(0);
+  return (
+    <div className="app">
+      <h1>Count: {n}</h1>
+      <button type="button" onClick={() => setN(n + 1)}>+1</button>
+    </div>
+  );
+}
+`,
+    files: {
+      "App.tsx": `export default function App() {
+  const [n, setN] = useState(0);
+  return (
+    <div className="app">
+      <h1>Count: {n}</h1>
+      <button type="button" onClick={() => setN(n + 1)}>+1</button>
+    </div>
+  );
+}
+`,
+      "styles.css": `body { font-family: system-ui, sans-serif; margin: 16px; }
+button { margin: 4px; padding: 8px 12px; font-weight: 700; cursor: pointer; }`,
+    },
+  },
 ];
 
 /** Strip simple TypeScript annotations for browser run (not a full compiler). */
@@ -146,6 +258,8 @@ export type PlaygroundChallenge = {
   starterCode: string;
   /** For CSS challenges with separate HTML pane */
   starterHtml?: string;
+  /** Multi-file starters (React studio: App.tsx, styles.css, …) */
+  starterFiles?: Record<string, string>;
   /** Exact stdout lines after normalize (trim, no trailing empty) */
   expectedStdout?: string[];
   /**
@@ -359,6 +473,209 @@ console.log(identity(42));`,
     starterCode: `echo "todo"`,
     expectedStdout: ["hello playground"],
     xpReward: 6,
+  },
+  /* ——— C++ (client JSCPP / mock runner) ——— */
+  {
+    id: "ch-cpp-hello",
+    lang: "cpp",
+    titleUk: "C++ Hello",
+    titleEn: "C++ Hello",
+    promptUk: 'Виведи рядок Hello (через cout).',
+    promptEn: 'Print Hello with cout.',
+    starterCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  // TODO: cout << "Hello" << endl;
+  return 0;
+}
+`,
+    expectedStdout: ["Hello"],
+    expectedSourceContains: ["cout", "Hello", "main"],
+    xpReward: 10,
+    hintUk: 'cout << "Hello" << endl;',
+    hintEn: 'cout << "Hello" << endl;',
+  },
+  {
+    id: "ch-cpp-sum",
+    lang: "cpp",
+    titleUk: "C++ сума",
+    titleEn: "C++ sum",
+    promptUk: "Порахуй 2+3 і виведи 5.",
+    promptEn: "Compute 2+3 and print 5.",
+    starterCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  int a = 2, b = 3;
+  // TODO: print a+b
+  return 0;
+}
+`,
+    expectedStdout: ["5"],
+    expectedSourceContains: ["cout", "main"],
+    xpReward: 10,
+  },
+  {
+    id: "ch-cpp-distance",
+    lang: "cpp",
+    titleUk: "C++ 3-4-5",
+    titleEn: "C++ 3-4-5",
+    promptUk: "Виведи цілу відстань: sqrt(3*3+4*4) → 5.",
+    promptEn: "Print integer distance: sqrt(3*3+4*4) → 5.",
+    starterCode: `#include <iostream>
+#include <cmath>
+using namespace std;
+
+int main() {
+  // TODO: cout << (int)sqrt(3*3 + 4*4) << endl;
+  return 0;
+}
+`,
+    expectedStdout: ["5"],
+    expectedSourceContains: ["sqrt", "cout"],
+    xpReward: 12,
+    hintUk: "sqrt з <cmath>, cast до int",
+    hintEn: "sqrt from <cmath>, cast to int",
+  },
+  {
+    id: "ch-cpp-clamp",
+    lang: "cpp",
+    titleUk: "C++ clamp",
+    titleEn: "C++ clamp",
+    promptUk: "Якщо x>10 виведи 10, інакше x. Для x=15 → 10.",
+    promptEn: "If x>10 print 10, else x. For x=15 → 10.",
+    starterCode: `#include <iostream>
+using namespace std;
+
+int main() {
+  int x = 15;
+  // TODO
+  return 0;
+}
+`,
+    expectedStdout: ["10"],
+    expectedSourceContains: ["if", "cout"],
+    xpReward: 12,
+  },
+  /* ——— React Studio (client preview + DOM) ——— */
+  {
+    id: "ch-react-hello",
+    lang: "react",
+    titleUk: "React заголовок",
+    titleEn: "React heading",
+    promptUk: 'Відрендери <h1>Hello React</h1> (точний текст).',
+    promptEn: "Render <h1>Hello React</h1> (exact text).",
+    starterCode: `export default function App() {
+  return (
+    <div>
+      {/* TODO: h1 Hello React */}
+    </div>
+  );
+}
+`,
+    starterFiles: {
+      "App.tsx": `export default function App() {
+  return (
+    <div>
+      {/* TODO: h1 Hello React */}
+    </div>
+  );
+}
+`,
+      "styles.css": `body { font-family: system-ui; margin: 16px; }`,
+    },
+    expectedSourceContains: ["h1", "Hello React", "export default"],
+    domAsserts: [{ selector: "h1", textIncludes: "Hello React", minCount: 1 }],
+    xpReward: 12,
+    hintUk: "return <h1>Hello React</h1>",
+    hintEn: "return <h1>Hello React</h1>",
+  },
+  {
+    id: "ch-react-counter",
+    lang: "react",
+    titleUk: "React counter UI",
+    titleEn: "React counter UI",
+    promptUk: "useState + кнопка з текстом +1 і елемент з data-testid=count.",
+    promptEn: "useState + button text +1 and element data-testid=count.",
+    starterCode: `export default function App() {
+  // TODO: useState, button +1, <p data-testid="count">{n}</p>
+  return <div />;
+}
+`,
+    starterFiles: {
+      "App.tsx": `export default function App() {
+  // TODO: useState, button +1, <p data-testid="count">{n}</p>
+  return <div />;
+}
+`,
+      "styles.css": `body { font-family: system-ui; margin: 16px; }
+button { padding: 8px 12px; font-weight: 700; }`,
+    },
+    expectedSourceContains: ["useState", "data-testid", "+1"],
+    domAsserts: [
+      { selector: '[data-testid="count"]', minCount: 1 },
+      { selector: "button", textIncludes: "+1", minCount: 1 },
+    ],
+    xpReward: 14,
+    hintUk: "const [n,setN]=useState(0); button onClick={()=>setN(n+1)}",
+    hintEn: "const [n,setN]=useState(0); button onClick={()=>setN(n+1)}",
+  },
+  {
+    id: "ch-react-list",
+    lang: "react",
+    titleUk: "React список",
+    titleEn: "React list",
+    promptUk: "Відрендери ul.list з трьома li (будь-які тексти).",
+    promptEn: "Render ul.list with three li (any text).",
+    starterCode: `export default function App() {
+  const items = ["a", "b", "c"];
+  // TODO: map to <ul className="list"><li key=…>
+  return <div />;
+}
+`,
+    starterFiles: {
+      "App.tsx": `export default function App() {
+  const items = ["a", "b", "c"];
+  // TODO: map to <ul className="list"><li key=…>
+  return <div />;
+}
+`,
+      "styles.css": `body { font-family: system-ui; margin: 16px; }`,
+    },
+    expectedSourceContains: [".map", "ul", "li"],
+    domAsserts: [
+      { selector: "ul.list", minCount: 1 },
+      { selector: "ul.list li", minCount: 3 },
+    ],
+    xpReward: 14,
+  },
+  {
+    id: "ch-react-toggle",
+    lang: "react",
+    titleUk: "React toggle",
+    titleEn: "React toggle",
+    promptUk: 'Кнопка Toggle і <p class="status"> з текстом off (початково).',
+    promptEn: 'Toggle button and <p class="status"> text off initially.',
+    starterCode: `export default function App() {
+  // TODO: on/off toggle, p.status starts as "off"
+  return <div />;
+}
+`,
+    starterFiles: {
+      "App.tsx": `export default function App() {
+  // TODO: on/off toggle, p.status starts as "off"
+  return <div />;
+}
+`,
+      "styles.css": `body { font-family: system-ui; margin: 16px; }`,
+    },
+    expectedSourceContains: ["useState", "status", "off"],
+    domAsserts: [
+      { selector: "p.status", textIncludes: "off", minCount: 1 },
+      { selector: "button", textIncludes: "Toggle", minCount: 1 },
+    ],
+    xpReward: 14,
   },
   /* ——— HTML / CSS visual (source checks) ——— */
   {
@@ -806,4 +1123,64 @@ export function buildPlaygroundEmbedUrl(
 
 export function playgroundEmbedIframeHtml(embedUrl: string, height = 480): string {
   return `<iframe src="${embedUrl}" width="100%" height="${height}" style="border:0;border-radius:12px" allow="clipboard-write" loading="lazy" title="EduForge Playground"></iframe>`;
+}
+
+/** External full-stack labs (Next / Playwright / Node) — open in StackBlitz etc. */
+export type ExternalLab = {
+  id: string;
+  stack: "next" | "playwright" | "node" | "react";
+  titleUk: string;
+  titleEn: string;
+  descriptionUk: string;
+  descriptionEn: string;
+  /** Public StackBlitz / CodeSandbox URL */
+  url: string;
+  courseSlugs?: string[];
+};
+
+/**
+ * Curated external labs (WebContainers / full Next later in-app — SPEC 75).
+ * URLs are stable StackBlitz starters; replace with org templates as needed.
+ */
+export const EXTERNAL_LABS: ExternalLab[] = [
+  {
+    id: "lab-next-app",
+    stack: "next",
+    titleUk: "Next.js App Router (StackBlitz)",
+    titleEn: "Next.js App Router (StackBlitz)",
+    descriptionUk:
+      "Повний Next у хмарному IDE. In-app Next — у roadmap (WebContainers).",
+    descriptionEn:
+      "Full Next in cloud IDE. In-app Next is on the WebContainers roadmap.",
+    url: "https://stackblitz.com/fork/github/vercel/next.js/tree/canary/examples/hello-world",
+    courseSlugs: ["react_fundamentals", "programming"],
+  },
+  {
+    id: "lab-playwright",
+    stack: "playwright",
+    titleUk: "Playwright getting started",
+    titleEn: "Playwright getting started",
+    descriptionUk:
+      "E2E тести потребують Node + браузер — зовнішній lab, не sandbox уроку.",
+    descriptionEn:
+      "E2E needs Node + browser — external lab, not the lesson sandbox.",
+    url: "https://stackblitz.com/edit/playwright",
+    courseSlugs: ["qa_theory", "programming"],
+  },
+  {
+    id: "lab-node-http",
+    stack: "node",
+    titleUk: "Node HTTP server",
+    titleEn: "Node HTTP server",
+    descriptionUk: "Мінімальний http.createServer у StackBlitz.",
+    descriptionEn: "Minimal http.createServer in StackBlitz.",
+    url: "https://stackblitz.com/edit/node-http-server",
+    courseSlugs: ["node_fundamentals", "express_fundamentals"],
+  },
+];
+
+export function externalLabsForCourse(courseSlug: string): ExternalLab[] {
+  return EXTERNAL_LABS.filter(
+    (l) => !l.courseSlugs?.length || l.courseSlugs.includes(courseSlug),
+  );
 }

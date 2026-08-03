@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { and, eq, gt, isNull } from "drizzle-orm";
-import { characters, passwordResetTokens, users } from "@eduforge/db";
+import { and, desc, eq, gt, isNull, ne } from "drizzle-orm";
+import { characters, passwordResetTokens, sessions, users } from "@eduforge/db";
 import { loginSchema, registerSchema } from "@eduforge/shared";
 import { z } from "zod";
 import { randomBytes } from "node:crypto";
@@ -95,15 +95,37 @@ authRoutes.post("/login", async (c) => {
   if (!user || !(await verifyPassword(parsed.data.password, user.passwordHash))) {
     return c.json({ error: "invalid_credentials" }, 401);
   }
-  const { token, expiresAt } = await createSession(user.id);
+
+  const { adminMfaEnforce, createMfaPending } = await import("../mfa.js");
+  // Always challenge when admin has TOTP enrolled (TOTP or backup code).
+  if (user.role === "admin" && user.totpEnabled) {
+    const mfaToken = await createMfaPending(user.id);
+    return c.json({
+      mfaRequired: true,
+      mfaToken,
+      user: { id: user.id, email: user.email, plan: user.plan, role: user.role },
+    });
+  }
+
+  const mfaVerified = true;
+  const { token, expiresAt } = await createSession(user.id, { mfaVerified });
   setSessionCookie(c, token, expiresAt);
   const character = await db.query.characters.findFirst({
     where: eq(characters.userId, user.id),
   });
   return c.json({
-    user: { id: user.id, email: user.email, plan: user.plan, role: user.role },
+    user: {
+      id: user.id,
+      email: user.email,
+      plan: user.plan,
+      role: user.role,
+      totpEnabled: user.totpEnabled,
+      backupCodesRemaining: (user.mfaBackupCodeHashes ?? []).length,
+    },
     character,
     token,
+    mfaEnrollRequired:
+      user.role === "admin" && adminMfaEnforce() && !user.totpEnabled,
   });
 });
 
@@ -120,6 +142,21 @@ authRoutes.get("/sessions", authMiddleware, async (c) => {
   const token = c.get("sessionToken");
   const list = await listUserSessions(user.id, token);
   return c.json({ sessions: list, count: list.length });
+});
+
+authRoutes.delete("/sessions/:id", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id") ?? "";
+  const current = c.get("sessionToken");
+  const row = await db.query.sessions.findFirst({
+    where: and(eq(sessions.id, id), eq(sessions.userId, user.id)),
+  });
+  if (!row) return c.json({ error: "not_found" }, 404);
+  if (current && row.tokenHash === hashToken(current)) {
+    return c.json({ error: "cannot_revoke_current" }, 400);
+  }
+  await db.delete(sessions).where(eq(sessions.id, id));
+  return c.json({ ok: true });
 });
 
 /**
@@ -141,6 +178,15 @@ authRoutes.post("/logout-others", authMiddleware, async (c) => {
   return c.json({ ok: true, revoked, currentRevoked: false });
 });
 
+/** Alias of /logout-others for admin security UI. */
+authRoutes.post("/sessions/revoke-others", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const token = c.get("sessionToken");
+  if (!token) return c.json({ error: "unauthorized" }, 401);
+  const { revoked } = await destroyOtherSessions(user.id, token);
+  return c.json({ ok: true, revoked, currentRevoked: false });
+});
+
 authRoutes.get("/me", authMiddleware, async (c) => {
   const user = c.get("user");
   let character = await db.query.characters.findFirst({
@@ -158,6 +204,12 @@ authRoutes.get("/me", authMiddleware, async (c) => {
       character = updated;
     }
   }
+  const { adminMfaEnforce, getSessionMfaVerified } = await import("../mfa.js");
+  const sessionToken = c.get("sessionToken");
+  const mfaVerified =
+    user.role !== "admin" || !user.totpEnabled
+      ? true
+      : await getSessionMfaVerified(sessionToken);
   return c.json({
     user: {
       id: user.id,
@@ -165,9 +217,197 @@ authRoutes.get("/me", authMiddleware, async (c) => {
       plan: user.plan,
       role: user.role,
       planExpiresAt: user.planExpiresAt,
+      totpEnabled: user.totpEnabled,
+      mfaVerified,
+      backupCodesRemaining: (user.mfaBackupCodeHashes ?? []).length,
+      mfaEnrollRequired:
+        user.role === "admin" && adminMfaEnforce() && !user.totpEnabled,
+      mfaRequired: user.role === "admin" && user.totpEnabled && !mfaVerified,
     },
     character,
   });
+});
+
+/* ——— Admin TOTP MFA ——— */
+
+authRoutes.get("/mfa/status", authMiddleware, async (c) => {
+  const user = c.get("user");
+  if (user.role !== "admin") return c.json({ error: "forbidden" }, 403);
+  const { adminMfaEnforce, getSessionMfaVerified } = await import("../mfa.js");
+  const sessionToken = c.get("sessionToken");
+  const mfaVerified = await getSessionMfaVerified(sessionToken);
+  return c.json({
+    totpEnabled: user.totpEnabled,
+    mfaVerified,
+    mfaEnforced: adminMfaEnforce(),
+    backupCodesRemaining: (user.mfaBackupCodeHashes ?? []).length,
+  });
+});
+
+authRoutes.post("/mfa/totp/setup", authMiddleware, async (c) => {
+  const user = c.get("user");
+  if (user.role !== "admin") return c.json({ error: "forbidden" }, 403);
+  if (user.totpEnabled) return c.json({ error: "already_enabled" }, 400);
+  const limited = await guardAuth(c, "mfa_setup");
+  if (limited) return limited;
+
+  const {
+    generateTotpSecret,
+    encryptTotpSecret,
+    totpUri,
+  } = await import("../mfa.js");
+  const secret = generateTotpSecret();
+  await db
+    .update(users)
+    .set({
+      totpSecretEnc: encryptTotpSecret(secret),
+      totpEnabled: false,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, user.id));
+  return c.json({
+    secret,
+    otpauthUrl: totpUri(secret, user.email),
+  });
+});
+
+authRoutes.post("/mfa/totp/confirm", authMiddleware, async (c) => {
+  const user = c.get("user");
+  if (user.role !== "admin") return c.json({ error: "forbidden" }, 403);
+  const limited = await guardAuth(c, "mfa_confirm");
+  if (limited) return limited;
+  const body = await c.req.json().catch(() => null);
+  const code = typeof body?.code === "string" ? body.code : "";
+  const {
+    loadUserTotpSecret,
+    verifyTotpCode,
+    markSessionMfaVerified,
+    generateBackupCodes,
+    hashBackupCodes,
+  } = await import("../mfa.js");
+  const secret = await loadUserTotpSecret(user.id);
+  if (!secret) return c.json({ error: "setup_required" }, 400);
+  if (!verifyTotpCode(secret, code)) return c.json({ error: "invalid_code" }, 401);
+  const backupCodes = generateBackupCodes(10);
+  await db
+    .update(users)
+    .set({
+      totpEnabled: true,
+      totpVerifiedAt: new Date(),
+      mfaBackupCodeHashes: hashBackupCodes(backupCodes),
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, user.id));
+  const sessionToken = c.get("sessionToken");
+  if (sessionToken) await markSessionMfaVerified(sessionToken);
+  return c.json({
+    ok: true,
+    totpEnabled: true,
+    /** Shown once — store offline */
+    backupCodes,
+  });
+});
+
+authRoutes.post("/mfa/totp/verify", async (c) => {
+  const limited = await guardAuth(c, "mfa_verify");
+  if (limited) return limited;
+  const body = await c.req.json().catch(() => null);
+  const mfaToken = typeof body?.mfaToken === "string" ? body.mfaToken : "";
+  const code = typeof body?.code === "string" ? body.code : "";
+  const { consumeMfaPending, verifyUserMfaCode } = await import("../mfa.js");
+  // Peek pending without consume until code valid — use consume after verify
+  const { mfaPending } = await import("@eduforge/db");
+  const { and, eq, gt } = await import("drizzle-orm");
+  const { hashToken } = await import("../auth.js");
+  const pending = await db.query.mfaPending.findFirst({
+    where: and(
+      eq(mfaPending.tokenHash, hashToken(mfaToken)),
+      gt(mfaPending.expiresAt, new Date()),
+    ),
+  });
+  if (!pending) return c.json({ error: "invalid_mfa_token" }, 401);
+  const method = await verifyUserMfaCode(pending.userId, code);
+  if (!method) return c.json({ error: "invalid_code" }, 401);
+  await consumeMfaPending(mfaToken);
+  const user = await db.query.users.findFirst({ where: eq(users.id, pending.userId) });
+  if (!user) return c.json({ error: "not_found" }, 404);
+  const { token, expiresAt } = await createSession(user.id, { mfaVerified: true });
+  setSessionCookie(c, token, expiresAt);
+  const character = await db.query.characters.findFirst({
+    where: eq(characters.userId, user.id),
+  });
+  return c.json({
+    user: {
+      id: user.id,
+      email: user.email,
+      plan: user.plan,
+      role: user.role,
+      totpEnabled: true,
+      mfaVerified: true,
+      backupCodesRemaining: (user.mfaBackupCodeHashes ?? []).length,
+    },
+    character,
+    token,
+    mfaMethod: method,
+  });
+});
+
+authRoutes.post("/mfa/step-up", authMiddleware, async (c) => {
+  const user = c.get("user");
+  if (user.role !== "admin") return c.json({ error: "forbidden" }, 403);
+  const limited = await guardAuth(c, "mfa_stepup");
+  if (limited) return limited;
+  const body = await c.req.json().catch(() => null);
+  const code = typeof body?.code === "string" ? body.code : "";
+  const { verifyUserMfaCode, createStepUpToken } = await import("../mfa.js");
+  if (!user.totpEnabled) {
+    // No TOTP: allow step-up without code (dev / not enrolled)
+    const { token, expiresAt } = await createStepUpToken(user.id);
+    return c.json({ stepUpToken: token, expiresAt });
+  }
+  const method = await verifyUserMfaCode(user.id, code);
+  if (!method) return c.json({ error: "invalid_code" }, 401);
+  const { token, expiresAt } = await createStepUpToken(user.id);
+  return c.json({ stepUpToken: token, expiresAt, mfaMethod: method });
+});
+
+/** Regenerate backup codes (requires valid TOTP/step code, invalidates old) */
+authRoutes.post("/mfa/backup-codes/regenerate", authMiddleware, async (c) => {
+  const user = c.get("user");
+  if (user.role !== "admin") return c.json({ error: "forbidden" }, 403);
+  if (!user.totpEnabled) return c.json({ error: "mfa_enroll_required" }, 403);
+  const limited = await guardAuth(c, "mfa_backup_regen");
+  if (limited) return limited;
+  const body = await c.req.json().catch(() => null);
+  const code = typeof body?.code === "string" ? body.code : "";
+  // TOTP only for regen (don't burn a backup code to replace backups)
+  const {
+    loadUserTotpSecret,
+    verifyTotpCode,
+    generateBackupCodes,
+    hashBackupCodes,
+  } = await import("../mfa.js");
+  const secret = await loadUserTotpSecret(user.id);
+  if (!secret || !verifyTotpCode(secret, code)) {
+    return c.json({ error: "invalid_code", hint: "use_totp" }, 401);
+  }
+  const backupCodes = generateBackupCodes(10);
+  await db
+    .update(users)
+    .set({
+      mfaBackupCodeHashes: hashBackupCodes(backupCodes),
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, user.id));
+  const { writeAdminAudit } = await import("../audit.js");
+  await writeAdminAudit(db, {
+    actorUserId: user.id,
+    action: "backup_codes_regenerate",
+    targetType: "user",
+    targetId: user.id,
+    meta: {},
+  });
+  return c.json({ backupCodes, backupCodesRemaining: backupCodes.length });
 });
 
 authRoutes.patch("/me/character", authMiddleware, async (c) => {

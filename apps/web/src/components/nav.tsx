@@ -106,6 +106,8 @@ export function Nav() {
       { href: "/export", label: t.nav.export, icon: "📤", group: labsLabel },
       { href: "/focus", label: t.nav.focus, icon: "⏱️", group: labsLabel },
       { href: "/reports", label: t.nav.reports, icon: "📊", group: labsLabel },
+      { href: "/embedded-cpp", label: t.nav.embeddedCpp, icon: "🪖", group: labsLabel },
+      { href: "/studio/node", label: "Node Studio", icon: "📦", group: labsLabel },
       {
         href: "/classroom/live/demo",
         label: locale === "en" ? "Live classroom" : "Живий клас",

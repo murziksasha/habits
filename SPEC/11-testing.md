@@ -93,8 +93,9 @@ Uses Hono `app.request()` via exported `createApp()` — no live port needed, on
 
 1. Landing `lang=uk`  
 2. Register → dashboard → English lesson  
-3. Admin login → `/admin`  
-4. `/play` bot CTA  
+3. Admin login with **real TOTP** (seed secret) → `/admin` (`e2e/helpers.ts`, `e2e/mfa.spec.ts`)  
+4. Optional backup-code login (re-seed if code consumed)  
+5. `/play` bot CTA  
 
 ## Conventions
 

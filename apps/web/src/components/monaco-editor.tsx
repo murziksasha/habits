@@ -24,6 +24,11 @@ const LANG_MAP: Record<string, string> = {
   bash: "shell",
   shell: "shell",
   jsx: "javascript",
+  cpp: "cpp",
+  "c++": "cpp",
+  c: "c",
+  cmake: "plaintext",
+  qml: "plaintext",
 };
 
 export function MonacoCodeEditor({

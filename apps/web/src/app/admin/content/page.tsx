@@ -1,26 +1,45 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { UI } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api";
-import { ExercisePlayer, type Exercise } from "@/components/exercises";
-import { Badge, Button, Card } from "@/components/ui";
+import {
+  ExerciseBuilder,
+  type BuilderExercise,
+} from "@/components/admin/exercise-builder";
 
-type Course = { id: string; slug: string; titleUk: string; icon: string };
+type Course = {
+  id: string;
+  slug: string;
+  titleUk: string;
+  icon: string;
+  status?: string;
+  contentSource?: string;
+};
 type Lesson = {
   id: string;
   slug: string;
   titleUk: string;
+  titleEn?: string;
   isFree: boolean;
+  isExam?: boolean;
+  passThreshold?: number | null;
   baseXp: number;
   difficulty: number;
   sortOrder: number;
   exercises: unknown[];
 };
-type Unit = { id: string; titleUk: string; slug: string; lessons: Lesson[] };
+type Unit = {
+  id: string;
+  titleUk: string;
+  titleEn?: string;
+  slug: string;
+  sortOrder?: number;
+  lessons: Lesson[];
+};
 
 export default function AdminContentPage() {
   const { user, token, loading } = useAuth();
@@ -30,28 +49,16 @@ export default function AdminContentPage() {
   const [tree, setTree] = useState<{ course: Course; units: Unit[] } | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
   const [titleUk, setTitleUk] = useState("");
+  const [titleEn, setTitleEn] = useState("");
   const [isFree, setIsFree] = useState(false);
+  const [isExam, setIsExam] = useState(false);
+  const [passThreshold, setPassThreshold] = useState(0.7);
   const [baseXp, setBaseXp] = useState(15);
   const [difficulty, setDifficulty] = useState(1);
   const [exercisesJson, setExercisesJson] = useState("[]");
+  const [exercises, setExercises] = useState<BuilderExercise[]>([]);
+  const [editorMode, setEditorMode] = useState<"visual" | "json">("visual");
   const [msg, setMsg] = useState("");
-  const [previewIdx, setPreviewIdx] = useState(0);
-  const [showPreview, setShowPreview] = useState(true);
-
-  const parsedExercises = useMemo(() => {
-    try {
-      const arr = JSON.parse(exercisesJson) as unknown;
-      if (!Array.isArray(arr)) return { ok: false as const, exercises: [] as Exercise[], err: "not array" };
-      return { ok: true as const, exercises: arr as Exercise[], err: null };
-    } catch (e) {
-      return { ok: false as const, exercises: [] as Exercise[], err: (e as Error).message };
-    }
-  }, [exercisesJson]);
-
-  const previewEx =
-    parsedExercises.ok && parsedExercises.exercises.length
-      ? parsedExercises.exercises[Math.min(previewIdx, parsedExercises.exercises.length - 1)]
-      : null;
 
   useEffect(() => {
     if (!loading && (!user || user.role !== "admin")) router.replace("/dashboard");
@@ -81,29 +88,45 @@ export default function AdminContentPage() {
   function startEdit(lesson: Lesson) {
     setEditId(lesson.id);
     setTitleUk(lesson.titleUk);
+    setTitleEn(lesson.titleEn ?? "");
     setIsFree(lesson.isFree);
+    setIsExam(lesson.isExam ?? false);
+    setPassThreshold(lesson.passThreshold ?? 0.7);
     setBaseXp(lesson.baseXp);
     setDifficulty(lesson.difficulty);
-    setExercisesJson(JSON.stringify(lesson.exercises ?? [], null, 2));
-    setPreviewIdx(0);
-    setShowPreview(true);
+    const list = (lesson.exercises ?? []) as BuilderExercise[];
+    setExercises(list);
+    setExercisesJson(JSON.stringify(list, null, 2));
     setMsg("");
   }
 
   async function save() {
     if (!token || !editId) return;
-    let exercises: unknown[];
-    try {
-      exercises = JSON.parse(exercisesJson) as unknown[];
-      if (!Array.isArray(exercises)) throw new Error("not array");
-    } catch {
-      setMsg("Невалідний JSON exercises");
-      return;
+    let payload: unknown[];
+    if (editorMode === "json") {
+      try {
+        payload = JSON.parse(exercisesJson) as unknown[];
+        if (!Array.isArray(payload)) throw new Error("not array");
+      } catch {
+        setMsg("Невалідний JSON exercises");
+        return;
+      }
+    } else {
+      payload = exercises;
     }
     await api(`/admin/lessons/${editId}`, {
       method: "PATCH",
       token,
-      body: { titleUk, isFree, baseXp, difficulty, exercises },
+      body: {
+        titleUk,
+        titleEn,
+        isFree,
+        isExam,
+        passThreshold: isExam ? passThreshold : null,
+        baseXp,
+        difficulty,
+        exercises: payload,
+      },
     });
     setMsg("Збережено");
     await loadTree(slug);
@@ -126,6 +149,7 @@ export default function AdminContentPage() {
         courseId,
         slug: slugNew,
         titleUk: "Новий урок",
+        titleEn: "New lesson",
         isFree: false,
         baseXp: 15,
         difficulty: 1,
@@ -137,6 +161,87 @@ export default function AdminContentPage() {
             options: ["A", "B", "C", "D"],
             correctIndex: 0,
           },
+        ],
+      },
+    });
+    await loadTree(slug);
+  }
+
+  async function createUnit() {
+    if (!token || !tree) return;
+    const slugNew = `unit-${Date.now()}`;
+    const sortOrder = (tree.units?.length ?? 0);
+    await api("/admin/units", {
+      method: "POST",
+      token,
+      body: {
+        courseId: tree.course.id,
+        slug: slugNew,
+        titleUk: "Новий юніт",
+        titleEn: "New unit",
+        sortOrder,
+      },
+    });
+    setMsg("Unit created");
+    await loadTree(slug);
+  }
+
+  async function renameUnit(u: Unit) {
+    if (!token) return;
+    const titleUk = window.prompt("Unit title (UK)", u.titleUk);
+    if (titleUk == null || !titleUk.trim()) return;
+    const titleEn = window.prompt("Unit title (EN)", u.titleEn ?? "") ?? "";
+    await api(`/admin/units/${u.id}`, {
+      method: "PATCH",
+      token,
+      body: { titleUk: titleUk.trim(), titleEn: titleEn.trim() },
+    });
+    await loadTree(slug);
+  }
+
+  async function moveUnit(u: Unit, dir: -1 | 1) {
+    if (!token || !tree) return;
+    const ordered = [...tree.units].sort(
+      (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0),
+    );
+    const i = ordered.findIndex((x) => x.id === u.id);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= ordered.length) return;
+    const a = ordered[i]!;
+    const b = ordered[j]!;
+    const items = [
+      { id: a.id, sortOrder: b.sortOrder ?? j },
+      { id: b.id, sortOrder: a.sortOrder ?? i },
+    ];
+    await api("/admin/units/reorder", { method: "POST", token, body: { items } });
+    await loadTree(slug);
+  }
+
+  async function deleteUnit(u: Unit) {
+    if (!token || !confirm(`Delete unit «${u.titleUk}» and its lessons?`)) return;
+    try {
+      await api(`/admin/units/${u.id}`, { method: "DELETE", token });
+      await loadTree(slug);
+    } catch (e) {
+      setMsg((e as Error).message + " (may need step-up 2FA)");
+    }
+  }
+
+  async function moveLesson(unit: Unit, lesson: Lesson, dir: -1 | 1) {
+    if (!token) return;
+    const ordered = [...unit.lessons].sort((a, b) => a.sortOrder - b.sortOrder);
+    const i = ordered.findIndex((x) => x.id === lesson.id);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= ordered.length) return;
+    const a = ordered[i]!;
+    const b = ordered[j]!;
+    await api("/admin/lessons/reorder", {
+      method: "POST",
+      token,
+      body: {
+        items: [
+          { id: a.id, sortOrder: b.sortOrder },
+          { id: b.id, sortOrder: a.sortOrder },
         ],
       },
     });
@@ -167,35 +272,93 @@ export default function AdminContentPage() {
         ))}
       </div>
 
+      {msg && !editId && <p className="text-sm font-bold text-sky">{msg}</p>}
+
+      <div className="flex flex-wrap items-center gap-2">
+        <button type="button" className="btn-primary !py-2 text-sm" onClick={() => void createUnit()}>
+          + unit
+        </button>
+        <span className="text-xs font-bold text-ink-muted">
+          ↑↓ reorder · Rename unit · seed courses can be overwritten on re-seed
+          {tree?.course.contentSource ? ` · source: ${tree.course.contentSource}` : ""}
+        </span>
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-4">
           {tree?.units.map((u) => (
             <div key={u.id} className="card space-y-2">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <h2 className="font-black">{u.titleUk}</h2>
-                <button
-                  type="button"
-                  className="btn-secondary !py-1 !px-2 text-xs"
-                  onClick={() => void createLesson(u.id, tree.course.id)}
-                >
-                  + урок
-                </button>
+                <div className="flex flex-wrap gap-1">
+                  <button
+                    type="button"
+                    className="btn-secondary !py-1 !px-2 text-xs"
+                    onClick={() => void moveUnit(u, -1)}
+                    title="Move unit up"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-secondary !py-1 !px-2 text-xs"
+                    onClick={() => void moveUnit(u, 1)}
+                    title="Move unit down"
+                  >
+                    ↓
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-secondary !py-1 !px-2 text-xs"
+                    onClick={() => void renameUnit(u)}
+                  >
+                    Rename
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-secondary !py-1 !px-2 text-xs"
+                    onClick={() => void createLesson(u.id, tree.course.id)}
+                  >
+                    + урок
+                  </button>
+                  <button
+                    type="button"
+                    className="text-xs font-bold text-red-500 px-1"
+                    onClick={() => void deleteUnit(u)}
+                  >
+                    {UI.admin.delete}
+                  </button>
+                </div>
               </div>
               <ul className="space-y-1">
                 {u.lessons.map((l) => (
                   <li
                     key={l.id}
-                    className="flex items-center justify-between gap-2 rounded-xl border border-slate-100 px-3 py-2 text-sm"
+                    className="flex items-center justify-between gap-2 rounded-xl border border-slate-100 px-3 py-2 text-sm dark:border-slate-800"
                   >
                     <button
                       type="button"
-                      className="text-left font-bold hover:text-sky"
+                      className="text-left font-bold hover:text-sky flex-1"
                       onClick={() => startEdit(l)}
                     >
                       {l.titleUk}{" "}
                       <span className="text-xs font-semibold text-ink-muted">
                         ({l.exercises?.length ?? 0} ex)
                       </span>
+                    </button>
+                    <button
+                      type="button"
+                      className="text-xs font-bold px-1"
+                      onClick={() => void moveLesson(u, l, -1)}
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      className="text-xs font-bold px-1"
+                      onClick={() => void moveLesson(u, l, 1)}
+                    >
+                      ↓
                     </button>
                     <button
                       type="button"
@@ -211,141 +374,128 @@ export default function AdminContentPage() {
           ))}
         </div>
 
-        <div className="space-y-4 sticky top-20 h-fit">
-          <Card className="space-y-3">
-            <h2 className="text-xl font-black">
-              {editId ? UI.admin.editLesson : "Оберіть урок"}
-            </h2>
-            {editId ? (
-              <>
-                <div className="flex flex-wrap gap-2">
-                  {isFree && <Badge tone="brand">Free</Badge>}
-                  <Badge tone="muted">XP {baseXp}</Badge>
-                  <Badge tone="sky">★ {difficulty}</Badge>
-                  {editId && (
-                    <Link
-                      href={`/courses/${slug}/lessons/${editId}`}
-                      className="text-xs font-bold text-sky hover:underline"
-                      target="_blank"
-                    >
-                      Open live →
-                    </Link>
-                  )}
+        <div className="card space-y-3 sticky top-20 h-fit">
+          <h2 className="text-xl font-black">
+            {editId ? UI.admin.editLesson : "Оберіть урок"}
+          </h2>
+          {editId ? (
+            <>
+              <div>
+                <label className="label">Назва (UK)</label>
+                <input className="input" value={titleUk} onChange={(e) => setTitleUk(e.target.value)} />
+              </div>
+              <div>
+                <label className="label">Title (EN)</label>
+                <input className="input" value={titleEn} onChange={(e) => setTitleEn(e.target.value)} />
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <label className="label">XP</label>
+                  <input
+                    className="input"
+                    type="number"
+                    value={baseXp}
+                    onChange={(e) => setBaseXp(Number(e.target.value))}
+                  />
                 </div>
                 <div>
-                  <label className="label">Назва (UK)</label>
-                  <input className="input" value={titleUk} onChange={(e) => setTitleUk(e.target.value)} />
+                  <label className="label">Складність</label>
+                  <input
+                    className="input"
+                    type="number"
+                    min={1}
+                    max={5}
+                    value={difficulty}
+                    onChange={(e) => setDifficulty(Number(e.target.value))}
+                  />
                 </div>
-                <div className="grid grid-cols-3 gap-2">
+                <label className="flex items-end gap-2 pb-3 font-bold text-sm">
+                  <input
+                    type="checkbox"
+                    checked={isFree}
+                    onChange={(e) => setIsFree(e.target.checked)}
+                  />
+                  Free
+                </label>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <label className="flex items-center gap-2 font-bold text-sm">
+                  <input
+                    type="checkbox"
+                    checked={isExam}
+                    onChange={(e) => setIsExam(e.target.checked)}
+                  />
+                  Exam
+                </label>
+                {isExam && (
                   <div>
-                    <label className="label">XP</label>
+                    <label className="label">Pass threshold</label>
                     <input
                       className="input"
                       type="number"
-                      value={baseXp}
-                      onChange={(e) => setBaseXp(Number(e.target.value))}
+                      step={0.05}
+                      min={0.1}
+                      max={1}
+                      value={passThreshold}
+                      onChange={(e) => setPassThreshold(Number(e.target.value))}
                     />
                   </div>
-                  <div>
-                    <label className="label">Складність</label>
-                    <input
-                      className="input"
-                      type="number"
-                      min={1}
-                      max={5}
-                      value={difficulty}
-                      onChange={(e) => setDifficulty(Number(e.target.value))}
-                    />
-                  </div>
-                  <label className="flex items-end gap-2 pb-3 font-bold text-sm">
-                    <input
-                      type="checkbox"
-                      checked={isFree}
-                      onChange={(e) => setIsFree(e.target.checked)}
-                    />
-                    Free
-                  </label>
-                </div>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  className={
+                    editorMode === "visual" ? "btn-primary !py-1 text-xs" : "btn-secondary !py-1 text-xs"
+                  }
+                  onClick={() => {
+                    setEditorMode("visual");
+                    try {
+                      const p = JSON.parse(exercisesJson) as BuilderExercise[];
+                      if (Array.isArray(p)) setExercises(p);
+                    } catch {
+                      /* keep */
+                    }
+                  }}
+                >
+                  Visual blocks
+                </button>
+                <button
+                  type="button"
+                  className={
+                    editorMode === "json" ? "btn-primary !py-1 text-xs" : "btn-secondary !py-1 text-xs"
+                  }
+                  onClick={() => {
+                    setEditorMode("json");
+                    setExercisesJson(JSON.stringify(exercises, null, 2));
+                  }}
+                >
+                  Advanced JSON
+                </button>
+              </div>
+              {editorMode === "visual" ? (
+                <ExerciseBuilder
+                  exercises={exercises}
+                  onChange={setExercises}
+                  onJsonSync={setExercisesJson}
+                />
+              ) : (
                 <div>
                   <label className="label">Exercises JSON</label>
                   <textarea
-                    className="input min-h-48 font-mono text-xs"
+                    className="input min-h-64 font-mono text-xs"
                     value={exercisesJson}
-                    onChange={(e) => {
-                      setExercisesJson(e.target.value);
-                      setPreviewIdx(0);
-                    }}
-                    spellCheck={false}
+                    onChange={(e) => setExercisesJson(e.target.value)}
                   />
-                  {!parsedExercises.ok && (
-                    <p className="mt-1 text-xs font-bold text-red-500">
-                      JSON: {parsedExercises.err}
-                    </p>
-                  )}
-                  {parsedExercises.ok && (
-                    <p className="mt-1 text-xs font-bold text-ink-muted">
-                      {parsedExercises.exercises.length} exercises · types:{" "}
-                      {[
-                        ...new Set(
-                          parsedExercises.exercises.map((e) => String(e.type ?? "?")),
-                        ),
-                      ].join(", ")}
-                    </p>
-                  )}
                 </div>
-                {msg && <p className="text-sm font-bold text-sky">{msg}</p>}
-                <Button fullWidth onClick={() => void save()}>
-                  {UI.common.save}
-                </Button>
-              </>
-            ) : (
-              <p className="text-ink-muted text-sm">Клікніть урок зліва, щоб редагувати.</p>
-            )}
-          </Card>
-
-          {editId && parsedExercises.ok && previewEx && (
-            <Card className="space-y-3 border-grape/30">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="font-black">👁 Player preview</h3>
-                <button
-                  type="button"
-                  className="text-xs font-bold text-ink-muted"
-                  onClick={() => setShowPreview((v) => !v)}
-                >
-                  {showPreview ? "Hide" : "Show"}
-                </button>
-              </div>
-              {showPreview && (
-                <>
-                  <div className="flex flex-wrap gap-1">
-                    {parsedExercises.exercises.map((ex, i) => (
-                      <button
-                        key={String(ex.id ?? i)}
-                        type="button"
-                        className={
-                          i === previewIdx
-                            ? "btn-primary !py-1 !px-2 text-xs"
-                            : "btn-secondary !py-1 !px-2 text-xs"
-                        }
-                        onClick={() => setPreviewIdx(i)}
-                      >
-                        {i + 1}. {String(ex.type ?? "?")}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="rounded-2xl border border-slate-100 p-3 dark:border-slate-800">
-                    <ExercisePlayer
-                      key={`${previewEx.id}-${previewIdx}`}
-                      exercise={previewEx}
-                      onAnswer={() => undefined}
-                    />
-                  </div>
-                  <p className="text-[10px] font-bold text-ink-muted">
-                    Soft-grade only — answers are not submitted to the API.
-                  </p>
-                </>
               )}
-            </Card>
+              {msg && <p className="text-sm font-bold text-sky">{msg}</p>}
+              <button type="button" className="btn-primary w-full" onClick={() => void save()}>
+                {UI.common.save}
+              </button>
+            </>
+          ) : (
+            <p className="text-ink-muted text-sm">Клікніть урок зліва, щоб редагувати.</p>
           )}
         </div>
       </div>

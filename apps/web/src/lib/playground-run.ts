@@ -308,7 +308,14 @@ try { ${js.replace(/<\/script/gi, "<\\/script")} } catch(e) { log(String(e)); }
 export async function runPlayground(
   lang: PlaygroundLang,
   code: string,
-  extra?: { html?: string; css?: string; preferIframe?: boolean },
+  extra?: {
+    html?: string;
+    css?: string;
+    preferIframe?: boolean;
+    stdin?: string;
+    /** Multi-file map for React studio */
+    files?: Record<string, string>;
+  },
 ): Promise<RunResult> {
   switch (lang) {
     case "js":
@@ -317,6 +324,35 @@ export async function runPlayground(
     case "typescript":
       if (extra?.preferIframe !== false) return runJsInIframe(code, true);
       return runJs(code, true);
+    case "cpp": {
+      const { runCpp } = await import("./cpp-runner");
+      const r = await runCpp({ source: code, stdin: extra?.stdin ?? "" });
+      return {
+        ok: r.ok && r.compileOk,
+        stdout: r.stdout || (r.compileOk ? "(no output)" : ""),
+        stderr: r.stderr,
+      };
+    }
+    case "react": {
+      const { runReactPlayground, DEFAULT_REACT_FILES } = await import(
+        "./react-playground-run"
+      );
+      const files =
+        extra?.files && Object.keys(extra.files).length
+          ? extra.files
+          : {
+              ...DEFAULT_REACT_FILES,
+              "App.tsx": code || DEFAULT_REACT_FILES["App.tsx"]!,
+              ...(extra?.css ? { "styles.css": extra.css } : {}),
+            };
+      const r = await runReactPlayground(files);
+      return {
+        ok: r.ok,
+        stdout: r.stdout,
+        stderr: r.stderr,
+        htmlPreview: r.htmlPreview,
+      };
+    }
     case "sql":
       return runMockSql(code);
     case "bash":
@@ -349,6 +385,8 @@ export function runDomAsserts(
   htmlDoc: string,
   asserts: DomAssert[],
   timeoutMs = 2000,
+  /** Wait for async mounts (React) before querying */
+  settleMs = 0,
 ): Promise<{ pass: boolean; results: DomAssertResult[] }> {
   if (typeof document === "undefined" || !asserts.length) {
     return Promise.resolve({ pass: true, results: [] });
@@ -356,6 +394,7 @@ export function runDomAsserts(
   const id = `dom-${Math.random().toString(36).slice(2)}`;
   return new Promise((resolve) => {
     const iframe = document.createElement("iframe");
+    // allow-scripts + network for esm.sh React; no allow-same-origin
     iframe.setAttribute("sandbox", "allow-scripts");
     iframe.style.display = "none";
     document.body.appendChild(iframe);
@@ -386,37 +425,41 @@ export function runDomAsserts(
     };
     window.addEventListener("message", onMsg);
     const assertsJson = JSON.stringify(asserts);
+    const delay = Math.max(0, settleMs);
     // Inject assertion runner before </body> or at end
     const runner = `<script>
 (function(){
   var asserts = ${assertsJson};
-  var results = asserts.map(function(a){
-    try {
-      var els = document.querySelectorAll(a.selector);
-      var min = a.minCount || 1;
-      if (els.length < min) {
-        return { selector: a.selector, pass: false, detail: 'count ' + els.length + ' < ' + min };
-      }
-      if (a.textIncludes) {
-        var ok = false;
-        for (var i = 0; i < els.length; i++) {
-          if ((els[i].textContent || '').indexOf(a.textIncludes) !== -1) { ok = true; break; }
+  function run() {
+    var results = asserts.map(function(a){
+      try {
+        var els = document.querySelectorAll(a.selector);
+        var min = a.minCount || 1;
+        if (els.length < min) {
+          return { selector: a.selector, pass: false, detail: 'count ' + els.length + ' < ' + min };
         }
-        if (!ok) return { selector: a.selector, pass: false, detail: 'text missing: ' + a.textIncludes };
-      }
-      if (a.attr) {
-        var found = false;
-        for (var j = 0; j < els.length; j++) {
-          if (els[j].getAttribute(a.attr.name) === a.attr.value) { found = true; break; }
+        if (a.textIncludes) {
+          var ok = false;
+          for (var i = 0; i < els.length; i++) {
+            if ((els[i].textContent || '').indexOf(a.textIncludes) !== -1) { ok = true; break; }
+          }
+          if (!ok) return { selector: a.selector, pass: false, detail: 'text missing: ' + a.textIncludes };
         }
-        if (!found) return { selector: a.selector, pass: false, detail: 'attr ' + a.attr.name + ' mismatch' };
+        if (a.attr) {
+          var found = false;
+          for (var j = 0; j < els.length; j++) {
+            if (els[j].getAttribute(a.attr.name) === a.attr.value) { found = true; break; }
+          }
+          if (!found) return { selector: a.selector, pass: false, detail: 'attr ' + a.attr.name + ' mismatch' };
+        }
+        return { selector: a.selector, pass: true, detail: 'ok' };
+      } catch (e) {
+        return { selector: a.selector, pass: false, detail: String(e) };
       }
-      return { selector: a.selector, pass: true, detail: 'ok' };
-    } catch (e) {
-      return { selector: a.selector, pass: false, detail: String(e) };
-    }
-  });
-  parent.postMessage({ type: 'eduforge-dom', id: ${JSON.stringify(id)}, results: results }, '*');
+    });
+    parent.postMessage({ type: 'eduforge-dom', id: ${JSON.stringify(id)}, results: results }, '*');
+  }
+  setTimeout(run, ${delay});
 })();
 </script>`;
     let doc = htmlDoc;
@@ -430,6 +473,6 @@ export function runDomAsserts(
       finish(false, [
         { selector: "*", pass: false, detail: "dom assert timeout" },
       ]);
-    }, timeoutMs);
+    }, Math.max(timeoutMs, settleMs + 1500));
   });
 }

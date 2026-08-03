@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
@@ -72,23 +71,7 @@ export default function AdminHomePage() {
     <div className="space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h1 className="text-3xl font-black">🛠️ {t.admin.title}</h1>
-        <div className="flex flex-wrap gap-2">
-          <Link href="/admin/metrics" className="btn-secondary !py-2">
-            📈 {t.admin.metrics}
-          </Link>
-          <Link href="/admin/feedback" className="btn-secondary !py-2">
-            💬 {t.feedback.title}
-          </Link>
-          <Link href="/admin/audit" className="btn-secondary !py-2">
-            📋 Audit
-          </Link>
-          <Link href="/admin/users" className="btn-secondary !py-2">
-            {t.admin.users}
-          </Link>
-          <Link href="/admin/content" className="btn-primary !py-2">
-            {t.admin.content}
-          </Link>
-        </div>
+        <p className="text-sm font-bold text-ink-muted">Dashboard · use sidebar modules</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

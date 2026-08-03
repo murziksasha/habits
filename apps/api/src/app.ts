@@ -42,6 +42,7 @@ import { speechRoutes } from "./routes/speech.js";
 import { playgroundRoutes } from "./routes/playground.js";
 import { tournamentRoutes } from "./routes/tournaments.js";
 import { feedbackRoutes } from "./routes/feedback.js";
+import { publicBrandingRoutes } from "./routes/public-branding.js";
 import { meRoutes } from "./routes/me.js";
 import { judgeRoutes } from "./routes/judge.js";
 import { csrfOriginMiddleware } from "./csrf.js";
@@ -87,6 +88,7 @@ export function createApp() {
         "Authorization",
         "X-Request-Id",
         "Idempotency-Key",
+        "X-Admin-StepUp",
       ],
       allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
       exposeHeaders: ["X-Request-Id"],
@@ -119,6 +121,7 @@ export function createApp() {
   }
 
   app.route("/", openapiRoutes);
+  app.route("/public", publicBrandingRoutes);
   app.route("/auth", authRoutes);
   app.route("/courses", courseRoutes);
   app.route("/leaderboard", leaderboardRoutes);

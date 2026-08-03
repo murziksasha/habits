@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  EXTERNAL_LABS,
   PLAYGROUND_CHALLENGES,
   PLAYGROUND_EXAMPLES,
   PLAYGROUND_LANGS,
@@ -19,6 +20,7 @@ import {
   type DomAssertResult,
   type RunResult,
 } from "@/lib/playground-run";
+import { DEFAULT_REACT_FILES } from "@/lib/react-playground-run";
 import { MonacoCodeEditor } from "@/components/monaco-editor";
 import {
   buildPlaygroundEmbedUrl,
@@ -38,6 +40,7 @@ type ChallengeRow = {
   promptEn: string;
   starterCode: string;
   starterHtml?: string;
+  starterFiles?: Record<string, string>;
   xpReward: number;
   hintUk?: string;
   hintEn?: string;
@@ -61,6 +64,10 @@ export default function PlaygroundPage() {
   color: white;
   font-family: system-ui;
 }`);
+  const [reactFiles, setReactFiles] = useState<Record<string, string>>({
+    ...DEFAULT_REACT_FILES,
+  });
+  const [reactFileTab, setReactFileTab] = useState("App.tsx");
   const [result, setResult] = useState<RunResult | null>(null);
   const [exampleId, setExampleId] = useState<string | undefined>("js-sum");
   const [challenges, setChallenges] = useState<ChallengeRow[]>(
@@ -232,6 +239,15 @@ export default function PlaygroundPage() {
     setCode(ex.code);
     if (ex.html) setHtmlPane(ex.html);
     if (ex.css) setCssPane(ex.css);
+    if (ex.lang === "react") {
+      const files = ex.files ?? {
+        "App.tsx": ex.code,
+        "styles.css": ex.css ?? DEFAULT_REACT_FILES["styles.css"]!,
+      };
+      setReactFiles(files);
+      setReactFileTab(Object.keys(files)[0] ?? "App.tsx");
+      setCode(files["App.tsx"] ?? ex.code);
+    }
     setResult(null);
     setChallengeMsg("");
   }
@@ -247,6 +263,17 @@ export default function PlaygroundPage() {
     setCode(ch.starterCode);
     if ("starterHtml" in ch && ch.starterHtml) setHtmlPane(ch.starterHtml);
     if (ch.lang === "css") setCssPane(ch.starterCode);
+    if (ch.lang === "react") {
+      const files =
+        ("starterFiles" in ch && ch.starterFiles) ||
+        ({
+          "App.tsx": ch.starterCode,
+          "styles.css": DEFAULT_REACT_FILES["styles.css"]!,
+        } as Record<string, string>);
+      setReactFiles(files);
+      setReactFileTab(Object.keys(files)[0] ?? "App.tsx");
+      setCode(files["App.tsx"] ?? ch.starterCode);
+    }
     setResult(null);
     setChallengeMsg("");
   }
@@ -302,10 +329,13 @@ export default function PlaygroundPage() {
     setBusy(true);
     setChallengeMsg("");
     try {
-      let r = await runPlayground(lang, code, {
+      const appCode =
+        lang === "react" ? (reactFiles["App.tsx"] ?? code) : code;
+      let r = await runPlayground(lang, appCode, {
         html: htmlPane,
-        css: cssPane,
+        css: lang === "react" ? reactFiles["styles.css"] : cssPane,
         preferIframe: true,
+        files: lang === "react" ? reactFiles : undefined,
       });
       if (lang === "css") {
         const prev = await runPlayground("css", cssPane, {
@@ -320,7 +350,7 @@ export default function PlaygroundPage() {
       }
       setResult(r);
 
-      // DOM asserts for HTML/CSS challenges
+      // DOM asserts for HTML/CSS/React challenges
       let domOk = true;
       const chMeta =
         activeChallenge &&
@@ -330,12 +360,19 @@ export default function PlaygroundPage() {
         chMeta && "domAsserts" in chMeta
           ? (chMeta.domAsserts as DomAssert[] | undefined)
           : undefined;
-      if (asserts?.length && (lang === "html" || lang === "css")) {
+      if (asserts?.length && (lang === "html" || lang === "css" || lang === "react")) {
         const doc =
           lang === "html"
             ? code
-            : `<!DOCTYPE html><html><head><style>${cssPane}</style></head><body>${htmlPane}</body></html>`;
-        const dom = await runDomAsserts(doc, asserts);
+            : lang === "react"
+              ? (r.htmlPreview ?? "")
+              : `<!DOCTYPE html><html><head><style>${cssPane}</style></head><body>${htmlPane}</body></html>`;
+        const dom = await runDomAsserts(
+          doc,
+          asserts,
+          lang === "react" ? 6000 : 2000,
+          lang === "react" ? 800 : 0,
+        );
         setDomResults(dom.results);
         domOk = dom.pass;
         if (!dom.pass) {
@@ -359,7 +396,12 @@ export default function PlaygroundPage() {
       }
 
       if (activeChallenge && token && domOk) {
-        const source = lang === "css" ? cssPane : code;
+        const source =
+          lang === "css"
+            ? cssPane
+            : lang === "react"
+              ? (reactFiles["App.tsx"] ?? code)
+              : code;
         try {
           const sub = await api<{
             pass: boolean;
@@ -384,7 +426,7 @@ export default function PlaygroundPage() {
             if (sub.character) setCharacter(sub.character);
             else if (sub.xpGain) await refresh();
             await loadChallenges();
-          } else if (r.ok || lang === "html" || lang === "css") {
+          } else if (r.ok || lang === "html" || lang === "css" || lang === "react") {
             setChallengeMsg(t.playground.failed);
           }
         } catch {
@@ -399,10 +441,16 @@ export default function PlaygroundPage() {
   if (loading || !user) return <p>{t.common.loading}</p>;
 
   const showCssPanes = lang === "css";
-  const showPreview = Boolean(result?.htmlPreview) || lang === "html" || lang === "css";
+  const showReactStudio = lang === "react";
+  const showPreview =
+    Boolean(result?.htmlPreview) ||
+    lang === "html" ||
+    lang === "css" ||
+    lang === "react";
   const activeMeta = activeChallenge
     ? challenges.find((c) => c.id === activeChallenge)
     : null;
+  const reactTabs = Object.keys(reactFiles);
 
   return (
     <div className="space-y-4">
@@ -580,6 +628,14 @@ export default function PlaygroundPage() {
         ))}
       </div>
 
+      {lang === "react" && (
+        <p className="text-xs font-bold text-ink-muted rounded-xl border-2 border-sky/30 bg-sky/5 px-3 py-2">
+          {locale === "en"
+            ? "React Studio: client TSX preview (Sucrase + esm.sh). Full Next.js / npm → external labs below or future WebContainers."
+            : "React Studio: клієнтський TSX preview (Sucrase + esm.sh). Повний Next.js / npm → external labs нижче або майбутні WebContainers."}
+        </p>
+      )}
+
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="space-y-3">
           {showCssPanes && (
@@ -600,9 +656,45 @@ export default function PlaygroundPage() {
               />
             </>
           )}
-          {!showCssPanes && (
+          {showReactStudio && (
+            <>
+              <div className="flex flex-wrap gap-1">
+                {reactTabs.map((name) => (
+                  <button
+                    key={name}
+                    type="button"
+                    className={clsx(
+                      "rounded-lg px-2 py-1 text-xs font-bold border-2",
+                      reactFileTab === name
+                        ? "border-sky bg-sky/15"
+                        : "border-slate-200 dark:border-slate-700",
+                    )}
+                    onClick={() => setReactFileTab(name)}
+                  >
+                    {name}
+                  </button>
+                ))}
+              </div>
+              <MonacoCodeEditor
+                language={
+                  reactFileTab.endsWith(".css")
+                    ? "css"
+                    : reactFileTab.endsWith(".json")
+                      ? "json"
+                      : "typescript"
+                }
+                value={reactFiles[reactFileTab] ?? ""}
+                onChange={(v) => {
+                  setReactFiles((prev) => ({ ...prev, [reactFileTab]: v }));
+                  if (reactFileTab === "App.tsx") setCode(v);
+                }}
+                height="360px"
+              />
+            </>
+          )}
+          {!showCssPanes && !showReactStudio && (
             <MonacoCodeEditor
-              language={lang}
+              language={lang === "cpp" ? "cpp" : lang}
               value={code}
               onChange={setCode}
               height="360px"
@@ -681,11 +773,55 @@ export default function PlaygroundPage() {
                     ? code
                     : lang === "css"
                       ? `<style>${cssPane}</style>${htmlPane}`
-                      : "<p></p>")
+                      : lang === "react"
+                        ? "<p style='padding:12px;font:14px system-ui'>Press Run for React preview…</p>"
+                        : "<p></p>")
                 }
               />
             </div>
           )}
+
+          <section className="card space-y-2 border-dashed border-2 border-slate-200 dark:border-slate-700">
+            <h2 className="font-black text-sm">
+              {locale === "en"
+                ? "Node Studio & external labs"
+                : "Node Studio і зовнішні labs"}
+            </h2>
+            <p className="text-xs font-bold text-ink-muted">
+              {locale === "en"
+                ? "In-app Node/npm via WebContainers (SPEC 76). Playwright still external."
+                : "Node/npm у додатку через WebContainers (SPEC 76). Playwright — зовнішній lab."}
+            </p>
+            <a
+              href="/studio/node"
+              className="rounded-xl border-2 border-sky/40 bg-sky/5 px-3 py-2 text-sm font-bold block hover:border-sky"
+            >
+              📦 Node Studio (WebContainers)
+              <span className="block text-xs font-bold text-ink-muted mt-0.5">
+                {locale === "en"
+                  ? "Express / Node / optional Next — Install + Run + preview (full page load for COOP/COEP)"
+                  : "Express / Node / optional Next — Install + Run + preview (повне завантаження сторінки для COOP/COEP)"}
+              </span>
+            </a>
+            <div className="flex flex-col gap-2">
+              {EXTERNAL_LABS.map((lab) => (
+                <a
+                  key={lab.id}
+                  href={lab.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-xl border-2 border-slate-100 px-3 py-2 text-sm font-bold hover:border-sky dark:border-slate-800"
+                >
+                  <span className="text-sky uppercase text-[10px]">{lab.stack}</span>
+                  <br />
+                  {pickLocale(locale, lab.titleUk, lab.titleEn)}
+                  <span className="block text-xs font-bold text-ink-muted mt-0.5">
+                    {pickLocale(locale, lab.descriptionUk, lab.descriptionEn)}
+                  </span>
+                </a>
+              ))}
+            </div>
+          </section>
 
           {board.length > 0 && (
             <div className="card space-y-2">

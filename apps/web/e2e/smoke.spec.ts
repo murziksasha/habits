@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { loginAsAdmin } from "./helpers";
 
 /**
  * End-to-end smoke against running stack (web + api + seeded DB).
@@ -57,22 +58,14 @@ test.describe("EduForge smoke", () => {
   });
 
   test("login admin and open admin panel", async ({ page }) => {
-    await page.goto("/login");
-    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
-    await page.locator('input[type="password"]').fill("admin12345");
-    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
-    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    await loginAsAdmin(page);
     await page.goto("/admin");
     await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/Адмін|Admin|Користувач|урок|XP/i).first()).toBeVisible();
   });
 
   test("play page shows bot option", async ({ page }) => {
-    await page.goto("/login");
-    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
-    await page.locator('input[type="password"]').fill("admin12345");
-    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
-    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    await loginAsAdmin(page);
     await page.goto("/play");
     await expect(page.getByRole("button", { name: /бот|Bot|Знайти|Find/i }).first()).toBeVisible({
       timeout: 15_000,
@@ -80,11 +73,7 @@ test.describe("EduForge smoke", () => {
   });
 
   test("flashcards page loads decks", async ({ page }) => {
-    await page.goto("/login");
-    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
-    await page.locator('input[type="password"]').fill("admin12345");
-    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
-    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    await loginAsAdmin(page);
     await page.goto("/flashcards");
     await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/SRS|Картк|deck|English|основ/i).first()).toBeVisible({
@@ -93,11 +82,7 @@ test.describe("EduForge smoke", () => {
   });
 
   test("placement page shows questions", async ({ page }) => {
-    await page.goto("/login");
-    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
-    await page.locator('input[type="password"]').fill("admin12345");
-    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
-    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    await loginAsAdmin(page);
     await page.goto("/placement");
     await expect(page.getByText(/Placement|student|рівень/i).first()).toBeVisible({
       timeout: 15_000,
@@ -105,21 +90,13 @@ test.describe("EduForge smoke", () => {
   });
 
   test("profile has push toggle", async ({ page }) => {
-    await page.goto("/login");
-    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
-    await page.locator('input[type="password"]').fill("admin12345");
-    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
-    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    await loginAsAdmin(page);
     await page.goto("/profile");
     await expect(page.getByText(/Push|push/i).first()).toBeVisible({ timeout: 15_000 });
   });
 
   test("playground loads challenges", async ({ page }) => {
-    await page.goto("/login");
-    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
-    await page.locator('input[type="password"]').fill("admin12345");
-    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
-    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    await loginAsAdmin(page);
     await page.goto("/playground");
     await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
     await expect(
@@ -128,11 +105,7 @@ test.describe("EduForge smoke", () => {
   });
 
   test("programming hub, stack route, free lesson", async ({ page }) => {
-    await page.goto("/login");
-    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
-    await page.locator('input[type="password"]').fill("admin12345");
-    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
-    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    await loginAsAdmin(page);
     await page.goto("/programming");
     await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/HTML|CSS|JavaScript|Programming|Програмування/i).first()).toBeVisible({
@@ -162,11 +135,7 @@ test.describe("EduForge smoke", () => {
   });
 
   test("dashboard shows programming or race teaser when logged in", async ({ page }) => {
-    await page.goto("/login");
-    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
-    await page.locator('input[type="password"]').fill("admin12345");
-    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
-    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    await loginAsAdmin(page);
     await expect(page.locator("main")).toBeVisible();
     // Programming card and/or minis race and/or quick links
     await expect(
@@ -182,11 +151,7 @@ test.describe("EduForge smoke", () => {
   });
 
   test("homework page loads for admin", async ({ page }) => {
-    await page.goto("/login");
-    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
-    await page.locator('input[type="password"]').fill("admin12345");
-    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
-    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    await loginAsAdmin(page);
     await page.goto("/homework");
     await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
   });
@@ -207,11 +172,7 @@ test.describe("EduForge smoke", () => {
   });
 
   test("friends page loads social minis sections", async ({ page }) => {
-    await page.goto("/login");
-    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
-    await page.locator('input[type="password"]').fill("admin12345");
-    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
-    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    await loginAsAdmin(page);
     await page.goto("/friends");
     await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/Друз|Friends|Minis|гонка|race/i).first()).toBeVisible({
@@ -220,11 +181,7 @@ test.describe("EduForge smoke", () => {
   });
 
   test("typescript hub and feedback page load", async ({ page }) => {
-    await page.goto("/login");
-    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
-    await page.locator('input[type="password"]').fill("admin12345");
-    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
-    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    await loginAsAdmin(page);
     await page.goto("/typescript");
     await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/TypeScript|типи|types|Контрольн|Exam/i).first()).toBeVisible({
@@ -237,11 +194,7 @@ test.describe("EduForge smoke", () => {
   });
 
   test("mobile-friendly learn and bottom destinations exist", async ({ page }) => {
-    await page.goto("/login");
-    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
-    await page.locator('input[type="password"]').fill("admin12345");
-    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
-    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    await loginAsAdmin(page);
     for (const path of ["/learn", "/programming", "/play", "/profile"]) {
       await page.goto(path);
       await expect(page.locator("main")).toBeVisible({ timeout: 15_000 });
@@ -249,11 +202,7 @@ test.describe("EduForge smoke", () => {
   });
 
   test("learn map page loads", async ({ page }) => {
-    await page.goto("/login");
-    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
-    await page.locator('input[type="password"]').fill("admin12345");
-    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
-    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    await loginAsAdmin(page);
     await page.goto("/learn");
     await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
     await expect(
@@ -262,11 +211,7 @@ test.describe("EduForge smoke", () => {
   });
 
   test("deep track hubs load", async ({ page }) => {
-    await page.goto("/login");
-    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
-    await page.locator('input[type="password"]').fill("admin12345");
-    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
-    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    await loginAsAdmin(page);
     for (const path of [
       "/html-semantics",
       "/css-layout",
@@ -276,6 +221,7 @@ test.describe("EduForge smoke", () => {
       "/sql-fundamentals",
       "/node-fundamentals",
       "/express-fundamentals",
+      "/embedded-cpp",
     ]) {
       await page.goto(path);
       await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
@@ -283,11 +229,7 @@ test.describe("EduForge smoke", () => {
   });
 
   test("profile shows push and programming blocks", async ({ page }) => {
-    await page.goto("/login");
-    await page.locator('input[type="email"]').fill("admin@eduforge.ua");
-    await page.locator('input[type="password"]').fill("admin12345");
-    await page.getByRole("button", { name: /Увійти|Log in/i }).click();
-    await page.waitForURL(/dashboard/, { timeout: 25_000 });
+    await loginAsAdmin(page);
     await page.goto("/profile");
     await expect(page.getByText(/Push|push/i).first()).toBeVisible({ timeout: 15_000 });
     await expect(

@@ -21,11 +21,19 @@ export async function verifyPassword(password: string, hash: string) {
   return bcrypt.compare(password, hash);
 }
 
-export async function createSession(userId: string) {
+export async function createSession(
+  userId: string,
+  opts?: { mfaVerified?: boolean },
+) {
   const token = randomBytes(32).toString("hex");
   const tokenHash = hashToken(token);
   const expiresAt = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000);
-  await db.insert(sessions).values({ userId, tokenHash, expiresAt });
+  await db.insert(sessions).values({
+    userId,
+    tokenHash,
+    expiresAt,
+    mfaVerifiedAt: opts?.mfaVerified ? new Date() : null,
+  });
   return { token, expiresAt };
 }
 
@@ -44,6 +52,7 @@ export async function listUserSessions(userId: string, currentToken?: string) {
     id: r.id,
     createdAt: r.createdAt,
     expiresAt: r.expiresAt,
+    mfaVerifiedAt: r.mfaVerifiedAt ?? null,
     current: currentHash !== null && r.tokenHash === currentHash,
   }));
 }
@@ -118,10 +127,35 @@ export async function adminMiddleware(c: Context, next: Next) {
   const user = await getUserFromToken(token);
   if (!user) return c.json({ error: "unauthorized" }, 401);
   if (user.role !== "admin") return c.json({ error: "forbidden" }, 403);
+
+  const { adminMfaEnforce, getSessionMfaVerified } = await import("./mfa.js");
+  const enforce = adminMfaEnforce();
+  // Enrolled admins must complete TOTP (or backup) for this session
+  if (user.totpEnabled) {
+    const mfaOk = await getSessionMfaVerified(token);
+    if (!mfaOk) {
+      return c.json({ error: "mfa_required" }, 403);
+    }
+  } else if (enforce) {
+    return c.json({ error: "mfa_enroll_required" }, 403);
+  }
+
   c.set("user", user);
   c.set("sessionToken", token);
   await promoteBearerToCookie(c, token!, fromCookie);
   await next();
+}
+
+/** Returns error Response if step-up missing when MFA is enforced. */
+export async function requireStepUp(c: Context): Promise<Response | null> {
+  const user = c.get("user") as AuthedUser | undefined;
+  if (!user) return c.json({ error: "unauthorized" }, 401);
+  const { verifyStepUpToken, adminMfaEnforce } = await import("./mfa.js");
+  if (!adminMfaEnforce()) return null;
+  const stepUp = c.req.header("x-admin-step-up") ?? undefined;
+  const ok = await verifyStepUpToken(user.id, stepUp);
+  if (!ok) return c.json({ error: "step_up_required" }, 403);
+  return null;
 }
 
 export async function optionalAuth(c: Context, next: Next) {

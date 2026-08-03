@@ -4,4 +4,7 @@ export {
   characters,
   passwordResetTokens,
   sessions,
+  mfaPending,
+  adminStepUpTokens,
+  platformSettings,
 } from "./tables.js";

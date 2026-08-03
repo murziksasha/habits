@@ -299,4 +299,13 @@ export const ACHIEVEMENT_CATALOG: AchievementDef[] = [
     icon: "🚂",
     xpReward: 20,
   },
+  {
+    code: "embedded_cpp_start",
+    titleUk: "MilTech starter",
+    titleEn: "MilTech starter",
+    descriptionUk: "Перший урок Embedded C++ · MilTech",
+    descriptionEn: "First Embedded C++ · MilTech lesson",
+    icon: "🪖",
+    xpReward: 20,
+  },
 ];

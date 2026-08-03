@@ -16,6 +16,7 @@ export const COURSE_SLUGS = [
   "sql_fundamentals",
   "node_fundamentals",
   "express_fundamentals",
+  "embedded_cpp",
 ] as const;
 
 export type CourseSlug = (typeof COURSE_SLUGS)[number];
@@ -31,6 +32,13 @@ export function parseCourseSlug(value: string): CourseSlug | null {
 
 /** Catalog grouping for discoverability */
 export type CourseGroup = "skill" | "code" | "deep" | "chess";
+
+export function resolveCourseGroup(slug: string): CourseGroup {
+  if ((COURSE_SLUGS as readonly string[]).includes(slug)) {
+    return COURSE_GROUP[slug as CourseSlug];
+  }
+  return "skill";
+}
 
 export const COURSE_GROUP: Record<CourseSlug, CourseGroup> = {
   english: "skill",
@@ -48,6 +56,7 @@ export const COURSE_GROUP: Record<CourseSlug, CourseGroup> = {
   sql_fundamentals: "deep",
   node_fundamentals: "deep",
   express_fundamentals: "deep",
+  embedded_cpp: "deep",
 };
 
 export const COURSE_GROUP_META: Record<
@@ -227,10 +236,22 @@ export const COURSE_META: Record<
     color: "#000000",
     group: "deep",
   },
+  embedded_cpp: {
+    slug: "embedded_cpp",
+    titleUk: "Embedded C++ · MilTech",
+    titleEn: "Embedded C++ · MilTech",
+    descriptionUk:
+      "C++ для обмежених ресурсів: пам'ять, CMake, мережа, FreeRTOS, MAVLink, симуляція — deep track.",
+    descriptionEn:
+      "C++ for constrained systems: memory, CMake, networking, FreeRTOS, MAVLink, simulation — deep track.",
+    icon: "🪖",
+    color: "#4B5320",
+    group: "deep",
+  },
 };
 
 /** Hub path for deep tracks / code (fallback /courses/:slug) */
-export const COURSE_HUB_HREF: Partial<Record<CourseSlug, string>> = {
+export const COURSE_HUB_HREF: Partial<Record<CourseSlug | string, string>> = {
   programming: "/programming",
   typescript: "/typescript",
   html_semantics: "/html-semantics",
@@ -241,6 +262,7 @@ export const COURSE_HUB_HREF: Partial<Record<CourseSlug, string>> = {
   sql_fundamentals: "/sql-fundamentals",
   node_fundamentals: "/node-fundamentals",
   express_fundamentals: "/express-fundamentals",
+  embedded_cpp: "/embedded-cpp",
   chess: "/play",
 };
 
@@ -427,5 +449,6 @@ export type ExerciseType =
   | "code_fill"
   | "code_order"
   | "code_project"
+  | "code_run"
   | "video"
   | "code_judge";

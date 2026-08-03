@@ -19,15 +19,17 @@
 | `sql_fundamentals` | SQL deep track | SELECT, JOINs, aggregates, DML, keys + exams |
 | `node_fundamentals` | Node.js deep track | runtime, modules, fs, env, http, npm, async + exams |
 | `express_fundamentals` | Express deep track | app, routes, middleware, REST, errors, Router + exams |
+| `embedded_cpp` | Embedded C++ · MilTech | memory, CMake, networking, FreeRTOS, MAVLink, sim + exams |
 
 ## Content pipeline
 
 1. Authors define content in `packages/content/src/*.ts`  
-2. `pnpm db:seed` upserts courses/units/lessons by **slug**  
-3. Admin CMS can create/edit/delete lessons in DB at runtime  
-4. Players consume content via API  
+2. `pnpm db:seed` upserts courses/units/lessons by **slug** (skips `contentSource=cms`)  
+3. Admin CMS can create **draft** courses (free-form slug), units/lessons, then **publish**  
+4. Learners see only `status=published` + `isVisible` courses via API  
 
-Seed is **incremental**: existing slugs update payload; new slugs insert.
+Seed is **incremental**: existing seed slugs update payload; new seed slugs insert.  
+CMS-owned courses are not overwritten by seed. See SPEC 72 for publish gates.
 
 ## Lesson model
 
@@ -62,6 +64,7 @@ Seed is **incremental**: existing slugs update payload; new slugs insert.
 | `code_fill` | fill blank in code | Programming |
 | `code_order` | ordered lines | Programming |
 | `code_project` | multi-file + substring checks | Programming minis |
+| `code_run` | client run (C++ via JSCPP) + source needles | embedded_cpp labs, playground-style |
 
 See also [23-programming-track.md](./23-programming-track.md) and SPECs 33–54 (playground, minis, race).
 
