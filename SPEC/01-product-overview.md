@@ -58,10 +58,12 @@ Russian is **not** used in product copy.
 
 ## Non-goals (product freeze)
 
-- Full remote code judge / multi-language Docker sandbox  
+- Full remote **server-side** multi-language Docker code judge  
 - Native mobile apps  
 - AI-generated full course pipeline  
 - Video hosting LMS  
+
+**Allowed:** client-side C++ subset runner (JSCPP / future WASM) for playground + `code_run` labs — see SPEC 74.
 
 ## Success metrics (product)
 

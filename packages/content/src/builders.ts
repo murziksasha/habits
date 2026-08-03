@@ -116,3 +116,59 @@ export function matchEx(
 ): Exercise {
   return { id, type: "match", promptUk, promptEn, pairs };
 }
+
+export function codeRun(
+  id: string,
+  promptUk: string,
+  promptEn: string,
+  language: string,
+  starter: string,
+  tests: { stdin?: string; stdout: string }[],
+  extra?: {
+    requiredSource?: string[];
+    forbiddenSource?: string[];
+    timeLimitMs?: number;
+    hintUk?: string;
+    hintEn?: string;
+    solutionUk?: string;
+    solutionEn?: string;
+  },
+): Exercise {
+  return {
+    id,
+    type: "code_run",
+    promptUk,
+    promptEn,
+    language,
+    starter,
+    tests,
+    requiredSource: extra?.requiredSource,
+    forbiddenSource: extra?.forbiddenSource,
+    timeLimitMs: extra?.timeLimitMs,
+    hintUk: extra?.hintUk,
+    hintEn: extra?.hintEn,
+    solutionUk: extra?.solutionUk,
+    solutionEn: extra?.solutionEn,
+  };
+}
+
+export function codeOutputMcq(
+  id: string,
+  promptUk: string,
+  promptEn: string,
+  language: string,
+  code: string,
+  options: string[],
+  correctIndex: number,
+): Exercise {
+  return {
+    id,
+    type: "code_output",
+    promptUk,
+    promptEn,
+    language,
+    code,
+    options,
+    correctIndex,
+  };
+}

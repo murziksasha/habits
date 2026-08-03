@@ -3,6 +3,7 @@ import { Manrope } from "next/font/google";
 import { AuthProvider } from "@/lib/auth-context";
 import { LocaleProvider } from "@/lib/locale-context";
 import { ThemeProvider } from "@/lib/theme-context";
+import { BrandingProvider } from "@/lib/branding-context";
 import { Nav } from "@/components/nav";
 import { PwaRegister } from "@/components/pwa-register";
 import "./globals.css";
@@ -31,24 +32,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="uk">
       <body className={`${manrope.variable} font-sans`}>
         <ThemeProvider>
-          <LocaleProvider>
-            <AuthProvider>
-              <PwaRegister />
-              <a
-                href="#main-content"
-                className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-xl focus:bg-brand focus:px-4 focus:py-2 focus:font-bold focus:text-white"
-              >
-                Skip to content
-              </a>
-              <Nav />
-              <main
-                id="main-content"
-                className="mx-auto max-w-6xl px-4 py-8 pb-24 md:pb-8"
-              >
-                {children}
-              </main>
-            </AuthProvider>
-          </LocaleProvider>
+          <BrandingProvider>
+            <LocaleProvider>
+              <AuthProvider>
+                <PwaRegister />
+                <a
+                  href="#main-content"
+                  className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-xl focus:bg-brand focus:px-4 focus:py-2 focus:font-bold focus:text-white"
+                >
+                  Skip to content
+                </a>
+                <Nav />
+                <main
+                  id="main-content"
+                  className="mx-auto max-w-6xl px-4 py-8 pb-24 md:pb-8"
+                >
+                  {children}
+                </main>
+              </AuthProvider>
+            </LocaleProvider>
+          </BrandingProvider>
         </ThemeProvider>
       </body>
     </html>

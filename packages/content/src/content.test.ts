@@ -13,6 +13,7 @@ import {
   sqlFundamentalsContent,
   nodeFundamentalsContent,
   expressFundamentalsContent,
+  embeddedCppContent,
   typingContent,
   typescriptContent,
   type CourseContent,
@@ -62,6 +63,7 @@ const courses: CourseContent[] = [
   sqlFundamentalsContent,
   nodeFundamentalsContent,
   expressFundamentalsContent,
+  embeddedCppContent,
 ];
 
 const EXERCISE_TYPES = new Set([
@@ -81,6 +83,7 @@ const EXERCISE_TYPES = new Set([
   "code_fill",
   "code_order",
   "code_project",
+  "code_run",
 ]);
 
 function collectExercises(course: CourseContent): Exercise[] {
@@ -103,6 +106,7 @@ describe("course content integrity", () => {
         "speed_reading",
         "node_fundamentals",
         "express_fundamentals",
+        "embedded_cpp",
         "sql_fundamentals",
         "typing",
         "typescript",
@@ -150,6 +154,7 @@ describe("course content integrity", () => {
         sqlFundamentalsContent,
         nodeFundamentalsContent,
         expressFundamentalsContent,
+        embeddedCppContent,
       ]) {
         for (const u of c.units) {
           expect(u.lessons.some((l) => l.isExam)).toBe(true);
@@ -195,6 +200,19 @@ describe("course content integrity", () => {
       expect(lessons.length).toBeGreaterThanOrEqual(16);
       expect(lessons.filter((l) => l.isExam).length).toBeGreaterThanOrEqual(6);
       expect(lessons.some((l) => l.isFree)).toBe(true);
+    });
+
+    it("embedded_cpp volume", () => {
+      expect(embeddedCppContent.units.length).toBeGreaterThanOrEqual(12);
+      const lessons = embeddedCppContent.units.flatMap((u) => u.lessons);
+      expect(lessons.length).toBeGreaterThanOrEqual(36);
+      expect(lessons.filter((l) => l.isExam).length).toBeGreaterThanOrEqual(12);
+      expect(lessons.some((l) => l.isFree)).toBe(true);
+      const slugs = embeddedCppContent.units.map((u) => u.slug);
+      expect(slugs).toContain("miltech-intro");
+      expect(slugs).toContain("embedded-rtos");
+      expect(slugs).toContain("uav-stack");
+      expect(slugs).toContain("systems-capstone");
     });
   });
 

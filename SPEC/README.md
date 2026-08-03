@@ -77,6 +77,11 @@ This folder is the **source of truth** for the EduForge educational SaaS monorep
 | 69 | [SQL + exam quest](./69-sql-fundamentals-exam-quest.md) | sql_fundamentals deep track, exams daily quest |
 | 70 | [Node fundamentals](./70-node-fundamentals.md) | node_fundamentals deep track |
 | 71 | [Express fundamentals](./71-express-fundamentals.md) | express_fundamentals deep track |
+| 72 | [Admin Platform v2](./72-admin-platform-v2.md) | Modular admin, TOTP 2FA, theming, course CMS |
+| 73 | [Embedded C++ · MilTech](./73-embedded-cpp-miltech.md) | embedded_cpp deep track (C++/RTOS/UAV stack) |
+| 74 | [Client C++ runner](./74-cpp-wasm-playground.md) | JSCPP/mock playground + code_run (no server judge) |
+| 75 | [React Studio + WebContainers roadmap](./75-react-studio-webcontainers-roadmap.md) | In-app React preview; WC Phase W → SPEC 76 |
+| 76 | [WebContainers Node Studio](./76-webcontainers-node-studio.md) | /studio/node Node+npm+Express/Next preview |
 
 **Status:** SPECs **01–71** implemented.
 

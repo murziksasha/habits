@@ -41,6 +41,7 @@ import { speechRoutes } from "./routes/speech.js";
 import { playgroundRoutes } from "./routes/playground.js";
 import { tournamentRoutes } from "./routes/tournaments.js";
 import { feedbackRoutes } from "./routes/feedback.js";
+import { publicBrandingRoutes } from "./routes/public-branding.js";
 
 export function createApp() {
   const app = new Hono();
@@ -51,7 +52,7 @@ export function createApp() {
     cors({
       origin: env.webOrigin,
       credentials: true,
-      allowHeaders: ["Content-Type", "Authorization"],
+      allowHeaders: ["Content-Type", "Authorization", "X-Admin-StepUp"],
       allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     }),
   );
@@ -67,6 +68,7 @@ export function createApp() {
   );
 
   app.route("/", openapiRoutes);
+  app.route("/public", publicBrandingRoutes);
   app.route("/auth", authRoutes);
   app.route("/courses", courseRoutes);
   app.route("/leaderboard", leaderboardRoutes);

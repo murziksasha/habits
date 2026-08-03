@@ -49,7 +49,7 @@
 | `/achievements`, `/u/[userId]` | Social profile |
 | `/pricing` | Freemium / Premium |
 | `/profile` | Character, push, minis, certificates |
-| `/admin/*` | CMS, users, metrics, ops |
+| `/admin/*` | Modular admin shell: CMS, appearance, security, metrics, ops (SPEC 72) |
 | `/tournaments/*` | Chess tournaments |
 
 ## Navigation

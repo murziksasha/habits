@@ -5,6 +5,8 @@ export const env = {
     "postgresql://eduforge:eduforge@localhost:5432/eduforge",
   redisUrl: process.env.REDIS_URL ?? "redis://localhost:6379",
   authSecret: process.env.AUTH_SECRET ?? "dev-secret-change-me",
+  /** AES key material for TOTP secrets (falls back to authSecret) */
+  mfaEncryptionKey: process.env.MFA_ENCRYPTION_KEY ?? "",
   webOrigin: process.env.WEB_ORIGIN ?? "http://localhost:3000",
   stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? "",
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? "",

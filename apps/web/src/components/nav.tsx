@@ -7,6 +7,7 @@ import clsx from "clsx";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { useTheme } from "@/lib/theme-context";
+import { useBranding } from "@/lib/branding-context";
 import { NotificationsBell } from "@/components/notifications-bell";
 
 const PRIMARY_HREFS = new Set([
@@ -25,12 +26,16 @@ export function Nav() {
   const { user, character, logout } = useAuth();
   const { t, locale, setLocale } = useLocale();
   const { theme, toggle } = useTheme();
+  const { theme: brandTheme } = useBranding();
+  const productName = brandTheme.branding.productName || t.appName;
+  const logoUrl = brandTheme.branding.logoUrl;
   const [open, setOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
 
   // Embed routes: chrome-free for iframe / share embeds
   if (pathname.startsWith("/embed")) return null;
-  const baseLinks = [
+  type NavLink = { href: string; label: string; icon: string; hard?: boolean };
+  const baseLinks: NavLink[] = [
     { href: "/dashboard", label: t.nav.home, icon: "🏠" },
     { href: "/learn", label: t.nav.learn, icon: "🗺️" },
     { href: "/courses", label: t.nav.courses, icon: "📚" },
@@ -44,7 +49,10 @@ export function Nav() {
     { href: "/sql-fundamentals", label: t.nav.sqlFundamentals, icon: "🗄️" },
     { href: "/node-fundamentals", label: t.nav.nodeFundamentals, icon: "🟢" },
     { href: "/express-fundamentals", label: t.nav.expressFundamentals, icon: "🚂" },
+    { href: "/embedded-cpp", label: t.nav.embeddedCpp, icon: "🪖" },
     { href: "/playground", label: t.nav.playground, icon: "🖥️" },
+    // Full page load required for COOP/COEP isolation (WebContainers)
+    { href: "/studio/node", label: "Node Studio", icon: "📦", hard: true },
     { href: "/search", label: t.nav.search, icon: "🔍" },
     { href: "/play", label: t.nav.play, icon: "♟️" },
     { href: "/challenges", label: t.nav.challenges, icon: "🎯" },
@@ -89,27 +97,51 @@ export function Nav() {
             className="flex items-center gap-2 font-black text-xl text-brand-dark"
             onClick={() => setOpen(false)}
           >
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand text-white shadow-btn">
-              E
-            </span>
-            <span className="hidden xs:inline sm:inline">{t.appName}</span>
+            {logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={logoUrl}
+                alt=""
+                className="h-9 w-9 rounded-xl object-contain shadow-btn bg-white"
+              />
+            ) : (
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand text-white shadow-btn">
+                {productName.slice(0, 1).toUpperCase()}
+              </span>
+            )}
+            <span className="hidden xs:inline sm:inline">{productName}</span>
           </Link>
 
           <nav className="hidden lg:flex items-center gap-1 relative">
-            {primaryLinks.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className={clsx(
-                  "rounded-xl px-3 py-2 text-sm font-bold transition",
-                  pathname.startsWith(l.href)
-                    ? "bg-brand-soft text-brand-dark"
-                    : "text-ink-muted hover:bg-slate-100",
-                )}
-              >
-                {l.label}
-              </Link>
-            ))}
+            {primaryLinks.map((l) =>
+              l.hard ? (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  className={clsx(
+                    "rounded-xl px-3 py-2 text-sm font-bold transition",
+                    pathname.startsWith(l.href)
+                      ? "bg-brand-soft text-brand-dark"
+                      : "text-ink-muted hover:bg-slate-100",
+                  )}
+                >
+                  {l.label}
+                </a>
+              ) : (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className={clsx(
+                    "rounded-xl px-3 py-2 text-sm font-bold transition",
+                    pathname.startsWith(l.href)
+                      ? "bg-brand-soft text-brand-dark"
+                      : "text-ink-muted hover:bg-slate-100",
+                  )}
+                >
+                  {l.label}
+                </Link>
+              ),
+            )}
             <div className="relative">
               <button
                 type="button"
@@ -133,22 +165,39 @@ export function Nav() {
                     onClick={() => setMoreOpen(false)}
                   />
                   <div className="absolute right-0 top-full z-50 mt-1 max-h-[70vh] w-56 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-lg dark:border-slate-700 dark:bg-slate-950">
-                    {moreLinks.map((l) => (
-                      <Link
-                        key={l.href}
-                        href={l.href}
-                        onClick={() => setMoreOpen(false)}
-                        className={clsx(
-                          "flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold",
-                          pathname.startsWith(l.href)
-                            ? "bg-brand-soft text-brand-dark"
-                            : "text-ink-muted hover:bg-slate-100 dark:hover:bg-slate-900",
-                        )}
-                      >
-                        <span>{l.icon}</span>
-                        {l.label}
-                      </Link>
-                    ))}
+                    {moreLinks.map((l) =>
+                      l.hard ? (
+                        <a
+                          key={l.href}
+                          href={l.href}
+                          onClick={() => setMoreOpen(false)}
+                          className={clsx(
+                            "flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold",
+                            pathname.startsWith(l.href)
+                              ? "bg-brand-soft text-brand-dark"
+                              : "text-ink-muted hover:bg-slate-100 dark:hover:bg-slate-900",
+                          )}
+                        >
+                          <span>{l.icon}</span>
+                          {l.label}
+                        </a>
+                      ) : (
+                        <Link
+                          key={l.href}
+                          href={l.href}
+                          onClick={() => setMoreOpen(false)}
+                          className={clsx(
+                            "flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold",
+                            pathname.startsWith(l.href)
+                              ? "bg-brand-soft text-brand-dark"
+                              : "text-ink-muted hover:bg-slate-100 dark:hover:bg-slate-900",
+                          )}
+                        >
+                          <span>{l.icon}</span>
+                          {l.label}
+                        </Link>
+                      ),
+                    )}
                   </div>
                 </>
               )}
@@ -237,22 +286,39 @@ export function Nav() {
 
         {open && (
           <div className="lg:hidden border-t border-slate-100 bg-white px-4 py-3 space-y-1 max-h-[70vh] overflow-y-auto">
-            {links.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                onClick={() => setOpen(false)}
-                className={clsx(
-                  "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold",
-                  pathname.startsWith(l.href)
-                    ? "bg-brand-soft text-brand-dark"
-                    : "text-ink-muted",
-                )}
-              >
-                <span>{l.icon}</span>
-                {l.label}
-              </Link>
-            ))}
+            {links.map((l) =>
+              l.hard ? (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setOpen(false)}
+                  className={clsx(
+                    "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold",
+                    pathname.startsWith(l.href)
+                      ? "bg-brand-soft text-brand-dark"
+                      : "text-ink-muted",
+                  )}
+                >
+                  <span>{l.icon}</span>
+                  {l.label}
+                </a>
+              ) : (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setOpen(false)}
+                  className={clsx(
+                    "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold",
+                    pathname.startsWith(l.href)
+                      ? "bg-brand-soft text-brand-dark"
+                      : "text-ink-muted",
+                  )}
+                >
+                  <span>{l.icon}</span>
+                  {l.label}
+                </Link>
+              ),
+            )}
             {user && (
               <button
                 type="button"

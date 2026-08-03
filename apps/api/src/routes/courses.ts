@@ -41,6 +41,7 @@ export const courseRoutes = new Hono<{ Variables: Vars }>();
 
 courseRoutes.get("/", async (c) => {
   const list = await db.query.courses.findMany({
+    where: and(eq(courses.status, "published"), eq(courses.isVisible, true)),
     orderBy: [asc(courses.sortOrder)],
   });
   return c.json({ courses: list });
@@ -68,9 +69,15 @@ courseRoutes.get("/progress/me", authMiddleware, async (c) => {
 
 courseRoutes.get("/:slug", authMiddleware, async (c) => {
   const user = c.get("user");
-  const slug = c.req.param("slug") as typeof courses.slug.enumValues[number];
+  const slug = c.req.param("slug") as string;
   const course = await db.query.courses.findFirst({ where: eq(courses.slug, slug) });
   if (!course) return c.json({ error: "not_found" }, 404);
+  if (
+    (course.status !== "published" || !course.isVisible) &&
+    user.role !== "admin"
+  ) {
+    return c.json({ error: "not_found" }, 404);
+  }
 
   const courseUnits = await db.query.units.findMany({
     where: eq(units.courseId, course.id),

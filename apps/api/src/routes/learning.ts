@@ -418,6 +418,7 @@ learningRoutes.get("/next", authMiddleware, async (c) => {
     "sql_fundamentals",
     "node_fundamentals",
     "express_fundamentals",
+    "embedded_cpp",
   ] as const) {
     const c = allCourses.find((x) => x.slug === slug);
     if (!c || started.has(c.id)) continue;

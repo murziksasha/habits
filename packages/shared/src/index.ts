@@ -14,3 +14,5 @@ export * from "./locale-content.js";
 export * from "./placement.js";
 export * from "./playground.js";
 export * from "./exam.js";
+export * from "./theme.js";
+export * from "./exercises.js";

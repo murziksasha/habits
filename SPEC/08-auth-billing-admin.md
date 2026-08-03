@@ -35,13 +35,26 @@ Premium unlocks:
 
 ## Admin CMS
 
-UI routes:
+See **[SPEC 72 — Admin Platform v2](./72-admin-platform-v2.md)** for the full modular admin, TOTP MFA, appearance theming, and draft→publish course lifecycle.
 
-- `/admin` — stats dashboard  
+### UI routes (modular shell)
+
+- `/admin` — stats + ops digests  
+- `/admin/courses` — create draft courses, publish/archive  
+- `/admin/content` — course tree, lesson editor (UK/EN, exams, exercises JSON)  
+- `/admin/appearance` — design tokens + branding  
 - `/admin/users` — promote admin, change plan  
-- `/admin/content` — browse course tree, edit lesson JSON, create/delete  
+- `/admin/metrics`, `/admin/feedback`, `/admin/audit`  
+- `/admin/billing`, `/admin/classroom`, `/admin/engagement`, `/admin/programming` — read-only overviews  
+- `/admin/security` — TOTP enroll  
 
-Lesson editor stores raw `exercises` JSON; operators must keep exercise shape valid (see content types).
+Lesson editor stores `exercises` JSON; **publish** validates via Zod (`validateExercises`).
+
+### Admin MFA
+
+- TOTP (Authenticator apps); enforced when `ADMIN_MFA_ENFORCE=true` or `NODE_ENV=production`  
+- Step-up header `X-Admin-StepUp` for dangerous mutations  
+- Secrets encrypted with `MFA_ENCRYPTION_KEY`  
 
 ## Seeded admin
 
@@ -50,3 +63,5 @@ Default credentials (change in production):
 ```
 admin@eduforge.ua / admin12345
 ```
+
+Dev seed may set TOTP via `SEED_ADMIN_TOTP_SECRET` (default test secret when not production).

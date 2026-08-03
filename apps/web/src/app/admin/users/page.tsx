@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { UI } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api";
+import { StepUpModal } from "@/components/admin/step-up-modal";
+import { adminApi } from "@/lib/admin-api";
 
 type Row = {
   id: string;
@@ -15,16 +15,16 @@ type Row = {
   displayName: string | null;
   globalXp: number | null;
   globalLevel: number | null;
+  createdAt?: string;
 };
 
 export default function AdminUsersPage() {
   const { user, token, loading } = useAuth();
-  const router = useRouter();
   const [rows, setRows] = useState<Row[]>([]);
-
-  useEffect(() => {
-    if (!loading && (!user || user.role !== "admin")) router.replace("/dashboard");
-  }, [loading, user, router]);
+  const [q, setQ] = useState("");
+  const [msg, setMsg] = useState("");
+  const [stepUpOpen, setStepUpOpen] = useState(false);
+  const [pending, setPending] = useState<null | (() => Promise<void>)>(null);
 
   async function load() {
     if (!token) return;
@@ -36,22 +36,49 @@ export default function AdminUsersPage() {
     if (token && user?.role === "admin") void load();
   }, [token, user]);
 
+  const filtered = useMemo(() => {
+    const s = q.trim().toLowerCase();
+    if (!s) return rows;
+    return rows.filter(
+      (r) =>
+        r.email.toLowerCase().includes(s) ||
+        (r.displayName ?? "").toLowerCase().includes(s) ||
+        r.role.includes(s) ||
+        r.plan.includes(s),
+    );
+  }, [rows, q]);
+
   async function patch(id: string, body: { role?: string; plan?: string }) {
     if (!token) return;
-    await api(`/admin/users/${id}`, { method: "PATCH", token, body });
-    await load();
+    try {
+      await adminApi(`/admin/users/${id}`, { method: "PATCH", token, body });
+      await load();
+      setMsg("");
+    } catch (e) {
+      if ((e as Error & { data?: { error?: string } }).data?.error === "step_up_required") {
+        setPending(() => async () => {
+          await adminApi(`/admin/users/${id}`, { method: "PATCH", token, body });
+          await load();
+        });
+        setStepUpOpen(true);
+        return;
+      }
+      setMsg((e as Error).message);
+    }
   }
 
   if (loading || user?.role !== "admin") return <p>{UI.common.loading}</p>;
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-black">{UI.admin.users}</h1>
-        <Link href="/admin" className="btn-secondary !py-2">
-          {UI.common.back}
-        </Link>
-      </div>
+      <h1 className="text-3xl font-black">{UI.admin.users}</h1>
+      {msg && <p className="text-sm font-bold text-red-500">{msg}</p>}
+      <input
+        className="input max-w-md"
+        placeholder="Search email, name, role, plan…"
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+      />
       <div className="card overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead>
@@ -61,11 +88,12 @@ export default function AdminUsersPage() {
               <th className="pb-2">XP</th>
               <th className="pb-2">{UI.admin.role}</th>
               <th className="pb-2">{UI.admin.plan}</th>
+              <th className="pb-2">Created</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
-              <tr key={r.id} className="border-t border-slate-100">
+            {filtered.map((r) => (
+              <tr key={r.id} className="border-t border-slate-100 dark:border-slate-800">
                 <td className="py-2 font-mono text-xs">{r.email}</td>
                 <td className="py-2 font-bold">{r.displayName ?? "—"}</td>
                 <td className="py-2">
@@ -73,7 +101,7 @@ export default function AdminUsersPage() {
                 </td>
                 <td className="py-2">
                   <select
-                    className="rounded-lg border px-2 py-1"
+                    className="rounded-lg border px-2 py-1 dark:bg-slate-900"
                     value={r.role}
                     onChange={(e) => void patch(r.id, { role: e.target.value })}
                   >
@@ -83,7 +111,7 @@ export default function AdminUsersPage() {
                 </td>
                 <td className="py-2">
                   <select
-                    className="rounded-lg border px-2 py-1"
+                    className="rounded-lg border px-2 py-1 dark:bg-slate-900"
                     value={r.plan}
                     onChange={(e) => void patch(r.id, { plan: e.target.value })}
                   >
@@ -91,11 +119,24 @@ export default function AdminUsersPage() {
                     <option value="premium">premium</option>
                   </select>
                 </td>
+                <td className="py-2 text-xs text-ink-muted">
+                  {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
+        <p className="mt-2 text-xs text-ink-muted">
+          Showing {filtered.length} / {rows.length}
+        </p>
       </div>
+      <StepUpModal
+        open={stepUpOpen}
+        onClose={() => setStepUpOpen(false)}
+        onSuccess={() => {
+          if (pending) void pending().then(() => setPending(null));
+        }}
+      />
     </div>
   );
 }

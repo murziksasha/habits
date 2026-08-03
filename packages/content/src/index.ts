@@ -13,6 +13,7 @@ export { reactFundamentalsContent } from "./react-fundamentals.js";
 export { sqlFundamentalsContent } from "./sql-fundamentals.js";
 export { nodeFundamentalsContent } from "./node-fundamentals.js";
 export { expressFundamentalsContent } from "./express-fundamentals.js";
+export { embeddedCppContent } from "./embedded-cpp.js";
 export { FLASHCARD_DECKS } from "./flashcards.js";
 export type { CourseContent, UnitContent, LessonContent, Exercise } from "./types.js";
 export type { DeckSeed, FlashcardSeed } from "./flashcards.js";

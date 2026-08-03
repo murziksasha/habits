@@ -3,11 +3,19 @@
 import Link from "next/link";
 import { COURSE_META } from "@eduforge/shared";
 import { useLocale } from "@/lib/locale-context";
+import { useBranding } from "@/lib/branding-context";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
 export default function LandingPage() {
   const { t, locale } = useLocale();
+  const { theme: brandTheme } = useBranding();
+  const productName = brandTheme.branding.productName || t.appName;
+  const tagline =
+    (locale === "en"
+      ? brandTheme.branding.taglineEn
+      : brandTheme.branding.taglineUk) || t.tagline;
+  const logoUrl = brandTheme.branding.logoUrl;
   const courses = Object.values(COURSE_META);
 
   const features = [
@@ -23,11 +31,15 @@ export default function LandingPage() {
     <div className="space-y-16">
       <section className="grid items-center gap-10 md:grid-cols-2">
         <div className="space-y-6">
+          {logoUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logoUrl} alt={productName} className="h-14 w-auto object-contain" />
+          )}
           <p className="inline-flex rounded-full bg-brand-soft px-3 py-1 text-sm font-bold text-brand-dark">
             {t.landing.badge}
           </p>
           <h1 className="text-4xl font-black leading-tight md:text-5xl">
-            {t.appName}: {t.tagline}
+            {productName}: {tagline}
           </h1>
           <p className="text-lg text-ink-muted">
             {locale === "en"
