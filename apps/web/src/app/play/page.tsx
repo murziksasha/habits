@@ -11,6 +11,8 @@ import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
 import { Suspense } from "react";
+import { PageLoading } from "@/components/page-loading";
+import { setPlayMatchActive } from "@/lib/play-match";
 
 const REALTIME_URL = process.env.NEXT_PUBLIC_REALTIME_URL ?? "http://localhost:4001";
 
@@ -69,6 +71,12 @@ function PlayPageInner() {
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
   }, [loading, user, router]);
+
+  // Hide sticky Continue during seek or live match (board focus)
+  useEffect(() => {
+    setPlayMatchActive(Boolean(match) || seeking);
+    return () => setPlayMatchActive(false);
+  }, [match, seeking]);
 
   useEffect(() => {
     if (!token) return;
@@ -389,10 +397,10 @@ function PlayPageInner() {
     socket?.emit("resign", { gameId: match.gameId });
   }
 
-  if (loading || !user) return <p>{UI.common.loading}</p>;
+  if (loading || !user) return <PageLoading label={UI.common.loading} />;
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${match ? "" : "pb-20 md:pb-0"}`}>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black">♟️ {UI.chess.playOnline}</h1>

@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
+  firstAvailableLessonHref,
+  freemiumPathLabel,
   isProgrammingMiniSlug,
   PROGRAMMING_MINI_LESSON_SLUGS,
   PROGRAMMING_STACK_META,
@@ -14,6 +15,8 @@ import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
 import { XpBar } from "@/components/xp-bar";
+import { PageLoading } from "@/components/page-loading";
+import { useRequireAuth } from "@/lib/use-require-auth";
 import clsx from "clsx";
 
 type Lesson = {
@@ -38,8 +41,8 @@ type Unit = {
 
 export default function ProgrammingHubPage() {
   const { user, token, loading, setCharacter } = useAuth();
+  const { ready } = useRequireAuth();
   const { t, locale } = useLocale();
-  const router = useRouter();
   const [units, setUnits] = useState<Unit[]>([]);
   const [progress, setProgress] = useState({
     xp: 0,
@@ -48,6 +51,13 @@ export default function ProgrammingHubPage() {
     hearts: 5,
     maxHearts: 5,
   });
+  const [freemium, setFreemium] = useState<{
+    freeLessonCount: number;
+    freeCompleted: number;
+    freeLeft: number;
+    isPremium: boolean;
+  } | null>(null);
+  const [hubLoading, setHubLoading] = useState(true);
   const [error, setError] = useState("");
   const [placement, setPlacement] = useState<{
     levelLabel: string;
@@ -112,11 +122,8 @@ export default function ProgrammingHubPage() {
   const [raceMsg, setRaceMsg] = useState("");
 
   useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
-
-  useEffect(() => {
     if (!token) return;
+    setHubLoading(true);
     void api("/auth/onboarding/complete", {
       method: "POST",
       token,
@@ -126,6 +133,7 @@ export default function ProgrammingHubPage() {
       course: { titleUk: string; titleEn?: string; color: string };
       units: Unit[];
       progress: typeof progress;
+      freemium?: typeof freemium;
     }>("/courses/programming", { token })
       .then((d) => {
         const order = new Map(PROGRAMMING_UNIT_ORDER.map((s, i) => [s, i]));
@@ -134,8 +142,10 @@ export default function ProgrammingHubPage() {
         );
         setUnits(sorted);
         setProgress(d.progress);
+        setFreemium(d.freemium ?? null);
       })
-      .catch(() => setError(t.common.error));
+      .catch(() => setError(t.common.error))
+      .finally(() => setHubLoading(false));
     void api<{
       lastResult: {
         levelLabel: string;
@@ -190,12 +200,32 @@ export default function ProgrammingHubPage() {
     }
   }
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
-  if (error) return <p className="text-red-500 font-bold">{error}</p>;
+  if (loading || !ready || (hubLoading && !units.length && !error)) {
+    return <PageLoading label={t.common.loading} />;
+  }
+  if (error) {
+    return (
+      <div className="card mx-auto max-w-lg space-y-3 text-center">
+        <p className="font-bold text-red-500">{error}</p>
+        <button type="button" className="btn-primary" onClick={() => window.location.reload()}>
+          {locale === "en" ? "Retry" : "Спробувати знову"}
+        </button>
+      </div>
+    );
+  }
 
   const allLessons = units.flatMap((u) =>
     u.lessons.map((l) => ({ ...l, unitSlug: u.slug })),
   );
+  const continueHref = firstAvailableLessonHref("programming", units) ?? "/learn";
+  const freeLabel =
+    freemium &&
+    freemiumPathLabel({
+      freeCompleted: freemium.freeCompleted,
+      freeLessonCount: freemium.freeLessonCount,
+      isPremium: freemium.isPremium,
+      locale: locale === "en" ? "en" : "uk",
+    });
   const miniTotal = miniBoard?.total ?? PROGRAMMING_MINI_LESSON_SLUGS.length;
   const miniDone = miniBoard?.completed ?? 0;
   const unitsDone = units.filter(
@@ -206,7 +236,7 @@ export default function ProgrammingHubPage() {
 
   return (
     <div className="space-y-8">
-      <section className="card flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <section className="card flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-brand/30 bg-gradient-to-br from-brand-soft/30 to-sky/5">
         <div>
           <p className="text-4xl">💻</p>
           <h1 className="mt-2 text-3xl font-black">{t.programming.hubTitle}</h1>
@@ -215,6 +245,19 @@ export default function ProgrammingHubPage() {
             {t.programming.pathPct}: {pathPct}% · {unitsDone}/{units.length} units · 🧩{" "}
             {miniDone}/{miniTotal} {t.programming.miniDone}
           </p>
+          {freeLabel && (
+            <p className="mt-1 text-xs font-black text-grape">
+              {t.onboarding.freePath}: {freeLabel}
+            </p>
+          )}
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Link href={continueHref} className="btn-primary min-h-11">
+              {t.onboarding.continuePath} →
+            </Link>
+            <Link href="/playground" className="btn-secondary min-h-11">
+              🖥️ {t.nav.playground}
+            </Link>
+          </div>
         </div>
         <div className="w-full max-w-xs space-y-2">
           <XpBar

@@ -190,6 +190,20 @@
       "when": 1740000026000,
       "tag": "0026_embedded_cpp",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1740000027000,
+      "tag": "0027_email_verify_security",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1740000028000,
+      "tag": "0028_oauth_family_2fa",
+      "breakpoints": true
     }
   ]
 }

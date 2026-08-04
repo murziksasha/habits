@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { freemiumMatrix } from "@eduforge/shared";
@@ -7,6 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
 import { Badge, Button, Card, CardDescription, CardTitle } from "@/components/ui";
+import { PageLoading } from "@/components/page-loading";
 
 export default function PricingPage() {
   const { user, token, refresh } = useAuth();
@@ -14,6 +16,9 @@ export default function PricingPage() {
   const router = useRouter();
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+  const [devBilling, setDevBilling] = useState(true);
+  const [stripeConfigured, setStripeConfigured] = useState(false);
+  const [flagsLoading, setFlagsLoading] = useState(true);
   const matrix = freemiumMatrix();
 
   useEffect(() => {
@@ -24,6 +29,18 @@ export default function PricingPage() {
       body: { key: "exploredPricing" },
     }).catch(() => undefined);
   }, [token]);
+
+  useEffect(() => {
+    setFlagsLoading(true);
+    Promise.all([
+      api<{ flags?: { devBilling?: boolean } }>("/me/flags")
+        .then((d) => setDevBilling(Boolean(d.flags?.devBilling)))
+        .catch(() => setDevBilling(false)),
+      api<{ stripeConfigured?: boolean }>("/billing/entitlements")
+        .then((d) => setStripeConfigured(Boolean(d.stripeConfigured)))
+        .catch(() => setStripeConfigured(false)),
+    ]).finally(() => setFlagsLoading(false));
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -54,7 +71,16 @@ export default function PricingPage() {
         return;
       }
     } catch {
-      /* fall through to demo upgrade */
+      /* fall through to demo upgrade only when allowed */
+    }
+    if (!devBilling) {
+      setMsg(
+        locale === "en"
+          ? "Checkout unavailable. Configure Stripe or contact support."
+          : "Checkout недоступний. Налаштуйте Stripe або зверніться в підтримку.",
+      );
+      setBusy(false);
+      return;
     }
     try {
       await api("/billing/dev-upgrade", { method: "POST", token });
@@ -74,6 +100,14 @@ export default function PricingPage() {
   async function startTrial() {
     if (!token) {
       router.push("/register");
+      return;
+    }
+    if (!devBilling) {
+      setMsg(
+        locale === "en"
+          ? "Trials are handled via Stripe Checkout."
+          : "Trial через Stripe Checkout.",
+      );
       return;
     }
     setBusy(true);
@@ -103,7 +137,7 @@ export default function PricingPage() {
   }
 
   async function downgrade() {
-    if (!token) return;
+    if (!token || !devBilling) return;
     setBusy(true);
     try {
       await api("/billing/dev-downgrade", { method: "POST", token });
@@ -141,14 +175,21 @@ export default function PricingPage() {
     }
   }
 
+  if (flagsLoading) {
+    return <PageLoading label={t.common.loading} />;
+  }
+
   return (
-    <div className="space-y-8">
-      <div className="text-center space-y-2">
+    <div className="space-y-8 pb-20 md:pb-0">
+      <div className="space-y-2 text-center">
         <h1 className="text-3xl font-black">{t.nav.pricing}</h1>
-        <p className="text-ink-muted font-bold">{t.pricing.subtitle}</p>
+        <p className="font-bold text-ink-muted">{t.pricing.subtitle}</p>
         {user && (
           <p className="text-sm">
-            <Badge tone={user.plan === "premium" ? "grape" : "muted"}>
+            <Badge
+              tone={user.plan === "premium" ? "grape" : "muted"}
+              // current plan for AT
+            >
               {t.pricing.currentPlan}: {user.plan}
               {user.planExpiresAt
                 ? ` · ${new Date(user.planExpiresAt).toLocaleDateString(
@@ -180,8 +221,26 @@ export default function PricingPage() {
             <Badge tone="grape">★</Badge>
           </div>
           <p className="text-3xl font-black">
-            Demo{" "}
-            <span className="text-base font-bold text-ink-muted">/ Stripe ready</span>
+            {stripeConfigured ? (
+              <>
+                Premium{" "}
+                <span className="text-base font-bold text-ink-muted">
+                  {locale === "en" ? "via Stripe" : "через Stripe"}
+                </span>
+              </>
+            ) : devBilling ? (
+              <>
+                Demo{" "}
+                <span className="text-base font-bold text-ink-muted">/ Stripe ready</span>
+              </>
+            ) : (
+              <>
+                Premium{" "}
+                <span className="text-base font-bold text-ink-muted">
+                  {locale === "en" ? "(billing soon)" : "(скоро)"}
+                </span>
+              </>
+            )}
           </p>
           <ul className="space-y-2 text-ink-muted font-bold">
             {t.pricing.premiumFeatures.map((f) => (
@@ -198,14 +257,16 @@ export default function PricingPage() {
               >
                 {t.pricing.manage}
               </Button>
-              <Button
-                variant="secondary"
-                fullWidth
-                disabled={busy}
-                onClick={() => void downgrade()}
-              >
-                {locale === "en" ? "Remove Premium (demo)" : "Зняти Premium (demo)"}
-              </Button>
+              {devBilling && (
+                <Button
+                  variant="secondary"
+                  fullWidth
+                  disabled={busy}
+                  onClick={() => void downgrade()}
+                >
+                  {locale === "en" ? "Remove Premium (demo)" : "Зняти Premium (demo)"}
+                </Button>
+              )}
             </div>
           ) : (
             <div className="space-y-2">
@@ -217,15 +278,25 @@ export default function PricingPage() {
               >
                 {t.pricing.upgrade}
               </Button>
-              <Button
-                variant="secondary"
-                fullWidth
-                disabled={busy}
-                onClick={() => void startTrial()}
+              {devBilling && (
+                <>
+                  <Button
+                    variant="secondary"
+                    fullWidth
+                    disabled={busy}
+                    onClick={() => void startTrial()}
+                  >
+                    🎁 {t.pricing.trial}
+                  </Button>
+                  <CardDescription>{t.pricing.trialHint}</CardDescription>
+                </>
+              )}
+              <Link
+                href="/family"
+                className="block text-center text-sm font-bold text-sky hover:underline"
               >
-                🎁 {t.pricing.trial}
-              </Button>
-              <CardDescription>{t.pricing.trialHint}</CardDescription>
+                {locale === "en" ? "Family plan (seats)" : "Сімейний план (місця)"} →
+              </Link>
             </div>
           )}
         </Card>

@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
+import { PageLoading } from "@/components/page-loading";
+import { EmptyState } from "@/components/ui";
+import { useRequireAuth } from "@/lib/use-require-auth";
 
 type Note = {
   id: string;
@@ -19,28 +21,33 @@ type Note = {
 
 export default function NotesPage() {
   const { user, token, loading } = useAuth();
+  const { ready } = useRequireAuth();
   const { t } = useLocale();
-  const router = useRouter();
   const [notes, setNotes] = useState<Note[]>([]);
-
-  useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
+  const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
     if (!token) return;
+    setDataLoading(true);
     void api<{ notes: Note[] }>("/notes", { token })
       .then((d) => setNotes(d.notes))
-      .catch(() => setNotes([]));
+      .catch(() => setNotes([]))
+      .finally(() => setDataLoading(false));
   }, [token]);
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
+  if (loading || !ready || dataLoading) return <PageLoading label={t.common.loading} />;
+  if (!user) return <PageLoading label={t.common.loading} />;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 md:pb-0">
       <h1 className="text-3xl font-black">📔 {t.notes.title}</h1>
       {notes.length === 0 ? (
-        <p className="card text-ink-muted font-bold">{t.notes.empty}</p>
+        <EmptyState
+          title={t.notes.empty}
+          description={t.notes.placeholder}
+          actionHref="/learn"
+          actionLabel={t.nav.learn}
+        />
       ) : (
         <div className="space-y-3">
           {notes.map((n) => (

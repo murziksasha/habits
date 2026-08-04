@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq, gt } from "drizzle-orm";
 import {
   characters,
   courses,
@@ -395,6 +395,31 @@ export async function submitLesson(
     where: eq(characters.userId, user.id),
   });
 
+  // Next lesson in course path (by sortOrder) for one-tap continue
+  let nextLesson: {
+    id: string;
+    titleUk: string;
+    titleEn: string | null;
+    href: string;
+  } | null = null;
+  if (passed) {
+    const next = await db.query.lessons.findFirst({
+      where: and(
+        eq(lessons.courseId, course.id),
+        gt(lessons.sortOrder, lesson.sortOrder),
+      ),
+      orderBy: [asc(lessons.sortOrder)],
+    });
+    if (next) {
+      nextLesson = {
+        id: next.id,
+        titleUk: next.titleUk,
+        titleEn: next.titleEn ?? null,
+        href: `/courses/${course.slug}/lessons/${next.id}`,
+      };
+    }
+  }
+
   return {
     ok: true,
     status: 200,
@@ -425,6 +450,7 @@ export async function submitLesson(
       passed,
       passThreshold: completeBar,
       examFailed: isExam && !passed,
+      nextLesson,
     },
   };
 }

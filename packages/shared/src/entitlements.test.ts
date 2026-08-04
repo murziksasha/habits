@@ -80,6 +80,7 @@ describe("freemium matrix", () => {
 
   it("isPremiumActive respects expiry", () => {
     expect(isPremiumActive({ plan: "free" })).toBe(false);
+    expect(isPremiumActive({ plan: "family", planExpiresAt: null })).toBe(true);
     expect(isPremiumActive({ plan: "premium", planExpiresAt: null })).toBe(true);
     const past = new Date(Date.now() - 60_000);
     expect(isPremiumActive({ plan: "premium", planExpiresAt: past })).toBe(false);

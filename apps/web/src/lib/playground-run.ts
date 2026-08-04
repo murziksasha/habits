@@ -228,6 +228,8 @@ export function runJsInIframe(
     };
 
     const onMsg = (ev: MessageEvent) => {
+      // Sandbox without allow-same-origin → opaque origin; trust source window + message id
+      if (ev.source !== iframe.contentWindow) return;
       const data = ev.data as {
         type?: string;
         id?: string;
@@ -258,6 +260,7 @@ export function runJsInIframe(
   try {
     var src = ${escaped};
     (new Function('console', '"use strict";\\n' + src + '\\n'))(c);
+    // Opaque sandbox origin cannot use a concrete targetOrigin reliably
     parent.postMessage({ type: 'eduforge-pg', id: ${JSON.stringify(id)}, ok: true, logs: logs }, '*');
   } catch (e) {
     parent.postMessage({ type: 'eduforge-pg', id: ${JSON.stringify(id)}, ok: false, error: String(e), logs: logs }, '*');

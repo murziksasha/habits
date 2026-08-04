@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
+import { PageLoading } from "@/components/page-loading";
+import { useRequireAuth } from "@/lib/use-require-auth";
 
 type OrgRow = {
   organizationId: string;
@@ -16,31 +18,37 @@ type OrgRow = {
 
 export default function SchoolsPage() {
   const { user, token, loading } = useAuth();
+  const { ready } = useRequireAuth();
   const { t } = useLocale();
   const router = useRouter();
   const [orgs, setOrgs] = useState<OrgRow[]>([]);
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [msg, setMsg] = useState("");
+  const [dataLoading, setDataLoading] = useState(true);
 
   async function load() {
     if (!token) return;
-    const d = await api<{ organizations: OrgRow[] }>("/orgs/mine", { token });
-    setOrgs(d.organizations);
+    setDataLoading(true);
+    try {
+      const d = await api<{ organizations: OrgRow[] }>("/orgs/mine", { token });
+      setOrgs(d.organizations);
+    } catch {
+      setOrgs([]);
+    } finally {
+      setDataLoading(false);
+    }
   }
 
   useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
-
-  useEffect(() => {
-    if (token) void load().catch(() => setOrgs([]));
+    if (token) void load();
   }, [token]);
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
+  if (loading || !ready || dataLoading) return <PageLoading label={t.common.loading} />;
+  if (!user) return <PageLoading label={t.common.loading} />;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 md:pb-0">
       <h1 className="text-3xl font-black">🏫 {t.schools.title}</h1>
 
       <div className="grid gap-4 md:grid-cols-2">

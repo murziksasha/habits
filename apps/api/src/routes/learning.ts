@@ -156,18 +156,26 @@ learningRoutes.get("/export", authMiddleware, async (c) => {
 
   const payload = {
     exportedAt: new Date().toISOString(),
+    exportVersion: 2,
     user: {
       id: user.id,
       email: u?.email,
       plan: u?.plan,
       preferredLocale: u?.preferredLocale,
+      emailVerifiedAt: u?.emailVerifiedAt ?? null,
+      role: u?.role,
+      createdAt: u?.createdAt,
     },
     character: ch
       ? {
           displayName: ch.displayName,
+          avatarKey: ch.avatarKey,
           globalXp: ch.globalXp,
           globalLevel: ch.globalLevel,
           streakDays: ch.streakDays,
+          streakFreezes: ch.streakFreezes,
+          dailyGoalXp: ch.dailyGoalXp,
+          onboarding: ch.onboarding,
         }
       : null,
     courses: courseProg,

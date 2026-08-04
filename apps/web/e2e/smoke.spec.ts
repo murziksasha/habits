@@ -24,9 +24,12 @@ test.describe("EduForge smoke", () => {
     await expect(
       page.getByRole("link", { name: /Почати|Start free|безкоштовно|Реєстрація|Sign up/i }).first(),
     ).toBeVisible();
+    // Persona cards + guest trial (SPEC 79)
+    await expect(page.getByText(/Оберіть шлях|Pick a path|Код|Code/i).first()).toBeVisible();
+    await expect(page.getByText(/Спробуйте без|Try without|const x/i).first()).toBeVisible();
   });
 
-  test("register → dashboard → english course → lesson", async ({ page }) => {
+  test("register → learn (or wizard) → english course → lesson", async ({ page }) => {
     await page.goto("/register");
 
     await page.locator("input").nth(0).fill(displayName);
@@ -34,9 +37,19 @@ test.describe("EduForge smoke", () => {
     await page.locator('input[type="password"]').fill(password);
 
     await page.getByRole("button", { name: /Зареєструватися|Реєстрація|Sign up/i }).click();
-    await page.waitForURL(/\/(dashboard|courses)/, { timeout: 25_000 });
+    // SPEC 79: post-register → /learn (or wizard overlay on learn/dashboard)
+    await page.waitForURL(/\/(learn|dashboard|courses|programming|play|friends)/, {
+      timeout: 25_000,
+    });
 
-    await expect(page.getByText(displayName).first()).toBeVisible({ timeout: 15_000 });
+    // Dismiss onboarding wizard if present
+    const skipWizard = page.getByRole("button", { name: /Пропустити|Skip/i });
+    if (await skipWizard.isVisible().catch(() => false)) {
+      await skipWizard.click();
+      await page.waitForTimeout(500);
+    }
+
+    await expect(page.locator("main")).toBeVisible({ timeout: 15_000 });
 
     await page.goto("/courses/english");
     await expect(page.locator("main")).toBeVisible();
@@ -199,6 +212,147 @@ test.describe("EduForge smoke", () => {
       await page.goto(path);
       await expect(page.locator("main")).toBeVisible({ timeout: 15_000 });
     }
+  });
+
+  test("dashboard is thin shell with mission", async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto("/dashboard");
+    // Dismiss wizard if any
+    const skip = page.getByRole("button", { name: /Пропустити|Skip/i });
+    if (await skip.isVisible().catch(() => false)) await skip.click();
+    await expect(page.getByText(/Місія дня|Today.?s mission|Продовжити|Continue|Start now|Почати/i).first()).toBeVisible({
+      timeout: 15_000,
+    });
+  });
+
+  test("search tools hub loads", async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto("/search");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/Інструменти|Tools|Playground|Карта|Learning/i).first()).toBeVisible();
+  });
+
+  test("programming hub has continue path CTA", async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto("/programming");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await expect(
+      page.getByRole("link", { name: /Продовжити шлях|Continue path|Continue code|Продовжити/i }).first(),
+    ).toBeVisible({ timeout: 15_000 });
+  });
+
+  test("review page loads empty or list", async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto("/review");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await expect(
+      page.getByText(/Повторення|Review|слабк|weak|Немає|No weak|інбокс|inbox/i).first(),
+    ).toBeVisible({ timeout: 15_000 });
+  });
+
+  test("quests page loads with PageLoading shell then content", async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto("/quests");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/квест|Quest|нагород|reward|XP|завтра|tomorrow/i).first()).toBeVisible();
+  });
+
+  test("secondary surfaces show sticky continue", async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto("/flashcards");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    // Sticky Continue (uk/en)
+    await expect(
+      page.getByRole("link", { name: /Продовжити|Continue/i }).first(),
+    ).toBeVisible({ timeout: 15_000 });
+  });
+
+  test("courses catalog and achievements load", async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto("/courses");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await page.goto("/achievements");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/досяг|Achiev|🏅|unlocked|розблок/i).first()).toBeVisible({
+      timeout: 15_000,
+    });
+  });
+
+  test("shop and bookmarks pages load", async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto("/shop");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await page.goto("/bookmarks");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+  });
+
+  test("deep hubs load with path continue", async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto("/typescript");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await expect(
+      page.getByRole("link", { name: /Продовжити шлях|Continue path|path|Продовжити/i }).first(),
+    ).toBeVisible({ timeout: 15_000 });
+    await page.goto("/react-fundamentals");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+  });
+
+  test("homework notes portfolio shells load", async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto("/homework");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await page.goto("/notes");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await page.goto("/portfolio");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+  });
+
+  test("admin shell has navigation landmark", async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto("/admin");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByLabel(/Admin|Адмін|modules/i).first()).toBeVisible({
+      timeout: 10_000,
+    });
+  });
+
+  test("schools list loads shell", async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto("/schools");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+  });
+
+  test("pricing page loads plans", async ({ page }) => {
+    await page.goto("/pricing");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/Free|Premium|free|Premium|₴|тариф/i).first()).toBeVisible();
+  });
+
+  test("404 recovery links", async ({ page }) => {
+    await page.goto("/this-route-does-not-exist-eduforge");
+    await expect(page.getByText(/404|не знайдено|not found/i).first()).toBeVisible({
+      timeout: 10_000,
+    });
+    await expect(page.getByRole("link", { name: /головн|Home|Learn|Навчання/i }).first()).toBeVisible();
+  });
+
+  test("admin appearance and billing load", async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto("/admin/appearance");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/Appearance|Вигляд|Brand|брен/i).first()).toBeVisible({
+      timeout: 10_000,
+    });
+    await page.goto("/admin/billing");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/Premium|Stripe|Users|Користувач/i).first()).toBeVisible();
+  });
+
+  test("live classroom shell loads", async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto("/classroom/live/demo");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/Live|Живий|class|клас|online|онлайн|Connecting|Зʼєднан/i).first()).toBeVisible();
   });
 
   test("learn map page loads", async ({ page }) => {

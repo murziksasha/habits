@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
 import { COURSE_SLUGS, UI } from "@eduforge/shared";
+import { PageLoading } from "@/components/page-loading";
 
 type Msg = { role: string; content: string; model?: string | null };
 
@@ -90,10 +91,13 @@ function TutorPageInner() {
     setMessages([]);
   }
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
+  if (loading || !user) return <PageLoading label={t.common.loading} />;
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-4" style={{ minHeight: "70vh" }}>
+    <div
+      className="mx-auto flex max-w-2xl flex-col gap-4 pb-20 md:pb-0"
+      style={{ minHeight: "70vh" }}
+    >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-3xl font-black">🤖 {t.tutor.title}</h1>
         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold dark:bg-slate-800">

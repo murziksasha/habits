@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
+import { PageLoading } from "@/components/page-loading";
 
 type Entry = {
   id: string;
@@ -34,7 +35,7 @@ export default function AdminAuditPage() {
       .catch(() => setEntries([]));
   }, [token, user]);
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
+  if (loading || !user) return <PageLoading label={t.common.loading} />;
 
   return (
     <div className="space-y-6">

@@ -3,7 +3,9 @@ import { eq } from "drizzle-orm";
 import Stripe from "stripe";
 import { users } from "@eduforge/db";
 import {
+  FAMILY_DEFAULT_SEATS,
   freemiumMatrix,
+  isFeatureEnabled,
   isPremiumActive,
   planFeatureMatrix,
   type Plan,
@@ -11,6 +13,7 @@ import {
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 import { env } from "../env.js";
+import { resolveEffectivePlan } from "../services/effective-plan.js";
 
 type Vars = { user: AuthedUser };
 
@@ -21,17 +24,23 @@ function getStripe() {
   return new Stripe(env.stripeSecretKey);
 }
 
+/** Demo upgrade/trial only when ALLOW_DEV_BILLING (or non-prod default). Never open in real prod. */
+function devBillingAllowed(): boolean {
+  return isFeatureEnabled("dev_billing");
+}
+
 billingRoutes.get("/status", authMiddleware, async (c) => {
   const user = c.get("user");
-  const premium = isPremiumActive({
-    plan: user.plan as Plan,
-    planExpiresAt: user.planExpiresAt,
-  });
+  const effective = await resolveEffectivePlan(user.id);
+  const premium = effective.premiumActive;
   return c.json({
-    plan: premium ? "premium" : "free",
-    planExpiresAt: user.planExpiresAt,
+    plan: user.plan,
+    effectivePlan: effective.plan,
+    planExpiresAt: effective.planExpiresAt ?? user.planExpiresAt,
     stripeConfigured: Boolean(getStripe()),
     premiumActive: premium,
+    family: effective.family,
+    familyDefaultSeats: FAMILY_DEFAULT_SEATS,
   });
 });
 
@@ -45,24 +54,37 @@ billingRoutes.get("/entitlements", async (c) => {
   });
 });
 
-/** Dev/demo upgrade without Stripe when keys missing */
+/** Dev/demo upgrade without Stripe — gated by ALLOW_DEV_BILLING / non-prod default */
 billingRoutes.post("/dev-upgrade", authMiddleware, async (c) => {
-  if (getStripe() && process.env.NODE_ENV === "production") {
-    return c.json({ error: "use_checkout" }, 400);
+  if (!devBillingAllowed()) {
+    return c.json(
+      { error: "dev_billing_disabled", hint: "use Stripe checkout or set ALLOW_DEV_BILLING=1 on staging" },
+      403,
+    );
   }
   const user = c.get("user");
+  const body = await c.req.json().catch(() => ({}));
+  const kind = body.kind === "family" ? "family" : "premium";
   const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
   await db
     .update(users)
-    .set({ plan: "premium", planExpiresAt: expires, updatedAt: new Date() })
+    .set({
+      plan: kind,
+      familyMaxSeats: kind === "family" ? FAMILY_DEFAULT_SEATS : 0,
+      planExpiresAt: expires,
+      updatedAt: new Date(),
+    })
     .where(eq(users.id, user.id));
-  return c.json({ plan: "premium", planExpiresAt: expires, kind: "demo_30d" });
+  return c.json({ plan: kind, planExpiresAt: expires, kind: kind === "family" ? "demo_family_30d" : "demo_30d" });
 });
 
-/** 7-day Premium trial (dev / no Stripe) */
+/** 7-day Premium trial (dev / staging only when dev billing allowed) */
 billingRoutes.post("/trial", authMiddleware, async (c) => {
-  if (getStripe() && process.env.NODE_ENV === "production") {
-    return c.json({ error: "use_checkout" }, 400);
+  if (!devBillingAllowed()) {
+    return c.json(
+      { error: "dev_billing_disabled", hint: "use Stripe checkout" },
+      403,
+    );
   }
   const user = c.get("user");
   if (user.plan === "premium") {
@@ -81,8 +103,8 @@ billingRoutes.post("/trial", authMiddleware, async (c) => {
 });
 
 billingRoutes.post("/dev-downgrade", authMiddleware, async (c) => {
-  if (process.env.NODE_ENV === "production" && getStripe()) {
-    return c.json({ error: "use_portal" }, 400);
+  if (!devBillingAllowed()) {
+    return c.json({ error: "dev_billing_disabled", hint: "use Stripe portal" }, 403);
   }
   const user = c.get("user");
   await db
@@ -98,8 +120,14 @@ billingRoutes.post("/checkout", authMiddleware, async (c) => {
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
   const interval = body.interval === "year" ? "year" : "month";
+  const kind = body.kind === "family" ? "family" : "premium";
+  const familyPrice = process.env.STRIPE_PRICE_FAMILY ?? "";
   const price =
-    interval === "year" ? env.stripePriceYearly : env.stripePriceMonthly;
+    kind === "family" && familyPrice
+      ? familyPrice
+      : interval === "year"
+        ? env.stripePriceYearly
+        : env.stripePriceMonthly;
   if (!price) return c.json({ error: "price_not_configured" }, 503);
 
   let customerId = user.stripeCustomerId;
@@ -121,7 +149,7 @@ billingRoutes.post("/checkout", authMiddleware, async (c) => {
     line_items: [{ price, quantity: 1 }],
     success_url: `${env.webOrigin}/pricing?success=1`,
     cancel_url: `${env.webOrigin}/pricing?canceled=1`,
-    metadata: { userId: user.id },
+    metadata: { userId: user.id, kind },
   });
   return c.json({ url: session.url });
 });
@@ -169,11 +197,13 @@ billingRoutes.post("/webhook", async (c) => {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     const userId = session.metadata?.userId;
+    const kind = session.metadata?.kind === "family" ? "family" : "premium";
     if (userId) {
       await db
         .update(users)
         .set({
-          plan: "premium",
+          plan: kind,
+          familyMaxSeats: kind === "family" ? FAMILY_DEFAULT_SEATS : 0,
           stripeSubscriptionId: String(session.subscription ?? ""),
           planExpiresAt: new Date(Date.now() + 35 * 24 * 60 * 60 * 1000),
           updatedAt: new Date(),

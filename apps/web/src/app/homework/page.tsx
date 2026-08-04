@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
+import { PageLoading } from "@/components/page-loading";
+import { EmptyState } from "@/components/ui";
+import { useRequireAuth } from "@/lib/use-require-auth";
 import clsx from "clsx";
 
 type Hw = {
@@ -33,39 +35,40 @@ type PgAssign = {
 
 export default function HomeworkPage() {
   const { user, token, loading } = useAuth();
+  const { ready } = useRequireAuth();
   const { t, locale } = useLocale();
-  const router = useRouter();
   const [items, setItems] = useState<Hw[]>([]);
   const [pgAssigns, setPgAssigns] = useState<PgAssign[]>([]);
   const [reminders, setReminders] = useState<
     { titleUk: string; dueAt: string | null; overdue: boolean; className: string }[]
   >([]);
-
-  useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
+  const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
     if (!token) return;
-    void api<{ homework: Hw[] }>("/homework/mine", { token })
-      .then((d) => setItems(d.homework))
-      .catch(() => setItems([]));
-    void api<{
-      reminders: {
-        titleUk: string;
-        dueAt: string | null;
-        overdue: boolean;
-        className: string;
-      }[];
-    }>("/reminders/homework/mine", { token })
-      .then((d) => setReminders(d.reminders))
-      .catch(() => setReminders([]));
-    void api<{ assignments: PgAssign[] }>("/playground/class-mine", { token })
-      .then((d) => setPgAssigns(d.assignments))
-      .catch(() => setPgAssigns([]));
+    setDataLoading(true);
+    Promise.all([
+      api<{ homework: Hw[] }>("/homework/mine", { token })
+        .then((d) => setItems(d.homework))
+        .catch(() => setItems([])),
+      api<{
+        reminders: {
+          titleUk: string;
+          dueAt: string | null;
+          overdue: boolean;
+          className: string;
+        }[];
+      }>("/reminders/homework/mine", { token })
+        .then((d) => setReminders(d.reminders))
+        .catch(() => setReminders([])),
+      api<{ assignments: PgAssign[] }>("/playground/class-mine", { token })
+        .then((d) => setPgAssigns(d.assignments))
+        .catch(() => setPgAssigns([])),
+    ]).finally(() => setDataLoading(false));
   }, [token]);
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
+  if (loading || !ready || dataLoading) return <PageLoading label={t.common.loading} />;
+  if (!user) return <PageLoading label={t.common.loading} />;
 
   const statusLabel = (s: string) =>
     s === "completed"
@@ -75,8 +78,20 @@ export default function HomeworkPage() {
         : t.homework.assigned;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 md:pb-0">
       <h1 className="text-3xl font-black">📝 {t.homework.title}</h1>
+      {!items.length && !pgAssigns.length && !reminders.length && (
+        <EmptyState
+          title={locale === "en" ? "No homework yet" : "Домашки ще немає"}
+          description={
+            locale === "en"
+              ? "Join a class or wait for a teacher assignment."
+              : "Приєднайтесь до класу або дочекайтесь завдання."
+          }
+          actionHref="/schools"
+          actionLabel={t.nav.schools}
+        />
+      )}
       {reminders.length > 0 && (
         <div className="card border-sun/40 bg-amber-50 space-y-2">
           <p className="font-black text-sun">⏰ Due soon / overdue</p>

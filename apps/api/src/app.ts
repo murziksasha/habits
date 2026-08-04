@@ -45,6 +45,8 @@ import { feedbackRoutes } from "./routes/feedback.js";
 import { publicBrandingRoutes } from "./routes/public-branding.js";
 import { meRoutes } from "./routes/me.js";
 import { judgeRoutes } from "./routes/judge.js";
+import { oauthRoutes } from "./routes/oauth.js";
+import { familyRoutes } from "./routes/family.js";
 import { csrfOriginMiddleware } from "./csrf.js";
 import { withSpan } from "./otel.js";
 
@@ -95,8 +97,21 @@ export function createApp() {
     }),
   );
 
-  // Optional strict Origin check for cookie-authenticated mutations (FEATURE_STRICT_CSRF=1)
+  // Strict Origin check for cookie-authenticated mutations
+  // (FEATURE_STRICT_CSRF or production default — see resolveFeatureFlags)
   app.use("*", csrfOriginMiddleware);
+
+  // Baseline security headers on all API responses
+  app.use("*", async (c, next) => {
+    c.header("X-Content-Type-Options", "nosniff");
+    c.header("X-Frame-Options", "DENY");
+    c.header("Referrer-Policy", "strict-origin-when-cross-origin");
+    c.header("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+    if (process.env.NODE_ENV === "production") {
+      c.header("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    }
+    await next();
+  });
 
   app.get("/health", (c) =>
     c.json({
@@ -123,6 +138,8 @@ export function createApp() {
   app.route("/", openapiRoutes);
   app.route("/public", publicBrandingRoutes);
   app.route("/auth", authRoutes);
+  app.route("/auth/oauth", oauthRoutes);
+  app.route("/family", familyRoutes);
   app.route("/courses", courseRoutes);
   app.route("/leaderboard", leaderboardRoutes);
   app.route("/billing", billingRoutes);

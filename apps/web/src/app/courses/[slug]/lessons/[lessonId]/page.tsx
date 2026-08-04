@@ -3,13 +3,26 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { UI } from "@eduforge/shared";
+import {
+  exerciseExplanation,
+  exerciseTypeLabel,
+  heartsWarningLevel,
+  LESSON_RESULT_SHEET_MS,
+  UI,
+} from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
-import { api } from "@/lib/api";
+import { api, isNetworkOrOfflineError } from "@/lib/api";
 import { ExercisePlayer, type Exercise } from "@/components/exercises";
 import { HeartsBar } from "@/components/hearts";
 import { PaywallCard } from "@/components/paywall";
+import { Celebration } from "@/components/celebration";
+import { ShareLinkButtons } from "@/components/share-link";
+import { Skeleton } from "@/components/ui";
+import { useToast } from "@/components/ui";
+import { isBrowserOffline } from "@/components/online-status";
+import { dispatchHeartsRefresh } from "@/components/hearts-chrome";
+import { LessonShortcutsHelp } from "@/components/lesson-shortcuts-help";
 
 type ExerciseResult = {
   exerciseId: string;
@@ -42,6 +55,12 @@ export default function LessonPage() {
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<{ exerciseId: string; answer: unknown }[]>([]);
   const [feedback, setFeedback] = useState<"ok" | "bad" | null>(null);
+  const [feedbackExplain, setFeedbackExplain] = useState("");
+  const [showCoach, setShowCoach] = useState(false);
+  const [pendingSubmit, setPendingSubmit] = useState<
+    { exerciseId: string; answer: unknown }[] | null
+  >(null);
+  const [keysHelp, setKeysHelp] = useState(false);
   const [summary, setSummary] = useState<{
     xpGain: number;
     accuracy: number;
@@ -58,6 +77,12 @@ export default function LessonPage() {
     correctCount?: number;
     total?: number;
     certificate?: { code: string; titleUk: string } | null;
+    nextLesson?: {
+      id: string;
+      titleUk: string;
+      titleEn?: string | null;
+      href: string;
+    } | null;
   } | null>(null);
   const [error, setError] = useState("");
   const [bookmarked, setBookmarked] = useState(false);
@@ -67,13 +92,47 @@ export default function LessonPage() {
     { id: string; body: string; displayName: string | null; createdAt: string }[]
   >([]);
   const [commentText, setCommentText] = useState("");
-  const [focusMode, setFocusMode] = useState(true);
+  // Default focus on mobile; desktop starts full (notes/comments available)
+  const [focusMode, setFocusMode] = useState(() =>
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 767px)").matches : true,
+  );
   const [submitting, setSubmitting] = useState(false);
   const idempotencyKeyRef = useRef(newIdempotencyKey());
+  const { toast } = useToast();
 
   useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
+    if (!loading && !user) {
+      router.replace(
+        `/login?next=${encodeURIComponent(`/courses/${slug}/lessons/${lessonId}`)}`,
+      );
+    }
+  }, [loading, user, router, slug, lessonId]);
+
+  // One-time coach tip for focus / Esc
+  useEffect(() => {
+    try {
+      if (typeof window === "undefined") return;
+      if (localStorage.getItem("ef_coach_focus") === "1") return;
+      setShowCoach(true);
+      localStorage.setItem("ef_coach_focus", "1");
+      const t = window.setTimeout(() => setShowCoach(false), 5000);
+      return () => window.clearTimeout(t);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  // Auto-retry submit when network returns (PWA / offline)
+  useEffect(() => {
+    if (!pendingSubmit || submitting || summary) return;
+    function onOnline() {
+      if (!pendingSubmit) return;
+      toast(t.onboarding.autoRetry, "success");
+      void submitLessonAnswers(pendingSubmit);
+    }
+    window.addEventListener("online", onOnline);
+    return () => window.removeEventListener("online", onOnline);
+  }, [pendingSubmit, submitting, summary, t.onboarding.autoRetry]);
 
   // Focus mode: hide global nav/header via html class
   useEffect(() => {
@@ -91,14 +150,22 @@ export default function LessonPage() {
     idempotencyKeyRef.current = newIdempotencyKey();
   }, [lessonId]);
 
-  // Escape → exit lesson (confirm if mid-progress); F toggles focus
+  // Escape → exit lesson (confirm if mid-progress); F toggles focus; ? help
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       const tag = (e.target as HTMLElement | null)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
 
-      if (e.key === "f" || e.key === "F") {
+      if (e.key === "?" || (e.shiftKey && e.key === "/")) {
         if (!e.metaKey && !e.ctrlKey && !e.altKey) {
+          e.preventDefault();
+          setKeysHelp((v) => !v);
+        }
+        return;
+      }
+
+      if (e.key === "f" || e.key === "F") {
+        if (!e.metaKey && !e.ctrlKey && !e.altKey && !keysHelp) {
           e.preventDefault();
           setFocusMode((v) => !v);
         }
@@ -106,6 +173,10 @@ export default function LessonPage() {
       }
 
       if (e.key !== "Escape") return;
+      if (keysHelp) {
+        setKeysHelp(false);
+        return;
+      }
       if (summary) {
         router.push(`/courses/${slug}`);
         return;
@@ -121,7 +192,7 @@ export default function LessonPage() {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [answers.length, idx, router, slug, summary, t.lesson?.exit]);
+  }, [answers.length, idx, router, slug, summary, keysHelp, t.lesson?.exit]);
 
   useEffect(() => {
     if (!token) return;
@@ -187,9 +258,11 @@ export default function LessonPage() {
         body: { lessonId, body: noteBody },
       });
       setNoteMsg("OK");
+      toast(locale === "en" ? "Note saved" : "Нотатку збережено", "success");
       setTimeout(() => setNoteMsg(""), 1500);
     } catch {
       setNoteMsg("err");
+      toast(locale === "en" ? "Save failed" : "Помилка збереження", "error");
     }
   }
 
@@ -211,74 +284,125 @@ export default function LessonPage() {
   }
 
   async function handleAnswer(answer: unknown) {
-    if (!lesson || submitting) return;
+    if (!lesson || submitting || feedback === "ok") return;
     const ex = lesson.exercises[idx];
     const nextAnswers = [
       ...answers.filter((a) => a.exerciseId !== ex.id),
       { exerciseId: ex.id, answer },
     ];
     setAnswers(nextAnswers);
+    const explain = exerciseExplanation(
+      ex as Record<string, unknown>,
+      locale === "en" ? "en" : "uk",
+    );
 
     if (idx < lesson.exercises.length - 1) {
+      // Result sheet: show correct + explanation before next
       setFeedback("ok");
+      setFeedbackExplain(explain);
       setTimeout(() => {
         setFeedback(null);
+        setFeedbackExplain("");
         setIdx((i) => i + 1);
-      }, 400);
+      }, LESSON_RESULT_SHEET_MS);
     } else {
-      setSubmitting(true);
-      try {
-        const result = await api<{
-          xpGain: number;
-          accuracy: number;
-          courseLevel: number;
-          levelUp: boolean;
-          character: Parameters<typeof setCharacter>[0];
-          hearts?: number;
-          heartLost?: boolean;
-          streakProtected?: boolean;
-          isExam?: boolean;
-          passed?: boolean;
-          examFailed?: boolean;
-          passThreshold?: number;
-          results?: ExerciseResult[];
-          correctCount?: number;
-          total?: number;
-          certificate?: { code: string; titleUk: string } | null;
-        }>(`/courses/${slug}/lessons/${lessonId}/submit`, {
-          method: "POST",
-          token,
-          body: {
-            answers: nextAnswers,
-            idempotencyKey: idempotencyKeyRef.current,
-          },
+      setFeedback("ok");
+      setFeedbackExplain(explain);
+      await submitLessonAnswers(nextAnswers);
+    }
+  }
+
+  async function submitLessonAnswers(
+    nextAnswers: { exerciseId: string; answer: unknown }[],
+  ) {
+    if (!token || !lessonId) return;
+    setSubmitting(true);
+    setPendingSubmit(null);
+    try {
+      if (isBrowserOffline()) {
+        throw Object.assign(new Error("offline"), {
+          offline: true,
+          status: 0,
+          data: { error: "offline" },
         });
-        if (result.character) setCharacter(result.character);
-        if (typeof result.hearts === "number") setHearts(result.hearts);
-        setSummary({
-          xpGain: result.xpGain,
-          accuracy: result.accuracy,
-          courseLevel: result.courseLevel,
-          levelUp: result.levelUp,
-          hearts: result.hearts ?? hearts,
-          heartLost: Boolean(result.heartLost),
-          streakProtected: Boolean(result.streakProtected),
-          isExam: Boolean(result.isExam),
-          passed: result.passed,
-          examFailed: Boolean(result.examFailed),
-          passThreshold: result.passThreshold,
-          results: result.results,
-          correctCount: result.correctCount,
-          total: result.total,
-          certificate: result.certificate ?? null,
-        });
-      } catch (e: unknown) {
-        const err = e as Error & { data?: { error?: string } };
-        if (err.data?.error === "no_hearts") setError("no_hearts");
-        else setError("submit_failed");
-      } finally {
-        setSubmitting(false);
       }
+      const result = await api<{
+        xpGain: number;
+        accuracy: number;
+        courseLevel: number;
+        levelUp: boolean;
+        character: Parameters<typeof setCharacter>[0];
+        hearts?: number;
+        heartLost?: boolean;
+        streakProtected?: boolean;
+        isExam?: boolean;
+        passed?: boolean;
+        examFailed?: boolean;
+        passThreshold?: number;
+        results?: ExerciseResult[];
+        correctCount?: number;
+        total?: number;
+        certificate?: { code: string; titleUk: string } | null;
+        nextLesson?: {
+          id: string;
+          titleUk: string;
+          titleEn?: string | null;
+          href: string;
+        } | null;
+      }>(`/courses/${slug}/lessons/${lessonId}/submit`, {
+        method: "POST",
+        token,
+        body: {
+          answers: nextAnswers,
+          idempotencyKey: idempotencyKeyRef.current,
+        },
+      });
+      if (result.character) setCharacter(result.character);
+      if (typeof result.hearts === "number") setHearts(result.hearts);
+      dispatchHeartsRefresh();
+      setSummary({
+        xpGain: result.xpGain,
+        accuracy: result.accuracy,
+        courseLevel: result.courseLevel,
+        levelUp: result.levelUp,
+        hearts: result.hearts ?? hearts,
+        heartLost: Boolean(result.heartLost),
+        streakProtected: Boolean(result.streakProtected),
+        isExam: Boolean(result.isExam),
+        passed: result.passed,
+        examFailed: Boolean(result.examFailed),
+        passThreshold: result.passThreshold,
+        results: result.results,
+        correctCount: result.correctCount,
+        total: result.total,
+        certificate: result.certificate ?? null,
+        nextLesson: result.nextLesson ?? null,
+      });
+      setFeedback(null);
+      setFeedbackExplain("");
+    } catch (e: unknown) {
+      const err = e as Error & { data?: { error?: string }; offline?: boolean };
+      if (err.data?.error === "no_hearts") {
+        setError("no_hearts");
+        setFeedback(null);
+        setFeedbackExplain("");
+      } else if (isNetworkOrOfflineError(e) || err.data?.error === "offline") {
+        setPendingSubmit(nextAnswers);
+        setFeedback(null);
+        setFeedbackExplain("");
+        toast(
+          locale === "en"
+            ? "Offline / network error — tap Retry to submit"
+            : "Офлайн / мережа — натисніть «Повторити»",
+          "error",
+        );
+      } else {
+        setError("submit_failed");
+        setFeedback(null);
+        setFeedbackExplain("");
+      }
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -309,13 +433,93 @@ export default function LessonPage() {
     );
   }
 
-  if (!lesson) return <p className="text-ink-muted">{error || UI.common.loading}</p>;
+  if (pendingSubmit && !summary) {
+    return (
+      <div className="card mx-auto max-w-lg space-y-3 text-center">
+        <p className="font-bold text-sun">
+          {locale === "en"
+            ? "Could not reach the server"
+            : "Не вдалося звʼязатись із сервером"}
+        </p>
+        <p className="text-sm font-bold text-ink-muted">
+          {locale === "en"
+            ? "Your answers are kept. Retry when you are online."
+            : "Відповіді збережено. Повторіть, коли зʼявиться мережа."}
+        </p>
+        <button
+          type="button"
+          className="btn-primary min-h-11"
+          disabled={submitting}
+          onClick={() => void submitLessonAnswers(pendingSubmit)}
+        >
+          {locale === "en" ? "Retry submit" : "Повторити надсилання"}
+        </button>
+        <Link href={`/courses/${slug}`} className="btn-secondary inline-flex">
+          {UI.common.back}
+        </Link>
+      </div>
+    );
+  }
+
+  if (!lesson) {
+    if (error === "load_failed" || error === "submit_failed") {
+      return (
+        <div className="card mx-auto max-w-lg space-y-3 text-center">
+          <p className="font-bold text-red-500">
+            {error === "submit_failed"
+              ? locale === "en"
+                ? "Submit failed"
+                : "Помилка надсилання"
+              : locale === "en"
+                ? "Could not load lesson"
+                : "Не вдалося завантажити урок"}
+          </p>
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={() => {
+              setError("");
+              window.location.reload();
+            }}
+          >
+            {locale === "en" ? "Retry" : "Спробувати знову"}
+          </button>
+          <Link href={`/courses/${slug}`} className="btn-secondary inline-flex">
+            {UI.common.back}
+          </Link>
+        </div>
+      );
+    }
+    return (
+      <div className="mx-auto max-w-2xl space-y-4" aria-busy="true">
+        <Skeleton className="h-8 w-40" />
+        <Skeleton className="h-3 w-full" />
+        <Skeleton className="h-64 w-full" />
+        <p className="sr-only">{UI.common.loading}</p>
+      </div>
+    );
+  }
 
   if (summary) {
     const examFail = summary.examFailed || (summary.isExam && summary.passed === false);
     const wrong = (summary.results ?? []).filter((r) => !r.correct);
+    const sharePath = summary.certificate?.code
+      ? `/certificates/${summary.certificate.code}`
+      : `/courses/${slug}`;
     return (
       <div className="card mx-auto max-w-lg space-y-4 text-center">
+        <Celebration
+          kind={
+            summary.certificate
+              ? "cert"
+              : summary.levelUp
+                ? "level"
+                : summary.streakProtected
+                  ? "streak"
+                  : "complete"
+          }
+          show={!examFail}
+        />
         <h1 className="text-3xl font-black">
           {examFail
             ? t.lesson.examFailed
@@ -324,7 +528,7 @@ export default function LessonPage() {
               : UI.lesson.completed}
         </h1>
         {!examFail && (
-          <p className="text-lg font-bold text-brand-dark">
+          <p className="text-lg font-bold text-brand-dark" role="status" aria-live="polite">
             +{summary.xpGain} {UI.lesson.xpGained}
           </p>
         )}
@@ -341,19 +545,21 @@ export default function LessonPage() {
         {wrong.length > 0 && (
           <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3 text-left dark:border-slate-800 dark:bg-slate-900">
             <p className="mb-2 text-xs font-black uppercase text-ink-muted">
-              {locale === "en" ? "Review misses" : "Що виправити"}
+              {t.onboarding.reviewMisses}
             </p>
             <ul className="space-y-2 text-sm font-bold">
               {wrong.map((r, i) => {
                 const missing = Array.isArray(r.meta?.missing)
                   ? (r.meta!.missing as string[]).slice(0, 3).join(", ")
                   : null;
+                const human = exerciseTypeLabel(
+                  r.type,
+                  locale === "en" ? "en" : "uk",
+                );
                 return (
                   <li key={r.exerciseId || i} className="flex flex-wrap gap-2">
                     <span className="text-red-500">✗</span>
-                    <span className="font-mono text-xs text-ink-muted">
-                      {r.type ?? "exercise"}
-                    </span>
+                    <span>{human}</span>
                     {missing ? (
                       <span className="text-xs text-ink-muted">· {missing}</span>
                     ) : null}
@@ -387,6 +593,22 @@ export default function LessonPage() {
             </Link>
           </div>
         )}
+        {!examFail && (
+          <div className="rounded-2xl border border-slate-100 p-3 text-left dark:border-slate-800">
+            <p className="mb-2 text-xs font-black uppercase text-ink-muted">
+              {locale === "en" ? "Share" : "Поділитись"}
+            </p>
+            <ShareLinkButtons
+              path={sharePath}
+              title={locale === "en" ? "I finished a lesson on EduForge" : "Я пройшов урок в EduForge"}
+              text={
+                locale === "en"
+                  ? `+${summary.xpGain} XP · ${Math.round(summary.accuracy * 100)}% accuracy`
+                  : `+${summary.xpGain} XP · точність ${Math.round(summary.accuracy * 100)}%`
+              }
+            />
+          </div>
+        )}
         <div className="flex flex-wrap justify-center gap-3">
           {examFail ? (
             <button
@@ -415,12 +637,29 @@ export default function LessonPage() {
               🤖 {t.nav.tutor}
             </Link>
           ) : null}
-          <Link href={`/courses/${slug}`} className="btn-primary">
+          {!examFail && summary.nextLesson ? (
+            <Link href={summary.nextLesson.href} className="btn-primary min-h-11">
+              {t.onboarding.nextLesson}:{" "}
+              {locale === "en"
+                ? summary.nextLesson.titleEn || summary.nextLesson.titleUk
+                : summary.nextLesson.titleUk}
+              {" →"}
+            </Link>
+          ) : null}
+          <Link
+            href={`/courses/${slug}`}
+            className={!examFail && summary.nextLesson ? "btn-secondary" : "btn-primary"}
+          >
             {locale === "en" ? "Back to course" : "До курсу"}
           </Link>
           <Link href="/learn" className="btn-secondary">
             {t.nav.learn}
           </Link>
+          {!examFail ? (
+            <Link href="/review" className="btn-secondary">
+              🔁 {t.nav.review}
+            </Link>
+          ) : null}
         </div>
       </div>
     );
@@ -428,13 +667,20 @@ export default function LessonPage() {
 
   const ex = lesson.exercises[idx];
   const progress = ((idx + 1) / lesson.exercises.length) * 100;
+  const heartsLevel = heartsWarningLevel(hearts, maxHearts);
+  const isCodeEx =
+    typeof ex.type === "string" &&
+    (ex.type.startsWith("code_") || ex.type === "code_judge");
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
+    <div
+      className={`mx-auto max-w-2xl space-y-4 ${isCodeEx ? "lesson-code-mobile" : ""}`}
+    >
+      <LessonShortcutsHelp open={keysHelp} onClose={() => setKeysHelp(false)} />
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Link
           href={`/courses/${slug}`}
-          className="text-sm font-bold text-ink-muted"
+          className="text-sm font-bold text-ink-muted min-h-11 inline-flex items-center"
           title="Esc"
         >
           ← {UI.lesson.exit}
@@ -443,7 +689,15 @@ export default function LessonPage() {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            className="rounded-xl border-2 border-slate-200 px-2 py-1 text-xs font-black dark:border-slate-700"
+            className="touch-target rounded-xl border-2 border-slate-200 px-2 py-1 text-xs font-black dark:border-slate-700"
+            onClick={() => setKeysHelp(true)}
+            title={locale === "en" ? "Keyboard help (?)" : "Гарячі клавіші (?)"}
+          >
+            ?
+          </button>
+          <button
+            type="button"
+            className="touch-target rounded-xl border-2 border-slate-200 px-2 py-1 text-xs font-black dark:border-slate-700"
             onClick={() => setFocusMode((v) => !v)}
             title={locale === "en" ? "Toggle focus (F)" : "Режим фокусу (F)"}
             aria-pressed={focusMode}
@@ -458,19 +712,36 @@ export default function LessonPage() {
           </button>
           <button
             type="button"
-            className="text-sm font-bold"
+            className="touch-target text-sm font-bold"
             onClick={() => void toggleBookmark()}
             title="Bookmark"
           >
             {bookmarked ? "⭐" : "☆"}
           </button>
           <HeartsBar hearts={hearts} max={maxHearts} compact />
-          <span className="text-sm font-bold text-ink-muted">
-            {idx + 1}/{lesson.exercises.length}
+          <span
+            className="text-sm font-bold text-ink-muted"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            {locale === "en"
+              ? `Exercise ${idx + 1} of ${lesson.exercises.length}`
+              : `Вправа ${idx + 1} з ${lesson.exercises.length}`}
           </span>
         </div>
       </div>
-      <div className="h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+      {heartsLevel === "low" && (
+        <p className="rounded-xl bg-sun/15 px-3 py-2 text-xs font-bold text-sun" role="status">
+          ⚠️ {t.onboarding.heartsLow} · {t.onboarding.heartsRegen}
+        </p>
+      )}
+      <div
+        className="h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800"
+        role="progressbar"
+        aria-valuenow={idx + 1}
+        aria-valuemin={1}
+        aria-valuemax={lesson.exercises.length}
+      >
         <div className="h-full bg-brand transition-all" style={{ width: `${progress}%` }} />
       </div>
       {lesson.isExam && (
@@ -478,20 +749,50 @@ export default function LessonPage() {
           📝 {t.lesson.examBanner}
         </div>
       )}
-      <div className="card">
+      {showCoach && (
+        <p
+          className="rounded-2xl border-2 border-sky/30 bg-sky/10 px-3 py-2 text-xs font-bold text-sky"
+          role="status"
+        >
+          💡 {t.onboarding.coachFocus}
+        </p>
+      )}
+      <div className="card relative">
         <p className="mb-4 text-sm font-bold text-ink-muted">{lesson.titleUk}</p>
-        <ExercisePlayer
-          key={ex.id}
-          exercise={ex}
-          onAnswer={handleAnswer}
-          examMode={Boolean(lesson.isExam)}
-        />
+        <div className={feedback === "ok" ? "pointer-events-none opacity-60" : undefined}>
+          <ExercisePlayer
+            key={ex.id}
+            exercise={ex}
+            onAnswer={handleAnswer}
+            examMode={Boolean(lesson.isExam)}
+          />
+        </div>
         {feedback === "ok" && (
-          <p className="mt-4 font-bold text-brand-dark">{UI.lesson.correct}</p>
+          <div
+            className="ef-celebrate mt-4 space-y-2 rounded-2xl border-2 border-brand bg-brand-soft/50 p-4"
+            role="status"
+            aria-live="polite"
+          >
+            <p className="text-lg font-black text-brand-dark">
+              ✓ {t.onboarding.resultCorrect}
+            </p>
+            {feedbackExplain ? (
+              <p className="text-sm font-bold text-ink-muted whitespace-pre-wrap">
+                {feedbackExplain}
+              </p>
+            ) : null}
+            <p className="text-xs font-bold text-ink-muted">
+              {submitting
+                ? locale === "en"
+                  ? "Submitting…"
+                  : "Надсилаємо…"
+                : `${t.onboarding.resultContinue}…`}
+            </p>
+          </div>
         )}
-        {submitting && (
-          <p className="mt-4 text-sm font-bold text-ink-muted">
-            {locale === "en" ? "Submitting…" : "Надсилаємо…"}
+        {feedback === "bad" && (
+          <p className="mt-4 font-bold text-red-500" role="status" aria-live="assertive">
+            {t.lesson.wrong}
           </p>
         )}
       </div>

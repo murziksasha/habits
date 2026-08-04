@@ -6,7 +6,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
-import { Badge, Button, Card, EmptyState, Skeleton } from "@/components/ui";
+import { Badge, Button, Card, EmptyState } from "@/components/ui";
+import { PageLoading } from "@/components/page-loading";
 
 type ChildProgress = {
   character: {
@@ -124,18 +125,19 @@ export default function ChildProgressPage() {
   }
 
   if (loading || !user) {
-    return (
-      <div className="space-y-3" aria-busy="true">
-        <Skeleton className="h-8 w-40" />
-        <Skeleton className="h-28 w-full" />
-      </div>
-    );
+    return <PageLoading label={t.common.loading} />;
   }
   if (!data) {
     return (
       <EmptyState
-        title={t.common.loading}
-        description={locale === "en" ? "Loading child progress…" : "Завантаження прогресу…"}
+        title={locale === "en" ? "Child not found" : "Дитину не знайдено"}
+        description={
+          locale === "en"
+            ? "Check the link or return to the parents portal."
+            : "Перевірте посилання або поверніться до кабінету батьків."
+        }
+        actionHref="/parents"
+        actionLabel={t.nav.parents}
       />
     );
   }

@@ -16,15 +16,21 @@ These were deferred as multi-quarter bets. EduForge now ships **working foundati
 ## Judge Docker
 
 ```bash
-# Dev (host node/python)
+# Dev (host node/python) — never on shared prod hosts
 JUDGE_MODE=local
 
-# Isolated containers (Docker required)
+# Isolated containers (required for production if judge is enabled)
 JUDGE_MODE=docker
 # optional image overrides: JUDGE_IMAGE_JS, JUDGE_IMAGE_PY, JUDGE_IMAGE_BASH
+
+# Production default when JUDGE_MODE unset: off (fail-closed)
+# JUDGE_ALLOW_LOCAL=1          # force local in prod (unsafe)
+# JUDGE_DOCKER_FALLBACK_LOCAL=1 # allow docker→local fallback (dev only)
+# JUDGE_ALLOW_BASH_LOCAL=1     # allow bash under local mode
 ```
 
-Images default: `node:22-alpine`, `python:3.12-alpine`, `bash:5.2`. Network disabled, 128MB RAM, 0.5 CPU.
+Images default: `node:22-alpine`, `python:3.12-alpine`, `bash:5.2`. Network disabled, 128MB RAM, 0.5 CPU.  
+Local runner strips secrets from child env and hard-blocks common escape patterns.
 
 ## OTel
 

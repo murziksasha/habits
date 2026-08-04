@@ -11,7 +11,8 @@
   --ef-grape: #ce82ff;
   --ef-sun: #ff9600;
   --ef-ink: #3c3c3c;
-  --ef-ink-muted: #777777;
+  /* Slightly darker muted for WCAG-ish contrast on white */
+  --ef-ink-muted: #5c5c5c;
   --ef-bg: #f8fafc;
   --ef-card-bg: #ffffff;
   --ef-radius: 24px;
@@ -95,6 +96,66 @@ html.lesson-focus main {
   html.dark header {
     @apply bg-slate-950/90 border-slate-800;
   }
+}
+
+/* Celebration pop (respect reduced motion) */
+@keyframes ef-celebrate-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.ef-celebrate {
+  animation: ef-celebrate-in 0.35s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ef-celebrate {
+    animation: none;
+  }
+  .btn {
+    @apply active:translate-y-0 transition-none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High-contrast helpers for keyboard users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Visually hidden but available to AT (utility beyond Tailwind sr-only) */
+.ef-sr-only {
+  @apply sr-only;
+}
+
+/* Mobile code lesson: sticky check / editor height */
+.lesson-code-mobile .monaco-editor,
+.lesson-code-mobile [data-monaco] {
+  min-height: 40vh;
+}
+@media (max-width: 767px) {
+  .lesson-check-bar {
+    @apply sticky bottom-16 z-20 -mx-1 rounded-2xl border-2 border-slate-200 bg-white/95 p-2 shadow-lg backdrop-blur dark:border-slate-700 dark:bg-slate-950/95;
+  }
+  html.lesson-focus .lesson-check-bar {
+    @apply bottom-2;
+  }
+}
+
+/* Touch-friendly MCQ / bottom nav */
+.touch-target {
+  @apply min-h-11 min-w-11;
 }
 
 /* Certificate print: full-bleed landscape art, hide chrome */

@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
+import { PageLoading } from "@/components/page-loading";
+import { useRequireAuth } from "@/lib/use-require-auth";
 
 export default function ChallengesPage() {
   const { user, token, loading } = useAuth();
+  const { ready } = useRequireAuth();
   const { t, locale } = useLocale();
-  const router = useRouter();
   const [data, setData] = useState<{
     challenge: {
       weekKey: string;
@@ -30,25 +31,21 @@ export default function ChallengesPage() {
   } | null>(null);
 
   useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
-
-  useEffect(() => {
     if (!token) return;
     void api<NonNullable<typeof data>>("/challenges/current", { token })
       .then(setData)
       .catch(() => setData(null));
   }, [token]);
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
-  if (!data) return <p>{t.common.loading}</p>;
+  if (loading || !ready || !data) return <PageLoading label={t.common.loading} />;
+  if (!user) return <PageLoading label={t.common.loading} />;
 
   const { challenge: ch, progress, leaderboard } = data;
   const ratio = Math.min(1, progress.xp / Math.max(1, ch.targetXp));
   const done = Boolean(progress.completedAt) || progress.xp >= ch.targetXp;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 md:pb-0">
       <h1 className="text-3xl font-black">🎯 {t.challenges.title}</h1>
 
       <div className="card space-y-3">

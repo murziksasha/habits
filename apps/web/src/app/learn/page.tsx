@@ -15,6 +15,10 @@ import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
 import { Card, Skeleton } from "@/components/ui";
+import { PrimaryMission } from "@/components/primary-mission";
+import { ContextualToolkit } from "@/components/contextual-toolkit";
+import { DailyQuestsCard } from "@/components/daily-quests-card";
+import { OnboardingWizard } from "@/components/onboarding-wizard";
 
 type NextRec = {
   kind: string;
@@ -43,6 +47,7 @@ type ExamSummary = {
 
 const GROUP_ORDER: CourseGroup[] = ["code", "deep", "skill", "chess"];
 
+/** Learning map: mission + groups + contextual toolkit (no Continue CTA dupe). */
 export default function LearnPage() {
   const { user, token, loading } = useAuth();
   const { t, locale } = useLocale();
@@ -82,10 +87,6 @@ export default function LearnPage() {
           <Skeleton className="h-8 w-3/4" />
           <Skeleton className="h-11 w-40" />
         </Card>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Skeleton className="h-20" />
-          <Skeleton className="h-20" />
-        </div>
         <p className="sr-only">{t.common.loading}</p>
       </div>
     );
@@ -98,7 +99,6 @@ export default function LearnPage() {
         .map((e) => ({ ...e, icon: c.icon, course: c.titleUk })),
     ) ?? [];
 
-  const primary = next[0];
   const secondary = next.slice(1, 4);
   const showExams =
     exams &&
@@ -106,24 +106,16 @@ export default function LearnPage() {
 
   return (
     <div className="space-y-8">
+      <OnboardingWizard />
       <div>
         <h1 className="text-3xl font-black">🗺️ {t.learn.title}</h1>
         <p className="text-sm font-bold text-ink-muted">{t.learn.mapTitle}</p>
       </div>
 
-      {primary && (
-        <section className="card border-brand/40 space-y-3 bg-brand-soft/20">
-          <p className="text-xs font-black uppercase text-brand-dark">
-            {t.learn.recommended}
-          </p>
-          <p className="text-xl font-black">
-            {locale === "en" ? primary.titleEn : primary.titleUk}
-          </p>
-          <Link href={primary.href} className="btn-primary inline-flex">
-            {locale === "en" ? "Continue" : "Продовжити"} →
-          </Link>
-        </section>
-      )}
+      <PrimaryMission showSecondary={false} />
+
+      {/* Quests only on Learn (not also on dashboard) */}
+      <DailyQuestsCard />
 
       {secondary.length > 0 && (
         <section className="space-y-2">
@@ -132,7 +124,7 @@ export default function LearnPage() {
             <Link
               key={`${r.href}-${i}`}
               href={r.href}
-              className="card flex justify-between font-bold hover:border-brand/40"
+              className="card flex min-h-11 justify-between font-bold hover:border-brand/40"
             >
               <span>{locale === "en" ? r.titleEn : r.titleUk}</span>
               <span>→</span>
@@ -141,8 +133,10 @@ export default function LearnPage() {
         </section>
       )}
 
+      <ContextualToolkit />
+
       {showExams && exams && (
-        <section className="card space-y-3 border-grape/30">
+        <section id="exams" className="card space-y-3 border-grape/30 scroll-mt-24">
           <h2 className="text-xl font-black">📝 {t.learn.examsBoard}</h2>
           <div className="grid grid-cols-3 gap-2 text-center text-sm">
             <div className="rounded-xl bg-slate-50 p-2 dark:bg-slate-900">
@@ -162,7 +156,7 @@ export default function LearnPage() {
             <Link
               key={e.lessonId}
               href={e.href}
-              className="flex justify-between rounded-xl border border-grape/20 px-3 py-2 text-sm font-bold hover:bg-grape/5"
+              className="flex min-h-11 justify-between rounded-xl border border-grape/20 px-3 py-2 text-sm font-bold hover:bg-grape/5"
             >
               <span>
                 {e.icon} {locale === "en" ? e.titleEn : e.titleUk}
@@ -191,9 +185,11 @@ export default function LearnPage() {
                   <Link
                     key={slug}
                     href={href}
-                    className="card flex items-center gap-3 hover:border-brand/40"
+                    className="card flex min-h-11 items-center gap-3 hover:border-brand/40"
                   >
-                    <span className="text-2xl">{c.icon}</span>
+                    <span className="text-2xl" aria-hidden>
+                      {c.icon}
+                    </span>
                     <span className="font-black">
                       {pickLocale(locale, c.titleUk, c.titleEn)}
                     </span>
@@ -204,22 +200,6 @@ export default function LearnPage() {
           </section>
         );
       })}
-
-      <section className="card space-y-2">
-        <h2 className="font-black">{t.learn.studyToolkit}</h2>
-        <div className="flex flex-wrap gap-2">
-          {[
-            { href: "/review", label: t.nav.review },
-            { href: "/flashcards", label: t.nav.flashcards },
-            { href: "/tutor", label: t.nav.tutor },
-            { href: "/quests", label: t.nav.quests },
-          ].map((x) => (
-            <Link key={x.href} href={x.href} className="btn-secondary !py-1.5 !px-3 text-sm">
-              {x.label}
-            </Link>
-          ))}
-        </div>
-      </section>
     </div>
   );
 }

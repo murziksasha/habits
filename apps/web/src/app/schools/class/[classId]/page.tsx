@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api, apiBlob } from "@/lib/api";
 import { PLAYGROUND_CHALLENGES, pickLocale } from "@eduforge/shared";
+import { PageLoading } from "@/components/page-loading";
 
 type ClassData = {
   class: { id: string; name: string; inviteCode: string };
@@ -332,11 +333,12 @@ export default function ClassPage() {
     }
   }
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
-  if (!data) return <p>{t.common.loading}</p>;
+  if (loading || !user || !data) {
+    return <PageLoading label={t.common.loading} />;
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 md:pb-0">
       <Link href="/schools" className="text-sm font-bold text-ink-muted">
         ← {t.common.back}
       </Link>

@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
-import { Badge } from "@/components/ui";
+import { Badge, EmptyState } from "@/components/ui";
+import { PageLoading } from "@/components/page-loading";
+import { useRequireAuth } from "@/lib/use-require-auth";
 
 type Item = {
   lessonId: string;
@@ -28,41 +30,100 @@ type ExamContext = {
 
 function ReviewBody() {
   const { user, token, loading } = useAuth();
+  const { ready } = useRequireAuth();
   const { t, locale } = useLocale();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const fromExam = searchParams.get("from") === "exam";
   const [items, setItems] = useState<Item[]>([]);
   const [stats, setStats] = useState({ total: 0, mastered: 0, weak: 0 });
   const [examContext, setExamContext] = useState<ExamContext | null>(null);
-
-  useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
+  const [dueCards, setDueCards] = useState(0);
+  const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
     if (!token) return;
+    setDataLoading(true);
     const q = fromExam ? "?from=exam" : "";
-    void api<{ items: Item[]; examContext?: ExamContext | null }>(`/review${q}`, {
-      token,
-    })
-      .then((d) => {
-        setItems(d.items);
-        setExamContext(d.examContext ?? null);
+    Promise.all([
+      api<{ items: Item[]; examContext?: ExamContext | null }>(`/review${q}`, {
+        token,
       })
-      .catch(() => setItems([]));
-    void api<{ total: number; mastered: number; weak: number }>("/review/stats", {
-      token,
-    })
-      .then(setStats)
-      .catch(() => undefined);
+        .then((d) => {
+          setItems(d.items);
+          setExamContext(d.examContext ?? null);
+        })
+        .catch(() => setItems([])),
+      api<{ total: number; mastered: number; weak: number }>("/review/stats", {
+        token,
+      })
+        .then(setStats)
+        .catch(() => undefined),
+      api<{ decks?: { dueCount?: number }[]; due?: number }>("/flashcards", { token })
+        .then((d) => {
+          if (typeof d.due === "number") {
+            setDueCards(d.due);
+            return;
+          }
+          const n = (d.decks ?? []).reduce((s, x) => s + (x.dueCount ?? 0), 0);
+          setDueCards(n);
+        })
+        .catch(() => setDueCards(0)),
+    ]).finally(() => setDataLoading(false));
   }, [token, fromExam]);
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
+  if (loading || !ready || dataLoading) return <PageLoading label={t.common.loading} />;
 
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-black">🔁 {t.review.title}</h1>
+      <p className="text-sm font-bold text-ink-muted">
+        {locale === "en"
+          ? "Unified inbox: weak lessons + flashcards due."
+          : "Єдиний інбокс: слабкі уроки + картки до повторення."}
+      </p>
+
+      {!items.length && dueCards === 0 && (
+        <EmptyState
+          title={t.onboarding.emptyReview}
+          description={
+            locale === "en"
+              ? "Start a lesson or open flashcards when due."
+              : "Почніть урок або відкрийте картки, коли зʼявляться."
+          }
+          actionHref="/learn"
+          actionLabel={t.nav.learn}
+        />
+      )}
+
+      {(dueCards > 0 || items.length > 0) && (
+        <section className="card border-brand/40 bg-brand-soft/15 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs font-black uppercase text-brand-dark">
+              {locale === "en" ? "Review now" : "Повторити зараз"}
+            </p>
+            <p className="font-black">
+              {items.length} {locale === "en" ? "lessons" : "уроків"}
+              {dueCards > 0
+                ? ` · ${dueCards} ${locale === "en" ? "cards" : "карток"}`
+                : ""}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {items[0] && (
+              <Link
+                href={`/courses/${items[0].courseSlug}/lessons/${items[0].lessonId}`}
+                className="btn-primary !py-2 text-sm"
+              >
+                {locale === "en" ? "Weak lesson" : "Слабкий урок"} →
+              </Link>
+            )}
+            <Link href="/flashcards" className="btn-secondary !py-2 text-sm">
+              🃏 {t.nav.flashcards}
+              {dueCards > 0 ? ` (${dueCards})` : ""}
+            </Link>
+          </div>
+        </section>
+      )}
 
       {fromExam && (
         <div className="card border-grape/40 bg-grape/10 space-y-2">

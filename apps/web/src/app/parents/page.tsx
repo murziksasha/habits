@@ -9,7 +9,7 @@ import { api } from "@/lib/api";
 
 export default function ParentsPage() {
   const { user, token, loading } = useAuth();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const router = useRouter();
   const [children, setChildren] = useState<
     {
@@ -52,11 +52,37 @@ export default function ParentsPage() {
     if (token) void load().catch(() => undefined);
   }, [token]);
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
+  if (loading || !user) {
+    return (
+      <div className="space-y-4" aria-busy="true">
+        <div className="h-10 w-48 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+        <div className="h-32 animate-pulse rounded-3xl bg-slate-200 dark:bg-slate-800" />
+        <p className="sr-only">{t.common.loading}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-black">👪 {t.parents.title}</h1>
+      <header className="space-y-2">
+        <h1 className="text-3xl font-black">👪 {t.parents.title}</h1>
+        <p className="text-sm font-bold text-ink-muted">
+          {locale === "en"
+            ? "Parent home: children, invites, digests."
+            : "Кабінет батьків: діти, запрошення, дайджести."}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/family" className="btn-secondary !py-2 !px-3 text-sm min-h-11">
+            👨‍👩‍👧‍👦 {locale === "en" ? "Family plan" : "Сімейний план"}
+          </Link>
+          <Link href="/reports" className="btn-secondary !py-2 !px-3 text-sm min-h-11">
+            📊 {t.nav.reports}
+          </Link>
+          <Link href="/learn" className="btn-secondary !py-2 !px-3 text-sm min-h-11">
+            🗺️ {t.nav.learn}
+          </Link>
+        </div>
+      </header>
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="card space-y-3">

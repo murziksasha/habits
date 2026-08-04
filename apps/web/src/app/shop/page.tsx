@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
+import { PageLoading } from "@/components/page-loading";
+import { useRequireAuth } from "@/lib/use-require-auth";
 
 type ShopItem = {
   id: string;
@@ -17,34 +18,38 @@ type ShopItem = {
 
 export default function ShopPage() {
   const { user, token, loading, setCharacter, refresh } = useAuth();
+  const { ready } = useRequireAuth();
   const { t } = useLocale();
-  const router = useRouter();
   const [balance, setBalance] = useState(0);
   const [freezes, setFreezes] = useState(0);
   const [maxFreezes, setMaxFreezes] = useState(5);
   const [items, setItems] = useState<ShopItem[]>([]);
   const [msg, setMsg] = useState("");
+  const [dataLoading, setDataLoading] = useState(true);
 
   async function load() {
     if (!token) return;
-    const d = await api<{
-      balanceXp: number;
-      streakFreezes: number;
-      maxStreakFreezes?: number;
-      items: (ShopItem & { freezeFull?: boolean })[];
-    }>("/shop", { token });
-    setBalance(d.balanceXp);
-    setFreezes(d.streakFreezes);
-    if (d.maxStreakFreezes) setMaxFreezes(d.maxStreakFreezes);
-    setItems(d.items);
+    setDataLoading(true);
+    try {
+      const d = await api<{
+        balanceXp: number;
+        streakFreezes: number;
+        maxStreakFreezes?: number;
+        items: (ShopItem & { freezeFull?: boolean })[];
+      }>("/shop", { token });
+      setBalance(d.balanceXp);
+      setFreezes(d.streakFreezes);
+      if (d.maxStreakFreezes) setMaxFreezes(d.maxStreakFreezes);
+      setItems(d.items);
+    } catch {
+      /* keep previous */
+    } finally {
+      setDataLoading(false);
+    }
   }
 
   useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
-
-  useEffect(() => {
-    if (token) void load().catch(() => undefined);
+    if (token) void load();
   }, [token]);
 
   async function buy(itemId: string) {
@@ -71,7 +76,10 @@ export default function ShopPage() {
     }
   }
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
+  if (loading || !ready || (dataLoading && !items.length)) {
+    return <PageLoading label={t.common.loading} />;
+  }
+  if (!user) return <PageLoading label={t.common.loading} />;
 
   function labelFor(id: string) {
     if (id === "heart_one") return t.shop.heartOne;
@@ -83,7 +91,7 @@ export default function ShopPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 md:pb-0">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h1 className="text-3xl font-black">🛒 {t.shop.title}</h1>
         <div className="card !py-3 !px-4 text-sm font-bold">

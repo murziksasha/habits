@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { pickLocale, UI } from "@eduforge/shared";
+import { freemiumPathLabel, pickLocale, UI } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
 import { XpBar } from "@/components/xp-bar";
 import { HeartsBar } from "@/components/hearts";
+import { Skeleton } from "@/components/ui";
 import clsx from "clsx";
 
 type Lesson = {
@@ -70,9 +71,36 @@ export default function CourseHubPage() {
       .catch(() => setError("Не вдалося завантажити курс"));
   }, [token, slug]);
 
-  if (loading || !data) {
-    return <p className="text-ink-muted">{error || UI.common.loading}</p>;
+  if (loading || (!data && !error)) {
+    return (
+      <div className="space-y-4" aria-busy="true">
+        <Skeleton className="h-28 w-full" />
+        <Skeleton className="h-16 w-full" />
+        <Skeleton className="h-16 w-full" />
+        <p className="sr-only">{UI.common.loading}</p>
+      </div>
+    );
   }
+
+  if (!data) {
+    return (
+      <div className="card mx-auto max-w-lg space-y-3 text-center">
+        <p className="font-bold text-red-500">{error || UI.common.error}</p>
+        <button type="button" className="btn-primary" onClick={() => window.location.reload()}>
+          {locale === "en" ? "Retry" : "Спробувати знову"}
+        </button>
+      </div>
+    );
+  }
+
+  const freeLabel =
+    data.freemium &&
+    freemiumPathLabel({
+      freeCompleted: data.freemium.freeCompleted,
+      freeLessonCount: data.freemium.freeLessonCount,
+      isPremium: data.freemium.isPremium,
+      locale: locale === "en" ? "en" : "uk",
+    });
 
   return (
     <div className="space-y-8">
@@ -101,22 +129,49 @@ export default function CourseHubPage() {
           <p className="text-sm font-bold text-ink-muted">
             Завершено уроків: {data.progress.completedLessons}
           </p>
-          {data.freemium && !data.freemium.isPremium && (
-            <p className="text-xs font-bold text-grape">
-              {t.learn.freeLeft}: ~{data.freemium.freeLeft}
-              {" · "}
-              <Link href="/pricing" className="underline">
-                Premium
-              </Link>
-            </p>
+          {data.freemium && freeLabel && (
+            <div className="rounded-2xl border-2 border-grape/30 bg-grape/5 px-3 py-2">
+              <p className="text-xs font-black uppercase text-grape">{t.onboarding.freePath}</p>
+              <p className="text-sm font-bold text-grape">
+                {freeLabel}
+                {!data.freemium.isPremium && (
+                  <>
+                    {" · "}
+                    <Link href="/pricing" className="underline">
+                      Premium
+                    </Link>
+                  </>
+                )}
+              </p>
+              {!data.freemium.isPremium && data.freemium.freeLessonCount > 0 && (
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-white dark:bg-slate-800">
+                  <div
+                    className="h-full bg-grape transition-all"
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        (data.freemium.freeCompleted / data.freemium.freeLessonCount) * 100,
+                      )}%`,
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           )}
           {(data.progress.hearts ?? 5) <= 0 && user?.plan !== "premium" && (
-            <div className="rounded-2xl bg-red-50 p-3 text-sm font-bold text-red-600">
+            <div className="rounded-2xl bg-red-50 p-3 text-sm font-bold text-red-600 dark:bg-red-950">
               {UI.hearts.empty}. {UI.hearts.emptyHint}{" "}
               <Link href="/pricing" className="underline">
                 Premium
               </Link>
+              {" · "}
+              <Link href="/review" className="underline">
+                {t.nav.review}
+              </Link>
             </div>
+          )}
+          {(data.progress.hearts ?? 5) === 1 && user?.plan !== "premium" && (
+            <p className="text-xs font-bold text-sun">⚠️ {t.onboarding.heartsLow}</p>
           )}
         </div>
       </div>
@@ -132,28 +187,34 @@ export default function CourseHubPage() {
                 {lesson.locked ? (
                   <div
                     className={clsx(
-                      "card flex items-center justify-between opacity-70",
+                      "card flex items-center justify-between opacity-80",
                       lesson.isExam && "border-grape/40",
                     )}
                   >
                     <div>
                       <p className="font-black">
-                        {lesson.isExam ? "📝 " : ""}
+                        🔒 {lesson.isExam ? "📝 " : ""}
                         {pickLocale(locale, lesson.titleUk, lesson.titleEn)}
                       </p>
                       <p className="text-sm text-ink-muted">
-                        {lesson.examLocked ? t.lesson.examLocked : UI.common.locked}
+                        {lesson.examLocked
+                          ? t.lesson.examLocked
+                          : data.freemium && !data.freemium.isPremium
+                            ? `${UI.common.locked} · ${t.onboarding.freePath} ${data.freemium.freeCompleted}/${data.freemium.freeLessonCount}`
+                            : UI.common.locked}
                       </p>
                     </div>
-                    <Link href="/pricing" className="btn-secondary !py-2 !px-3 text-xs">
-                      Premium
-                    </Link>
+                    {!lesson.examLocked && (
+                      <Link href="/pricing" className="btn-secondary !py-2 !px-3 text-xs">
+                        Premium
+                      </Link>
+                    )}
                   </div>
                 ) : (
                   <Link
                     href={`/courses/${slug}/lessons/${lesson.id}`}
                     className={clsx(
-                      "card flex items-center justify-between transition hover:border-brand/50",
+                      "card flex min-h-11 items-center justify-between transition hover:border-brand/50",
                       lesson.status === "completed" && "border-brand/40 bg-brand-soft/30",
                       lesson.isExam && "border-grape/40",
                     )}

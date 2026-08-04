@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api, apiBlob } from "@/lib/api";
+import { PageLoading } from "@/components/page-loading";
 
 type Metrics = {
   windowDays: number;
@@ -91,7 +92,9 @@ export default function AdminMetricsPage() {
       });
   }, [token, user, days, t.common.error]);
 
-  if (loading || user?.role !== "admin") return <p>{t.common.loading}</p>;
+  if (loading || user?.role !== "admin") {
+    return <PageLoading label={t.common.loading} />;
+  }
 
   return (
     <div className="space-y-6">

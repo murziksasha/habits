@@ -4,22 +4,43 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
+import {
+  mobileNavForPersona,
+  primaryNavForPersona,
+  resolvePersona,
+  type NavSlot,
+} from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { useTheme } from "@/lib/theme-context";
 import { NotificationsBell } from "@/components/notifications-bell";
-
-/** Desktop primary — keep ≤6 core slots (SPEC/CURRENT.md IA). */
-const PRIMARY_HREFS = new Set([
-  "/dashboard",
-  "/learn",
-  "/courses",
-  "/programming",
-  "/play",
-  "/friends",
-]);
+import { CommandPalette } from "@/components/command-palette";
+import { HeartsChrome } from "@/components/hearts-chrome";
 
 type NavLink = { href: string; label: string; icon: string; group?: string };
+
+function labelForSlot(
+  id: NavSlot["id"],
+  t: ReturnType<typeof useLocale>["t"],
+  locale: string,
+): string {
+  const map: Record<NavSlot["id"], string> = {
+    home: t.nav.home,
+    learn: t.nav.learn,
+    courses: t.nav.courses,
+    code: t.nav.programming,
+    play: t.nav.play,
+    profile: t.nav.profile,
+    children: t.nav.parents,
+    reports: t.nav.reports,
+    family: locale === "en" ? "Family" : "Сімʼя",
+    desk: locale === "en" ? "Teacher" : "Учитель",
+    homework: t.nav.homework,
+    class: t.nav.schools,
+    friends: t.nav.friends,
+  };
+  return map[id] ?? id;
+}
 
 export function Nav() {
   const pathname = usePathname();
@@ -29,6 +50,7 @@ export function Nav() {
   const [open, setOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [labsOn, setLabsOn] = useState(false);
+  const persona = resolvePersona(character?.onboarding);
 
   // Labs: ?labs=1 enables experimental routes; ?labs=0 disables; persists in localStorage
   useEffect(() => {
@@ -61,39 +83,44 @@ export function Nav() {
   const accountLabel = locale === "en" ? "Account" : "Акаунт";
   const labsLabel = locale === "en" ? "Labs" : "Labs";
 
-  const primaryDefs: NavLink[] = [
-    { href: "/dashboard", label: t.nav.home, icon: "🏠" },
-    { href: "/learn", label: t.nav.learn, icon: "🗺️" },
-    { href: "/courses", label: t.nav.courses, icon: "📚" },
-    { href: "/programming", label: t.nav.programming, icon: "💻" },
-    { href: "/play", label: t.nav.play, icon: "♟️" },
-    { href: "/friends", label: t.nav.friends, icon: "👥" },
-  ];
+  // Persona primary (≤6) — student / parent / teacher
+  const primaryLinks: NavLink[] = primaryNavForPersona(persona).map((s) => ({
+    href: s.href,
+    icon: s.icon,
+    label: labelForSlot(s.id, t, locale),
+  }));
 
-  // Deep tracks intentionally omitted — reach via /learn, /courses, /programming
+  // Compact More: toolkit + social + account; school only for parent/teacher personas
   const moreDefs: NavLink[] = [
+    { href: "/review", label: t.nav.review, icon: "🔁", group: toolkitLabel },
     { href: "/playground", label: t.nav.playground, icon: "🖥️", group: toolkitLabel },
     { href: "/flashcards", label: t.nav.flashcards, icon: "🃏", group: toolkitLabel },
-    { href: "/review", label: t.nav.review, icon: "🔁", group: toolkitLabel },
-    { href: "/quests", label: t.nav.quests, icon: "✅", group: toolkitLabel },
     { href: "/tutor", label: t.nav.tutor, icon: "🤖", group: toolkitLabel },
-    { href: "/notes", label: t.nav.notes, icon: "📔", group: toolkitLabel },
-    { href: "/shop", label: t.nav.shop, icon: "🛒", group: toolkitLabel },
+    { href: "/programming/tree", label: locale === "en" ? "Skill tree" : "Дерево навичок", icon: "🌳", group: toolkitLabel },
     { href: "/search", label: t.nav.search, icon: "🔍", group: toolkitLabel },
-    { href: "/calendar", label: t.nav.calendar, icon: "📅", group: toolkitLabel },
-    { href: "/placement", label: t.nav.placement, icon: "🧭", group: toolkitLabel },
+    { href: "/dashboard", label: t.nav.home, icon: "🏠", group: toolkitLabel },
     { href: "/leaderboard", label: t.nav.leaderboard, icon: "🏆", group: socialLabel },
-    { href: "/challenges", label: t.nav.challenges, icon: "🎯", group: socialLabel },
-    { href: "/tournaments", label: t.nav.tournaments, icon: "🏁", group: socialLabel },
-    { href: "/achievements", label: t.engagement.achievements, icon: "🏅", group: socialLabel },
+    { href: "/friends", label: t.nav.friends, icon: "👥", group: socialLabel },
     { href: "/certificates", label: t.nav.certificates, icon: "📜", group: socialLabel },
-    { href: "/bookmarks", label: t.nav.bookmarks, icon: "⭐", group: socialLabel },
-    { href: "/schools", label: t.nav.schools, icon: "🏫", group: schoolLabel },
-    { href: "/homework", label: t.nav.homework, icon: "📝", group: schoolLabel },
-    { href: "/parents", label: t.nav.parents, icon: "👪", group: schoolLabel },
+    { href: "/portfolio", label: locale === "en" ? "Portfolio" : "Портфоліо", icon: "📁", group: socialLabel },
     { href: "/pricing", label: t.nav.pricing, icon: "💎", group: accountLabel },
     { href: "/feedback", label: t.nav.feedback, icon: "💬", group: accountLabel },
+    { href: "/quests", label: t.nav.quests, icon: "✅", group: accountLabel },
+    { href: "/shop", label: t.nav.shop, icon: "🛒", group: accountLabel },
   ];
+
+  if (persona === "parent" || persona === "teacher" || persona === "student") {
+    // Student: soft-hide school (still discoverable via search); parent/teacher surface school
+    if (persona !== "student") {
+      moreDefs.push(
+        { href: "/schools", label: t.nav.schools, icon: "🏫", group: schoolLabel },
+        { href: "/homework", label: t.nav.homework, icon: "📝", group: schoolLabel },
+        { href: "/parents", label: t.nav.parents, icon: "👪", group: schoolLabel },
+        { href: "/family", label: locale === "en" ? "Family" : "Сімʼя", icon: "👨‍👩‍👧‍👦", group: schoolLabel },
+        { href: "/teacher", label: locale === "en" ? "Teacher" : "Учитель", icon: "👩‍🏫", group: schoolLabel },
+      );
+    }
+  }
 
   if (user?.role === "admin") {
     moreDefs.push({ href: "/admin", label: t.admin.title, icon: "🛠️", group: accountLabel });
@@ -117,12 +144,16 @@ export function Nav() {
     );
   }
 
-  const primaryLinks = primaryDefs.filter((l) => PRIMARY_HREFS.has(l.href));
   const moreLinks = moreDefs;
   const moreActive = moreLinks.some((l) => pathname.startsWith(l.href));
 
   // Mobile drawer: primary first, then more (still no deep-track spam)
   const mobileLinks = [...primaryLinks, ...moreLinks];
+  const mobileBottom = mobileNavForPersona(persona).map((s) => ({
+    href: s.href,
+    icon: s.icon,
+    label: labelForSlot(s.id, t, locale),
+  }));
 
   const moreByGroup = moreLinks.reduce<Record<string, NavLink[]>>((acc, l) => {
     const g = l.group ?? moreLabel;
@@ -145,21 +176,28 @@ export function Nav() {
             <span className="hidden xs:inline sm:inline">{t.appName}</span>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-1 relative">
-            {primaryLinks.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className={clsx(
-                  "rounded-xl px-3 py-2 text-sm font-bold transition",
-                  pathname.startsWith(l.href)
-                    ? "bg-brand-soft text-brand-dark"
-                    : "text-ink-muted hover:bg-slate-100 dark:hover:bg-slate-900",
-                )}
-              >
-                {l.label}
-              </Link>
-            ))}
+          <nav
+            className="hidden lg:flex items-center gap-1 relative"
+            aria-label={locale === "en" ? "Primary" : "Головна навігація"}
+          >
+            {primaryLinks.map((l) => {
+              const active = pathname.startsWith(l.href);
+              return (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  aria-current={active ? "page" : undefined}
+                  className={clsx(
+                    "rounded-xl px-3 py-2 text-sm font-bold transition min-h-11 inline-flex items-center",
+                    active
+                      ? "bg-brand-soft text-brand-dark"
+                      : "text-ink-muted hover:bg-slate-100 dark:hover:bg-slate-900",
+                  )}
+                >
+                  {l.label}
+                </Link>
+              );
+            })}
             <div className="relative">
               <button
                 type="button"
@@ -242,10 +280,12 @@ export function Nav() {
           <div className="flex items-center gap-2">
             {user ? (
               <>
+                <CommandPalette />
+                <HeartsChrome className="max-sm:scale-90" />
                 <NotificationsBell />
                 <Link
                   href="/profile"
-                  className="flex items-center gap-2 rounded-2xl border-2 border-slate-100 bg-white px-2 py-1 sm:px-3 sm:py-1.5 dark:border-slate-800 dark:bg-slate-900"
+                  className="flex min-h-11 items-center gap-2 rounded-2xl border-2 border-slate-100 bg-white px-2 py-1 sm:px-3 sm:py-1.5 dark:border-slate-800 dark:bg-slate-900"
                 >
                   <span className="text-lg">🧙</span>
                   <span className="hidden sm:inline text-sm font-bold">
@@ -353,27 +393,25 @@ export function Nav() {
         )}
       </header>
 
-      {/* Mobile bottom — Learn · Code · Play · Courses · Profile */}
+      {/* Mobile bottom — persona-aware (student / parent / teacher) */}
       {user && (
         <nav
           className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur pb-[env(safe-area-inset-bottom)] dark:border-slate-800 dark:bg-slate-950/95"
           aria-label="Primary"
         >
-          <div className="mx-auto grid max-w-lg grid-cols-5">
-            {[
-              { href: "/learn", label: t.nav.learn, icon: "🗺️" },
-              { href: "/programming", label: t.nav.programming, icon: "💻" },
-              { href: "/play", label: t.nav.play, icon: "♟️" },
-              { href: "/courses", label: t.nav.courses, icon: "📚" },
-              { href: "/profile", label: t.nav.profile, icon: "🧙" },
-            ].map((l) => {
+          <div
+            className="mx-auto grid max-w-lg"
+            style={{ gridTemplateColumns: `repeat(${mobileBottom.length}, minmax(0, 1fr))` }}
+          >
+            {mobileBottom.map((l) => {
               const active = pathname.startsWith(l.href);
               return (
                 <Link
                   key={l.href}
                   href={l.href}
+                  aria-current={active ? "page" : undefined}
                   className={clsx(
-                    "flex flex-col items-center gap-0.5 py-2 text-[10px] font-bold",
+                    "flex min-h-11 flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-bold touch-target",
                     active ? "text-brand-dark" : "text-ink-muted",
                   )}
                 >

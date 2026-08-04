@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
+import { PageLoading } from "@/components/page-loading";
+import { useRequireAuth } from "@/lib/use-require-auth";
 
 type FeedbackRow = {
   id: string;
@@ -19,18 +20,15 @@ const CATS = ["bug", "idea", "content", "other"] as const;
 
 export default function FeedbackPage() {
   const { user, token, loading } = useAuth();
+  const { ready } = useRequireAuth();
   const { t } = useLocale();
-  const router = useRouter();
   const [category, setCategory] = useState<(typeof CATS)[number]>("bug");
   const [message, setMessage] = useState("");
   const [pagePath, setPagePath] = useState("");
   const [sent, setSent] = useState(false);
   const [err, setErr] = useState("");
   const [mine, setMine] = useState<FeedbackRow[]>([]);
-
-  useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
+  const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
     if (typeof window !== "undefined" && !pagePath) {
@@ -40,9 +38,11 @@ export default function FeedbackPage() {
 
   useEffect(() => {
     if (!token) return;
+    setDataLoading(true);
     void api<{ feedback: FeedbackRow[] }>("/feedback/mine", { token })
       .then((d) => setMine(d.feedback ?? []))
-      .catch(() => setMine([]));
+      .catch(() => setMine([]))
+      .finally(() => setDataLoading(false));
   }, [token, sent]);
 
   async function submit(e: React.FormEvent) {
@@ -63,7 +63,8 @@ export default function FeedbackPage() {
     }
   }
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
+  if (loading || !ready || dataLoading) return <PageLoading label={t.common.loading} />;
+  if (!user) return <PageLoading label={t.common.loading} />;
 
   const catLabel = (c: string) => {
     if (c === "bug") return t.feedback.catBug;
@@ -73,7 +74,7 @@ export default function FeedbackPage() {
   };
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
+    <div className="mx-auto max-w-lg space-y-6 pb-20 md:pb-0">
       <div>
         <h1 className="text-3xl font-black">💬 {t.feedback.title}</h1>
         <p className="text-sm font-bold text-ink-muted">{t.feedback.hint}</p>

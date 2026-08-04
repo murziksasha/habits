@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
+import { PageLoading } from "@/components/page-loading";
+import { useRequireAuth } from "@/lib/use-require-auth";
 
 type Session = {
   id: string;
@@ -15,30 +16,34 @@ type Session = {
 
 export default function FocusPage() {
   const { user, token, loading } = useAuth();
+  const { ready } = useRequireAuth();
   const { t } = useLocale();
-  const router = useRouter();
   const [seconds, setSeconds] = useState(0);
   const [running, setRunning] = useState(false);
   const [history, setHistory] = useState<Session[]>([]);
   const [totalSec, setTotalSec] = useState(0);
   const [msg, setMsg] = useState("");
+  const [dataLoading, setDataLoading] = useState(true);
   const tick = useRef<ReturnType<typeof setInterval> | null>(null);
 
   async function loadHistory() {
     if (!token) return;
-    const d = await api<{ history: Session[]; totalSec: number }>("/focus/history", {
-      token,
-    });
-    setHistory(d.history);
-    setTotalSec(d.totalSec);
+    setDataLoading(true);
+    try {
+      const d = await api<{ history: Session[]; totalSec: number }>("/focus/history", {
+        token,
+      });
+      setHistory(d.history);
+      setTotalSec(d.totalSec);
+    } catch {
+      /* ignore */
+    } finally {
+      setDataLoading(false);
+    }
   }
 
   useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
-
-  useEffect(() => {
-    if (token) void loadHistory().catch(() => undefined);
+    if (token) void loadHistory();
   }, [token]);
 
   useEffect(() => {
@@ -79,10 +84,11 @@ export default function FocusPage() {
     return `${String(m).padStart(2, "0")}:${String(r).padStart(2, "0")}`;
   }
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
+  if (loading || !ready || dataLoading) return <PageLoading label={t.common.loading} />;
+  if (!user) return <PageLoading label={t.common.loading} />;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 md:pb-0">
       <h1 className="text-3xl font-black">⏱️ {t.focus.title}</h1>
 
       <div className="card mx-auto max-w-md space-y-6 text-center">

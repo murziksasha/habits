@@ -94,14 +94,105 @@ Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, 
 33. Mastery v2: exam fail → review `?from=exam` + wrong types; leeches; spaced re-practice in next-steps  
 34. Grade partial credit (projects, comprehension, staticAsserts) used in lesson accuracy  
 35. JS static checks + playground hazard preflight + iframe timeout cap  
-36. XSS sanitize (comments/notes/tutor); optional `FEATURE_STRICT_CSRF` origin check  
+36. XSS sanitize (comments/notes/tutor/chat); `FEATURE_STRICT_CSRF` **on by default in production**  
 37. Feature flags (`resolveFeatureFlags`, `GET /me/flags`, metrics flags)  
 38. Ops runbook `SPEC/OPS.md` + course registry `SPEC/COURSE-REGISTRY.md`  
 39. Tutor: last-fail context + no-solution-dump guardrail  
 
+### Security & retention pack (2026-08 audit)
+
+48. Judge fail-closed: prod default `JUDGE_MODE=off` unless `docker`; no silent docker→local fallback  
+49. Dev billing gated: `ALLOW_DEV_BILLING` / non-prod default; blocked in real production  
+50. Security headers: Next CSP baseline + API `X-Content-Type-Options` / `X-Frame-Options` / HSTS prod; nginx headers  
+51. Cookie-first web: session `token` omitted from JSON in production unless `X-Issue-Bearer: 1`  
+52. Email verification: `email_verified_at` + tokens; resend; soft banner; optional hard gate  
+53. Parent invite entropy (16 hex) + claim rate limit; password letter+digit policy  
+54. Continue CTA + unified Review inbox (weak lessons + flashcards)  
+55. Progressive hints L1–L3; skill tree `/programming/tree`; portfolio `/portfolio`; teacher desk `/teacher`  
+56. Landing honesty (core loop only); compact More menu  
+57. Account privacy: change password, GDPR JSON export on profile, `POST /auth/account/delete`  
+58. Lesson summary `nextLesson` one-tap continue; Learn “mission of the day”  
+59. Pricing respects `devBilling` flag (hides demo trial/downgrade when off)  
+60. Google OAuth (`/auth/oauth/google/*`, `oauth_accounts`)  
+61. User TOTP 2FA for all accounts (login challenge + profile enroll/disable)  
+62. Family plan (`plan=family`, seats, invites, child premium inheritance)  
+63. Teacher homework heat board (`GET /homework/teacher/board`, `/teacher` UI)  
+64. Daily mission card (`DailyQuestsCard` on dashboard + learn)  
+65. Teacher quick-assign homework from desk; family activate via demo billing  
+66. Family plan expiry clears seats; `isPaidPlan` freemium gates for family  
+
+### UX user pack (SPEC 79)
+
+67. Thin dashboard + single `PrimaryMission`; Learn owns quests/toolkit  
+68. Register → `postRegisterPath` (intent/friend/learn); onboarding wizard persona/track  
+69. Persona nav (student/parent/teacher) desktop + mobile bottom  
+70. Lesson: human miss labels, celebration, share summary, skeleton/retry, hearts low, a11y progress  
+71. Course freemium path bar + lock labels; paywall recovery CTAs  
+72. ⌘K command palette + search tools hub; landing guest trial + persona cards  
+73. Streak calendar (dashboard/profile); parent/teacher home shells  
+74. Shared `packages/shared/src/ux.ts` pure helpers + unit tests  
+
+### UX polish wave (SPEC 80)
+
+75. Lesson result sheet + explanation delay; coach tip F/Esc  
+76. `safeNextPath` + login default `/learn`; `useRequireAuth` deep links  
+77. Programming hub continue CTA + freemium + skeleton  
+78. Paywall regen estimate; review/friends empty states  
+79. Profile change role wizard; onboarding complete `value` + exclusive persona  
+
+### UX chrome pack (SPEC 81)
+
+80. PageLoading: quests, flashcards, certificates, play  
+81. Sticky Continue on secondary surfaces  
+82. `GET /me/hearts` + nav HeartsChrome regen countdown  
+83. Offline/network toast + lesson submit retry  
+
+### UX surface quality (SPEC 82)
+
+84. PageLoading: achievements, bookmarks, shop, tutor, leaderboard, challenges, calendar  
+85. Courses catalog progress chips + Continue card  
+86. Hearts chrome mobile + refresh event after submit  
+87. Auto-retry lesson submit on `online`  
+
+### UX hubs / errors / keys (SPEC 83)
+
+88. DeepCourseHub PageLoading for all deep tracks + stack/tree  
+89. `error.tsx` toast + bilingual + `global-error.tsx`  
+90. Lesson keyboard help modal (`?`)  
+91. Sticky Continue hidden during live chess match  
+
+### UX PageLoading sweep (SPEC 84)
+
+92. PageLoading: notes, focus, feedback, portfolio, homework, placement, export, schools, family  
+93. Empty states: notes, homework  
+94. Sticky hidden during play seek + match  
+
+### Admin / schools / labs / a11y (SPEC 85)
+
+95. AdminShell PageLoading + a11y drawer / landmarks  
+96. Admin pages PageLoading (home, users, metrics, feedback, audit, content)  
+97. Schools detail + class PageLoading / empty  
+98. Referrals + export Labs polish (badge, share, toast)  
+99. A11y: muted contrast, reduced-motion, aria-current, sticky complement  
+
+### Labs / tournaments / auth a11y (SPEC 86)
+
+100. Reports Labs polish (badge, toast, PageLoading)  
+101. Tournaments list/detail shells  
+102. 404 bilingual recovery CTAs  
+103. Parent child EmptyState; admin security/courses loading  
+104. Login/register alert live regions; pricing flags gate  
+
+### Studio / classroom / visual (SPEC 87)
+
+105. Node Studio shell (Labs badge, auth, PageLoading)  
+106. Live classroom shell (connection status, sticky hide, chat a11y)  
+107. Admin appearance + billing polish  
+108. Playwright visual regression baseline (`e2e/visual.spec.ts`)  
+
 ### P2 strategic foundations (scaffolds live — see SPEC/P2-STRATEGIC.md)
 
-40. Multi-lang judge `@eduforge/judge` + `POST /judge/run` (`JUDGE_MODE=local|docker`)  
+40. Multi-lang judge `@eduforge/judge` + `POST /judge/run` (`JUDGE_MODE=local|docker|off`)  
 41. Video LMS exercise type + player; MDX `videoUrl` authoring  
 42. Landing RSC + client islands (strangler, not full rewrite)  
 43. MDX pipeline `parseMdxLesson` / `mdxToExercises`  
@@ -110,14 +201,15 @@ Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, 
 46. Live classroom Socket.IO + `/classroom/live/[classId]`  
 47. Native mobile WebView shell `apps/mobile`  
 
-Still later: CRDT collab, judge worker pool, store binaries, trained ML, full RSC migration, video CDN.
+Still later: CRDT collab, judge worker pool, OAuth/SSO, family plan, store binaries, trained ML, full RSC migration, video CDN.
 
 ### Auth model (current)
 
 - Primary: **httpOnly** `eduforge_session` cookie (`credentials: include`)  
 - Dual-support: `Authorization: Bearer` still accepted; successful Bearer **promotes** cookie  
 - Web: no session secret in `localStorage` (legacy key cleared on migrate)  
-- Integration/e2e may still use Bearer explicitly
+- Production responses omit raw `token` unless `X-Issue-Bearer: 1` or `ISSUE_BEARER_TOKENS=1`  
+- Email verify soft-banner when `emailVerified === false`; hard gate via `FEATURE_REQUIRE_EMAIL_VERIFY`
 
 ## KPIs
 

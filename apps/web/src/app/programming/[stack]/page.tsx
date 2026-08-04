@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   PROGRAMMING_STACK_META,
@@ -13,6 +13,8 @@ import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
 import { XpBar } from "@/components/xp-bar";
+import { PageLoading } from "@/components/page-loading";
+import { useRequireAuth } from "@/lib/use-require-auth";
 import clsx from "clsx";
 
 type Lesson = {
@@ -35,27 +37,26 @@ type Unit = {
 export default function ProgrammingStackPage() {
   const { stack } = useParams<{ stack: string }>();
   const { user, token, loading } = useAuth();
+  const { ready } = useRequireAuth();
   const { t, locale } = useLocale();
-  const router = useRouter();
   const [unit, setUnit] = useState<Unit | null>(null);
   const [error, setError] = useState("");
+  const [dataLoading, setDataLoading] = useState(true);
 
   const valid = isProgrammingStack(stack);
   const meta = valid ? PROGRAMMING_STACK_META[stack] : null;
 
   useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
-
-  useEffect(() => {
     if (!token || !valid) return;
+    setDataLoading(true);
     void api<{ units: Unit[] }>("/courses/programming", { token })
       .then((d) => {
         const u = d.units.find((x) => x.slug === stack) ?? null;
         setUnit(u);
         if (!u) setError("not_found");
       })
-      .catch(() => setError(t.common.error));
+      .catch(() => setError(t.common.error))
+      .finally(() => setDataLoading(false));
   }, [token, stack, valid, t.common.error]);
 
   if (!valid || !meta) {
@@ -76,14 +77,26 @@ export default function ProgrammingStackPage() {
     );
   }
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
-  if (error && !unit) return <p className="text-red-500 font-bold">{error}</p>;
+  if (loading || !ready || (dataLoading && !unit && !error)) {
+    return <PageLoading label={t.common.loading} />;
+  }
+  if (!user) return <PageLoading label={t.common.loading} />;
+  if (error && !unit) {
+    return (
+      <div className="card space-y-3 text-center">
+        <p className="font-bold text-red-500">{error}</p>
+        <Link href="/programming" className="btn-primary inline-flex">
+          {t.programming.hubTitle}
+        </Link>
+      </div>
+    );
+  }
 
   const done = unit?.lessons.filter((l) => l.status === "completed").length ?? 0;
   const total = unit?.lessons.length || 1;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 md:pb-0">
       <Link href="/programming" className="text-sm font-bold text-ink-muted">
         ← {t.programming.hubTitle}
       </Link>

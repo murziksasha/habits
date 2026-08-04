@@ -30,6 +30,7 @@ import {
 } from "@/lib/playground-share";
 import clsx from "clsx";
 import type { DomAssert } from "@eduforge/shared";
+import { PageLoading } from "@/components/page-loading";
 
 type ChallengeRow = {
   id: string;
@@ -438,7 +439,7 @@ export default function PlaygroundPage() {
     }
   }
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
+  if (loading || !user) return <PageLoading label={t.common.loading} />;
 
   const showCssPanes = lang === "css";
   const showReactStudio = lang === "react";

@@ -10,7 +10,9 @@
     "lint": "echo ok",
     "test": "echo ok",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:visual": "playwright test e2e/visual.spec.ts",
+    "test:e2e:visual:update": "playwright test e2e/visual.spec.ts --update-snapshots"
   },
   "dependencies": {
     "@eduforge/shared": "workspace:*",

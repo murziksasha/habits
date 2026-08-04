@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
+import { PageLoading } from "@/components/page-loading";
 
 export default function AdminHomePage() {
   const { user, token, loading } = useAuth();
@@ -65,14 +66,23 @@ export default function AdminHomePage() {
     }
   }
 
-  if (loading || user?.role !== "admin") return <p>{t.common.loading}</p>;
+  if (loading || user?.role !== "admin") {
+    return <PageLoading label={t.common.loading} />;
+  }
 
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h1 className="text-3xl font-black">🛠️ {t.admin.title}</h1>
-        <p className="text-sm font-bold text-ink-muted">Dashboard · use sidebar modules</p>
+        <p className="text-sm font-bold text-ink-muted">
+          Dashboard · sidebar modules
+        </p>
       </div>
+      {!stats && (
+        <p className="text-sm font-bold text-ink-muted" aria-live="polite">
+          {t.common.loading}
+        </p>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[

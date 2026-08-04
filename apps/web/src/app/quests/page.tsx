@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
+import { PageLoading } from "@/components/page-loading";
+import { useRequireAuth } from "@/lib/use-require-auth";
 
 type Quest = {
   questKey: string;
@@ -18,25 +19,29 @@ type Quest = {
 
 export default function QuestsPage() {
   const { user, token, loading, setCharacter, refresh } = useAuth();
+  const { ready } = useRequireAuth();
   const { t } = useLocale();
-  const router = useRouter();
   const [date, setDate] = useState("");
   const [quests, setQuests] = useState<Quest[]>([]);
   const [msg, setMsg] = useState("");
+  const [dataLoading, setDataLoading] = useState(true);
 
   async function load() {
     if (!token) return;
-    const d = await api<{ date: string; quests: Quest[] }>("/quests/daily", { token });
-    setDate(d.date);
-    setQuests(d.quests);
+    setDataLoading(true);
+    try {
+      const d = await api<{ date: string; quests: Quest[] }>("/quests/daily", { token });
+      setDate(d.date);
+      setQuests(d.quests);
+    } catch {
+      setQuests([]);
+    } finally {
+      setDataLoading(false);
+    }
   }
 
   useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
-
-  useEffect(() => {
-    if (token) void load().catch(() => setQuests([]));
+    if (token) void load();
   }, [token]);
 
   async function claim(key: string) {
@@ -55,7 +60,10 @@ export default function QuestsPage() {
     }
   }
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
+  if (loading || !ready || (dataLoading && !quests.length && !date)) {
+    return <PageLoading label={t.common.loading} />;
+  }
+  if (!user) return <PageLoading label={t.common.loading} />;
 
   function title(q: Quest) {
     if (q.metric === "lessons") return `📚 1 урок / 1 lesson`;
@@ -66,7 +74,7 @@ export default function QuestsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 md:pb-0">
       <div>
         <h1 className="text-3xl font-black">✅ {t.quests.title}</h1>
         {date && <p className="text-sm font-bold text-ink-muted">{date}</p>}
@@ -79,34 +87,32 @@ export default function QuestsPage() {
           {quests.map((q) => {
             const ratio = Math.min(1, q.progress / Math.max(1, q.target));
             return (
-              <div key={q.questKey} className="card space-y-3">
+              <div key={q.questKey} className="card space-y-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h2 className="font-black text-lg">{title(q)}</h2>
-                  <span className="text-sm font-bold text-grape">
-                    {t.quests.reward}: +{q.rewardXp} XP
-                  </span>
+                  <p className="font-black">{title(q)}</p>
+                  <p className="text-sm font-bold text-brand-dark">+{q.rewardXp} XP</p>
                 </div>
-                <div>
-                  <div className="mb-1 flex justify-between text-xs font-bold text-ink-muted">
-                    <span>{t.quests.progress}</span>
-                    <span>
-                      {q.progress}/{q.target}
-                    </span>
-                  </div>
-                  <div className="h-3 overflow-hidden rounded-full bg-slate-200">
-                    <div
-                      className={`h-full rounded-full ${q.completed ? "bg-grape" : "bg-sky"}`}
-                      style={{ width: `${ratio * 100}%` }}
-                    />
-                  </div>
+                <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+                  <div
+                    className="h-full rounded-full bg-brand transition-all"
+                    style={{ width: `${ratio * 100}%` }}
+                  />
                 </div>
+                <p className="text-xs font-bold text-ink-muted">
+                  {q.progress}/{q.target}
+                  {q.completed ? " · ✓" : ""}
+                </p>
                 {q.completed && !q.claimed && (
-                  <button type="button" className="btn-primary" onClick={() => void claim(q.questKey)}>
+                  <button
+                    type="button"
+                    className="btn-primary !py-2 text-sm"
+                    onClick={() => void claim(q.questKey)}
+                  >
                     {t.quests.claim}
                   </button>
                 )}
                 {q.claimed && (
-                  <p className="text-sm font-bold text-green-600">{t.quests.claimed}</p>
+                  <p className="text-xs font-bold text-grape">{t.quests.claimed}</p>
                 )}
               </div>
             );

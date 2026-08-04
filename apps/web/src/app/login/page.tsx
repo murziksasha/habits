@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
-import { UI } from "@eduforge/shared";
+import { Suspense, useEffect, useState } from "react";
+import { safeNextPath, UI } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
+import { API_URL } from "@/lib/api";
 import { isFriendInviteId, sendFriendInvite } from "@/lib/friend-invite";
 
 function LoginForm() {
@@ -20,6 +21,28 @@ function LoginForm() {
   const [mfaCode, setMfaCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleOn, setGoogleOn] = useState(false);
+
+  useEffect(() => {
+    const oauthErr = params.get("error");
+    if (oauthErr) {
+      setError(
+        oauthErr === "oauth_denied"
+          ? "Google sign-in canceled"
+          : oauthErr === "oauth_not_configured"
+            ? "Google OAuth not configured"
+            : `OAuth error: ${oauthErr}`,
+      );
+    }
+    const mfa = params.get("mfaToken");
+    if (params.get("mfa") === "1" && mfa) {
+      setMfaToken(mfa);
+    }
+    void fetch(`${API_URL}/auth/oauth/providers`)
+      .then((r) => r.json())
+      .then((d: { google?: boolean }) => setGoogleOn(Boolean(d.google)))
+      .catch(() => setGoogleOn(false));
+  }, [params]);
 
   async function postLoginRedirect() {
     if (hasFriendInvite && friendId) {
@@ -27,11 +50,7 @@ function LoginForm() {
       router.push("/friends");
       return;
     }
-    if (nextPath && nextPath.startsWith("/") && !nextPath.startsWith("//")) {
-      router.push(nextPath);
-      return;
-    }
-    router.push("/dashboard");
+    router.push(safeNextPath(nextPath, "/learn"));
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -86,6 +105,7 @@ function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                autoComplete="current-password"
               />
             </div>
           </>
@@ -105,11 +125,35 @@ function LoginForm() {
             </p>
           </div>
         )}
-        {error && <p className="text-sm font-bold text-red-500">{error}</p>}
-        <button type="submit" className="btn-primary w-full" disabled={loading}>
+        {error && (
+          <p className="text-sm font-bold text-red-500" role="alert" aria-live="assertive">
+            {error}
+          </p>
+        )}
+        <button type="submit" className="btn-primary w-full min-h-11" disabled={loading}>
           {mfaToken ? "Підтвердити 2FA" : UI.auth.submitLogin}
         </button>
       </form>
+      {!mfaToken && (
+        <div className="mt-4 space-y-2">
+          <div className="relative text-center text-xs font-bold text-ink-muted">
+            <span className="bg-white px-2 dark:bg-slate-950">або</span>
+            <div className="absolute inset-x-0 top-1/2 -z-10 h-px bg-slate-200 dark:bg-slate-800" />
+          </div>
+          {googleOn ? (
+            <a
+              href={`${API_URL}/auth/oauth/google/start?next=${encodeURIComponent(nextPath && nextPath.startsWith("/") ? nextPath : "/dashboard")}`}
+              className="btn-secondary flex w-full items-center justify-center gap-2"
+            >
+              <span aria-hidden>G</span> Continue with Google
+            </a>
+          ) : (
+            <p className="text-center text-xs font-bold text-ink-muted">
+              Google OAuth: set GOOGLE_CLIENT_ID / SECRET on API
+            </p>
+          )}
+        </div>
+      )}
       <p className="mt-3 text-center text-sm">
         <Link href="/forgot-password" className="font-bold text-sky">
           {UI.password.forgot}

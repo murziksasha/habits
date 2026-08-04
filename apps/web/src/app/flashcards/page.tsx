@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
 import { pickLocale } from "@eduforge/shared";
+import { PageLoading } from "@/components/page-loading";
+import { useRequireAuth } from "@/lib/use-require-auth";
 
 type Deck = {
   id: string;
@@ -22,8 +23,8 @@ type Deck = {
 
 export default function FlashcardsPage() {
   const { user, token, loading } = useAuth();
+  const { ready } = useRequireAuth();
   const { t, locale } = useLocale();
-  const router = useRouter();
   const [decks, setDecks] = useState<Deck[]>([]);
   const [stats, setStats] = useState({
     totalReviews: 0,
@@ -31,25 +32,28 @@ export default function FlashcardsPage() {
     cardsLearning: 0,
     cardsMature: 0,
   });
-
-  useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
+  const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
     if (!token) return;
-    void api<{ decks: Deck[] }>("/flashcards/decks", { token })
-      .then((d) => setDecks(d.decks))
-      .catch(() => setDecks([]));
-    void api<typeof stats>("/flashcards/stats", { token })
-      .then(setStats)
-      .catch(() => undefined);
+    setDataLoading(true);
+    Promise.all([
+      api<{ decks: Deck[] }>("/flashcards/decks", { token })
+        .then((d) => setDecks(d.decks))
+        .catch(() => setDecks([])),
+      api<typeof stats>("/flashcards/stats", { token })
+        .then(setStats)
+        .catch(() => undefined),
+    ]).finally(() => setDataLoading(false));
   }, [token]);
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
+  if (loading || !ready || (dataLoading && !decks.length)) {
+    return <PageLoading label={t.common.loading} />;
+  }
+  if (!user) return <PageLoading label={t.common.loading} />;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 md:pb-0">
       <h1 className="text-3xl font-black">🃏 {t.flashcards.title}</h1>
 
       <div className="grid gap-3 sm:grid-cols-4">

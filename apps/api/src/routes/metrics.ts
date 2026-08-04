@@ -64,6 +64,8 @@ metricsRoutes.get("/", async (c) => {
       parentDigest: flags.parent_digest,
       pushReengage: flags.push_reengage,
       tutorAi: flags.tutor_ai,
+      emailVerify: flags.email_verify,
+      devBilling: flags.dev_billing,
     },
     judge: { mode: getJudgeMode() },
     otel: spanStats(),

@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { adminApi, api } from "@/lib/admin-api";
 import { StepUpModal } from "@/components/admin/step-up-modal";
+import { PageLoading } from "@/components/page-loading";
 
 type Course = {
   id: string;
@@ -22,6 +23,7 @@ export default function AdminCoursesPage() {
   const { token, user } = useAuth();
   const { t } = useLocale();
   const [courses, setCourses] = useState<Course[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
   const [msg, setMsg] = useState("");
   const [stepUpOpen, setStepUpOpen] = useState(false);
   const [pending, setPending] = useState<null | (() => Promise<void>)>(null);
@@ -38,8 +40,15 @@ export default function AdminCoursesPage() {
 
   async function load() {
     if (!token) return;
-    const d = await api<{ courses: Course[] }>("/admin/courses", { token });
-    setCourses(d.courses);
+    setDataLoading(true);
+    try {
+      const d = await api<{ courses: Course[] }>("/admin/courses", { token });
+      setCourses(d.courses);
+    } catch {
+      setCourses([]);
+    } finally {
+      setDataLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -86,10 +95,18 @@ export default function AdminCoursesPage() {
     });
   }
 
+  if (dataLoading && !courses.length) {
+    return <PageLoading label={t.common.loading} />;
+  }
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-black">📚 {t.admin.courses}</h1>
-      {msg && <p className="text-sm font-bold text-sky">{msg}</p>}
+      {msg && (
+        <p className="text-sm font-bold text-sky" role="status" aria-live="polite">
+          {msg}
+        </p>
+      )}
 
       <section className="card space-y-3">
         <h2 className="text-xl font-black">+ Draft course</h2>

@@ -6,10 +6,14 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
+import { PageLoading } from "@/components/page-loading";
+import { EmptyState } from "@/components/ui";
+import { useRequireAuth } from "@/lib/use-require-auth";
 
 export default function TournamentDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { user, token, loading } = useAuth();
+  const { ready } = useRequireAuth();
   const { t, locale } = useLocale();
   const router = useRouter();
   const [data, setData] = useState<{
@@ -46,22 +50,27 @@ export default function TournamentDetailPage() {
   }
 
   useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
-
-  useEffect(() => {
     if (id) void load().catch(() => setData(null));
   }, [id, token]);
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
-  if (!data) return <p>{t.common.loading}</p>;
+  if (loading || !ready) return <PageLoading label={t.common.loading} />;
+  if (!user) return <PageLoading label={t.common.loading} />;
+  if (!data) {
+    return (
+      <EmptyState
+        title={locale === "en" ? "Tournament not found" : "Турнір не знайдено"}
+        actionHref="/tournaments"
+        actionLabel={t.tournaments.title}
+      />
+    );
+  }
 
   const { tournament: tr, players, pairings } = data;
   const isHost = tr.hostUserId === user.id || user.role === "admin";
   const joined = players.some((p) => p.userId === user.id);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 md:pb-0">
       <Link href="/tournaments" className="text-sm font-bold text-ink-muted">
         ← {t.common.back}
       </Link>

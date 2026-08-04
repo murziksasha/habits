@@ -82,7 +82,34 @@ docker compose --profile tools run --rm migrate
 ## Freemium
 
 - Free: перші 5 уроків курсу, ліміт рейтингових партій, 5 ❤️
-- Premium: demo-кнопка на `/pricing` (або Stripe Checkout, якщо ключі задані)
+- Premium: Stripe Checkout / Portal у production
+- Demo upgrade (`/billing/dev-upgrade`, trial): **лише non-prod** або `ALLOW_DEV_BILLING=1` на staging — у реальному production вимкнено
+
+## Security (коротко)
+
+| Контроль | Поведінка |
+|----------|-----------|
+| Sessions | httpOnly cookie; Bearer у JSON лише non-prod / `X-Issue-Bearer` |
+| CSRF | Origin check **on** у production (`FEATURE_STRICT_CSRF=0` щоб вимкнути) |
+| Judge | Prod default **off**; `JUDGE_MODE=docker` для ізоляції; без fallback на host |
+| Email | Верифікація після register; банер + `/verify-email` |
+| Headers | CSP / nosniff / frame on web; security headers on API + nginx |
+| Privacy | Profile: change password, JSON export, account delete (`confirm: "DELETE"`) |
+| Continue | Post-lesson `nextLesson` + Learn «місія дня» |
+| OAuth | Google — `GOOGLE_CLIENT_ID` / `SECRET` → Continue with Google |
+| 2FA | TOTP для всіх акаунтів (профіль + challenge на login) |
+| Family | `/family` — seats, invite codes, Premium для дітей |
+| Teacher | `/teacher` — heatmap домашки |
+| UX | Thin home, PageLoading floor, labs shells, visual baselines (Playwright) |
+
+Повний runbook: [`SPEC/OPS.md`](./SPEC/OPS.md) · surface: [`SPEC/CURRENT.md`](./SPEC/CURRENT.md) · [SPEC/87](./SPEC/87-studio-classroom-admin-visual.md)
+
+### Visual regression
+
+```bash
+pnpm --filter @eduforge/web test:e2e:visual:update   # write baselines
+pnpm --filter @eduforge/web test:e2e:visual          # compare
+```
 
 ## Admin Platform (v2)
 
@@ -110,7 +137,8 @@ Modular admin at `/admin` (sidebar): courses (draft→publish), content tree, ap
 
 ## Onboarding
 
-Чекліст на `/dashboard` (уроки, шахи, друк, рейтинг, тарифи).
+Wizard (роль + трек) після першого входу → `/learn` (або `/parents` / `/teacher` / path за `?intent=`).  
+Чекліст secondary на `/dashboard`. Деталі: [SPEC/79](./SPEC/79-ux-user-improvements.md).
 
 ## Структура
 

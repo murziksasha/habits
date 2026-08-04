@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
+import { PageLoading } from "@/components/page-loading";
+import { useRequireAuth } from "@/lib/use-require-auth";
 import clsx from "clsx";
 
 type Day = { date: string; count: number; level: number };
@@ -19,18 +20,16 @@ const LEVEL_BG = [
 
 export default function CalendarPage() {
   const { user, token, loading } = useAuth();
+  const { ready } = useRequireAuth();
   const { t } = useLocale();
-  const router = useRouter();
   const [series, setSeries] = useState<Day[]>([]);
   const [activeDays, setActiveDays] = useState(0);
   const [maxStreak, setMaxStreak] = useState(0);
-
-  useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
+  const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
     if (!token) return;
+    setDataLoading(true);
     void api<{ series: Day[]; activeDays: number; maxStreakInWindow: number }>(
       "/learning/calendar?days=84",
       { token },
@@ -40,16 +39,18 @@ export default function CalendarPage() {
         setActiveDays(d.activeDays);
         setMaxStreak(d.maxStreakInWindow);
       })
-      .catch(() => setSeries([]));
+      .catch(() => setSeries([]))
+      .finally(() => setDataLoading(false));
   }, [token]);
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
+  if (loading || !ready || dataLoading) return <PageLoading label={t.common.loading} />;
+  if (!user) return <PageLoading label={t.common.loading} />;
 
   // pad to weeks starting Monday-ish: show as grid of 7 columns
   const cells = series;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 md:pb-0">
       <h1 className="text-3xl font-black">📅 {t.learning.calendar}</h1>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="card">

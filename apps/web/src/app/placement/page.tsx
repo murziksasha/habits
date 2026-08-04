@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
+import { PageLoading } from "@/components/page-loading";
+import { useRequireAuth } from "@/lib/use-require-auth";
 import clsx from "clsx";
 
 type Q = {
@@ -27,8 +28,8 @@ type Result = {
 
 export default function PlacementPage() {
   const { user, token, loading } = useAuth();
+  const { ready } = useRequireAuth();
   const { t, locale } = useLocale();
-  const router = useRouter();
   const [questions, setQuestions] = useState<Q[]>([]);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [result, setResult] = useState<Result | null>(null);
@@ -38,13 +39,11 @@ export default function PlacementPage() {
     createdAt: string;
   } | null>(null);
   const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
+  const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
     if (!token) return;
+    setDataLoading(true);
     void api<{
       questions: Q[];
       lastResult: typeof last;
@@ -53,7 +52,8 @@ export default function PlacementPage() {
         setQuestions(d.questions);
         setLast(d.lastResult);
       })
-      .catch(() => setQuestions([]));
+      .catch(() => setQuestions([]))
+      .finally(() => setDataLoading(false));
   }, [token]);
 
   async function submit() {
@@ -77,7 +77,10 @@ export default function PlacementPage() {
     }
   }
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
+  if (loading || !ready || (dataLoading && !questions.length && !result)) {
+    return <PageLoading label={t.common.loading} />;
+  }
+  if (!user) return <PageLoading label={t.common.loading} />;
 
   if (result) {
     return (

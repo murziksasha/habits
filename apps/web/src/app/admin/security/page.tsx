@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/admin-api";
+import { PageLoading } from "@/components/page-loading";
 
 export default function AdminSecurityPage() {
   const { token, refresh } = useAuth();
@@ -72,6 +73,10 @@ export default function AdminSecurityPage() {
     } catch (e) {
       setMsg((e as Error).message);
     }
+  }
+
+  if (!status) {
+    return <PageLoading label={t.common.loading} />;
   }
 
   return (

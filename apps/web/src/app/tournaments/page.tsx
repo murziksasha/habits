@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
+import { PageLoading } from "@/components/page-loading";
+import { useRequireAuth } from "@/lib/use-require-auth";
 
 type Tournament = {
   id: string;
@@ -20,24 +22,29 @@ type Tournament = {
 
 export default function TournamentsPage() {
   const { user, token, loading } = useAuth();
+  const { ready } = useRequireAuth();
   const { t, locale } = useLocale();
   const router = useRouter();
   const [list, setList] = useState<Tournament[]>([]);
   const [title, setTitle] = useState("");
   const [msg, setMsg] = useState("");
+  const [dataLoading, setDataLoading] = useState(true);
 
   async function load() {
-    const d = await api<{ tournaments: Tournament[] }>("/tournaments");
-    setList(d.tournaments);
+    setDataLoading(true);
+    try {
+      const d = await api<{ tournaments: Tournament[] }>("/tournaments");
+      setList(d.tournaments);
+    } catch {
+      setList([]);
+    } finally {
+      setDataLoading(false);
+    }
   }
 
   useEffect(() => {
-    void load().catch(() => setList([]));
+    void load();
   }, []);
-
-  useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
 
   async function create() {
     if (!token || !title.trim()) return;
@@ -57,15 +64,22 @@ export default function TournamentsPage() {
     }
   }
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
+  if (loading || !ready || dataLoading) {
+    return <PageLoading label={t.common.loading} />;
+  }
+  if (!user) return <PageLoading label={t.common.loading} />;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 md:pb-0">
       <h1 className="text-3xl font-black">🏁 {t.tournaments.title}</h1>
 
-      <div className="card space-y-3 max-w-lg">
+      <div className="card max-w-lg space-y-3">
         <h2 className="font-black">{t.tournaments.create}</h2>
+        <label className="label" htmlFor="tournament-title">
+          {locale === "en" ? "Title" : "Назва"}
+        </label>
         <input
+          id="tournament-title"
           className="input"
           value={title}
           onChange={(e) => setTitle(e.target.value)}

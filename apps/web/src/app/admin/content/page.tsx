@@ -10,6 +10,7 @@ import {
   ExerciseBuilder,
   type BuilderExercise,
 } from "@/components/admin/exercise-builder";
+import { PageLoading } from "@/components/page-loading";
 
 type Course = {
   id: string;
@@ -248,7 +249,9 @@ export default function AdminContentPage() {
     await loadTree(slug);
   }
 
-  if (loading || user?.role !== "admin") return <p>{UI.common.loading}</p>;
+  if (loading || user?.role !== "admin") {
+    return <PageLoading label={UI.common.loading} />;
+  }
 
   return (
     <div className="space-y-6">

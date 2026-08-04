@@ -1,12 +1,16 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { MonacoCodeEditor } from "@/components/monaco-editor";
 import { Badge, Button, Card } from "@/components/ui";
+import { PageLoading } from "@/components/page-loading";
+import { useRequireAuth } from "@/lib/use-require-auth";
+import { setPlayMatchActive } from "@/lib/play-match";
 
 const RT = process.env.NEXT_PUBLIC_REALTIME_URL ?? "http://localhost:4001";
 
@@ -15,23 +19,28 @@ type Presence = { userId: string; displayName: string; event: string };
 
 /**
  * Live collaborative classroom — Socket.IO class_* events.
+ * Labs surface (discover via ?labs=1).
  */
 export default function LiveClassroomPage() {
   const { classId } = useParams<{ classId: string }>();
   const { user, character, token, loading } = useAuth();
-  const { locale } = useLocale();
-  const router = useRouter();
+  const { ready } = useRequireAuth();
+  const { locale, t } = useLocale();
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [connected, setConnected] = useState(false);
   const [chat, setChat] = useState<ChatMsg[]>([]);
   const [peers, setPeers] = useState<Presence[]>([]);
   const [code, setCode] = useState("// collaborate here\nconsole.log('class');\n");
   const [remoteNote, setRemoteNote] = useState("");
   const [text, setText] = useState("");
   const [hands, setHands] = useState<string[]>([]);
+  const [handUp, setHandUp] = useState(false);
 
+  // Hide sticky Continue over live collab UI
   useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
+    setPlayMatchActive(true);
+    return () => setPlayMatchActive(false);
+  }, []);
 
   useEffect(() => {
     if (!token || !classId) return;
@@ -41,11 +50,13 @@ export default function LiveClassroomPage() {
       auth: typeof token === "string" && token !== "cookie" ? { token } : {},
     });
     s.on("connect", () => {
+      setConnected(true);
       s.emit("class_join", {
         classId,
         displayName: character?.displayName,
       });
     });
+    s.on("disconnect", () => setConnected(false));
     s.on("class_chat", (m: ChatMsg) => setChat((c) => [...c.slice(-80), m]));
     s.on("class_presence", (p: Presence) => {
       setPeers((list) => {
@@ -80,91 +91,136 @@ export default function LiveClassroomPage() {
     [locale],
   );
 
-  if (loading || !user) return <p>…</p>;
+  if (loading || !ready) return <PageLoading label={t.common.loading} />;
+  if (!user) return <PageLoading label={t.common.loading} />;
+
+  function sendChat() {
+    if (!socket || !text.trim()) return;
+    socket.emit("class_chat", { classId, body: text.trim() });
+    setText("");
+  }
+
+  function pushCode(next: string) {
+    setCode(next);
+    socket?.emit("class_code", { classId, code: next });
+  }
+
+  function toggleHand() {
+    const up = !handUp;
+    setHandUp(up);
+    socket?.emit("class_raise_hand", { classId, up });
+  }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-8">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-black">
-          📡 {title} · <span className="font-mono text-sm">{classId}</span>
-        </h1>
-        <Badge tone="sky">{peers.length + 1} online</Badge>
+        <div className="space-y-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-2xl font-black">
+              📡 {title} ·{" "}
+              <span className="font-mono text-sm font-bold">{classId}</span>
+            </h1>
+            <Badge tone="muted">Labs</Badge>
+          </div>
+          <p className="text-xs font-bold text-ink-muted">
+            {locale === "en"
+              ? "Socket.IO collab buffer + chat (last-write-wins)."
+              : "Спільний буфер + чат через Socket.IO (last-write-wins)."}
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge tone={connected ? "brand" : "muted"}>
+            {connected
+              ? locale === "en"
+                ? "Connected"
+                : "Онлайн"
+              : locale === "en"
+                ? "Connecting…"
+                : "Зʼєднання…"}
+          </Badge>
+          <Badge tone="sky">
+            {peers.length + 1} {locale === "en" ? "online" : "у класі"}
+          </Badge>
+          <Link href="/schools" className="btn-secondary min-h-11 !py-2 text-sm">
+            ← {t.nav.schools}
+          </Link>
+        </div>
       </div>
 
+      {hands.length > 0 && (
+        <p className="rounded-xl bg-sun/15 px-3 py-2 text-sm font-bold text-sun" role="status">
+          ✋ {hands.join(", ")}
+        </p>
+      )}
+
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-2 space-y-3">
+        <Card className="space-y-3 lg:col-span-2">
           <p className="text-xs font-bold text-ink-muted">
-            {locale === "en" ? "Shared buffer (last-write-wins)" : "Спільний код"}
+            {locale === "en" ? "Shared buffer" : "Спільний код"}
             {remoteNote ? ` · ${remoteNote}` : ""}
           </p>
           <MonacoCodeEditor
             value={code}
-            onChange={(v) => {
-              setCode(v);
-              socket?.emit("class_code", { classId, code: v, lang: "javascript" });
-            }}
+            onChange={pushCode}
             language="javascript"
-            height="320px"
+            height="360px"
           />
-          <div className="flex flex-wrap gap-2">
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => socket?.emit("class_raise_hand", { classId, up: true })}
-            >
-              ✋ {locale === "en" ? "Raise hand" : "Рука"}
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => socket?.emit("class_raise_hand", { classId, up: false })}
-            >
-              {locale === "en" ? "Lower" : "Опустити"}
-            </Button>
-          </div>
-          {hands.length > 0 && (
-            <p className="text-sm font-bold text-grape">
-              ✋ {hands.join(", ")}
-            </p>
-          )}
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => toggleHand()}
+            aria-pressed={handUp}
+          >
+            {handUp
+              ? locale === "en"
+                ? "Lower hand"
+                : "Опустити руку"
+              : locale === "en"
+                ? "Raise hand"
+                : "Підняти руку"}
+          </Button>
         </Card>
 
-        <Card className="space-y-3 flex flex-col max-h-[480px]">
-          <h2 className="font-black">{locale === "en" ? "Chat" : "Чат"}</h2>
-          <div className="flex-1 space-y-2 overflow-y-auto text-sm">
-            {chat.map((m, i) => (
-              <div key={`${m.ts}-${i}`} className="rounded-xl bg-slate-50 p-2 dark:bg-slate-900">
-                <p className="text-[10px] font-bold text-ink-muted">{m.displayName}</p>
-                <p className="font-bold whitespace-pre-wrap">{m.body}</p>
-              </div>
-            ))}
-            {!chat.length && (
-              <p className="text-ink-muted font-bold text-sm">
+        <Card className="flex max-h-[480px] flex-col space-y-3">
+          <h2 className="font-black">
+            {locale === "en" ? "Class chat" : "Чат класу"}
+          </h2>
+          <ul
+            className="min-h-0 flex-1 space-y-2 overflow-y-auto text-sm"
+            aria-live="polite"
+            aria-relevant="additions"
+          >
+            {chat.length === 0 && (
+              <li className="font-bold text-ink-muted">
                 {locale === "en" ? "No messages yet" : "Повідомлень ще немає"}
-              </p>
+              </li>
             )}
-          </div>
+            {chat.map((m, i) => (
+              <li key={`${m.ts}-${i}`} className="rounded-xl bg-slate-50 p-2 dark:bg-slate-900">
+                <p className="text-xs font-black text-ink-muted">{m.displayName}</p>
+                <p className="font-bold whitespace-pre-wrap">{m.body}</p>
+              </li>
+            ))}
+          </ul>
           <div className="flex gap-2">
+            <label className="sr-only" htmlFor="class-chat-input">
+              Chat
+            </label>
             <input
+              id="class-chat-input"
               className="input flex-1"
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="…"
               onKeyDown={(e) => {
-                if (e.key === "Enter" && text.trim()) {
-                  socket?.emit("class_chat", { classId, body: text.trim() });
-                  setText("");
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  sendChat();
                 }
               }}
+              placeholder={locale === "en" ? "Message…" : "Повідомлення…"}
             />
-            <Button
-              size="sm"
-              onClick={() => {
-                if (!text.trim()) return;
-                socket?.emit("class_chat", { classId, body: text.trim() });
-                setText("");
-              }}
-            >
+            <Button type="button" variant="primary" onClick={() => sendChat()}>
               →
             </Button>
           </div>

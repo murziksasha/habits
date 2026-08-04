@@ -7,7 +7,8 @@ import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
 import { ShareLinkButtons } from "@/components/share-link";
-import { Badge, Card } from "@/components/ui";
+import { Badge, Card, EmptyState } from "@/components/ui";
+import { PageLoading } from "@/components/page-loading";
 
 type Friend = {
   friendshipId: string;
@@ -122,11 +123,23 @@ function FriendsPageInner() {
       });
   }, [token, user, searchParams, inviteHandled, locale, t.common.error]);
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
+  if (loading || !user) return <PageLoading label={t.common.loading} />;
 
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-black">👥 {t.social.friends}</h1>
+      {!friends.length && !incoming.length && (
+        <EmptyState
+          title={t.onboarding.emptyFriends}
+          description={
+            locale === "en"
+              ? "Search people or share your invite link below."
+              : "Знайдіть людей у пошуку або поділіться invite-посиланням."
+          }
+          actionHref="/search"
+          actionLabel={t.nav.search}
+        />
+      )}
 
       <Card className="max-w-lg space-y-3 border-brand/20">
         <div className="flex flex-wrap items-center gap-2">

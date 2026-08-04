@@ -263,7 +263,13 @@ async function seedAdmin(db: ReturnType<typeof createDb>) {
     const passwordHash = await bcrypt.hash(password, 10);
     const [created] = await db
       .insert(users)
-      .values({ email, passwordHash, role: "admin", plan: "premium" })
+      .values({
+        email,
+        passwordHash,
+        role: "admin",
+        plan: "premium",
+        emailVerifiedAt: new Date(),
+      })
       .returning();
     user = created;
     await db.insert(characters).values({
@@ -323,7 +329,13 @@ async function seedPremiumTestUser(db: ReturnType<typeof createDb>) {
     const passwordHash = await bcrypt.hash(password, 10);
     const [created] = await db
       .insert(users)
-      .values({ email, passwordHash, role: "user", plan: "premium" })
+      .values({
+        email,
+        passwordHash,
+        role: "user",
+        plan: "premium",
+        emailVerifiedAt: new Date(),
+      })
       .returning();
     user = created;
     await db.insert(characters).values({

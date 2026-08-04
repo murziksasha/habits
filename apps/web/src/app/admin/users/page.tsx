@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api";
 import { StepUpModal } from "@/components/admin/step-up-modal";
 import { adminApi } from "@/lib/admin-api";
+import { PageLoading } from "@/components/page-loading";
 
 type Row = {
   id: string;
@@ -67,7 +68,9 @@ export default function AdminUsersPage() {
     }
   }
 
-  if (loading || user?.role !== "admin") return <p>{UI.common.loading}</p>;
+  if (loading || user?.role !== "admin") {
+    return <PageLoading label={UI.common.loading} />;
+  }
 
   return (
     <div className="space-y-6">

@@ -16,6 +16,8 @@ export type User = {
   plan: "free" | "premium";
   role?: "user" | "admin";
   planExpiresAt?: string | null;
+  /** false = needs verification; true / undefined = ok */
+  emailVerified?: boolean;
   totpEnabled?: boolean;
   mfaVerified?: boolean;
   mfaEnrollRequired?: boolean;

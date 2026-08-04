@@ -6,6 +6,7 @@ import { COURSE_SLUGS, COURSE_META, UI } from "@eduforge/shared";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
+import { PageLoading } from "@/components/page-loading";
 
 type Entry = {
   rank: number;
@@ -25,6 +26,7 @@ function LeaderboardInner() {
   const [tab, setTab] = useState<"global" | "chess" | "playground" | string>(initial);
   const [entries, setEntries] = useState<Entry[]>([]);
   const [pgMeta, setPgMeta] = useState({ total: 0, maxXp: 0 });
+  const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
     const q = search.get("tab");
@@ -32,6 +34,7 @@ function LeaderboardInner() {
   }, [search]);
 
   useEffect(() => {
+    setDataLoading(true);
     const path =
       tab === "global"
         ? "/leaderboard/global"
@@ -54,7 +57,8 @@ function LeaderboardInner() {
           });
         }
       })
-      .catch(() => setEntries([]));
+      .catch(() => setEntries([]))
+      .finally(() => setDataLoading(false));
     if (token) {
       void api("/auth/onboarding/complete", {
         method: "POST",
@@ -64,8 +68,12 @@ function LeaderboardInner() {
     }
   }, [tab, token]);
 
+  if (dataLoading && !entries.length) {
+    return <PageLoading label={t.common.loading} />;
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 md:pb-0">
       <h1 className="text-3xl font-black">🏆 {UI.leaderboard.title}</h1>
       <div className="flex flex-wrap gap-2">
         <button

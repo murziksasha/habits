@@ -1,17 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import { filterDiscoveryTools } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
+import { Skeleton } from "@/components/ui";
 
-export default function SearchPage() {
+function SearchInner() {
   const { user, token, loading } = useAuth();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const router = useRouter();
-  const [q, setQ] = useState("");
+  const params = useSearchParams();
+  const [q, setQ] = useState(params.get("q") ?? "");
   const [courses, setCourses] = useState<
     { slug: string; titleUk: string; descriptionUk: string; icon: string }[]
   >([]);
@@ -46,18 +50,52 @@ export default function SearchPage() {
     return () => clearTimeout(tmr);
   }, [q, token]);
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
+  const tools = useMemo(
+    () => filterDiscoveryTools(q, locale === "en" ? "en" : "uk"),
+    [q, locale],
+  );
+
+  if (loading || !user) {
+    return (
+      <div className="space-y-4" aria-busy="true">
+        <Skeleton className="h-10 w-48" />
+        <Skeleton className="h-12 w-full max-w-xl" />
+        <p className="sr-only">{t.common.loading}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-black">🔍 {t.nav.search}</h1>
+      <p className="text-sm font-bold text-ink-muted">{t.onboarding.commandPalette}</p>
       <input
-        className="input max-w-xl"
+        className="input max-w-xl min-h-11"
         value={q}
         onChange={(e) => setQ(e.target.value)}
         placeholder={t.extra.searchPlaceholder}
         autoFocus
       />
+
+      {tools.length > 0 && (
+        <section className="space-y-2">
+          <h2 className="font-black">{t.onboarding.searchTools}</h2>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {tools.map((tool) => (
+              <Link
+                key={tool.href}
+                href={tool.href}
+                className="card flex min-h-11 items-center justify-between hover:border-brand/40"
+              >
+                <span className="font-black">
+                  {locale === "en" ? tool.titleEn : tool.titleUk}
+                </span>
+                <span className="text-xs text-ink-muted">{tool.href}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {courses.length > 0 && (
         <section className="space-y-2">
@@ -85,7 +123,7 @@ export default function SearchPage() {
               </Link>
               <button
                 type="button"
-                className="btn-secondary !py-2 text-sm shrink-0"
+                className="btn-secondary !py-2 text-sm shrink-0 min-h-11"
                 onClick={() =>
                   void api("/friends/request", {
                     method: "POST",
@@ -101,5 +139,20 @@ export default function SearchPage() {
         </section>
       )}
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="space-y-4" aria-busy="true">
+          <Skeleton className="h-10 w-48" />
+          <Skeleton className="h-12 w-full max-w-xl" />
+        </div>
+      }
+    >
+      <SearchInner />
+    </Suspense>
   );
 }

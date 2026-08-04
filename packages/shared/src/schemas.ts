@@ -1,9 +1,18 @@
 import { z } from "zod";
 import { COURSE_SLUGS } from "./courses.js";
 
+/** Password: min 8, max 128, at least one letter and one digit. */
+export const passwordSchema = z
+  .string()
+  .min(8)
+  .max(128)
+  .refine((p) => /[a-zA-Zа-яА-ЯіІїЇєЄ]/.test(p) && /\d/.test(p), {
+    message: "password_needs_letter_and_digit",
+  });
+
 export const registerSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8).max(128),
+  password: passwordSchema,
   displayName: z.string().min(2).max(32),
 });
 

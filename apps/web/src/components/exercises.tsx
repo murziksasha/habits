@@ -112,31 +112,68 @@ function CodeBlock({ code, language }: { code: string; language?: string }) {
   );
 }
 
+/**
+ * Progressive hints (Tier C): level 1 nudge → level 2 fuller hint → level 3 near-answer.
+ * Auto-opens level 1 after first fail; user can request deeper levels.
+ */
 function useExerciseHint(exercise: Exercise) {
   const { locale, t } = useLocale();
-  const [open, setOpen] = useState(false);
-  const text =
+  const [level, setLevel] = useState(0); // 0 = closed
+  const base =
     locale === "en"
       ? String(exercise.hintEn || exercise.explanationEn || exercise.hintUk || exercise.explanationUk || "")
       : String(exercise.hintUk || exercise.explanationUk || exercise.hintEn || exercise.explanationEn || "");
-  const has = Boolean(text.trim());
+  const has = Boolean(base.trim());
+
+  const level1 = has
+    ? locale === "en"
+      ? "Think about the core concept in the prompt — one careful re-read often helps."
+      : "Подумайте про ключову ідею в завданні — часто допомагає уважно перечитати."
+    : "";
+  const level2 = base;
+  const level3 = has
+    ? locale === "en"
+      ? `${base}\n\nAlmost there: eliminate options that contradict the prompt wording.`
+      : `${base}\n\nМайже: відкиньте варіанти, що суперечать формулюванню.`
+    : "";
+
+  const text = level === 1 ? level1 : level === 2 ? level2 : level === 3 ? level3 : "";
+
+  function setOpen(v: boolean | ((b: boolean) => boolean)) {
+    const next = typeof v === "function" ? v(level > 0) : v;
+    setLevel(next ? Math.max(1, level || 1) : 0);
+  }
+
   return {
     has,
-    open,
+    open: level > 0,
     setOpen,
+    level,
     text,
     t,
     panel: has ? (
       <div className="space-y-1">
-        <button
-          type="button"
-          className="text-xs font-bold text-grape hover:underline"
-          onClick={() => setOpen((v) => !v)}
-        >
-          💡 {open ? t.lesson.hideHint : t.lesson.showHint}
-        </button>
-        {open ? (
-          <p className="rounded-xl bg-grape/10 px-3 py-2 text-sm font-bold text-ink">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            className="text-xs font-bold text-grape hover:underline"
+            onClick={() => setLevel((l) => (l > 0 ? 0 : 1))}
+          >
+            💡 {level > 0 ? t.lesson.hideHint : t.lesson.showHint}
+            {level > 0 ? ` · L${level}` : ""}
+          </button>
+          {level > 0 && level < 3 && (
+            <button
+              type="button"
+              className="text-xs font-bold text-sky hover:underline"
+              onClick={() => setLevel((l) => Math.min(3, l + 1))}
+            >
+              {locale === "en" ? "Deeper hint" : "Глибша підказка"} →
+            </button>
+          )}
+        </div>
+        {level > 0 ? (
+          <p className="whitespace-pre-wrap rounded-xl bg-grape/10 px-3 py-2 text-sm font-bold text-ink">
             {text}
           </p>
         ) : null}
@@ -199,7 +236,7 @@ function SoftFeedback({
   const { t } = useLocale();
   if (!wrong && !attempts) return null;
   return (
-    <div className="space-y-1">
+    <div className="space-y-1" role="status" aria-live="assertive">
       {wrong ? (
         <div className="rounded-xl border-2 border-red-200 bg-red-50 px-3 py-2 text-sm font-bold text-red-600 dark:border-red-900 dark:bg-red-950/40">
           {t.lesson.wrong} · {t.lesson.tryAgain}
@@ -256,10 +293,10 @@ function DrillFooter({
         attempts={soft.attempts}
         max={soft.max}
       />
-      <div className="flex flex-wrap gap-2">
+      <div className="lesson-check-bar flex flex-wrap gap-2">
         <button
           type="button"
-          className="btn-primary"
+          className="btn-primary min-h-11"
           disabled={!canCheck}
           onClick={onCheck}
         >

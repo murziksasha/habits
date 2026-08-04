@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
 import { SpeakButton } from "@/components/speak-button";
+import { PageLoading } from "@/components/page-loading";
 
 type Card = {
   id: string;
@@ -62,7 +63,7 @@ export default function DeckStudyPage() {
     }
   }
 
-  if (loading || !user) return <p>{t.common.loading}</p>;
+  if (loading || !user) return <PageLoading label={t.common.loading} />;
 
   const current = queue[0];
 
