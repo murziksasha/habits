@@ -14,6 +14,10 @@ type Cert = {
   issuedAt: string;
   courseSlug: string;
   courseTitleUk: string;
+  courseTitleEn?: string;
+  courseIcon?: string;
+  lessonsCompleted?: number;
+  lessonsTotal?: number;
 };
 
 export default function CertificatesPage() {
@@ -37,17 +41,28 @@ export default function CertificatesPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-black">📜 {t.certificates.title}</h1>
+      <div>
+        <h1 className="text-3xl font-black">📜 {t.certificates.title}</h1>
+        <p className="mt-1 text-sm font-bold text-ink-muted">
+          {locale === "en"
+            ? "Download PDF or PNG from any certificate page."
+            : "Скачайте PDF або PNG на сторінці будь-якого сертифіката."}
+        </p>
+      </div>
       <div className="grid gap-3 sm:grid-cols-2">
         {certs.map((c) => {
           const title = locale === "en" ? c.titleEn : c.titleUk;
+          const courseTitle =
+            locale === "en"
+              ? c.courseTitleEn || c.courseTitleUk
+              : c.courseTitleUk;
           const isPath = /Programming Path/i.test(c.titleUk + c.titleEn);
           const isMinis = /Programming Minis/i.test(c.titleUk + c.titleEn);
           return (
             <Link
               key={c.code}
               href={`/certificates/${c.code}`}
-              className="card hover:border-brand/40 space-y-1"
+              className="card hover:border-brand/40 space-y-2 transition"
             >
               <div className="flex flex-wrap gap-1">
                 {isPath && (
@@ -60,17 +75,36 @@ export default function CertificatesPage() {
                     {t.certificates.badgeMinis}
                   </span>
                 )}
-                {!isPath && !isMinis && c.courseSlug === "programming" && (
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black dark:bg-slate-800">
+                {!isPath && !isMinis && (
+                  <span className="rounded-full bg-brand/15 px-2 py-0.5 text-[10px] font-black text-brand-dark">
                     {t.certificates.badgeCourse}
                   </span>
                 )}
               </div>
-              <p className="font-black text-lg">{title}</p>
-              <p className="text-sm text-ink-muted font-mono">{c.code}</p>
-              <p className="text-xs text-ink-muted mt-1">
-                {t.certificates.issued}: {new Date(c.issuedAt).toLocaleDateString()}
-              </p>
+              <div className="flex items-start gap-3">
+                <span className="text-3xl" aria-hidden>
+                  {c.courseIcon ?? "🎓"}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="font-black text-lg leading-snug">{title}</p>
+                  {courseTitle ? (
+                    <p className="text-sm font-bold text-ink-muted">{courseTitle}</p>
+                  ) : null}
+                  <p className="mt-1 font-mono text-xs text-ink-muted">{c.code}</p>
+                  <p className="mt-1 text-xs text-ink-muted">
+                    {t.certificates.issued}:{" "}
+                    {new Date(c.issuedAt).toLocaleDateString(
+                      locale === "en" ? "en-GB" : "uk-UA",
+                    )}
+                    {c.lessonsTotal
+                      ? ` · ${t.certificates.lessonsCount} ${c.lessonsCompleted ?? c.lessonsTotal}/${c.lessonsTotal}`
+                      : ""}
+                  </p>
+                  <p className="mt-2 text-xs font-black text-sky">
+                    {t.certificates.openCert} →
+                  </p>
+                </div>
+              </div>
             </Link>
           );
         })}

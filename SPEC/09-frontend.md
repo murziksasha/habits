@@ -40,7 +40,7 @@
 | `/leaderboard` | Rankings |
 | `/friends` | Friends + minis + weekly race vs friends |
 | `/challenges` | Weekly XP challenge |
-| `/certificates`, `/certificates/[code]` | Certificates |
+| `/certificates`, `/certificates/[code]` | Certificates (branded art, PDF/PNG download, print) |
 | `/homework`, `/schools/*` | Classroom |
 | `/parents`, `/parents/child/[studentId]` | Parent portal + digest |
 | `/flashcards`, `/tutor`, `/review`, `/quests`, `/shop` | Learning tools |

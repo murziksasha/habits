@@ -234,6 +234,37 @@ export async function evaluateAchievements(
   }
   if (ctx.lessonCompleted && ctx.courseSlug === "embedded_cpp") {
     await tryUnlock("embedded_cpp_start");
+    const emb = await db.query.courses.findFirst({
+      where: eq(courses.slug, "embedded_cpp"),
+    });
+    if (emb) {
+      const [embCnt] = await db
+        .select({ n: sql<number>`count(*)::int` })
+        .from(userLessonProgress)
+        .where(
+          and(
+            eq(userLessonProgress.userId, userId),
+            eq(userLessonProgress.courseId, emb.id),
+            eq(userLessonProgress.status, "completed"),
+          ),
+        );
+      if ((embCnt?.n ?? 0) >= 15) await tryUnlock("embedded_cpp_deep");
+
+      const [embExamCnt] = await db
+        .select({ n: sql<number>`count(*)::int` })
+        .from(userLessonProgress)
+        .innerJoin(lessons, eq(lessons.id, userLessonProgress.lessonId))
+        .where(
+          and(
+            eq(userLessonProgress.userId, userId),
+            eq(userLessonProgress.courseId, emb.id),
+            eq(userLessonProgress.status, "completed"),
+            eq(lessons.isExam, true),
+          ),
+        );
+      if ((embExamCnt?.n ?? 0) >= 5) await tryUnlock("embedded_cpp_exams");
+      if ((embExamCnt?.n ?? 0) >= 12) await tryUnlock("embedded_cpp_complete");
+    }
   }
 
   if (ctx.lessonCompleted && ctx.courseSlug === "programming") {

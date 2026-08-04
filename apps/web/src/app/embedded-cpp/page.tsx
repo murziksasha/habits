@@ -13,8 +13,8 @@ export default function EmbeddedCppHubPage() {
       title={t.courses.embedded_cpp}
       subtitle={
         locale === "en"
-          ? "C++ for constrained systems: memory, CMake, networking, FreeRTOS, MAVLink — with unit exams."
-          : "C++ для обмежених ресурсів: пам'ять, CMake, мережа, FreeRTOS, MAVLink — з контрольними."
+          ? "MilTech deep track: C++ · RTOS · MAVLink · safety · data-link · mission — labs, projects & unit exams."
+          : "MilTech deep track: C++ · RTOS · MAVLink · safety · data-link · mission — labs, проєкти та контрольні."
       }
       backHref="/programming"
       backLabel={`💻 ${t.nav.programming}`}

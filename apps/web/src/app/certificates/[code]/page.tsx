@@ -2,35 +2,68 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale } from "@/lib/locale-context";
+import { useBranding } from "@/lib/branding-context";
 import { api } from "@/lib/api";
 import { ShareLinkButtons } from "@/components/share-link";
+import {
+  CertificateArt,
+  type CertificateArtData,
+} from "@/components/certificate-art";
+import {
+  certificateFilename,
+  downloadCertificatePdf,
+  downloadCertificatePng,
+} from "@/lib/certificate-export";
 import { Badge, Button, Card, EmptyState, Skeleton } from "@/components/ui";
 
 export default function CertificateViewPage() {
   const { code } = useParams<{ code: string }>();
   const { t, locale } = useLocale();
-  const [cert, setCert] = useState<{
-    code: string;
-    titleUk: string;
-    titleEn: string;
-    issuedAt: string;
-    displayName: string;
-    courseTitleUk?: string;
-    courseIcon?: string;
-    courseSlug?: string;
-  } | null>(null);
+  const { theme } = useBranding();
+  const artRef = useRef<HTMLDivElement>(null);
+  const [cert, setCert] = useState<CertificateArtData | null>(null);
   const [err, setErr] = useState(false);
+  const [busy, setBusy] = useState<"png" | "pdf" | null>(null);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!code) return;
-    void api<{ certificate: NonNullable<typeof cert> }>(
-      `/certificates/verify/${code}`,
-    )
+    void api<{ certificate: CertificateArtData }>(`/certificates/verify/${code}`)
       .then((d) => setCert(d.certificate))
       .catch(() => setErr(true));
   }, [code]);
+
+  const productName = theme.branding.productName?.trim() || "EduForge";
+
+  const runExport = useCallback(
+    async (kind: "png" | "pdf") => {
+      if (!cert || !artRef.current) return;
+      setExportError(null);
+      setBusy(kind);
+      try {
+        // Export the inner framed card for a clean edge
+        const node =
+          (artRef.current.querySelector("[data-certificate-frame]") as HTMLElement) ||
+          artRef.current.firstElementChild as HTMLElement ||
+          artRef.current;
+        const filename = certificateFilename({
+          productName,
+          courseSlug: cert.courseSlug,
+          code: cert.code,
+          ext: kind,
+        });
+        if (kind === "png") await downloadCertificatePng(node, filename);
+        else await downloadCertificatePdf(node, filename);
+      } catch {
+        setExportError(t.certificates.downloadError);
+      } finally {
+        setBusy(null);
+      }
+    },
+    [cert, productName, t.certificates.downloadError],
+  );
 
   if (err) {
     return (
@@ -49,7 +82,7 @@ export default function CertificateViewPage() {
   if (!cert) {
     return (
       <div className="space-y-3" aria-busy="true">
-        <Skeleton className="mx-auto h-64 max-w-2xl" />
+        <Skeleton className="mx-auto h-64 max-w-3xl" />
         <p className="sr-only">{t.common.loading}</p>
       </div>
     );
@@ -59,52 +92,54 @@ export default function CertificateViewPage() {
   const sharePath = `/certificates/${cert.code}`;
   const shareText =
     locale === "en"
-      ? `${cert.displayName} earned: ${title} on EduForge`
-      : `${cert.displayName} отримав(ла): ${title} в EduForge`;
+      ? `${cert.displayName} earned: ${title} on ${productName}`
+      : `${cert.displayName} отримав(ла): ${title} в ${productName}`;
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-end gap-3 print:hidden">
-        <ShareLinkButtons path={sharePath} title={`${title} · EduForge`} text={shareText} />
+      <div className="flex flex-wrap items-center justify-end gap-2 print:hidden">
+        <ShareLinkButtons path={sharePath} title={`${title} · ${productName}`} text={shareText} />
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={!!busy}
+          onClick={() => void runExport("png")}
+        >
+          {busy === "png" ? t.certificates.generating : t.certificates.downloadPng}
+        </Button>
+        <Button
+          variant="primary"
+          size="sm"
+          disabled={!!busy}
+          onClick={() => void runExport("pdf")}
+        >
+          {busy === "pdf" ? t.certificates.generating : t.certificates.downloadPdf}
+        </Button>
         <Button variant="secondary" size="sm" onClick={() => window.print()}>
           {t.certificates.print}
         </Button>
       </div>
+
+      {exportError && (
+        <p className="text-center text-sm font-bold text-red-500 print:hidden">{exportError}</p>
+      )}
 
       <Card className="mx-auto max-w-lg space-y-3 border-brand/30 print:hidden">
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone="grape">📜 Certificate</Badge>
           <Badge tone="muted">{cert.code}</Badge>
         </div>
-        <p className="text-sm font-bold text-ink-muted">
-          {locale === "en"
-            ? "Share this verified credential on LinkedIn or social media."
-            : "Поділіться підтвердженим сертифікатом у LinkedIn чи соцмережах."}
-        </p>
-        <ShareLinkButtons path={sharePath} title={`${title} · EduForge`} text={shareText} />
+        <p className="text-sm font-bold text-ink-muted">{t.certificates.shareCta}</p>
+        <ShareLinkButtons path={sharePath} title={`${title} · ${productName}`} text={shareText} />
       </Card>
 
-      <div className="mx-auto max-w-2xl rounded-3xl border-4 border-brand bg-white p-10 text-center shadow-card print:shadow-none dark:bg-slate-950">
-        <p className="text-sm font-bold uppercase tracking-widest text-ink-muted">EduForge</p>
-        <p className="mt-4 text-5xl">{cert.courseIcon ?? "🎓"}</p>
-        <h1 className="mt-4 text-3xl font-black">{title}</h1>
-        <p className="mt-6 text-lg text-ink-muted">
-          {locale === "en" ? "Awarded to" : "Нагороджується"}
-        </p>
-        <p className="mt-2 text-4xl font-black text-brand-dark">{cert.displayName}</p>
-        {cert.courseTitleUk && <p className="mt-4 font-bold">{cert.courseTitleUk}</p>}
-        <p className="mt-8 text-sm text-ink-muted">
-          {t.certificates.issued}:{" "}
-          {new Date(cert.issuedAt).toLocaleDateString(locale === "en" ? "en-GB" : "uk-UA")}
-        </p>
-        <p className="mt-2 font-mono text-xs text-ink-muted">
-          {t.certificates.verify}: {cert.code}
-        </p>
+      <div className="certificate-print-root mx-auto max-w-4xl">
+        <CertificateArt ref={artRef} cert={cert} />
       </div>
 
       <p className="text-center text-sm print:hidden">
         <Link href="/" className="font-bold text-sky hover:underline">
-          EduForge
+          {productName}
         </Link>
       </p>
     </div>

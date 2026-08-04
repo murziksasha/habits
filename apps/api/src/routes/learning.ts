@@ -830,7 +830,7 @@ export async function evaluateLearningMilestones(userId: string) {
       "Programming path завершено",
       "Programming path complete",
     );
-    // Path certificate: issue (≥70% of lessons; full path = 100%) or upgrade title if already issued
+    // Path certificate: issue (100% lessons) or upgrade title if already issued
     try {
       const { maybeIssueCertificate } = await import("./certificates.js");
       const pathUk = "Сертифікат: Programming Path";

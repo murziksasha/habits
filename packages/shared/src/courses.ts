@@ -241,9 +241,9 @@ export const COURSE_META: Record<
     titleUk: "Embedded C++ · MilTech",
     titleEn: "Embedded C++ · MilTech",
     descriptionUk:
-      "C++ для обмежених ресурсів: пам'ять, CMake, мережа, FreeRTOS, MAVLink, симуляція — deep track.",
+      "C++ для обмежених ресурсів: пам'ять, CMake, мережа, FreeRTOS, MAVLink, safety, mission — deep track + labs.",
     descriptionEn:
-      "C++ for constrained systems: memory, CMake, networking, FreeRTOS, MAVLink, simulation — deep track.",
+      "C++ for constrained systems: memory, CMake, networking, FreeRTOS, MAVLink, safety, mission — deep track + labs.",
     icon: "🪖",
     color: "#4B5320",
     group: "deep",

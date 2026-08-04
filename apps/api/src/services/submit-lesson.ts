@@ -386,16 +386,8 @@ export async function submitLesson(
       user.id,
       course.id,
       course.slug,
-      course.slug === "programming"
-        ? "Програмування"
-        : course.slug === "typescript"
-          ? "TypeScript"
-          : course.titleUk,
-      course.slug === "programming"
-        ? "Programming"
-        : course.slug === "typescript"
-          ? "TypeScript"
-          : course.titleEn || course.titleUk,
+      course.titleUk,
+      course.titleEn || course.titleUk,
     );
   }
 

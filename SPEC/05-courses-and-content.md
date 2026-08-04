@@ -19,7 +19,7 @@
 | `sql_fundamentals` | SQL deep track | SELECT, JOINs, aggregates, DML, keys + exams |
 | `node_fundamentals` | Node.js deep track | runtime, modules, fs, env, http, npm, async + exams |
 | `express_fundamentals` | Express deep track | app, routes, middleware, REST, errors, Router + exams |
-| `embedded_cpp` | Embedded C++ · MilTech | memory, CMake, networking, FreeRTOS, MAVLink, sim + exams |
+| `embedded_cpp` | Embedded C++ · MilTech | memory, CMake, net, RTOS, MAVLink, safety, datalink, mission + labs/exams |
 
 ## Content pipeline
 

@@ -114,8 +114,8 @@ Realtime: [07-chess-realtime](./07-chess-realtime.md). Coach: `POST /coach/hint`
 | POST | `/friends/:id/accept` | Yes | Accept |
 | POST | `/friends/:id/reject` | Yes | Reject |
 | GET | `/challenges/current` | Yes | Weekly XP challenge |
-| GET | `/certificates/mine` | Yes | My certificates |
-| GET | `/certificates/verify/:code` | No | Public verify |
+| GET | `/certificates/mine` | Yes | My certificates (+ course meta, lesson counts) |
+| GET | `/certificates/verify/:code` | No | Public verify (name, course, lessons, code) |
 | GET | `/profiles/:userId` | Yes | Public profile + minis |
 | POST | `/feedback` | Yes | User → developer feedback |
 | GET | `/feedback/mine` | Yes | My feedback |

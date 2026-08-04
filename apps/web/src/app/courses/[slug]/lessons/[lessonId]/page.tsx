@@ -57,6 +57,7 @@ export default function LessonPage() {
     results?: ExerciseResult[];
     correctCount?: number;
     total?: number;
+    certificate?: { code: string; titleUk: string } | null;
   } | null>(null);
   const [error, setError] = useState("");
   const [bookmarked, setBookmarked] = useState(false);
@@ -243,6 +244,7 @@ export default function LessonPage() {
           results?: ExerciseResult[];
           correctCount?: number;
           total?: number;
+          certificate?: { code: string; titleUk: string } | null;
         }>(`/courses/${slug}/lessons/${lessonId}/submit`, {
           method: "POST",
           token,
@@ -268,6 +270,7 @@ export default function LessonPage() {
           results: result.results,
           correctCount: result.correctCount,
           total: result.total,
+          certificate: result.certificate ?? null,
         });
       } catch (e: unknown) {
         const err = e as Error & { data?: { error?: string } };
@@ -371,6 +374,18 @@ export default function LessonPage() {
         )}
         {summary.streakProtected && (
           <p className="text-sm font-black text-sky">🛡️ {t.streak.protected}</p>
+        )}
+        {summary.certificate?.code && (
+          <div className="rounded-2xl border-2 border-brand/40 bg-brand-soft/40 p-4 space-y-2">
+            <p className="text-lg font-black text-brand-dark">📜 {t.certificates.ready}</p>
+            <p className="text-sm font-bold text-ink-muted">{summary.certificate.titleUk}</p>
+            <Link
+              href={`/certificates/${summary.certificate.code}`}
+              className="btn-primary inline-flex"
+            >
+              {t.certificates.openCert}
+            </Link>
+          </div>
         )}
         <div className="flex flex-wrap justify-center gap-3">
           {examFail ? (

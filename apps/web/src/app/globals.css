@@ -96,3 +96,36 @@ html.lesson-focus main {
     @apply bg-slate-950/90 border-slate-800;
   }
 }
+
+/* Certificate print: full-bleed landscape art, hide chrome */
+@media print {
+  body {
+    background: white !important;
+    background-image: none !important;
+  }
+  header,
+  nav,
+  footer,
+  .print\:hidden {
+    display: none !important;
+  }
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .certificate-print-root {
+    margin: 0 !important;
+    max-width: none !important;
+  }
+  .certificate-print-root [data-certificate-frame] {
+    box-shadow: none !important;
+    max-width: none !important;
+    width: 100% !important;
+    page-break-inside: avoid;
+  }
+  @page {
+    size: A4 landscape;
+    margin: 8mm;
+  }
+}
