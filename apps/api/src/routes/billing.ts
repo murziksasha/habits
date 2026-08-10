@@ -2,18 +2,18 @@ import { Hono } from "hono";
 import { eq } from "drizzle-orm";
 import Stripe from "stripe";
 import { users } from "@eduforge/db";
-import {
-  FAMILY_DEFAULT_SEATS,
-  freemiumMatrix,
-  isFeatureEnabled,
-  isPremiumActive,
-  planFeatureMatrix,
-  type Plan,
-} from "@eduforge/shared";
+import { FAMILY_DEFAULT_SEATS } from "@eduforge/shared";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 import { env } from "../env.js";
 import { resolveEffectivePlan } from "../services/effective-plan.js";
+import {
+  applyDemoDowngrade,
+  applyDemoUpgrade,
+  applyTrialPremium,
+  devBillingAllowed,
+  publicEntitlementsPayload,
+} from "../services/billing-ops.js";
 
 type Vars = { user: AuthedUser };
 
@@ -22,11 +22,6 @@ export const billingRoutes = new Hono<{ Variables: Vars }>();
 function getStripe() {
   if (!env.stripeSecretKey || env.stripeSecretKey.includes("xxx")) return null;
   return new Stripe(env.stripeSecretKey);
-}
-
-/** Demo upgrade/trial only when ALLOW_DEV_BILLING (or non-prod default). Never open in real prod. */
-function devBillingAllowed(): boolean {
-  return isFeatureEnabled("dev_billing");
 }
 
 billingRoutes.get("/status", authMiddleware, async (c) => {
@@ -46,12 +41,7 @@ billingRoutes.get("/status", authMiddleware, async (c) => {
 
 /** Public freemium matrix (also returned authenticated for client paywalls). */
 billingRoutes.get("/entitlements", async (c) => {
-  const matrix = freemiumMatrix();
-  return c.json({
-    matrix,
-    features: planFeatureMatrix(),
-    stripeConfigured: Boolean(getStripe()),
-  });
+  return c.json(publicEntitlementsPayload(Boolean(getStripe())));
 });
 
 /** Dev/demo upgrade without Stripe — gated by ALLOW_DEV_BILLING / non-prod default */
@@ -65,17 +55,12 @@ billingRoutes.post("/dev-upgrade", authMiddleware, async (c) => {
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
   const kind = body.kind === "family" ? "family" : "premium";
-  const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-  await db
-    .update(users)
-    .set({
-      plan: kind,
-      familyMaxSeats: kind === "family" ? FAMILY_DEFAULT_SEATS : 0,
-      planExpiresAt: expires,
-      updatedAt: new Date(),
-    })
-    .where(eq(users.id, user.id));
-  return c.json({ plan: kind, planExpiresAt: expires, kind: kind === "family" ? "demo_family_30d" : "demo_30d" });
+  const { plan, planExpiresAt } = await applyDemoUpgrade(db, user.id, kind, 30);
+  return c.json({
+    plan,
+    planExpiresAt,
+    kind: kind === "family" ? "demo_family_30d" : "demo_30d",
+  });
 });
 
 /** 7-day Premium trial (dev / staging only when dev billing allowed) */
@@ -87,19 +72,8 @@ billingRoutes.post("/trial", authMiddleware, async (c) => {
     );
   }
   const user = c.get("user");
-  if (user.plan === "premium") {
-    return c.json({
-      plan: "premium",
-      planExpiresAt: user.planExpiresAt,
-      kind: "already_premium",
-    });
-  }
-  const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  await db
-    .update(users)
-    .set({ plan: "premium", planExpiresAt: expires, updatedAt: new Date() })
-    .where(eq(users.id, user.id));
-  return c.json({ plan: "premium", planExpiresAt: expires, kind: "trial_7d" });
+  const out = await applyTrialPremium(db, user.id, user.plan, user.planExpiresAt, 7);
+  return c.json(out);
 });
 
 billingRoutes.post("/dev-downgrade", authMiddleware, async (c) => {
@@ -107,11 +81,8 @@ billingRoutes.post("/dev-downgrade", authMiddleware, async (c) => {
     return c.json({ error: "dev_billing_disabled", hint: "use Stripe portal" }, 403);
   }
   const user = c.get("user");
-  await db
-    .update(users)
-    .set({ plan: "free", planExpiresAt: null, updatedAt: new Date() })
-    .where(eq(users.id, user.id));
-  return c.json({ plan: "free" });
+  const out = await applyDemoDowngrade(db, user.id);
+  return c.json(out);
 });
 
 billingRoutes.post("/checkout", authMiddleware, async (c) => {

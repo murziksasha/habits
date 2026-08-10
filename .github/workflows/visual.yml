@@ -1,0 +1,118 @@
+name: Visual regression
+
+# Compare Playwright screenshots. First-time / update baselines:
+#   workflow_dispatch with update_snapshots=true, then commit artifact snapshots.
+on:
+  workflow_dispatch:
+    inputs:
+      update_snapshots:
+        description: "Write/update e2e/__snapshots__ baselines"
+        type: boolean
+        default: false
+  schedule:
+    # Nightly UTC
+    - cron: "0 3 * * *"
+  pull_request:
+    paths:
+      - "apps/web/**"
+      - ".github/workflows/visual.yml"
+
+concurrency:
+  group: visual-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  visual:
+    name: Playwright visual baselines
+    runs-on: ubuntu-latest
+    # PRs only when snapshots already committed (avoid red PRs without baselines)
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
+      (github.event_name == 'pull_request' && hashFiles('apps/web/e2e/__snapshots__/**') != '')
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: eduforge
+          POSTGRES_PASSWORD: eduforge
+          POSTGRES_DB: eduforge
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U eduforge"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://eduforge:eduforge@127.0.0.1:5432/eduforge
+      REDIS_URL: redis://127.0.0.1:6379
+      NODE_ENV: development
+      AUTH_SECRET: ci-test-secret
+      WEB_ORIGIN: http://127.0.0.1:3000
+      COOKIE_SECURE: "0"
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:4000
+      NEXT_PUBLIC_REALTIME_URL: http://127.0.0.1:4001
+      SKIP_E2E: "0"
+      CI: "true"
+      PLAYWRIGHT_BASE_URL: http://127.0.0.1:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.14.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @eduforge/shared build
+      - run: pnpm --filter @eduforge/content build
+      - run: pnpm --filter @eduforge/chess-core build
+      - run: pnpm --filter @eduforge/judge build
+      - run: pnpm --filter @eduforge/db build
+      - run: pnpm --filter @eduforge/api build
+      - run: pnpm db:migrate
+      - run: pnpm db:seed
+      - name: Start API
+        run: |
+          pnpm --filter @eduforge/api start &
+          for i in $(seq 1 60); do
+            curl -sf http://127.0.0.1:4000/health && break
+            sleep 1
+          done
+      - name: Start Web
+        run: |
+          pnpm --filter @eduforge/web build
+          pnpm --filter @eduforge/web start &
+          for i in $(seq 1 90); do
+            curl -sf http://127.0.0.1:3000 && break
+            sleep 2
+          done
+      - name: Install Playwright browser
+        run: pnpm --filter @eduforge/web exec playwright install chromium --with-deps
+      - name: Visual tests
+        run: |
+          EXTRA=""
+          if [ "${{ github.event.inputs.update_snapshots }}" = "true" ]; then
+            EXTRA="--update-snapshots"
+          fi
+          pnpm --filter @eduforge/web exec playwright test e2e/visual.spec.ts $EXTRA
+      - name: Upload snapshot diffs / baselines
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-snapshots
+          path: |
+            apps/web/e2e/__snapshots__/
+            apps/web/test-results/
+          if-no-files-found: ignore

@@ -1,5 +1,6 @@
 import { and, asc, desc, eq, gte, inArray, sql } from "drizzle-orm";
 import {
+  characters,
   courses,
   lessons,
   placementResults,
@@ -8,9 +9,11 @@ import {
 } from "@eduforge/db";
 import {
   adaptiveScore,
+  applyLevelUps,
   DEFAULT_ADAPTIVE_WEIGHTS,
   isoWeekBounds,
   loadAdaptiveWeights,
+  normalizeProgression,
   PROGRAMMING_MINI_LESSON_SLUGS,
   weeklyMinisRaceSlugs,
 } from "@eduforge/shared";
@@ -166,6 +169,31 @@ export async function buildNextRecommendations(
     href: "/tutor",
     priority: 4,
   });
+
+  // Character build CTA when unspent skill points
+  const ch = await db.query.characters.findFirst({
+    where: eq(characters.userId, userId),
+  });
+  if (ch) {
+    const prog = applyLevelUps(normalizeProgression(ch.progression), ch.globalLevel);
+    if ((prog.skillPoints ?? 0) > 0) {
+      recommendations.push({
+        kind: "character_build",
+        titleUk: `⭐ Прокачка: ${prog.skillPoints} очок навичок`,
+        titleEn: `⭐ Build: ${prog.skillPoints} skill points`,
+        href: "/profile",
+        priority: 14,
+        meta: { skillPoints: prog.skillPoints },
+      });
+    }
+    recommendations.push({
+      kind: "gifts",
+      titleUk: "🎁 Подарунок другу",
+      titleEn: "🎁 Gift a friend",
+      href: "/friends?gifts=1",
+      priority: 5,
+    });
+  }
 
   const placement = await db.query.placementResults.findFirst({
     where: and(

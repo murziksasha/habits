@@ -84,6 +84,7 @@ const EXERCISE_TYPES = new Set([
   "code_order",
   "code_project",
   "code_run",
+  "video",
 ]);
 
 function collectExercises(course: CourseContent): Exercise[] {
@@ -334,6 +335,25 @@ describe("course content integrity", () => {
   it("english has free lessons for freemium", () => {
     const free = englishContent.units.flatMap((u) => u.lessons).filter((l) => l.isFree);
     expect(free.length).toBeGreaterThanOrEqual(5);
+  });
+
+  /** Align with @eduforge/shared FREE_LESSONS_PER_COURSE (freemium matrix). */
+  it("freemium gate: every course has at least 5 free lessons", () => {
+    const FREE = 5;
+    for (const c of courses) {
+      const free = c.units.flatMap((u) => u.lessons).filter((l) => l.isFree);
+      expect(free.length, `${c.slug} free lessons`).toBeGreaterThanOrEqual(FREE);
+    }
+  });
+
+  it("exercise types include only known set (no silent unknown)", () => {
+    for (const c of courses) {
+      for (const ex of collectExercises(c)) {
+        expect(EXERCISE_TYPES.has(ex.type), `${c.slug}/${ex.id} type=${ex.type}`).toBe(
+          true,
+        );
+      }
+    }
   });
 
   it("chess puzzles include fen + solution", () => {

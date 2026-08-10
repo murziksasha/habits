@@ -2,7 +2,7 @@
 
 Освітній SaaS: **англійська**, **шахи** (уроки + online PvP), **друк**, **швидкочитання**, **логіка**, **програмування** (Mimo-style path + playground + mini-projects).
 
-UI: **українська + англійська** · повна технічна документація: [`SPEC/`](./SPEC/) (English, 01–71) · surface freeze: [`SPEC/CURRENT.md`](./SPEC/CURRENT.md).
+UI: **українська + англійська** · повна технічна документація: [`SPEC/`](./SPEC/) (English, 01–87 + CURRENT) · surface freeze: [`SPEC/CURRENT.md`](./SPEC/CURRENT.md).
 
 - Monorepo: **pnpm + Turborepo**
 - Apps: `web` (Next.js), `api` (Hono), `realtime` (Socket.IO)
@@ -144,13 +144,15 @@ Wizard (роль + трек) після першого входу → `/learn` (
 
 ```
 apps/web          Next.js UI (UK + EN)
-apps/api          REST API + OpenAPI 1.5
+apps/api          REST API + OpenAPI (see /docs)
 apps/realtime     Chess WebSocket
+apps/mobile       WebView shell scaffold (Expo install separately)
 packages/db       Drizzle schema / migrate / seed
-packages/content  Seed-уроки (incl. programming)
+packages/content  Seed-уроки + MDX pipeline
 packages/shared   XP, Elo, entitlements, i18n, minis race
+packages/judge    Multi-lang judge + job queue
 packages/chess-core
-SPEC/             Product & technical docs (English) 01–71 + CURRENT
+SPEC/             Product & technical docs (English) 01–87 + CURRENT
 ```
 
 ## Documentation
@@ -165,7 +167,25 @@ SPEC/             Product & technical docs (English) 01–71 + CURRENT
 ```bash
 pnpm --filter @eduforge/content test
 pnpm --filter @eduforge/shared test
+pnpm --filter @eduforge/judge test
 pnpm --filter @eduforge/api test
+pnpm --filter @eduforge/mobile test
 # e2e (stack running):
 # set SKIP_E2E=0  →  pnpm --filter @eduforge/web test:e2e
+# CI: unit + integration + content-gate + e2e-smoke (landing/register/admin)
+```
+
+## Ops extras
+
+```bash
+# OTel collector (API: OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318)
+docker compose --profile otel up -d otel-collector
+
+# Product funnel (admin UI: /admin/metrics · API: GET /analytics/funnel?days=7)
+# Metrics: GET /metrics → productFunnel7d + judge.queue
+# Judge worker: POST /judge/worker/drain  (CRON_SECRET)
+
+# Visual baselines (commit e2e/__snapshots__ after first generate)
+pnpm --filter @eduforge/web test:e2e:visual:update   # local, stack up
+# GitHub: Actions → Visual regression → update_snapshots=true
 ```

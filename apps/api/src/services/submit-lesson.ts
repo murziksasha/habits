@@ -30,6 +30,9 @@ import { gradeExercise } from "../grade.js";
 import { maybeIssueCertificate } from "../routes/certificates.js";
 import { addWeeklyXp } from "../routes/challenges.js";
 import { completeHomeworkForLesson } from "../routes/homework.js";
+import { buildXpPatch } from "./character-progression.js";
+import { applyLootDrop } from "./loot-apply.js";
+import { rollLevelUpLoot } from "@eduforge/shared";
 
 export type SubmitAnswer = { exerciseId: string; answer: unknown };
 
@@ -259,16 +262,21 @@ export async function submitLesson(
         freezesLeft,
       });
     }
-    const newGlobalXp = character.globalXp + globalGain;
+    const prevLevel = character.globalLevel;
+    const xpPatch = buildXpPatch(character, globalGain, {
+      applyIntellect: true,
+      applySpark: true,
+    });
     const dailyXp =
       character.dailyXpDate === today
-        ? (character.dailyXp ?? 0) + globalGain
-        : globalGain;
+        ? (character.dailyXp ?? 0) + xpPatch.effectiveGain
+        : xpPatch.effectiveGain;
     await db
       .update(characters)
       .set({
-        globalXp: newGlobalXp,
-        globalLevel: levelFromXp(newGlobalXp),
+        globalXp: xpPatch.globalXp,
+        globalLevel: xpPatch.globalLevel,
+        progression: xpPatch.progression,
         streakDays: streak,
         streakFreezes: freezesLeft,
         lastActiveDate: today,
@@ -276,6 +284,20 @@ export async function submitLesson(
         dailyXpDate: today,
       })
       .where(eq(characters.id, character.id));
+
+    // Level-up loot drop (cosmetics / shields / bonus SP)
+    if (xpPatch.globalLevel > prevLevel) {
+      try {
+        const drop = rollLevelUpLoot(xpPatch.globalLevel);
+        await applyLootDrop(user.id, drop, { notify: true });
+        await logActivity(db, user.id, "level_up_loot", {
+          level: xpPatch.globalLevel,
+          drop,
+        });
+      } catch {
+        /* loot optional */
+      }
+    }
   }
 
   await db.insert(skillAttempts).values({
@@ -313,12 +335,43 @@ export async function submitLesson(
       isExam,
       accuracy,
     });
+    // Product funnel: first ever completed lesson (deduped)
+    if (firstClear) {
+      const { trackProductEvent } = await import("./product-analytics.js");
+      await trackProductEvent(db, user.id, "first_lesson_complete", {
+        courseSlug: course.slug,
+        lessonId: lesson.id,
+        accuracy,
+        isExam,
+      });
+    }
     await addWeeklyXp(user.id, globalGain);
     homeworkCompleted = await completeHomeworkForLesson(user.id, lesson.id, accuracy);
     const { bumpDailyQuests } = await import("../routes/quests.js");
     await bumpDailyQuests(user.id, "lessons", 1);
     if (globalGain > 0) await bumpDailyQuests(user.id, "xp", globalGain);
     if (isExam) await bumpDailyQuests(user.id, "exams", 1);
+
+    // Weekly lesson quest + path badges
+    try {
+      const { isoWeekKey, bumpWeeklyProgress, applyLevelUps, normalizeProgression } =
+        await import("@eduforge/shared");
+      const ch2 = await db.query.characters.findFirst({
+        where: eq(characters.userId, user.id),
+      });
+      if (ch2) {
+        let prog = applyLevelUps(normalizeProgression(ch2.progression), ch2.globalLevel);
+        prog = bumpWeeklyProgress(prog, isoWeekKey(), "lessons", 1);
+        await db
+          .update(characters)
+          .set({ progression: prog })
+          .where(eq(characters.id, ch2.id));
+      }
+      const { syncPathBadges } = await import("./path-badges.js");
+      await syncPathBadges(user.id);
+    } catch {
+      /* optional */
+    }
   } else if (isExam) {
     const wrongTypes = [
       ...new Set(results.filter((r) => !r.correct).map((r) => String(r.type || "unknown"))),

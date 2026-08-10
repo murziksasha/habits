@@ -464,15 +464,124 @@ export function Toggle() {
   ]),
 ]);
 
+const hooksAdv = unit("hooks_adv", "Hooks advanced", "Hooks advanced", [
+  lesson(
+    "rf-usememo",
+    "useMemo & useCallback",
+    "useMemo & useCallback",
+    3,
+    false,
+    [
+      mcq(
+        "rf-h1",
+        "useMemo caches:",
+        "useMemo caches:",
+        ["computed value", "DOM node forever", "CSS only", "SQL query always"],
+        0,
+      ),
+      codeFill(
+        "rf-h2",
+        "useMemo",
+        "useMemo",
+        "tsx",
+        "const v = ___(() => heavy(x), [x]);",
+        ["useMemo"],
+        true,
+      ),
+      codeFill(
+        "rf-h3",
+        "useCallback",
+        "useCallback",
+        "tsx",
+        "const fn = ___(() => {}, []);",
+        ["useCallback"],
+        true,
+      ),
+    ],
+  ),
+  lesson(
+    "rf-custom-hook",
+    "Custom hooks",
+    "Custom hooks",
+    3,
+    false,
+    [
+      mcq(
+        "rf-h4",
+        "Custom hook name starts with:",
+        "Custom hook name starts with:",
+        ["use", "get", "make", "hook"],
+        0,
+      ),
+      codeFill(
+        "rf-h5",
+        "hook name",
+        "hook name",
+        "tsx",
+        "function ___Toggle() { return useState(false); }",
+        ["use"],
+        true,
+      ),
+      mcq(
+        "rf-h6",
+        "Hooks rules:",
+        "Hooks rules:",
+        ["top-level only, same order", "inside if freely", "in class methods", "only in CSS"],
+        0,
+      ),
+    ],
+  ),
+  lesson(
+    "rf-context",
+    "Context basics",
+    "Context basics",
+    3,
+    false,
+    [
+      codeFill(
+        "rf-h7",
+        "createContext",
+        "createContext",
+        "tsx",
+        "const Ctx = React.___(null);",
+        ["createContext"],
+        true,
+      ),
+      mcq(
+        "rf-h8",
+        "useContext reads:",
+        "useContext reads:",
+        ["nearest Provider value", "localStorage only", "URL only", "Redux always"],
+        0,
+      ),
+      codeFill(
+        "rf-h9",
+        "Provider",
+        "Provider",
+        "tsx",
+        "<Ctx.___ value={v}>{children}</Ctx.___>",
+        ["Provider"],
+        true,
+      ),
+    ],
+  ),
+  exam("rf-hooks-exam", "Контрольна: hooks advanced", "Exam: hooks advanced", 3, [
+    mcq("rf-he1", "useMemo is for:", "useMemo is for:", ["memoize value", "fetch only", "routing", "SQL"], 0),
+    codeFill("rf-he2", "useCallback", "useCallback", "tsx", "const f = ___(() => {}, []);", ["useCallback"], true),
+    mcq("rf-he3", "Custom hooks:", "Custom hooks:", ["reuse stateful logic", "replace components always", "ban hooks", "CSS modules"], 0),
+    codeFill("rf-he4", "useContext", "useContext", "tsx", "const v = ___(Ctx);", ["useContext"], true),
+  ]),
+]);
+
 export const reactFundamentalsContent: CourseContent = {
   slug: "react_fundamentals",
   titleUk: "React: fundamentals",
   titleEn: "React Fundamentals",
   descriptionUk:
-    "Компоненти, props, useState, lists/keys, useEffect, forms, composition + контрольні.",
+    "Компоненти, props, useState, lists/keys, useEffect, forms, composition, hooks advanced + контрольні.",
   descriptionEn:
-    "Components, props, useState, lists/keys, useEffect, forms, composition + unit exams.",
+    "Components, props, useState, lists/keys, useEffect, forms, composition, advanced hooks + unit exams.",
   icon: "⚛️",
   color: "#61DAFB",
-  units: [intro, components, stateU, lists, effects, forms, composition, capstone],
+  units: [intro, components, stateU, lists, effects, forms, composition, hooksAdv, capstone],
 };

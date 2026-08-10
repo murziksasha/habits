@@ -44,6 +44,26 @@ test.describe("Visual baseline", () => {
     });
   });
 
+  test("courses catalog snapshot", async ({ page }) => {
+    await page.goto("/courses");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 20_000 });
+    await page.waitForTimeout(400);
+    await expect(page).toHaveScreenshot("courses.png", {
+      maxDiffPixelRatio: 0.04,
+      fullPage: true,
+    });
+  });
+
+  test("leaderboard snapshot", async ({ page }) => {
+    await page.goto("/leaderboard");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 20_000 });
+    await page.waitForTimeout(400);
+    await expect(page).toHaveScreenshot("leaderboard.png", {
+      maxDiffPixelRatio: 0.04,
+      fullPage: true,
+    });
+  });
+
   test("learn map snapshot (authenticated)", async ({ page }) => {
     await loginAsAdmin(page);
     // Dismiss wizard if present

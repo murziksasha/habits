@@ -27,6 +27,8 @@ import { reminderRoutes } from "./routes/reminders.js";
 import { reviewRoutes } from "./routes/review.js";
 import { searchRoutes } from "./routes/search.js";
 import { shopRoutes } from "./routes/shop.js";
+import { characterRoutes } from "./routes/character.js";
+import { giftRoutes } from "./routes/gifts.js";
 import { notesRoutes } from "./routes/notes.js";
 import { focusRoutes } from "./routes/focus.js";
 import { profileRoutes } from "./routes/profiles.js";
@@ -161,6 +163,8 @@ export function createApp() {
   app.route("/chat", chatRoutes);
   app.route("/referrals", referralRoutes);
   app.route("/shop", shopRoutes);
+  app.route("/character", characterRoutes);
+  app.route("/gifts", giftRoutes);
   app.route("/review", reviewRoutes);
   app.route("/quests", questRoutes);
   app.route("/notes", notesRoutes);

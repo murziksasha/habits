@@ -16,12 +16,73 @@ import {
   courses,
 } from "@eduforge/db";
 import { playgroundXpForCodes } from "@eduforge/shared";
+import { z } from "zod";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
+import { rateLimit } from "../rate-limit.js";
+import {
+  isProductEventKind,
+  productFunnelCompare,
+  productFunnelCounts,
+  trackProductEvent,
+} from "../services/product-analytics.js";
 
 type Vars = { user: AuthedUser };
 
 export const analyticsRoutes = new Hono<{ Variables: Vars }>();
+
+const productEventSchema = z.object({
+  kind: z.string().min(1).max(64),
+  payload: z.record(z.unknown()).optional(),
+});
+
+/**
+ * Client product events (paywall_shown, paywall_cta_click, onboarding_*).
+ * first_lesson_complete is also emitted server-side from submit-lesson.
+ */
+analyticsRoutes.post("/events", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const rl = await rateLimit({
+    key: `analytics:events:${user.id}`,
+    limit: 60,
+    windowMs: 60_000,
+  });
+  if (!rl.ok) {
+    return c.json({ error: "rate_limited", retryAfter: rl.retryAfterSec }, 429);
+  }
+  const body = await c.req.json().catch(() => null);
+  const parsed = productEventSchema.safeParse(body);
+  if (!parsed.success) {
+    return c.json({ error: "invalid_input", details: parsed.error.flatten() }, 400);
+  }
+  const kind = parsed.data.kind;
+  if (!isProductEventKind(kind) && !kind.startsWith("client_")) {
+    return c.json({ error: "unknown_event", kind }, 400);
+  }
+  const result = await trackProductEvent(db, user.id, kind, parsed.data.payload ?? {});
+  return c.json({ ok: true, ...result });
+});
+
+/** Product funnel aggregates (admin). ?compare=1 adds previous equal window + deltas. */
+analyticsRoutes.get("/funnel", authMiddleware, async (c) => {
+  const user = c.get("user");
+  if (user.role !== "admin") {
+    return c.json({ error: "forbidden" }, 403);
+  }
+  const days = Math.min(90, Math.max(1, Number(c.req.query("days") ?? 7) || 7));
+  const compare =
+    c.req.query("compare") === "1" ||
+    c.req.query("compare") === "true" ||
+    c.req.query("history") === "1";
+
+  if (compare) {
+    const history = await productFunnelCompare(db, days);
+    return c.json({ funnel: history.current, history });
+  }
+  const funnel = await productFunnelCounts(db, days);
+  return c.json({ funnel });
+});
+
 
 async function assertTeacherAccess(userId: string, classId: string) {
   const cls = await db.query.classes.findFirst({

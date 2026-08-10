@@ -190,6 +190,63 @@ Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, 
 107. Admin appearance + billing polish  
 108. Playwright visual regression baseline (`e2e/visual.spec.ts`)  
 
+### Improvement program waves (2026-08)
+
+109. Product funnel: `POST /analytics/events`, first_lesson_complete, paywall_shown/cta  
+110. Metrics `productFunnel7d` + admin `GET /analytics/funnel`  
+111. Review inbox reasons (`buildReviewReasons` + UI Why)  
+112. Freemium content normalize + CI content-gate + e2e-smoke job  
+113. MDX `mdxToLesson` + fill/translate markers  
+114. Judge queue (memory/Redis) + async run path  
+115. Lazy Chessboard; PWA sw.js offline shell; OTel compose profile  
+116. Docs sync README/SPEC 01–87 + P2 strategic status  
+117. Judge result store + `GET /judge/result/:id` + `POST /judge/worker/drain`  
+118. Pricing RSC shell + client island; billing-ops service  
+119. Classroom live: reconnect + outbound chat buffer  
+120. E2E smoke: pricing, review, openapi analytics/judge paths  
+121. RSC shells: login, register, certificate, public profile, embed playground  
+122. Admin metrics product funnel (+ CSV columns)  
+123. Visual regression workflow (nightly / path / dispatch)  
+124. RSC: `/courses` + `/forgot-password`; funnel bar charts on admin metrics  
+125. Visual baselines committed under `e2e/__snapshots__` (public + learn + admin)  
+126. E2E loginAsAdmin: API cookie path (robust vs MFA form)  
+127. RSC: `/search`, `/certificates`, `/verify-email`  
+128. Funnel history: current vs prior window (`productFunnelCompare`, admin UI deltas)  
+129. RSC: `/leaderboard`, `/reset-password`  
+130. Funnel CSV: `GET /admin/metrics/funnel.csv` + admin download button  
+131. RSC: `/challenges`, `/achievements`, `/quests`  
+132. Admin home funnel teaser (7d); ops `/metrics` includes `productFunnelHistory7d`  
+133. RSC primary: `/dashboard`, `/learn`, `/friends`, `/play`, `/flashcards`, `/review`  
+134. RSC core hubs: `/programming`, `/profile`, `/playground`  
+135. RSC toolkit: `/shop`, `/tutor`, `/bookmarks`, `/portfolio`  
+136. RSC B2B: `/homework`, `/teacher`, `/parents`, `/parents/child/*`, `/family`, schools  
+137. RSC labs/secondary: notes, focus, calendar, feedback, export, referrals, reports, placement, tournaments, studio  
+138. RSC deep hubs + programming tree/stack + course/lesson shells  
+139. RSC admin shells (home + metrics/users/content/… )  
+140. Character talent tree (`/character/*`): skill points on level-up, 6 talents, titles/frames  
+141. Friend gifts (`/gifts/*`): cheer, hearts, XP, shields, epic avatars/frames, mystery box  
+142. Course expansion: logic advanced unit; JS errors/proto; React hooks advanced; shop avatars  
+143. Public profile cosmetics (title/frame) + OG card title; friends list title chip  
+144. OpenAPI + e2e smoke for `/character/*` and `/gifts/*`; gift claim notifies sender (push)  
+145. Achievements: gift_first_send/claim, talent_first/three; evaluate on gift/talent routes  
+146. Global leaderboard titles; share card title; dashboard skill-points + Build chip  
+147. `/auth/me` backfills progression skill points; character-progression service unit tests  
+148. Daily quests: gifts / talents / login (+ titles on API); bump on gift/talent/login  
+149. Daily login bonus `POST /me/login-bonus` (streak-scaled XP, dashboard toast)  
+150. Level-up loot drops on lesson XP; shop mystery crate + skill-point packs  
+151. Content: English travel/email/idioms; speed-reading news/tech units  
+152. Character v2: vitality+mentor talents, milestones bonus SP, respec, recommend talent, XP bar UI  
+153. Hearts regen respects vitality; next-steps build/gifts CTAs  
+154. Courses: SQL windows; Node events/streams; Chess tactics boost; Logic combinatorics  
+155. Path badges (course thresholds → SP + notify); profile build panel  
+156. Mentor talent deeper progressive hints in lesson player (L4 mentor tip)  
+157. Weekly quests: build 3 talents + 5 lessons (`/character/weekly`)  
+158. Public profile + OG path badges; weekly card on learn/dashboard  
+159. Mentor soft-grade: extra attempts + coach line on wrong  
+160. Leaderboard global: path badge icons + count chip  
+161. Path badge achievements (first / 3 / all 8)  
+162. Ops weekly quest remind cron (`POST /admin/ops/weekly-quest-remind`)  
+
 ### P2 strategic foundations (scaffolds live — see SPEC/P2-STRATEGIC.md)
 
 40. Multi-lang judge `@eduforge/judge` + `POST /judge/run` (`JUDGE_MODE=local|docker|off`)  

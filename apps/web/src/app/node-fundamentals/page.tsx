@@ -1,23 +1,6 @@
-"use client";
+import { NodeFundamentalsClient } from "./node-fundamentals-client";
 
-import { useLocale } from "@/lib/locale-context";
-import { DeepCourseHub } from "@/components/deep-course-hub";
-
-export default function NodeFundamentalsHubPage() {
-  const { t, locale } = useLocale();
-  return (
-    <DeepCourseHub
-      courseSlug="node_fundamentals"
-      icon="🟢"
-      color="#339933"
-      title={t.courses.node_fundamentals}
-      subtitle={
-        locale === "en"
-          ? "Runtime, modules, fs, env, HTTP, npm, async — with unit exams."
-          : "Runtime, modules, fs, env, HTTP, npm, async — з контрольними."
-      }
-      backHref="/programming"
-      backLabel={`💻 ${t.nav.programming}`}
-    />
-  );
+/** RSC shell — node-fundamentals */
+export default function NodeFundamentalsPage() {
+  return <NodeFundamentalsClient />;
 }

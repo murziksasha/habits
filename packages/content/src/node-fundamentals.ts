@@ -340,15 +340,90 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
   ]),
 ]);
 
+const eventsU = unit("events_streams", "Events & streams", "Events & streams", [
+  lesson(
+    "nf-events",
+    "EventEmitter basics",
+    "EventEmitter basics",
+    3,
+    false,
+    [
+      mcq(
+        "nf-ev1",
+        "EventEmitter is for:",
+        "EventEmitter is for:",
+        ["pub/sub style events", "only SQL", "only CSS", "only DNS"],
+        0,
+      ),
+      codeFill(
+        "nf-ev2",
+        "on listener",
+        "on listener",
+        "js",
+        "emitter.___('data', fn);",
+        ["on"],
+        true,
+      ),
+      codeFill(
+        "nf-ev3",
+        "emit",
+        "emit",
+        "js",
+        "emitter.___('ready', payload);",
+        ["emit"],
+        true,
+      ),
+    ],
+  ),
+  lesson(
+    "nf-streams",
+    "Readable streams idea",
+    "Readable streams idea",
+    3,
+    false,
+    [
+      mcq(
+        "nf-ev4",
+        "Streams help when:",
+        "Streams help when:",
+        ["data is large / chunked", "only tiny strings", "never files", "only JSON parse sync"],
+        0,
+      ),
+      codeFill(
+        "nf-ev5",
+        "pipe",
+        "pipe",
+        "js",
+        "readable.___(writable);",
+        ["pipe"],
+        true,
+      ),
+      mcq(
+        "nf-ev6",
+        "Backpressure means:",
+        "Backpressure means:",
+        ["slow consumer signals producer", "always drop data", "block DNS", "ban async"],
+        0,
+      ),
+    ],
+  ),
+  exam("nf-events-exam", "Контрольна: events/streams", "Exam: events/streams", 3, [
+    mcq("nf-eve1", "on registers:", "on registers:", ["listener", "SQL view", "SSL cert only", "CSS"], 0),
+    codeFill("nf-eve2", "emit", "emit", "js", "e.___('x')", ["emit"], true),
+    codeFill("nf-eve3", "pipe", "pipe", "js", "rs.___(ws)", ["pipe"], true),
+    mcq("nf-eve4", "Streams are:", "Streams are:", ["chunk-oriented I/O", "only sync arrays", "DB engines", "fonts"], 0),
+  ]),
+]);
+
 export const nodeFundamentalsContent: CourseContent = {
   slug: "node_fundamentals",
   titleUk: "Node.js: fundamentals",
   titleEn: "Node.js Fundamentals",
   descriptionUk:
-    "Runtime, modules, fs/path, env, http server, npm, async — deep track + контрольні.",
+    "Runtime, modules, fs/path, env, http server, npm, async, events/streams — deep track + контрольні.",
   descriptionEn:
-    "Runtime, modules, fs/path, env, http server, npm, async — deep track + unit exams.",
+    "Runtime, modules, fs/path, env, http server, npm, async, events/streams — deep track + unit exams.",
   icon: "🟢",
   color: "#339933",
-  units: [runtime, modulesU, fsU, envU, httpU, npmU, asyncU, capstone],
+  units: [runtime, modulesU, fsU, envU, httpU, npmU, asyncU, eventsU, capstone],
 };

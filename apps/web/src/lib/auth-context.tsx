@@ -37,6 +37,22 @@ export type Character = {
   streakFreezes?: number;
   unlockedAvatars?: string[];
   onboarding?: Record<string, boolean>;
+  progression?: {
+    lastLevelAwarded?: number;
+    skillPoints?: number;
+    talents?: Record<string, number>;
+    unlockedTitles?: string[];
+    equippedTitle?: string | null;
+    unlockedFrames?: string[];
+    equippedFrame?: string | null;
+    pathBadges?: string[];
+    weekly?: {
+      weekKey: string;
+      talents: number;
+      lessons: number;
+      claimed: string[];
+    };
+  };
 };
 
 type AuthState = {

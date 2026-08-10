@@ -42,6 +42,9 @@ friendsRoutes.get("/", authMiddleware, async (c) => {
       where: eq(characters.userId, otherId),
     });
     const u = await db.query.users.findFirst({ where: eq(users.id, otherId) });
+    const prog = ch?.progression as
+      | { equippedTitle?: string | null; equippedFrame?: string | null }
+      | undefined;
     const entry = {
       friendshipId: f.id,
       userId: otherId,
@@ -49,6 +52,9 @@ friendsRoutes.get("/", authMiddleware, async (c) => {
       email: u?.email ?? "",
       globalLevel: ch?.globalLevel ?? 1,
       globalXp: ch?.globalXp ?? 0,
+      avatarKey: ch?.avatarKey ?? "default",
+      equippedTitle: prog?.equippedTitle ?? "rookie",
+      equippedFrame: prog?.equippedFrame ?? "none",
       status: f.status,
     };
     if (f.status === "accepted") friends.push(entry);

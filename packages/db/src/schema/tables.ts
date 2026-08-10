@@ -137,6 +137,13 @@ export const characters = pgTable("characters", {
       exploredPricing?: boolean;
       viewedLearnMap?: boolean;
       triedProgramming?: boolean;
+      wizardCompleted?: boolean;
+      personaStudent?: boolean;
+      personaParent?: boolean;
+      personaTeacher?: boolean;
+      /** UTC date YYYY-MM-DD of last daily login bonus */
+      dailyLoginDate?: string;
+      [key: string]: unknown;
     }>()
     .notNull()
     .default({}),
@@ -147,6 +154,30 @@ export const characters = pgTable("characters", {
     .$type<string[]>()
     .notNull()
     .default(["default", "wizard", "knight", "scholar", "fox", "robot"]),
+  /**
+   * Talent tree + cosmetics progression (skill points from levels).
+   * Shape: CharacterProgression from @eduforge/shared
+   */
+  progression: jsonb("progression")
+    .$type<{
+      lastLevelAwarded?: number;
+      skillPoints?: number;
+      talents?: Record<string, number>;
+      unlockedTitles?: string[];
+      equippedTitle?: string | null;
+      unlockedFrames?: string[];
+      equippedFrame?: string | null;
+    }>()
+    .notNull()
+    .default({
+      lastLevelAwarded: 1,
+      skillPoints: 0,
+      talents: {},
+      unlockedTitles: ["rookie"],
+      equippedTitle: "rookie",
+      unlockedFrames: ["none"],
+      equippedFrame: "none",
+    }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -743,6 +774,33 @@ export const shopPurchases = pgTable("shop_purchases", {
   costXp: integer("cost_xp").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const giftStatusEnum = pgEnum("gift_status", ["pending", "claimed", "expired"]);
+
+/** Friend-to-friend gifts (hearts, XP, cosmetics, mystery). */
+export const characterGifts = pgTable(
+  "character_gifts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    fromUserId: uuid("from_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    toUserId: uuid("to_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    giftKey: varchar("gift_key", { length: 64 }).notNull(),
+    message: varchar("message", { length: 280 }),
+    status: giftStatusEnum("status").notNull().default("pending"),
+    /** Resolved mystery / grant payload for claim */
+    payload: jsonb("payload").$type<Record<string, unknown>>().notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    claimedAt: timestamp("claimed_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("character_gifts_to_status_idx").on(t.toUserId, t.status),
+    index("character_gifts_from_created_idx").on(t.fromUserId, t.createdAt),
+  ],
+);
 
 export const userDailyQuests = pgTable(
   "user_daily_quests",

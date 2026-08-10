@@ -84,24 +84,42 @@ const doc = {
     "/judge/status": {
       get: {
         tags: ["judge"],
-        summary: "Code judge mode and languages",
-        responses: { "200": { description: "mode + langs" } },
+        summary: "Code judge mode, languages, queue stats",
+        responses: { "200": { description: "mode + langs + queue" } },
       },
     },
     "/judge/run": {
       post: {
         tags: ["judge"],
-        summary: "Run multi-lang code job (local or Docker)",
+        summary: "Run or enqueue multi-lang code job (body.async / processInline)",
         security: [{ bearerAuth: [] }],
-        responses: { "200": { description: "JudgeResult" } },
+        responses: { "200": { description: "JudgeResult or queued jobId + poll path" } },
+      },
+    },
+    "/judge/result/{jobId}": {
+      get: {
+        tags: ["judge"],
+        summary: "Poll async judge job result (TTL ~10m)",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "status queued|running|done|error + result" },
+          "404": { description: "not_found" },
+        },
+      },
+    },
+    "/judge/worker/drain": {
+      post: {
+        tags: ["judge"],
+        summary: "Worker tick: process up to N queued jobs (JUDGE_WORKER_SECRET / CRON_SECRET)",
+        responses: { "200": { description: "processed count + queue stats" }, "401": { description: "unauthorized" } },
       },
     },
     "/review": {
       get: {
         tags: ["learning"],
-        summary: "Review queue; ?from=exam adds exam fail context",
+        summary: "Review queue with reasons; ?from=exam adds exam fail context",
         security: [{ bearerAuth: [] }],
-        responses: { "200": { description: "items + optional examContext" } },
+        responses: { "200": { description: "items + reasons + optional examContext" } },
       },
     },
     "/billing/entitlements": {
@@ -545,6 +563,41 @@ const doc = {
         responses: { "200": { description: "sent/failed counts" } },
       },
     },
+    "/analytics/events": {
+      post: {
+        tags: ["analytics"],
+        summary: "Track product funnel event (paywall_shown, first_lesson_complete, …)",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "{ ok, tracked, deduped? }" },
+          "400": { description: "unknown_event / invalid_input" },
+        },
+      },
+    },
+    "/analytics/funnel": {
+      get: {
+        tags: ["analytics"],
+        summary: "Admin product funnel aggregates (7d default); compare=1 for prior window deltas",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "days",
+            in: "query",
+            schema: { type: "integer", default: 7 },
+          },
+          {
+            name: "compare",
+            in: "query",
+            schema: { type: "string", enum: ["1", "true"] },
+            description: "Include previous equal window + percent deltas",
+          },
+        ],
+        responses: {
+          "200": { description: "funnel counts; optional history" },
+          "403": { description: "admin only" },
+        },
+      },
+    },
     "/analytics/class/{classId}": {
       get: {
         tags: ["analytics"],
@@ -764,6 +817,17 @@ const doc = {
         responses: { "200": { description: "Metrics JSON" } },
       },
     },
+    "/admin/metrics/funnel.csv": {
+      get: {
+        tags: ["admin"],
+        summary: "Product funnel current vs previous window CSV",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: "days", in: "query", schema: { type: "integer", default: 7 } },
+        ],
+        responses: { "200": { description: "text/csv" } },
+      },
+    },
     "/admin/metrics.csv": {
       get: {
         tags: ["admin"],
@@ -933,6 +997,127 @@ const doc = {
         summary: "Search courses and users",
         security: [{ bearerAuth: [] }],
         responses: { "200": { description: "Results" } },
+      },
+    },
+    "/character/progression": {
+      get: {
+        tags: ["character"],
+        summary: "Talent tree, skill points, titles/frames",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "progression + catalogs" } },
+      },
+    },
+    "/character/talents/spend": {
+      post: {
+        tags: ["character"],
+        summary: "Spend skill points on a talent rank",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "updated character" },
+          "400": { description: "no_skill_points | max_rank" },
+        },
+      },
+    },
+    "/character/cosmetics/equip": {
+      post: {
+        tags: ["character"],
+        summary: "Equip unlocked title or avatar frame",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "updated progression" }, "400": { description: "locked" } },
+      },
+    },
+    "/character/talents/respec": {
+      post: {
+        tags: ["character"],
+        summary: "Refund all talent ranks into skill points (XP cost scales)",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "refunded + character" },
+          "402": { description: "insufficient_xp" },
+          "400": { description: "nothing_to_respec" },
+        },
+      },
+    },
+    "/character/weekly": {
+      get: {
+        tags: ["character"],
+        summary: "Weekly build/lesson quests for current ISO week",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "weekKey + quests[]" } },
+      },
+    },
+    "/character/weekly/{questKey}/claim": {
+      post: {
+        tags: ["character"],
+        summary: "Claim weekly quest XP",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "rewardXp + character" },
+          "400": { description: "not_completed | already_claimed" },
+        },
+      },
+    },
+    "/admin/ops/weekly-quest-remind": {
+      post: {
+        tags: ["ops"],
+        summary: "Nudge users with open weekly quests (notify + push)",
+        responses: { "200": { description: "scanned/eligible/notified/pushed" } },
+      },
+    },
+
+    "/gifts/catalog": {
+      get: {
+        tags: ["social"],
+        summary: "Friend gift catalog (cheer, XP, cosmetics, mystery)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "gifts[]" } },
+      },
+    },
+    "/gifts/inbox": {
+      get: {
+        tags: ["social"],
+        summary: "Pending gifts to claim",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "gifts[]" } },
+      },
+    },
+    "/gifts/send": {
+      post: {
+        tags: ["social"],
+        summary: "Send gift to accepted friend (notify + optional push)",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "gift created" },
+          "402": { description: "insufficient_xp" },
+          "403": { description: "not_friends" },
+          "429": { description: "daily_limit" },
+        },
+      },
+    },
+    "/gifts/claim/{id}": {
+      post: {
+        tags: ["social"],
+        summary: "Claim pending gift rewards",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "character + payload" }, "404": { description: "not_found" } },
+      },
+    },
+    "/me/login-bonus": {
+      post: {
+        tags: ["me"],
+        summary: "Daily check-in XP (streak-scaled, once per UTC day)",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "rewardXp + character; alreadyClaimed if repeat" },
+        },
+      },
+    },
+    "/quests/daily": {
+      get: {
+        tags: ["engagement"],
+        summary: "Daily quests (lessons, XP, focus, exams, gifts, talents, login)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "date + quests[]" } },
       },
     },
   },

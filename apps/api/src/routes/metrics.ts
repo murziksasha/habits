@@ -16,6 +16,11 @@ import { latencyStats } from "../logger.js";
 import { spanStats } from "../otel.js";
 import { getRedis } from "../redis.js";
 import { checkReady } from "../ready.js";
+import {
+  productFunnelCompare,
+  productFunnelCounts,
+} from "../services/product-analytics.js";
+import { judgeQueueStats } from "@eduforge/judge";
 
 export const metricsRoutes = new Hono();
 
@@ -51,6 +56,9 @@ metricsRoutes.get("/", async (c) => {
   const latency = latencyStats();
 
   const flags = resolveFeatureFlags();
+  const funnel7d = await productFunnelCounts(db, 7);
+  const funnelHistory7d = await productFunnelCompare(db, 7);
+  const judgeQueue = await judgeQueueStats();
 
   return c.json({
     service: "eduforge-api",
@@ -67,7 +75,12 @@ metricsRoutes.get("/", async (c) => {
       emailVerify: flags.email_verify,
       devBilling: flags.dev_billing,
     },
-    judge: { mode: getJudgeMode() },
+    judge: { mode: getJudgeMode(), queue: judgeQueue },
+    productFunnel7d: funnel7d,
+    productFunnelHistory7d: {
+      windowDays: funnelHistory7d.windowDays,
+      deltas: funnelHistory7d.deltas,
+    },
     otel: spanStats(),
     latency,
     counts: {

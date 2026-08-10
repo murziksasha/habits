@@ -8,7 +8,7 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "test:unit": "turbo run test --filter=@eduforge/shared --filter=@eduforge/chess-core --filter=@eduforge/content --filter=@eduforge/judge --filter=@eduforge/api --filter=@eduforge/realtime",
+    "test:unit": "turbo run test --filter=@eduforge/shared --filter=@eduforge/chess-core --filter=@eduforge/content --filter=@eduforge/judge --filter=@eduforge/api --filter=@eduforge/realtime --filter=@eduforge/mobile --filter=@eduforge/web",
     "test:integration": "pnpm --filter @eduforge/api test:integration",
     "test:e2e": "pnpm --filter @eduforge/web test:e2e",
     "ci": "pnpm typecheck && pnpm test:unit",

@@ -353,14 +353,123 @@ export function createCounter() {
   ]),
 ]);
 
+const errorsProto = unit("errors_proto", "Errors & prototypes", "Errors & prototypes", [
+  lesson(
+    "jsf-try-catch",
+    "try / catch / finally",
+    "try / catch / finally",
+    3,
+    false,
+    [
+      mcq(
+        "jsf-e1",
+        "catch ловить:",
+        "catch handles:",
+        ["кинуті помилки в try", "лише syntax errors always", "network only", "CSS"],
+        0,
+      ),
+      codeFill(
+        "jsf-e2",
+        "throw",
+        "throw",
+        "js",
+        "___ new Error('x');",
+        ["throw"],
+        true,
+      ),
+      codeRead(
+        "jsf-e3",
+        "finally runs?",
+        "finally runs?",
+        "js",
+        "try { return 1; } finally { console.log('f'); }",
+        ["yes, before return completes", "never", "only on error", "syntax error"],
+        0,
+      ),
+    ],
+  ),
+  lesson(
+    "jsf-proto",
+    "Prototype chain",
+    "Prototype chain",
+    3,
+    false,
+    [
+      mcq(
+        "jsf-e4",
+        "obj.__proto__ points to:",
+        "obj.__proto__ points to:",
+        ["prototype of constructor", "global window always", "null always", "class name string"],
+        0,
+      ),
+      codeFill(
+        "jsf-e5",
+        "hasOwnProperty",
+        "hasOwnProperty",
+        "js",
+        "obj.___('x')",
+        ["hasOwnProperty"],
+        true,
+      ),
+      mcq(
+        "jsf-e6",
+        "class extends uses:",
+        "class extends uses:",
+        ["prototype inheritance", "copy paste only", "CSS cascade", "SQL joins"],
+        0,
+      ),
+    ],
+  ),
+  lesson(
+    "jsf-iter",
+    "Iterables & for..of",
+    "Iterables & for..of",
+    3,
+    false,
+    [
+      codeFill(
+        "jsf-e7",
+        "for of",
+        "for of",
+        "js",
+        "for (const x ___ arr) {}",
+        ["of"],
+        true,
+      ),
+      mcq(
+        "jsf-e8",
+        "for..in iterates:",
+        "for..in iterates:",
+        ["enumerable keys", "only values", "only Map", "DOM nodes only"],
+        0,
+      ),
+      codeFill(
+        "jsf-e9",
+        "Symbol.iterator",
+        "Symbol.iterator",
+        "js",
+        "arr[Symbol.___]",
+        ["iterator"],
+        true,
+      ),
+    ],
+  ),
+  exam("jsf-errors-exam", "Контрольна: errors/proto", "Exam: errors/proto", 3, [
+    mcq("jsf-ee1", "throw creates:", "throw creates:", ["exception flow", "CSS rule", "SQL row", "HTTP always"], 0),
+    codeFill("jsf-ee2", "catch", "catch", "js", "try {} ___ (e) {}", ["catch"], true),
+    codeFill("jsf-ee3", "for of", "for of", "js", "for (const x ___ xs)", ["of"], true),
+    mcq("jsf-ee4", "prototype is about:", "prototype is about:", ["inheritance", "only JSON", "only CSS", "DB indexes"], 0),
+  ]),
+]);
+
 export const jsFundamentalsContent: CourseContent = {
   slug: "js_fundamentals",
   titleUk: "JavaScript: fundamentals",
   titleEn: "JavaScript Fundamentals",
   descriptionUk:
-    "Глибокий JS: типи, operators, functions, arrays, objects, async/await, DOM, modules + контрольні.",
+    "Глибокий JS: типи, operators, functions, arrays, objects, async/await, DOM, modules, errors/prototypes + контрольні.",
   descriptionEn:
-    "Deep JS: types, operators, functions, arrays, objects, async/await, DOM, modules + unit exams.",
+    "Deep JS: types, operators, functions, arrays, objects, async/await, DOM, modules, errors/prototypes + unit exams.",
   icon: "⚡",
   color: "#F7DF1E",
   units: [
@@ -372,6 +481,7 @@ export const jsFundamentalsContent: CourseContent = {
     asyncU,
     domU,
     modulesU,
+    errorsProto,
     capstone,
   ],
 };

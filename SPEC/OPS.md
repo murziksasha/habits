@@ -70,6 +70,26 @@ See [CRON.md](./CRON.md). Protect with `CRON_SECRET`. Feature flags:
 9. Optional: Google OAuth client + redirect `…/auth/oauth/google/callback`
 10. Optional: `STRIPE_PRICE_FAMILY` for family checkout
 
+## Metrics & product funnel
+
+| Endpoint | Use |
+|----------|-----|
+| `GET /metrics` | Ops counts, latency, `productFunnel7d`, `judge.queue`, OTel span stats |
+| `GET /analytics/funnel?days=7` | Admin-only funnel (first_lesson, paywall_shown, exams) |
+| `POST /analytics/events` | Client events: `paywall_shown`, `paywall_cta_click`, onboarding_* |
+
+Protect `/metrics` with `METRICS_TOKEN` in production. SLOs (targets): API p95 &lt; 500ms for auth/lesson submit; `/ready` 99.9%; judge fail-closed when disabled.
+
+## Observability (OTel)
+
+```bash
+docker compose --profile otel up -d otel-collector
+# API env:
+# OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+```
+
+Spans export OTLP/HTTP JSON when endpoint set (`apps/api/src/otel.ts`).
+
 ## Incident cheat sheet
 
 | Symptom | Check |

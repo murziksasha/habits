@@ -7,7 +7,14 @@ import {
   sessions,
   users,
 } from "@eduforge/db";
-import { isFeatureEnabled, loginSchema, passwordSchema, registerSchema } from "@eduforge/shared";
+import {
+  applyLevelUps,
+  isFeatureEnabled,
+  loginSchema,
+  normalizeProgression,
+  passwordSchema,
+  registerSchema,
+} from "@eduforge/shared";
 import { z } from "zod";
 import { randomBytes } from "node:crypto";
 import {
@@ -250,13 +257,30 @@ authRoutes.get("/me", authMiddleware, async (c) => {
   let character = await db.query.characters.findFirst({
     where: eq(characters.userId, user.id),
   });
-  // Reset daily XP display if date rolled over
+  // Reset daily XP display if date rolled over; backfill talent skill points
   if (character) {
     const today = new Date().toISOString().slice(0, 10);
+    const patch: Partial<typeof characters.$inferInsert> = {};
     if (character.dailyXpDate !== today && (character.dailyXp ?? 0) > 0) {
+      patch.dailyXp = 0;
+      patch.dailyXpDate = today;
+    }
+    const progression = applyLevelUps(
+      normalizeProgression(character.progression),
+      character.globalLevel,
+    );
+    const prev = normalizeProgression(character.progression);
+    if (
+      progression.skillPoints !== prev.skillPoints ||
+      progression.lastLevelAwarded !== prev.lastLevelAwarded ||
+      progression.unlockedTitles.length !== prev.unlockedTitles.length
+    ) {
+      patch.progression = progression;
+    }
+    if (Object.keys(patch).length > 0) {
       const [updated] = await db
         .update(characters)
-        .set({ dailyXp: 0, dailyXpDate: today })
+        .set(patch)
         .where(eq(characters.id, character.id))
         .returning();
       character = updated;

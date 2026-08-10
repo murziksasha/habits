@@ -1,23 +1,6 @@
-"use client";
+import { SqlFundamentalsClient } from "./sql-fundamentals-client";
 
-import { useLocale } from "@/lib/locale-context";
-import { DeepCourseHub } from "@/components/deep-course-hub";
-
-export default function SqlFundamentalsHubPage() {
-  const { t, locale } = useLocale();
-  return (
-    <DeepCourseHub
-      courseSlug="sql_fundamentals"
-      icon="🗄️"
-      color="#336791"
-      title={t.courses.sql_fundamentals}
-      subtitle={
-        locale === "en"
-          ? "SELECT, JOINs, aggregates, DML, keys — with unit exams."
-          : "SELECT, JOINs, aggregates, DML, keys — з контрольними."
-      }
-      backHref="/programming"
-      backLabel={`💻 ${t.nav.programming}`}
-    />
-  );
+/** RSC shell — sql-fundamentals */
+export default function SqlFundamentalsPage() {
+  return <SqlFundamentalsClient />;
 }

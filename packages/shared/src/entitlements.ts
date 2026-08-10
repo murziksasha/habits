@@ -30,6 +30,8 @@ export function regenerateHearts(opts: {
   hearts: number;
   heartsUpdatedAt: Date | string | null | undefined;
   now?: Date;
+  /** Override interval minutes (e.g. vitality talent). Min 10. */
+  regenMinutes?: number;
 }): { hearts: number; heartsUpdatedAt: Date; changed: boolean } {
   const now = opts.now ?? new Date();
   const max = maxHearts(opts.plan);
@@ -42,7 +44,8 @@ export function regenerateHearts(opts: {
     return { hearts: max, heartsUpdatedAt: updatedAt, changed: false };
   }
   const elapsedMs = now.getTime() - updatedAt.getTime();
-  const regenMs = HEART_REGEN_MINUTES * 60 * 1000;
+  const minutes = Math.max(10, opts.regenMinutes ?? HEART_REGEN_MINUTES);
+  const regenMs = minutes * 60 * 1000;
   const gained = Math.floor(elapsedMs / regenMs);
   if (gained <= 0) {
     return { hearts, heartsUpdatedAt: updatedAt, changed: false };

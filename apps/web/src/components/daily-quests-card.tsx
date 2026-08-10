@@ -14,6 +14,8 @@ type Quest = {
   completed: boolean;
   claimed: boolean;
   metric: string;
+  titleUk?: string;
+  titleEn?: string;
 };
 
 /** Compact daily quests for dashboard / learn (primary mission loop). */
@@ -43,7 +45,8 @@ export function DailyQuestsCard() {
 
   const en = locale === "en";
   const title =
-    primary.metric === "lessons"
+    (en ? primary.titleEn : primary.titleUk) ||
+    (primary.metric === "lessons"
       ? en
         ? "Complete 1 lesson"
         : "Пройти 1 урок"
@@ -55,9 +58,21 @@ export function DailyQuestsCard() {
           ? en
             ? `${primary.target} min focus`
             : `${primary.target} хв фокусу`
-          : en
-            ? "Pass 1 exam"
-            : "1 контрольна";
+          : primary.metric === "gifts"
+            ? en
+              ? "Send a gift"
+              : "Подарунок другу"
+            : primary.metric === "talents"
+              ? en
+                ? "Upgrade a talent"
+                : "Прокачай талант"
+              : primary.metric === "login"
+                ? en
+                  ? "Daily check-in"
+                  : "Щоденний вхід"
+                : en
+                  ? "Pass 1 exam"
+                  : "1 контрольна");
 
   const ratio = Math.min(1, primary.progress / Math.max(1, primary.target));
 

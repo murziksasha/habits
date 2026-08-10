@@ -406,15 +406,90 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
   ]),
 ]);
 
+const windowsU = unit("windows", "Window functions", "Window functions", [
+  lesson(
+    "sqlf-window-row",
+    "ROW_NUMBER / OVER",
+    "ROW_NUMBER / OVER",
+    3,
+    false,
+    [
+      mcq(
+        "sqlf-w1",
+        "Window functions keep:",
+        "Window functions keep:",
+        ["row detail + analytic value", "only aggregate one row", "drop table", "indexes only"],
+        0,
+      ),
+      codeFill(
+        "sqlf-w2",
+        "row number",
+        "row number",
+        "sql",
+        "SELECT ___() OVER (ORDER BY created_at) AS rn FROM t;",
+        ["ROW_NUMBER", "row_number"],
+        false,
+      ),
+      codeFill(
+        "sqlf-w3",
+        "partition",
+        "partition",
+        "sql",
+        "… OVER (___ BY user_id ORDER BY ts)",
+        ["PARTITION", "partition"],
+        false,
+      ),
+    ],
+  ),
+  lesson(
+    "sqlf-window-rank",
+    "RANK vs DENSE_RANK",
+    "RANK vs DENSE_RANK",
+    3,
+    false,
+    [
+      mcq(
+        "sqlf-w4",
+        "RANK after ties 1,1 next is:",
+        "RANK after ties 1,1 next is:",
+        ["3 (skips)", "2 always", "0", "null"],
+        0,
+      ),
+      mcq(
+        "sqlf-w5",
+        "DENSE_RANK after ties 1,1 next is:",
+        "DENSE_RANK after ties 1,1 next is:",
+        ["2 (no skip)", "3", "1 only", "error"],
+        0,
+      ),
+      codeFill(
+        "sqlf-w6",
+        "dense",
+        "dense",
+        "sql",
+        "SELECT ___(score) OVER (ORDER BY score DESC) FROM t;",
+        ["DENSE_RANK", "dense_rank", "RANK", "rank"],
+        false,
+      ),
+    ],
+  ),
+  exam("sqlf-window-exam", "Контрольна: windows", "Exam: windows", 3, [
+    mcq("sqlf-we1", "OVER is used with:", "OVER is used with:", ["window funcs", "only DELETE", "only GRANT", "CSS"], 0),
+    codeFill("sqlf-we2", "ROW_NUMBER", "ROW_NUMBER", "sql", "___() OVER (ORDER BY id)", ["ROW_NUMBER", "row_number"], false),
+    mcq("sqlf-we3", "PARTITION BY:", "PARTITION BY:", ["groups window", "drops table", "renames DB", "locks only"], 0),
+    codeFill("sqlf-we4", "ORDER in window", "ORDER in window", "sql", "OVER (PARTITION BY u ___ BY ts)", ["ORDER", "order"], false),
+  ]),
+]);
+
 export const sqlFundamentalsContent: CourseContent = {
   slug: "sql_fundamentals",
   titleUk: "SQL: fundamentals",
   titleEn: "SQL Fundamentals",
   descriptionUk:
-    "SELECT, WHERE, ORDER/LIMIT, JOINs, aggregates, DML, keys/indexes + контрольні.",
+    "SELECT, WHERE, ORDER/LIMIT, JOINs, aggregates, DML, keys/indexes, window functions + контрольні.",
   descriptionEn:
-    "SELECT, WHERE, ORDER/LIMIT, JOINs, aggregates, DML, keys/indexes + unit exams.",
+    "SELECT, WHERE, ORDER/LIMIT, JOINs, aggregates, DML, keys/indexes, window functions + unit exams.",
   icon: "🗄️",
   color: "#336791",
-  units: [selectU, orderLimit, joins, aggregates, dml, modeling, capstone],
+  units: [selectU, orderLimit, joins, aggregates, dml, modeling, windowsU, capstone],
 };

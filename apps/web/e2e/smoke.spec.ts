@@ -29,6 +29,21 @@ test.describe("EduForge smoke", () => {
     await expect(page.getByText(/Спробуйте без|Try without|const x/i).first()).toBeVisible();
   });
 
+  test("pricing page shows free and premium columns", async ({ page }) => {
+    await page.goto("/pricing");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/Free|Безкоштов|Premium|Преміум/i).first()).toBeVisible();
+    await expect(page.getByText(/урок|lesson|серц|heart|шах|chess/i).first()).toBeVisible();
+  });
+
+  test("courses catalog lists groups", async ({ page }) => {
+    await page.goto("/courses");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await expect(
+      page.getByText(/English|Англій|Programming|Програм|Chess|Шах|Deep|Code|Path/i).first(),
+    ).toBeVisible({ timeout: 15_000 });
+  });
+
   test("register → learn (or wizard) → english course → lesson", async ({ page }) => {
     await page.goto("/register");
 
@@ -182,6 +197,70 @@ test.describe("EduForge smoke", () => {
     expect(json.paths["/learning/programming/minis/race"]).toBeTruthy();
     expect(json.paths["/auth/sessions"]).toBeTruthy();
     expect(json.paths["/auth/logout-others"]).toBeTruthy();
+    expect(json.paths["/analytics/events"]).toBeTruthy();
+    expect(json.paths["/judge/result/{jobId}"]).toBeTruthy();
+    expect(json.paths["/judge/worker/drain"]).toBeTruthy();
+    expect(json.paths["/admin/metrics/funnel.csv"]).toBeTruthy();
+    expect(json.paths["/character/progression"]).toBeTruthy();
+    expect(json.paths["/character/talents/spend"]).toBeTruthy();
+    expect(json.paths["/character/talents/respec"]).toBeTruthy();
+    expect(json.paths["/character/weekly"]).toBeTruthy();
+    expect(json.paths["/character/weekly/{questKey}/claim"]).toBeTruthy();
+    expect(json.paths["/gifts/catalog"]).toBeTruthy();
+    expect(json.paths["/gifts/inbox"]).toBeTruthy();
+    expect(json.paths["/gifts/send"]).toBeTruthy();
+    expect(json.paths["/gifts/claim/{id}"]).toBeTruthy();
+    expect(json.paths["/me/login-bonus"]).toBeTruthy();
+    expect(json.paths["/quests/daily"]).toBeTruthy();
+  });
+
+  test("character progression API and profile UI", async ({ page, request }) => {
+    await loginAsAdmin(page);
+    const api = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+    const cookies = await page.context().cookies();
+    const session = cookies.find((c) => c.name === "eduforge_session")?.value;
+    expect(session).toBeTruthy();
+    const res = await request.get(`${api}/character/progression`, {
+      headers: { Authorization: `Bearer ${session}` },
+    });
+    expect(res.ok()).toBeTruthy();
+    const json = (await res.json()) as {
+      progression: { skillPoints: number; unlockedTitles: string[] };
+      talents: { id: string }[];
+    };
+    expect(Array.isArray(json.talents)).toBeTruthy();
+    expect(json.talents.length).toBeGreaterThanOrEqual(6);
+    expect(json.progression.unlockedTitles).toContain("rookie");
+
+    await page.goto("/profile");
+    await expect(
+      page.getByText(/Character build|Прокачка персонажа|Skill points|Очки/i).first(),
+    ).toBeVisible({ timeout: 15_000 });
+  });
+
+  test("gifts catalog API and friends gifts UI", async ({ page, request }) => {
+    await loginAsAdmin(page);
+    const api = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+    const cookies = await page.context().cookies();
+    const session = cookies.find((c) => c.name === "eduforge_session")?.value;
+    expect(session).toBeTruthy();
+    const cat = await request.get(`${api}/gifts/catalog`, {
+      headers: { Authorization: `Bearer ${session}` },
+    });
+    expect(cat.ok()).toBeTruthy();
+    const catJson = (await cat.json()) as { gifts: { id: string }[] };
+    expect(catJson.gifts.some((g) => g.id === "cheer")).toBeTruthy();
+    expect(catJson.gifts.some((g) => g.id === "mystery_box")).toBeTruthy();
+
+    const inbox = await request.get(`${api}/gifts/inbox`, {
+      headers: { Authorization: `Bearer ${session}` },
+    });
+    expect(inbox.ok()).toBeTruthy();
+
+    await page.goto("/friends");
+    await expect(page.getByText(/Gifts|Подарунки|Send gift|Надіслати/i).first()).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
   test("friends page loads social minis sections", async ({ page }) => {
@@ -223,6 +302,55 @@ test.describe("EduForge smoke", () => {
     await expect(page.getByText(/Місія дня|Today.?s mission|Продовжити|Continue|Start now|Почати/i).first()).toBeVisible({
       timeout: 15_000,
     });
+  });
+
+  test("review inbox loads unified queue", async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto("/review");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await expect(
+      page.getByText(/Повтор|Review|інбокс|inbox|слабк|weak|картк|flashcard|порожн|empty/i).first(),
+    ).toBeVisible({ timeout: 15_000 });
+  });
+
+  test("admin metrics shows product funnel", async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto("/admin/metrics");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await expect(
+      page.getByText(/Product funnel|First lesson|Paywall|Metrics|Метрик|previous/i).first(),
+    ).toBeVisible({ timeout: 20_000 });
+  });
+
+  test("search page loads for logged-in user", async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto("/search");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator("input").first()).toBeVisible();
+  });
+
+  test("leaderboard page shows tabs", async ({ page }) => {
+    await page.goto("/leaderboard");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await expect(
+      page.getByRole("button", { name: /Global|Глобал|Chess|Шах|Playground|таблиц/i }).first(),
+    ).toBeVisible({ timeout: 15_000 });
+  });
+
+  test("quests and achievements pages load when authed", async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto("/quests");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+    await page.goto("/achievements");
+    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
+  });
+
+  test("dashboard friends flashcards shells load", async ({ page }) => {
+    await loginAsAdmin(page);
+    for (const path of ["/dashboard", "/friends", "/flashcards", "/review"]) {
+      await page.goto(path);
+      await expect(page.locator("main")).toBeVisible({ timeout: 15_000 });
+    }
   });
 
   test("search tools hub loads", async ({ page }) => {

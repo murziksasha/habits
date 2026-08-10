@@ -394,5 +394,104 @@ export const chessContent: CourseContent = {
         },
       ],
     },
+    {
+      slug: "tactics-boost",
+      titleUk: "Тактика boost",
+      titleEn: "Tactics boost",
+      lessons: [
+        {
+          slug: "fork-basics",
+          titleUk: "Вилка (fork)",
+          titleEn: "Fork basics",
+          baseXp: 22,
+          difficulty: 2,
+          isFree: true,
+          exercises: [
+            {
+              id: "ch-t1",
+              type: "mcq",
+              promptUk: "Вилка — це:",
+              options: [
+                "Одна фігура атакує дві цілі",
+                "Лише рокіровка",
+                "Здача партії",
+                "Тільки пат",
+              ],
+              correctIndex: 0,
+            },
+            {
+              id: "ch-t2",
+              type: "chess_puzzle",
+              promptUk: "Кінь б'є з вилкою",
+              fen: "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4",
+              solutionSans: ["Ng5"],
+              difficulty: 2,
+            },
+          ],
+        },
+        {
+          slug: "pin-basics",
+          titleUk: "Зв'язка (pin)",
+          titleEn: "Pin basics",
+          baseXp: 22,
+          difficulty: 2,
+          exercises: [
+            {
+              id: "ch-t3",
+              type: "mcq",
+              promptUk: "Зв'язка обмежує фігуру, бо:",
+              options: [
+                "За нею цінніша ціль (король/ферзь)",
+                "Завжди незаконний хід",
+                "Немає правил",
+                "Тільки в ендшпілі",
+              ],
+              correctIndex: 0,
+            },
+            {
+              id: "ch-t4",
+              type: "mcq",
+              promptUk: "Абсолютна зв'язка — проти:",
+              options: ["Короля", "Тільки пішака a2", "Порожньої клітини", "Рокіровки"],
+              correctIndex: 0,
+            },
+          ],
+        },
+        {
+          slug: "discovered-attack",
+          titleUk: "Відкрите нападення",
+          titleEn: "Discovered attack",
+          baseXp: 24,
+          difficulty: 3,
+          exercises: [
+            {
+              id: "ch-t5",
+              type: "mcq",
+              promptUk: "Відкрите нападення виникає, коли:",
+              options: [
+                "Фігура йде з лінії, відкриваючи атаку іншої",
+                "Робите лише 0-0",
+                "З'їдаєте власну фігуру",
+                "Пропускаєте хід",
+              ],
+              correctIndex: 0,
+            },
+            {
+              id: "ch-t6",
+              type: "chess_lesson",
+              promptUk: "Шукайте батареї тура/слон/ферзь",
+              fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+              notesUk:
+                "Розташуйте далекобійну фігуру за пішаком або конем — відхід відкриває удар.",
+              quiz: {
+                q: "Ключ до discovered attack?",
+                options: ["Лінія + відхід", "Тільки кінь без лінії", "Лише ендшпіль", "Випадкові ходи"],
+                correctIndex: 0,
+              },
+            },
+          ],
+        },
+      ],
+    },
   ],
 };

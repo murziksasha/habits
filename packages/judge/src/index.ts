@@ -5,6 +5,21 @@ import type { JudgeJob, JudgeMode, JudgeResult } from "./types.js";
 export type * from "./types.js";
 export { runLocal } from "./local-runner.js";
 export { runDocker } from "./docker-runner.js";
+export {
+  attachJudgeRedis,
+  enqueueJudgeJob,
+  dequeueJudgeJob,
+  processOneJudgeJob,
+  processJudgeBatch,
+  getJudgeResult,
+  judgeQueueStats,
+  judgeQueueBackend,
+  resetJudgeQueueForTests,
+  JUDGE_RESULT_TTL_SEC,
+  type JudgeQueueJob,
+  type JudgeQueueStats,
+  type StoredJudgeResult,
+} from "./queue.js";
 
 function envMap(): Record<string, string | undefined> {
   try {

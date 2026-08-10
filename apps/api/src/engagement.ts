@@ -144,6 +144,18 @@ export type UnlockContext = {
   minisRaceRank?: number;
   /** Unit exam just passed */
   examPassed?: boolean;
+  /** Friend gift sent */
+  giftSent?: boolean;
+  /** Friend gift claimed */
+  giftClaimed?: boolean;
+  /** Talent rank purchased (skill points spent) */
+  talentSpent?: boolean;
+  /** Total talent ranks across tree (sum of ranks) */
+  talentRanksTotal?: number;
+  /** Path badges owned count */
+  pathBadgeCount?: number;
+  /** True when any new path badge unlocked this session */
+  pathBadgeEarned?: boolean;
 };
 
 /** Evaluate and unlock achievements; returns newly unlocked list */
@@ -366,6 +378,15 @@ export async function evaluateAchievements(
   if (ctx.chessPlayed) await tryUnlock("chess_player");
   if (ctx.joinedClass) await tryUnlock("social_learner");
   if (ctx.joinedTournament) await tryUnlock("tournament_entry");
+  if (ctx.giftSent) await tryUnlock("gift_first_send");
+  if (ctx.giftClaimed) await tryUnlock("gift_first_claim");
+  if (ctx.talentSpent) await tryUnlock("talent_first");
+  if ((ctx.talentRanksTotal ?? 0) >= 3) await tryUnlock("talent_three");
+  if (ctx.pathBadgeEarned || (ctx.pathBadgeCount ?? 0) >= 1) {
+    await tryUnlock("path_badge_first");
+  }
+  if ((ctx.pathBadgeCount ?? 0) >= 3) await tryUnlock("path_badge_3");
+  if ((ctx.pathBadgeCount ?? 0) >= 8) await tryUnlock("path_badge_all");
 
   return unlocked;
 }
