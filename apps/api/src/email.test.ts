@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parentChildDigestEmail, weeklyReportEmail } from "./email.js";
+import { emailVerifyEmail, parentChildDigestEmail, weeklyReportEmail } from "./email.js";
 
 describe("retention emails", () => {
   it("parent digest includes exams, portal CTA, and inactive copy", () => {
@@ -55,5 +55,16 @@ describe("retention emails", () => {
     });
     expect(mail.subject).toMatch(/miss you/i);
     expect(mail.html).toMatch(/Continue learning|Back to learning|learn/i);
+  });
+
+  it("email verify message includes CTA", () => {
+    const mail = emailVerifyEmail({
+      to: "a@test.com",
+      verifyUrl: "http://localhost:3000/verify-email?token=abc",
+      locale: "uk",
+    });
+    expect(mail.subject).toMatch(/email/i);
+    expect(mail.html).toMatch(/verify-email\?token=abc/);
+    expect(mail.html).toMatch(/Підтвердити/);
   });
 });

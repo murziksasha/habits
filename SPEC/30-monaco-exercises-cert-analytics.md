@@ -8,13 +8,14 @@
 
 ## Programming path certificate
 
-- On lesson complete (≥50% accuracy): `maybeIssueCertificate` at **≥70%** of course lessons
-- Programming titles: `Сертифікат: Програмування` / `Certificate: Programming`
+- On lesson complete (passed): `maybeIssueCertificate` only when **100%** of course lessons are completed (exams included)
+- Titles use course `titleUk` / `titleEn` → `Сертифікат: …` / `Certificate: …`
 - When **all programming units** complete (`evaluateLearningMilestones`):
   - Milestone `prog_path_complete`
   - Certificate issued (if not yet) or **title upgraded** to  
     `Сертифікат: Programming Path` / `Certificate: Programming Path`
 - One cert per user+course (`cert_user_course` unique index)
+- UI download: PDF + PNG from `/certificates/[code]`
 
 ## Class analytics — playground & programming
 

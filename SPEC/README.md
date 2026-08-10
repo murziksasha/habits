@@ -82,6 +82,17 @@ This folder is the **source of truth** for the EduForge educational SaaS monorep
 | 74 | [Client C++ runner](./74-cpp-wasm-playground.md) | JSCPP/mock playground + code_run (no server judge) |
 | 75 | [React Studio + WebContainers roadmap](./75-react-studio-webcontainers-roadmap.md) | In-app React preview; WC Phase W → SPEC 76 |
 | 76 | [WebContainers Node Studio](./76-webcontainers-node-studio.md) | /studio/node Node+npm+Express/Next preview |
+| 77 | [Security & retention pack](./77-security-retention-pack.md) | Judge/billing/CSRF/email verify, Continue+Review, skill tree |
+| 78 | [OAuth, 2FA, family, teacher heat](./78-oauth-2fa-family-teacher.md) | Google OAuth, user TOTP, family seats, homework heatmap |
+| 79 | [UX user improvements](./79-ux-user-improvements.md) | Thin home, persona nav, lesson polish, ⌘K, guest trial |
+| 80 | [UX result sheet + auth polish](./80-ux-result-sheet-auth-polish.md) | Result sheet, next=, programming CTA, empty states |
+| 81 | [Chrome sticky offline](./81-ux-chrome-sticky-offline.md) | Hearts chrome, sticky Continue, PageLoading, offline retry |
+| 82 | [Surface quality](./82-ux-surface-quality.md) | PageLoading roll-out, mobile hearts, auto-retry submit |
+| 83 | [Hubs error keys match](./83-ux-hubs-error-keys-match.md) | Deep hubs loading, error toast, lesson keys, play sticky |
+| 84 | [PageLoading sweep](./84-ux-page-loading-sweep.md) | Notes/focus/homework/placement shells + play seek |
+| 85 | [Admin schools labs a11y](./85-admin-schools-labs-a11y.md) | Admin shell, schools detail, labs polish, a11y |
+| 86 | [Labs tournaments auth](./86-ux-labs-auth-tournaments.md) | Reports Labs, tournaments, 404, pricing/auth a11y |
+| 87 | [Studio classroom visual](./87-studio-classroom-admin-visual.md) | Node Studio, live class, admin polish, visual baselines |
 | — | **[CURRENT.md](./CURRENT.md)** | **Active product surface freeze, IA, improvement checklist** |
 | — | [CONTENT-DX.md](./CONTENT-DX.md) | Content authoring DX + EN gate |
 | — | [CRON.md](./CRON.md) | Digest / re-engage cron runbook |
@@ -89,9 +100,9 @@ This folder is the **source of truth** for the EduForge educational SaaS monorep
 | — | [OPS.md](./OPS.md) | Backups, multi-instance, flags, incidents |
 | — | [P2-STRATEGIC.md](./P2-STRATEGIC.md) | Judge, OTel, MDX, video, classroom, mobile foundations |
 
-> **Note:** Specs 01–71 are historical feature logs. Day-to-day product truth is **[CURRENT.md](./CURRENT.md)**.
+> **Note:** Specs 01–87 are historical feature logs. Day-to-day product truth is **[CURRENT.md](./CURRENT.md)**.
 
-**Status:** SPECs **01–71** implemented. Active product surface: **[CURRENT.md](./CURRENT.md)** (IA freeze + improvement priorities). Content authoring: **[CONTENT-DX.md](./CONTENT-DX.md)**. Cron jobs: **[CRON.md](./CRON.md)**.
+**Status:** SPECs **01–87** + improvement waves through **142** (full RSC strangler, character talents, friend gifts, course expansion). Active surface: **[CURRENT.md](./CURRENT.md)**. Content: **[CONTENT-DX.md](./CONTENT-DX.md)**. Cron: **[CRON.md](./CRON.md)**. Foundations: **[P2-STRATEGIC.md](./P2-STRATEGIC.md)**.
 
 ## Product name
 

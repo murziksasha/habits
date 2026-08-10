@@ -49,6 +49,24 @@ function ctaButton(href: string, label: string) {
   return `<p style="margin:20px 0"><a href="${href}" style="display:inline-block;background:#58CC02;color:#fff;font-weight:700;text-decoration:none;padding:12px 20px;border-radius:12px">${label}</a></p>`;
 }
 
+export function emailVerifyEmail(opts: {
+  to: string;
+  verifyUrl: string;
+  locale?: string;
+}): MailPayload {
+  const uk = (opts.locale ?? "uk") === "uk";
+  return {
+    to: opts.to,
+    subject: uk ? "Підтвердіть email — EduForge" : "Confirm your email — EduForge",
+    text: uk
+      ? `Вітаємо!\n\nПідтвердіть email за посиланням (дійсне 48 годин):\n${opts.verifyUrl}\n`
+      : `Hello!\n\nConfirm your email (valid 48 hours):\n${opts.verifyUrl}\n`,
+    html: uk
+      ? `<p>Вітаємо!</p>${ctaButton(opts.verifyUrl, "Підтвердити email")}<p>Посилання дійсне 48 годин.</p>`
+      : `<p>Hello!</p>${ctaButton(opts.verifyUrl, "Confirm email")}<p>Link valid 48 hours.</p>`,
+  };
+}
+
 export function passwordResetEmail(opts: {
   to: string;
   resetUrl: string;

@@ -16,6 +16,8 @@ export type User = {
   plan: "free" | "premium";
   role?: "user" | "admin";
   planExpiresAt?: string | null;
+  /** false = needs verification; true / undefined = ok */
+  emailVerified?: boolean;
   totpEnabled?: boolean;
   mfaVerified?: boolean;
   mfaEnrollRequired?: boolean;
@@ -35,6 +37,22 @@ export type Character = {
   streakFreezes?: number;
   unlockedAvatars?: string[];
   onboarding?: Record<string, boolean>;
+  progression?: {
+    lastLevelAwarded?: number;
+    skillPoints?: number;
+    talents?: Record<string, number>;
+    unlockedTitles?: string[];
+    equippedTitle?: string | null;
+    unlockedFrames?: string[];
+    equippedFrame?: string | null;
+    pathBadges?: string[];
+    weekly?: {
+      weekKey: string;
+      talents: number;
+      lessons: number;
+      claimed: string[];
+    };
+  };
 };
 
 type AuthState = {

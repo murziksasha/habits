@@ -14,11 +14,50 @@ export function hashToken(token: string) {
 }
 
 export async function hashPassword(password: string) {
-  return bcrypt.hash(password, 10);
+  return bcrypt.hash(password, 12);
 }
 
-export async function verifyPassword(password: string, hash: string) {
+/**
+ * Whether to include raw session token in JSON body.
+ * Production: only when client opts in (mobile/e2e via X-Issue-Bearer).
+ * Non-prod: yes by default for integration tests (ISSUE_BEARER_TOKENS=0 to disable).
+ */
+export function shouldIssueBearerToken(c: {
+  req: { header: (n: string) => string | undefined };
+}): boolean {
+  if (c.req.header("x-issue-bearer") === "1") return true;
+  if (process.env.ISSUE_BEARER_TOKENS === "0") return false;
+  if (process.env.ISSUE_BEARER_TOKENS === "1") return true;
+  return process.env.NODE_ENV !== "production";
+}
+
+export async function verifyPassword(password: string, hash: string | null | undefined) {
+  if (!hash) return false;
   return bcrypt.compare(password, hash);
+}
+
+/** Attach family/premium effective plan onto the user object for freemium gates. */
+export async function withEffectivePlan<T extends { id: string; plan: string; planExpiresAt?: Date | null }>(
+  user: T,
+): Promise<T> {
+  const { resolveEffectivePlan } = await import("./services/effective-plan.js");
+  const eff = await resolveEffectivePlan(user.id);
+  if (!eff.premiumActive) {
+    return { ...user, plan: "free" as T["plan"], planExpiresAt: null };
+  }
+  // Keep family plan label for owners; children get premium for gates
+  if (user.plan === "family") {
+    return {
+      ...user,
+      plan: "family" as T["plan"],
+      planExpiresAt: eff.planExpiresAt,
+    };
+  }
+  return {
+    ...user,
+    plan: "premium" as T["plan"],
+    planExpiresAt: eff.planExpiresAt,
+  };
 }
 
 export async function createSession(
@@ -76,18 +115,23 @@ export async function getUserFromToken(token: string | undefined) {
   if (!row) return null;
   const user = await db.query.users.findFirst({ where: eq(users.id, row.userId) });
   if (!user) return null;
-  // Expire premium when planExpiresAt is in the past (trial / demo)
+  // Expire paid plans when planExpiresAt is in the past (trial / demo / family)
   if (
-    user.plan === "premium" &&
+    (user.plan === "premium" || user.plan === "family") &&
     user.planExpiresAt &&
     user.planExpiresAt.getTime() < Date.now()
   ) {
     const [updated] = await db
       .update(users)
-      .set({ plan: "free", planExpiresAt: null, updatedAt: new Date() })
+      .set({
+        plan: "free",
+        planExpiresAt: null,
+        familyMaxSeats: 0,
+        updatedAt: new Date(),
+      })
       .where(eq(users.id, user.id))
       .returning();
-    return updated ?? { ...user, plan: "free" as const, planExpiresAt: null };
+    return updated ?? { ...user, plan: "free" as const, planExpiresAt: null, familyMaxSeats: 0 };
   }
   return user;
 }
@@ -116,7 +160,24 @@ export async function authMiddleware(c: Context, next: Next) {
   const { token, fromCookie } = readSessionToken(c);
   const user = await getUserFromToken(token);
   if (!user) return c.json({ error: "unauthorized" }, 401);
-  c.set("user", user);
+  // Any user with TOTP must complete MFA for this session
+  if (user.totpEnabled) {
+    const { getSessionMfaVerified } = await import("./mfa.js");
+    const mfaOk = await getSessionMfaVerified(token);
+    if (!mfaOk) {
+      // Allow MFA setup/status/verify paths only — handled at route level via optional skip.
+      // Strict gate: block all authed APIs until MFA verified (except /auth/mfa/*).
+      const path = c.req.path;
+      const mfaExempt =
+        path.startsWith("/auth/mfa") ||
+        path === "/auth/logout" ||
+        path === "/auth/me";
+      if (!mfaExempt) {
+        return c.json({ error: "mfa_required" }, 403);
+      }
+    }
+  }
+  c.set("user", await withEffectivePlan(user));
   c.set("sessionToken", token);
   await promoteBearerToCookie(c, token!, fromCookie);
   await next();
@@ -140,7 +201,7 @@ export async function adminMiddleware(c: Context, next: Next) {
     return c.json({ error: "mfa_enroll_required" }, 403);
   }
 
-  c.set("user", user);
+  c.set("user", await withEffectivePlan(user));
   c.set("sessionToken", token);
   await promoteBearerToCookie(c, token!, fromCookie);
   await next();
@@ -162,7 +223,7 @@ export async function optionalAuth(c: Context, next: Next) {
   const { token, fromCookie } = readSessionToken(c);
   const user = await getUserFromToken(token);
   if (user) {
-    c.set("user", user);
+    c.set("user", await withEffectivePlan(user));
     c.set("sessionToken", token);
     if (token) await promoteBearerToCookie(c, token, fromCookie);
   }

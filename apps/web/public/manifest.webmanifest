@@ -1,12 +1,15 @@
 {
   "name": "EduForge",
   "short_name": "EduForge",
-  "description": "Learn English, chess, typing, speed reading and logic",
-  "start_url": "/dashboard",
+  "description": "Learning OS: English, chess, coding, typing, speed reading and logic",
+  "start_url": "/learn?source=pwa",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#f8fafc",
   "theme_color": "#58CC02",
   "lang": "uk",
+  "categories": ["education", "games"],
   "icons": [
     {
       "src": "/icon-192.svg",
@@ -18,7 +21,7 @@
       "src": "/icon-512.svg",
       "sizes": "512x512",
       "type": "image/svg+xml",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
   ]
 }

@@ -13,9 +13,41 @@ function withPromptEn(ex: Exercise): Exercise {
   return { ...any, promptEn: any.promptUk } as Exercise;
 }
 
+/** Align with @eduforge/shared FREE_LESSONS_PER_COURSE (path order, skip exams). */
+export const FREEMIUM_FREE_LESSON_COUNT = 5;
+
+/**
+ * Mark the first N non-exam lessons in course path order as free.
+ * Does not unmark existing free exams or extra free lessons.
+ */
+export function ensureFreemiumFreeLessons(
+  course: CourseContent,
+  freeCount = FREEMIUM_FREE_LESSON_COUNT,
+): CourseContent {
+  let remaining = freeCount;
+  return {
+    ...course,
+    units: course.units.map((u) => ({
+      ...u,
+      lessons: u.lessons.map((l) => {
+        if (l.isExam) return l;
+        if (l.isFree) {
+          remaining = Math.max(0, remaining - 1);
+          return l;
+        }
+        if (remaining > 0) {
+          remaining -= 1;
+          return { ...l, isFree: true };
+        }
+        return l;
+      }),
+    })),
+  };
+}
+
 /** Ensure every exercise with promptUk has promptEn (skill tracks + future seeds). */
 export function normalizeCourseLocales(course: CourseContent): CourseContent {
-  return {
+  const withEn = {
     ...course,
     units: course.units.map((u) => ({
       ...u,
@@ -25,4 +57,5 @@ export function normalizeCourseLocales(course: CourseContent): CourseContent {
       })),
     })),
   };
+  return ensureFreemiumFreeLessons(withEn);
 }

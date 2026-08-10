@@ -2,15 +2,18 @@ import { Hono } from "hono";
 import { eq } from "drizzle-orm";
 import Stripe from "stripe";
 import { users } from "@eduforge/db";
-import {
-  freemiumMatrix,
-  isPremiumActive,
-  planFeatureMatrix,
-  type Plan,
-} from "@eduforge/shared";
+import { FAMILY_DEFAULT_SEATS } from "@eduforge/shared";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 import { env } from "../env.js";
+import { resolveEffectivePlan } from "../services/effective-plan.js";
+import {
+  applyDemoDowngrade,
+  applyDemoUpgrade,
+  applyTrialPremium,
+  devBillingAllowed,
+  publicEntitlementsPayload,
+} from "../services/billing-ops.js";
 
 type Vars = { user: AuthedUser };
 
@@ -23,73 +26,63 @@ function getStripe() {
 
 billingRoutes.get("/status", authMiddleware, async (c) => {
   const user = c.get("user");
-  const premium = isPremiumActive({
-    plan: user.plan as Plan,
-    planExpiresAt: user.planExpiresAt,
-  });
+  const effective = await resolveEffectivePlan(user.id);
+  const premium = effective.premiumActive;
   return c.json({
-    plan: premium ? "premium" : "free",
-    planExpiresAt: user.planExpiresAt,
+    plan: user.plan,
+    effectivePlan: effective.plan,
+    planExpiresAt: effective.planExpiresAt ?? user.planExpiresAt,
     stripeConfigured: Boolean(getStripe()),
     premiumActive: premium,
+    family: effective.family,
+    familyDefaultSeats: FAMILY_DEFAULT_SEATS,
   });
 });
 
 /** Public freemium matrix (also returned authenticated for client paywalls). */
 billingRoutes.get("/entitlements", async (c) => {
-  const matrix = freemiumMatrix();
+  return c.json(publicEntitlementsPayload(Boolean(getStripe())));
+});
+
+/** Dev/demo upgrade without Stripe — gated by ALLOW_DEV_BILLING / non-prod default */
+billingRoutes.post("/dev-upgrade", authMiddleware, async (c) => {
+  if (!devBillingAllowed()) {
+    return c.json(
+      { error: "dev_billing_disabled", hint: "use Stripe checkout or set ALLOW_DEV_BILLING=1 on staging" },
+      403,
+    );
+  }
+  const user = c.get("user");
+  const body = await c.req.json().catch(() => ({}));
+  const kind = body.kind === "family" ? "family" : "premium";
+  const { plan, planExpiresAt } = await applyDemoUpgrade(db, user.id, kind, 30);
   return c.json({
-    matrix,
-    features: planFeatureMatrix(),
-    stripeConfigured: Boolean(getStripe()),
+    plan,
+    planExpiresAt,
+    kind: kind === "family" ? "demo_family_30d" : "demo_30d",
   });
 });
 
-/** Dev/demo upgrade without Stripe when keys missing */
-billingRoutes.post("/dev-upgrade", authMiddleware, async (c) => {
-  if (getStripe() && process.env.NODE_ENV === "production") {
-    return c.json({ error: "use_checkout" }, 400);
-  }
-  const user = c.get("user");
-  const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-  await db
-    .update(users)
-    .set({ plan: "premium", planExpiresAt: expires, updatedAt: new Date() })
-    .where(eq(users.id, user.id));
-  return c.json({ plan: "premium", planExpiresAt: expires, kind: "demo_30d" });
-});
-
-/** 7-day Premium trial (dev / no Stripe) */
+/** 7-day Premium trial (dev / staging only when dev billing allowed) */
 billingRoutes.post("/trial", authMiddleware, async (c) => {
-  if (getStripe() && process.env.NODE_ENV === "production") {
-    return c.json({ error: "use_checkout" }, 400);
+  if (!devBillingAllowed()) {
+    return c.json(
+      { error: "dev_billing_disabled", hint: "use Stripe checkout" },
+      403,
+    );
   }
   const user = c.get("user");
-  if (user.plan === "premium") {
-    return c.json({
-      plan: "premium",
-      planExpiresAt: user.planExpiresAt,
-      kind: "already_premium",
-    });
-  }
-  const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  await db
-    .update(users)
-    .set({ plan: "premium", planExpiresAt: expires, updatedAt: new Date() })
-    .where(eq(users.id, user.id));
-  return c.json({ plan: "premium", planExpiresAt: expires, kind: "trial_7d" });
+  const out = await applyTrialPremium(db, user.id, user.plan, user.planExpiresAt, 7);
+  return c.json(out);
 });
 
 billingRoutes.post("/dev-downgrade", authMiddleware, async (c) => {
-  if (process.env.NODE_ENV === "production" && getStripe()) {
-    return c.json({ error: "use_portal" }, 400);
+  if (!devBillingAllowed()) {
+    return c.json({ error: "dev_billing_disabled", hint: "use Stripe portal" }, 403);
   }
   const user = c.get("user");
-  await db
-    .update(users)
-    .set({ plan: "free", planExpiresAt: null, updatedAt: new Date() })
-    .where(eq(users.id, user.id));
-  return c.json({ plan: "free" });
+  const out = await applyDemoDowngrade(db, user.id);
+  return c.json(out);
 });
 
 billingRoutes.post("/checkout", authMiddleware, async (c) => {
@@ -98,8 +91,14 @@ billingRoutes.post("/checkout", authMiddleware, async (c) => {
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
   const interval = body.interval === "year" ? "year" : "month";
+  const kind = body.kind === "family" ? "family" : "premium";
+  const familyPrice = process.env.STRIPE_PRICE_FAMILY ?? "";
   const price =
-    interval === "year" ? env.stripePriceYearly : env.stripePriceMonthly;
+    kind === "family" && familyPrice
+      ? familyPrice
+      : interval === "year"
+        ? env.stripePriceYearly
+        : env.stripePriceMonthly;
   if (!price) return c.json({ error: "price_not_configured" }, 503);
 
   let customerId = user.stripeCustomerId;
@@ -121,7 +120,7 @@ billingRoutes.post("/checkout", authMiddleware, async (c) => {
     line_items: [{ price, quantity: 1 }],
     success_url: `${env.webOrigin}/pricing?success=1`,
     cancel_url: `${env.webOrigin}/pricing?canceled=1`,
-    metadata: { userId: user.id },
+    metadata: { userId: user.id, kind },
   });
   return c.json({ url: session.url });
 });
@@ -169,11 +168,13 @@ billingRoutes.post("/webhook", async (c) => {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     const userId = session.metadata?.userId;
+    const kind = session.metadata?.kind === "family" ? "family" : "premium";
     if (userId) {
       await db
         .update(users)
         .set({
-          plan: "premium",
+          plan: kind,
+          familyMaxSeats: kind === "family" ? FAMILY_DEFAULT_SEATS : 0,
           stripeSubscriptionId: String(session.subscription ?? ""),
           planExpiresAt: new Date(Date.now() + 35 * 24 * 60 * 60 * 1000),
           updatedAt: new Date(),

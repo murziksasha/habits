@@ -84,6 +84,7 @@ const EXERCISE_TYPES = new Set([
   "code_order",
   "code_project",
   "code_run",
+  "video",
 ]);
 
 function collectExercises(course: CourseContent): Exercise[] {
@@ -203,16 +204,27 @@ describe("course content integrity", () => {
     });
 
     it("embedded_cpp volume", () => {
-      expect(embeddedCppContent.units.length).toBeGreaterThanOrEqual(12);
+      expect(embeddedCppContent.units.length).toBeGreaterThanOrEqual(14);
       const lessons = embeddedCppContent.units.flatMap((u) => u.lessons);
-      expect(lessons.length).toBeGreaterThanOrEqual(36);
-      expect(lessons.filter((l) => l.isExam).length).toBeGreaterThanOrEqual(12);
+      expect(lessons.length).toBeGreaterThanOrEqual(55);
+      const exams = lessons.filter((l) => l.isExam);
+      expect(exams.length).toBeGreaterThanOrEqual(14);
+      for (const e of exams) {
+        expect(e.exercises.length).toBeGreaterThanOrEqual(6);
+      }
       expect(lessons.some((l) => l.isFree)).toBe(true);
       const slugs = embeddedCppContent.units.map((u) => u.slug);
       expect(slugs).toContain("miltech-intro");
+      expect(slugs).toContain("miltech-checkpoint");
       expect(slugs).toContain("embedded-rtos");
       expect(slugs).toContain("uav-stack");
+      expect(slugs).toContain("safety-reliability");
+      expect(slugs).toContain("datalink-ops");
+      expect(slugs).toContain("mission-autonomy");
       expect(slugs).toContain("systems-capstone");
+      const allEx = collectExercises(embeddedCppContent);
+      expect(allEx.filter((e) => e.type === "code_run").length).toBeGreaterThanOrEqual(15);
+      expect(allEx.filter((e) => e.type === "code_project").length).toBeGreaterThanOrEqual(3);
     });
   });
 
@@ -323,6 +335,25 @@ describe("course content integrity", () => {
   it("english has free lessons for freemium", () => {
     const free = englishContent.units.flatMap((u) => u.lessons).filter((l) => l.isFree);
     expect(free.length).toBeGreaterThanOrEqual(5);
+  });
+
+  /** Align with @eduforge/shared FREE_LESSONS_PER_COURSE (freemium matrix). */
+  it("freemium gate: every course has at least 5 free lessons", () => {
+    const FREE = 5;
+    for (const c of courses) {
+      const free = c.units.flatMap((u) => u.lessons).filter((l) => l.isFree);
+      expect(free.length, `${c.slug} free lessons`).toBeGreaterThanOrEqual(FREE);
+    }
+  });
+
+  it("exercise types include only known set (no silent unknown)", () => {
+    for (const c of courses) {
+      for (const ex of collectExercises(c)) {
+        expect(EXERCISE_TYPES.has(ex.type), `${c.slug}/${ex.id} type=${ex.type}`).toBe(
+          true,
+        );
+      }
+    }
   });
 
   it("chess puzzles include fen + solution", () => {

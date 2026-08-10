@@ -29,6 +29,11 @@ import {
 } from "../auth.js";
 import { db } from "../db.js";
 import { runInactivePushReengage } from "../services/reengage.js";
+import {
+  funnelHistoryToCsv,
+  productFunnelCompare,
+  productFunnelCounts,
+} from "../services/product-analytics.js";
 import { runParentDigestBatch } from "./parents.js";
 import { runHomeworkReminders } from "./reminders.js";
 import { buildWeeklyStats } from "./reports.js";
@@ -677,6 +682,15 @@ adminRoutes.post("/ops/push-reengage", async (c) => {
   return c.json({ ok: true, ...result });
 });
 
+/** Weekly build/lesson quest nudge (in-app notify + best-effort push). */
+adminRoutes.post("/ops/weekly-quest-remind", async (c) => {
+  const body = await c.req.json().catch(() => ({}));
+  const limit = Math.min(800, Math.max(50, Number(body.limit ?? 300)));
+  const { runWeeklyQuestRemind } = await import("../services/weekly-quest-remind.js");
+  const result = await runWeeklyQuestRemind(limit);
+  return c.json({ ok: true, ...result });
+});
+
 adminRoutes.post("/ops/parent-digests", async (c) => {
   const actor = c.get("user");
   const denied = await requireStepUp(c);
@@ -796,6 +810,18 @@ export type AdminMetrics = {
     deepTrackLearners: number;
   };
   topActivityKinds: { kind: string; n: number }[];
+  /** Core product funnel (activity_events kinds) for admin metrics UI */
+  productFunnel: {
+    firstLessonComplete: number;
+    lessonCompleted: number;
+    paywallShown: number;
+    paywallCtaClick: number;
+    examPassed: number;
+    examFailed: number;
+    windowDays: number;
+  };
+  /** Current vs previous equal window */
+  productFunnelHistory?: Awaited<ReturnType<typeof productFunnelCompare>>;
 };
 
 export async function buildAdminMetrics(daysRaw?: number): Promise<AdminMetrics> {
@@ -1066,6 +1092,8 @@ export async function buildAdminMetrics(daysRaw?: number): Promise<AdminMetrics>
       };
     })(),
     topActivityKinds: topKinds,
+    productFunnel: await productFunnelCounts(db, days),
+    productFunnelHistory: await productFunnelCompare(db, days),
   };
 }
 
@@ -1102,6 +1130,12 @@ function metricsToCsv(m: AdminMetrics): string {
     ["examsPassedAllTime", m.exams.passedAllTime],
     ["examsPassedWindow", m.exams.passedWindow],
     ["deepTrackLearners", m.exams.deepTrackLearners],
+    ["funnelFirstLesson", m.productFunnel.firstLessonComplete],
+    ["funnelLessonCompleted", m.productFunnel.lessonCompleted],
+    ["funnelPaywallShown", m.productFunnel.paywallShown],
+    ["funnelPaywallCta", m.productFunnel.paywallCtaClick],
+    ["funnelExamPassed", m.productFunnel.examPassed],
+    ["funnelExamFailed", m.productFunnel.examFailed],
   ];
   for (const k of m.topActivityKinds) {
     rows.push([`activity:${k.kind}`, k.n]);
@@ -1123,6 +1157,21 @@ adminRoutes.get("/metrics.csv", async (c) => {
   const data = await buildAdminMetrics(days);
   const csv = metricsToCsv(data);
   const filename = `eduforge-metrics-${data.windowDays}d.csv`;
+  return new Response(csv, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Disposition": `attachment; filename="${filename}"`,
+    },
+  });
+});
+
+/** Product funnel current vs previous window as CSV */
+adminRoutes.get("/metrics/funnel.csv", async (c) => {
+  const days = Number(c.req.query("days") ?? 7);
+  const history = await productFunnelCompare(db, days);
+  const csv = funnelHistoryToCsv(history);
+  const filename = `eduforge-funnel-${history.windowDays}d.csv`;
   return new Response(csv, {
     status: 200,
     headers: {

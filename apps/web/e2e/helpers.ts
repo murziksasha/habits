@@ -19,8 +19,70 @@ export function currentTotp(secret: string = ADMIN_TOTP_SECRET): string {
   return totp.generate();
 }
 
-/** Password login; if 2FA challenge appears, submit live TOTP from seed secret. */
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000";
+const WEB_ORIGIN = process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3000";
+
+/**
+ * Prefer API login + session cookie (works when UI form / MFA differs per env).
+ * Falls back to form + TOTP.
+ */
 export async function loginAsAdmin(page: Page) {
+  try {
+    const res = await page.request.post(`${API_URL}/auth/login`, {
+      data: { email: ADMIN_EMAIL, password: ADMIN_PASSWORD },
+      headers: {
+        "Content-Type": "application/json",
+        "X-Issue-Bearer": "1",
+      },
+    });
+    if (res.ok()) {
+      const json = (await res.json()) as {
+        token?: string;
+        mfaRequired?: boolean;
+        mfaToken?: string;
+      };
+      if (json.mfaRequired && json.mfaToken) {
+        const mfaRes = await page.request.post(`${API_URL}/auth/mfa/verify-login`, {
+          data: { mfaToken: json.mfaToken, code: currentTotp() },
+          headers: {
+            "Content-Type": "application/json",
+            "X-Issue-Bearer": "1",
+          },
+        });
+        if (mfaRes.ok()) {
+          const mfaJson = (await mfaRes.json()) as { token?: string };
+          if (mfaJson.token) {
+            await page.context().addCookies([
+              {
+                name: "eduforge_session",
+                value: mfaJson.token,
+                url: WEB_ORIGIN,
+                httpOnly: true,
+                sameSite: "Lax",
+              },
+            ]);
+            await page.goto("/learn");
+            return;
+          }
+        }
+      } else if (json.token) {
+        await page.context().addCookies([
+          {
+            name: "eduforge_session",
+            value: json.token,
+            url: WEB_ORIGIN,
+            httpOnly: true,
+            sameSite: "Lax",
+          },
+        ]);
+        await page.goto("/learn");
+        return;
+      }
+    }
+  } catch {
+    /* fall through to form login */
+  }
+
   await page.goto("/login");
   await page.locator('input[type="email"]').fill(ADMIN_EMAIL);
   await page.locator('input[type="password"]').fill(ADMIN_PASSWORD);
@@ -38,7 +100,8 @@ export async function loginAsAdmin(page: Page) {
     await page.getByRole("button", { name: /2FA|Підтвердити|Увійти|Log in/i }).click();
   }
 
-  await page.waitForURL(/dashboard|admin/, { timeout: 25_000 });
+  // Post-login may land on /learn (persona home), dashboard, admin, or profile
+  await page.waitForURL(/learn|dashboard|admin|profile|courses/, { timeout: 25_000 });
 }
 
 export async function loginAsAdminWithBackup(page: Page) {
@@ -51,5 +114,5 @@ export async function loginAsAdminWithBackup(page: Page) {
   await expect(mfaInput.first()).toBeVisible({ timeout: 10_000 });
   await mfaInput.first().fill(ADMIN_BACKUP_CODE);
   await page.getByRole("button", { name: /2FA|Підтвердити|Увійти|Log in/i }).click();
-  await page.waitForURL(/dashboard|admin/, { timeout: 25_000 });
+  await page.waitForURL(/learn|dashboard|admin|profile|courses/, { timeout: 25_000 });
 }

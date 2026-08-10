@@ -5,18 +5,23 @@ import {
   HEART_REGEN_MINUTES,
 } from "./courses.js";
 
-export type Plan = "free" | "premium";
+export type Plan = "free" | "premium" | "family";
+
+/** Premium-tier entitlements: personal premium or family plan. */
+export function isPaidPlan(plan: Plan | string): boolean {
+  return plan === "premium" || plan === "family";
+}
 
 export function canAccessLesson(opts: {
   plan: Plan;
   lessonIndexInCourse: number; // 0-based order among published lessons
 }): boolean {
-  if (opts.plan === "premium") return true;
+  if (isPaidPlan(opts.plan)) return true;
   return opts.lessonIndexInCourse < FREE_LESSONS_PER_COURSE;
 }
 
 export function maxHearts(plan: Plan): number {
-  return plan === "premium" ? 999 : FREE_HEARTS;
+  return isPaidPlan(plan) ? 999 : FREE_HEARTS;
 }
 
 /** Regen hearts based on elapsed time since last update */
@@ -25,10 +30,12 @@ export function regenerateHearts(opts: {
   hearts: number;
   heartsUpdatedAt: Date | string | null | undefined;
   now?: Date;
+  /** Override interval minutes (e.g. vitality talent). Min 10. */
+  regenMinutes?: number;
 }): { hearts: number; heartsUpdatedAt: Date; changed: boolean } {
   const now = opts.now ?? new Date();
   const max = maxHearts(opts.plan);
-  if (opts.plan === "premium") {
+  if (isPaidPlan(opts.plan)) {
     return { hearts: max, heartsUpdatedAt: now, changed: opts.hearts !== max };
   }
   let hearts = Math.min(max, Math.max(0, opts.hearts));
@@ -37,7 +44,8 @@ export function regenerateHearts(opts: {
     return { hearts: max, heartsUpdatedAt: updatedAt, changed: false };
   }
   const elapsedMs = now.getTime() - updatedAt.getTime();
-  const regenMs = HEART_REGEN_MINUTES * 60 * 1000;
+  const minutes = Math.max(10, opts.regenMinutes ?? HEART_REGEN_MINUTES);
+  const regenMs = minutes * 60 * 1000;
   const gained = Math.floor(elapsedMs / regenMs);
   if (gained <= 0) {
     return { hearts, heartsUpdatedAt: updatedAt, changed: false };
@@ -53,7 +61,7 @@ export function regenerateHearts(opts: {
 }
 
 export function canStartLesson(opts: { plan: Plan; hearts: number }): boolean {
-  if (opts.plan === "premium") return true;
+  if (isPaidPlan(opts.plan)) return true;
   return opts.hearts > 0;
 }
 
@@ -61,12 +69,12 @@ export function canPlayRatedChess(opts: {
   plan: Plan;
   ratedGamesToday: number;
 }): boolean {
-  if (opts.plan === "premium") return true;
+  if (isPaidPlan(opts.plan)) return true;
   return opts.ratedGamesToday < FREE_RATED_CHESS_PER_DAY;
 }
 
 export function canUseUnlimitedHints(plan: Plan): boolean {
-  return plan === "premium";
+  return isPaidPlan(plan);
 }
 
 export const FREE_HINTS_PER_DAY = 3;
@@ -118,8 +126,11 @@ export function isPremiumActive(opts: {
   planExpiresAt?: Date | string | null;
   now?: Date;
 }): boolean {
-  if (opts.plan !== "premium") return false;
+  if (!isPaidPlan(opts.plan)) return false;
   if (!opts.planExpiresAt) return true; // lifetime / stripe open-ended
   const exp = new Date(opts.planExpiresAt).getTime();
   return exp > (opts.now ?? new Date()).getTime();
 }
+
+/** Default child seats for family plan owner */
+export const FAMILY_DEFAULT_SEATS = 4;

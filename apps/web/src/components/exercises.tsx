@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { Chessboard } from "react-chessboard";
+import { Chessboard } from "@/components/chessboard-lazy";
 import { Chess } from "chess.js";
 import { exercisePrompt, UI } from "@eduforge/shared";
 import clsx from "clsx";
@@ -112,31 +112,98 @@ function CodeBlock({ code, language }: { code: string; language?: string }) {
   );
 }
 
+/**
+ * Progressive hints (Tier C): level 1 nudge → level 2 fuller hint → level 3 near-answer.
+ * Mentor talent: +1 max depth per rank (cap 4) and auto-opens at higher starting tier on fail.
+ */
 function useExerciseHint(exercise: Exercise) {
   const { locale, t } = useLocale();
-  const [open, setOpen] = useState(false);
-  const text =
+  const { character } = useAuth();
+  const mentorRank = Math.min(
+    3,
+    Math.max(0, Number(character?.progression?.talents?.mentor) || 0),
+  );
+  /** Base depth 3; mentor adds +1 per rank up to 4 */
+  const maxLevel = Math.min(4, 3 + Math.min(1, mentorRank));
+  /** On fail, open at least this level (mentor rank 2+ starts deeper) */
+  const autoOpenLevel = Math.min(maxLevel, 1 + Math.floor(mentorRank / 2));
+
+  const [level, setLevel] = useState(0); // 0 = closed
+  const base =
     locale === "en"
       ? String(exercise.hintEn || exercise.explanationEn || exercise.hintUk || exercise.explanationUk || "")
       : String(exercise.hintUk || exercise.explanationUk || exercise.hintEn || exercise.explanationEn || "");
-  const has = Boolean(text.trim());
+  const has = Boolean(base.trim());
+
+  const level1 = has
+    ? locale === "en"
+      ? "Think about the core concept in the prompt — one careful re-read often helps."
+      : "Подумайте про ключову ідею в завданні — часто допомагає уважно перечитати."
+    : "";
+  const level2 = base;
+  const level3 = has
+    ? locale === "en"
+      ? `${base}\n\nAlmost there: eliminate options that contradict the prompt wording.`
+      : `${base}\n\nМайже: відкиньте варіанти, що суперечать формулюванню.`
+    : "";
+  const level4 = has
+    ? locale === "en"
+      ? `${base}\n\nMentor tip: focus on the exact keyword or operator the prompt asks for.`
+      : `${base}\n\nМентор: зосередьтесь на ключовому слові/операторі з умови.`
+    : "";
+
+  const text =
+    level === 1
+      ? level1
+      : level === 2
+        ? level2
+        : level === 3
+          ? level3
+          : level === 4
+            ? level4
+            : "";
+
+  function setOpen(v: boolean | ((b: boolean) => boolean)) {
+    const next = typeof v === "function" ? v(level > 0) : v;
+    setLevel(next ? Math.max(autoOpenLevel, level || autoOpenLevel) : 0);
+  }
+
   return {
     has,
-    open,
+    open: level > 0,
     setOpen,
+    level,
     text,
     t,
     panel: has ? (
       <div className="space-y-1">
-        <button
-          type="button"
-          className="text-xs font-bold text-grape hover:underline"
-          onClick={() => setOpen((v) => !v)}
-        >
-          💡 {open ? t.lesson.hideHint : t.lesson.showHint}
-        </button>
-        {open ? (
-          <p className="rounded-xl bg-grape/10 px-3 py-2 text-sm font-bold text-ink">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            className="text-xs font-bold text-grape hover:underline"
+            onClick={() => setLevel((l) => (l > 0 ? 0 : autoOpenLevel))}
+          >
+            💡 {level > 0 ? t.lesson.hideHint : t.lesson.showHint}
+            {level > 0 ? ` · L${level}` : ""}
+            {mentorRank > 0 ? " 🎓" : ""}
+          </button>
+          {level > 0 && level < maxLevel && (
+            <button
+              type="button"
+              className="text-xs font-bold text-sky hover:underline"
+              onClick={() => setLevel((l) => Math.min(maxLevel, l + 1))}
+            >
+              {locale === "en" ? "Deeper hint" : "Глибша підказка"} →
+            </button>
+          )}
+          {mentorRank > 0 && level === 0 ? (
+            <span className="text-[10px] font-bold text-ink-muted">
+              {locale === "en" ? `Mentor L${mentorRank}` : `Ментор L${mentorRank}`}
+            </span>
+          ) : null}
+        </div>
+        {level > 0 ? (
+          <p className="whitespace-pre-wrap rounded-xl bg-grape/10 px-3 py-2 text-sm font-bold text-ink">
             {text}
           </p>
         ) : null}
@@ -149,6 +216,13 @@ const SOFT_MAX_ATTEMPTS = 3;
 
 function useSoftAttempts(hintOpen: (v: boolean | ((b: boolean) => boolean)) => void) {
   const examMode = useContext(ExamModeCtx);
+  const { character } = useAuth();
+  const mentorRank = Math.min(
+    3,
+    Math.max(0, Number(character?.progression?.talents?.mentor) || 0),
+  );
+  /** Mentor grants extra soft attempts before skip (+1 per rank, cap +2). */
+  const maxAttempts = SOFT_MAX_ATTEMPTS + Math.min(2, mentorRank);
   const [attempts, setAttempts] = useState(0);
   const [wrong, setWrong] = useState(false);
   const [detail, setDetail] = useState<string | null>(null);
@@ -168,14 +242,15 @@ function useSoftAttempts(hintOpen: (v: boolean | ((b: boolean) => boolean)) => v
     setDetail(null);
   }
 
-  const canSkip = !examMode && attempts >= SOFT_MAX_ATTEMPTS;
+  const canSkip = !examMode && attempts >= maxAttempts;
 
   return {
     attempts,
     wrong,
     detail,
     canSkip,
-    max: SOFT_MAX_ATTEMPTS,
+    max: maxAttempts,
+    mentorRank,
     registerFail,
     resetSoft,
     markOk: () => {
@@ -190,16 +265,18 @@ function SoftFeedback({
   detail,
   attempts,
   max,
+  mentorRank,
 }: {
   wrong: boolean;
   detail?: string | null;
   attempts?: number;
   max?: number;
+  mentorRank?: number;
 }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   if (!wrong && !attempts) return null;
   return (
-    <div className="space-y-1">
+    <div className="space-y-1" role="status" aria-live="assertive">
       {wrong ? (
         <div className="rounded-xl border-2 border-red-200 bg-red-50 px-3 py-2 text-sm font-bold text-red-600 dark:border-red-900 dark:bg-red-950/40">
           {t.lesson.wrong} · {t.lesson.tryAgain}
@@ -208,12 +285,21 @@ function SoftFeedback({
               {t.lesson.missingParts}: {detail}
             </p>
           ) : null}
+          {(mentorRank ?? 0) > 0 ? (
+            <p className="mt-1 text-xs font-semibold text-grape">
+              🎓{" "}
+              {locale === "en"
+                ? "Mentor: re-read the hint, then try a smaller change."
+                : "Ментор: перечитайте підказку, змініть лише один крок."}
+            </p>
+          ) : null}
         </div>
       ) : null}
       {typeof attempts === "number" && attempts > 0 ? (
         <p className="text-xs font-bold text-ink-muted">
           {t.lesson.attempts}: {attempts}/{max ?? SOFT_MAX_ATTEMPTS}
           {attempts >= (max ?? SOFT_MAX_ATTEMPTS) ? ` · ${t.lesson.skipHint}` : ""}
+          {(mentorRank ?? 0) > 0 ? " 🎓" : ""}
         </p>
       ) : null}
     </div>
@@ -255,11 +341,12 @@ function DrillFooter({
         detail={soft.detail}
         attempts={soft.attempts}
         max={soft.max}
+        mentorRank={soft.mentorRank}
       />
-      <div className="flex flex-wrap gap-2">
+      <div className="lesson-check-bar flex flex-wrap gap-2">
         <button
           type="button"
-          className="btn-primary"
+          className="btn-primary min-h-11"
           disabled={!canCheck}
           onClick={onCheck}
         >

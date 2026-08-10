@@ -2,7 +2,7 @@
 
 Освітній SaaS: **англійська**, **шахи** (уроки + online PvP), **друк**, **швидкочитання**, **логіка**, **програмування** (Mimo-style path + playground + mini-projects).
 
-UI: **українська + англійська** · повна технічна документація: [`SPEC/`](./SPEC/) (English, 01–71) · surface freeze: [`SPEC/CURRENT.md`](./SPEC/CURRENT.md).
+UI: **українська + англійська** · повна технічна документація: [`SPEC/`](./SPEC/) (English, 01–87 + CURRENT) · surface freeze: [`SPEC/CURRENT.md`](./SPEC/CURRENT.md).
 
 - Monorepo: **pnpm + Turborepo**
 - Apps: `web` (Next.js), `api` (Hono), `realtime` (Socket.IO)
@@ -82,7 +82,34 @@ docker compose --profile tools run --rm migrate
 ## Freemium
 
 - Free: перші 5 уроків курсу, ліміт рейтингових партій, 5 ❤️
-- Premium: demo-кнопка на `/pricing` (або Stripe Checkout, якщо ключі задані)
+- Premium: Stripe Checkout / Portal у production
+- Demo upgrade (`/billing/dev-upgrade`, trial): **лише non-prod** або `ALLOW_DEV_BILLING=1` на staging — у реальному production вимкнено
+
+## Security (коротко)
+
+| Контроль | Поведінка |
+|----------|-----------|
+| Sessions | httpOnly cookie; Bearer у JSON лише non-prod / `X-Issue-Bearer` |
+| CSRF | Origin check **on** у production (`FEATURE_STRICT_CSRF=0` щоб вимкнути) |
+| Judge | Prod default **off**; `JUDGE_MODE=docker` для ізоляції; без fallback на host |
+| Email | Верифікація після register; банер + `/verify-email` |
+| Headers | CSP / nosniff / frame on web; security headers on API + nginx |
+| Privacy | Profile: change password, JSON export, account delete (`confirm: "DELETE"`) |
+| Continue | Post-lesson `nextLesson` + Learn «місія дня» |
+| OAuth | Google — `GOOGLE_CLIENT_ID` / `SECRET` → Continue with Google |
+| 2FA | TOTP для всіх акаунтів (профіль + challenge на login) |
+| Family | `/family` — seats, invite codes, Premium для дітей |
+| Teacher | `/teacher` — heatmap домашки |
+| UX | Thin home, PageLoading floor, labs shells, visual baselines (Playwright) |
+
+Повний runbook: [`SPEC/OPS.md`](./SPEC/OPS.md) · surface: [`SPEC/CURRENT.md`](./SPEC/CURRENT.md) · [SPEC/87](./SPEC/87-studio-classroom-admin-visual.md)
+
+### Visual regression
+
+```bash
+pnpm --filter @eduforge/web test:e2e:visual:update   # write baselines
+pnpm --filter @eduforge/web test:e2e:visual          # compare
+```
 
 ## Admin Platform (v2)
 
@@ -110,19 +137,22 @@ Modular admin at `/admin` (sidebar): courses (draft→publish), content tree, ap
 
 ## Onboarding
 
-Чекліст на `/dashboard` (уроки, шахи, друк, рейтинг, тарифи).
+Wizard (роль + трек) після першого входу → `/learn` (або `/parents` / `/teacher` / path за `?intent=`).  
+Чекліст secondary на `/dashboard`. Деталі: [SPEC/79](./SPEC/79-ux-user-improvements.md).
 
 ## Структура
 
 ```
 apps/web          Next.js UI (UK + EN)
-apps/api          REST API + OpenAPI 1.5
+apps/api          REST API + OpenAPI (see /docs)
 apps/realtime     Chess WebSocket
+apps/mobile       WebView shell scaffold (Expo install separately)
 packages/db       Drizzle schema / migrate / seed
-packages/content  Seed-уроки (incl. programming)
+packages/content  Seed-уроки + MDX pipeline
 packages/shared   XP, Elo, entitlements, i18n, minis race
+packages/judge    Multi-lang judge + job queue
 packages/chess-core
-SPEC/             Product & technical docs (English) 01–71 + CURRENT
+SPEC/             Product & technical docs (English) 01–87 + CURRENT
 ```
 
 ## Documentation
@@ -137,7 +167,25 @@ SPEC/             Product & technical docs (English) 01–71 + CURRENT
 ```bash
 pnpm --filter @eduforge/content test
 pnpm --filter @eduforge/shared test
+pnpm --filter @eduforge/judge test
 pnpm --filter @eduforge/api test
+pnpm --filter @eduforge/mobile test
 # e2e (stack running):
 # set SKIP_E2E=0  →  pnpm --filter @eduforge/web test:e2e
+# CI: unit + integration + content-gate + e2e-smoke (landing/register/admin)
+```
+
+## Ops extras
+
+```bash
+# OTel collector (API: OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318)
+docker compose --profile otel up -d otel-collector
+
+# Product funnel (admin UI: /admin/metrics · API: GET /analytics/funnel?days=7)
+# Metrics: GET /metrics → productFunnel7d + judge.queue
+# Judge worker: POST /judge/worker/drain  (CRON_SECRET)
+
+# Visual baselines (commit e2e/__snapshots__ after first generate)
+pnpm --filter @eduforge/web test:e2e:visual:update   # local, stack up
+# GitHub: Actions → Visual regression → update_snapshots=true
 ```

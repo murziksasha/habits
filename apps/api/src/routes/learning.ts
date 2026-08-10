@@ -156,18 +156,26 @@ learningRoutes.get("/export", authMiddleware, async (c) => {
 
   const payload = {
     exportedAt: new Date().toISOString(),
+    exportVersion: 2,
     user: {
       id: user.id,
       email: u?.email,
       plan: u?.plan,
       preferredLocale: u?.preferredLocale,
+      emailVerifiedAt: u?.emailVerifiedAt ?? null,
+      role: u?.role,
+      createdAt: u?.createdAt,
     },
     character: ch
       ? {
           displayName: ch.displayName,
+          avatarKey: ch.avatarKey,
           globalXp: ch.globalXp,
           globalLevel: ch.globalLevel,
           streakDays: ch.streakDays,
+          streakFreezes: ch.streakFreezes,
+          dailyGoalXp: ch.dailyGoalXp,
+          onboarding: ch.onboarding,
         }
       : null,
     courses: courseProg,
@@ -830,7 +838,7 @@ export async function evaluateLearningMilestones(userId: string) {
       "Programming path завершено",
       "Programming path complete",
     );
-    // Path certificate: issue (≥70% of lessons; full path = 100%) or upgrade title if already issued
+    // Path certificate: issue (100% lessons) or upgrade title if already issued
     try {
       const { maybeIssueCertificate } = await import("./certificates.js");
       const pathUk = "Сертифікат: Programming Path";

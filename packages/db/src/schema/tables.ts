@@ -13,7 +13,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-export const planEnum = pgEnum("plan", ["free", "premium"]);
+export const planEnum = pgEnum("plan", ["free", "premium", "family"]);
 /**
  * Course slugs are app-registry validated (`COURSE_SLUGS` in @eduforge/shared).
  * Stored as varchar so new courses do not require ALTER TYPE migrations.
@@ -38,7 +38,8 @@ export const chessGameStatusEnum = pgEnum("chess_game_status", [
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
   email: varchar("email", { length: 255 }).notNull().unique(),
-  passwordHash: text("password_hash").notNull(),
+  /** Null for OAuth-only accounts (no local password) */
+  passwordHash: text("password_hash"),
   role: varchar("role", { length: 32 }).notNull().default("user"),
   plan: planEnum("plan").notNull().default("free"),
   stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
@@ -48,14 +49,66 @@ export const users = pgTable("users", {
   preferredLocale: varchar("preferred_locale", { length: 8 }).notNull().default("uk"),
   weeklyEmailEnabled: boolean("weekly_email_enabled").notNull().default(true),
   lastWeeklyEmailAt: timestamp("last_weekly_email_at", { withTimezone: true }),
+  /** When the email was verified (null = unverified) */
+  emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true }),
   /** Encrypted TOTP secret (AES-GCM); null until enroll */
   totpSecretEnc: text("totp_secret_enc"),
   totpEnabled: boolean("totp_enabled").notNull().default(false),
   totpVerifiedAt: timestamp("totp_verified_at", { withTimezone: true }),
   /** SHA-256 hashes of one-time backup codes (plaintext shown once at generation) */
   mfaBackupCodeHashes: jsonb("mfa_backup_code_hashes").$type<string[]>().notNull().default([]),
+  /** Family plan: max child seats when plan=family (owner) */
+  familyMaxSeats: integer("family_max_seats").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+/** Linked OAuth identities (Google, …) */
+export const oauthAccounts = pgTable(
+  "oauth_accounts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    provider: varchar("provider", { length: 32 }).notNull(),
+    providerUserId: varchar("provider_user_id", { length: 255 }).notNull(),
+    email: varchar("email", { length: 255 }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("oauth_provider_uid").on(t.provider, t.providerUserId)],
+);
+
+/** Family plan membership (owner has plan=family; children get premium entitlements) */
+export const familyMembers = pgTable(
+  "family_members",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerUserId: uuid("owner_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    memberUserId: uuid("member_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    role: varchar("role", { length: 16 }).notNull().default("child"),
+    status: varchar("status", { length: 16 }).notNull().default("active"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("family_owner_member").on(t.ownerUserId, t.memberUserId),
+    uniqueIndex("family_member_once").on(t.memberUserId),
+  ],
+);
+
+/** Pending family seat invites (code claimed by child account) */
+export const familyInvites = pgTable("family_invites", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  ownerUserId: uuid("owner_user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  inviteCode: varchar("invite_code", { length: 32 }).notNull().unique(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export const characters = pgTable("characters", {
@@ -84,6 +137,13 @@ export const characters = pgTable("characters", {
       exploredPricing?: boolean;
       viewedLearnMap?: boolean;
       triedProgramming?: boolean;
+      wizardCompleted?: boolean;
+      personaStudent?: boolean;
+      personaParent?: boolean;
+      personaTeacher?: boolean;
+      /** UTC date YYYY-MM-DD of last daily login bonus */
+      dailyLoginDate?: string;
+      [key: string]: unknown;
     }>()
     .notNull()
     .default({}),
@@ -94,10 +154,45 @@ export const characters = pgTable("characters", {
     .$type<string[]>()
     .notNull()
     .default(["default", "wizard", "knight", "scholar", "fox", "robot"]),
+  /**
+   * Talent tree + cosmetics progression (skill points from levels).
+   * Shape: CharacterProgression from @eduforge/shared
+   */
+  progression: jsonb("progression")
+    .$type<{
+      lastLevelAwarded?: number;
+      skillPoints?: number;
+      talents?: Record<string, number>;
+      unlockedTitles?: string[];
+      equippedTitle?: string | null;
+      unlockedFrames?: string[];
+      equippedFrame?: string | null;
+    }>()
+    .notNull()
+    .default({
+      lastLevelAwarded: 1,
+      skillPoints: 0,
+      talents: {},
+      unlockedTitles: ["rookie"],
+      equippedTitle: "rookie",
+      unlockedFrames: ["none"],
+      equippedFrame: "none",
+    }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export const passwordResetTokens = pgTable("password_reset_tokens", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  usedAt: timestamp("used_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const emailVerificationTokens = pgTable("email_verification_tokens", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: uuid("user_id")
     .notNull()
@@ -679,6 +774,33 @@ export const shopPurchases = pgTable("shop_purchases", {
   costXp: integer("cost_xp").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const giftStatusEnum = pgEnum("gift_status", ["pending", "claimed", "expired"]);
+
+/** Friend-to-friend gifts (hearts, XP, cosmetics, mystery). */
+export const characterGifts = pgTable(
+  "character_gifts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    fromUserId: uuid("from_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    toUserId: uuid("to_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    giftKey: varchar("gift_key", { length: 64 }).notNull(),
+    message: varchar("message", { length: 280 }),
+    status: giftStatusEnum("status").notNull().default("pending"),
+    /** Resolved mystery / grant payload for claim */
+    payload: jsonb("payload").$type<Record<string, unknown>>().notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    claimedAt: timestamp("claimed_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("character_gifts_to_status_idx").on(t.toUserId, t.status),
+    index("character_gifts_from_created_idx").on(t.fromUserId, t.createdAt),
+  ],
+);
 
 export const userDailyQuests = pgTable(
   "user_daily_quests",

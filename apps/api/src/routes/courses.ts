@@ -10,6 +10,7 @@ import {
 import {
   canAccessLesson,
   canStartLesson,
+  isPaidPlan,
   maxHearts,
   regenerateHearts,
   type Plan,
@@ -82,7 +83,7 @@ courseRoutes.get("/:slug", authMiddleware, async (c) => {
         .returning();
       progress = updated;
     }
-  } else if (plan === "premium") {
+  } else if (isPaidPlan(plan)) {
     progress = {
       id: "",
       userId: user.id,
@@ -168,7 +169,7 @@ courseRoutes.get("/:slug", authMiddleware, async (c) => {
       freeLessonCount,
       freeCompleted,
       freeLeft: Math.max(0, freeLessonCount - freeCompleted),
-      isPremium: plan === "premium",
+      isPremium: isPaidPlan(plan),
     },
     progress: progress
       ? {

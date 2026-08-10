@@ -1,7 +1,20 @@
 import { Hono } from "hono";
 import { and, desc, eq, gt, isNull, ne } from "drizzle-orm";
-import { characters, passwordResetTokens, sessions, users } from "@eduforge/db";
-import { loginSchema, registerSchema } from "@eduforge/shared";
+import {
+  characters,
+  emailVerificationTokens,
+  passwordResetTokens,
+  sessions,
+  users,
+} from "@eduforge/db";
+import {
+  applyLevelUps,
+  isFeatureEnabled,
+  loginSchema,
+  normalizeProgression,
+  passwordSchema,
+  registerSchema,
+} from "@eduforge/shared";
 import { z } from "zod";
 import { randomBytes } from "node:crypto";
 import {
@@ -15,11 +28,12 @@ import {
   listUserSessions,
   registerUser,
   setSessionCookie,
+  shouldIssueBearerToken,
   verifyPassword,
   type AuthedUser,
 } from "../auth.js";
 import { db } from "../db.js";
-import { passwordResetEmail, sendMail } from "../email.js";
+import { emailVerifyEmail, passwordResetEmail, sendMail } from "../email.js";
 import { env } from "../env.js";
 import { clientIp, rateLimit } from "../rate-limit.js";
 import { ensureReferralCode, redeemReferralCode } from "./referrals.js";
@@ -47,6 +61,48 @@ async function guardAuth(
   return null;
 }
 
+async function issueEmailVerification(userId: string, email: string) {
+  if (!isFeatureEnabled("email_verify")) return { sent: false as const };
+  const raw = randomBytes(32).toString("hex");
+  const tokenHash = hashToken(raw);
+  const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+  await db.insert(emailVerificationTokens).values({
+    userId,
+    tokenHash,
+    expiresAt,
+  });
+  const verifyUrl = `${env.webOrigin}/verify-email?token=${raw}`;
+  const mail = await sendMail(emailVerifyEmail({ to: email, verifyUrl }));
+  const isDev = process.env.NODE_ENV !== "production";
+  if (isDev) console.log(`[email-verify] ${email} → ${verifyUrl}`);
+  return {
+    sent: mail.sent,
+    ...(isDev ? { verifyUrl, devToken: raw } : {}),
+  };
+}
+
+function publicUser(user: {
+  id: string;
+  email: string;
+  plan: string;
+  role: string;
+  totpEnabled?: boolean;
+  mfaBackupCodeHashes?: string[] | null;
+  emailVerifiedAt?: Date | null;
+  planExpiresAt?: Date | null;
+}) {
+  return {
+    id: user.id,
+    email: user.email,
+    plan: user.plan,
+    role: user.role,
+    emailVerified: Boolean(user.emailVerifiedAt),
+    planExpiresAt: user.planExpiresAt ?? null,
+    totpEnabled: user.totpEnabled,
+    backupCodesRemaining: (user.mfaBackupCodeHashes ?? []).length,
+  };
+}
+
 authRoutes.post("/register", async (c) => {
   const limited = await guardAuth(c, "register");
   if (limited) return limited;
@@ -65,15 +121,17 @@ authRoutes.post("/register", async (c) => {
     if (parsed.data.referralCode) {
       await redeemReferralCode(user.id, parsed.data.referralCode);
     }
+    const verify = await issueEmailVerification(user.id, user.email);
     const { token, expiresAt } = await createSession(user.id);
     setSessionCookie(c, token, expiresAt);
     const character = await db.query.characters.findFirst({
       where: eq(characters.userId, user.id),
     });
     return c.json({
-      user: { id: user.id, email: user.email, plan: user.plan, role: user.role },
+      user: publicUser(user),
       character,
-      token,
+      ...(shouldIssueBearerToken(c) ? { token } : {}),
+      emailVerification: verify,
     });
   } catch (e) {
     if (e instanceof Error && e.message === "email_taken") {
@@ -92,18 +150,28 @@ authRoutes.post("/login", async (c) => {
   const user = await db.query.users.findFirst({
     where: eq(users.email, parsed.data.email.toLowerCase()),
   });
-  if (!user || !(await verifyPassword(parsed.data.password, user.passwordHash))) {
+  if (!user?.passwordHash || !(await verifyPassword(parsed.data.password, user.passwordHash))) {
     return c.json({ error: "invalid_credentials" }, 401);
   }
 
+  if (isFeatureEnabled("require_email_verify") && !user.emailVerifiedAt && user.role !== "admin") {
+    return c.json(
+      {
+        error: "email_unverified",
+        message: "Confirm your email before signing in",
+      },
+      403,
+    );
+  }
+
   const { adminMfaEnforce, createMfaPending } = await import("../mfa.js");
-  // Always challenge when admin has TOTP enrolled (TOTP or backup code).
-  if (user.role === "admin" && user.totpEnabled) {
+  // Challenge when any user has TOTP enrolled (admin or learner).
+  if (user.totpEnabled) {
     const mfaToken = await createMfaPending(user.id);
     return c.json({
       mfaRequired: true,
       mfaToken,
-      user: { id: user.id, email: user.email, plan: user.plan, role: user.role },
+      user: publicUser(user),
     });
   }
 
@@ -115,15 +183,12 @@ authRoutes.post("/login", async (c) => {
   });
   return c.json({
     user: {
-      id: user.id,
-      email: user.email,
-      plan: user.plan,
-      role: user.role,
+      ...publicUser(user),
       totpEnabled: user.totpEnabled,
       backupCodesRemaining: (user.mfaBackupCodeHashes ?? []).length,
     },
     character,
-    token,
+    ...(shouldIssueBearerToken(c) ? { token } : {}),
     mfaEnrollRequired:
       user.role === "admin" && adminMfaEnforce() && !user.totpEnabled,
   });
@@ -192,13 +257,30 @@ authRoutes.get("/me", authMiddleware, async (c) => {
   let character = await db.query.characters.findFirst({
     where: eq(characters.userId, user.id),
   });
-  // Reset daily XP display if date rolled over
+  // Reset daily XP display if date rolled over; backfill talent skill points
   if (character) {
     const today = new Date().toISOString().slice(0, 10);
+    const patch: Partial<typeof characters.$inferInsert> = {};
     if (character.dailyXpDate !== today && (character.dailyXp ?? 0) > 0) {
+      patch.dailyXp = 0;
+      patch.dailyXpDate = today;
+    }
+    const progression = applyLevelUps(
+      normalizeProgression(character.progression),
+      character.globalLevel,
+    );
+    const prev = normalizeProgression(character.progression);
+    if (
+      progression.skillPoints !== prev.skillPoints ||
+      progression.lastLevelAwarded !== prev.lastLevelAwarded ||
+      progression.unlockedTitles.length !== prev.unlockedTitles.length
+    ) {
+      patch.progression = progression;
+    }
+    if (Object.keys(patch).length > 0) {
       const [updated] = await db
         .update(characters)
-        .set({ dailyXp: 0, dailyXpDate: today })
+        .set(patch)
         .where(eq(characters.id, character.id))
         .returning();
       character = updated;
@@ -212,10 +294,7 @@ authRoutes.get("/me", authMiddleware, async (c) => {
       : await getSessionMfaVerified(sessionToken);
   return c.json({
     user: {
-      id: user.id,
-      email: user.email,
-      plan: user.plan,
-      role: user.role,
+      ...publicUser(user),
       planExpiresAt: user.planExpiresAt,
       totpEnabled: user.totpEnabled,
       mfaVerified,
@@ -228,25 +307,66 @@ authRoutes.get("/me", authMiddleware, async (c) => {
   });
 });
 
-/* ——— Admin TOTP MFA ——— */
+/* ——— Email verification ——— */
+
+authRoutes.post("/verify-email", async (c) => {
+  const limited = await guardAuth(c, "verify_email");
+  if (limited) return limited;
+  const body = await c.req.json().catch(() => null);
+  const token = typeof body?.token === "string" ? body.token : "";
+  if (token.length < 20) return c.json({ error: "invalid_input" }, 400);
+
+  const tokenHash = hashToken(token);
+  const row = await db.query.emailVerificationTokens.findFirst({
+    where: and(
+      eq(emailVerificationTokens.tokenHash, tokenHash),
+      gt(emailVerificationTokens.expiresAt, new Date()),
+      isNull(emailVerificationTokens.usedAt),
+    ),
+  });
+  if (!row) return c.json({ error: "invalid_or_expired_token" }, 400);
+
+  await db
+    .update(users)
+    .set({ emailVerifiedAt: new Date(), updatedAt: new Date() })
+    .where(eq(users.id, row.userId));
+  await db
+    .update(emailVerificationTokens)
+    .set({ usedAt: new Date() })
+    .where(eq(emailVerificationTokens.id, row.id));
+
+  return c.json({ ok: true, emailVerified: true });
+});
+
+authRoutes.post("/resend-verification", authMiddleware, async (c) => {
+  const limited = await guardAuth(c, "resend_verify");
+  if (limited) return limited;
+  const user = c.get("user");
+  if (user.emailVerifiedAt) {
+    return c.json({ ok: true, alreadyVerified: true });
+  }
+  const verify = await issueEmailVerification(user.id, user.email);
+  return c.json({ ok: true, ...verify });
+});
+
+/* ——— User TOTP MFA (admin + learners) ——— */
 
 authRoutes.get("/mfa/status", authMiddleware, async (c) => {
   const user = c.get("user");
-  if (user.role !== "admin") return c.json({ error: "forbidden" }, 403);
   const { adminMfaEnforce, getSessionMfaVerified } = await import("../mfa.js");
   const sessionToken = c.get("sessionToken");
   const mfaVerified = await getSessionMfaVerified(sessionToken);
   return c.json({
     totpEnabled: user.totpEnabled,
     mfaVerified,
-    mfaEnforced: adminMfaEnforce(),
+    mfaEnforced: user.role === "admin" ? adminMfaEnforce() : false,
     backupCodesRemaining: (user.mfaBackupCodeHashes ?? []).length,
+    availableToAll: true,
   });
 });
 
 authRoutes.post("/mfa/totp/setup", authMiddleware, async (c) => {
   const user = c.get("user");
-  if (user.role !== "admin") return c.json({ error: "forbidden" }, 403);
   if (user.totpEnabled) return c.json({ error: "already_enabled" }, 400);
   const limited = await guardAuth(c, "mfa_setup");
   if (limited) return limited;
@@ -273,7 +393,6 @@ authRoutes.post("/mfa/totp/setup", authMiddleware, async (c) => {
 
 authRoutes.post("/mfa/totp/confirm", authMiddleware, async (c) => {
   const user = c.get("user");
-  if (user.role !== "admin") return c.json({ error: "forbidden" }, 403);
   const limited = await guardAuth(c, "mfa_confirm");
   if (limited) return limited;
   const body = await c.req.json().catch(() => null);
@@ -338,16 +457,13 @@ authRoutes.post("/mfa/totp/verify", async (c) => {
   });
   return c.json({
     user: {
-      id: user.id,
-      email: user.email,
-      plan: user.plan,
-      role: user.role,
+      ...publicUser(user),
       totpEnabled: true,
       mfaVerified: true,
       backupCodesRemaining: (user.mfaBackupCodeHashes ?? []).length,
     },
     character,
-    token,
+    ...(shouldIssueBearerToken(c) ? { token } : {}),
     mfaMethod: method,
   });
 });
@@ -371,10 +487,38 @@ authRoutes.post("/mfa/step-up", authMiddleware, async (c) => {
   return c.json({ stepUpToken: token, expiresAt, mfaMethod: method });
 });
 
-/** Regenerate backup codes (requires valid TOTP/step code, invalidates old) */
+/** Disable TOTP (requires valid code) */
+authRoutes.post("/mfa/totp/disable", authMiddleware, async (c) => {
+  const user = c.get("user");
+  if (!user.totpEnabled) return c.json({ ok: true, totpEnabled: false });
+  if (user.role === "admin") {
+    const { adminMfaEnforce } = await import("../mfa.js");
+    if (adminMfaEnforce()) {
+      return c.json({ error: "admin_mfa_required", message: "Cannot disable admin MFA in production" }, 403);
+    }
+  }
+  const body = await c.req.json().catch(() => null);
+  const code = typeof body?.code === "string" ? body.code : "";
+  const { verifyUserMfaCode } = await import("../mfa.js");
+  if (!(await verifyUserMfaCode(user.id, code))) {
+    return c.json({ error: "invalid_code" }, 401);
+  }
+  await db
+    .update(users)
+    .set({
+      totpEnabled: false,
+      totpSecretEnc: null,
+      totpVerifiedAt: null,
+      mfaBackupCodeHashes: [],
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, user.id));
+  return c.json({ ok: true, totpEnabled: false });
+});
+
+/** Regenerate backup codes (requires valid TOTP code, invalidates old) */
 authRoutes.post("/mfa/backup-codes/regenerate", authMiddleware, async (c) => {
   const user = c.get("user");
-  if (user.role !== "admin") return c.json({ error: "forbidden" }, 403);
   if (!user.totpEnabled) return c.json({ error: "mfa_enroll_required" }, 403);
   const limited = await guardAuth(c, "mfa_backup_regen");
   if (limited) return limited;
@@ -399,14 +543,16 @@ authRoutes.post("/mfa/backup-codes/regenerate", authMiddleware, async (c) => {
       updatedAt: new Date(),
     })
     .where(eq(users.id, user.id));
-  const { writeAdminAudit } = await import("../audit.js");
-  await writeAdminAudit(db, {
-    actorUserId: user.id,
-    action: "backup_codes_regenerate",
-    targetType: "user",
-    targetId: user.id,
-    meta: {},
-  });
+  if (user.role === "admin") {
+    const { writeAdminAudit } = await import("../audit.js");
+    await writeAdminAudit(db, {
+      actorUserId: user.id,
+      action: "backup_codes_regenerate",
+      targetType: "user",
+      targetId: user.id,
+      meta: {},
+    });
+  }
   return c.json({ backupCodes, backupCodesRemaining: backupCodes.length });
 });
 
@@ -498,9 +644,17 @@ authRoutes.post("/onboarding/complete", authMiddleware, async (c) => {
     "completedFirstLesson",
     "triedChess",
     "triedTyping",
+    "triedFlashcards",
     "viewedLeaderboard",
     "exploredPricing",
     "dismissed",
+    "wizardCompleted",
+    "personaStudent",
+    "personaParent",
+    "personaTeacher",
+    "trackSkills",
+    "trackCode",
+    "trackChess",
   ] as const;
   if (!allowed.includes(key as (typeof allowed)[number])) {
     return c.json({ error: "invalid_key" }, 400);
@@ -509,7 +663,17 @@ authRoutes.post("/onboarding/complete", authMiddleware, async (c) => {
     where: eq(characters.userId, user.id),
   });
   if (!character) return c.json({ error: "not_found" }, 404);
-  const next = { ...(character.onboarding ?? {}), [key]: true };
+  const value = body.value === false ? false : true;
+  const next: Record<string, boolean> = {
+    ...((character.onboarding ?? {}) as Record<string, boolean>),
+    [key]: value,
+  };
+  // Exclusive persona flags when enabling one role
+  if (value && key.startsWith("persona")) {
+    next.personaStudent = key === "personaStudent";
+    next.personaParent = key === "personaParent";
+    next.personaTeacher = key === "personaTeacher";
+  }
   const [updated] = await db
     .update(characters)
     .set({ onboarding: next })
@@ -521,7 +685,7 @@ authRoutes.post("/onboarding/complete", authMiddleware, async (c) => {
 const forgotSchema = z.object({ email: z.string().email() });
 const resetSchema = z.object({
   token: z.string().min(20),
-  password: z.string().min(8).max(128),
+  password: passwordSchema,
 });
 
 authRoutes.post("/forgot-password", async (c) => {
@@ -589,5 +753,87 @@ authRoutes.post("/reset-password", async (c) => {
     .set({ usedAt: new Date() })
     .where(eq(passwordResetTokens.id, row.id));
 
+  // Invalidate all sessions after password reset
+  await db.delete(sessions).where(eq(sessions.userId, row.userId));
+
   return c.json({ ok: true });
+});
+
+/** Change password while authenticated (revokes other sessions). */
+authRoutes.post("/change-password", authMiddleware, async (c) => {
+  const limited = await guardAuth(c, "change_password");
+  if (limited) return limited;
+  const user = c.get("user");
+  const body = await c.req.json().catch(() => null);
+  const parsed = z
+    .object({
+      currentPassword: z.string().min(1),
+      newPassword: passwordSchema,
+    })
+    .safeParse(body);
+  if (!parsed.success) {
+    return c.json({ error: "invalid_input", details: parsed.error.flatten() }, 400);
+  }
+  const row = await db.query.users.findFirst({ where: eq(users.id, user.id) });
+  if (!row || !(await verifyPassword(parsed.data.currentPassword, row.passwordHash))) {
+    return c.json({ error: "invalid_credentials" }, 401);
+  }
+  if (parsed.data.currentPassword === parsed.data.newPassword) {
+    return c.json({ error: "same_password" }, 400);
+  }
+  const passwordHash = await hashPassword(parsed.data.newPassword);
+  await db
+    .update(users)
+    .set({ passwordHash, updatedAt: new Date() })
+    .where(eq(users.id, user.id));
+  const token = c.get("sessionToken");
+  if (token) {
+    await destroyOtherSessions(user.id, token);
+  }
+  return c.json({ ok: true, revokedOthers: true });
+});
+
+/**
+ * GDPR-style account deletion.
+ * Requires password + confirmation phrase "DELETE".
+ * Cascades via FK onDelete cascade for most user data.
+ */
+authRoutes.post("/account/delete", authMiddleware, async (c) => {
+  const limited = await guardAuth(c, "account_delete");
+  if (limited) return limited;
+  const user = c.get("user");
+  if (user.role === "admin") {
+    return c.json(
+      {
+        error: "admin_cannot_self_delete",
+        message: "Demote or use another admin before deleting this account",
+      },
+      400,
+    );
+  }
+  const body = await c.req.json().catch(() => null);
+  const parsed = z
+    .object({
+      password: z.string().min(1),
+      confirm: z.literal("DELETE"),
+    })
+    .safeParse(body);
+  if (!parsed.success) {
+    return c.json(
+      {
+        error: "invalid_input",
+        hint: 'Send { password, confirm: "DELETE" }',
+      },
+      400,
+    );
+  }
+  const row = await db.query.users.findFirst({ where: eq(users.id, user.id) });
+  if (!row || !(await verifyPassword(parsed.data.password, row.passwordHash))) {
+    return c.json({ error: "invalid_credentials" }, 401);
+  }
+  const token = c.get("sessionToken");
+  if (token) await destroySession(token);
+  clearSessionCookie(c);
+  await db.delete(users).where(eq(users.id, user.id));
+  return c.json({ ok: true, deleted: true });
 });
