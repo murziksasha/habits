@@ -118,13 +118,14 @@ meRoutes.post("/login-bonus", authMiddleware, async (c) => {
 meRoutes.get("/hearts", authMiddleware, async (c) => {
   const user = c.get("user");
   const plan = user.plan as Plan;
-  const max = maxHearts(plan);
   const ch = await db.query.characters.findFirst({
     where: eq(characters.userId, user.id),
   });
+  const prog = normalizeProgression(ch?.progression);
+  const max = maxHearts(plan, prog);
   const regenMinutes = Math.max(
     10,
-    HEART_REGEN_MINUTES - heartRegenMinutesBonus(normalizeProgression(ch?.progression)),
+    HEART_REGEN_MINUTES - heartRegenMinutesBonus(prog),
   );
   if (isPaidPlan(plan)) {
     return c.json({
@@ -172,6 +173,7 @@ meRoutes.get("/hearts", authMiddleware, async (c) => {
       hearts: row.hearts,
       heartsUpdatedAt: row.heartsUpdatedAt,
       regenMinutes,
+      progression: prog,
     });
     if (regen.changed) {
       await db

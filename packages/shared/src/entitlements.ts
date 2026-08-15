@@ -4,6 +4,10 @@ import {
   FREE_RATED_CHESS_PER_DAY,
   HEART_REGEN_MINUTES,
 } from "./courses.js";
+import {
+  ironWillHeartsBonus,
+  type CharacterProgression,
+} from "./character.js";
 
 export type Plan = "free" | "premium" | "family";
 
@@ -20,8 +24,11 @@ export function canAccessLesson(opts: {
   return opts.lessonIndexInCourse < FREE_LESSONS_PER_COURSE;
 }
 
-export function maxHearts(plan: Plan): number {
-  return isPaidPlan(plan) ? 999 : FREE_HEARTS;
+/** Free: 5 base (+ Iron Will synergy). Premium/family: unlimited. */
+export function maxHearts(plan: Plan, progression?: CharacterProgression | null): number {
+  if (isPaidPlan(plan)) return 999;
+  const bonus = progression ? ironWillHeartsBonus(progression) : 0;
+  return FREE_HEARTS + bonus;
 }
 
 /** Regen hearts based on elapsed time since last update */
@@ -32,9 +39,10 @@ export function regenerateHearts(opts: {
   now?: Date;
   /** Override interval minutes (e.g. vitality talent). Min 10. */
   regenMinutes?: number;
+  progression?: CharacterProgression | null;
 }): { hearts: number; heartsUpdatedAt: Date; changed: boolean } {
   const now = opts.now ?? new Date();
-  const max = maxHearts(opts.plan);
+  const max = maxHearts(opts.plan, opts.progression);
   if (isPaidPlan(opts.plan)) {
     return { hearts: max, heartsUpdatedAt: now, changed: opts.hearts !== max };
   }

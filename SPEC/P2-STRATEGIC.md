@@ -86,3 +86,7 @@ Open `/classroom/live/{classId}` while logged in. Events: `class_join`, `class_c
 - Full Next app directory RSC migration
 - Hosted video CDN + transcripts
 - Trained ranking model from event logs
+
+## Deep improvement (2026-08 waves 163–165)
+
+Shipped on platform spine: home/exam-board query batching, submit side-effect isolation, adaptive weight validation, content freemium/hints gates, client soft-grade parity tests, route latency tags. Still future: CRDT, multi-machine judge, store binaries, trained ML.

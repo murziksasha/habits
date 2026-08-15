@@ -102,8 +102,16 @@ export function CourseDetailClient() {
       locale: locale === "en" ? "en" : "uk",
     });
 
+  const allLessons = data.units.flatMap((u) => u.lessons);
+  const continueLesson =
+    allLessons.find((l) => !l.locked && l.status !== "completed") ??
+    allLessons.find((l) => !l.locked) ??
+    null;
+  const completedCount = allLessons.filter((l) => l.status === "completed").length;
+  const totalCount = allLessons.length || 1;
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-24 md:pb-8">
       <div className="card flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <div className="text-4xl">{data.course.icon}</div>
@@ -113,6 +121,21 @@ export function CourseDetailClient() {
           <p className="text-ink-muted">
             {pickLocale(locale, data.course.descriptionUk, data.course.descriptionEn)}
           </p>
+          {continueLesson ? (
+            <Link
+              href={`/courses/${slug}/lessons/${continueLesson.id}`}
+              className="btn-primary mt-4 inline-flex min-h-11"
+            >
+              {continueLesson.status === "completed"
+                ? locale === "en"
+                  ? "Review lesson"
+                  : "Повторити урок"
+                : locale === "en"
+                  ? "Continue"
+                  : "Продовжити"}
+              : {pickLocale(locale, continueLesson.titleUk, continueLesson.titleEn)} →
+            </Link>
+          ) : null}
         </div>
         <div className="w-full max-w-xs space-y-3">
           <div className="flex justify-end">
@@ -127,8 +150,18 @@ export function CourseDetailClient() {
             label={`${UI.dashboard.level} ${data.progress.level}`}
           />
           <p className="text-sm font-bold text-ink-muted">
-            Завершено уроків: {data.progress.completedLessons}
+            {locale === "en" ? "Completed lessons" : "Завершено уроків"}:{" "}
+            {data.progress.completedLessons}
+            {totalCount > 0 ? ` / ${totalCount}` : ""}
           </p>
+          <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+            <div
+              className="h-full rounded-full bg-brand transition-all"
+              style={{
+                width: `${Math.min(100, (completedCount / totalCount) * 100)}%`,
+              }}
+            />
+          </div>
           {data.freemium && freeLabel && (
             <div className="rounded-2xl border-2 border-grape/30 bg-grape/5 px-3 py-2">
               <p className="text-xs font-black uppercase text-grape">{t.onboarding.freePath}</p>
@@ -176,11 +209,26 @@ export function CourseDetailClient() {
         </div>
       </div>
 
-      {data.units.map((unit, ui) => (
+      {data.units.map((unit, ui) => {
+        const unitDone = unit.lessons.filter((l) => l.status === "completed").length;
+        const unitTotal = unit.lessons.length || 1;
+        return (
         <section key={unit.id} className="space-y-3">
-          <h2 className="text-lg font-black text-ink-muted">
-            Розділ {ui + 1}: {pickLocale(locale, unit.titleUk, unit.titleEn)}
-          </h2>
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <h2 className="text-lg font-black text-ink-muted">
+              {locale === "en" ? "Unit" : "Розділ"} {ui + 1}:{" "}
+              {pickLocale(locale, unit.titleUk, unit.titleEn)}
+            </h2>
+            <span className="text-xs font-black text-ink-muted">
+              {unitDone}/{unitTotal}
+            </span>
+          </div>
+          <div className="h-1.5 max-w-md overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+            <div
+              className="h-full rounded-full bg-sky transition-all"
+              style={{ width: `${Math.min(100, (unitDone / unitTotal) * 100)}%` }}
+            />
+          </div>
           <div className="relative mx-auto flex max-w-md flex-col items-center gap-4">
             {unit.lessons.map((lesson, i) => (
               <div key={lesson.id} className="w-full">
@@ -235,7 +283,9 @@ export function CourseDetailClient() {
                           ? `✓ ${Math.round(lesson.bestScore * 100)}%`
                           : lesson.isExam
                             ? t.lesson.exam
-                            : "Доступно"}
+                            : locale === "en"
+                              ? "Available"
+                              : "Доступно"}
                       </p>
                     </div>
                     <span
@@ -252,7 +302,25 @@ export function CourseDetailClient() {
             ))}
           </div>
         </section>
-      ))}
+        );
+      })}
+
+      {continueLesson ? (
+        <div className="fixed inset-x-0 bottom-16 z-30 border-t border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur md:bottom-0 dark:border-slate-800 dark:bg-slate-950/95">
+          <div className="mx-auto flex max-w-2xl items-center justify-between gap-3">
+            <p className="truncate text-sm font-bold">
+              {locale === "en" ? "Next up" : "Далі"}:{" "}
+              {pickLocale(locale, continueLesson.titleUk, continueLesson.titleEn)}
+            </p>
+            <Link
+              href={`/courses/${slug}/lessons/${continueLesson.id}`}
+              className="btn-primary shrink-0 !py-2 text-sm"
+            >
+              {locale === "en" ? "Go" : "Далі"} →
+            </Link>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

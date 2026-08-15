@@ -2,15 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { resolvePersona } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
+import { useApiQuery } from "@/lib/use-api-query";
 import { XpBar } from "@/components/xp-bar";
 import { OnboardingCard } from "@/components/onboarding";
 import { PrimaryMission } from "@/components/primary-mission";
-import { WeeklyQuestsCard } from "@/components/weekly-quests-card";
 import { EmptyState, Skeleton } from "@/components/ui";
 import { OnboardingWizard } from "@/components/onboarding-wizard";
 import { StreakCalendar } from "@/components/streak-calendar";
@@ -52,18 +51,20 @@ type HomePayload = {
  * Learn owns the full map; no DailyQuests / Continue duplication.
  */
 export function DashboardClient() {
-  const { user, character, token, loading, setCharacter, refresh } = useAuth();
+  const { character, setCharacter, refresh } = useAuth();
   const { t, locale } = useLocale();
-  const router = useRouter();
-  const [home, setHome] = useState<HomePayload | null>(null);
-  const [homeError, setHomeError] = useState(false);
+  const {
+    data: home,
+    error: homeErrorMsg,
+    loading: homeLoading,
+    ready,
+    user,
+    token,
+  } = useApiQuery<HomePayload>("/me/home");
+  const homeError = Boolean(homeErrorMsg);
   const [loginBonus, setLoginBonus] = useState<number | null>(null);
 
   const persona = resolvePersona(character?.onboarding);
-
-  useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
 
   // Role-based first destination for parent/teacher
   useEffect(() => {
@@ -78,16 +79,7 @@ export function DashboardClient() {
   }, [character, persona]);
 
   useEffect(() => {
-    if (!token) return;
-    void api<HomePayload>("/me/home", { token })
-      .then((d) => {
-        setHome(d);
-        setHomeError(false);
-      })
-      .catch(() => {
-        setHome(null);
-        setHomeError(true);
-      });
+    if (!token || !ready) return;
     void api<{
       alreadyClaimed?: boolean;
       rewardXp?: number;
@@ -101,9 +93,9 @@ export function DashboardClient() {
         }
       })
       .catch(() => undefined);
-  }, [token, setCharacter, refresh]);
+  }, [token, ready, setCharacter, refresh]);
 
-  if (loading || !user) {
+  if (!ready || homeLoading || !user) {
     return (
       <div className="space-y-4" aria-busy="true" aria-live="polite">
         <Skeleton className="h-28 w-full" />
@@ -232,9 +224,35 @@ export function DashboardClient() {
         </div>
       </section>
 
-      {/* Single primary CTA */}
+      {/* Single primary CTA — daily/weekly quests live on /learn only */}
       <PrimaryMission showSecondary />
-      <WeeklyQuestsCard />
+
+      {home?.progress && home.progress.length > 0 && (
+        <section className="space-y-2">
+          <h2 className="text-sm font-black uppercase text-ink-muted">
+            {locale === "en" ? "Your courses" : "Ваші курси"}
+          </h2>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {home.progress.slice(0, 6).map((p) => (
+              <Link
+                key={p.slug}
+                href={`/courses/${p.slug}`}
+                className="card min-w-[9.5rem] shrink-0 space-y-1 border-l-4 py-3"
+                style={{ borderLeftColor: p.color || "#58CC02" }}
+              >
+                <p className="text-lg" aria-hidden>
+                  {p.icon}
+                </p>
+                <p className="truncate text-xs font-black">{p.titleUk}</p>
+                <p className="text-[10px] font-bold text-ink-muted">
+                  L{p.level} · {p.completedLessons}{" "}
+                  {locale === "en" ? "lessons" : "уроків"}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       <StreakCalendar
         activeDates={activeDates}
@@ -254,6 +272,15 @@ export function DashboardClient() {
             <span className="font-black">{x.label}</span>
           </Link>
         ))}
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <Link href="/review" className="btn-secondary !py-2 text-sm">
+          🔁 {t.nav.review}
+        </Link>
+        <Link href="/quests" className="btn-secondary !py-2 text-sm">
+          🗡️ {t.nav.quests}
+        </Link>
       </div>
 
       {home?.examBoard && home.examBoard.summary.ready > 0 && (

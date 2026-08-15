@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, inArray } from "drizzle-orm";
 import { courses, lessons, units, userLessonProgress } from "@eduforge/db";
 import { db } from "../db.js";
 
@@ -35,21 +35,33 @@ export type ExamBoard = {
   courses: ExamBoardCourse[];
 };
 
+export type ExamBoardPrefetch = {
+  courses?: (typeof courses.$inferSelect)[];
+  lessonProgress?: (typeof userLessonProgress.$inferSelect)[];
+  units?: (typeof units.$inferSelect)[];
+  lessons?: (typeof lessons.$inferSelect)[];
+};
+
 /** Unit exam board for a learner (shared by /learning/exams/me and /me/home). */
 export async function buildExamBoard(
   userId: string,
   courseFilter?: string | null,
+  prefetch?: ExamBoardPrefetch,
 ): Promise<ExamBoard> {
-  const allCourses = await db.query.courses.findMany({
-    orderBy: [asc(courses.sortOrder)],
-  });
+  const allCourses =
+    prefetch?.courses ??
+    (await db.query.courses.findMany({
+      orderBy: [asc(courses.sortOrder)],
+    }));
   const courseList = courseFilter
     ? allCourses.filter((c) => c.slug === courseFilter)
     : allCourses;
 
-  const lpAll = await db.query.userLessonProgress.findMany({
-    where: eq(userLessonProgress.userId, userId),
-  });
+  const lpAll =
+    prefetch?.lessonProgress ??
+    (await db.query.userLessonProgress.findMany({
+      where: eq(userLessonProgress.userId, userId),
+    }));
   const lpMap = new Map(lpAll.map((p) => [p.lessonId, p]));
 
   const summary: ExamBoardSummary = {
@@ -60,16 +72,46 @@ export async function buildExamBoard(
   };
 
   const byCourse: ExamBoardCourse[] = [];
+  if (!courseList.length) return { summary, courses: byCourse };
+
+  const courseIds = courseList.map((c) => c.id);
+
+  const [allUnits, allLessons] = await Promise.all([
+    prefetch?.units
+      ? Promise.resolve(
+          prefetch.units.filter((u) => courseIds.includes(u.courseId)),
+        )
+      : db.query.units.findMany({
+          where: inArray(units.courseId, courseIds),
+          orderBy: [asc(units.sortOrder)],
+        }),
+    prefetch?.lessons
+      ? Promise.resolve(
+          prefetch.lessons.filter((l) => courseIds.includes(l.courseId)),
+        )
+      : db.query.lessons.findMany({
+          where: inArray(lessons.courseId, courseIds),
+          orderBy: [asc(lessons.sortOrder)],
+        }),
+  ]);
+
+  const unitsByCourse = new Map<string, typeof allUnits>();
+  for (const u of allUnits) {
+    const list = unitsByCourse.get(u.courseId) ?? [];
+    list.push(u);
+    unitsByCourse.set(u.courseId, list);
+  }
+
+  const lessonsByCourse = new Map<string, typeof allLessons>();
+  for (const l of allLessons) {
+    const list = lessonsByCourse.get(l.courseId) ?? [];
+    list.push(l);
+    lessonsByCourse.set(l.courseId, list);
+  }
 
   for (const course of courseList) {
-    const courseUnits = await db.query.units.findMany({
-      where: eq(units.courseId, course.id),
-      orderBy: [asc(units.sortOrder)],
-    });
-    const courseLessons = await db.query.lessons.findMany({
-      where: eq(lessons.courseId, course.id),
-      orderBy: [asc(lessons.sortOrder)],
-    });
+    const courseUnits = unitsByCourse.get(course.id) ?? [];
+    const courseLessons = lessonsByCourse.get(course.id) ?? [];
     const exams = courseLessons.filter((l) => l.isExam);
     if (!exams.length) continue;
 
@@ -110,4 +152,9 @@ export async function buildExamBoard(
   }
 
   return { summary, courses: byCourse };
+}
+
+/** Pure summary from an already-built board (for tests / home slice). */
+export function examBoardSummaryOnly(board: ExamBoard): ExamBoardSummary {
+  return board.summary;
 }

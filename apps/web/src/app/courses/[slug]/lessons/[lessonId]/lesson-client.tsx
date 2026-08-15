@@ -83,6 +83,7 @@ export function LessonClient() {
       titleEn?: string | null;
       href: string;
     } | null;
+    skillPoints?: number;
   } | null>(null);
   const [error, setError] = useState("");
   const [bookmarked, setBookmarked] = useState(false);
@@ -349,7 +350,7 @@ export function LessonClient() {
           titleEn?: string | null;
           href: string;
         } | null;
-      }>(`/courses/${slug}/lessons/${lessonId}/submit`, {
+      } & { character?: { progression?: { skillPoints?: number } } }>(`/courses/${slug}/lessons/${lessonId}/submit`, {
         method: "POST",
         token,
         body: {
@@ -377,6 +378,15 @@ export function LessonClient() {
         total: result.total,
         certificate: result.certificate ?? null,
         nextLesson: result.nextLesson ?? null,
+        skillPoints: (() => {
+          const ch = result.character as
+            | { progression?: { skillPoints?: number } }
+            | null
+            | undefined;
+          return typeof ch?.progression?.skillPoints === "number"
+            ? ch.progression.skillPoints
+            : undefined;
+        })(),
       });
       setFeedback(null);
       setFeedbackExplain("");
@@ -646,6 +656,17 @@ export function LessonClient() {
               {" →"}
             </Link>
           ) : null}
+          {(summary.skillPoints ?? 0) > 0 || summary.levelUp ? (
+            <Link
+              href="/profile#build"
+              className="btn-secondary min-h-11 ring-1 ring-grape/40"
+            >
+              ⭐{" "}
+              {locale === "en"
+                ? `Build character${summary.skillPoints ? ` (${summary.skillPoints} SP)` : ""}`
+                : `Прокачай персонажа${summary.skillPoints ? ` (${summary.skillPoints} очок)` : ""}`}
+            </Link>
+          ) : null}
           <Link
             href={`/courses/${slug}`}
             className={!examFail && summary.nextLesson ? "btn-secondary" : "btn-primary"}
@@ -671,6 +692,8 @@ export function LessonClient() {
   const isCodeEx =
     typeof ex.type === "string" &&
     (ex.type.startsWith("code_") || ex.type === "code_judge");
+  const nearEnd =
+    lesson.exercises.length > 2 && idx >= lesson.exercises.length - 2;
 
   return (
     <div
@@ -733,6 +756,28 @@ export function LessonClient() {
       {heartsLevel === "low" && (
         <p className="rounded-xl bg-sun/15 px-3 py-2 text-xs font-bold text-sun" role="status">
           ⚠️ {t.onboarding.heartsLow} · {t.onboarding.heartsRegen}
+        </p>
+      )}
+      {nearEnd && !feedback && (
+        <p
+          className="rounded-xl bg-brand/10 px-3 py-2 text-xs font-bold text-brand-dark"
+          role="status"
+        >
+          {locale === "en"
+            ? "Almost done — finish strong 💪"
+            : "Майже фініш — дотисніть 💪"}
+        </p>
+      )}
+      {feedback === "ok" && (
+        <p className="text-center text-sm font-black text-green-600" role="status">
+          {locale === "en" ? "Nice!" : "Клас!"} ✓
+        </p>
+      )}
+      {feedback === "bad" && (
+        <p className="text-center text-sm font-black text-orange-600" role="status">
+          {locale === "en"
+            ? "Not quite — try a hint or another answer"
+            : "Ще не те — підказка або інша відповідь"}
         </p>
       )}
       <div

@@ -453,8 +453,10 @@ export function PlaygroundClient() {
     : null;
   const reactTabs = Object.keys(reactFiles);
 
+  const nextUnsolved = langChallenges.find((c) => !c.solved) ?? challenges.find((c) => !c.solved);
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-24 md:pb-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-3xl font-black">🖥️ {t.playground.title}</h1>
@@ -469,6 +471,16 @@ export function PlaygroundClient() {
               </>
             )}
           </p>
+          {nextUnsolved && !activeChallenge && (
+            <button
+              type="button"
+              className="mt-2 text-xs font-black text-brand hover:underline"
+              onClick={() => loadChallenge(nextUnsolved.id)}
+            >
+              {locale === "en" ? "Next unsolved challenge" : "Наступний unsolved challenge"}:{" "}
+              {pickLocale(locale, nextUnsolved.titleUk, nextUnsolved.titleEn)} →
+            </button>
+          )}
         </div>
         <div className="flex flex-wrap gap-2">
           {PLAYGROUND_LANGS.map((l) => (
@@ -844,6 +856,36 @@ export function PlaygroundClient() {
               ))}
             </div>
           )}
+        </div>
+      </div>
+
+      <div className="fixed inset-x-0 bottom-16 z-30 border-t border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur md:bottom-0 dark:border-slate-800 dark:bg-slate-950/95">
+        <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-2">
+          <p className="truncate text-sm font-bold">
+            {activeMeta
+              ? pickLocale(locale, activeMeta.titleUk, activeMeta.titleEn)
+              : lang.toUpperCase()}
+            {challengeMsg ? ` · ${challengeMsg}` : ""}
+          </p>
+          <div className="flex gap-2">
+            {nextUnsolved && activeChallenge !== nextUnsolved.id ? (
+              <button
+                type="button"
+                className="btn-secondary !py-2 text-sm"
+                onClick={() => loadChallenge(nextUnsolved.id)}
+              >
+                {locale === "en" ? "Next challenge" : "Наступний"}
+              </button>
+            ) : null}
+            <button
+              type="button"
+              className="btn-primary !py-2 text-sm"
+              disabled={busy}
+              onClick={() => void run()}
+            >
+              ▶ {busy ? "…" : t.playground.run}
+            </button>
+          </div>
         </div>
       </div>
     </div>

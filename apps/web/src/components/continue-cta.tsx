@@ -52,6 +52,17 @@ export function ContinueCta({
       ? "Open learning map"
       : "Відкрити карту навчання";
   const label = locale === "en" ? "Continue" : "Продовжити";
+  const kind = next?.kind ?? "";
+  const icon =
+    kind.includes("exam")
+      ? "📝"
+      : kind.includes("review") || kind === "leech"
+        ? "🔁"
+        : kind.includes("race") || kind.includes("mini")
+          ? "🏁"
+          : kind.includes("character")
+            ? "⭐"
+            : "▶️";
 
   if (variant === "sticky") {
     return (
@@ -65,7 +76,9 @@ export function ContinueCta({
           className="btn-primary flex min-h-11 w-full items-center justify-between gap-3 shadow-lg !py-3"
         >
           <span className="truncate text-left">
-            <span className="block text-[10px] font-black uppercase opacity-90">{label}</span>
+            <span className="block text-[10px] font-black uppercase opacity-90">
+              {icon} {label}
+            </span>
             <span className="block truncate text-sm">{title}</span>
           </span>
           <span aria-hidden>→</span>
@@ -77,7 +90,7 @@ export function ContinueCta({
   if (variant === "inline") {
     return (
       <Link href={href} className={`btn-primary ${className}`}>
-        {label}: {title} →
+        {icon} {label}: {title} →
       </Link>
     );
   }
@@ -87,15 +100,23 @@ export function ContinueCta({
       className={`card border-brand/50 bg-gradient-to-br from-brand-soft/40 to-sky/10 ${className}`}
     >
       <p className="text-xs font-black uppercase text-brand-dark">
-        {locale === "en" ? "Next step" : "Наступний крок"}
+        {icon} {locale === "en" ? "Next step" : "Наступний крок"}
       </p>
       <p className="mt-1 text-lg font-black">{title}</p>
+      {kind ? (
+        <p className="text-xs font-bold text-ink-muted">
+          {locale === "en" ? "Type" : "Тип"}: {kind.replace(/_/g, " ")}
+        </p>
+      ) : null}
       <div className="mt-3 flex flex-wrap gap-2">
         <Link href={href} className="btn-primary !py-2 text-sm">
           {label} →
         </Link>
         <Link href="/review" className="btn-secondary !py-2 text-sm">
           🔁 {t.nav.review}
+        </Link>
+        <Link href="/learn" className="btn-secondary !py-2 text-sm">
+          🗺️ {t.nav.learn}
         </Link>
       </div>
     </section>

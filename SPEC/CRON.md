@@ -24,6 +24,12 @@ Set in env: `CRON_SECRET=` (see `.env.example`).
 | Weekly quest remind | `POST /admin/ops/weekly-quest-remind` body `{"limit":300}` | Wed+Sat 15:00 | Incomplete weekly build/lessons; throttle 2d via `weekly_quest_remind` |
 | Judge worker drain | `POST /judge/worker/drain` body `{"max":5}` | Every 10–30s if async judge used | Auth: `JUDGE_WORKER_SECRET` or `CRON_SECRET` |
 
+### Dry-run notes
+
+- Parent digests / push re-engage: run once against staging with a known inactive test user; verify throttle keys in Redis / activity log before production schedule.
+- Judge drain: safe no-op when queue empty; result store TTL is in-process/Redis (see `@eduforge/judge` queue).
+- Prefer admin Ops UI dry-check (buttons) then enable cron.
+
 Admin UI: `/admin` → Ops buttons (including **Push re-engage (3d)**).
 
 ## curl examples

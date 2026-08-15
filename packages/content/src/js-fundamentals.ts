@@ -460,6 +460,47 @@ const errorsProto = unit("errors_proto", "Errors & prototypes", "Errors & protot
     codeFill("jsf-ee3", "for of", "for of", "js", "for (const x ___ xs)", ["of"], true),
     mcq("jsf-ee4", "prototype is about:", "prototype is about:", ["inheritance", "only JSON", "only CSS", "DB indexes"], 0),
   ]),
+  lesson(
+    "jsf-async-fetch-lite",
+    "Async fetch lite",
+    "Async fetch lite",
+    3,
+    false,
+    [
+      codeFill(
+        "jsf-af1",
+        "await fetch",
+        "await fetch",
+        "js",
+        "const res = ___ fetch(url);",
+        ["await"],
+        true,
+      ),
+      mcq(
+        "jsf-af2",
+        "res.json() returns:",
+        "res.json() returns:",
+        ["a Promise", "sync object only", "CSS", "SQL cursor"],
+        0,
+      ),
+      codeFill(
+        "jsf-af3",
+        "async function",
+        "async function",
+        "js",
+        "___ function load() { return 1; }",
+        ["async"],
+        true,
+      ),
+      mcq(
+        "jsf-af4",
+        "HTTP 404 means:",
+        "HTTP 404 means:",
+        ["not found", "OK", "redirect only", "server always down"],
+        0,
+      ),
+    ],
+  ),
 ]);
 
 export const jsFundamentalsContent: CourseContent = {

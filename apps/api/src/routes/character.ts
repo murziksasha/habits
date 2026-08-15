@@ -2,16 +2,25 @@ import { Hono } from "hono";
 import { eq } from "drizzle-orm";
 import { characters } from "@eduforge/db";
 import {
+  ARCHETYPE_CATALOG,
   DEFAULT_PROGRESSION,
   FRAME_CATALOG,
   LEVEL_MILESTONES,
   PATH_BADGE_CATALOG,
+  SYNERGY_CATALOG,
   TALENT_CATALOG,
+  TALENT_ROLE,
+  TALENT_ROLE_META,
   TITLE_CATALOG,
+  activeSynergies,
+  applyArchetypeSpend,
   applyLevelUps,
+  buildPowerScore,
   bumpWeeklyProgress,
   claimWeeklyQuest,
   dailyGoalBonus,
+  detectActiveArchetype,
+  effectiveBuildStats,
   equipCosmetic,
   isoWeekKey,
   levelFromXp,
@@ -60,20 +69,29 @@ function progressionPayload(ch: {
   const xp = xpProgressInLevel(ch.globalXp);
   const milestone = nextMilestone(ch.globalLevel);
   const weekKey = isoWeekKey();
+  const stats = effectiveBuildStats(progression);
   return {
     progression,
     talents: TALENT_CATALOG,
+    talentRoles: TALENT_ROLE,
+    talentRoleMeta: TALENT_ROLE_META,
     titles: TITLE_CATALOG,
     frames: FRAME_CATALOG,
     milestones: LEVEL_MILESTONES,
     pathBadgesCatalog: PATH_BADGE_CATALOG,
     pathBadges: progression.pathBadges ?? [],
+    archetypes: ARCHETYPE_CATALOG,
+    activeArchetype: detectActiveArchetype(progression),
+    synergies: SYNERGY_CATALOG,
+    activeSynergies: activeSynergies(progression),
+    powerScore: buildPowerScore(progression),
+    effective: stats,
     weekly: weeklyQuestStatus(progression, weekKey),
     dailyGoalEffective: 50 + dailyGoalBonus(progression),
     recommendedTalent: recommendTalent(progression),
     respecCostXp: respecCostXp(progression.respecCount ?? 0),
     talentRanksTotal: totalTalentRanks(progression),
-    mentorHintBonus: Math.min(2, Math.max(0, progression.talents?.mentor ?? 0)),
+    mentorHintBonus: stats.mentorDepth,
     xpProgress: {
       level: xp.level,
       current: xp.current,
@@ -160,6 +178,69 @@ characterRoutes.post("/talents/spend", authMiddleware, async (c) => {
     character: updated,
     progression,
     unlockedAchievements: unlocked,
+    recommendedTalent: recommendTalent(progression),
+    powerScore: buildPowerScore(progression),
+    activeSynergies: activeSynergies(progression),
+    activeArchetype: detectActiveArchetype(progression),
+    effective: effectiveBuildStats(progression),
+  });
+});
+
+const archetypeSchema = z.object({
+  archetypeId: z.enum(["scholar", "tank", "social", "crafter"]),
+});
+
+/** Spend SP toward a build preset (partial apply until SP runs out). */
+characterRoutes.post("/archetypes/apply", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const body = await c.req.json().catch(() => null);
+  const parsed = archetypeSchema.safeParse(body);
+  if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
+
+  const ch = await db.query.characters.findFirst({
+    where: eq(characters.userId, user.id),
+  });
+  if (!ch) return c.json({ error: "no_character" }, 404);
+
+  let progression = applyLevelUps(normalizeProgression(ch.progression), ch.globalLevel);
+  const result = applyArchetypeSpend(progression, parsed.data.archetypeId);
+  if (!result.ok) return c.json({ error: result.error }, 400);
+
+  const ranksSpent = result.spent.length;
+  progression = bumpWeeklyProgress(result.progression, isoWeekKey(), "talents", ranksSpent);
+  const patch: Partial<typeof characters.$inferInsert> = {
+    progression,
+    dailyGoalXp: 50 + dailyGoalBonus(progression),
+  };
+
+  const [updated] = await db
+    .update(characters)
+    .set(patch)
+    .where(eq(characters.id, ch.id))
+    .returning();
+
+  await logActivity(db, user.id, "archetype_apply", {
+    archetypeId: parsed.data.archetypeId,
+    spent: result.spent,
+    unlockedTitle: result.unlockedTitle,
+  });
+  if (ranksSpent > 0) await bumpDailyQuests(user.id, "talents", ranksSpent);
+  await evaluateAchievements(db, user.id, {
+    talentSpent: true,
+    talentRanksTotal: totalTalentRanks(progression),
+    globalLevel: updated.globalLevel,
+  });
+
+  return c.json({
+    ok: true,
+    character: updated,
+    progression,
+    spent: result.spent,
+    unlockedTitle: result.unlockedTitle ?? null,
+    powerScore: buildPowerScore(progression),
+    activeSynergies: activeSynergies(progression),
+    activeArchetype: detectActiveArchetype(progression),
+    effective: effectiveBuildStats(progression),
     recommendedTalent: recommendTalent(progression),
   });
 });

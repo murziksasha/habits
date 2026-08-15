@@ -72,7 +72,7 @@ export function createApp() {
       },
     );
     const ms = Date.now() - start;
-    recordLatency(ms);
+    recordLatency(ms, c.req.path);
     log.info("request", {
       requestId,
       method: c.req.method,

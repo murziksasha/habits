@@ -595,6 +595,18 @@ export function ProfileClient() {
         activeDates={streakDates}
         streakDays={character?.streakDays ?? 0}
       />
+      {(character?.progression?.skillPoints ?? 0) > 0 ? (
+        <a
+          href="#build"
+          className="card block border-grape/40 bg-grape/10 text-sm font-black text-grape hover:border-grape/60"
+        >
+          ⭐{" "}
+          {locale === "en"
+            ? `You have ${character!.progression!.skillPoints} skill points — tap to build`
+            : `У вас ${character!.progression!.skillPoints} очок навичок — тапніть, щоб прокачати`}{" "}
+          →
+        </a>
+      ) : null}
       <CharacterProgressionPanel />
       <div className="flex flex-wrap gap-2">
         <Link href={`/u/${user.id}`}>

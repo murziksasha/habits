@@ -247,6 +247,19 @@ Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, 
 161. Path badge achievements (first / 3 / all 8)  
 162. Ops weekly quest remind cron (`POST /admin/ops/weekly-quest-remind`)  
 
+### Deep improvement program (2026-08) — waves 163–165
+
+163. **Foundation:** batch `buildExamBoard` (units/lessons `inArray`); home BFF prefetches courses + lesson progress for next-steps/exams; explore-course cap; submit side-effects isolated (`submit-side-effects.ts`, best-effort); route latency tags on `/metrics` (`latency.byRoute`); `useApiQuery` / `useApiQueries` on dashboard + learn; idempotency full-body tests  
+164. **Learning quality:** mastery priority table + spaced interval tests; adaptive weights numeric validation; review leech primary CTA; soft-grade parity tests (web); content freemium/hints gates; exam fail → review CTA (existing)  
+165. **Polish / closeout:** PageLoading review suspense; CRON dry-run notes; no DailyQuests on dashboard (Learn-only); embedded_cpp in deep-track next-steps; program non-goals unchanged (no new primary nav, no CRDT, no store binaries)
+166. **Courses + character v3:** path badges expanded (TS/Node/Express/embedded/typing/speed_read); archetypes apply API; synergies Iron Will / Deep Study / Friendly Fire; power score + effective stats UI; lesson/learn Build CTAs; content: english conversation, chess tactics-practice-2, logic deduction, programming forms polish, JS async-fetch-lite, React custom-hook pattern
+167. **Student experience + content:** typing daily-drills + EN titles; speed_reading EN free path; programming free js-map-filter; SQL NULL/COALESCE; course detail Continue + unit progress + sticky next; PrimaryMission icons/SP; lesson near-end encouragement
+168. **Courses + UX loop:** english meetings/phone unit; node JSON/errors free lesson; express JSON body unit + exam; dashboard course strip + review/quests; ContinueCta icons; programming sticky continue + path bar; lesson wrong-answer nudge; learn course cards color rail
+169. **Deep hubs + content:** TS Pick/Required free; QA bug-report practice free; CSS flex gap/center free; DeepCourseHub path bar, unit next, exams ready, sticky continue; review leech-first sort + sticky; profile SP banner → #build
+170. **Retention surfaces:** chess opposition free + EN endgame; logic deduction intro free; HTML semantics intro free; flashcards meetings deck + programming map/filter/SQL; quests claim-all + metric deep-links; search quick links; certificates empty CTAs; playground sticky run + next challenge
+
+**What not to build next:** native store apps, full multi-worker judge pool, trained ML ranking, new deep track without CONTENT-DX + IA justification, extra primary nav slots.
+
 ### P2 strategic foundations (scaffolds live — see SPEC/P2-STRATEGIC.md)
 
 40. Multi-lang judge `@eduforge/judge` + `POST /judge/run` (`JUDGE_MODE=local|docker|off`)  

@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import {
   characters,
   courses,
@@ -35,26 +35,58 @@ export type NextStepsResult = {
   progPlacement: typeof placementResults.$inferSelect | null | undefined;
 };
 
+export type NextStepsPrefetch = {
+  courses?: (typeof courses.$inferSelect)[];
+  lessonProgress?: (typeof userLessonProgress.$inferSelect)[];
+  courseProgress?: {
+    courseId: string;
+    lastLessonId: string | null;
+    slug: string;
+    titleUk: string;
+    titleEn: string | null;
+    icon: string;
+    completedLessons: number;
+  }[];
+};
+
+const DEEP_TRACK_SLUGS = [
+  "html_semantics",
+  "css_layout",
+  "qa_theory",
+  "typescript",
+  "js_fundamentals",
+  "react_fundamentals",
+  "sql_fundamentals",
+  "node_fundamentals",
+  "express_fundamentals",
+  "embedded_cpp",
+] as const;
+
+const MAX_EXPLORE = 4;
+
 /** Smart next steps: unfinished lessons, weak review, placement, minis, exams. */
 export async function buildNextRecommendations(
   userId: string,
   limit = 12,
+  prefetch?: NextStepsPrefetch,
 ): Promise<NextStepsResult> {
   const recommendations: NextRecommendation[] = [];
 
-  const progress = await db
-    .select({
-      courseId: userCourseProgress.courseId,
-      lastLessonId: userCourseProgress.lastLessonId,
-      slug: courses.slug,
-      titleUk: courses.titleUk,
-      titleEn: courses.titleEn,
-      icon: courses.icon,
-      completedLessons: userCourseProgress.completedLessons,
-    })
-    .from(userCourseProgress)
-    .innerJoin(courses, eq(courses.id, userCourseProgress.courseId))
-    .where(eq(userCourseProgress.userId, userId));
+  const progress =
+    prefetch?.courseProgress ??
+    (await db
+      .select({
+        courseId: userCourseProgress.courseId,
+        lastLessonId: userCourseProgress.lastLessonId,
+        slug: courses.slug,
+        titleUk: courses.titleUk,
+        titleEn: courses.titleEn,
+        icon: courses.icon,
+        completedLessons: userCourseProgress.completedLessons,
+      })
+      .from(userCourseProgress)
+      .innerJoin(courses, eq(courses.id, userCourseProgress.courseId))
+      .where(eq(userCourseProgress.userId, userId)));
 
   for (const p of progress) {
     if (p.lastLessonId) {
@@ -78,21 +110,25 @@ export async function buildNextRecommendations(
     }
   }
 
-  const allCourses = await db.query.courses.findMany({
-    orderBy: [asc(courses.sortOrder)],
-  });
+  const allCourses =
+    prefetch?.courses ??
+    (await db.query.courses.findMany({
+      orderBy: [asc(courses.sortOrder)],
+    }));
   const started = new Set(progress.map((p) => p.courseId));
+  let exploreCount = 0;
   for (const course of allCourses) {
-    if (!started.has(course.id)) {
-      recommendations.push({
-        kind: "explore_course",
-        titleUk: `Спробуй: ${course.titleUk}`,
-        titleEn: `Try: ${course.titleEn || course.titleUk}`,
-        href: `/courses/${course.slug}`,
-        priority: 3,
-        meta: { courseSlug: course.slug, icon: course.icon },
-      });
-    }
+    if (started.has(course.id)) continue;
+    if (exploreCount >= MAX_EXPLORE) break;
+    recommendations.push({
+      kind: "explore_course",
+      titleUk: `Спробуй: ${course.titleUk}`,
+      titleEn: `Try: ${course.titleEn || course.titleUk}`,
+      href: `/courses/${course.slug}`,
+      priority: 3,
+      meta: { courseSlug: course.slug, icon: course.icon },
+    });
+    exploreCount += 1;
   }
 
   // Mastery: weak lessons → personal review queue
@@ -109,6 +145,7 @@ export async function buildNextRecommendations(
         attempts: w.attempts,
         courseSlug: w.courseSlug,
         mastery: true,
+        leech: Boolean(w.leech),
       },
     });
   }
@@ -127,7 +164,7 @@ export async function buildNextRecommendations(
   for (const w of leeches.slice(0, 2)) {
     recommendations.push({
       kind: "leech",
-      titleUk: `🩸 Леech: ${w.titleUk}`,
+      titleUk: `🩸 Leech: ${w.titleUk}`,
       titleEn: `🩸 Leech: ${w.titleEn}`,
       href: `/courses/${w.courseSlug}/lessons/${w.lessonId}`,
       priority: masteryPriority(w.bestScore, w.attempts) + 2,
@@ -195,13 +232,23 @@ export async function buildNextRecommendations(
     });
   }
 
-  const placement = await db.query.placementResults.findFirst({
-    where: and(
-      eq(placementResults.userId, userId),
-      eq(placementResults.courseSlug, "english"),
-    ),
-    orderBy: [desc(placementResults.createdAt)],
-  });
+  const [placement, progPlacement] = await Promise.all([
+    db.query.placementResults.findFirst({
+      where: and(
+        eq(placementResults.userId, userId),
+        eq(placementResults.courseSlug, "english"),
+      ),
+      orderBy: [desc(placementResults.createdAt)],
+    }),
+    db.query.placementResults.findFirst({
+      where: and(
+        eq(placementResults.userId, userId),
+        eq(placementResults.courseSlug, "programming"),
+      ),
+      orderBy: [desc(placementResults.createdAt)],
+    }),
+  ]);
+
   if (!placement) {
     recommendations.push({
       kind: "placement",
@@ -212,13 +259,6 @@ export async function buildNextRecommendations(
     });
   }
 
-  const progPlacement = await db.query.placementResults.findFirst({
-    where: and(
-      eq(placementResults.userId, userId),
-      eq(placementResults.courseSlug, "programming"),
-    ),
-    orderBy: [desc(placementResults.createdAt)],
-  });
   if (!progPlacement) {
     recommendations.push({
       kind: "placement_programming",
@@ -238,9 +278,7 @@ export async function buildNextRecommendations(
     });
   }
 
-  const progCourse = await db.query.courses.findFirst({
-    where: eq(courses.slug, "programming"),
-  });
+  const progCourse = allCourses.find((c) => c.slug === "programming");
   if (progCourse) {
     const miniSlugs = [...PROGRAMMING_MINI_LESSON_SLUGS];
     const raceSlugs = weeklyMinisRaceSlugs();
@@ -253,25 +291,30 @@ export async function buildNextRecommendations(
         .filter((l) => (miniSlugs as string[]).includes(l.slug))
         .map((l) => [l.slug, l]),
     );
-    const doneProg = await db.query.userLessonProgress.findMany({
-      where: and(
-        eq(userLessonProgress.userId, userId),
-        eq(userLessonProgress.courseId, progCourse.id),
-        eq(userLessonProgress.status, "completed"),
-      ),
-    });
-    const doneSet = new Set(doneProg.map((p) => p.lessonId));
+
+    const lpAll =
+      prefetch?.lessonProgress ??
+      (await db.query.userLessonProgress.findMany({
+        where: eq(userLessonProgress.userId, userId),
+      }));
+    const doneSet = new Set(
+      lpAll
+        .filter((p) => p.courseId === progCourse.id && p.status === "completed")
+        .map((p) => p.lessonId),
+    );
 
     const { startsAt: weekStart } = isoWeekBounds();
-    const raceDoneThisWeek = await db.query.userLessonProgress.findMany({
-      where: and(
-        eq(userLessonProgress.userId, userId),
-        eq(userLessonProgress.courseId, progCourse.id),
-        eq(userLessonProgress.status, "completed"),
-        gte(userLessonProgress.completedAt, weekStart),
-      ),
-    });
-    const raceDoneWeekIds = new Set(raceDoneThisWeek.map((p) => p.lessonId));
+    const raceDoneWeekIds = new Set(
+      lpAll
+        .filter(
+          (p) =>
+            p.courseId === progCourse.id &&
+            p.status === "completed" &&
+            p.completedAt &&
+            p.completedAt >= weekStart,
+        )
+        .map((p) => p.lessonId),
+    );
 
     let racePri = 18;
     for (const slug of raceSlugs) {
@@ -353,29 +396,35 @@ export async function buildNextRecommendations(
     priority: 6,
   });
 
-  const examLessons = await db.query.lessons.findMany({
-    where: eq(lessons.isExam, true),
-  });
-  if (examLessons.length) {
-    const lpAll = await db.query.userLessonProgress.findMany({
+  // Exam-ready: use prefetched lessons + progress when available
+  const lpForExams =
+    prefetch?.lessonProgress ??
+    (await db.query.userLessonProgress.findMany({
       where: eq(userLessonProgress.userId, userId),
-    });
+    }));
+  const examLessons = (
+    prefetch?.courses
+      ? await db.query.lessons.findMany({ where: eq(lessons.isExam, true) })
+      : await db.query.lessons.findMany({ where: eq(lessons.isExam, true) })
+  );
+  if (examLessons.length) {
     const doneSet = new Set(
-      lpAll.filter((p) => p.status === "completed").map((p) => p.lessonId),
+      lpForExams.filter((p) => p.status === "completed").map((p) => p.lessonId),
     );
     const unitIds = [...new Set(examLessons.map((l) => l.unitId))];
-    const unitLessons = await db.query.lessons.findMany({
-      where: inArray(lessons.unitId, unitIds),
-    });
+    const unitLessons =
+      unitIds.length > 0
+        ? await db.query.lessons.findMany({
+            where: inArray(lessons.unitId, unitIds),
+          })
+        : [];
     const byUnit = new Map<string, typeof unitLessons>();
     for (const l of unitLessons) {
       const list = byUnit.get(l.unitId) ?? [];
       list.push(l);
       byUnit.set(l.unitId, list);
     }
-    const courseMap = new Map(
-      (await db.query.courses.findMany()).map((c) => [c.id, c]),
-    );
+    const courseMap = new Map(allCourses.map((c) => [c.id, c]));
     let examRecs = 0;
     for (const ex of examLessons) {
       if (examRecs >= 3) break;
@@ -397,17 +446,7 @@ export async function buildNextRecommendations(
     }
   }
 
-  for (const slug of [
-    "html_semantics",
-    "css_layout",
-    "qa_theory",
-    "typescript",
-    "js_fundamentals",
-    "react_fundamentals",
-    "sql_fundamentals",
-    "node_fundamentals",
-    "express_fundamentals",
-  ] as const) {
+  for (const slug of DEEP_TRACK_SLUGS) {
     const c = allCourses.find((x) => x.slug === slug);
     if (!c || started.has(c.id)) continue;
     recommendations.push({

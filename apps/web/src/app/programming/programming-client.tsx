@@ -234,8 +234,13 @@ export function ProgrammingClient() {
   const totalLessons = allLessons.length || 1;
   const pathPct = Math.round((progress.completedLessons / totalLessons) * 100);
 
+  const nextLesson =
+    allLessons.find((l) => !l.locked && l.status !== "completed") ??
+    allLessons.find((l) => !l.locked) ??
+    null;
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-24 md:pb-8">
       <section className="card flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-brand/30 bg-gradient-to-br from-brand-soft/30 to-sky/5">
         <div>
           <p className="text-4xl">💻</p>
@@ -245,6 +250,12 @@ export function ProgrammingClient() {
             {t.programming.pathPct}: {pathPct}% · {unitsDone}/{units.length} units · 🧩{" "}
             {miniDone}/{miniTotal} {t.programming.miniDone}
           </p>
+          <div className="mt-2 h-2 max-w-md overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+            <div
+              className="h-full rounded-full bg-sky transition-all"
+              style={{ width: `${Math.min(100, pathPct)}%` }}
+            />
+          </div>
           {freeLabel && (
             <p className="mt-1 text-xs font-black text-grape">
               {t.onboarding.freePath}: {freeLabel}
@@ -252,7 +263,11 @@ export function ProgrammingClient() {
           )}
           <div className="mt-3 flex flex-wrap gap-2">
             <Link href={continueHref} className="btn-primary min-h-11">
-              {t.onboarding.continuePath} →
+              {t.onboarding.continuePath}
+              {nextLesson
+                ? `: ${pickLocale(locale, nextLesson.titleUk, nextLesson.titleEn)}`
+                : ""}{" "}
+              →
             </Link>
             <Link href="/playground" className="btn-secondary min-h-11">
               🖥️ {t.nav.playground}
@@ -624,6 +639,23 @@ export function ProgrammingClient() {
         })}
         {!units.length && <p className="text-ink-muted font-bold">{t.common.loading}</p>}
       </div>
+
+      {nextLesson ? (
+        <div className="fixed inset-x-0 bottom-16 z-30 border-t border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur md:bottom-0 dark:border-slate-800 dark:bg-slate-950/95">
+          <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
+            <p className="truncate text-sm font-bold">
+              {locale === "en" ? "Continue path" : "Продовжити path"}:{" "}
+              {pickLocale(locale, nextLesson.titleUk, nextLesson.titleEn)}
+            </p>
+            <Link
+              href={`/courses/programming/lessons/${nextLesson.id}`}
+              className="btn-primary shrink-0 !py-2 text-sm"
+            >
+              {locale === "en" ? "Go" : "Далі"} →
+            </Link>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

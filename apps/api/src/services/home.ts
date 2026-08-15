@@ -1,8 +1,9 @@
-import { desc, eq } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 import {
   activityEvents,
   courses,
   userCourseProgress,
+  userLessonProgress,
 } from "@eduforge/db";
 import { db } from "../db.js";
 import { buildExamBoard } from "./exam-board.js";
@@ -15,8 +16,10 @@ export type HomeProgressRow = {
   level: number;
   completedLessons: number;
   hearts: number;
+  lastLessonId: string | null;
   slug: string;
   titleUk: string;
+  titleEn: string | null;
   icon: string;
   color: string;
 };
@@ -60,8 +63,10 @@ export async function getCourseProgress(userId: string): Promise<HomeProgressRow
       level: userCourseProgress.level,
       completedLessons: userCourseProgress.completedLessons,
       hearts: userCourseProgress.hearts,
+      lastLessonId: userCourseProgress.lastLessonId,
       slug: courses.slug,
       titleUk: courses.titleUk,
+      titleEn: courses.titleEn,
       icon: courses.icon,
       color: courses.color,
     })
@@ -84,7 +89,10 @@ export async function getRecentActivity(userId: string, limit = 12) {
   }));
 }
 
-/** Dashboard BFF payload — direct service calls, no internal HTTP. */
+/**
+ * Dashboard BFF payload — shared catalog + lesson progress prefetch so
+ * next-steps and exam-board avoid duplicate catalog scans.
+ */
 export async function buildHomePayload(userId: string): Promise<HomePayload> {
   const meta = {
     progressOk: true,
@@ -94,13 +102,19 @@ export async function buildHomePayload(userId: string): Promise<HomePayload> {
     raceOk: true,
   };
 
-  const [progressR, activityR, nextR, examsR, raceR] = await Promise.allSettled([
+  // Shared foundation: courses list + full lesson progress (used by next + exams)
+  const [allCoursesR, lessonProgressR, progressR, activityR] = await Promise.allSettled([
+    db.query.courses.findMany({ orderBy: [asc(courses.sortOrder)] }),
+    db.query.userLessonProgress.findMany({
+      where: eq(userLessonProgress.userId, userId),
+    }),
     getCourseProgress(userId),
     getRecentActivity(userId, 12),
-    buildNextRecommendations(userId, 5),
-    buildExamBoard(userId),
-    buildMinisRace(userId),
   ]);
+
+  const allCourses = allCoursesR.status === "fulfilled" ? allCoursesR.value : [];
+  const lessonProgress =
+    lessonProgressR.status === "fulfilled" ? lessonProgressR.value : [];
 
   const progress = progressR.status === "fulfilled" ? progressR.value : [];
   if (progressR.status === "rejected") {
@@ -113,6 +127,29 @@ export async function buildHomePayload(userId: string): Promise<HomePayload> {
     meta.activityOk = false;
     console.error("[home] activity", activityR.reason);
   }
+
+  const prefetch = {
+    courses: allCourses,
+    lessonProgress,
+    courseProgress: progress.map((p) => ({
+      courseId: p.courseId,
+      lastLessonId: p.lastLessonId,
+      slug: p.slug,
+      titleUk: p.titleUk,
+      titleEn: p.titleEn,
+      icon: p.icon,
+      completedLessons: p.completedLessons,
+    })),
+  };
+
+  const [nextR, examsR, raceR] = await Promise.allSettled([
+    buildNextRecommendations(userId, 5, prefetch),
+    buildExamBoard(userId, null, {
+      courses: allCourses,
+      lessonProgress,
+    }),
+    buildMinisRace(userId),
+  ]);
 
   let recommendations: HomePayload["recommendations"] = [];
   if (nextR.status === "fulfilled") {

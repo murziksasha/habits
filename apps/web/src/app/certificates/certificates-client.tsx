@@ -54,16 +54,26 @@ export function CertificatesClient() {
         </p>
       </div>
       {!certs.length && (
-        <EmptyState
-          title={locale === "en" ? "No certificates yet" : "Ще немає сертифікатів"}
-          description={
-            locale === "en"
-              ? "Finish a course path or minis to earn one."
-              : "Завершіть path або minis, щоб отримати сертифікат."
-          }
-          actionHref="/learn"
-          actionLabel={t.nav.learn}
-        />
+        <div className="space-y-3">
+          <EmptyState
+            title={locale === "en" ? "No certificates yet" : "Ще немає сертифікатів"}
+            description={
+              locale === "en"
+                ? "Finish a course path or minis to earn one."
+                : "Завершіть path або minis, щоб отримати сертифікат."
+            }
+            actionHref="/learn"
+            actionLabel={t.nav.learn}
+          />
+          <div className="flex flex-wrap gap-2">
+            <Link href="/programming" className="btn-secondary !py-2 text-sm">
+              💻 {t.nav.programming}
+            </Link>
+            <Link href="/courses" className="btn-secondary !py-2 text-sm">
+              📚 {t.nav.courses}
+            </Link>
+          </div>
+        </div>
       )}
       <div className="grid gap-3 sm:grid-cols-2">
         {certs.map((c) => {

@@ -479,6 +479,47 @@ const windowsU = unit("windows", "Window functions", "Window functions", [
     mcq("sqlf-we3", "PARTITION BY:", "PARTITION BY:", ["groups window", "drops table", "renames DB", "locks only"], 0),
     codeFill("sqlf-we4", "ORDER in window", "ORDER in window", "sql", "OVER (PARTITION BY u ___ BY ts)", ["ORDER", "order"], false),
   ]),
+  lesson(
+    "sqlf-null-coalesce",
+    "NULL & COALESCE",
+    "NULL & COALESCE",
+    2,
+    true,
+    [
+      mcq(
+        "sqlf-nc1",
+        "NULL means:",
+        "NULL means:",
+        ["unknown / missing value", "always zero", "empty string always", "boolean false only"],
+        0,
+      ),
+      codeFill(
+        "sqlf-nc2",
+        "IS NULL",
+        "IS NULL",
+        "sql",
+        "SELECT * FROM t WHERE email ___ NULL;",
+        ["IS", "is"],
+        false,
+      ),
+      codeFill(
+        "sqlf-nc3",
+        "COALESCE",
+        "COALESCE",
+        "sql",
+        "SELECT ___(nickname, 'anon') FROM users;",
+        ["COALESCE", "coalesce"],
+        false,
+      ),
+      mcq(
+        "sqlf-nc4",
+        "1 = NULL evaluates to:",
+        "1 = NULL evaluates to:",
+        ["NULL (unknown), not TRUE", "TRUE always", "FALSE always", "syntax error always"],
+        0,
+      ),
+    ],
+  ),
 ]);
 
 export const sqlFundamentalsContent: CourseContent = {

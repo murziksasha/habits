@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
 import { PageLoading } from "@/components/page-loading";
+import { EmptyState } from "@/components/ui";
 import { useRequireAuth } from "@/lib/use-require-auth";
 
 type Quest = {
@@ -107,21 +109,72 @@ export function QuestsClient() {
     return q.questKey;
   }
 
+  const claimable = quests.filter((q) => q.completed && !q.claimed);
+  const doneCount = quests.filter((q) => q.claimed || q.completed).length;
+
   return (
     <div className="space-y-6 pb-20 md:pb-0">
-      <div>
-        <h1 className="text-3xl font-black">✅ {t.quests.title}</h1>
-        {date && <p className="text-sm font-bold text-ink-muted">{date}</p>}
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-black">✅ {t.quests.title}</h1>
+          {date && <p className="text-sm font-bold text-ink-muted">{date}</p>}
+        </div>
+        <Link href="/learn" className="btn-secondary !py-2 text-sm">
+          🗺️ {t.nav.learn}
+        </Link>
       </div>
-      {msg && <p className="text-sm font-bold text-grape">{msg}</p>}
+      {msg && (
+        <p className="rounded-xl bg-brand/10 px-3 py-2 text-sm font-bold text-brand-dark" role="status">
+          {msg}
+        </p>
+      )}
+      {quests.length > 0 && (
+        <p className="text-xs font-black text-ink-muted">
+          {locale === "en" ? "Today" : "Сьогодні"}: {doneCount}/{quests.length}
+          {claimable.length > 0
+            ? ` · ${claimable.length} ${locale === "en" ? "ready to claim" : "готові до claim"}`
+            : ""}
+        </p>
+      )}
+      {claimable.length > 1 && (
+        <button
+          type="button"
+          className="btn-primary !py-2 text-sm"
+          onClick={() => {
+            void (async () => {
+              for (const q of claimable) {
+                await claim(q.questKey);
+              }
+            })();
+          }}
+        >
+          {locale === "en"
+            ? `Claim all (${claimable.length})`
+            : `Забрати всі (${claimable.length})`}
+        </button>
+      )}
       {quests.length === 0 ? (
-        <p className="card">{t.quests.empty}</p>
+        <EmptyState
+          title={t.quests.empty}
+          description={
+            locale === "en"
+              ? "Come back after a lesson — daily quests refresh each day."
+              : "Зайдіть після уроку — щоденні квести оновлюються щодня."
+          }
+          actionHref="/learn"
+          actionLabel={t.nav.learn}
+        />
       ) : (
         <div className="space-y-3">
           {quests.map((q) => {
             const ratio = Math.min(1, q.progress / Math.max(1, q.target));
             return (
-              <div key={q.questKey} className="card space-y-2">
+              <div
+                key={q.questKey}
+                className={`card space-y-2 ${
+                  q.completed && !q.claimed ? "border-brand/40 bg-brand-soft/10" : ""
+                }`}
+              >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="font-black">{title(q)}</p>
                   <p className="text-sm font-bold text-brand-dark">+{q.rewardXp} XP</p>
@@ -136,6 +189,16 @@ export function QuestsClient() {
                   {q.progress}/{q.target}
                   {q.completed ? " · ✓" : ""}
                 </p>
+                {!q.completed && q.metric === "lessons" && (
+                  <Link href="/learn" className="text-xs font-bold text-sky hover:underline">
+                    {locale === "en" ? "Do a lesson →" : "Зробити урок →"}
+                  </Link>
+                )}
+                {!q.completed && q.metric === "talents" && (
+                  <Link href="/profile#build" className="text-xs font-bold text-sky hover:underline">
+                    {locale === "en" ? "Open build →" : "До прокачки →"}
+                  </Link>
+                )}
                 {q.completed && !q.claimed && (
                   <button
                     type="button"
