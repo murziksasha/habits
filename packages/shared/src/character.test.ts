@@ -1,9 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
+  applyArchetypeSpend,
   applyLevelUps,
   avatarShopDiscount,
+  buildPowerScore,
   giftDailyLimit,
+  hasSynergy,
+  ironWillHeartsBonus,
   lessonXpMultiplier,
+  mentorHintBonus,
   normalizeProgression,
   recommendTalent,
   respecCostXp,
@@ -15,7 +20,9 @@ import {
   weeklyQuestStatus,
   DEFAULT_PROGRESSION,
   LEVEL_MILESTONES,
+  PATH_BADGE_CATALOG,
 } from "./character.js";
+import { maxHearts } from "./entitlements.js";
 
 describe("character progression", () => {
   it("normalizes empty progression", () => {
@@ -142,5 +149,63 @@ describe("path badges + weekly quests", () => {
     });
     expect(second.newlyUnlocked.length).toBe(0);
     expect((first.progression.pathBadges ?? []).length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("catalog includes expanded path badges", () => {
+    expect(PATH_BADGE_CATALOG.length).toBeGreaterThan(8);
+    expect(PATH_BADGE_CATALOG.some((b) => b.id === "path_typescript")).toBe(true);
+    expect(PATH_BADGE_CATALOG.some((b) => b.id === "path_embedded")).toBe(true);
+  });
+});
+
+describe("character v3: synergies + archetypes + power", () => {
+  it("iron will adds free heart", () => {
+    const p = normalizeProgression({
+      ...DEFAULT_PROGRESSION,
+      talents: { grit: 2, vitality: 1 },
+    });
+    expect(hasSynergy(p, "iron_will")).toBe(true);
+    expect(ironWillHeartsBonus(p)).toBe(1);
+    expect(maxHearts("free", p)).toBe(6);
+  });
+
+  it("deep study boosts mentor depth", () => {
+    const p = normalizeProgression({
+      ...DEFAULT_PROGRESSION,
+      talents: { intellect: 2, mentor: 1 },
+    });
+    expect(hasSynergy(p, "deep_study")).toBe(true);
+    expect(mentorHintBonus(p)).toBe(2);
+  });
+
+  it("friendly fire raises gift cap", () => {
+    const p = normalizeProgression({
+      ...DEFAULT_PROGRESSION,
+      talents: { charm: 2, spark: 1 },
+    });
+    expect(giftDailyLimit(p)).toBe(3 + 2 + 1);
+  });
+
+  it("applies archetype spends toward scholar", () => {
+    let p = applyLevelUps(DEFAULT_PROGRESSION, 8);
+    const r = applyArchetypeSpend(p, "scholar");
+    expect(r.ok).toBe(true);
+    if (r.ok) {
+      expect(r.spent.length).toBeGreaterThan(0);
+      expect((r.progression.talents.intellect ?? 0) + (r.progression.talents.mentor ?? 0)).toBeGreaterThan(0);
+    }
+  });
+
+  it("power score scales with ranks", () => {
+    const empty = buildPowerScore(DEFAULT_PROGRESSION);
+    const strong = buildPowerScore(
+      normalizeProgression({
+        ...DEFAULT_PROGRESSION,
+        talents: { intellect: 3, grit: 2 },
+        pathBadges: ["path_english", "path_programming"],
+      }),
+    );
+    expect(strong).toBeGreaterThan(empty);
+    expect(strong).toBeLessThanOrEqual(100);
   });
 });

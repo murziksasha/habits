@@ -52,14 +52,40 @@ function sigmoid(x: number) {
   return 1 / (1 + Math.exp(-Math.max(-20, Math.min(20, x))));
 }
 
+const WEIGHT_KEYS: (keyof AdaptiveWeights)[] = [
+  "intercept",
+  "lastMastery",
+  "attempts",
+  "streakDays",
+  "daysInactive",
+  "isWeak",
+  "isExam",
+  "paywalled",
+  "basePriority",
+];
+
+function pickNumericWeights(parsed: unknown): Partial<AdaptiveWeights> {
+  if (!parsed || typeof parsed !== "object") return {};
+  const out: Partial<AdaptiveWeights> = {};
+  const obj = parsed as Record<string, unknown>;
+  for (const k of WEIGHT_KEYS) {
+    const v = obj[k];
+    if (typeof v === "number" && Number.isFinite(v)) {
+      out[k] = v;
+    }
+  }
+  return out;
+}
+
+/** Load weights from ADAPTIVE_WEIGHTS_JSON; invalid JSON / non-numeric keys fall back. */
 export function loadAdaptiveWeights(
   env: Record<string, string | undefined> = {},
 ): AdaptiveWeights {
   const raw = env.ADAPTIVE_WEIGHTS_JSON;
   if (!raw) return { ...DEFAULT_ADAPTIVE_WEIGHTS };
   try {
-    const parsed = JSON.parse(raw) as Partial<AdaptiveWeights>;
-    return { ...DEFAULT_ADAPTIVE_WEIGHTS, ...parsed };
+    const parsed = JSON.parse(raw) as unknown;
+    return { ...DEFAULT_ADAPTIVE_WEIGHTS, ...pickNumericWeights(parsed) };
   } catch {
     return { ...DEFAULT_ADAPTIVE_WEIGHTS };
   }

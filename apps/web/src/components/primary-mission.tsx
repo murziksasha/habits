@@ -13,6 +13,20 @@ type NextItem = {
   href: string;
 };
 
+function kindIcon(kind: string): string {
+  if (kind.includes("exam")) return "📝";
+  if (kind.includes("review") || kind === "leech") return "🔁";
+  if (kind.includes("race") || kind.includes("mini")) return "🏁";
+  if (kind.includes("character") || kind.includes("build")) return "⭐";
+  if (kind.includes("placement")) return "🎯";
+  if (kind.includes("gift")) return "🎁";
+  if (kind.includes("play")) return "♟️";
+  if (kind.includes("quest")) return "🗡️";
+  if (kind.includes("flash")) return "🃏";
+  if (kind.includes("continue") || kind.includes("start") || kind.includes("deep")) return "📚";
+  return "✨";
+}
+
 /** Single source-of-truth primary CTA for thin home / learn. */
 export function PrimaryMission({
   variant = "hero",
@@ -21,10 +35,11 @@ export function PrimaryMission({
   variant?: "hero" | "compact";
   showSecondary?: boolean;
 }) {
-  const { token, user } = useAuth();
+  const { token, user, character } = useAuth();
   const { locale, t } = useLocale();
   const [next, setNext] = useState<NextItem | null>(null);
   const [secondary, setSecondary] = useState<NextItem[]>([]);
+  const skillPoints = character?.progression?.skillPoints ?? 0;
 
   useEffect(() => {
     if (!token || !user) return;
@@ -52,12 +67,23 @@ export function PrimaryMission({
     : locale === "en"
       ? "Open learning map"
       : "Відкрити карту навчання";
+  const icon = next ? kindIcon(next.kind) : "🗺️";
 
   if (variant === "compact") {
     return (
-      <Link href={href} className="btn-primary inline-flex w-full justify-center sm:w-auto">
-        {t.onboarding.continueLearning}: {title} →
-      </Link>
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+        <Link href={href} className="btn-primary inline-flex w-full justify-center sm:w-auto">
+          {icon} {t.onboarding.continueLearning}: {title} →
+        </Link>
+        {skillPoints > 0 ? (
+          <Link
+            href="/profile#build"
+            className="btn-secondary inline-flex w-full justify-center sm:w-auto !py-2 text-sm"
+          >
+            ⭐ {locale === "en" ? "Build" : "Прокачка"} ({skillPoints})
+          </Link>
+        ) : null}
+      </div>
     );
   }
 
@@ -66,11 +92,41 @@ export function PrimaryMission({
       className="card space-y-3 border-brand/50 bg-gradient-to-br from-brand-soft/50 to-sky/10"
       aria-label={t.onboarding.missionOfDay}
     >
-      <p className="text-xs font-black uppercase text-brand-dark">{t.onboarding.missionOfDay}</p>
-      <p className="text-xl font-black">{title}</p>
-      <Link href={href} className="btn-primary inline-flex">
-        {t.onboarding.startNow} →
-      </Link>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs font-black uppercase text-brand-dark">
+          {t.onboarding.missionOfDay}
+        </p>
+        {skillPoints > 0 ? (
+          <Link
+            href="/profile#build"
+            className="rounded-full bg-grape/15 px-2 py-0.5 text-[10px] font-black text-grape hover:underline"
+          >
+            ⭐ {skillPoints} SP
+          </Link>
+        ) : null}
+      </div>
+      <p className="text-xl font-black">
+        <span className="mr-2" aria-hidden>
+          {icon}
+        </span>
+        {title}
+      </p>
+      {next?.kind ? (
+        <p className="text-xs font-bold text-ink-muted">
+          {locale === "en" ? "Why this" : "Чому це"}:{" "}
+          <span className="font-black text-brand-dark">{next.kind.replace(/_/g, " ")}</span>
+        </p>
+      ) : null}
+      <div className="flex flex-wrap gap-2">
+        <Link href={href} className="btn-primary inline-flex">
+          {t.onboarding.startNow} →
+        </Link>
+        {skillPoints > 0 ? (
+          <Link href="/profile#build" className="btn-secondary inline-flex">
+            ⭐ {locale === "en" ? "Spend skill points" : "Вкласти очки"}
+          </Link>
+        ) : null}
+      </div>
       {showSecondary && secondary.length > 0 && (
         <ul className="space-y-1 pt-1">
           {secondary.map((r, i) => (
@@ -79,7 +135,7 @@ export function PrimaryMission({
                 href={r.href}
                 className="text-sm font-bold text-ink-muted hover:text-brand-dark hover:underline"
               >
-                {locale === "en" ? r.titleEn : r.titleUk} →
+                {kindIcon(r.kind)} {locale === "en" ? r.titleEn : r.titleUk} →
               </Link>
             </li>
           ))}

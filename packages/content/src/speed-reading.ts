@@ -12,12 +12,12 @@ export const speedReadingContent: CourseContent = {
     {
       slug: "foundations",
       titleUk: "Основи",
-      titleEn: "Основи",
+      titleEn: "Foundations",
       lessons: [
         {
           slug: "what-is-rsvp",
           titleUk: "Що таке RSVP",
-          titleEn: "Що таке RSVP",
+          titleEn: "What is RSVP",
           baseXp: 15,
           difficulty: 1,
           isFree: true,
@@ -48,7 +48,7 @@ export const speedReadingContent: CourseContent = {
         {
           slug: "reduce-subvocal",
           titleUk: "Менше субвокалізації",
-          titleEn: "Менше субвокалізації",
+          titleEn: "Less subvocalization",
           baseXp: 15,
           difficulty: 1,
           isFree: true,
@@ -77,7 +77,7 @@ export const speedReadingContent: CourseContent = {
         {
           slug: "chunking",
           titleUk: "Chunking — групи слів",
-          titleEn: "Chunking — групи слів",
+          titleEn: "Chunking — word groups",
           baseXp: 18,
           difficulty: 2,
           isFree: true,
@@ -106,7 +106,7 @@ export const speedReadingContent: CourseContent = {
         {
           slug: "comprehension-1",
           titleUk: "Розуміння 1",
-          titleEn: "Розуміння 1",
+          titleEn: "Comprehension 1",
           baseXp: 20,
           difficulty: 2,
           isFree: true,

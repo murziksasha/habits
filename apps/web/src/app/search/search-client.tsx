@@ -65,6 +65,15 @@ function SearchInner() {
     );
   }
 
+  const quickLinks = [
+    { href: "/learn", icon: "🗺️", label: t.nav.learn },
+    { href: "/programming", icon: "💻", label: t.nav.programming },
+    { href: "/review", icon: "🔁", label: t.nav.review },
+    { href: "/profile#build", icon: "⭐", label: locale === "en" ? "Build" : "Прокачка" },
+    { href: "/playground", icon: "🖥️", label: t.nav.playground },
+    { href: "/quests", icon: "🗡️", label: t.nav.quests },
+  ];
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-black">🔍 {t.nav.search}</h1>
@@ -76,6 +85,26 @@ function SearchInner() {
         placeholder={t.extra.searchPlaceholder}
         autoFocus
       />
+
+      {q.trim().length < 2 && (
+        <section className="space-y-2">
+          <h2 className="text-sm font-black uppercase text-ink-muted">
+            {locale === "en" ? "Quick links" : "Швидкі посилання"}
+          </h2>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {quickLinks.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="card flex min-h-11 items-center gap-2 font-bold hover:border-brand/40"
+              >
+                <span aria-hidden>{l.icon}</span>
+                {l.label}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {tools.length > 0 && (
         <section className="space-y-2">

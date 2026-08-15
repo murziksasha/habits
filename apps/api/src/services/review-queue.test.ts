@@ -8,6 +8,17 @@ describe("buildReviewReasons", () => {
     expect(r[0]!.labelEn).toMatch(/Mastery 50%/);
   });
 
+  it("surfaces leech reason with retry guidance", () => {
+    const reasons = buildReviewReasons({
+      bestScore: 0.4,
+      attempts: 5,
+      status: "available",
+      leech: true,
+    });
+    expect(reasons.some((r) => r.code === "leech")).toBe(true);
+    expect(reasons.find((r) => r.code === "leech")?.labelEn).toMatch(/hints/i);
+  });
+
   it("flags leech on many low attempts", () => {
     const r = buildReviewReasons({
       bestScore: 0.4,

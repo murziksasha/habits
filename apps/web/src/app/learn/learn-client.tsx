@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   COURSE_GROUP_META,
   COURSE_HUB_HREF,
@@ -11,9 +10,10 @@ import {
   type CourseGroup,
   type CourseSlug,
 } from "@eduforge/shared";
-import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
+import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api";
+import { useApiQueries } from "@/lib/use-api-query";
 import { Card, Skeleton } from "@/components/ui";
 import { PrimaryMission } from "@/components/primary-mission";
 import { ContextualToolkit } from "@/components/contextual-toolkit";
@@ -50,36 +50,29 @@ const GROUP_ORDER: CourseGroup[] = ["code", "deep", "skill", "chess"];
 
 /** Learning map: mission + groups + contextual toolkit (no Continue CTA dupe). */
 export function LearnClient() {
-  const { user, token, loading } = useAuth();
   const { t, locale } = useLocale();
-  const router = useRouter();
-  const [next, setNext] = useState<NextRec[]>([]);
-  const [exams, setExams] = useState<ExamSummary | null>(null);
-  const [dataLoading, setDataLoading] = useState(true);
+  const { character } = useAuth();
+  const skillPoints = character?.progression?.skillPoints ?? 0;
+  const { data, loading: dataLoading, ready, user, token } = useApiQueries<{
+    next: { recommendations: NextRec[] };
+    exams: ExamSummary;
+  }>({
+    next: "/learning/next",
+    exams: "/learning/exams/me",
+  });
+  const next = (data.next?.recommendations ?? []).slice(0, 5);
+  const exams = data.exams ?? null;
 
   useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
+    if (!token || !ready) return;
+    void api("/auth/onboarding/complete", {
+      method: "POST",
+      token,
+      body: { key: "viewedLearnMap" },
+    }).catch(() => undefined);
+  }, [token, ready]);
 
-  useEffect(() => {
-    if (!token) return;
-    setDataLoading(true);
-    Promise.all([
-      api<{ recommendations: NextRec[] }>("/learning/next", { token })
-        .then((d) => setNext(d.recommendations.slice(0, 5)))
-        .catch(() => setNext([])),
-      api<ExamSummary>("/learning/exams/me", { token })
-        .then(setExams)
-        .catch(() => setExams(null)),
-      api("/auth/onboarding/complete", {
-        method: "POST",
-        token,
-        body: { key: "viewedLearnMap" },
-      }).catch(() => undefined),
-    ]).finally(() => setDataLoading(false));
-  }, [token]);
-
-  if (loading || !user || (token && dataLoading && !next.length && !exams)) {
+  if (!ready || !user || dataLoading) {
     return (
       <div className="space-y-4" aria-busy="true">
         <Skeleton className="h-10 w-48" />
@@ -108,9 +101,19 @@ export function LearnClient() {
   return (
     <div className="space-y-8">
       <OnboardingWizard />
-      <div>
-        <h1 className="text-3xl font-black">🗺️ {t.learn.title}</h1>
-        <p className="text-sm font-bold text-ink-muted">{t.learn.mapTitle}</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-black">🗺️ {t.learn.title}</h1>
+          <p className="text-sm font-bold text-ink-muted">{t.learn.mapTitle}</p>
+        </div>
+        {skillPoints > 0 ? (
+          <Link
+            href="/profile#build"
+            className="btn-secondary shrink-0 !py-2 text-sm ring-1 ring-grape/40"
+          >
+            ⭐ {locale === "en" ? "Build" : "Прокачка"} ({skillPoints})
+          </Link>
+        ) : null}
       </div>
 
       <PrimaryMission showSecondary={false} />
@@ -187,7 +190,8 @@ export function LearnClient() {
                   <Link
                     key={slug}
                     href={href}
-                    className="card flex min-h-11 items-center gap-3 hover:border-brand/40"
+                    className="card flex min-h-11 items-center gap-3 hover:border-brand/40 border-l-4"
+                    style={{ borderLeftColor: c.color }}
                   >
                     <span className="text-2xl" aria-hidden>
                       {c.icon}

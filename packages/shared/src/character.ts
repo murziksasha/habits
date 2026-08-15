@@ -148,6 +148,72 @@ export const PATH_BADGE_CATALOG: PathBadgeDef[] = [
     descEn: "5+ QA theory lessons",
     rewardSkillPoints: 1,
   },
+  {
+    id: "path_typescript",
+    courseSlug: "typescript",
+    minLessons: 4,
+    icon: "📘",
+    titleUk: "TypeScript path",
+    titleEn: "TypeScript path",
+    descUk: "4+ уроків TypeScript",
+    descEn: "4+ TypeScript lessons",
+    rewardSkillPoints: 1,
+  },
+  {
+    id: "path_node",
+    courseSlug: "node_fundamentals",
+    minLessons: 4,
+    icon: "🟢",
+    titleUk: "Node path",
+    titleEn: "Node path",
+    descUk: "4+ уроків Node",
+    descEn: "4+ Node lessons",
+    rewardSkillPoints: 1,
+  },
+  {
+    id: "path_express",
+    courseSlug: "express_fundamentals",
+    minLessons: 4,
+    icon: "🚂",
+    titleUk: "Express path",
+    titleEn: "Express path",
+    descUk: "4+ уроків Express",
+    descEn: "4+ Express lessons",
+    rewardSkillPoints: 1,
+  },
+  {
+    id: "path_embedded",
+    courseSlug: "embedded_cpp",
+    minLessons: 6,
+    icon: "🛰️",
+    titleUk: "Embedded path",
+    titleEn: "Embedded path",
+    descUk: "6+ уроків Embedded C++",
+    descEn: "6+ Embedded C++ lessons",
+    rewardSkillPoints: 1,
+  },
+  {
+    id: "path_typing",
+    courseSlug: "typing",
+    minLessons: 5,
+    icon: "⌨️",
+    titleUk: "Typing path",
+    titleEn: "Typing path",
+    descUk: "5+ уроків друку",
+    descEn: "5+ typing lessons",
+    rewardSkillPoints: 1,
+  },
+  {
+    id: "path_speed_reading",
+    courseSlug: "speed_reading",
+    minLessons: 5,
+    icon: "📖",
+    titleUk: "Speed-read path",
+    titleEn: "Speed-read path",
+    descUk: "5+ уроків швидкого читання",
+    descEn: "5+ speed-reading lessons",
+    rewardSkillPoints: 1,
+  },
 ];
 
 export type WeeklyQuestDef = {
@@ -310,6 +376,139 @@ export const TITLE_CATALOG: TitleDef[] = [
   { id: "grit_knight", titleUk: "Лицар стійкості", titleEn: "Grit Knight", fromTalent: "grit" },
   { id: "vital_sage", titleUk: "Мудрець живучості", titleEn: "Vital Sage", fromTalent: "vitality" },
   { id: "mentor_pro", titleUk: "Про-ментор", titleEn: "Pro Mentor", fromTalent: "mentor" },
+  { id: "scholar_build", titleUk: "Вчений-білдер", titleEn: "Scholar build" },
+  { id: "tank_build", titleUk: "Танк-учень", titleEn: "Tank learner" },
+  { id: "social_build", titleUk: "Соціальний", titleEn: "Socialite" },
+  { id: "crafter_build", titleUk: "Крафтер", titleEn: "Crafter" },
+];
+
+/** Talent UI groups for profile panel. */
+export type TalentRole = "defense" | "learning" | "social" | "economy";
+
+export const TALENT_ROLE: Record<TalentId, TalentRole> = {
+  grit: "defense",
+  vitality: "defense",
+  intellect: "learning",
+  mentor: "learning",
+  focus: "learning",
+  charm: "social",
+  spark: "social",
+  craft: "economy",
+};
+
+export const TALENT_ROLE_META: Record<
+  TalentRole,
+  { titleUk: string; titleEn: string; order: number }
+> = {
+  learning: { titleUk: "Навчання", titleEn: "Learning", order: 1 },
+  defense: { titleUk: "Захист", titleEn: "Defense", order: 2 },
+  social: { titleUk: "Соціальне", titleEn: "Social", order: 3 },
+  economy: { titleUk: "Економія", titleEn: "Economy", order: 4 },
+};
+
+/** Build presets — spend order toward a playstyle (no new talent ids). */
+export type ArchetypeDef = {
+  id: string;
+  titleUk: string;
+  titleEn: string;
+  descUk: string;
+  descEn: string;
+  icon: string;
+  /** Target ranks per talent */
+  targets: Partial<Record<TalentId, number>>;
+  /** Spend priority when applying */
+  spendOrder: TalentId[];
+  titleId: string;
+};
+
+export const ARCHETYPE_CATALOG: ArchetypeDef[] = [
+  {
+    id: "scholar",
+    titleUk: "Вчений",
+    titleEn: "Scholar",
+    descUk: "Більше XP і глибші підказки",
+    descEn: "More XP and deeper hints",
+    icon: "📚",
+    targets: { intellect: 3, mentor: 2, focus: 1 },
+    spendOrder: ["intellect", "mentor", "focus"],
+    titleId: "scholar_build",
+  },
+  {
+    id: "tank",
+    titleUk: "Танк",
+    titleEn: "Tank",
+    descUk: "Щити серії + живучість сердець",
+    descEn: "Streak shields + heart vitality",
+    icon: "🛡️",
+    targets: { grit: 2, vitality: 2, focus: 1 },
+    spendOrder: ["grit", "vitality", "focus"],
+    titleId: "tank_build",
+  },
+  {
+    id: "social",
+    titleUk: "Соціальний",
+    titleEn: "Social",
+    descUk: "Подарунки та іскра бонусів",
+    descEn: "Gifts and spark bonuses",
+    icon: "✨",
+    targets: { charm: 2, spark: 1, intellect: 1 },
+    spendOrder: ["charm", "spark", "intellect"],
+    titleId: "social_build",
+  },
+  {
+    id: "crafter",
+    titleUk: "Крафтер",
+    titleEn: "Crafter",
+    descUk: "Знижки в shop + фокус цілей",
+    descEn: "Shop discounts + goal focus",
+    icon: "⚒️",
+    targets: { craft: 2, focus: 2, intellect: 1 },
+    spendOrder: ["craft", "focus", "intellect"],
+    titleId: "crafter_build",
+  },
+];
+
+export type SynergyId = "iron_will" | "deep_study" | "friendly_fire";
+
+export type SynergyDef = {
+  id: SynergyId;
+  titleUk: string;
+  titleEn: string;
+  descUk: string;
+  descEn: string;
+  icon: string;
+  /** Minimum ranks required */
+  requires: Partial<Record<TalentId, number>>;
+};
+
+export const SYNERGY_CATALOG: SynergyDef[] = [
+  {
+    id: "iron_will",
+    titleUk: "Залізна воля",
+    titleEn: "Iron Will",
+    descUk: "grit≥2 + vitality≥1 → +1 макс. ❤️ (free)",
+    descEn: "grit≥2 + vitality≥1 → +1 max ❤️ (free)",
+    icon: "💪",
+    requires: { grit: 2, vitality: 1 },
+  },
+  {
+    id: "deep_study",
+    titleUk: "Глибоке вивчення",
+    titleEn: "Deep Study",
+    descUk: "intellect≥2 + mentor≥1 → +1 глибина підказок",
+    descEn: "intellect≥2 + mentor≥1 → +1 hint depth",
+    icon: "🔬",
+    requires: { intellect: 2, mentor: 1 },
+  },
+  {
+    id: "friendly_fire",
+    titleUk: "Дружній вогонь",
+    titleEn: "Friendly Fire",
+    descUk: "charm≥2 + spark≥1 → +1 ліміт подарунків/день",
+    descEn: "charm≥2 + spark≥1 → +1 gift daily cap",
+    icon: "🔥",
+    requires: { charm: 2, spark: 1 },
+  },
 ];
 
 export type FrameDef = {
@@ -508,7 +707,7 @@ export function lessonXpMultiplier(p: CharacterProgression): number {
 }
 
 export function giftDailyLimit(p: CharacterProgression): number {
-  return 3 + talentRank(p, "charm");
+  return 3 + talentRank(p, "charm") + (hasSynergy(p, "friendly_fire") ? 1 : 0);
 }
 
 export function avatarShopDiscount(p: CharacterProgression): number {
@@ -524,9 +723,133 @@ export function heartRegenMinutesBonus(p: CharacterProgression): number {
   return talentRank(p, "vitality") * 2;
 }
 
-/** Extra progressive hint steps unlocked by mentor talent. */
+/** Extra progressive hint steps unlocked by mentor talent (+ Deep Study). */
 export function mentorHintBonus(p: CharacterProgression): number {
-  return talentRank(p, "mentor");
+  return talentRank(p, "mentor") + (hasSynergy(p, "deep_study") ? 1 : 0);
+}
+
+/** +1 max hearts on free plan when Iron Will is active. */
+export function ironWillHeartsBonus(p: CharacterProgression): number {
+  return hasSynergy(p, "iron_will") ? 1 : 0;
+}
+
+export function hasSynergy(p: CharacterProgression, id: SynergyId): boolean {
+  const def = SYNERGY_CATALOG.find((s) => s.id === id);
+  if (!def) return false;
+  for (const [tid, min] of Object.entries(def.requires)) {
+    if (talentRank(p, tid as TalentId) < (min ?? 0)) return false;
+  }
+  return true;
+}
+
+export function activeSynergies(p: CharacterProgression): SynergyDef[] {
+  return SYNERGY_CATALOG.filter((s) => hasSynergy(p, s.id));
+}
+
+/** 0–100 power score from ranks, badges, synergies (UI bar). */
+export function buildPowerScore(p: CharacterProgression): number {
+  const ranks = totalTalentRanks(p);
+  const badges = (p.pathBadges ?? []).length;
+  const syn = activeSynergies(p).length;
+  const spLeft = Math.min(10, p.skillPoints ?? 0);
+  // ranks *4 (cap 48), badges *3 (cap 42), synergies *8, leftover SP soft
+  const score =
+    Math.min(48, ranks * 4) +
+    Math.min(42, badges * 3) +
+    syn * 8 +
+    Math.min(5, spLeft);
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+export function matchesArchetype(
+  p: CharacterProgression,
+  arch: ArchetypeDef,
+): boolean {
+  for (const [tid, min] of Object.entries(arch.targets)) {
+    if (talentRank(p, tid as TalentId) < (min ?? 0)) return false;
+  }
+  return true;
+}
+
+export function detectActiveArchetype(p: CharacterProgression): ArchetypeDef | null {
+  // Prefer first fully matched in catalog order
+  for (const a of ARCHETYPE_CATALOG) {
+    if (matchesArchetype(p, a)) return a;
+  }
+  return null;
+}
+
+/** Spend SP toward archetype targets in spendOrder. Returns spends made. */
+export function applyArchetypeSpend(
+  progression: CharacterProgression,
+  archetypeId: string,
+): {
+  ok: true;
+  progression: CharacterProgression;
+  spent: { talentId: TalentId; newRank: number }[];
+  unlockedTitle?: string;
+} | { ok: false; error: string } {
+  const arch = ARCHETYPE_CATALOG.find((a) => a.id === archetypeId);
+  if (!arch) return { ok: false, error: "unknown_archetype" };
+  let p = normalizeProgression(progression);
+  const spent: { talentId: TalentId; newRank: number }[] = [];
+  let guard = 0;
+  while (guard++ < 40) {
+    let progressed = false;
+    for (const tid of arch.spendOrder) {
+      const target = arch.targets[tid] ?? 0;
+      if (talentRank(p, tid) >= target) continue;
+      const r = spendTalent(p, tid);
+      if (!r.ok) continue;
+      p = r.progression;
+      spent.push({ talentId: tid, newRank: talentRank(p, tid) });
+      progressed = true;
+      break;
+    }
+    if (!progressed) break;
+  }
+  if (!spent.length) {
+    if (matchesArchetype(p, arch)) return { ok: false, error: "already_complete" };
+    return { ok: false, error: "no_skill_points" };
+  }
+  let unlockedTitle: string | undefined;
+  if (matchesArchetype(p, arch) && !p.unlockedTitles.includes(arch.titleId)) {
+    p.unlockedTitles.push(arch.titleId);
+    unlockedTitle = arch.titleId;
+  }
+  // Also unlock archetype titles when partial match becomes full via other means
+  for (const a of ARCHETYPE_CATALOG) {
+    if (matchesArchetype(p, a) && !p.unlockedTitles.includes(a.titleId)) {
+      p.unlockedTitles.push(a.titleId);
+      unlockedTitle = unlockedTitle ?? a.titleId;
+    }
+  }
+  return { ok: true, progression: p, spent, unlockedTitle };
+}
+
+/** Effective stats summary for UI (plain language). */
+export function effectiveBuildStats(p: CharacterProgression): {
+  xpBonusPct: number;
+  heartRegenCutMin: number;
+  giftLimit: number;
+  mentorDepth: number;
+  ironWillHearts: number;
+  shopDiscountPct: number;
+  powerScore: number;
+  synergies: SynergyDef[];
+  activeArchetype: ArchetypeDef | null;
+} {
+  return {
+    xpBonusPct: Math.round((lessonXpMultiplier(p) - 1) * 100),
+    heartRegenCutMin: heartRegenMinutesBonus(p),
+    giftLimit: giftDailyLimit(p),
+    mentorDepth: mentorHintBonus(p),
+    ironWillHearts: ironWillHeartsBonus(p),
+    shopDiscountPct: Math.round(avatarShopDiscount(p) * 100),
+    powerScore: buildPowerScore(p),
+    synergies: activeSynergies(p),
+    activeArchetype: detectActiveArchetype(p),
+  };
 }
 
 export function totalTalentRanks(p: CharacterProgression): number {
@@ -573,6 +896,12 @@ export function spendTalent(
   }
   if (talentId === "mentor" && rank + 1 >= 3 && !p.unlockedTitles.includes("mentor_pro")) {
     p.unlockedTitles.push("mentor_pro");
+  }
+  // Archetype title unlocks when pattern completes
+  for (const a of ARCHETYPE_CATALOG) {
+    if (matchesArchetype(p, a) && !p.unlockedTitles.includes(a.titleId)) {
+      p.unlockedTitles.push(a.titleId);
+    }
   }
   return { ok: true, progression: p };
 }

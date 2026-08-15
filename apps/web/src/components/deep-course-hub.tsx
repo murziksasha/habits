@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { pickLocale } from "@eduforge/shared";
+import { firstAvailableLessonHref, pickLocale } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
@@ -10,7 +10,6 @@ import { HeartsBar } from "@/components/hearts";
 import { XpBar } from "@/components/xp-bar";
 import { PageLoading } from "@/components/page-loading";
 import { useRequireAuth } from "@/lib/use-require-auth";
-import { firstAvailableLessonHref } from "@eduforge/shared";
 
 type Lesson = {
   id: string;
@@ -105,14 +104,23 @@ export function DeepCourseHub({
     );
   }
 
-  const total = units.reduce((a, u) => a + u.lessons.length, 0);
-  const exams = units.flatMap((u) => u.lessons.filter((l) => l.isExam));
+  const allLessons = units.flatMap((u) => u.lessons);
+  const total = allLessons.length;
+  const exams = allLessons.filter((l) => l.isExam);
   const examsDone = exams.filter((l) => l.status === "completed").length;
   const continueHref =
     firstAvailableLessonHref(courseSlug, units) ?? `/courses/${courseSlug}`;
+  const nextLesson =
+    allLessons.find((l) => !l.locked && l.status !== "completed") ??
+    allLessons.find((l) => !l.locked) ??
+    null;
+  const pathPct = total ? Math.round((progress.completedLessons / total) * 100) : 0;
+  const readyExams = exams.filter(
+    (l) => !l.locked && l.status !== "completed" && !l.examLocked,
+  );
 
   return (
-    <div className="space-y-8 pb-20 md:pb-0">
+    <div className="space-y-8 pb-24 md:pb-8">
       <section
         className="card flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
         style={{ borderColor: `${color}55` }}
@@ -123,10 +131,19 @@ export function DeepCourseHub({
           </p>
           <h1 className="mt-2 text-3xl font-black">{title}</h1>
           <p className="text-ink-muted font-bold">{subtitle}</p>
-          <p className="text-sm font-bold text-ink-muted mt-1">
+          <p className="mt-1 text-sm font-bold text-ink-muted">
             {progress.completedLessons}/{total} · 📝 {examsDone}/{exams.length}{" "}
-            {t.lesson.exam}
+            {t.lesson.exam} · {pathPct}%
           </p>
+          <div className="mt-2 h-2 max-w-md overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+            <div
+              className="h-full rounded-full transition-all"
+              style={{
+                width: `${Math.min(100, pathPct)}%`,
+                backgroundColor: color,
+              }}
+            />
+          </div>
         </div>
         <div className="w-full max-w-xs space-y-3">
           <HeartsBar hearts={progress.hearts} max={progress.maxHearts} />
@@ -137,13 +154,17 @@ export function DeepCourseHub({
           />
           <div className="flex flex-wrap gap-2">
             <Link href={continueHref} className="btn-primary !py-2 text-sm min-h-11">
-              {t.onboarding.continuePath} →
+              {t.onboarding.continuePath}
+              {nextLesson
+                ? `: ${pickLocale(locale, nextLesson.titleUk, nextLesson.titleEn).slice(0, 28)}`
+                : ""}{" "}
+              →
             </Link>
             <Link
               href={`/courses/${courseSlug}`}
               className="btn-secondary !py-2 text-sm min-h-11"
             >
-              {t.dashboard.continueLearning}
+              {locale === "en" ? "Full path" : "Повний path"}
             </Link>
             {backHref && (
               <Link href={backHref} className="btn-secondary !py-2 text-sm min-h-11">
@@ -154,10 +175,32 @@ export function DeepCourseHub({
         </div>
       </section>
 
+      {readyExams.length > 0 && (
+        <section className="card space-y-2 border-grape/30">
+          <h2 className="text-sm font-black uppercase text-grape">
+            📝 {locale === "en" ? "Exams ready" : "Контрольні готові"}
+          </h2>
+          {readyExams.slice(0, 3).map((e) => (
+            <Link
+              key={e.id}
+              href={`/courses/${courseSlug}/lessons/${e.id}`}
+              className="flex min-h-11 justify-between rounded-xl border border-grape/20 px-3 py-2 text-sm font-bold hover:bg-grape/5"
+            >
+              <span>{pickLocale(locale, e.titleUk, e.titleEn)}</span>
+              <span className="text-grape">→</span>
+            </Link>
+          ))}
+        </section>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {units.map((u, i) => {
           const done = u.lessons.filter((l) => l.status === "completed").length;
           const examL = u.lessons.find((l) => l.isExam);
+          const unitNext = u.lessons.find((l) => !l.locked && l.status !== "completed");
+          const unitPct = u.lessons.length
+            ? Math.round((done / u.lessons.length) * 100)
+            : 0;
           return (
             <div key={u.id} className="card space-y-2">
               <p className="text-xs font-bold text-ink-muted">
@@ -175,16 +218,48 @@ export function DeepCourseHub({
                     }`
                   : ""}
               </p>
-              <Link
-                href={`/courses/${courseSlug}`}
-                className="text-xs font-bold text-sky hover:underline"
-              >
-                → path
-              </Link>
+              <div className="h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+                <div
+                  className="h-full rounded-full bg-sky transition-all"
+                  style={{ width: `${unitPct}%` }}
+                />
+              </div>
+              {unitNext ? (
+                <Link
+                  href={`/courses/${courseSlug}/lessons/${unitNext.id}`}
+                  className="text-xs font-bold text-sky hover:underline"
+                >
+                  → {pickLocale(locale, unitNext.titleUk, unitNext.titleEn).slice(0, 32)}
+                </Link>
+              ) : (
+                <Link
+                  href={`/courses/${courseSlug}`}
+                  className="text-xs font-bold text-sky hover:underline"
+                >
+                  → path
+                </Link>
+              )}
             </div>
           );
         })}
       </div>
+
+      {nextLesson ? (
+        <div className="fixed inset-x-0 bottom-16 z-30 border-t border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur md:bottom-0 dark:border-slate-800 dark:bg-slate-950/95">
+          <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
+            <p className="truncate text-sm font-bold">
+              {locale === "en" ? "Continue" : "Продовжити"}:{" "}
+              {pickLocale(locale, nextLesson.titleUk, nextLesson.titleEn)}
+            </p>
+            <Link
+              href={`/courses/${courseSlug}/lessons/${nextLesson.id}`}
+              className="btn-primary shrink-0 !py-2 text-sm"
+            >
+              {locale === "en" ? "Go" : "Далі"} →
+            </Link>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

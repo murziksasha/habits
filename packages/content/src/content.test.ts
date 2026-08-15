@@ -19,6 +19,7 @@ import {
   type CourseContent,
   type Exercise,
 } from "./index.js";
+import { FLASHCARD_DECKS } from "./flashcards.js";
 
 // Keep aligned with @eduforge/shared PROGRAMMING_MINI_LESSON_SLUGS
 const PROGRAMMING_MINI_SLUGS = [
@@ -344,6 +345,125 @@ describe("course content integrity", () => {
       const free = c.units.flatMap((u) => u.lessons).filter((l) => l.isFree);
       expect(free.length, `${c.slug} free lessons`).toBeGreaterThanOrEqual(FREE);
     }
+  });
+
+  it("help surface: free-path drills expose hint or explanation", () => {
+    const CODE_DRILLS = new Set(["code_fill", "code_run", "code_project", "code_output"]);
+    const LANG_DRILLS = new Set(["fill_blank", "translate", "mcq"]);
+
+    function hasHelp(e: Exercise): boolean {
+      const x = e as {
+        hints?: unknown;
+        hintUk?: string;
+        hintEn?: string;
+        explanationUk?: string;
+        explanationEn?: string;
+        promptUk?: string;
+        promptEn?: string;
+      };
+      return Boolean(
+        (Array.isArray(x.hints) && x.hints.length > 0) ||
+          x.hintUk ||
+          x.hintEn ||
+          x.explanationUk ||
+          x.explanationEn ||
+          (x.promptUk && x.promptEn),
+      );
+    }
+
+    // Programming free path: code drills with bilingual prompt and/or explanation
+    {
+      const freeLessons = programmingContent.units
+        .flatMap((u) => u.lessons)
+        .filter((l) => l.isFree && !l.isExam);
+      const drills = freeLessons.flatMap((l) => l.exercises).filter((e) => CODE_DRILLS.has(e.type));
+      expect(drills.length).toBeGreaterThan(0);
+      const withHelp = drills.filter(hasHelp);
+      expect(withHelp.length / drills.length).toBeGreaterThanOrEqual(0.5);
+      // At least some free code drills have post-answer explanation (deeper help)
+      const withExplain = drills.filter(
+        (e) =>
+          Boolean((e as { explanationUk?: string }).explanationUk) ||
+          Boolean((e as { hintUk?: string }).hintUk),
+      );
+      expect(withExplain.length).toBeGreaterThanOrEqual(3);
+    }
+
+    // English free path: bilingual prompts on language drills
+    {
+      const freeLessons = englishContent.units
+        .flatMap((u) => u.lessons)
+        .filter((l) => l.isFree && !l.isExam)
+        .slice(0, 5);
+      const drills = freeLessons.flatMap((l) => l.exercises).filter((e) => LANG_DRILLS.has(e.type));
+      expect(drills.length).toBeGreaterThan(0);
+      expect(drills.filter(hasHelp).length / drills.length).toBeGreaterThanOrEqual(0.5);
+    }
+  });
+
+  it("core freemium path lessons have bilingual titles and ≥1 exercise", () => {
+    for (const slug of ["english", "programming", "chess"] as const) {
+      const c = courses.find((x) => x.slug === slug)!;
+      const free = c.units
+        .flatMap((u) => u.lessons)
+        .filter((l) => l.isFree)
+        .slice(0, 5);
+      expect(free.length).toBeGreaterThanOrEqual(5);
+      for (const l of free) {
+        expect(l.titleUk.trim().length).toBeGreaterThan(0);
+        expect(l.titleEn?.trim().length ?? 0).toBeGreaterThan(0);
+        expect(l.exercises.length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("typing has EN unit titles and daily-drills unit", () => {
+    expect(typingContent.units.some((u) => u.slug === "daily-drills")).toBe(true);
+    expect(typingContent.units[0]!.titleEn).toBe("Home row");
+    for (const u of typingContent.units) {
+      expect(u.titleEn?.trim().length ?? 0).toBeGreaterThan(0);
+    }
+  });
+
+  it("programming includes map/filter free lesson", () => {
+    const lessons = programmingContent.units.flatMap((u) => u.lessons);
+    const map = lessons.find((l) => l.slug === "js-map-filter");
+    expect(map).toBeTruthy();
+    expect(map!.isFree).toBe(true);
+    expect(map!.exercises.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("sql includes NULL coalesce lesson", () => {
+    const lessons = sqlFundamentalsContent.units.flatMap((u) => u.lessons);
+    expect(lessons.some((l) => l.slug === "sqlf-null-coalesce")).toBe(true);
+  });
+
+  it("english meetings unit + node/express practice lessons", () => {
+    expect(englishContent.units.some((u) => u.slug === "meetings-phone")).toBe(true);
+    const nodeLessons = nodeFundamentalsContent.units.flatMap((u) => u.lessons);
+    expect(nodeLessons.some((l) => l.slug === "nf-json-errors")).toBe(true);
+    expect(expressFundamentalsContent.units.some((u) => u.slug === "json-body")).toBe(true);
+    const jsonUnit = expressFundamentalsContent.units.find((u) => u.slug === "json-body")!;
+    expect(jsonUnit.lessons.some((l) => l.isExam)).toBe(true);
+  });
+
+  it("wave 169 free practice lessons exist", () => {
+    const ts = typescriptContent.units.flatMap((u) => u.lessons);
+    expect(ts.some((l) => l.slug === "tsc-pick-required" && l.isFree)).toBe(true);
+    const qa = qaTheoryContent.units.flatMap((u) => u.lessons);
+    expect(qa.some((l) => l.slug === "qt-df-report-practice" && l.isFree)).toBe(true);
+    const css = cssLayoutContent.units.flatMap((u) => u.lessons);
+    expect(css.some((l) => l.slug === "cl-flex-gap-center" && l.isFree)).toBe(true);
+  });
+
+  it("wave 170 free lessons + flashcard decks", () => {
+    const chessLessons = chessContent.units.flatMap((u) => u.lessons);
+    expect(chessLessons.some((l) => l.slug === "opposition-basics" && l.isFree)).toBe(true);
+    const logicLessons = logicContent.units.flatMap((u) => u.lessons);
+    expect(logicLessons.some((l) => l.slug === "ded-0" && l.isFree)).toBe(true);
+    const htmlLessons = htmlSemanticsContent.units.flatMap((u) => u.lessons);
+    expect(htmlLessons.some((l) => l.slug === "hs-doc-semantics-intro" && l.isFree)).toBe(true);
+    expect(FLASHCARD_DECKS.some((d) => d.slug === "english-meetings")).toBe(true);
   });
 
   it("exercise types include only known set (no silent unknown)", () => {

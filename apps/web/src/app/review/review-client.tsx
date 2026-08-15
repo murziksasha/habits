@@ -82,8 +82,14 @@ function ReviewBody() {
 
   if (loading || !ready || dataLoading) return <PageLoading label={t.common.loading} />;
 
+  const sortedItems = [...items].sort((a, b) => {
+    if (Boolean(a.leech) !== Boolean(b.leech)) return a.leech ? -1 : 1;
+    return (a.masteryPct ?? 100) - (b.masteryPct ?? 100);
+  });
+  const primary = sortedItems.find((i) => i.leech) ?? sortedItems[0];
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24 md:pb-6">
       <h1 className="text-3xl font-black">🔁 {t.review.title}</h1>
       <p className="text-sm font-bold text-ink-muted">
         {locale === "en"
@@ -118,14 +124,21 @@ function ReviewBody() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            {items[0] && (
+            {primary ? (
               <Link
-                href={`/courses/${items[0].courseSlug}/lessons/${items[0].lessonId}`}
+                href={`/courses/${primary.courseSlug}/lessons/${primary.lessonId}`}
                 className="btn-primary !py-2 text-sm"
               >
-                {locale === "en" ? "Weak lesson" : "Слабкий урок"} →
+                {primary.leech
+                  ? locale === "en"
+                    ? "Retry leech"
+                    : "Leech: повторити"
+                  : locale === "en"
+                    ? "Weak lesson"
+                    : "Слабкий урок"}{" "}
+                →
               </Link>
-            )}
+            ) : null}
             <Link href="/flashcards" className="btn-secondary !py-2 text-sm">
               🃏 {t.nav.flashcards}
               {dueCards > 0 ? ` (${dueCards})` : ""}
@@ -182,11 +195,11 @@ function ReviewBody() {
         </div>
       </div>
 
-      {items.length === 0 ? (
+      {sortedItems.length === 0 ? (
         <p className="card text-ink-muted font-bold">{t.review.empty}</p>
       ) : (
         <div className="space-y-3">
-          {items.map((it) => (
+          {sortedItems.map((it) => (
             <div
               key={it.lessonId}
               className="card flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
@@ -230,21 +243,57 @@ function ReviewBody() {
               </div>
               <Link
                 href={`/courses/${it.courseSlug}/lessons/${it.lessonId}`}
-                className="btn-primary shrink-0"
+                className={
+                  it.leech
+                    ? "btn-primary shrink-0 ring-2 ring-grape/50"
+                    : "btn-primary shrink-0"
+                }
               >
-                {t.review.open}
+                {it.leech
+                  ? locale === "en"
+                    ? "Retry with hints"
+                    : "Повторити з підказками"
+                  : t.review.open}
               </Link>
             </div>
           ))}
         </div>
       )}
+
+      {primary ? (
+        <div className="fixed inset-x-0 bottom-16 z-30 border-t border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur md:bottom-0 dark:border-slate-800 dark:bg-slate-950/95">
+          <div className="mx-auto flex max-w-2xl items-center justify-between gap-3">
+            <p className="truncate text-sm font-bold">
+              {primary.leech ? "🩸 " : "🔁 "}
+              {primary.lessonTitleUk}
+            </p>
+            <Link
+              href={`/courses/${primary.courseSlug}/lessons/${primary.lessonId}`}
+              className="btn-primary shrink-0 !py-2 text-sm"
+            >
+              {locale === "en" ? "Review" : "Повторити"} →
+            </Link>
+          </div>
+        </div>
+      ) : dueCards > 0 ? (
+        <div className="fixed inset-x-0 bottom-16 z-30 border-t border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur md:bottom-0 dark:border-slate-800 dark:bg-slate-950/95">
+          <div className="mx-auto flex max-w-2xl items-center justify-between gap-3">
+            <p className="text-sm font-bold">
+              🃏 {dueCards} {locale === "en" ? "cards due" : "карток"}
+            </p>
+            <Link href="/flashcards" className="btn-primary shrink-0 !py-2 text-sm">
+              {locale === "en" ? "Open" : "Відкрити"} →
+            </Link>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
 
 export function ReviewClient() {
   return (
-    <Suspense fallback={<p>…</p>}>
+    <Suspense fallback={<PageLoading label="…" />}>
       <ReviewBody />
     </Suspense>
   );

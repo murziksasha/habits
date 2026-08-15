@@ -301,6 +301,99 @@ const routersU = unit("routers", "Routers", "Routers", [
   ]),
 ]);
 
+const jsonBody = unit("json-body", "JSON body", "JSON body", [
+  lesson(
+    "ef-json-mw",
+    "express.json middleware",
+    "express.json middleware",
+    2,
+    true,
+    [
+      codeFill(
+        "ef-jb1",
+        "json mw",
+        "json mw",
+        "js",
+        "app.use(express.___());",
+        ["json"],
+        true,
+      ),
+      mcq(
+        "ef-jb2",
+        "express.json() parses:",
+        "express.json() parses:",
+        ["JSON request bodies into req.body", "only cookies", "only query strings", "HTML templates"],
+        0,
+      ),
+      codeFill(
+        "ef-jb3",
+        "read body field",
+        "read body field",
+        "js",
+        "const name = req.___.name;",
+        ["body"],
+        true,
+      ),
+      mcq(
+        "ef-jb4",
+        "Content-Type for JSON APIs:",
+        "Content-Type for JSON APIs:",
+        ["application/json", "text/css", "image/png", "multipart only always"],
+        0,
+      ),
+    ],
+  ),
+  lesson(
+    "ef-post-create",
+    "POST create pattern",
+    "POST create pattern",
+    2,
+    true,
+    [
+      codeFill(
+        "ef-jb5",
+        "app.post",
+        "app.post",
+        "js",
+        "app.___('/users', handler);",
+        ["post"],
+        true,
+      ),
+      mcq(
+        "ef-jb6",
+        "Typical success status for create:",
+        "Typical success status for create:",
+        ["201 Created", "404", "301 only", "500 always"],
+        0,
+      ),
+      codeFill(
+        "ef-jb7",
+        "status json",
+        "status json",
+        "js",
+        "res.___(201).json(user);",
+        ["status"],
+        true,
+      ),
+      mcq(
+        "ef-jb8",
+        "Validate body before DB write:",
+        "Validate body before DB write:",
+        ["yes — reject bad input early", "never validate", "only on GET", "only in CSS"],
+        0,
+      ),
+    ],
+  ),
+  exam("ef-json-exam", "Контрольна: JSON body", "Exam: JSON body", 2, [
+    mcq("ef-je1", "express.json parses:", "express.json parses:", ["JSON body", "only CSS", "images", "DNS"], 0),
+    codeFill("ef-je2", "json mw", "json mw", "js", "app.use(express.___())", ["json"], true),
+    codeFill("ef-je3", "body field", "body field", "js", "req.___.email", ["body"], true),
+    codeFill("ef-je4", "post route", "post route", "js", "app.___('/x', h)", ["post"], true),
+    mcq("ef-je5", "Create status often:", "Create status often:", ["201", "404", "301", "100"], 0),
+    codeFill("ef-je6", "status", "status", "js", "res.___(201).json(x)", ["status"], true),
+  ]),
+]);
+
 const capstone = unit("capstone", "Capstone", "Capstone", [
   lesson(
     "ef-capstone-api",
@@ -376,5 +469,5 @@ export const expressFundamentalsContent: CourseContent = {
     "App, routes, middleware, REST, errors, Router — deep track + unit exams.",
   icon: "🚂",
   color: "#000000",
-  units: [intro, appBasics, routesU, middlewareU, restU, errorsU, routersU, capstone],
+  units: [intro, appBasics, routesU, middlewareU, restU, jsonBody, errorsU, routersU, capstone],
 };

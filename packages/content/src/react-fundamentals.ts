@@ -571,6 +571,47 @@ const hooksAdv = unit("hooks_adv", "Hooks advanced", "Hooks advanced", [
     mcq("rf-he3", "Custom hooks:", "Custom hooks:", ["reuse stateful logic", "replace components always", "ban hooks", "CSS modules"], 0),
     codeFill("rf-he4", "useContext", "useContext", "tsx", "const v = ___(Ctx);", ["useContext"], true),
   ]),
+  lesson(
+    "rf-hooks-pattern",
+    "Custom hook pattern",
+    "Custom hook pattern",
+    3,
+    false,
+    [
+      codeFill(
+        "rf-hp1",
+        "useX naming",
+        "useX naming",
+        "tsx",
+        "function ___Toggle() { return useState(false); }",
+        ["use"],
+        true,
+      ),
+      mcq(
+        "rf-hp2",
+        "Custom hooks should:",
+        "Custom hooks should:",
+        ["call other hooks at top level", "be classes only", "replace JSX always", "ban useState"],
+        0,
+      ),
+      codeFill(
+        "rf-hp3",
+        "return pair",
+        "return pair",
+        "tsx",
+        "const [on, setOn] = ___(false);",
+        ["useState"],
+        true,
+      ),
+      mcq(
+        "rf-hp4",
+        "Share logic across components via:",
+        "Share logic across components via:",
+        ["custom hooks", "only CSS", "only HTML comments", "SQL views"],
+        0,
+      ),
+    ],
+  ),
 ]);
 
 export const reactFundamentalsContent: CourseContent = {

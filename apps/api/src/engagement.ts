@@ -386,7 +386,13 @@ export async function evaluateAchievements(
     await tryUnlock("path_badge_first");
   }
   if ((ctx.pathBadgeCount ?? 0) >= 3) await tryUnlock("path_badge_3");
-  if ((ctx.pathBadgeCount ?? 0) >= 8) await tryUnlock("path_badge_all");
+  // Catalog size grows (path badges v3); unlock when holding all known catalog entries
+  {
+    const { PATH_BADGE_CATALOG } = await import("@eduforge/shared");
+    if ((ctx.pathBadgeCount ?? 0) >= PATH_BADGE_CATALOG.length) {
+      await tryUnlock("path_badge_all");
+    }
+  }
 
   return unlocked;
 }

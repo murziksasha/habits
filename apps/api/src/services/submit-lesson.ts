@@ -18,6 +18,7 @@ import {
   levelFromXp,
   logicXpAward,
   maxHearts,
+  normalizeProgression,
   readingXpAward,
   regenerateHearts,
   typingXpAward,
@@ -25,14 +26,12 @@ import {
 } from "@eduforge/shared";
 import type { AuthedUser } from "../auth.js";
 import { db } from "../db.js";
-import { evaluateAchievements, logActivity, notifyUser } from "../engagement.js";
+import { logActivity, notifyUser } from "../engagement.js";
 import { gradeExercise } from "../grade.js";
-import { maybeIssueCertificate } from "../routes/certificates.js";
-import { addWeeklyXp } from "../routes/challenges.js";
-import { completeHomeworkForLesson } from "../routes/homework.js";
 import { buildXpPatch } from "./character-progression.js";
 import { applyLootDrop } from "./loot-apply.js";
 import { rollLevelUpLoot } from "@eduforge/shared";
+import { runSubmitSideEffects } from "./submit-side-effects.js";
 
 export type SubmitAnswer = { exerciseId: string; answer: unknown };
 
@@ -167,6 +166,13 @@ export async function submitLesson(
   }
 
   const plan = user.plan as Plan;
+  const characterEarly = await db.query.characters.findFirst({
+    where: eq(characters.userId, user.id),
+  });
+  const progressionEarly = characterEarly
+    ? normalizeProgression(characterEarly.progression)
+    : null;
+
   let cp = await db.query.userCourseProgress.findFirst({
     where: and(
       eq(userCourseProgress.userId, user.id),
@@ -181,7 +187,7 @@ export async function submitLesson(
         courseId: course.id,
         xp: 0,
         level: 1,
-        hearts: maxHearts(plan),
+        hearts: maxHearts(plan, progressionEarly),
       })
       .returning();
     cp = created;
@@ -190,6 +196,7 @@ export async function submitLesson(
       plan,
       hearts: cp.hearts,
       heartsUpdatedAt: cp.heartsUpdatedAt,
+      progression: progressionEarly,
     });
     if (regen.changed) {
       const [updated] = await db
@@ -229,9 +236,7 @@ export async function submitLesson(
     })
     .where(eq(userCourseProgress.id, cp.id));
 
-  const character = await db.query.characters.findFirst({
-    where: eq(characters.userId, user.id),
-  });
+  const character = characterEarly;
   const weight = COURSE_GLOBAL_WEIGHT[course.slug] ?? 1;
   const globalGain = globalXpFromCourseGain(xpGain, weight);
   const today = new Date().toISOString().slice(0, 10);
@@ -326,91 +331,6 @@ export async function submitLesson(
     }
   }
 
-  let homeworkCompleted = 0;
-  if (passed) {
-    await logActivity(db, user.id, isExam ? "exam_passed" : "lesson_completed", {
-      courseSlug: course.slug,
-      lessonId: lesson.id,
-      xpGain,
-      isExam,
-      accuracy,
-    });
-    // Product funnel: first ever completed lesson (deduped)
-    if (firstClear) {
-      const { trackProductEvent } = await import("./product-analytics.js");
-      await trackProductEvent(db, user.id, "first_lesson_complete", {
-        courseSlug: course.slug,
-        lessonId: lesson.id,
-        accuracy,
-        isExam,
-      });
-    }
-    await addWeeklyXp(user.id, globalGain);
-    homeworkCompleted = await completeHomeworkForLesson(user.id, lesson.id, accuracy);
-    const { bumpDailyQuests } = await import("../routes/quests.js");
-    await bumpDailyQuests(user.id, "lessons", 1);
-    if (globalGain > 0) await bumpDailyQuests(user.id, "xp", globalGain);
-    if (isExam) await bumpDailyQuests(user.id, "exams", 1);
-
-    // Weekly lesson quest + path badges
-    try {
-      const { isoWeekKey, bumpWeeklyProgress, applyLevelUps, normalizeProgression } =
-        await import("@eduforge/shared");
-      const ch2 = await db.query.characters.findFirst({
-        where: eq(characters.userId, user.id),
-      });
-      if (ch2) {
-        let prog = applyLevelUps(normalizeProgression(ch2.progression), ch2.globalLevel);
-        prog = bumpWeeklyProgress(prog, isoWeekKey(), "lessons", 1);
-        await db
-          .update(characters)
-          .set({ progression: prog })
-          .where(eq(characters.id, ch2.id));
-      }
-      const { syncPathBadges } = await import("./path-badges.js");
-      await syncPathBadges(user.id);
-    } catch {
-      /* optional */
-    }
-  } else if (isExam) {
-    const wrongTypes = [
-      ...new Set(results.filter((r) => !r.correct).map((r) => String(r.type || "unknown"))),
-    ];
-    await logActivity(db, user.id, "exam_failed", {
-      courseSlug: course.slug,
-      lessonId: lesson.id,
-      accuracy,
-      passThreshold: completeBar,
-      wrongTypes,
-      wrongExerciseIds: results.filter((r) => !r.correct).map((r) => r.exerciseId),
-    });
-    await notifyUser(db, user.id, {
-      type: "learning",
-      titleUk: "Контрольна: час на повторення",
-      titleEn: "Exam: time to review",
-      bodyUk: `Точність ${Math.round(accuracy * 100)}%. Відкрий /review — слабкі типи: ${wrongTypes.slice(0, 4).join(", ") || "—"}.`,
-      bodyEn: `Score ${Math.round(accuracy * 100)}%. Open /review — weak types: ${wrongTypes.slice(0, 4).join(", ") || "—"}.`,
-      href: "/review?from=exam",
-    });
-  }
-
-  // Persist last fail context for tutor (any lesson, not only exams)
-  if (!passed) {
-    const wrong = results.filter((r) => !r.correct).slice(0, 6);
-    await logActivity(db, user.id, "lesson_fail_context", {
-      courseSlug: course.slug,
-      lessonId: lesson.id,
-      isExam,
-      accuracy,
-      wrong: wrong.map((r) => ({
-        exerciseId: r.exerciseId,
-        type: r.type,
-        missing: r.meta?.missing ?? null,
-        partial: r.partial ?? null,
-      })),
-    });
-  }
-
   const chAfter = await db.query.characters.findFirst({
     where: eq(characters.userId, user.id),
   });
@@ -420,29 +340,27 @@ export async function submitLesson(
       chAfter.dailyXp >= (chAfter.dailyGoalXp || 50),
   );
 
-  const newAchievements = await evaluateAchievements(db, user.id, {
-    lessonCompleted: passed,
+  // Non-critical side effects (notify, cert, quests, analytics) — best-effort
+  const side = await runSubmitSideEffects({
+    user,
     courseSlug: course.slug,
+    courseId: course.id,
+    courseTitleUk: course.titleUk,
+    courseTitleEn: course.titleEn || course.titleUk,
+    lessonId: lesson.id,
+    passed,
+    firstClear,
+    isExam,
+    accuracy,
+    completeBar,
+    xpGain,
+    globalGain,
+    results,
     streakDays: chAfter?.streakDays,
     globalLevel: chAfter?.globalLevel,
     dailyGoalMet,
-    examPassed: isExam && passed,
   });
-  if (passed) {
-    const { evaluateLearningMilestones } = await import("../routes/learning.js");
-    await evaluateLearningMilestones(user.id);
-  }
-
-  let certificate = null;
-  if (passed) {
-    certificate = await maybeIssueCertificate(
-      user.id,
-      course.id,
-      course.slug,
-      course.titleUk,
-      course.titleEn || course.titleUk,
-    );
-  }
+  const { homeworkCompleted, newAchievements, certificate } = side;
 
   const updatedCharacter = await db.query.characters.findFirst({
     where: eq(characters.userId, user.id),
@@ -489,7 +407,7 @@ export async function submitLesson(
       results,
       character: updatedCharacter,
       hearts,
-      maxHearts: maxHearts(plan),
+      maxHearts: maxHearts(plan, progressionEarly),
       heartLost,
       streakProtected,
       streakDays: streak,
