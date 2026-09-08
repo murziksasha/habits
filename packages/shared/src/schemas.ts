@@ -35,7 +35,7 @@ export const submitLessonSchema = z.object({
 });
 
 export const seekGameSchema = z.object({
-  timeControl: z.enum(["3+0", "5+0", "10+0"]),
+  timeControl: z.enum(["3+0", "3+2", "5+0", "5+3", "10+0"]),
   rated: z.boolean().default(true),
 });
 

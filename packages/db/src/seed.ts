@@ -23,6 +23,7 @@ import {
 import bcrypt from "bcryptjs";
 import { createDb } from "./client.js";
 import { ACHIEVEMENT_CATALOG } from "@eduforge/shared";
+import { seedAllowed } from "@eduforge/shared";
 import {
   achievements,
   characters,
@@ -368,6 +369,12 @@ async function seedAchievements(db: ReturnType<typeof createDb>) {
 async function main() {
   const { loadRootEnv } = await import("./load-env.js");
   loadRootEnv();
+  if (!seedAllowed(process.env)) {
+    console.error(
+      "Refusing to seed production (demo admin/premium passwords). Set ALLOW_PROD_SEED=1 to override.",
+    );
+    process.exit(1);
+  }
   const db = createDb();
   // Users first so accounts exist even if a course seed fails (e.g. missing enum value).
   await seedAdmin(db);

@@ -428,7 +428,9 @@ export const DEFAULT_DAILY_GOAL_XP = 50;
 
 export const CHESS_TIME_CONTROLS = [
   { id: "3+0", initialMs: 180_000, incrementMs: 0, label: "3 хв" },
+  { id: "3+2", initialMs: 180_000, incrementMs: 2_000, label: "3+2" },
   { id: "5+0", initialMs: 300_000, incrementMs: 0, label: "5 хв" },
+  { id: "5+3", initialMs: 300_000, incrementMs: 3_000, label: "5+3" },
   { id: "10+0", initialMs: 600_000, incrementMs: 0, label: "10 хв" },
 ] as const;
 

@@ -638,14 +638,8 @@ parentRoutes.post("/children/:studentId/digest/send", authMiddleware, async (c) 
  * Auth: CRON_SECRET via x-cron-secret or Bearer, or admin session.
  */
 parentRoutes.post("/digest/run", async (c) => {
-  const cron = process.env.CRON_SECRET;
-  const secret =
-    c.req.header("x-cron-secret") ??
-    c.req.header("authorization")?.replace(/^Bearer\s+/i, "");
-
-  let allowed = false;
-  if (cron && secret === cron) allowed = true;
-  if (!cron && process.env.NODE_ENV !== "production") allowed = true;
+  const { cronAuthorized } = await import("../cron-auth.js");
+  let allowed = cronAuthorized(c);
 
   if (!allowed) {
     const { getUserFromToken } = await import("../auth.js");

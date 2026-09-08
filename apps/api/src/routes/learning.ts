@@ -20,6 +20,7 @@ import {
   isoWeekBounds,
   isoWeekKey,
   levelFromXp,
+  parsePagination,
   PROGRAMMING_MINI_LESSON_SLUGS,
   PROGRAMMING_PLACEMENT,
   PROGRAMMING_UNIT_ORDER,
@@ -514,7 +515,10 @@ learningRoutes.get("/programming/minis", authMiddleware, async (c) => {
  */
 learningRoutes.get("/programming/minis/leaderboard", authMiddleware, async (c) => {
   const user = c.get("user");
-  const limit = Math.min(50, Math.max(5, Number(c.req.query("limit") ?? 15)));
+  const { limit } = parsePagination(
+    { limit: c.req.query("limit") },
+    { max: 50, def: 15 },
+  );
 
   const course = await db.query.courses.findFirst({
     where: eq(courses.slug, "programming"),
