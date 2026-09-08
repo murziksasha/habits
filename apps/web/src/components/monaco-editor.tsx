@@ -47,7 +47,11 @@ export function MonacoCodeEditor({
   const monacoLang = LANG_MAP[language] ?? language;
 
   return (
-    <div className="overflow-hidden rounded-2xl border-2 border-slate-200 dark:border-slate-700">
+    <div
+      className="overflow-hidden rounded-2xl border-2 border-slate-200 dark:border-slate-700"
+      role="region"
+      aria-label="Code editor"
+    >
       <Editor
         height={height}
         language={monacoLang}

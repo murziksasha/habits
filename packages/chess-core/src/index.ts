@@ -6,8 +6,68 @@ export type MoveInput = {
   promotion?: "q" | "r" | "b" | "n";
 };
 
+const SQUARE_RE = /^[a-h][1-8]$/;
+const PROMOTIONS = new Set(["q", "r", "b", "n"]);
+
+export function isChessSquare(value: string): boolean {
+  return SQUARE_RE.test(value);
+}
+
 export function createGame(fen?: string): Chess {
   return fen ? new Chess(fen) : new Chess();
+}
+
+export type DrawReason =
+  | "stalemate"
+  | "insufficient"
+  | "threefold"
+  | "fifty"
+  | "checkmate"
+  | null;
+
+export type GameTermination = {
+  over: boolean;
+  result: "1-0" | "0-1" | "1/2-1/2" | null;
+  reason: DrawReason;
+};
+
+/** Inspect FEN for checkmate / all FIDE draw classes (50-move, K+N, etc.). */
+export function gameTermination(fen: string): GameTermination {
+  try {
+    const game = new Chess(fen);
+    if (game.isCheckmate()) {
+      return {
+        over: true,
+        result: game.turn() === "w" ? "0-1" : "1-0",
+        reason: "checkmate",
+      };
+    }
+    if (game.isStalemate()) {
+      return { over: true, result: "1/2-1/2", reason: "stalemate" };
+    }
+    if (game.isInsufficientMaterial()) {
+      return { over: true, result: "1/2-1/2", reason: "insufficient" };
+    }
+    if (game.isThreefoldRepetition()) {
+      return { over: true, result: "1/2-1/2", reason: "threefold" };
+    }
+    if (game.isDraw()) {
+      const halfmove = Number(game.fen().split(" ")[4] ?? 0);
+      return {
+        over: true,
+        result: "1/2-1/2",
+        reason: halfmove >= 100 ? "fifty" : "stalemate",
+      };
+    }
+    return { over: false, result: null, reason: null };
+  } catch {
+    return { over: false, result: null, reason: null };
+  }
+}
+
+/** Fischer (increment) clock: add increment after a legal move. */
+export function applyFischerIncrement(remainingMs: number, incrementMs: number): number {
+  return Math.max(0, remainingMs) + Math.max(0, incrementMs);
 }
 
 export function applyMove(fen: string, move: MoveInput): {
@@ -16,7 +76,14 @@ export function applyMove(fen: string, move: MoveInput): {
   san: string;
   over: boolean;
   result: "1-0" | "0-1" | "1/2-1/2" | null;
+  reason: DrawReason;
 } | { ok: false; error: string } {
+  if (!isChessSquare(move.from) || !isChessSquare(move.to)) {
+    return { ok: false, error: "illegal_move" };
+  }
+  if (move.promotion && !PROMOTIONS.has(move.promotion)) {
+    return { ok: false, error: "illegal_move" };
+  }
   try {
     const game = new Chess(fen);
     const result = game.move({
@@ -26,21 +93,14 @@ export function applyMove(fen: string, move: MoveInput): {
     });
     if (!result) return { ok: false, error: "illegal_move" };
 
-    let gameResult: "1-0" | "0-1" | "1/2-1/2" | null = null;
-    if (game.isGameOver()) {
-      if (game.isCheckmate()) {
-        gameResult = game.turn() === "w" ? "0-1" : "1-0";
-      } else {
-        gameResult = "1/2-1/2";
-      }
-    }
-
+    const term = gameTermination(game.fen());
     return {
       ok: true,
       fen: game.fen(),
       san: result.san,
-      over: game.isGameOver(),
-      result: gameResult,
+      over: term.over,
+      result: term.result,
+      reason: term.reason,
     };
   } catch {
     return { ok: false, error: "illegal_move" };

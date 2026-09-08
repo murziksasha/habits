@@ -12,6 +12,7 @@ import {
   applyStreakOnActivity,
   canStartLesson,
   chessPuzzleXpAward,
+  clampDailyXpGain,
   globalXpFromCourseGain,
   lessonCompleteThreshold,
   lessonXpAward,
@@ -268,14 +269,21 @@ export async function submitLesson(
       });
     }
     const prevLevel = character.globalLevel;
-    const xpPatch = buildXpPatch(character, globalGain, {
+    let xpPatch = buildXpPatch(character, globalGain, {
       applyIntellect: true,
       applySpark: true,
     });
-    const dailyXp =
-      character.dailyXpDate === today
-        ? (character.dailyXp ?? 0) + xpPatch.effectiveGain
-        : xpPatch.effectiveGain;
+    const alreadyToday = character.dailyXpDate === today ? (character.dailyXp ?? 0) : 0;
+    const cappedGain = clampDailyXpGain(alreadyToday, xpPatch.effectiveGain);
+    if (cappedGain !== xpPatch.effectiveGain) {
+      xpPatch = {
+        ...xpPatch,
+        effectiveGain: cappedGain,
+        globalXp: character.globalXp + cappedGain,
+        globalLevel: levelFromXp(character.globalXp + cappedGain),
+      };
+    }
+    const dailyXp = alreadyToday + xpPatch.effectiveGain;
     await db
       .update(characters)
       .set({

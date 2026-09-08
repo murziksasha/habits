@@ -1,8 +1,11 @@
 import { serve } from "@hono/node-server";
+import { assertProductionSecrets } from "@eduforge/shared";
 import { createApp } from "./app.js";
 import { env } from "./env.js";
 import { log } from "./logger.js";
 import { getRedis } from "./redis.js";
+
+assertProductionSecrets(process.env);
 
 const app = createApp();
 

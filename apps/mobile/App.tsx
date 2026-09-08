@@ -19,6 +19,15 @@ function envOrigin(): string {
   }
 }
 
+/** Restrict the native WebView to the EduForge origin (never https://*). */
+export function webViewOriginWhitelist(origin = envOrigin()): string[] {
+  try {
+    return [new URL(origin).origin];
+  } catch {
+    return [DEFAULT_ORIGIN];
+  }
+}
+
 export function getMobileEntryUrl(origin = envOrigin(), path = "/learn"): string {
   const base = origin.replace(/\/$/, "");
   const p = path.startsWith("/") ? path : `/${path}`;

@@ -93,3 +93,15 @@ export function chessGameXpAward(result: "win" | "loss" | "draw", rated: boolean
   const base = table[result];
   return rated ? base + 5 : base;
 }
+
+/** Soft daily cap to stop XP farming via lesson repeats. */
+export const DAILY_XP_CAP = 400;
+
+export function clampDailyXpGain(
+  alreadyToday: number,
+  gain: number,
+  cap = DAILY_XP_CAP,
+): number {
+  const remaining = cap - Math.max(0, alreadyToday);
+  return Math.max(0, Math.min(Math.round(gain), remaining));
+}

@@ -11,7 +11,11 @@ export const Chessboard = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="grid aspect-square w-full max-w-md place-items-center rounded-2xl border-2 border-slate-200 bg-slate-50 text-sm font-bold text-ink-muted dark:border-slate-700 dark:bg-slate-900">
+      <div
+        className="grid aspect-square w-full max-w-md place-items-center rounded-2xl border-2 border-slate-200 bg-slate-50 text-sm font-bold text-ink-muted dark:border-slate-700 dark:bg-slate-900"
+        role="status"
+        aria-label="Loading chess board"
+      >
         Loading board…
       </div>
     ),

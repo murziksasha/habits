@@ -52,7 +52,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               (!t.tone || t.tone === "default") &&
                 "border-slate-200 bg-white text-ink dark:border-slate-700 dark:bg-slate-900",
             )}
-            role="status"
+            role={t.tone === "error" ? "alert" : "status"}
           >
             {t.message}
           </div>

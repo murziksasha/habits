@@ -26,7 +26,7 @@ const doc = {
   openapi: "3.0.3",
   info: {
     title: "EduForge API",
-    version: "2.4.0",
+    version: "2.5.0",
     description:
       "Educational SaaS: learn map, exams, deep tracks, admin platform v2 (TOTP MFA, theming, CMS draft/publish, backup codes), trial+expiry, feedback, minis, playground, schools, parents, metrics, chess, SRS, tutor. BFF: GET /me/home.",
   },
@@ -43,6 +43,9 @@ const doc = {
     { name: "tutor" },
     { name: "push" },
     { name: "analytics" },
+    { name: "judge" },
+    { name: "character" },
+    { name: "family" },
     { name: "speech" },
     { name: "ops" },
     { name: "parents" },
@@ -1118,6 +1121,30 @@ const doc = {
         summary: "Daily quests (lessons, XP, focus, exams, gifts, talents, login)",
         security: [{ bearerAuth: [] }],
         responses: { "200": { description: "date + quests[]" } },
+      },
+    },
+    "/family": {
+      get: {
+        tags: ["social"],
+        summary: "Family plan seats and invites",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "family + members" } },
+      },
+    },
+    "/family/invite": {
+      post: {
+        tags: ["social"],
+        summary: "Create family seat invite",
+        security: [{ bearerAuth: [] }],
+        responses: { "201": { description: "invite code" } },
+      },
+    },
+    "/classroom/live/{classId}": {
+      get: {
+        tags: ["schools"],
+        summary: "Live classroom presence (Socket.IO class:{id} rooms)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "room hint" } },
       },
     },
   },
