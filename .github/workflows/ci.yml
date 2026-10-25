@@ -168,6 +168,9 @@ jobs:
           done
           curl -sf http://127.0.0.1:4000/health
       - name: Start Web
+        # Job NODE_ENV stays development for the API. next build/start require production.
+        env:
+          NODE_ENV: production
         run: |
           pnpm --filter @eduforge/web build
           pnpm --filter @eduforge/web start &

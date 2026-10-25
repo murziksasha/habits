@@ -89,6 +89,9 @@ jobs:
             sleep 1
           done
       - name: Start Web
+        # Job NODE_ENV stays development for the API. next build/start require production.
+        env:
+          NODE_ENV: production
         run: |
           pnpm --filter @eduforge/web build
           pnpm --filter @eduforge/web start &
