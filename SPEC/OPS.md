@@ -25,6 +25,7 @@ Zero-downtime: run migrations before rolling API; avoid long locks on hot tables
 2. **Restore**: `pg_restore` into empty DB → migrate if needed → verify `/ready`.
 3. **Redis**: ephemeral (seek queue, rate limit, idempotency). No durable restore required.
 4. Test restore quarterly.
+5. **PC handoff**: Admin → Backup downloads `eduforge-backup-*.json.gz` and replaces the other PC after the word `RESTORE`. Both PCs must be on the same migration. One local undo file lives in `BACKUP_DIR` (compose volume `backupdata`). See [88-instance-backup](./88-instance-backup.md).
 
 ## Cron / digests
 

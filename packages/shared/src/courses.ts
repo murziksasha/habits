@@ -210,8 +210,10 @@ export const COURSE_META: Record<
     slug: "sql_fundamentals",
     titleUk: "SQL",
     titleEn: "SQL",
-    descriptionUk: "SELECT, JOINs, aggregates, DML, keys — deep track.",
-    descriptionEn: "SELECT, JOINs, aggregates, DML, keys — deep track.",
+    descriptionUk:
+      "Oracle SQL за програмою 1Z0-071: функції, JOIN, підзапити, множини, DML/DDL, views.",
+    descriptionEn:
+      "Oracle SQL on the 1Z0-071 checklist: functions, joins, subqueries, sets, DML/DDL, views.",
     icon: "🗄️",
     color: "#336791",
     group: "deep",

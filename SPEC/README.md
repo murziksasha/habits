@@ -100,9 +100,11 @@ This folder is the **source of truth** for the EduForge educational SaaS monorep
 | — | [OPS.md](./OPS.md) | Backups, multi-instance, flags, incidents |
 | — | [P2-STRATEGIC.md](./P2-STRATEGIC.md) | Judge, OTel, MDX, video, classroom, mobile foundations |
 
-> **Note:** Specs 01–87 are historical feature logs. Day-to-day product truth is **[CURRENT.md](./CURRENT.md)**.
+| 88 | [Instance backup](./88-instance-backup.md) | Admin `.gz` handoff of the whole school between PCs |
 
-**Status:** SPECs **01–87** + improvement waves through **142** (full RSC strangler, character talents, friend gifts, course expansion). Active surface: **[CURRENT.md](./CURRENT.md)**. Content: **[CONTENT-DX.md](./CONTENT-DX.md)**. Cron: **[CRON.md](./CRON.md)**. Foundations: **[P2-STRATEGIC.md](./P2-STRATEGIC.md)**.
+> **Note:** Specs 01–88 are historical feature logs. Day-to-day product truth is **[CURRENT.md](./CURRENT.md)**.
+
+**Status:** SPECs **01–88** + improvement waves through **142** (full RSC strangler, character talents, friend gifts, course expansion). Active surface: **[CURRENT.md](./CURRENT.md)**. Content: **[CONTENT-DX.md](./CONTENT-DX.md)**. Cron: **[CRON.md](./CRON.md)**. Foundations: **[P2-STRATEGIC.md](./P2-STRATEGIC.md)**.
 
 ## Product name
 

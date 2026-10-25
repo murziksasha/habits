@@ -81,6 +81,7 @@ export const RSC_SHELL_ROUTES = [
   "/admin/classroom",
   "/admin/parents",
   "/admin/programming",
+  "/admin/backup",
 ] as const;
 
 const EXACT = new Set([
@@ -151,6 +152,7 @@ const EXACT = new Set([
   "/admin/classroom",
   "/admin/parents",
   "/admin/programming",
+  "/admin/backup",
 ]);
 
 export function isRscShellRoute(pathname: string): boolean {

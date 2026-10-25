@@ -372,6 +372,30 @@ const uk = {
     saveDraft: "Зберегти чернетку",
     productName: "Назва продукту",
     brandColor: "Колір бренду",
+    backup: "Резервна копія",
+    backupTitle: "Резервна копія школи",
+    backupLead:
+      "Файл містить усіх користувачів, хеші паролів, досвід і пройдені уроки. Перенесіть його на інший ПК і відновіть там. Обидва ПК мають бути на одній версії застосунку. У GitHub ці дані не потрапляють.",
+    backupDownload: "Завантажити .gz",
+    backupRestore: "Замінити дані цього ПК",
+    backupUndo: "Скасувати останнє відновлення",
+    backupConfirm: "Підтвердження",
+    backupConfirmHint: "Введіть RESTORE, щоб замінити базу цього комп’ютера.",
+    backupFile: "Файл копії",
+    backupWarning:
+      "Немає свіжої копії поза цим комп’ютером. Завантажте файл і збережіть його в іншому місці.",
+    backupSeedNote:
+      "Після відновлення пароль admin12345 більше не діє. Увійдіть акаунтом із файлу.",
+    backupSignedOut:
+      "Дані замінено з файлу. Увійдіть email і паролем із того ПК, де ви завантажили копію. Пароль admin12345 після відновлення не працює.",
+    backupUndoneLogin:
+      "Повернуто попередні дані цього ПК. Увійдіть акаунтом, який був тут до останнього відновлення.",
+    backupBusy: "Відновлення вже виконується.",
+    backupMismatch:
+      "Файл зібрано іншою версією застосунку. Оновіть обидва ПК до одного коміту і спробуйте знову.",
+    backupInvalid: "Файл копії пошкоджений або не від цього застосунку.",
+    backupTooLarge: "Файл більший за 80 МБ.",
+    backupNoSafety: "Немає локальної копії для скасування.",
   },
   tournaments: {
     title: "Турніри",
@@ -1119,6 +1143,30 @@ const en: UiDict = {
     saveDraft: "Save draft",
     productName: "Product name",
     brandColor: "Brand color",
+    backup: "Backup",
+    backupTitle: "School backup",
+    backupLead:
+      "This file is the whole school: every user, password hash, XP, and passed lessons. Copy it to the other PC and restore it there. Both PCs must be on the same app version. The file does not go to GitHub.",
+    backupDownload: "Download .gz",
+    backupRestore: "Replace this PC's data",
+    backupUndo: "Undo last restore",
+    backupConfirm: "Confirmation",
+    backupConfirmHint: "Type RESTORE to replace this computer's database.",
+    backupFile: "Backup file",
+    backupWarning:
+      "There is no fresh copy off this computer. Download the file and keep it somewhere else.",
+    backupSeedNote:
+      "After a restore, admin12345 no longer works. Sign in with the account from the file.",
+    backupSignedOut:
+      "Data was replaced from the file. Sign in with the email and password from the PC where you downloaded the backup. admin12345 does not work after a restore.",
+    backupUndoneLogin:
+      "This PC was put back to the data from before the last restore. Sign in with the account that was here then.",
+    backupBusy: "A restore is already running.",
+    backupMismatch:
+      "This file was made by a different app version. Update both PCs to the same commit and try again.",
+    backupInvalid: "This backup file is damaged or is not from this app.",
+    backupTooLarge: "The file is larger than 80 MB.",
+    backupNoSafety: "There is no local copy to undo.",
   },
   tournaments: {
     title: "Tournaments",

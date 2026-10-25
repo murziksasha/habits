@@ -38,6 +38,9 @@ services:
       WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}      # Local compose defaults to development so weak AUTH_SECRET is refused only in real production
       NODE_ENV: ${NODE_ENV:-development}
       CRON_SECRET: ${CRON_SECRET:-}
+      BACKUP_DIR: /data/backups
+    volumes:
+      - backupdata:/data/backups
     ports:
       - "4000:4000"
     depends_on:
@@ -153,3 +156,4 @@ services:
 
 volumes:
   pgdata:
+  backupdata:

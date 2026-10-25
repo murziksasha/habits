@@ -45,14 +45,17 @@ export function unit(
   return { slug, titleUk, titleEn, lessons };
 }
 
+type Note = { explanationUk?: string; explanationEn?: string };
+
 export function mcq(
   id: string,
   promptUk: string,
   promptEn: string,
   options: string[],
   correctIndex: number,
+  note?: Note,
 ): Exercise {
-  return { id, type: "mcq", promptUk, promptEn, options, correctIndex };
+  return { id, type: "mcq", promptUk, promptEn, options, correctIndex, ...note };
 }
 
 export function codeFill(
@@ -63,6 +66,7 @@ export function codeFill(
   code: string,
   accepted: string[],
   caseSensitive = true,
+  note?: Note,
 ): Exercise {
   return {
     id,
@@ -73,6 +77,7 @@ export function codeFill(
     code,
     accepted,
     caseSensitive,
+    ...note,
   };
 }
 
@@ -84,6 +89,7 @@ export function codeRead(
   code: string,
   options: string[],
   correctIndex: number,
+  note?: Note,
 ): Exercise {
   return {
     id,
@@ -94,6 +100,7 @@ export function codeRead(
     code,
     options,
     correctIndex,
+    ...note,
   };
 }
 
@@ -104,8 +111,9 @@ export function codeOrder(
   language: string,
   lines: string[],
   correct: string[],
+  note?: Note,
 ): Exercise {
-  return { id, type: "code_order", promptUk, promptEn, language, lines, correct };
+  return { id, type: "code_order", promptUk, promptEn, language, lines, correct, ...note };
 }
 
 export function matchEx(
@@ -160,6 +168,7 @@ export function codeOutputMcq(
   code: string,
   options: string[],
   correctIndex: number,
+  note?: Note,
 ): Exercise {
   return {
     id,
@@ -170,5 +179,6 @@ export function codeOutputMcq(
     code,
     options,
     correctIndex,
+    ...note,
   };
 }

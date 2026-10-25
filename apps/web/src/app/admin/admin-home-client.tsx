@@ -40,6 +40,7 @@ export function AdminHomeClient() {
   } | null>(null);
   const [opsMsg, setOpsMsg] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
+  const [backupWarning, setBackupWarning] = useState(false);
 
   useEffect(() => {
     if (!loading && (!user || user.role !== "admin")) router.replace("/dashboard");
@@ -64,6 +65,9 @@ export function AdminHomeClient() {
     }>("/analytics/funnel?days=7", { token })
       .then((d) => setFunnel(d.funnel ?? null))
       .catch(() => setFunnel(null));
+    void api<{ warning?: boolean }>("/admin/backup/status", { token })
+      .then((d) => setBackupWarning(Boolean(d.warning)))
+      .catch(() => setBackupWarning(false));
   }, [token, user]);
 
   async function runOps(path: string, label: string) {
@@ -94,6 +98,17 @@ export function AdminHomeClient() {
           Dashboard · sidebar modules
         </p>
       </div>
+      {backupWarning && (
+        <p
+          className="rounded-2xl border-2 border-amber-400 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-950"
+          role="status"
+        >
+          {t.admin.backupWarning}{" "}
+          <a href="/admin/backup" className="underline">
+            {t.admin.backup}
+          </a>
+        </p>
+      )}
       {!stats && (
         <p className="text-sm font-bold text-ink-muted" aria-live="polite">
           {t.common.loading}

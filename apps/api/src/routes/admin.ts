@@ -48,6 +48,7 @@ import {
   type PlatformTheme,
 } from "@eduforge/shared";
 import { platformSettings, organizations, classes } from "@eduforge/db";
+import { adminBackupRoutes } from "./admin-backup.js";
 
 type Vars = { user: AuthedUser; sessionToken?: string };
 
@@ -1443,3 +1444,5 @@ adminRoutes.post("/users/:id/reset-mfa", async (c) => {
   });
   return c.json({ ok: true });
 });
+
+adminRoutes.route("/backup", adminBackupRoutes);
