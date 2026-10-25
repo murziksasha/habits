@@ -2,6 +2,7 @@
  * HTTP integration tests against real Postgres (DATABASE_URL).
  * Requires migrated + seeded DB. Skip with SKIP_INTEGRATION=1.
  */
+import { Secret, TOTP } from "otpauth";
 import { describe, expect, it, beforeAll } from "vitest";
 import { createApp } from "./app.js";
 
@@ -18,6 +19,8 @@ async function json(
     method: opts.method ?? (opts.body ? "POST" : "GET"),
     headers: {
       "Content-Type": "application/json",
+      // CI and production omit the bearer body unless the client opts in.
+      "X-Issue-Bearer": "1",
       ...(opts.token ? { Authorization: `Bearer ${opts.token}` } : {}),
     },
     body: opts.body ? JSON.stringify(opts.body) : undefined,
@@ -228,9 +231,37 @@ describeIntegration("API integration", () => {
       return;
     }
     expect(login.data.user.role).toBe("admin");
-    const stats = await json("/admin/stats", {
-      token: login.data.token as string,
-    });
+
+    // Seed enrolls admin TOTP outside production. Password login then returns
+    // 200 + mfaToken and no session; /admin/stats with that missing token is 401.
+    let sessionToken = login.data.token as string | undefined;
+    if (login.data.mfaRequired) {
+      const mfaToken = login.data.mfaToken as string;
+      expect(mfaToken).toBeTruthy();
+      const secret = process.env.SEED_ADMIN_TOTP_SECRET ?? "JBSWY3DPEHPK3PXP";
+      const code = new TOTP({
+        algorithm: "SHA1",
+        digits: 6,
+        period: 30,
+        secret: Secret.fromBase32(secret),
+      }).generate();
+      let verified = await json("/auth/mfa/totp/verify", {
+        method: "POST",
+        body: { mfaToken, code },
+      });
+      if (verified.status !== 200) {
+        const backup = process.env.SEED_ADMIN_BACKUP_CODE ?? "AAAA-BBBB";
+        verified = await json("/auth/mfa/totp/verify", {
+          method: "POST",
+          body: { mfaToken, code: backup },
+        });
+      }
+      expect(verified.status).toBe(200);
+      sessionToken = verified.data.token as string;
+    }
+
+    expect(sessionToken).toBeTruthy();
+    const stats = await json("/admin/stats", { token: sessionToken });
     expect(stats.status).toBe(200);
     expect(stats.data.users).toBeGreaterThanOrEqual(1);
     expect(stats.data.lessons).toBeGreaterThan(0);
