@@ -172,7 +172,8 @@ pnpm --filter @eduforge/api test
 pnpm --filter @eduforge/mobile test
 # e2e (stack running):
 # set SKIP_E2E=0  →  pnpm --filter @eduforge/web test:e2e
-# CI: unit + integration + content-gate + e2e-smoke (landing/register/admin)
+# PR CI: unit + integration + content-gate
+# Push to main/master/dev also runs E2E smoke (landing/register/admin)
 ```
 
 ## Ops extras
