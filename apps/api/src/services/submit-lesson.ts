@@ -36,6 +36,132 @@ import { runSubmitSideEffects } from "./submit-side-effects.js";
 
 export type SubmitAnswer = { exerciseId: string; answer: unknown };
 
+export type GradedExerciseResult = {
+  exerciseId: string;
+  type: string;
+  correct: boolean;
+  partial?: number;
+  meta?: Record<string, unknown>;
+  [k: string]: unknown;
+};
+
+export type LessonGradingResult = {
+  results: GradedExerciseResult[];
+  correctCount: number;
+  accuracy: number;
+  passThreshold: number;
+  passed: boolean;
+  isExam: boolean;
+  examFailed: boolean;
+};
+
+export type NextLessonSummary = {
+  id: string;
+  titleUk: string;
+  titleEn: string | null;
+  href: string;
+};
+
+export function gradeLessonAttempt(
+  exercises: { id: string; type: string; [k: string]: unknown }[],
+  answers: SubmitAnswer[],
+  isExam: boolean,
+  passThreshold?: number | null,
+): LessonGradingResult {
+  const results = exercises.map((ex) => {
+    const a = answers.find((x) => x.exerciseId === ex.id);
+    const graded = gradeExercise(ex, a?.answer);
+    return { exerciseId: ex.id, type: ex.type, ...graded };
+  });
+
+  const correctCount = results.filter((r) => r.correct).length;
+  const accuracy = exercises.length
+    ? results.reduce((sum, r) => {
+        if (typeof r.partial === "number") return sum + Math.min(1, Math.max(0, r.partial));
+        return sum + (r.correct ? 1 : 0);
+      }, 0) / exercises.length
+    : 0;
+
+  const completeBar = lessonCompleteThreshold({
+    isExam,
+    passThreshold,
+  });
+  const passed = accuracy + 1e-9 >= completeBar;
+
+  return {
+    results,
+    correctCount,
+    accuracy,
+    passThreshold: completeBar,
+    passed,
+    isExam,
+    examFailed: isExam && !passed,
+  };
+}
+
+export async function getNextCourseLesson(
+  courseId: string,
+  courseSlug: string,
+  currentSortOrder: number,
+): Promise<NextLessonSummary | null> {
+  const next = await db.query.lessons.findFirst({
+    where: and(
+      eq(lessons.courseId, courseId),
+      gt(lessons.sortOrder, currentSortOrder),
+    ),
+    orderBy: [asc(lessons.sortOrder)],
+  });
+  if (!next) return null;
+  return {
+    id: next.id,
+    titleUk: next.titleUk,
+    titleEn: next.titleEn ?? null,
+    href: `/courses/${courseSlug}/lessons/${next.id}`,
+  };
+}
+
+export type GuestSubmitResultBody = {
+  guest: true;
+  accuracy: number;
+  passed: boolean;
+  results: GradedExerciseResult[];
+  correctCount: number;
+  total: number;
+  isExam: boolean;
+  examFailed: boolean;
+  passThreshold: number;
+  nextLesson: NextLessonSummary | null;
+  xpGain: 0;
+};
+
+export function buildGuestSubmitResult(opts: {
+  exercises: { id: string; type: string; [k: string]: unknown }[];
+  answers: SubmitAnswer[];
+  isExam: boolean;
+  passThreshold?: number | null;
+  nextLesson: NextLessonSummary | null;
+}): GuestSubmitResultBody {
+  const grading = gradeLessonAttempt(
+    opts.exercises,
+    opts.answers,
+    opts.isExam,
+    opts.passThreshold,
+  );
+  return {
+    guest: true,
+    accuracy: grading.accuracy,
+    passed: grading.passed,
+    results: grading.results,
+    correctCount: grading.correctCount,
+    total: opts.exercises.length,
+    isExam: grading.isExam,
+    examFailed: grading.examFailed,
+    passThreshold: grading.passThreshold,
+    nextLesson: grading.passed ? opts.nextLesson : null,
+    xpGain: 0,
+  };
+}
+
 export type SubmitLessonInput = {
   user: AuthedUser;
   lessonId: string;
@@ -73,26 +199,13 @@ export async function submitLesson(
 
   const exercises =
     (lesson.exercises as { id: string; type: string; [k: string]: unknown }[]) ?? [];
-  const results = exercises.map((ex) => {
-    const a = answers.find((x) => x.exerciseId === ex.id);
-    const graded = gradeExercise(ex, a?.answer);
-    return { exerciseId: ex.id, type: ex.type, ...graded };
-  });
-
-  const correctCount = results.filter((r) => r.correct).length;
-  // Partial credit when exercises expose `partial` (projects, multi-check, comprehension)
-  const accuracy = exercises.length
-    ? results.reduce((sum, r) => {
-        if (typeof r.partial === "number") return sum + Math.min(1, Math.max(0, r.partial));
-        return sum + (r.correct ? 1 : 0);
-      }, 0) / exercises.length
-    : 0;
-  const isExam = Boolean(lesson.isExam);
-  const completeBar = lessonCompleteThreshold({
-    isExam,
-    passThreshold: lesson.passThreshold,
-  });
-  const passed = accuracy + 1e-9 >= completeBar;
+  const grading = gradeLessonAttempt(
+    exercises,
+    answers,
+    Boolean(lesson.isExam),
+    lesson.passThreshold,
+  );
+  const { results, correctCount, accuracy, isExam, passThreshold: completeBar, passed } = grading;
 
   let xpGain = 0;
   if (course.slug === "typing") {
@@ -366,29 +479,9 @@ export async function submitLesson(
   });
 
   // Next lesson in course path (by sortOrder) for one-tap continue
-  let nextLesson: {
-    id: string;
-    titleUk: string;
-    titleEn: string | null;
-    href: string;
-  } | null = null;
-  if (passed) {
-    const next = await db.query.lessons.findFirst({
-      where: and(
-        eq(lessons.courseId, course.id),
-        gt(lessons.sortOrder, lesson.sortOrder),
-      ),
-      orderBy: [asc(lessons.sortOrder)],
-    });
-    if (next) {
-      nextLesson = {
-        id: next.id,
-        titleUk: next.titleUk,
-        titleEn: next.titleEn ?? null,
-        href: `/courses/${course.slug}/lessons/${next.id}`,
-      };
-    }
-  }
+  const nextLesson = passed
+    ? await getNextCourseLesson(course.id, course.slug, lesson.sortOrder)
+    : null;
 
   return {
     ok: true,

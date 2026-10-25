@@ -7,5 +7,9 @@ export default defineConfig({
     testTimeout: 60_000,
     hookTimeout: 60_000,
     fileParallelism: false,
+    env: {
+      DATABASE_URL: process.env.DATABASE_URL ?? "postgresql://eduforge:eduforge@localhost:5433/eduforge",
+      REDIS_URL: process.env.REDIS_URL ?? "redis://localhost:6380",
+    },
   },
 });

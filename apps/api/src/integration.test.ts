@@ -136,6 +136,61 @@ describeIntegration("API integration", () => {
     expect(submit.data.character.globalXp).toBeGreaterThan(0);
   });
 
+  it("guest GET /courses/english, lesson GET, and POST submit return 200 without auth", async () => {
+    const courseRes = await json("/courses/english");
+    expect(courseRes.status).toBe(200);
+    expect(courseRes.data.progress.xp).toBe(0);
+    expect(courseRes.data.progress.completedLessons).toBe(0);
+    const guestFirst = courseRes.data.units[0].lessons[0];
+    expect(guestFirst.status).toBe("available");
+    expect(guestFirst.locked).toBe(false);
+
+    const guestLesson = await json(`/courses/english/lessons/${guestFirst.id}`);
+    expect(guestLesson.status).toBe(200);
+    expect(guestLesson.data.lesson.id).toBe(guestFirst.id);
+    expect(guestLesson.data.hearts).toBe(5);
+
+    const exercises = guestLesson.data.lesson.exercises as {
+      id: string;
+      type: string;
+      correctIndex?: number;
+      accepted?: string[];
+      pairs?: { left: string; right: string }[];
+      correct?: string[];
+    }[];
+
+    const answers = exercises.map((ex) => {
+      if (ex.type === "mcq" || ex.type === "logic_puzzle") {
+        return { exerciseId: ex.id, answer: ex.correctIndex ?? 0 };
+      }
+      if (ex.type === "translate" || ex.type === "fill_blank") {
+        return { exerciseId: ex.id, answer: ex.accepted?.[0] ?? "" };
+      }
+      if (ex.type === "match") {
+        return { exerciseId: ex.id, answer: ex.pairs ?? [] };
+      }
+      if (ex.type === "order_words") {
+        return { exerciseId: ex.id, answer: ex.correct ?? [] };
+      }
+      return { exerciseId: ex.id, answer: true };
+    });
+
+    const guestSubmit = await json(`/courses/english/lessons/${guestFirst.id}/submit`, {
+      method: "POST",
+      body: { answers },
+    });
+    expect(guestSubmit.status).toBe(200);
+    expect(guestSubmit.data.guest).toBe(true);
+    expect(guestSubmit.data.xpGain).toBe(0);
+    expect(guestSubmit.data.character).toBeUndefined();
+    expect(guestSubmit.data.passed).toBe(true);
+    expect(guestSubmit.data.accuracy).toBe(1);
+    expect(guestSubmit.data.nextLesson).toBeTruthy();
+
+    const notFound = await json("/courses/non-existent-course-slug-xyz");
+    expect(notFound.status).toBe(404);
+  });
+
   it("password reset flow (dev)", async () => {
     const forgot = await json("/auth/forgot-password", {
       method: "POST",

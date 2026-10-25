@@ -20,6 +20,7 @@ import { ShareLinkButtons } from "@/components/share-link";
 import { Breadcrumbs, Skeleton, useToast } from "@/components/ui";
 import { isBrowserOffline } from "@/components/online-status";
 import { LessonShortcutsHelp } from "@/components/lesson-shortcuts-help";
+import { recordGuestLessonProgress } from "@/lib/guest-progress";
 
 type ExerciseResult = {
   exerciseId: string;
@@ -97,14 +98,6 @@ export function LessonClient() {
   const [submitting, setSubmitting] = useState(false);
   const idempotencyKeyRef = useRef(newIdempotencyKey());
   const { toast } = useToast();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.replace(
-        `/login?next=${encodeURIComponent(`/courses/${slug}/lessons/${lessonId}`)}`,
-      );
-    }
-  }, [loading, user, router, slug, lessonId]);
 
   // One-time coach tip for focus / Esc
   useEffect(() => {
@@ -193,7 +186,7 @@ export function LessonClient() {
   }, [answers.length, idx, router, slug, summary, keysHelp, t.lesson?.exit]);
 
   useEffect(() => {
-    if (!token) return;
+    if (loading) return;
     void api<{
       lesson: {
         id: string;
@@ -204,7 +197,7 @@ export function LessonClient() {
       };
       hearts?: number;
       maxHearts?: number;
-    }>(`/courses/${slug}/lessons/${lessonId}`, { token })
+    }>(`/courses/${slug}/lessons/${lessonId}`, token ? { token } : {})
       .then((d) => {
         setLesson(d.lesson);
         if (typeof d.hearts === "number") setHearts(d.hearts);
@@ -215,16 +208,19 @@ export function LessonClient() {
           setError("exam_locked");
         } else setError("load_failed");
       });
-    void api<{ bookmarked: boolean }>(`/bookmarks/check/${lessonId}`, { token })
-      .then((d) => setBookmarked(d.bookmarked))
-      .catch(() => undefined);
-    void api<{ note: { body: string } | null }>(`/notes/lesson/${lessonId}`, { token })
-      .then((d) => setNoteBody(d.note?.body ?? ""))
-      .catch(() => undefined);
-    void api<{ comments: typeof comments }>(`/comments/lesson/${lessonId}`, { token })
-      .then((d) => setComments(d.comments))
-      .catch(() => setComments([]));
-  }, [token, slug, lessonId]);
+
+    if (token) {
+      void api<{ bookmarked: boolean }>(`/bookmarks/check/${lessonId}`, { token })
+        .then((d) => setBookmarked(d.bookmarked))
+        .catch(() => undefined);
+      void api<{ note: { body: string } | null }>(`/notes/lesson/${lessonId}`, { token })
+        .then((d) => setNoteBody(d.note?.body ?? ""))
+        .catch(() => undefined);
+      void api<{ comments: typeof comments }>(`/comments/lesson/${lessonId}`, { token })
+        .then((d) => setComments(d.comments))
+        .catch(() => setComments([]));
+    }
+  }, [loading, token, slug, lessonId]);
 
   async function toggleBookmark() {
     if (!token || !lessonId) return;
@@ -307,7 +303,7 @@ export function LessonClient() {
   async function submitLessonAnswers(
     nextAnswers: { exerciseId: string; answer: unknown }[],
   ) {
-    if (!token || !lessonId) return;
+    if (!lessonId) return;
     setSubmitting(true);
     setPendingSubmit(null);
     try {
@@ -319,11 +315,12 @@ export function LessonClient() {
         });
       }
       const result = await api<{
+        guest?: boolean;
         xpGain: number;
         accuracy: number;
-        courseLevel: number;
-        levelUp: boolean;
-        character: Parameters<typeof setCharacter>[0];
+        courseLevel?: number;
+        levelUp?: boolean;
+        character?: Parameters<typeof setCharacter>[0];
         hearts?: number;
         heartLost?: boolean;
         streakProtected?: boolean;
@@ -343,19 +340,23 @@ export function LessonClient() {
         } | null;
       } & { character?: { progression?: { skillPoints?: number } } }>(`/courses/${slug}/lessons/${lessonId}/submit`, {
         method: "POST",
-        token,
+        ...(token ? { token } : {}),
         body: {
           answers: nextAnswers,
-          idempotencyKey: idempotencyKeyRef.current,
+          ...(token ? { idempotencyKey: idempotencyKeyRef.current } : {}),
         },
       });
+
+      if (result.passed && !user) {
+        recordGuestLessonProgress(slug, lessonId);
+      }
       if (result.character) setCharacter(result.character);
       if (typeof result.hearts === "number") setHearts(result.hearts);
       setSummary({
-        xpGain: result.xpGain,
+        xpGain: result.xpGain ?? 0,
         accuracy: result.accuracy,
-        courseLevel: result.courseLevel,
-        levelUp: result.levelUp,
+        courseLevel: result.courseLevel ?? 1,
+        levelUp: Boolean(result.levelUp),
         hearts: result.hearts ?? hearts,
         heartLost: Boolean(result.heartLost),
         streakProtected: Boolean(result.streakProtected),
@@ -508,9 +509,31 @@ export function LessonClient() {
               : UI.lesson.completed}
         </h1>
         {!examFail && (
-          <p className="text-lg font-bold text-brand-dark" role="status" aria-live="polite">
-            +{summary.xpGain} {UI.lesson.xpGained}
-          </p>
+          user ? (
+            <p className="text-lg font-bold text-brand-dark" role="status" aria-live="polite">
+              +{summary.xpGain} {UI.lesson.xpGained}
+            </p>
+          ) : (
+            <div className="rounded-2xl border-2 border-brand/30 bg-brand-soft/30 p-3 text-sm space-y-2">
+              <p className="font-bold text-ink">
+                💡 {t.onboarding.guestSaveProgressPrompt}
+              </p>
+              <div className="flex justify-center gap-2">
+                <Link
+                  href={`/login?next=${encodeURIComponent(`/courses/${slug}`)}`}
+                  className="btn-secondary !py-1.5 !px-3 text-xs"
+                >
+                  {t.onboarding.guestSignIn}
+                </Link>
+                <Link
+                  href={`/register?next=${encodeURIComponent(`/courses/${slug}`)}`}
+                  className="btn-primary !py-1.5 !px-3 text-xs"
+                >
+                  {t.onboarding.guestRegister}
+                </Link>
+              </div>
+            </div>
+          )
         )}
         <p>
           {locale === "en" ? "Accuracy" : "Точність"}: {Math.round(summary.accuracy * 100)}%
@@ -519,8 +542,8 @@ export function LessonClient() {
             : ""}
           {summary.isExam && summary.passThreshold != null
             ? ` · ≥${Math.round(summary.passThreshold * 100)}%`
-            : ""}{" "}
-          · {UI.dashboard.level}: {summary.courseLevel}
+            : ""}
+          {user ? ` · ${UI.dashboard.level}: ${summary.courseLevel}` : ""}
         </p>
         {wrong.length > 0 && (
           <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3 text-left dark:border-slate-800 dark:bg-slate-900">
@@ -549,9 +572,11 @@ export function LessonClient() {
             </ul>
           </div>
         )}
-        <div className="flex justify-center">
-          <HeartsBar hearts={summary.hearts} max={maxHearts} />
-        </div>
+        {user ? (
+          <div className="flex justify-center">
+            <HeartsBar hearts={summary.hearts} max={maxHearts} />
+          </div>
+        ) : null}
         {summary.heartLost && (
           <p className="text-sm font-bold text-red-500">{UI.hearts.lost}</p>
         )}
@@ -710,15 +735,19 @@ export function LessonClient() {
                 ? "🗒 Full"
                 : "🗒 Усе"}
           </button>
-          <button
-            type="button"
-            className="touch-target text-sm font-bold"
-            onClick={() => void toggleBookmark()}
-            title="Bookmark"
-          >
-            {bookmarked ? "⭐" : "☆"}
-          </button>
-          <HeartsBar hearts={hearts} max={maxHearts} compact />
+          {user ? (
+            <>
+              <button
+                type="button"
+                className="touch-target text-sm font-bold"
+                onClick={() => void toggleBookmark()}
+                title="Bookmark"
+              >
+                {bookmarked ? "⭐" : "☆"}
+              </button>
+              <HeartsBar hearts={hearts} max={maxHearts} compact />
+            </>
+          ) : null}
           <span
             className="text-sm font-bold text-ink-muted"
             aria-live="polite"
@@ -814,7 +843,7 @@ export function LessonClient() {
         )}
       </div>
 
-      {!focusMode && (
+      {!focusMode && user && (
         <>
           <div className="card space-y-2 !py-3">
             <label className="text-xs font-bold text-ink-muted">📔 Note</label>
