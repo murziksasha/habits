@@ -3,6 +3,7 @@ import {
   describeNativeShell,
   getMobileEntryUrl,
   mapDeepLinkToPath,
+  webViewOriginWhitelist,
 } from "./App";
 
 describe("mobile shell helpers", () => {
@@ -16,6 +17,12 @@ describe("mobile shell helpers", () => {
     expect(mapDeepLinkToPath("eduforge://learn")).toBe("/learn");
     expect(mapDeepLinkToPath("eduforge://friends?add=u1")).toBe("/friends?add=u1");
     expect(mapDeepLinkToPath("eduforge://play")).toBe("/play");
+  });
+
+  it("restricts WebView origins to the app host", () => {
+    expect(webViewOriginWhitelist("https://app.eduforge.ua/learn")).toEqual([
+      "https://app.eduforge.ua",
+    ]);
   });
 
   it("describeNativeShell exposes strategy", () => {

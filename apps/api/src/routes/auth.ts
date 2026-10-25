@@ -559,8 +559,9 @@ authRoutes.post("/mfa/backup-codes/regenerate", authMiddleware, async (c) => {
 authRoutes.patch("/me/character", authMiddleware, async (c) => {
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
+  const { sanitizeDisplayName } = await import("@eduforge/shared");
   const displayName =
-    typeof body.displayName === "string" ? body.displayName.trim().slice(0, 32) : null;
+    typeof body.displayName === "string" ? sanitizeDisplayName(body.displayName, 32) : null;
   const avatarKey =
     typeof body.avatarKey === "string" ? body.avatarKey.slice(0, 64) : null;
   if (!displayName && !avatarKey) return c.json({ error: "invalid_input" }, 400);

@@ -102,13 +102,8 @@ export async function runHomeworkReminders() {
 }
 
 reminderRoutes.post("/homework/run", async (c) => {
-  const cron = process.env.CRON_SECRET;
-  const secret =
-    c.req.header("x-cron-secret") ??
-    c.req.header("authorization")?.replace(/^Bearer\s+/i, "");
-
-  // Production: require CRON_SECRET. Dev (no secret): allow.
-  if (cron && secret !== cron) {
+  const { cronAuthorized } = await import("../cron-auth.js");
+  if (!cronAuthorized(c)) {
     return c.json({ error: "unauthorized" }, 401);
   }
 

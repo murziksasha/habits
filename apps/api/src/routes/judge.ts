@@ -15,6 +15,7 @@ import { authMiddleware, type AuthedUser } from "../auth.js";
 import { rateLimit } from "../rate-limit.js";
 import { withSpan } from "../otel.js";
 import { getRedis } from "../redis.js";
+import { cronAuthorized } from "../cron-auth.js";
 
 type Vars = { user: AuthedUser };
 
@@ -37,17 +38,9 @@ function ensureJudgeRedis() {
 }
 
 function workerAuthorized(c: { req: { header: (n: string) => string | undefined } }): boolean {
-  const secret =
-    process.env.JUDGE_WORKER_SECRET?.trim() ||
-    process.env.CRON_SECRET?.trim() ||
-    "";
-  if (!secret) {
-    // Dev convenience: allow drain without secret outside production
-    return (process.env.NODE_ENV ?? "").toLowerCase() !== "production";
-  }
-  const auth = c.req.header("authorization")?.replace(/^Bearer\s+/i, "");
-  const hdr = c.req.header("x-worker-secret") ?? c.req.header("x-cron-secret");
-  return auth === secret || hdr === secret;
+  return cronAuthorized(c, {
+    alternate: process.env.JUDGE_WORKER_SECRET?.trim() || process.env.CRON_SECRET,
+  });
 }
 
 const jobSchema = z.object({

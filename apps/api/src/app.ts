@@ -51,6 +51,8 @@ import { oauthRoutes } from "./routes/oauth.js";
 import { familyRoutes } from "./routes/family.js";
 import { csrfOriginMiddleware } from "./csrf.js";
 import { withSpan } from "./otel.js";
+import { clientIp, rateLimit } from "./rate-limit.js";
+import { isUniqueViolation } from "./http-errors.js";
 
 export function createApp() {
   const app = new Hono();
@@ -102,6 +104,21 @@ export function createApp() {
   // Strict Origin check for cookie-authenticated mutations
   // (FEATURE_STRICT_CSRF or production default — see resolveFeatureFlags)
   app.use("*", csrfOriginMiddleware);
+
+  // Global mutation rate limit (Redis when available; per-IP)
+  app.use("*", async (c, next) => {
+    if (!["POST", "PUT", "PATCH", "DELETE"].includes(c.req.method)) {
+      await next();
+      return;
+    }
+    const ip = clientIp(c.req.raw.headers);
+    const rl = await rateLimit({ key: `mut:${ip}`, limit: 120, windowMs: 60_000 });
+    if (!rl.ok) {
+      c.header("Retry-After", String(rl.retryAfterSec));
+      return c.json({ error: "rate_limited", retryAfter: rl.retryAfterSec }, 429);
+    }
+    await next();
+  });
 
   // Baseline security headers on all API responses
   app.use("*", async (c, next) => {
@@ -192,6 +209,9 @@ export function createApp() {
       err: err instanceof Error ? err.message : String(err),
       stack: err instanceof Error ? err.stack : undefined,
     });
+    if (isUniqueViolation(err)) {
+      return c.json({ error: "conflict", requestId }, 409);
+    }
     const isProd = process.env.NODE_ENV === "production";
     return c.json(
       {

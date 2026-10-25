@@ -20,6 +20,8 @@ import {
   PROGRAMMING_MINI_LESSON_SLUGS,
   weeklyMinisRaceSlugs,
   isoWeekBounds,
+  paginatedMeta,
+  parsePagination,
 } from "@eduforge/shared";
 import { z } from "zod";
 import {
@@ -69,6 +71,11 @@ adminRoutes.get("/stats", async (c) => {
 });
 
 adminRoutes.get("/users", async (c) => {
+  const page = parsePagination(
+    { limit: c.req.query("limit"), offset: c.req.query("offset") },
+    { max: 200, def: 50 },
+  );
+  const [countRow] = await db.select({ n: sql<number>`count(*)::int` }).from(users);
   const rows = await db
     .select({
       id: users.id,
@@ -83,8 +90,9 @@ adminRoutes.get("/users", async (c) => {
     .from(users)
     .leftJoin(characters, eq(characters.userId, users.id))
     .orderBy(desc(users.createdAt))
-    .limit(200);
-  return c.json({ users: rows });
+    .limit(page.limit)
+    .offset(page.offset);
+  return c.json({ users: rows, ...paginatedMeta(countRow?.n ?? 0, page) });
 });
 
 const userPatchSchema = z.object({

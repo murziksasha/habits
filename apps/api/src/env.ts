@@ -1,10 +1,22 @@
+import { isProductionEnv, isWeakSecret } from "@eduforge/shared";
+
+function resolveAuthSecret(): string {
+  const raw = (process.env.AUTH_SECRET ?? "").trim();
+  if (isProductionEnv(process.env) && isWeakSecret(raw)) {
+    throw new Error(
+      "AUTH_SECRET must be a strong random string (≥32 chars) in production",
+    );
+  }
+  return raw || "dev-secret-change-me";
+}
+
 export const env = {
   port: Number(process.env.API_PORT ?? 4000),
   databaseUrl:
     process.env.DATABASE_URL ??
     "postgresql://eduforge:eduforge@localhost:5432/eduforge",
   redisUrl: process.env.REDIS_URL ?? "redis://localhost:6379",
-  authSecret: process.env.AUTH_SECRET ?? "dev-secret-change-me",
+  authSecret: resolveAuthSecret(),
   /** AES key material for TOTP secrets (falls back to authSecret) */
   mfaEncryptionKey: process.env.MFA_ENCRYPTION_KEY ?? "",
   webOrigin: process.env.WEB_ORIGIN ?? "http://localhost:3000",

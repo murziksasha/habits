@@ -18,8 +18,7 @@ import { HeartsBar } from "@/components/hearts";
 import { PaywallCard } from "@/components/paywall";
 import { Celebration } from "@/components/celebration";
 import { ShareLinkButtons } from "@/components/share-link";
-import { Skeleton } from "@/components/ui";
-import { useToast } from "@/components/ui";
+import { Breadcrumbs, Skeleton, useToast } from "@/components/ui";
 import { isBrowserOffline } from "@/components/online-status";
 import { dispatchHeartsRefresh } from "@/components/hearts-chrome";
 import { LessonShortcutsHelp } from "@/components/lesson-shortcuts-help";
@@ -700,6 +699,13 @@ export function LessonClient() {
       className={`mx-auto max-w-2xl space-y-4 ${isCodeEx ? "lesson-code-mobile" : ""}`}
     >
       <LessonShortcutsHelp open={keysHelp} onClose={() => setKeysHelp(false)} />
+      <Breadcrumbs
+        items={[
+          { href: "/courses", label: locale === "en" ? "Courses" : "Курси" },
+          { href: `/courses/${slug}`, label: String(slug) },
+          { label: locale === "en" ? "Lesson" : "Урок" },
+        ]}
+      />
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Link
           href={`/courses/${slug}`}

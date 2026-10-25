@@ -7,3 +7,4 @@ export { ToastProvider, useToast } from "./toast";
 export { PageShell } from "./page-shell";
 export { Input } from "./input";
 export { Modal } from "./modal";
+export { Breadcrumbs } from "./breadcrumbs";

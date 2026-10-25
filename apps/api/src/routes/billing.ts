@@ -14,6 +14,7 @@ import {
   devBillingAllowed,
   publicEntitlementsPayload,
 } from "../services/billing-ops.js";
+import { rateLimit } from "../rate-limit.js";
 
 type Vars = { user: AuthedUser };
 
@@ -53,6 +54,14 @@ billingRoutes.post("/dev-upgrade", authMiddleware, async (c) => {
     );
   }
   const user = c.get("user");
+  const rl = await rateLimit({
+    key: `billing:dev-upgrade:${user.id}`,
+    limit: 10,
+    windowMs: 60 * 60_000,
+  });
+  if (!rl.ok) {
+    return c.json({ error: "rate_limited", retryAfter: rl.retryAfterSec }, 429);
+  }
   const body = await c.req.json().catch(() => ({}));
   const kind = body.kind === "family" ? "family" : "premium";
   const { plan, planExpiresAt } = await applyDemoUpgrade(db, user.id, kind, 30);

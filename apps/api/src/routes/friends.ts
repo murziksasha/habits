@@ -12,6 +12,8 @@ import {
   PROGRAMMING_MINI_LESSON_SLUGS,
   isoWeekBounds,
   isoWeekKey,
+  paginatedMeta,
+  parsePagination,
   weeklyMinisRaceSlugs,
 } from "@eduforge/shared";
 import { z } from "zod";
@@ -25,6 +27,10 @@ export const friendsRoutes = new Hono<{ Variables: Vars }>();
 
 friendsRoutes.get("/", authMiddleware, async (c) => {
   const user = c.get("user");
+  const page = parsePagination(
+    { limit: c.req.query("limit"), offset: c.req.query("offset") },
+    { max: 200, def: 100 },
+  );
   const rows = await db.query.friendships.findMany({
     where: or(
       eq(friendships.requesterId, user.id),
@@ -32,16 +38,30 @@ friendsRoutes.get("/", authMiddleware, async (c) => {
     ),
   });
 
+  const otherIds = [
+    ...new Set(
+      rows.map((f) => (f.requesterId === user.id ? f.addresseeId : f.requesterId)),
+    ),
+  ];
+  const [chs, us] = await Promise.all([
+    otherIds.length
+      ? db.query.characters.findMany({ where: inArray(characters.userId, otherIds) })
+      : Promise.resolve([]),
+    otherIds.length
+      ? db.query.users.findMany({ where: inArray(users.id, otherIds) })
+      : Promise.resolve([]),
+  ]);
+  const chByUser = new Map(chs.map((ch) => [ch.userId, ch]));
+  const uById = new Map(us.map((u) => [u.id, u]));
+
   const friends = [];
   const pendingIncoming = [];
   const pendingOutgoing = [];
 
   for (const f of rows) {
     const otherId = f.requesterId === user.id ? f.addresseeId : f.requesterId;
-    const ch = await db.query.characters.findFirst({
-      where: eq(characters.userId, otherId),
-    });
-    const u = await db.query.users.findFirst({ where: eq(users.id, otherId) });
+    const ch = chByUser.get(otherId);
+    const u = uById.get(otherId);
     const prog = ch?.progression as
       | { equippedTitle?: string | null; equippedFrame?: string | null }
       | undefined;
@@ -64,7 +84,13 @@ friendsRoutes.get("/", authMiddleware, async (c) => {
     }
   }
 
-  return c.json({ friends, pendingIncoming, pendingOutgoing });
+  const friendsPage = friends.slice(page.offset, page.offset + page.limit);
+  return c.json({
+    friends: friendsPage,
+    pendingIncoming,
+    pendingOutgoing,
+    ...paginatedMeta(friends.length, page),
+  });
 });
 
 async function minisCompletedForUsers(userIds: string[]) {

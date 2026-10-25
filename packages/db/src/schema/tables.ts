@@ -301,16 +301,23 @@ export const userLessonProgress = pgTable(
   ],
 );
 
-export const skillAttempts = pgTable("skill_attempts", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  courseSlug: varchar("course_slug", { length: 64 }).notNull(),
-  metrics: jsonb("metrics").notNull().$type<Record<string, unknown>>(),
-  xpGained: integer("xp_gained").notNull().default(0),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const skillAttempts = pgTable(
+  "skill_attempts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    courseSlug: varchar("course_slug", { length: 64 }).notNull(),
+    metrics: jsonb("metrics").notNull().$type<Record<string, unknown>>(),
+    xpGained: integer("xp_gained").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index("skill_attempts_user_course_idx").on(t.userId, t.courseSlug),
+    index("skill_attempts_user_created_idx").on(t.userId, t.createdAt),
+  ],
+);
 
 export const chessRatings = pgTable("chess_ratings", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -327,10 +334,12 @@ export const chessRatings = pgTable("chess_ratings", {
   ratedGamesDate: varchar("rated_games_date", { length: 10 }),
 });
 
-export const chessGames = pgTable("chess_games", {
+export const chessGames = pgTable(
+  "chess_games",
+  {
   id: uuid("id").defaultRandom().primaryKey(),
-  whiteId: uuid("white_id").references(() => users.id),
-  blackId: uuid("black_id").references(() => users.id),
+  whiteId: uuid("white_id").references(() => users.id, { onDelete: "set null" }),
+  blackId: uuid("black_id").references(() => users.id, { onDelete: "set null" }),
   fen: text("fen").notNull(),
   pgn: text("pgn").notNull().default(""),
   status: chessGameStatusEnum("status").notNull().default("waiting"),
@@ -346,9 +355,17 @@ export const chessGames = pgTable("chess_games", {
   blackEloDelta: integer("black_elo_delta"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   finishedAt: timestamp("finished_at", { withTimezone: true }),
-});
+  },
+  (t) => [
+    index("chess_games_white_idx").on(t.whiteId),
+    index("chess_games_black_idx").on(t.blackId),
+    index("chess_games_status_idx").on(t.status),
+  ],
+);
 
-export const sessions = pgTable("sessions", {
+export const sessions = pgTable(
+  "sessions",
+  {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: uuid("user_id")
     .notNull()
@@ -358,7 +375,12 @@ export const sessions = pgTable("sessions", {
   /** Set after successful admin TOTP (or when MFA not required) */
   mfaVerifiedAt: timestamp("mfa_verified_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+  },
+  (t) => [
+    index("sessions_expires_at_idx").on(t.expiresAt),
+    index("sessions_user_id_idx").on(t.userId),
+  ],
+);
 
 /** Short-lived challenge after password login when admin has TOTP enabled */
 export const mfaPending = pgTable("mfa_pending", {

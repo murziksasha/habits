@@ -4,7 +4,8 @@ import express from "express";
 import cors from "cors";
 import { Server } from "socket.io";
 import { and, eq, gt } from "drizzle-orm";
-import { applyMove } from "@eduforge/chess-core";
+import { applyFischerIncrement, applyMove } from "@eduforge/chess-core";
+import { allowSocketEvent } from "./event-rate-limit.js";
 import {
   characters,
   chessGames,
@@ -17,9 +18,12 @@ import {
   CHESS_TIME_CONTROLS,
   applyElo,
   canPlayRatedChess,
+  clampElo,
   chessGameXpAward,
+  chessMoveSchema,
   globalXpFromCourseGain,
   levelFromXp,
+  seekGameSchema,
   type Plan,
 } from "@eduforge/shared";
 import { Chess } from "chess.js";
@@ -108,6 +112,11 @@ function timeControlMs(id: string) {
   return tc?.initialMs ?? 300_000;
 }
 
+function timeControlIncrementMs(id: string) {
+  const tc = CHESS_TIME_CONTROLS.find((t) => t.id === id);
+  return tc?.incrementMs ?? 0;
+}
+
 async function finishGame(
   gameId: string,
   result: "1-0" | "0-1" | "1/2-1/2",
@@ -158,7 +167,7 @@ async function finishGame(
     await db
       .update(chessRatings)
       .set({
-        elo: whiteRating.elo + whiteDelta,
+        elo: clampElo(whiteRating.elo + whiteDelta),
         gamesPlayed: whiteRating.gamesPlayed + 1,
         ...wStats,
       })
@@ -166,7 +175,7 @@ async function finishGame(
     await db
       .update(chessRatings)
       .set({
-        elo: blackRating.elo + blackDelta,
+        elo: clampElo(blackRating.elo + blackDelta),
         gamesPlayed: blackRating.gamesPlayed + 1,
         ...bStats,
       })
@@ -249,8 +258,20 @@ io.on("connection", (socket) => {
   socket.on(
     "seek",
     async (payload: { timeControl?: string; rated?: boolean }, cb?: (r: unknown) => void) => {
-      const timeControl = payload?.timeControl ?? "5+0";
-      const rated = payload?.rated !== false;
+      if (!allowSocketEvent(socket.id, "seek", { limit: 8, windowMs: 10_000 })) {
+        cb?.({ error: "rate_limited" });
+        return;
+      }
+      const parsed = seekGameSchema.safeParse({
+        timeControl: payload?.timeControl ?? "5+0",
+        rated: payload?.rated !== false,
+      });
+      if (!parsed.success) {
+        cb?.({ error: "invalid_time_control" });
+        return;
+      }
+      const timeControl = parsed.data.timeControl;
+      const rated = parsed.data.rated;
 
       if (rated) {
         const today = new Date().toISOString().slice(0, 10);
@@ -541,6 +562,16 @@ io.on("connection", (socket) => {
       payload: { gameId: string; from: string; to: string; promotion?: "q" | "r" | "b" | "n" },
       cb?: (r: unknown) => void,
     ) => {
+      if (!allowSocketEvent(socket.id, "move", { limit: 12, windowMs: 1000 })) {
+        cb?.({ error: "rate_limited" });
+        return;
+      }
+      const parsed = chessMoveSchema.safeParse(payload);
+      if (!parsed.success) {
+        cb?.({ error: "invalid_move" });
+        return;
+      }
+      payload = parsed.data;
       const game = await db.query.chessGames.findFirst({
         where: eq(chessGames.id, payload.gameId),
       });
@@ -583,6 +614,10 @@ io.on("connection", (socket) => {
         return;
       }
 
+      const inc = timeControlIncrementMs(game.timeControl);
+      if (turn === "w") whiteTime = applyFischerIncrement(whiteTime, inc);
+      else blackTime = applyFischerIncrement(blackTime, inc);
+
       const pgn = game.pgn ? `${game.pgn} ${applied.san}` : applied.san;
       await db
         .update(chessGames)
@@ -607,7 +642,11 @@ io.on("connection", (socket) => {
       io.to(`game:${game.id}`).emit("moved", movePayload);
 
       if (applied.over && applied.result) {
-        const finished = await finishGame(game.id, applied.result, "checkmate_or_draw");
+        const finished = await finishGame(
+          game.id,
+          applied.result,
+          applied.reason ?? "checkmate_or_draw",
+        );
         io.to(`game:${game.id}`).emit("game_over", finished);
       }
       cb?.({ ok: true, ...movePayload });
@@ -615,6 +654,10 @@ io.on("connection", (socket) => {
   );
 
   socket.on("resign", async (payload: { gameId: string }, cb?: (r: unknown) => void) => {
+    if (!allowSocketEvent(socket.id, "resign", { limit: 5, windowMs: 10_000 })) {
+      cb?.({ error: "rate_limited" });
+      return;
+    }
     const game = await db.query.chessGames.findFirst({
       where: eq(chessGames.id, payload.gameId),
     });
@@ -658,6 +701,10 @@ io.on("connection", (socket) => {
       payload: { classId: string; body: string },
       cb?: (r: unknown) => void,
     ) => {
+      if (!allowSocketEvent(socket.id, "class_chat", { limit: 8, windowMs: 5000 })) {
+        cb?.({ error: "rate_limited" });
+        return;
+      }
       const classId = String(payload?.classId ?? "").slice(0, 64);
       const body = String(payload?.body ?? "").trim().slice(0, 500);
       if (!classId || !body) {
@@ -681,6 +728,10 @@ io.on("connection", (socket) => {
       payload: { classId: string; code: string; lang?: string; cursor?: number },
       cb?: (r: unknown) => void,
     ) => {
+      if (!allowSocketEvent(socket.id, "class_code", { limit: 10, windowMs: 1000 })) {
+        cb?.({ error: "rate_limited" });
+        return;
+      }
       const classId = String(payload?.classId ?? "").slice(0, 64);
       const code = String(payload?.code ?? "").slice(0, 40_000);
       if (!classId) {

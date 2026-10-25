@@ -505,7 +505,11 @@ function PlayPageInner() {
 
       {match && (
         <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-          <div className="mx-auto w-full max-w-[480px]">
+          <div
+            className="mx-auto w-full max-w-[min(100%,480px)]"
+            role="application"
+            aria-label="Chess board"
+          >
             <Chessboard
               position={fen === "start" ? undefined : fen}
               onPieceDrop={onDrop}
@@ -513,9 +517,12 @@ function PlayPageInner() {
               arePiecesDraggable={!!myTurn && !result}
               boardWidth={Math.min(
                 480,
-                typeof window !== "undefined" ? window.innerWidth - 48 : 480,
+                typeof window !== "undefined" ? Math.max(240, window.innerWidth - 48) : 360,
               )}
             />
+            <p className="sr-only">
+              {myTurn ? "Your turn. Drag a piece to move." : "Waiting for opponent."}
+            </p>
           </div>
           <div className="card space-y-4">
             {match.vsBot && (
