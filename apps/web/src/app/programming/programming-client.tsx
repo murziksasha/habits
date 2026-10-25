@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   firstAvailableLessonHref,
-  freemiumPathLabel,
   isProgrammingMiniSlug,
   PROGRAMMING_MINI_LESSON_SLUGS,
   PROGRAMMING_STACK_META,
@@ -16,7 +15,8 @@ import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
 import { XpBar } from "@/components/xp-bar";
 import { PageLoading } from "@/components/page-loading";
-import { useRequireAuth } from "@/lib/use-require-auth";
+import { GuestBanner } from "@/components/guest-banner";
+import { getGuestProgress, overlayGuestProgress } from "@/lib/guest-progress";
 import clsx from "clsx";
 
 type Lesson = {
@@ -41,7 +41,6 @@ type Unit = {
 
 export function ProgrammingClient() {
   const { user, token, loading, setCharacter } = useAuth();
-  const { ready } = useRequireAuth();
   const { t, locale } = useLocale();
   const [units, setUnits] = useState<Unit[]>([]);
   const [progress, setProgress] = useState({
@@ -51,12 +50,6 @@ export function ProgrammingClient() {
     hearts: 5,
     maxHearts: 5,
   });
-  const [freemium, setFreemium] = useState<{
-    freeLessonCount: number;
-    freeCompleted: number;
-    freeLeft: number;
-    isPremium: boolean;
-  } | null>(null);
   const [hubLoading, setHubLoading] = useState(true);
   const [error, setError] = useState("");
   const [placement, setPlacement] = useState<{
@@ -122,54 +115,72 @@ export function ProgrammingClient() {
   const [raceMsg, setRaceMsg] = useState("");
 
   useEffect(() => {
-    if (!token) return;
+    if (loading) return;
     setHubLoading(true);
-    void api("/auth/onboarding/complete", {
-      method: "POST",
-      token,
-      body: { key: "triedProgramming" },
-    }).catch(() => undefined);
+    if (token) {
+      void api("/auth/onboarding/complete", {
+        method: "POST",
+        token,
+        body: { key: "triedProgramming" },
+      }).catch(() => undefined);
+    }
     void api<{
       course: { titleUk: string; titleEn?: string; color: string };
       units: Unit[];
       progress: typeof progress;
-      freemium?: typeof freemium;
-    }>("/courses/programming", { token })
+    }>("/courses/programming", token ? { token } : {})
       .then((d) => {
         const order = new Map(PROGRAMMING_UNIT_ORDER.map((s, i) => [s, i]));
         const sorted = [...d.units].sort(
           (a, b) => (order.get(a.slug as never) ?? 99) - (order.get(b.slug as never) ?? 99),
         );
-        setUnits(sorted);
-        setProgress(d.progress);
-        setFreemium(d.freemium ?? null);
+        if (!user) {
+          const guestIds = getGuestProgress("programming");
+          const overlaid = overlayGuestProgress(sorted, guestIds);
+          setUnits(overlaid.units);
+          setProgress({
+            ...d.progress,
+            completedLessons: overlaid.completedCount,
+          });
+        } else {
+          setUnits(sorted);
+          setProgress(d.progress);
+        }
       })
       .catch(() => setError(t.common.error))
       .finally(() => setHubLoading(false));
-    void api<{
-      lastResult: {
-        levelLabel: string;
-        recommendedUnitSlug: string | null;
-        score: number;
-      } | null;
-    }>("/learning/placement/programming", { token })
-      .then((d) => setPlacement(d.lastResult))
-      .catch(() => setPlacement(null));
-    void api<NonNullable<typeof miniBoard>>("/learning/programming/minis", { token })
-      .then(setMiniBoard)
-      .catch(() => setMiniBoard(null));
-    void api<NonNullable<typeof miniLb>>(
-      "/learning/programming/minis/leaderboard?limit=10",
-      { token },
-    )
-      .then(setMiniLb)
-      .catch(() => setMiniLb(null));
-    void api<NonNullable<typeof miniRace>>("/learning/programming/minis/race", {
-      token,
-    })
-      .then(setMiniRace)
-      .catch(() => setMiniRace(null));
-  }, [token, t.common.error]);
+
+    if (token) {
+      void api<{
+        lastResult: {
+          levelLabel: string;
+          recommendedUnitSlug: string | null;
+          score: number;
+        } | null;
+      }>("/learning/placement/programming", { token })
+        .then((d) => setPlacement(d.lastResult))
+        .catch(() => setPlacement(null));
+      void api<NonNullable<typeof miniBoard>>("/learning/programming/minis", { token })
+        .then(setMiniBoard)
+        .catch(() => setMiniBoard(null));
+      void api<NonNullable<typeof miniLb>>(
+        "/learning/programming/minis/leaderboard?limit=10",
+        { token },
+      )
+        .then(setMiniLb)
+        .catch(() => setMiniLb(null));
+      void api<NonNullable<typeof miniRace>>("/learning/programming/minis/race", {
+        token,
+      })
+        .then(setMiniRace)
+        .catch(() => setMiniRace(null));
+    } else {
+      setPlacement(null);
+      setMiniBoard(null);
+      setMiniLb(null);
+      setMiniRace(null);
+    }
+  }, [loading, token, user, t.common.error]);
 
   async function claimMinisRaceBonus() {
     if (!token) return;
@@ -200,7 +211,7 @@ export function ProgrammingClient() {
     }
   }
 
-  if (loading || !ready || (hubLoading && !units.length && !error)) {
+  if (loading || (hubLoading && !units.length && !error)) {
     return <PageLoading label={t.common.loading} />;
   }
   if (error) {
@@ -218,14 +229,6 @@ export function ProgrammingClient() {
     u.lessons.map((l) => ({ ...l, unitSlug: u.slug })),
   );
   const continueHref = firstAvailableLessonHref("programming", units) ?? "/learn";
-  const freeLabel =
-    freemium &&
-    freemiumPathLabel({
-      freeCompleted: freemium.freeCompleted,
-      freeLessonCount: freemium.freeLessonCount,
-      isPremium: freemium.isPremium,
-      locale: locale === "en" ? "en" : "uk",
-    });
   const miniTotal = miniBoard?.total ?? PROGRAMMING_MINI_LESSON_SLUGS.length;
   const miniDone = miniBoard?.completed ?? 0;
   const unitsDone = units.filter(
@@ -241,14 +244,15 @@ export function ProgrammingClient() {
 
   return (
     <div className="space-y-8 pb-24 md:pb-8">
+      {!user ? <GuestBanner /> : null}
       <section className="card flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-brand/30 bg-gradient-to-br from-brand-soft/30 to-sky/5">
         <div>
           <p className="text-4xl">💻</p>
           <h1 className="mt-2 text-3xl font-black">{t.programming.hubTitle}</h1>
           <p className="text-ink-muted font-bold">{t.programming.hubSubtitle}</p>
           <p className="mt-2 text-sm font-bold text-sky">
-            {t.programming.pathPct}: {pathPct}% · {unitsDone}/{units.length} units · 🧩{" "}
-            {miniDone}/{miniTotal} {t.programming.miniDone}
+            {t.programming.pathPct}: {pathPct}% · {unitsDone}/{units.length} units
+            {user ? ` · 🧩 ${miniDone}/${miniTotal} ${t.programming.miniDone}` : ""}
           </p>
           <div className="mt-2 h-2 max-w-md overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
             <div
@@ -256,11 +260,6 @@ export function ProgrammingClient() {
               style={{ width: `${Math.min(100, pathPct)}%` }}
             />
           </div>
-          {freeLabel && (
-            <p className="mt-1 text-xs font-black text-grape">
-              {t.onboarding.freePath}: {freeLabel}
-            </p>
-          )}
           <div className="mt-3 flex flex-wrap gap-2">
             <Link href={continueHref} className="btn-primary min-h-11">
               {t.onboarding.continuePath}
@@ -275,11 +274,13 @@ export function ProgrammingClient() {
           </div>
         </div>
         <div className="w-full max-w-xs space-y-2">
-          <XpBar
-            xp={progress.xp}
-            color="#0EA5E9"
-            label={`${t.dashboard.level} ${progress.level}`}
-          />
+          {user ? (
+            <XpBar
+              xp={progress.xp}
+              color="#0EA5E9"
+              label={`${t.dashboard.level} ${progress.level}`}
+            />
+          ) : null}
           <p className="text-sm font-bold text-ink-muted">
             {t.programming.unitProgress}: {progress.completedLessons}/{totalLessons}
           </p>
@@ -287,12 +288,14 @@ export function ProgrammingClient() {
             <Link href="/courses/programming" className="btn-secondary !py-2 text-sm inline-flex">
               {t.programming.openPath}
             </Link>
-            <Link
-              href="/placement/programming"
-              className="btn-primary !py-2 text-sm inline-flex"
-            >
-              {t.programming.takePlacement}
-            </Link>
+            {user ? (
+              <Link
+                href="/placement/programming"
+                className="btn-primary !py-2 text-sm inline-flex"
+              >
+                {t.programming.takePlacement}
+              </Link>
+            ) : null}
             <Link href="/typescript" className="btn-secondary !py-2 text-sm inline-flex">
               📘 {t.courses.typescript}
             </Link>
@@ -343,7 +346,7 @@ export function ProgrammingClient() {
               🔁 {t.nav.review}
             </Link>
           </div>
-          {placement && (
+          {user && placement && (
             <p className="text-xs font-bold text-grape">
               Placement: {placement.levelLabel} (
               {Math.round(placement.score * 100)}%)
@@ -355,7 +358,7 @@ export function ProgrammingClient() {
         </div>
       </section>
 
-      {(miniBoard || miniTotal > 0) && (
+      {user && (miniBoard || miniTotal > 0) && (
         <section className="card space-y-3 border-sky/30">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="font-black">

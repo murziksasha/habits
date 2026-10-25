@@ -33,17 +33,6 @@ test.describe("Visual baseline", () => {
     });
   });
 
-  test("pricing snapshot", async ({ page }) => {
-    await page.goto("/pricing");
-    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 20_000 });
-    // Wait for flags skeleton to settle
-    await page.waitForTimeout(500);
-    await expect(page).toHaveScreenshot("pricing.png", {
-      maxDiffPixelRatio: 0.03,
-      fullPage: true,
-    });
-  });
-
   test("courses catalog snapshot", async ({ page }) => {
     await page.goto("/courses");
     await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 20_000 });

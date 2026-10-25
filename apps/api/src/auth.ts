@@ -36,28 +36,11 @@ export async function verifyPassword(password: string, hash: string | null | und
   return bcrypt.compare(password, hash);
 }
 
-/** Attach family/premium effective plan onto the user object for freemium gates. */
+/** Return user as-is; access does not depend on plan and family children are not promoted to premium. */
 export async function withEffectivePlan<T extends { id: string; plan: string; planExpiresAt?: Date | null }>(
   user: T,
 ): Promise<T> {
-  const { resolveEffectivePlan } = await import("./services/effective-plan.js");
-  const eff = await resolveEffectivePlan(user.id);
-  if (!eff.premiumActive) {
-    return { ...user, plan: "free" as T["plan"], planExpiresAt: null };
-  }
-  // Keep family plan label for owners; children get premium for gates
-  if (user.plan === "family") {
-    return {
-      ...user,
-      plan: "family" as T["plan"],
-      planExpiresAt: eff.planExpiresAt,
-    };
-  }
-  return {
-    ...user,
-    plan: "premium" as T["plan"],
-    planExpiresAt: eff.planExpiresAt,
-  };
+  return user;
 }
 
 export async function createSession(

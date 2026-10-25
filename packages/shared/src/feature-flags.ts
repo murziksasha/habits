@@ -11,8 +11,7 @@ export type FeatureFlagName =
   | "socket_redis"
   | "strict_csrf"
   | "email_verify"
-  | "require_email_verify"
-  | "dev_billing";
+  | "require_email_verify";
 
 const ALIASES: Record<FeatureFlagName, string[]> = {
   labs: ["FEATURE_LABS", "EDUFORGE_LABS"],
@@ -23,7 +22,6 @@ const ALIASES: Record<FeatureFlagName, string[]> = {
   strict_csrf: ["FEATURE_STRICT_CSRF"],
   email_verify: ["FEATURE_EMAIL_VERIFY"],
   require_email_verify: ["FEATURE_REQUIRE_EMAIL_VERIFY"],
-  dev_billing: ["ALLOW_DEV_BILLING", "FEATURE_DEV_BILLING"],
 };
 
 function truthy(v: string | undefined): boolean {
@@ -93,13 +91,6 @@ export function resolveFeatureFlags(
   // Email verification: on by default in production (soft banner); hard gate optional
   if (env.FEATURE_EMAIL_VERIFY === undefined) {
     out.email_verify = true;
-  }
-
-  // Dev billing: NEVER on in production unless ALLOW_DEV_BILLING=1
-  if (prod) {
-    out.dev_billing = truthy(env.ALLOW_DEV_BILLING) || truthy(env.FEATURE_DEV_BILLING);
-  } else if (env.ALLOW_DEV_BILLING === undefined && env.FEATURE_DEV_BILLING === undefined) {
-    out.dev_billing = true; // local demo upgrades
   }
 
   return out;

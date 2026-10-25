@@ -17,12 +17,13 @@ const NAV = [
   { href: "/admin/metrics", key: "metrics", icon: "📈" },
   { href: "/admin/feedback", key: "audit", label: "Feedback", icon: "💬" },
   { href: "/admin/audit", key: "audit", icon: "📋" },
-  { href: "/admin/billing", key: "billing", icon: "💳" },
+
   { href: "/admin/classroom", key: "classroom", icon: "🏫" },
   { href: "/admin/parents", key: "parents", icon: "👪" },
   { href: "/admin/engagement", key: "engagement", icon: "🏆" },
   { href: "/admin/programming", key: "programming", icon: "💻" },
   { href: "/admin/security", key: "security", icon: "🔐" },
+  { href: "/admin/backup", key: "backup", icon: "💾" },
 ] as const;
 
 export function AdminShell({ children }: { children: React.ReactNode }) {

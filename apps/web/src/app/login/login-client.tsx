@@ -5,13 +5,17 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { safeNextPath, UI } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/locale-context";
 import { API_URL } from "@/lib/api";
 import { isFriendInviteId, sendFriendInvite } from "@/lib/friend-invite";
 
 function LoginForm() {
   const { login, completeMfaLogin } = useAuth();
+  const { t } = useLocale();
   const router = useRouter();
   const params = useSearchParams();
+  const restored = params.get("restored") === "1";
+  const undone = params.get("undone") === "1";
   const friendId = params.get("friend");
   const nextPath = params.get("next");
   const hasFriendInvite = isFriendInviteId(friendId);
@@ -79,6 +83,11 @@ function LoginForm() {
   return (
     <div className="mx-auto max-w-md card">
       <h1 className="text-2xl font-black">{UI.auth.loginTitle}</h1>
+      {(restored || undone) && (
+        <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-sm font-bold text-amber-950" role="status">
+          {restored ? t.admin.backupSignedOut : t.admin.backupUndoneLogin}
+        </p>
+      )}
       {hasFriendInvite && (
         <p className="mt-2 rounded-xl bg-brand-soft/40 px-3 py-2 text-sm font-bold text-ink">
           👥 Friend invite — we will send a request after you sign in.

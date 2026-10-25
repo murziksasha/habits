@@ -88,8 +88,6 @@ export function ShopClient() {
   if (!user) return <PageLoading label={t.common.loading} />;
 
   function labelFor(id: string) {
-    if (id === "heart_one") return t.shop.heartOne;
-    if (id === "hearts_full") return t.shop.heartsFull;
     if (id === "streak_freeze") return t.shop.streakFreeze;
     if (id === "streak_shield_pack") return t.shop.streakShieldPack;
     if (id === "mystery_crate") return "🎁 Mystery crate";

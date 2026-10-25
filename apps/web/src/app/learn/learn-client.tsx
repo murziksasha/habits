@@ -13,13 +13,13 @@ import {
 import { useLocale } from "@/lib/locale-context";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api";
-import { useApiQueries } from "@/lib/use-api-query";
 import { Card, Skeleton } from "@/components/ui";
 import { PrimaryMission } from "@/components/primary-mission";
 import { ContextualToolkit } from "@/components/contextual-toolkit";
 import { DailyQuestsCard } from "@/components/daily-quests-card";
 import { WeeklyQuestsCard } from "@/components/weekly-quests-card";
 import { OnboardingWizard } from "@/components/onboarding-wizard";
+import { GuestBanner } from "@/components/guest-banner";
 
 type NextRec = {
   kind: string;
@@ -51,28 +51,43 @@ const GROUP_ORDER: CourseGroup[] = ["code", "deep", "skill", "chess"];
 /** Learning map: mission + groups + contextual toolkit (no Continue CTA dupe). */
 export function LearnClient() {
   const { t, locale } = useLocale();
-  const { character } = useAuth();
+  const { user, token, character, loading: authLoading } = useAuth();
   const skillPoints = character?.progression?.skillPoints ?? 0;
-  const { data, loading: dataLoading, ready, user, token } = useApiQueries<{
-    next: { recommendations: NextRec[] };
-    exams: ExamSummary;
+  const [data, setData] = useState<{
+    next: { recommendations: NextRec[] } | null;
+    exams: ExamSummary | null;
   }>({
-    next: "/learning/next",
-    exams: "/learning/exams/me",
+    next: null,
+    exams: null,
   });
-  const next = (data.next?.recommendations ?? []).slice(0, 5);
-  const exams = data.exams ?? null;
+  const [dataLoading, setDataLoading] = useState(false);
 
   useEffect(() => {
-    if (!token || !ready) return;
+    if (!token || !user) {
+      setData({ next: null, exams: null });
+      return;
+    }
+    setDataLoading(true);
+    Promise.all([
+      api<{ recommendations: NextRec[] }>("/learning/next", { token }).catch(() => null),
+      api<ExamSummary>("/learning/exams/me", { token }).catch(() => null),
+    ])
+      .then(([next, exams]) => {
+        setData({
+          next: next ? { recommendations: next.recommendations } : null,
+          exams,
+        });
+      })
+      .finally(() => setDataLoading(false));
+
     void api("/auth/onboarding/complete", {
       method: "POST",
       token,
       body: { key: "viewedLearnMap" },
     }).catch(() => undefined);
-  }, [token, ready]);
+  }, [token, user]);
 
-  if (!ready || !user || dataLoading) {
+  if (authLoading || (user && dataLoading && !data.next && !data.exams)) {
     return (
       <div className="space-y-4" aria-busy="true">
         <Skeleton className="h-10 w-48" />
@@ -86,6 +101,8 @@ export function LearnClient() {
     );
   }
 
+  const next = (data.next?.recommendations ?? []).slice(0, 5);
+  const exams = data.exams ?? null;
   const readyExams =
     exams?.courses.flatMap((c) =>
       c.exams
@@ -100,13 +117,13 @@ export function LearnClient() {
 
   return (
     <div className="space-y-8">
-      <OnboardingWizard />
+      {!user ? <GuestBanner /> : <OnboardingWizard />}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-3xl font-black">🗺️ {t.learn.title}</h1>
           <p className="text-sm font-bold text-ink-muted">{t.learn.mapTitle}</p>
         </div>
-        {skillPoints > 0 ? (
+        {user && skillPoints > 0 ? (
           <Link
             href="/profile#build"
             className="btn-secondary shrink-0 !py-2 text-sm ring-1 ring-grape/40"
@@ -116,60 +133,63 @@ export function LearnClient() {
         ) : null}
       </div>
 
-      <PrimaryMission showSecondary={false} />
+      {user && (
+        <>
+          <PrimaryMission showSecondary={false} />
+          {/* Quests only on Learn (not also on dashboard) */}
+          <DailyQuestsCard />
+          <WeeklyQuestsCard />
 
-      {/* Quests only on Learn (not also on dashboard) */}
-      <DailyQuestsCard />
-      <WeeklyQuestsCard />
+          {secondary.length > 0 && (
+            <section className="space-y-2">
+              <h2 className="text-lg font-black">{t.learning.nextSteps}</h2>
+              {secondary.map((r, i) => (
+                <Link
+                  key={`${r.href}-${i}`}
+                  href={r.href}
+                  className="card flex min-h-11 justify-between font-bold hover:border-brand/40"
+                >
+                  <span>{locale === "en" ? r.titleEn : r.titleUk}</span>
+                  <span>→</span>
+                </Link>
+              ))}
+            </section>
+          )}
 
-      {secondary.length > 0 && (
-        <section className="space-y-2">
-          <h2 className="text-lg font-black">{t.learning.nextSteps}</h2>
-          {secondary.map((r, i) => (
-            <Link
-              key={`${r.href}-${i}`}
-              href={r.href}
-              className="card flex min-h-11 justify-between font-bold hover:border-brand/40"
-            >
-              <span>{locale === "en" ? r.titleEn : r.titleUk}</span>
-              <span>→</span>
-            </Link>
-          ))}
-        </section>
-      )}
+          <ContextualToolkit />
 
-      <ContextualToolkit />
-
-      {showExams && exams && (
-        <section id="exams" className="card space-y-3 border-grape/30 scroll-mt-24">
-          <h2 className="text-xl font-black">📝 {t.learn.examsBoard}</h2>
-          <div className="grid grid-cols-3 gap-2 text-center text-sm">
-            <div className="rounded-xl bg-slate-50 p-2 dark:bg-slate-900">
-              <p className="text-xs text-ink-muted font-bold">{t.learn.examsPassed}</p>
-              <p className="text-2xl font-black text-brand-dark">{exams.summary.passed}</p>
-            </div>
-            <div className="rounded-xl bg-slate-50 p-2 dark:bg-slate-900">
-              <p className="text-xs text-ink-muted font-bold">{t.learn.examsReady}</p>
-              <p className="text-2xl font-black text-grape">{exams.summary.ready}</p>
-            </div>
-            <div className="rounded-xl bg-slate-50 p-2 dark:bg-slate-900">
-              <p className="text-xs text-ink-muted font-bold">{t.learn.examsLocked}</p>
-              <p className="text-2xl font-black">{exams.summary.locked}</p>
-            </div>
-          </div>
-          {readyExams.slice(0, 3).map((e) => (
-            <Link
-              key={e.lessonId}
-              href={e.href}
-              className="flex min-h-11 justify-between rounded-xl border border-grape/20 px-3 py-2 text-sm font-bold hover:bg-grape/5"
-            >
-              <span>
-                {e.icon} {locale === "en" ? e.titleEn : e.titleUk}
-              </span>
-              <span className="text-grape">{t.learn.openExam} →</span>
-            </Link>
-          ))}
-        </section>
+          {showExams && exams && (
+            <section id="exams" className="card space-y-3 border-grape/30 scroll-mt-24">
+              <h2 className="text-xl font-black">📝 {t.learn.examsBoard}</h2>
+              <div className="grid grid-cols-3 gap-2 text-center text-sm">
+                <div className="rounded-xl bg-slate-50 p-2 dark:bg-slate-900">
+                  <p className="text-xs text-ink-muted font-bold">{t.learn.examsPassed}</p>
+                  <p className="text-2xl font-black text-brand-dark">{exams.summary.passed}</p>
+                </div>
+                <div className="rounded-xl bg-slate-50 p-2 dark:bg-slate-900">
+                  <p className="text-xs text-ink-muted font-bold">{t.learn.examsReady}</p>
+                  <p className="text-2xl font-black text-grape">{exams.summary.ready}</p>
+                </div>
+                <div className="rounded-xl bg-slate-50 p-2 dark:bg-slate-900">
+                  <p className="text-xs text-ink-muted font-bold">{t.learn.examsLocked}</p>
+                  <p className="text-2xl font-black">{exams.summary.locked}</p>
+                </div>
+              </div>
+              {readyExams.slice(0, 3).map((e) => (
+                <Link
+                  key={e.lessonId}
+                  href={e.href}
+                  className="flex min-h-11 justify-between rounded-xl border border-grape/20 px-3 py-2 text-sm font-bold hover:bg-grape/5"
+                >
+                  <span>
+                    {e.icon} {locale === "en" ? e.titleEn : e.titleUk}
+                  </span>
+                  <span className="text-grape">{t.learn.openExam} →</span>
+                </Link>
+              ))}
+            </section>
+          )}
+        </>
       )}
 
       {GROUP_ORDER.map((g) => {

@@ -218,9 +218,9 @@ export function AdminMetricsClient() {
             <section className="space-y-3">
               <h2 className="font-black">🎯 Product funnel ({funnel.windowDays}d)</h2>
               <p className="text-xs font-bold text-ink-muted">
-                first_lesson · lessons · paywall · exams (activity events)
+                first_lesson · lessons · exams (activity events)
               </p>
-              <div className="grid gap-4 lg:grid-cols-2">
+              <div>
                 <FunnelChart
                   title="Learning core"
                   bars={[
@@ -250,38 +250,13 @@ export function AdminMetricsClient() {
                     },
                   ]}
                 />
-                <FunnelChart
-                  title="Conversion"
-                  bars={[
-                    {
-                      key: "paywall",
-                      label: "Paywall shown",
-                      value: funnel.paywallShown,
-                      tone: "grape",
-                    },
-                    {
-                      key: "cta",
-                      label: "Paywall CTA click",
-                      value: funnel.paywallCtaClick,
-                      tone: "sky",
-                    },
-                  ]}
-                />
               </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <Stat label="First lesson" value={funnel.firstLessonComplete} />
                 <Stat label="Lessons completed" value={funnel.lessonCompleted} />
-                <Stat label="Paywall shown" value={funnel.paywallShown} />
-                <Stat label="Paywall CTA click" value={funnel.paywallCtaClick} />
                 <Stat label="Exam passed" value={funnel.examPassed} />
                 <Stat label="Exam failed" value={funnel.examFailed} />
               </div>
-              {funnel.paywallShown > 0 && (
-                <p className="text-xs font-bold text-ink-muted">
-                  CTA rate:{" "}
-                  {Math.round((funnel.paywallCtaClick / funnel.paywallShown) * 1000) / 10}%
-                </p>
-              )}
               {history && (
                 <div className="card space-y-2">
                   <h3 className="text-sm font-black text-ink-muted">

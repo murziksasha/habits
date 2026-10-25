@@ -6,13 +6,6 @@ import { cronAuthorized } from "./cron-auth.js";
 import { assertProductionSecrets, seedAllowed } from "@eduforge/shared";
 
 describe("security gates", () => {
-  it("blocks dev billing in production without ALLOW_DEV_BILLING", () => {
-    expect(isFeatureEnabled("dev_billing", { NODE_ENV: "production" })).toBe(false);
-    expect(
-      isFeatureEnabled("dev_billing", { NODE_ENV: "production", ALLOW_DEV_BILLING: "1" }),
-    ).toBe(true);
-  });
-
   it("enables strict CSRF in production by default", () => {
     expect(resolveFeatureFlags({ NODE_ENV: "production" }).strict_csrf).toBe(true);
   });

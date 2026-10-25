@@ -8,20 +8,21 @@ import {
   userLessonProgress,
 } from "@eduforge/db";
 import {
-  canAccessLesson,
-  canStartLesson,
-  isPaidPlan,
   maxHearts,
   regenerateHearts,
   type Plan,
 } from "@eduforge/shared";
-import { authMiddleware, type AuthedUser } from "../auth.js";
+import { authMiddleware, optionalAuth, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
-import { rateLimit } from "../rate-limit.js";
+import { clientIp, rateLimit } from "../rate-limit.js";
 import { getCourseProgress } from "../services/home.js";
-import { submitLesson } from "../services/submit-lesson.js";
+import {
+  buildGuestSubmitResult,
+  getNextCourseLesson,
+  submitLesson,
+} from "../services/submit-lesson.js";
 
-type Vars = { user: AuthedUser };
+type Vars = { user?: AuthedUser };
 
 export const courseRoutes = new Hono<{ Variables: Vars }>();
 
@@ -34,21 +35,20 @@ courseRoutes.get("/", async (c) => {
 });
 
 courseRoutes.get("/progress/me", authMiddleware, async (c) => {
-  const user = c.get("user");
+  const user = c.get("user")!;
   const rows = await getCourseProgress(user.id);
   return c.json({ progress: rows });
 });
 
-courseRoutes.get("/:slug", authMiddleware, async (c) => {
+courseRoutes.get("/:slug", optionalAuth, async (c) => {
   const user = c.get("user");
   const slug = c.req.param("slug") ?? "";
-  // Prefer registry check for built-ins; CMS may also create free-form slugs.
   if (!slug) return c.json({ error: "not_found" }, 404);
   const course = await db.query.courses.findFirst({ where: eq(courses.slug, slug) });
   if (!course) return c.json({ error: "not_found" }, 404);
   if (
     (course.status !== "published" || !course.isVisible) &&
-    user.role !== "admin"
+    user?.role !== "admin"
   ) {
     return c.json({ error: "not_found" }, 404);
   }
@@ -61,6 +61,58 @@ courseRoutes.get("/:slug", authMiddleware, async (c) => {
     where: eq(lessons.courseId, course.id),
     orderBy: [asc(lessons.sortOrder)],
   });
+
+  const sorted = [...courseLessons].sort((a, b) => {
+    if (a.unitId === b.unitId) return a.sortOrder - b.sortOrder;
+    const ua = courseUnits.find((u) => u.id === a.unitId)?.sortOrder ?? 0;
+    const ub = courseUnits.find((u) => u.id === b.unitId)?.sortOrder ?? 0;
+    return ua - ub || a.sortOrder - b.sortOrder;
+  });
+
+  if (!user) {
+    const unitsPayload = courseUnits.map((u) => ({
+      ...u,
+      lessons: sorted
+        .filter((l) => l.unitId === u.id)
+        .map((l) => {
+          const nonExam = sorted.filter(
+            (x) => x.unitId === u.id && !x.isExam,
+          );
+          const isExam = Boolean(l.isExam);
+          const examLocked = isExam && nonExam.length > 0;
+          return {
+            id: l.id,
+            slug: l.slug,
+            titleUk: l.titleUk,
+            titleEn: l.titleEn,
+            sortOrder: l.sortOrder,
+            baseXp: l.baseXp,
+            difficulty: l.difficulty,
+            isFree: l.isFree,
+            isExam,
+            passThreshold: l.passThreshold ?? (isExam ? 0.7 : null),
+            examLocked,
+            locked: examLocked,
+            status: "available",
+            bestScore: 0,
+            completedAt: null,
+          };
+        }),
+    }));
+
+    return c.json({
+      course,
+      units: unitsPayload,
+      progress: {
+        xp: 0,
+        level: 1,
+        hearts: maxHearts("free"),
+        maxHearts: maxHearts("free"),
+        completedLessons: 0,
+      },
+    });
+  }
+
   let progress = await db.query.userCourseProgress.findFirst({
     where: and(
       eq(userCourseProgress.userId, user.id),
@@ -83,18 +135,6 @@ courseRoutes.get("/:slug", authMiddleware, async (c) => {
         .returning();
       progress = updated;
     }
-  } else if (isPaidPlan(plan)) {
-    progress = {
-      id: "",
-      userId: user.id,
-      courseId: course.id,
-      xp: 0,
-      level: 1,
-      hearts: maxHearts(plan),
-      heartsUpdatedAt: new Date(),
-      completedLessons: 0,
-      lastLessonId: null,
-    };
   }
 
   const lessonProgress = await db.query.userLessonProgress.findMany({
@@ -105,23 +145,11 @@ courseRoutes.get("/:slug", authMiddleware, async (c) => {
   });
   const lpMap = new Map(lessonProgress.map((p) => [p.lessonId, p]));
 
-  // global index for freemium
-  const sorted = [...courseLessons].sort((a, b) => {
-    if (a.unitId === b.unitId) return a.sortOrder - b.sortOrder;
-    const ua = courseUnits.find((u) => u.id === a.unitId)?.sortOrder ?? 0;
-    const ub = courseUnits.find((u) => u.id === b.unitId)?.sortOrder ?? 0;
-    return ua - ub || a.sortOrder - b.sortOrder;
-  });
-
   const unitsPayload = courseUnits.map((u) => ({
     ...u,
     lessons: sorted
       .filter((l) => l.unitId === u.id)
       .map((l) => {
-        const idx = sorted.findIndex((x) => x.id === l.id);
-        const accessible =
-          l.isFree ||
-          canAccessLesson({ plan, lessonIndexInCourse: idx });
         const lp = lpMap.get(l.id);
         const nonExam = sorted.filter(
           (x) => x.unitId === u.id && !x.isExam,
@@ -143,7 +171,7 @@ courseRoutes.get("/:slug", authMiddleware, async (c) => {
           isExam,
           passThreshold: l.passThreshold ?? (isExam ? 0.7 : null),
           examLocked,
-          locked: !accessible || examLocked,
+          locked: examLocked,
           status: lp?.status ?? "available",
           bestScore: lp?.bestScore ?? 0,
           completedAt: lp?.completedAt ?? null,
@@ -152,25 +180,10 @@ courseRoutes.get("/:slug", authMiddleware, async (c) => {
   }));
 
   const hearts = progress?.hearts ?? maxHearts(plan);
-  const freeLessonCount = sorted.filter(
-    (l, i) =>
-      l.isFree || canAccessLesson({ plan: "free" as Plan, lessonIndexInCourse: i }),
-  ).length;
-  const freeCompleted = sorted.filter((l, i) => {
-    const free =
-      l.isFree || canAccessLesson({ plan: "free" as Plan, lessonIndexInCourse: i });
-    return free && lpMap.get(l.id)?.status === "completed";
-  }).length;
 
   return c.json({
     course,
     units: unitsPayload,
-    freemium: {
-      freeLessonCount,
-      freeCompleted,
-      freeLeft: Math.max(0, freeLessonCount - freeCompleted),
-      isPremium: isPaidPlan(plan),
-    },
     progress: progress
       ? {
           xp: progress.xp,
@@ -189,14 +202,23 @@ courseRoutes.get("/:slug", authMiddleware, async (c) => {
   });
 });
 
-courseRoutes.get("/:slug/lessons/:lessonId", authMiddleware, async (c) => {
+courseRoutes.get("/:slug/lessons/:lessonId", optionalAuth, async (c) => {
   const user = c.get("user");
+  const slug = c.req.param("slug") as string;
   const lessonId = c.req.param("lessonId") as string;
   const lesson = await db.query.lessons.findFirst({ where: eq(lessons.id, lessonId) });
   if (!lesson) return c.json({ error: "not_found" }, 404);
 
   const course = await db.query.courses.findFirst({ where: eq(courses.id, lesson.courseId) });
   if (!course) return c.json({ error: "not_found" }, 404);
+  if (slug && course.slug !== slug) return c.json({ error: "not_found" }, 404);
+
+  if (
+    (course.status !== "published" || !course.isVisible) &&
+    user?.role !== "admin"
+  ) {
+    return c.json({ error: "not_found" }, 404);
+  }
 
   const allLessons = await db.query.lessons.findMany({
     where: eq(lessons.courseId, course.id),
@@ -209,10 +231,22 @@ courseRoutes.get("/:slug/lessons/:lessonId", authMiddleware, async (c) => {
     return ua - ub || a.sortOrder - b.sortOrder;
   });
   const idx = sorted.findIndex((l) => l.id === lesson.id);
+
+  if (!user) {
+    return c.json({
+      lesson: {
+        ...lesson,
+        isExam: Boolean(lesson.isExam),
+        passThreshold: lesson.passThreshold ?? (lesson.isExam ? 0.7 : null),
+      },
+      course,
+      indexInCourse: idx,
+      hearts: maxHearts("free"),
+      maxHearts: maxHearts("free"),
+    });
+  }
+
   const plan = user.plan as Plan;
-  const accessible =
-    lesson.isFree || canAccessLesson({ plan, lessonIndexInCourse: idx });
-  if (!accessible) return c.json({ error: "premium_required" }, 402);
 
   if (lesson.isExam) {
     const unitLessons = sorted.filter((l) => l.unitId === lesson.unitId && !l.isExam);
@@ -263,17 +297,6 @@ courseRoutes.get("/:slug/lessons/:lessonId", authMiddleware, async (c) => {
     }
   }
 
-  if (!canStartLesson({ plan, hearts: progress.hearts })) {
-    return c.json(
-      {
-        error: "no_hearts",
-        hearts: progress.hearts,
-        maxHearts: maxHearts(plan),
-      },
-      402,
-    );
-  }
-
   return c.json({
     lesson: {
       ...lesson,
@@ -287,59 +310,100 @@ courseRoutes.get("/:slug/lessons/:lessonId", authMiddleware, async (c) => {
   });
 });
 
-courseRoutes.post("/:slug/lessons/:lessonId/submit", authMiddleware, async (c) => {
+courseRoutes.post("/:slug/lessons/:lessonId/submit", optionalAuth, async (c) => {
   const user = c.get("user");
+  const lessonId = c.req.param("lessonId") as string;
+  const slug = c.req.param("slug") as string;
+
+  if (user) {
+    const limited = await rateLimit({
+      key: `submit:${user.id}`,
+      limit: 60,
+      windowMs: 60_000,
+    });
+    if (!limited.ok) {
+      return c.json({ error: "rate_limited", retryAfter: limited.retryAfterSec }, 429);
+    }
+
+    const body = await c.req.json().catch(() => null);
+    const answers = (body?.answers ?? []) as {
+      exerciseId: string;
+      answer: unknown;
+    }[];
+
+    const {
+      getIdempotentResponse,
+      normalizeIdempotencyKey,
+      setIdempotentResponse,
+    } = await import("../services/idempotency.js");
+    const idem = normalizeIdempotencyKey(
+      body?.idempotencyKey ?? c.req.header("idempotency-key"),
+    );
+    if (idem) {
+      const cacheKey = `lesson-submit:${user.id}:${lessonId}:${idem}`;
+      const cached = await getIdempotentResponse<{
+        status: number;
+        body: Record<string, unknown>;
+      }>(cacheKey);
+      if (cached?.body) {
+        return c.json({ ...cached.body, idempotentReplay: true }, cached.status as 200);
+      }
+    }
+
+    const result = await submitLesson({
+      user,
+      lessonId,
+      answers,
+      usedHint: Boolean(body?.usedHint),
+    });
+
+    if (!result.ok) {
+      return c.json({ error: result.error }, result.status);
+    }
+
+    if (idem) {
+      const cacheKey = `lesson-submit:${user.id}:${lessonId}:${idem}`;
+      await setIdempotentResponse(cacheKey, { status: 200, body: result.body }, 180);
+    }
+    return c.json(result.body);
+  }
+
+  // Guest submit
+  const ip = clientIp({ get: (n) => c.req.header(n) ?? null });
   const limited = await rateLimit({
-    key: `submit:${user.id}`,
-    limit: 60,
+    key: `submit:guest:${ip}`,
+    limit: 30,
     windowMs: 60_000,
   });
   if (!limited.ok) {
     return c.json({ error: "rate_limited", retryAfter: limited.retryAfterSec }, 429);
   }
-  const lessonId = c.req.param("lessonId") as string;
+
+  const lesson = await db.query.lessons.findFirst({ where: eq(lessons.id, lessonId) });
+  if (!lesson) return c.json({ error: "not_found" }, 404);
+  const course = await db.query.courses.findFirst({ where: eq(courses.id, lesson.courseId) });
+  if (!course) return c.json({ error: "not_found" }, 404);
+  if (slug && course.slug !== slug) return c.json({ error: "not_found" }, 404);
+  if (course.status !== "published" || !course.isVisible) {
+    return c.json({ error: "not_found" }, 404);
+  }
+
   const body = await c.req.json().catch(() => null);
   const answers = (body?.answers ?? []) as {
     exerciseId: string;
     answer: unknown;
   }[];
 
-  const {
-    getIdempotentResponse,
-    normalizeIdempotencyKey,
-    setIdempotentResponse,
-  } = await import("../services/idempotency.js");
-  const idem = normalizeIdempotencyKey(
-    body?.idempotencyKey ?? c.req.header("idempotency-key"),
-  );
-  if (idem) {
-    const cacheKey = `lesson-submit:${user.id}:${lessonId}:${idem}`;
-    const cached = await getIdempotentResponse<{
-      status: number;
-      body: Record<string, unknown>;
-    }>(cacheKey);
-    if (cached?.body) {
-      return c.json({ ...cached.body, idempotentReplay: true }, cached.status as 200);
-    }
-  }
-
-  const result = await submitLesson({
-    user,
-    lessonId,
+  const exercises =
+    (lesson.exercises as { id: string; type: string; [k: string]: unknown }[]) ?? [];
+  const nextLesson = await getNextCourseLesson(course.id, course.slug, lesson.sortOrder);
+  const guestBody = buildGuestSubmitResult({
+    exercises,
     answers,
-    usedHint: Boolean(body?.usedHint),
+    isExam: Boolean(lesson.isExam),
+    passThreshold: lesson.passThreshold,
+    nextLesson,
   });
 
-  if (!result.ok) {
-    if (result.error === "no_hearts") {
-      return c.json({ error: "no_hearts", hearts: result.hearts }, 402);
-    }
-    return c.json({ error: result.error }, result.status);
-  }
-
-  if (idem) {
-    const cacheKey = `lesson-submit:${user.id}:${lessonId}:${idem}`;
-    await setIdempotentResponse(cacheKey, { status: 200, body: result.body }, 180);
-  }
-  return c.json(result.body);
+  return c.json(guestBody);
 });

@@ -24,7 +24,7 @@ export default function LandingPage() {
             {UI.appName}: {UI.tagline}
           </h1>
           <p className="text-lg text-ink-muted">
-            Англійська, шахи, навички та Programming path — уроки, XP, playground і freemium.
+            Англійська, шахи, навички та Programming path — уроки, XP, playground.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link href="/register" className="btn-primary min-h-11">
@@ -32,9 +32,6 @@ export default function LandingPage() {
             </Link>
             <Link href="/login" className="btn-secondary min-h-11">
               {UI.nav.login}
-            </Link>
-            <Link href="/pricing" className="btn-secondary min-h-11 hidden sm:inline-flex">
-              {UI.nav.pricing}
             </Link>
           </div>
           <LandingLocaleBits />
@@ -45,7 +42,7 @@ export default function LandingPage() {
             <li>🗺️ Learning map + recommended next step</li>
             <li>💻 Programming path + playground sandbox</li>
             <li>♟️ Chess lessons &amp; online play</li>
-            <li>🔥 Streak, XP, hearts, freemium path</li>
+            <li>🔥 Streak, XP, quests, achievements</li>
             <li>🏫 Schools · homework · parents (supporting)</li>
           </ul>
         </div>

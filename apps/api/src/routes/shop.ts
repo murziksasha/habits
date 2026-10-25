@@ -1,16 +1,13 @@
 import { Hono } from "hono";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import {
   characters,
-  courses,
   shopPurchases,
-  userCourseProgress,
 } from "@eduforge/db";
 import {
   avatarShopDiscount,
   DEFAULT_AVATARS,
   levelFromXp,
-  maxHearts,
   MAX_STREAK_FREEZES,
   normalizeProgression,
   applyLevelUps,
@@ -85,6 +82,10 @@ shopRoutes.post("/buy", authMiddleware, async (c) => {
   const parsed = buySchema.safeParse(body);
   if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
 
+  if (parsed.data.itemId === "heart_one" || parsed.data.itemId === "hearts_full") {
+    return c.json({ error: "unknown_item" }, 404);
+  }
+
   const item = shopItemById(parsed.data.itemId);
   if (!item) return c.json({ error: "unknown_item" }, 404);
 
@@ -139,44 +140,6 @@ shopRoutes.post("/buy", authMiddleware, async (c) => {
     const pts = item.skillPoints ?? 1;
     progression.skillPoints = (progression.skillPoints ?? 0) + pts;
     patch.progression = progression;
-  }
-
-  if (item.kind === "heart_one" || item.kind === "hearts_full") {
-    const plan = user.plan as "free" | "premium";
-    const allCourses = await db.query.courses.findMany();
-    const targetSlug = parsed.data.courseSlug;
-    const targets = targetSlug
-      ? allCourses.filter((x) => x.slug === targetSlug)
-      : allCourses;
-
-    for (const course of targets) {
-      let prog = await db.query.userCourseProgress.findFirst({
-        where: and(
-          eq(userCourseProgress.userId, user.id),
-          eq(userCourseProgress.courseId, course.id),
-        ),
-      });
-      if (!prog) {
-        const [created] = await db
-          .insert(userCourseProgress)
-          .values({
-            userId: user.id,
-            courseId: course.id,
-            hearts: maxHearts(plan),
-          })
-          .returning();
-        prog = created;
-      }
-      const max = maxHearts(plan);
-      const next =
-        item.kind === "hearts_full"
-          ? max
-          : Math.min(max, prog.hearts + (item.hearts ?? 1));
-      await db
-        .update(userCourseProgress)
-        .set({ hearts: next, heartsUpdatedAt: new Date() })
-        .where(eq(userCourseProgress.id, prog.id));
-    }
   }
 
   // Deduct XP first (mystery may re-grant XP via loot)

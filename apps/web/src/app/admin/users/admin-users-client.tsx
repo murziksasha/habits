@@ -44,12 +44,11 @@ export function AdminUsersClient() {
       (r) =>
         r.email.toLowerCase().includes(s) ||
         (r.displayName ?? "").toLowerCase().includes(s) ||
-        r.role.includes(s) ||
-        r.plan.includes(s),
+        r.role.includes(s),
     );
   }, [rows, q]);
 
-  async function patch(id: string, body: { role?: string; plan?: string }) {
+  async function patch(id: string, body: { role?: string }) {
     if (!token) return;
     try {
       await adminApi(`/admin/users/${id}`, { method: "PATCH", token, body });
@@ -78,7 +77,7 @@ export function AdminUsersClient() {
       {msg && <p className="text-sm font-bold text-red-500">{msg}</p>}
       <input
         className="input max-w-md"
-        placeholder="Search email, name, role, plan…"
+        placeholder="Search email, name, role…"
         value={q}
         onChange={(e) => setQ(e.target.value)}
       />
@@ -90,7 +89,6 @@ export function AdminUsersClient() {
               <th className="pb-2">Ім&apos;я</th>
               <th className="pb-2">XP</th>
               <th className="pb-2">{UI.admin.role}</th>
-              <th className="pb-2">{UI.admin.plan}</th>
               <th className="pb-2">Created</th>
             </tr>
           </thead>
@@ -110,16 +108,6 @@ export function AdminUsersClient() {
                   >
                     <option value="user">user</option>
                     <option value="admin">admin</option>
-                  </select>
-                </td>
-                <td className="py-2">
-                  <select
-                    className="rounded-lg border px-2 py-1 dark:bg-slate-900"
-                    value={r.plan}
-                    onChange={(e) => void patch(r.id, { plan: e.target.value })}
-                  >
-                    <option value="free">free</option>
-                    <option value="premium">premium</option>
                   </select>
                 </td>
                 <td className="py-2 text-xs text-ink-muted">

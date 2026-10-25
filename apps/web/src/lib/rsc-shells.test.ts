@@ -3,7 +3,7 @@ import { isRscShellRoute, RSC_SHELL_ROUTES } from "./rsc-shells";
 
 describe("RSC shell routes", () => {
   it("lists core public, primary, toolkit, B2B, deep, admin shells", () => {
-    expect(RSC_SHELL_ROUTES).toContain("/pricing");
+    expect(RSC_SHELL_ROUTES).toContain("/courses");
     expect(RSC_SHELL_ROUTES).toContain("/dashboard");
     expect(RSC_SHELL_ROUTES).toContain("/programming");
     expect(RSC_SHELL_ROUTES).toContain("/profile");

@@ -34,17 +34,6 @@ describe("resolveFeatureFlags", () => {
     expect(f.strict_csrf).toBe(false);
   });
 
-  it("dev_billing on in non-prod by default", () => {
-    expect(resolveFeatureFlags({ NODE_ENV: "development" }).dev_billing).toBe(true);
-  });
-
-  it("dev_billing off in production unless ALLOW_DEV_BILLING", () => {
-    expect(resolveFeatureFlags({ NODE_ENV: "production" }).dev_billing).toBe(false);
-    expect(
-      resolveFeatureFlags({ NODE_ENV: "production", ALLOW_DEV_BILLING: "1" }).dev_billing,
-    ).toBe(true);
-  });
-
   it("email_verify defaults on", () => {
     expect(resolveFeatureFlags({}).email_verify).toBe(true);
   });

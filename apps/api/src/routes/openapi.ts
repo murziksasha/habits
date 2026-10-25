@@ -125,29 +125,6 @@ const doc = {
         responses: { "200": { description: "items + reasons + optional examContext" } },
       },
     },
-    "/billing/entitlements": {
-      get: {
-        tags: ["ops"],
-        summary: "Public freemium matrix + plan feature rows",
-        responses: { "200": { description: "OK" } },
-      },
-    },
-    "/billing/status": {
-      get: {
-        tags: ["ops"],
-        summary: "Current plan + premiumActive",
-        security: [{ bearerAuth: [] }],
-        responses: { "200": { description: "OK" } },
-      },
-    },
-    "/billing/portal": {
-      post: {
-        tags: ["ops"],
-        summary: "Stripe Customer Portal session",
-        security: [{ bearerAuth: [] }],
-        responses: { "200": { description: "OK" } },
-      },
-    },
     "/metrics": {
       get: {
         tags: ["ops"],
@@ -717,6 +694,38 @@ const doc = {
         responses: { "200": { description: "sent/skipped counts" } },
       },
     },
+    "/admin/backup/status": {
+      get: {
+        tags: ["admin"],
+        summary: "Instance backup age and whether a local undo file exists",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "lastDownloadedAt, safetyAvailable, warning, migrationTag" } },
+      },
+    },
+    "/admin/backup/download": {
+      get: {
+        tags: ["admin"],
+        summary: "Download gzipped whole-school backup (admin, step-up when MFA is enforced)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "application/gzip attachment" } },
+      },
+    },
+    "/admin/backup/restore": {
+      post: {
+        tags: ["admin"],
+        summary: "Replace this PC database from an uploaded .gz. Body field confirm must be RESTORE",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "Replaced. Sessions cleared." } },
+      },
+    },
+    "/admin/backup/undo": {
+      post: {
+        tags: ["admin"],
+        summary: "Put back the local safety snapshot taken before the last restore. confirm=RESTORE",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "Undone. Sessions cleared." } },
+      },
+    },
     "/admin/courses": {
       get: {
         tags: ["admin"],
@@ -897,14 +906,6 @@ const doc = {
             description: "weekKey, raceSlugs, entries ranked by this-week race score",
           },
         },
-      },
-    },
-    "/billing/trial": {
-      post: {
-        tags: ["auth"],
-        summary: "Start 7-day Premium trial (dev/demo)",
-        security: [{ bearerAuth: [] }],
-        responses: { "200": { description: "plan + expires" } },
       },
     },
     "/admin/audit": {

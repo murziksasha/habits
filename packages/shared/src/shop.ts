@@ -1,19 +1,16 @@
 export type ShopItem = {
   id: string;
   costXp: number;
-  kind: "hearts_full" | "heart_one" | "streak_freeze" | "avatar" | "mystery" | "skill_point";
+  kind: "streak_freeze" | "avatar" | "mystery" | "skill_point";
   avatarKey?: string;
-  hearts?: number;
   /** How many freezes to grant (streak_freeze only); default 1 */
   freezes?: number;
   /** skill_point pack size */
   skillPoints?: number;
 };
 
-/** Catalog of purchasable items (XP currency). */
+/** Catalog of purchasable items (XP currency). Hearts items removed (hearts are never a limit). */
 export const SHOP_CATALOG: ShopItem[] = [
-  { id: "heart_one", costXp: 35, kind: "heart_one", hearts: 1 },
-  { id: "hearts_full", costXp: 100, kind: "hearts_full" },
   { id: "streak_freeze", costXp: 80, kind: "streak_freeze", freezes: 1 },
   /** Pack of 3 shields (alias branding: streak shield) */
   {

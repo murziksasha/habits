@@ -181,11 +181,34 @@ describe("course content integrity", () => {
     });
 
     it("sql_fundamentals volume", () => {
-      expect(sqlFundamentalsContent.units.length).toBeGreaterThanOrEqual(6);
+      expect(sqlFundamentalsContent.units.length).toBeGreaterThanOrEqual(14);
       const lessons = sqlFundamentalsContent.units.flatMap((u) => u.lessons);
-      expect(lessons.length).toBeGreaterThanOrEqual(14);
-      expect(lessons.filter((l) => l.isExam).length).toBeGreaterThanOrEqual(6);
+      expect(lessons.length).toBeGreaterThanOrEqual(45);
+      const exams = lessons.filter((l) => l.isExam);
+      expect(exams.length).toBeGreaterThanOrEqual(14);
+      for (const e of exams) {
+        expect(e.exercises.length).toBeGreaterThanOrEqual(4);
+      }
       expect(lessons.some((l) => l.isFree)).toBe(true);
+      const slugs = sqlFundamentalsContent.units.map((u) => u.slug);
+      expect(slugs).toContain("single-row");
+      expect(slugs).toContain("conversion");
+      expect(slugs).toContain("subqueries");
+      expect(slugs).toContain("set-ops");
+      expect(slugs).toContain("schema-objects");
+      expect(slugs).toContain("access-dict");
+      const last = sqlFundamentalsContent.units.at(-1);
+      expect(last?.slug).toBe("capstone");
+      for (const ex of collectExercises(sqlFundamentalsContent)) {
+        if (ex.type === "code_order") {
+          expect(ex.lines.length).toBe(ex.correct.length);
+          expect([...ex.lines].sort()).toEqual([...ex.correct].sort());
+        }
+        if (ex.type === "mcq" || ex.type === "code_read" || ex.type === "code_output") {
+          expect(ex.correctIndex).toBeGreaterThanOrEqual(0);
+          expect(ex.correctIndex).toBeLessThan(ex.options.length);
+        }
+      }
     });
 
     it("node_fundamentals volume", () => {
@@ -338,12 +361,11 @@ describe("course content integrity", () => {
     expect(free.length).toBeGreaterThanOrEqual(5);
   });
 
-  /** Align with @eduforge/shared FREE_LESSONS_PER_COURSE (freemium matrix). */
-  it("freemium gate: every course has at least 5 free lessons", () => {
-    const FREE = 5;
+  it("all lessons accessible: every course has at least 5 lessons", () => {
+    const MIN_LESSONS = 5;
     for (const c of courses) {
-      const free = c.units.flatMap((u) => u.lessons).filter((l) => l.isFree);
-      expect(free.length, `${c.slug} free lessons`).toBeGreaterThanOrEqual(FREE);
+      const all = c.units.flatMap((u) => u.lessons);
+      expect(all.length, `${c.slug} lessons`).toBeGreaterThanOrEqual(MIN_LESSONS);
     }
   });
 
@@ -464,6 +486,7 @@ describe("course content integrity", () => {
     const htmlLessons = htmlSemanticsContent.units.flatMap((u) => u.lessons);
     expect(htmlLessons.some((l) => l.slug === "hs-doc-semantics-intro" && l.isFree)).toBe(true);
     expect(FLASHCARD_DECKS.some((d) => d.slug === "english-meetings")).toBe(true);
+    expect(FLASHCARD_DECKS.some((d) => d.slug === "sql-oracle-071")).toBe(true);
   });
 
   it("exercise types include only known set (no silent unknown)", () => {

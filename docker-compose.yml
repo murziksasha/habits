@@ -35,14 +35,12 @@ services:
       REDIS_URL: redis://redis:6379
       AUTH_SECRET: ${AUTH_SECRET:-dev-secret-change-me}
       API_PORT: 4000
-      WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
-      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
-      STRIPE_PRICE_MONTHLY: ${STRIPE_PRICE_MONTHLY:-}
-      STRIPE_PRICE_YEARLY: ${STRIPE_PRICE_YEARLY:-}
-      # Local compose defaults to development so weak AUTH_SECRET is refused only in real production
+      WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}      # Local compose defaults to development so weak AUTH_SECRET is refused only in real production
       NODE_ENV: ${NODE_ENV:-development}
       CRON_SECRET: ${CRON_SECRET:-}
+      BACKUP_DIR: /data/backups
+    volumes:
+      - backupdata:/data/backups
     ports:
       - "4000:4000"
     depends_on:
@@ -130,7 +128,13 @@ services:
       dockerfile: docker/Dockerfile.api
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-eduforge}:${POSTGRES_PASSWORD:-eduforge}@postgres:5432/${POSTGRES_DB:-eduforge}
-      ALLOW_PROD_SEED: "1"
+      # Dockerfile.api sets NODE_ENV=production; override so seed enrolls admin TOTP/backup
+      NODE_ENV: ${NODE_ENV:-development}
+      ALLOW_PROD_SEED: ${ALLOW_PROD_SEED:-1}
+      SEED_ADMIN_TOTP_SECRET: ${SEED_ADMIN_TOTP_SECRET:-JBSWY3DPEHPK3PXP}
+      SEED_ADMIN_BACKUP_CODE: ${SEED_ADMIN_BACKUP_CODE:-AAAA-BBBB}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@eduforge.ua}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin12345}
     command: ["sh", "-c", "pnpm --filter @eduforge/db migrate && pnpm --filter @eduforge/db seed"]
     depends_on:
       postgres:
@@ -152,3 +156,4 @@ services:
 
 volumes:
   pgdata:
+  backupdata:

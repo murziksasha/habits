@@ -73,7 +73,7 @@ metricsRoutes.get("/", async (c) => {
       pushReengage: flags.push_reengage,
       tutorAi: flags.tutor_ai,
       emailVerify: flags.email_verify,
-      devBilling: flags.dev_billing,
+
     },
     judge: { mode: getJudgeMode(), queue: judgeQueue },
     productFunnel7d: funnel7d,

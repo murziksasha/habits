@@ -145,9 +145,6 @@ export function PublicProfileClient({ userId: userIdProp }: { userId?: string })
               {t.dashboard.level} {profile.globalLevel}
             </Badge>
             <Badge tone="sky">🔥 {profile.streakDays}</Badge>
-            <Badge tone={profile.plan === "premium" ? "grape" : "muted"}>
-              {profile.plan}
-            </Badge>
           </p>
           <div className="mt-2 max-w-sm">
             <XpBar xp={profile.globalXp} />

@@ -15,7 +15,6 @@ import { useLocale } from "@/lib/locale-context";
 import { useTheme } from "@/lib/theme-context";
 import { NotificationsBell } from "@/components/notifications-bell";
 import { CommandPalette } from "@/components/command-palette";
-import { HeartsChrome } from "@/components/hearts-chrome";
 
 type NavLink = { href: string; label: string; icon: string; group?: string };
 
@@ -103,7 +102,6 @@ export function Nav() {
     { href: "/friends", label: t.nav.friends, icon: "👥", group: socialLabel },
     { href: "/certificates", label: t.nav.certificates, icon: "📜", group: socialLabel },
     { href: "/portfolio", label: locale === "en" ? "Portfolio" : "Портфоліо", icon: "📁", group: socialLabel },
-    { href: "/pricing", label: t.nav.pricing, icon: "💎", group: accountLabel },
     { href: "/feedback", label: t.nav.feedback, icon: "💬", group: accountLabel },
     { href: "/quests", label: t.nav.quests, icon: "✅", group: accountLabel },
     { href: "/shop", label: t.nav.shop, icon: "🛒", group: accountLabel },
@@ -281,7 +279,6 @@ export function Nav() {
             {user ? (
               <>
                 <CommandPalette />
-                <HeartsChrome className="max-sm:scale-90" />
                 <NotificationsBell />
                 <Link
                   href="/profile"
@@ -294,11 +291,6 @@ export function Nav() {
                       {t.dashboard.level} {character?.globalLevel ?? 1}
                     </span>
                   </span>
-                  {user.plan === "premium" && (
-                    <span className="rounded-full bg-grape/15 px-2 py-0.5 text-xs font-bold text-grape">
-                      Premium
-                    </span>
-                  )}
                 </Link>
                 <button
                   type="button"

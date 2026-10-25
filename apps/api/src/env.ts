@@ -1,3 +1,5 @@
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { isProductionEnv, isWeakSecret } from "@eduforge/shared";
 
 function resolveAuthSecret(): string {
@@ -20,10 +22,10 @@ export const env = {
   /** AES key material for TOTP secrets (falls back to authSecret) */
   mfaEncryptionKey: process.env.MFA_ENCRYPTION_KEY ?? "",
   webOrigin: process.env.WEB_ORIGIN ?? "http://localhost:3000",
-  stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? "",
-  stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? "",
-  stripePriceMonthly: process.env.STRIPE_PRICE_MONTHLY ?? "",
-  stripePriceYearly: process.env.STRIPE_PRICE_YEARLY ?? "",
   xaiApiKey: process.env.XAI_API_KEY ?? "",
   xaiModel: process.env.XAI_MODEL ?? "grok-4.5",
+  /** Undo file for instance restore. Outside Postgres so a replace cannot delete it. */
+  backupDir:
+    process.env.BACKUP_DIR ??
+    join(dirname(fileURLToPath(import.meta.url)), "..", "data", "backups"),
 };
