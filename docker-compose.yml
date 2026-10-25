@@ -90,6 +90,12 @@ services:
       dockerfile: docker/Dockerfile.api
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-eduforge}:${POSTGRES_PASSWORD:-eduforge}@postgres:5432/${POSTGRES_DB:-eduforge}
+      # Dockerfile.api sets NODE_ENV=production; override so seed enrolls admin TOTP/backup
+      NODE_ENV: development
+      SEED_ADMIN_TOTP_SECRET: ${SEED_ADMIN_TOTP_SECRET:-JBSWY3DPEHPK3PXP}
+      SEED_ADMIN_BACKUP_CODE: ${SEED_ADMIN_BACKUP_CODE:-AAAA-BBBB}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@eduforge.ua}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin12345}
     command: ["sh", "-c", "pnpm --filter @eduforge/db migrate && pnpm --filter @eduforge/db seed"]
     depends_on:
       postgres:

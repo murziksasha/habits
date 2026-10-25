@@ -1,6 +1,11 @@
 -- Admin Platform v2: MFA, free course slugs, publish status, platform settings
+-- Idempotent: safe if partially applied outside drizzle journal (local/docker).
 
-CREATE TYPE "public"."course_publish_status" AS ENUM('draft', 'published', 'archived');
+DO $$ BEGIN
+  CREATE TYPE "public"."course_publish_status" AS ENUM('draft', 'published', 'archived');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
 
 -- users: TOTP fields
 ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "totp_secret_enc" text;
@@ -20,7 +25,12 @@ ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "content_source" varchar(16) DEFA
 UPDATE "courses" SET "published_at" = COALESCE("published_at", NOW()) WHERE "status" = 'published';
 
 -- skill_attempts: free course slug
-ALTER TABLE "skill_attempts" ALTER COLUMN "course_slug" TYPE varchar(64) USING "course_slug"::text;
+DO $$ BEGIN
+  ALTER TABLE "skill_attempts" ALTER COLUMN "course_slug" TYPE varchar(64) USING "course_slug"::text;
+EXCEPTION
+  WHEN undefined_table THEN null;
+  WHEN undefined_column THEN null;
+END $$;
 
 -- MFA pending challenges
 CREATE TABLE IF NOT EXISTS "mfa_pending" (

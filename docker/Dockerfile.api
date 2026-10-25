@@ -1,5 +1,5 @@
 FROM node:22-alpine AS base
-RUN corepack enable && corepack prepare pnpm@11.14.0 --activate
+RUN corepack enable && corepack prepare pnpm@11.22.0 --activate
 WORKDIR /app
 
 FROM base AS deps
@@ -8,6 +8,7 @@ COPY packages/shared/package.json packages/shared/
 COPY packages/content/package.json packages/content/
 COPY packages/chess-core/package.json packages/chess-core/
 COPY packages/db/package.json packages/db/
+COPY packages/judge/package.json packages/judge/
 COPY apps/api/package.json apps/api/
 RUN pnpm install --frozen-lockfile=false
 
@@ -20,6 +21,7 @@ RUN pnpm --filter @eduforge/shared build \
  && pnpm --filter @eduforge/content build \
  && pnpm --filter @eduforge/chess-core build \
  && pnpm --filter @eduforge/db build \
+ && pnpm --filter @eduforge/judge build \
  && pnpm --filter @eduforge/api build
 
 FROM base AS runner

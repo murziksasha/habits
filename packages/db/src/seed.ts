@@ -310,12 +310,23 @@ async function seedAdmin(db: ReturnType<typeof createDb>) {
       console.log(
         `Admin TOTP seeded (secret default/test); backup code: ${backupPlain}`,
       );
-    } else if (!(user.mfaBackupCodeHashes?.length)) {
-      await db
-        .update(users)
-        .set({ mfaBackupCodeHashes: [backupHash], updatedAt: new Date() })
-        .where(eq(users.id, user.id));
-      console.log(`Admin backup code seeded: ${backupPlain}`);
+    } else {
+      // Dev/docker: always restore the known backup code (consumed codes leave empty/missing hash)
+      const hashes = Array.isArray(user.mfaBackupCodeHashes)
+        ? (user.mfaBackupCodeHashes as string[])
+        : [];
+      if (!hashes.includes(backupHash)) {
+        await db
+          .update(users)
+          .set({
+            mfaBackupCodeHashes: [...hashes, backupHash],
+            updatedAt: new Date(),
+          })
+          .where(eq(users.id, user.id));
+        console.log(`Admin backup code seeded: ${backupPlain}`);
+      } else {
+        console.log(`Admin TOTP already enrolled; backup code: ${backupPlain}`);
+      }
     }
   }
 }
