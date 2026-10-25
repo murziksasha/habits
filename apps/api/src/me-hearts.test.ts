@@ -1,20 +1,18 @@
 import { describe, expect, it } from "vitest";
 import {
+  canStartLesson,
   HEART_REGEN_MINUTES,
-  isPaidPlan,
   maxHearts,
   minutesUntilHeartRegen,
   regenerateHearts,
-  type Plan,
 } from "@eduforge/shared";
 
 /**
- * Contract helpers for GET /me/hearts chrome aggregation.
+ * Contract helpers for GET /me/hearts.
  */
-describe("me hearts chrome contract", () => {
-  it("premium reports unlimited max", () => {
-    expect(isPaidPlan("premium")).toBe(true);
-    expect(maxHearts("premium" as Plan)).toBeGreaterThanOrEqual(999);
+describe("me hearts contract", () => {
+  it("lesson access never blocked by hearts", () => {
+    expect(canStartLesson({ plan: "free", hearts: 0 })).toBe(true);
   });
 
   it("free regen aligns with countdown helper", () => {
@@ -37,7 +35,7 @@ describe("me hearts chrome contract", () => {
     expect(mins).toBe(10);
   });
 
-  it("lowest hearts is the restrictive chrome signal", () => {
+  it("lowest hearts is the restrictive signal", () => {
     const rows = [
       { hearts: 5, slug: "english" },
       { hearts: 1, slug: "programming" },

@@ -1,24 +1,17 @@
 import { describe, expect, it } from "vitest";
 import {
   FAMILY_DEFAULT_SEATS,
-  isPaidPlan,
-  isPremiumActive,
+  canAccessLesson,
+  canStartLesson,
 } from "@eduforge/shared";
 
-describe("oauth/family/2fa contracts", () => {
-  it("family is a paid plan", () => {
-    expect(isPaidPlan("family")).toBe(true);
-    expect(isPaidPlan("premium")).toBe(true);
-    expect(isPaidPlan("free")).toBe(false);
-  });
-
-  it("family premium active with/without expiry", () => {
-    expect(isPremiumActive({ plan: "family" })).toBe(true);
-    const past = new Date(Date.now() - 864e5);
-    expect(isPremiumActive({ plan: "family", planExpiresAt: past })).toBe(false);
-  });
-
+describe("oauth/family contracts", () => {
   it("default family seats", () => {
     expect(FAMILY_DEFAULT_SEATS).toBeGreaterThanOrEqual(2);
+  });
+
+  it("free access rules apply to family members", () => {
+    expect(canAccessLesson({ plan: "free", lessonIndexInCourse: 10 })).toBe(true);
+    expect(canStartLesson({ plan: "free", hearts: 0 })).toBe(true);
   });
 });

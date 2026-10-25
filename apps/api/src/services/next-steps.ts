@@ -471,7 +471,7 @@ export async function buildNextRecommendations(
         daysInactive: 0,
         isWeak: r.kind.includes("review") || r.kind === "leech" || Boolean(meta.mastery),
         isExam: r.kind.includes("exam") || Boolean(meta.isExam),
-        paywalled: Boolean(meta.paywalled),
+        paywalled: false,
         basePriority: r.priority,
       },
       weights ?? DEFAULT_ADAPTIVE_WEIGHTS,

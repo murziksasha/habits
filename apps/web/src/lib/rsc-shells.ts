@@ -4,7 +4,6 @@
  */
 export const RSC_SHELL_ROUTES = [
   "/",
-  "/pricing",
   "/login",
   "/register",
   "/forgot-password",
@@ -76,7 +75,6 @@ export const RSC_SHELL_ROUTES = [
   "/admin/courses",
   "/admin/feedback",
   "/admin/audit",
-  "/admin/billing",
   "/admin/security",
   "/admin/appearance",
   "/admin/engagement",
@@ -87,7 +85,6 @@ export const RSC_SHELL_ROUTES = [
 
 const EXACT = new Set([
   "/",
-  "/pricing",
   "/login",
   "/register",
   "/forgot-password",
@@ -148,7 +145,6 @@ const EXACT = new Set([
   "/admin/courses",
   "/admin/feedback",
   "/admin/audit",
-  "/admin/billing",
   "/admin/security",
   "/admin/appearance",
   "/admin/engagement",

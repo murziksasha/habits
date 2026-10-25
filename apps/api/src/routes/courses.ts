@@ -8,9 +8,6 @@ import {
   userLessonProgress,
 } from "@eduforge/db";
 import {
-  canAccessLesson,
-  canStartLesson,
-  isPaidPlan,
   maxHearts,
   regenerateHearts,
   type Plan,
@@ -42,7 +39,6 @@ courseRoutes.get("/progress/me", authMiddleware, async (c) => {
 courseRoutes.get("/:slug", authMiddleware, async (c) => {
   const user = c.get("user");
   const slug = c.req.param("slug") ?? "";
-  // Prefer registry check for built-ins; CMS may also create free-form slugs.
   if (!slug) return c.json({ error: "not_found" }, 404);
   const course = await db.query.courses.findFirst({ where: eq(courses.slug, slug) });
   if (!course) return c.json({ error: "not_found" }, 404);
@@ -83,18 +79,6 @@ courseRoutes.get("/:slug", authMiddleware, async (c) => {
         .returning();
       progress = updated;
     }
-  } else if (isPaidPlan(plan)) {
-    progress = {
-      id: "",
-      userId: user.id,
-      courseId: course.id,
-      xp: 0,
-      level: 1,
-      hearts: maxHearts(plan),
-      heartsUpdatedAt: new Date(),
-      completedLessons: 0,
-      lastLessonId: null,
-    };
   }
 
   const lessonProgress = await db.query.userLessonProgress.findMany({
@@ -105,7 +89,6 @@ courseRoutes.get("/:slug", authMiddleware, async (c) => {
   });
   const lpMap = new Map(lessonProgress.map((p) => [p.lessonId, p]));
 
-  // global index for freemium
   const sorted = [...courseLessons].sort((a, b) => {
     if (a.unitId === b.unitId) return a.sortOrder - b.sortOrder;
     const ua = courseUnits.find((u) => u.id === a.unitId)?.sortOrder ?? 0;
@@ -118,10 +101,6 @@ courseRoutes.get("/:slug", authMiddleware, async (c) => {
     lessons: sorted
       .filter((l) => l.unitId === u.id)
       .map((l) => {
-        const idx = sorted.findIndex((x) => x.id === l.id);
-        const accessible =
-          l.isFree ||
-          canAccessLesson({ plan, lessonIndexInCourse: idx });
         const lp = lpMap.get(l.id);
         const nonExam = sorted.filter(
           (x) => x.unitId === u.id && !x.isExam,
@@ -143,7 +122,7 @@ courseRoutes.get("/:slug", authMiddleware, async (c) => {
           isExam,
           passThreshold: l.passThreshold ?? (isExam ? 0.7 : null),
           examLocked,
-          locked: !accessible || examLocked,
+          locked: examLocked,
           status: lp?.status ?? "available",
           bestScore: lp?.bestScore ?? 0,
           completedAt: lp?.completedAt ?? null,
@@ -152,25 +131,10 @@ courseRoutes.get("/:slug", authMiddleware, async (c) => {
   }));
 
   const hearts = progress?.hearts ?? maxHearts(plan);
-  const freeLessonCount = sorted.filter(
-    (l, i) =>
-      l.isFree || canAccessLesson({ plan: "free" as Plan, lessonIndexInCourse: i }),
-  ).length;
-  const freeCompleted = sorted.filter((l, i) => {
-    const free =
-      l.isFree || canAccessLesson({ plan: "free" as Plan, lessonIndexInCourse: i });
-    return free && lpMap.get(l.id)?.status === "completed";
-  }).length;
 
   return c.json({
     course,
     units: unitsPayload,
-    freemium: {
-      freeLessonCount,
-      freeCompleted,
-      freeLeft: Math.max(0, freeLessonCount - freeCompleted),
-      isPremium: isPaidPlan(plan),
-    },
     progress: progress
       ? {
           xp: progress.xp,
@@ -210,9 +174,6 @@ courseRoutes.get("/:slug/lessons/:lessonId", authMiddleware, async (c) => {
   });
   const idx = sorted.findIndex((l) => l.id === lesson.id);
   const plan = user.plan as Plan;
-  const accessible =
-    lesson.isFree || canAccessLesson({ plan, lessonIndexInCourse: idx });
-  if (!accessible) return c.json({ error: "premium_required" }, 402);
 
   if (lesson.isExam) {
     const unitLessons = sorted.filter((l) => l.unitId === lesson.unitId && !l.isExam);
@@ -261,17 +222,6 @@ courseRoutes.get("/:slug/lessons/:lessonId", authMiddleware, async (c) => {
         .returning();
       progress = updated;
     }
-  }
-
-  if (!canStartLesson({ plan, hearts: progress.hearts })) {
-    return c.json(
-      {
-        error: "no_hearts",
-        hearts: progress.hearts,
-        maxHearts: maxHearts(plan),
-      },
-      402,
-    );
   }
 
   return c.json({
@@ -331,9 +281,6 @@ courseRoutes.post("/:slug/lessons/:lessonId/submit", authMiddleware, async (c) =
   });
 
   if (!result.ok) {
-    if (result.error === "no_hearts") {
-      return c.json({ error: "no_hearts", hearts: result.hearts }, 402);
-    }
     return c.json({ error: result.error }, result.status);
   }
 

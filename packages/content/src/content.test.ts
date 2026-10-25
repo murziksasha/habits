@@ -338,12 +338,11 @@ describe("course content integrity", () => {
     expect(free.length).toBeGreaterThanOrEqual(5);
   });
 
-  /** Align with @eduforge/shared FREE_LESSONS_PER_COURSE (freemium matrix). */
-  it("freemium gate: every course has at least 5 free lessons", () => {
-    const FREE = 5;
+  it("all lessons accessible: every course has at least 5 lessons", () => {
+    const MIN_LESSONS = 5;
     for (const c of courses) {
-      const free = c.units.flatMap((u) => u.lessons).filter((l) => l.isFree);
-      expect(free.length, `${c.slug} free lessons`).toBeGreaterThanOrEqual(FREE);
+      const all = c.units.flatMap((u) => u.lessons);
+      expect(all.length, `${c.slug} lessons`).toBeGreaterThanOrEqual(MIN_LESSONS);
     }
   });
 

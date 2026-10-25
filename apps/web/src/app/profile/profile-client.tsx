@@ -617,7 +617,6 @@ export function ProfileClient() {
         <Button size="sm" variant="secondary" onClick={() => setWizardOpen(true)}>
           {t.onboarding.changeRole}
         </Button>
-        {user.plan === "premium" && <Badge tone="grape">Premium</Badge>}
       </div>
       <div className="card space-y-4">
         <div className="flex items-center gap-4">
@@ -641,18 +640,6 @@ export function ProfileClient() {
           <div className="rounded-2xl bg-slate-50 p-3 dark:bg-slate-900">
             <dt className="text-ink-muted">{t.dashboard.level}</dt>
             <dd className="text-xl font-black">{character?.globalLevel}</dd>
-          </div>
-          <div className="rounded-2xl bg-slate-50 p-3 dark:bg-slate-900">
-            <dt className="text-ink-muted">Plan</dt>
-            <dd className="text-sm font-black capitalize">
-              {user.plan}
-              {user.plan === "premium" && user.planExpiresAt ? (
-                <span className="block text-[10px] font-bold text-ink-muted normal-case">
-                  {locale === "en" ? "until" : "до"}{" "}
-                  {new Date(user.planExpiresAt).toLocaleDateString()}
-                </span>
-              ) : null}
-            </dd>
           </div>
           <div className="rounded-2xl bg-slate-50 p-3 dark:bg-slate-900">
             <dt className="text-ink-muted">{t.dashboard.streak}</dt>

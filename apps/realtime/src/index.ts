@@ -273,20 +273,6 @@ io.on("connection", (socket) => {
       const timeControl = parsed.data.timeControl;
       const rated = parsed.data.rated;
 
-      if (rated) {
-        const today = new Date().toISOString().slice(0, 10);
-        const r = auth.rating;
-        const ratedToday = r.ratedGamesDate === today ? r.ratedGamesToday : 0;
-        if (
-          !canPlayRatedChess({
-            plan: auth.user.plan as Plan,
-            ratedGamesToday: ratedToday,
-          })
-        ) {
-          cb?.({ error: "rated_limit" });
-          return;
-        }
-      }
 
       const me: SeekEntry = {
         userId: auth.user.id,

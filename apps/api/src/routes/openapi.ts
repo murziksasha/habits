@@ -125,29 +125,6 @@ const doc = {
         responses: { "200": { description: "items + reasons + optional examContext" } },
       },
     },
-    "/billing/entitlements": {
-      get: {
-        tags: ["ops"],
-        summary: "Public freemium matrix + plan feature rows",
-        responses: { "200": { description: "OK" } },
-      },
-    },
-    "/billing/status": {
-      get: {
-        tags: ["ops"],
-        summary: "Current plan + premiumActive",
-        security: [{ bearerAuth: [] }],
-        responses: { "200": { description: "OK" } },
-      },
-    },
-    "/billing/portal": {
-      post: {
-        tags: ["ops"],
-        summary: "Stripe Customer Portal session",
-        security: [{ bearerAuth: [] }],
-        responses: { "200": { description: "OK" } },
-      },
-    },
     "/metrics": {
       get: {
         tags: ["ops"],
@@ -897,14 +874,6 @@ const doc = {
             description: "weekKey, raceSlugs, entries ranked by this-week race score",
           },
         },
-      },
-    },
-    "/billing/trial": {
-      post: {
-        tags: ["auth"],
-        summary: "Start 7-day Premium trial (dev/demo)",
-        security: [{ bearerAuth: [] }],
-        responses: { "200": { description: "plan + expires" } },
       },
     },
     "/admin/audit": {

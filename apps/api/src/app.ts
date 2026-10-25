@@ -5,7 +5,7 @@ import { log, latencyStats, newRequestId, recordLatency } from "./logger.js";
 import { checkReady } from "./ready.js";
 import { adminRoutes } from "./routes/admin.js";
 import { authRoutes } from "./routes/auth.js";
-import { billingRoutes } from "./routes/billing.js";
+
 import { bookmarkRoutes } from "./routes/bookmarks.js";
 import { certificateRoutes } from "./routes/certificates.js";
 import { challengeRoutes } from "./routes/challenges.js";
@@ -161,7 +161,7 @@ export function createApp() {
   app.route("/family", familyRoutes);
   app.route("/courses", courseRoutes);
   app.route("/leaderboard", leaderboardRoutes);
-  app.route("/billing", billingRoutes);
+
   app.route("/chess", chessRoutes);
   app.route("/coach", coachRoutes);
   app.route("/tournaments", tournamentRoutes);

@@ -1,6 +1,6 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { familyMembers, users } from "@eduforge/db";
-import { isPremiumActive, type Plan } from "@eduforge/shared";
+import type { Plan } from "@eduforge/shared";
 import { db } from "../db.js";
 
 export type EffectivePlan = {
@@ -16,7 +16,8 @@ export type EffectivePlan = {
 };
 
 /**
- * Resolve plan for freemium gates: personal premium/family owner, or child of active family.
+ * Resolve effective plan and family relationships.
+ * In free EduForge, access does not depend on plan; children are not promoted to premium.
  */
 export async function resolveEffectivePlan(userId: string): Promise<EffectivePlan> {
   const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
@@ -29,19 +30,24 @@ export async function resolveEffectivePlan(userId: string): Promise<EffectivePla
     };
   }
 
-  const personalActive = isPremiumActive({
-    plan: user.plan as Plan,
-    planExpiresAt: user.planExpiresAt,
+  // Owner of a family group
+  const ownerRecord = await db.query.familyMembers.findFirst({
+    where: and(
+      eq(familyMembers.ownerUserId, userId),
+      eq(familyMembers.memberUserId, userId),
+      eq(familyMembers.role, "owner"),
+      eq(familyMembers.status, "active"),
+    ),
   });
 
-  if (user.plan === "family" && personalActive) {
+  if (ownerRecord || user.plan === "family") {
     const members = await db.query.familyMembers.findMany({
       where: and(eq(familyMembers.ownerUserId, userId), eq(familyMembers.status, "active")),
     });
     return {
-      plan: "family",
+      plan: (user.plan as Plan) ?? "free",
       planExpiresAt: user.planExpiresAt,
-      premiumActive: true,
+      premiumActive: false,
       family: {
         isOwner: true,
         ownerUserId: userId,
@@ -51,49 +57,33 @@ export async function resolveEffectivePlan(userId: string): Promise<EffectivePla
     };
   }
 
-  if (personalActive) {
-    return {
-      plan: user.plan as Plan,
-      planExpiresAt: user.planExpiresAt,
-      premiumActive: true,
-      family: null,
-    };
-  }
-
-  // Child seat: inherit owner's family/premium window
+  // Child seat: do not promote to premium
   const membership = await db.query.familyMembers.findFirst({
     where: and(
       eq(familyMembers.memberUserId, userId),
       eq(familyMembers.status, "active"),
+      ne(familyMembers.ownerUserId, userId),
     ),
   });
   if (membership) {
     const owner = await db.query.users.findFirst({
       where: eq(users.id, membership.ownerUserId),
     });
-    if (
-      owner &&
-      isPremiumActive({
-        plan: owner.plan as Plan,
-        planExpiresAt: owner.planExpiresAt,
-      })
-    ) {
-      return {
-        plan: "premium",
-        planExpiresAt: owner.planExpiresAt,
-        premiumActive: true,
-        family: {
-          isOwner: false,
-          ownerUserId: owner.id,
-          maxSeats: owner.familyMaxSeats || 4,
-          memberCount: 0,
-        },
-      };
-    }
+    return {
+      plan: (user.plan as Plan) ?? "free",
+      planExpiresAt: user.planExpiresAt,
+      premiumActive: false,
+      family: {
+        isOwner: false,
+        ownerUserId: membership.ownerUserId,
+        maxSeats: owner?.familyMaxSeats || 4,
+        memberCount: 0,
+      },
+    };
   }
 
   return {
-    plan: "free",
+    plan: (user.plan as Plan) ?? "free",
     planExpiresAt: user.planExpiresAt,
     premiumActive: false,
     family: null,

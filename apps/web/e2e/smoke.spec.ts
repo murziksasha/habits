@@ -29,13 +29,6 @@ test.describe("EduForge smoke", () => {
     await expect(page.getByText(/Спробуйте без|Try without|const x/i).first()).toBeVisible();
   });
 
-  test("pricing page shows free and premium columns", async ({ page }) => {
-    await page.goto("/pricing");
-    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText(/Free|Безкоштов|Premium|Преміум/i).first()).toBeVisible();
-    await expect(page.getByText(/урок|lesson|серц|heart|шах|chess/i).first()).toBeVisible();
-  });
-
   test("courses catalog lists groups", async ({ page }) => {
     await page.goto("/courses");
     await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
@@ -450,12 +443,6 @@ test.describe("EduForge smoke", () => {
     await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
   });
 
-  test("pricing page loads plans", async ({ page }) => {
-    await page.goto("/pricing");
-    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText(/Free|Premium|free|Premium|₴|тариф/i).first()).toBeVisible();
-  });
-
   test("404 recovery links", async ({ page }) => {
     await page.goto("/this-route-does-not-exist-eduforge");
     await expect(page.getByText(/404|не знайдено|not found/i).first()).toBeVisible({
@@ -464,16 +451,13 @@ test.describe("EduForge smoke", () => {
     await expect(page.getByRole("link", { name: /головн|Home|Learn|Навчання/i }).first()).toBeVisible();
   });
 
-  test("admin appearance and billing load", async ({ page }) => {
+  test("admin appearance loads", async ({ page }) => {
     await loginAsAdmin(page);
     await page.goto("/admin/appearance");
     await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/Appearance|Вигляд|Brand|брен/i).first()).toBeVisible({
       timeout: 10_000,
     });
-    await page.goto("/admin/billing");
-    await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText(/Premium|Stripe|Users|Користувач/i).first()).toBeVisible();
   });
 
   test("live classroom shell loads", async ({ page }) => {

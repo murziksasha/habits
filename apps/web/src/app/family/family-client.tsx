@@ -1,12 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
-import { Badge, Button, EmptyState, Skeleton } from "@/components/ui";
+import { Badge, Button, EmptyState } from "@/components/ui";
 import { PageLoading } from "@/components/page-loading";
 
 type FamilyMe = {
@@ -14,7 +13,6 @@ type FamilyMe = {
   plan?: string;
   maxSeats?: number;
   childCount?: number;
-  premiumActive?: boolean;
   members?: {
     memberUserId: string;
     role: string;
@@ -61,31 +59,12 @@ function FamilyBody() {
     setBusy(true);
     setMsg("");
     try {
-      // Demo: upgrade to family plan directly when dev billing allowed
-      try {
-        await api("/billing/dev-upgrade", {
-          method: "POST",
-          token,
-          body: { kind: "family" },
-        });
-      } catch {
-        /* may already be premium or billing disabled */
-      }
       await api("/family/activate", { method: "POST", token, body: { seats: 4 } });
       await refresh();
       await load();
-      setMsg(en ? "Family plan activated." : "Сімейний план активовано.");
-    } catch (e) {
-      const err = (e as { data?: { error?: string } })?.data?.error;
-      setMsg(
-        err === "need_premium"
-          ? en
-            ? "Need Premium (or demo billing) first."
-            : "Спочатку Premium (або demo billing)."
-          : en
-            ? "Could not activate"
-            : "Не вдалося активувати",
-      );
+      setMsg(en ? "Family group created." : "Сімейну групу створено.");
+    } catch {
+      setMsg(en ? "Could not activate" : "Не вдалося активувати");
     } finally {
       setBusy(false);
     }
@@ -123,7 +102,7 @@ function FamilyBody() {
       });
       await refresh();
       await load();
-      setMsg(en ? "Joined family — Premium unlocked." : "Приєднано — Premium відкрито.");
+      setMsg(en ? "Joined family group." : "Приєднано до сімейної групи.");
     } catch {
       setMsg(en ? "Invalid or expired code" : "Невірний або прострочений код");
     } finally {
@@ -161,12 +140,12 @@ function FamilyBody() {
     <div className="mx-auto max-w-lg space-y-6">
       <div>
         <h1 className="text-3xl font-black">
-          👪 {en ? "Family plan" : "Сімейний план"}
+          👪 {en ? "Family group" : "Сімейна група"}
         </h1>
         <p className="font-bold text-ink-muted">
           {en
-            ? "One owner, up to N children with shared Premium."
-            : "Власник + діти з спільним Premium."}
+            ? "Free family group for up to 4 members."
+            : "Безкоштовна сімейна група до 4 учасників."}
         </p>
       </div>
 
@@ -174,15 +153,12 @@ function FamilyBody() {
         <div className="card space-y-3">
           <p className="font-bold">
             {en
-              ? "Activate Family (requires Premium or demo billing), or join with a code."
-              : "Активуйте Family (потрібен Premium/demo) або введіть код."}
+              ? "Create a free family group or join with a code."
+              : "Створіть безкоштовну сімейну групу або введіть код."}
           </p>
           <Button disabled={busy} onClick={() => void activate()}>
-            {en ? "Activate Family plan" : "Активувати Family"}
+            {en ? "Create family group" : "Створити сімейну групу"}
           </Button>
-          <Link href="/pricing" className="text-sm font-bold text-sky hover:underline">
-            {en ? "Pricing" : "Тарифи"} →
-          </Link>
           <div className="border-t pt-3 space-y-2">
             <p className="text-sm font-black">
               {en ? "Have an invite?" : "Є запрошення?"}
@@ -212,7 +188,6 @@ function FamilyBody() {
               <Badge tone="brand">
                 {data.childCount ?? 0}/{data.maxSeats ?? 4} {en ? "seats" : "місць"}
               </Badge>
-              {data.premiumActive && <Badge tone="sky">Premium</Badge>}
             </div>
             <Button disabled={busy} onClick={() => void invite()}>
               {en ? "Create child invite" : "Створити запрошення"}
@@ -269,11 +244,6 @@ function FamilyBody() {
             {en ? "Owner:" : "Власник:"}{" "}
             {data.owner?.displayName || data.owner?.email || "—"}
           </p>
-          {data.premiumActive && (
-            <p className="text-sm font-bold text-brand-dark">
-              {en ? "Premium active via family" : "Premium через family"}
-            </p>
-          )}
           <Button variant="secondary" disabled={busy} onClick={() => void leave()}>
             {en ? "Leave family" : "Покинути сімʼю"}
           </Button>

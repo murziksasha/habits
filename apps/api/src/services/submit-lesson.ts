@@ -45,9 +45,8 @@ export type SubmitLessonInput = {
 
 export type SubmitLessonError = {
   ok: false;
-  status: 404 | 402;
-  error: "not_found" | "no_hearts";
-  hearts?: number;
+  status: 404;
+  error: "not_found";
 };
 
 export type SubmitLessonSuccess = {
@@ -209,16 +208,8 @@ export async function submitLesson(
     }
   }
 
-  if (!canStartLesson({ plan, hearts: cp.hearts })) {
-    return { ok: false, status: 402, error: "no_hearts", hearts: cp.hearts };
-  }
-
-  let hearts = cp.hearts;
-  let heartLost = false;
-  if (plan !== "premium" && !passed) {
-    hearts = Math.max(0, hearts - 1);
-    heartLost = true;
-  }
+  const hearts = cp.hearts;
+  const heartLost = false;
 
   const newCourseXp = cp.xp + xpGain;
   const newCourseLevel = levelFromXp(newCourseXp);

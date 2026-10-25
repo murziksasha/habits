@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   firstAvailableLessonHref,
-  freemiumPathLabel,
   isProgrammingMiniSlug,
   PROGRAMMING_MINI_LESSON_SLUGS,
   PROGRAMMING_STACK_META,
@@ -51,12 +50,6 @@ export function ProgrammingClient() {
     hearts: 5,
     maxHearts: 5,
   });
-  const [freemium, setFreemium] = useState<{
-    freeLessonCount: number;
-    freeCompleted: number;
-    freeLeft: number;
-    isPremium: boolean;
-  } | null>(null);
   const [hubLoading, setHubLoading] = useState(true);
   const [error, setError] = useState("");
   const [placement, setPlacement] = useState<{
@@ -133,7 +126,6 @@ export function ProgrammingClient() {
       course: { titleUk: string; titleEn?: string; color: string };
       units: Unit[];
       progress: typeof progress;
-      freemium?: typeof freemium;
     }>("/courses/programming", { token })
       .then((d) => {
         const order = new Map(PROGRAMMING_UNIT_ORDER.map((s, i) => [s, i]));
@@ -142,7 +134,6 @@ export function ProgrammingClient() {
         );
         setUnits(sorted);
         setProgress(d.progress);
-        setFreemium(d.freemium ?? null);
       })
       .catch(() => setError(t.common.error))
       .finally(() => setHubLoading(false));
@@ -218,14 +209,6 @@ export function ProgrammingClient() {
     u.lessons.map((l) => ({ ...l, unitSlug: u.slug })),
   );
   const continueHref = firstAvailableLessonHref("programming", units) ?? "/learn";
-  const freeLabel =
-    freemium &&
-    freemiumPathLabel({
-      freeCompleted: freemium.freeCompleted,
-      freeLessonCount: freemium.freeLessonCount,
-      isPremium: freemium.isPremium,
-      locale: locale === "en" ? "en" : "uk",
-    });
   const miniTotal = miniBoard?.total ?? PROGRAMMING_MINI_LESSON_SLUGS.length;
   const miniDone = miniBoard?.completed ?? 0;
   const unitsDone = units.filter(
@@ -256,11 +239,6 @@ export function ProgrammingClient() {
               style={{ width: `${Math.min(100, pathPct)}%` }}
             />
           </div>
-          {freeLabel && (
-            <p className="mt-1 text-xs font-black text-grape">
-              {t.onboarding.freePath}: {freeLabel}
-            </p>
-          )}
           <div className="mt-3 flex flex-wrap gap-2">
             <Link href={continueHref} className="btn-primary min-h-11">
               {t.onboarding.continuePath}

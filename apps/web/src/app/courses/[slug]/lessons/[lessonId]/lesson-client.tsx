@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   exerciseExplanation,
   exerciseTypeLabel,
-  heartsWarningLevel,
+
   LESSON_RESULT_SHEET_MS,
   UI,
 } from "@eduforge/shared";
@@ -15,12 +15,10 @@ import { useLocale } from "@/lib/locale-context";
 import { api, isNetworkOrOfflineError } from "@/lib/api";
 import { ExercisePlayer, type Exercise } from "@/components/exercises";
 import { HeartsBar } from "@/components/hearts";
-import { PaywallCard } from "@/components/paywall";
 import { Celebration } from "@/components/celebration";
 import { ShareLinkButtons } from "@/components/share-link";
 import { Breadcrumbs, Skeleton, useToast } from "@/components/ui";
 import { isBrowserOffline } from "@/components/online-status";
-import { dispatchHeartsRefresh } from "@/components/hearts-chrome";
 import { LessonShortcutsHelp } from "@/components/lesson-shortcuts-help";
 
 type ExerciseResult = {
@@ -215,12 +213,6 @@ export function LessonClient() {
       .catch((e: Error & { status?: number; data?: { error?: string } }) => {
         if (e.status === 403 && e.data?.error === "exam_locked") {
           setError("exam_locked");
-        } else if (e.status === 402) {
-          if (e.data && (e.data as { error?: string }).error === "no_hearts") {
-            setError("no_hearts");
-          } else {
-            setError("premium_required");
-          }
         } else setError("load_failed");
       });
     void api<{ bookmarked: boolean }>(`/bookmarks/check/${lessonId}`, { token })
@@ -359,7 +351,6 @@ export function LessonClient() {
       });
       if (result.character) setCharacter(result.character);
       if (typeof result.hearts === "number") setHearts(result.hearts);
-      dispatchHeartsRefresh();
       setSummary({
         xpGain: result.xpGain,
         accuracy: result.accuracy,
@@ -390,12 +381,7 @@ export function LessonClient() {
       setFeedback(null);
       setFeedbackExplain("");
     } catch (e: unknown) {
-      const err = e as Error & { data?: { error?: string }; offline?: boolean };
-      if (err.data?.error === "no_hearts") {
-        setError("no_hearts");
-        setFeedback(null);
-        setFeedbackExplain("");
-      } else if (isNetworkOrOfflineError(e) || err.data?.error === "offline") {
+      const err = e as Error & { data?: { error?: string }; offline?: boolean };if (isNetworkOrOfflineError(e) || err.data?.error === "offline") {
         setPendingSubmit(nextAnswers);
         setFeedback(null);
         setFeedbackExplain("");
@@ -423,21 +409,6 @@ export function LessonClient() {
         <Link href={`/courses/${slug}`} className="btn-primary">
           {UI.common.back}
         </Link>
-      </div>
-    );
-  }
-
-  if (error === "premium_required") {
-    return <PaywallCard reason="premium_required" backHref={`/courses/${slug}`} />;
-  }
-
-  if (error === "no_hearts") {
-    return (
-      <div className="space-y-4">
-        <PaywallCard reason="no_hearts" backHref={`/courses/${slug}`} />
-        <div className="flex justify-center">
-          <HeartsBar hearts={0} max={maxHearts} />
-        </div>
       </div>
     );
   }
@@ -687,7 +658,7 @@ export function LessonClient() {
 
   const ex = lesson.exercises[idx];
   const progress = ((idx + 1) / lesson.exercises.length) * 100;
-  const heartsLevel = heartsWarningLevel(hearts, maxHearts);
+
   const isCodeEx =
     typeof ex.type === "string" &&
     (ex.type.startsWith("code_") || ex.type === "code_judge");
@@ -759,11 +730,6 @@ export function LessonClient() {
           </span>
         </div>
       </div>
-      {heartsLevel === "low" && (
-        <p className="rounded-xl bg-sun/15 px-3 py-2 text-xs font-bold text-sun" role="status">
-          ⚠️ {t.onboarding.heartsLow} · {t.onboarding.heartsRegen}
-        </p>
-      )}
       {nearEnd && !feedback && (
         <p
           className="rounded-xl bg-brand/10 px-3 py-2 text-xs font-bold text-brand-dark"

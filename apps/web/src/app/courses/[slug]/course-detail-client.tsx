@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { freemiumPathLabel, pickLocale, UI } from "@eduforge/shared";
+import { pickLocale, UI } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
@@ -22,6 +22,7 @@ type Lesson = {
   isExam?: boolean;
   examLocked?: boolean;
   passThreshold?: number | null;
+  baseXp?: number;
 };
 
 type Unit = { id: string; titleUk: string; titleEn?: string; lessons: Lesson[] };
@@ -41,12 +42,6 @@ export function CourseDetailClient() {
       color: string;
     };
     units: Unit[];
-    freemium?: {
-      freeLessonCount: number;
-      freeCompleted: number;
-      freeLeft: number;
-      isPremium: boolean;
-    };
     progress: {
       xp: number;
       level: number;
@@ -92,15 +87,6 @@ export function CourseDetailClient() {
       </div>
     );
   }
-
-  const freeLabel =
-    data.freemium &&
-    freemiumPathLabel({
-      freeCompleted: data.freemium.freeCompleted,
-      freeLessonCount: data.freemium.freeLessonCount,
-      isPremium: data.freemium.isPremium,
-      locale: locale === "en" ? "en" : "uk",
-    });
 
   const allLessons = data.units.flatMap((u) => u.lessons);
   const continueLesson =
@@ -162,50 +148,6 @@ export function CourseDetailClient() {
               }}
             />
           </div>
-          {data.freemium && freeLabel && (
-            <div className="rounded-2xl border-2 border-grape/30 bg-grape/5 px-3 py-2">
-              <p className="text-xs font-black uppercase text-grape">{t.onboarding.freePath}</p>
-              <p className="text-sm font-bold text-grape">
-                {freeLabel}
-                {!data.freemium.isPremium && (
-                  <>
-                    {" · "}
-                    <Link href="/pricing" className="underline">
-                      Premium
-                    </Link>
-                  </>
-                )}
-              </p>
-              {!data.freemium.isPremium && data.freemium.freeLessonCount > 0 && (
-                <div className="mt-2 h-2 overflow-hidden rounded-full bg-white dark:bg-slate-800">
-                  <div
-                    className="h-full bg-grape transition-all"
-                    style={{
-                      width: `${Math.min(
-                        100,
-                        (data.freemium.freeCompleted / data.freemium.freeLessonCount) * 100,
-                      )}%`,
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-          )}
-          {(data.progress.hearts ?? 5) <= 0 && user?.plan !== "premium" && (
-            <div className="rounded-2xl bg-red-50 p-3 text-sm font-bold text-red-600 dark:bg-red-950">
-              {UI.hearts.empty}. {UI.hearts.emptyHint}{" "}
-              <Link href="/pricing" className="underline">
-                Premium
-              </Link>
-              {" · "}
-              <Link href="/review" className="underline">
-                {t.nav.review}
-              </Link>
-            </div>
-          )}
-          {(data.progress.hearts ?? 5) === 1 && user?.plan !== "premium" && (
-            <p className="text-xs font-bold text-sun">⚠️ {t.onboarding.heartsLow}</p>
-          )}
         </div>
       </div>
 
@@ -245,18 +187,9 @@ export function CourseDetailClient() {
                         {pickLocale(locale, lesson.titleUk, lesson.titleEn)}
                       </p>
                       <p className="text-sm text-ink-muted">
-                        {lesson.examLocked
-                          ? t.lesson.examLocked
-                          : data.freemium && !data.freemium.isPremium
-                            ? `${UI.common.locked} · ${t.onboarding.freePath} ${data.freemium.freeCompleted}/${data.freemium.freeLessonCount}`
-                            : UI.common.locked}
+                        {t.lesson.examLocked}
                       </p>
                     </div>
-                    {!lesson.examLocked && (
-                      <Link href="/pricing" className="btn-secondary !py-2 !px-3 text-xs">
-                        Premium
-                      </Link>
-                    )}
                   </div>
                 ) : (
                   <Link
@@ -278,23 +211,15 @@ export function CourseDetailClient() {
                           </span>
                         ) : null}
                       </p>
-                      <p className="text-sm text-ink-muted">
-                        {lesson.status === "completed"
-                          ? `✓ ${Math.round(lesson.bestScore * 100)}%`
-                          : lesson.isExam
-                            ? t.lesson.exam
-                            : locale === "en"
-                              ? "Available"
-                              : "Доступно"}
+                      <p className="text-xs text-ink-muted">
+                        +{lesson.baseXp ?? 10} XP
+                        {lesson.bestScore > 0
+                          ? ` · ${Math.round(lesson.bestScore * 100)}%`
+                          : ""}
                       </p>
                     </div>
-                    <span
-                      className={clsx(
-                        "grid h-12 w-12 place-items-center rounded-full text-xl text-white shadow-btn",
-                        lesson.isExam ? "bg-grape" : "bg-brand",
-                      )}
-                    >
-                      {lesson.status === "completed" ? "★" : lesson.isExam ? "📝" : "▶"}
+                    <span className="text-sm font-bold text-ink-muted">
+                      {lesson.status === "completed" ? "✓" : "→"}
                     </span>
                   </Link>
                 )}
@@ -304,23 +229,6 @@ export function CourseDetailClient() {
         </section>
         );
       })}
-
-      {continueLesson ? (
-        <div className="fixed inset-x-0 bottom-16 z-30 border-t border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur md:bottom-0 dark:border-slate-800 dark:bg-slate-950/95">
-          <div className="mx-auto flex max-w-2xl items-center justify-between gap-3">
-            <p className="truncate text-sm font-bold">
-              {locale === "en" ? "Next up" : "Далі"}:{" "}
-              {pickLocale(locale, continueLesson.titleUk, continueLesson.titleEn)}
-            </p>
-            <Link
-              href={`/courses/${slug}/lessons/${continueLesson.id}`}
-              className="btn-primary shrink-0 !py-2 text-sm"
-            >
-              {locale === "en" ? "Go" : "Далі"} →
-            </Link>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }

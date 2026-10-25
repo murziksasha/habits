@@ -97,7 +97,6 @@ adminRoutes.get("/users", async (c) => {
 
 const userPatchSchema = z.object({
   role: z.enum(["user", "admin"]).optional(),
-  plan: z.enum(["free", "premium"]).optional(),
 });
 
 adminRoutes.patch("/users/:id", async (c) => {
@@ -127,7 +126,6 @@ adminRoutes.patch("/users/:id", async (c) => {
     .update(users)
     .set({
       ...(parsed.data.role ? { role: parsed.data.role } : {}),
-      ...(parsed.data.plan ? { plan: parsed.data.plan } : {}),
       updatedAt: new Date(),
     })
     .where(eq(users.id, id))
@@ -1339,30 +1337,6 @@ adminRoutes.post("/appearance/revert", async (c) => {
 });
 
 /* ——— Domain overview modules (read-only) ——— */
-
-adminRoutes.get("/overview/billing", async (c) => {
-  const [premium] = await db
-    .select({ n: sql<number>`count(*)::int` })
-    .from(users)
-    .where(eq(users.plan, "premium"));
-  const [total] = await db.select({ n: sql<number>`count(*)::int` }).from(users);
-  const [expiring] = await db
-    .select({ n: sql<number>`count(*)::int` })
-    .from(users)
-    .where(
-      and(
-        eq(users.plan, "premium"),
-        gte(users.planExpiresAt, new Date()),
-        sql`${users.planExpiresAt} < now() + interval '7 days'`,
-      ),
-    );
-  return c.json({
-    premium: premium?.n ?? 0,
-    users: total?.n ?? 0,
-    expiringTrial7d: expiring?.n ?? 0,
-    stripeConfigured: Boolean(process.env.STRIPE_SECRET_KEY),
-  });
-});
 
 adminRoutes.get("/overview/classroom", async (c) => {
   const [orgN] = await db.select({ n: sql<number>`count(*)::int` }).from(organizations);

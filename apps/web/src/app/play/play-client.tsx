@@ -224,7 +224,7 @@ function PlayPageInner() {
     markTriedChess();
     socket.emit("seek", { timeControl, rated }, (res: { error?: string }) => {
       if (res?.error === "rated_limit") {
-        setStatus("Ліміт рейтингових партій. Оформіть Premium або грайте unrated.");
+        setStatus(locale === "en" ? "Could not seek match. Try unrated or retry." : "Не вдалося знайти партію. Спробуйте ще раз.");
         setSeeking(false);
       } else {
         setSeeking(true);

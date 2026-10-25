@@ -215,7 +215,7 @@ meRoutes.get("/flags", optionalAuth, async (c) => {
       pushReengage: flags.push_reengage,
       emailVerify: flags.email_verify,
       requireEmailVerify: flags.require_email_verify,
-      devBilling: flags.dev_billing,
+
     },
   });
 });

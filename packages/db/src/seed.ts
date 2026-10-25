@@ -268,7 +268,7 @@ async function seedAdmin(db: ReturnType<typeof createDb>) {
         email,
         passwordHash,
         role: "admin",
-        plan: "premium",
+        plan: "free",
         emailVerifiedAt: new Date(),
       })
       .returning();
@@ -281,7 +281,7 @@ async function seedAdmin(db: ReturnType<typeof createDb>) {
     await db.insert(chessRatings).values({ userId: user.id });
     console.log(`Admin created: ${email} / ${password}`);
   } else if (user.role !== "admin") {
-    await db.update(users).set({ role: "admin", plan: "premium" }).where(eq(users.id, user.id));
+    await db.update(users).set({ role: "admin" }).where(eq(users.id, user.id));
     console.log(`Promoted ${email} to admin`);
   } else {
     console.log(`Admin exists: ${email}`);
@@ -332,39 +332,6 @@ async function seedAdmin(db: ReturnType<typeof createDb>) {
   }
 }
 
-/** Demo premium user for local / Docker testing (not admin). */
-async function seedPremiumTestUser(db: ReturnType<typeof createDb>) {
-  const email = process.env.TEST_USER_EMAIL ?? "premium@eduforge.ua";
-  const password = process.env.TEST_USER_PASSWORD ?? "premium12345";
-  let user = await db.query.users.findFirst({ where: eq(users.email, email) });
-  if (!user) {
-    const passwordHash = await bcrypt.hash(password, 10);
-    const [created] = await db
-      .insert(users)
-      .values({
-        email,
-        passwordHash,
-        role: "user",
-        plan: "premium",
-        emailVerifiedAt: new Date(),
-      })
-      .returning();
-    user = created;
-    await db.insert(characters).values({
-      userId: user.id,
-      displayName: "Premium Test",
-      avatarKey: "default",
-    });
-    await db.insert(chessRatings).values({ userId: user.id });
-    console.log(`Premium test user created: ${email} / ${password}`);
-  } else if (user.plan !== "premium") {
-    await db.update(users).set({ plan: "premium" }).where(eq(users.id, user.id));
-    console.log(`Upgraded ${email} to premium`);
-  } else {
-    console.log(`Premium test user exists: ${email}`);
-  }
-}
-
 async function seedAchievements(db: ReturnType<typeof createDb>) {
   for (const a of ACHIEVEMENT_CATALOG) {
     const existing = await db.query.achievements.findFirst({
@@ -382,14 +349,13 @@ async function main() {
   loadRootEnv();
   if (!seedAllowed(process.env)) {
     console.error(
-      "Refusing to seed production (demo admin/premium passwords). Set ALLOW_PROD_SEED=1 to override.",
+      "Refusing to seed production (demo admin passwords). Set ALLOW_PROD_SEED=1 to override.",
     );
     process.exit(1);
   }
   const db = createDb();
   // Users first so accounts exist even if a course seed fails (e.g. missing enum value).
   await seedAdmin(db);
-  await seedPremiumTestUser(db);
   for (const [i, c] of allCourses.entries()) {
     await seedCourse(db, c, i);
   }

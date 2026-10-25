@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { and, eq, gt } from "drizzle-orm";
 import { characters, familyInvites, familyMembers, users } from "@eduforge/db";
-import { FAMILY_DEFAULT_SEATS, isFeatureEnabled } from "@eduforge/shared";
+import { FAMILY_DEFAULT_SEATS } from "@eduforge/shared";
 import { randomBytes } from "node:crypto";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
@@ -26,11 +26,16 @@ async function childCount(ownerUserId: string) {
   return active.filter((m) => m.role === "child").length;
 }
 
+async function isFamilyOwner(userId: string) {
+  const eff = await resolveEffectivePlan(userId);
+  return Boolean(eff.family?.isOwner);
+}
+
 familyRoutes.get("/me", authMiddleware, async (c) => {
   const user = c.get("user");
   const effective = await resolveEffectivePlan(user.id);
 
-  if (user.plan === "family") {
+  if (effective.family?.isOwner) {
     const members = await db
       .select({
         id: familyMembers.id,
@@ -67,7 +72,7 @@ familyRoutes.get("/me", authMiddleware, async (c) => {
         inviteCode: p.inviteCode,
         expiresAt: p.expiresAt,
       })),
-      premiumActive: effective.premiumActive,
+      premiumActive: false,
     });
   }
 
@@ -83,7 +88,7 @@ familyRoutes.get("/me", authMiddleware, async (c) => {
     return c.json({
       role: "child",
       plan: user.plan,
-      premiumActive: effective.premiumActive,
+      premiumActive: false,
       owner: owner
         ? {
             id: owner.id,
@@ -97,12 +102,12 @@ familyRoutes.get("/me", authMiddleware, async (c) => {
   return c.json({
     role: "none",
     plan: user.plan,
-    premiumActive: effective.premiumActive,
+    premiumActive: false,
     maxSeats: FAMILY_DEFAULT_SEATS,
   });
 });
 
-/** Upgrade current user to family plan owner. */
+/** Open a family group. Any logged-in user can open a family group. */
 familyRoutes.post("/activate", authMiddleware, async (c) => {
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
@@ -111,31 +116,15 @@ familyRoutes.post("/activate", authMiddleware, async (c) => {
     Math.max(2, Number(body.seats ?? FAMILY_DEFAULT_SEATS) || FAMILY_DEFAULT_SEATS),
   );
 
-  const can =
-    user.plan === "premium" ||
-    user.plan === "family" ||
-    isFeatureEnabled("dev_billing");
-  if (!can) {
-    return c.json(
-      { error: "need_premium", hint: "Upgrade to Premium first, then activate Family" },
-      402,
-    );
-  }
-
   // Leave other family first
   await db
     .delete(familyMembers)
     .where(eq(familyMembers.memberUserId, user.id));
 
-  const expires =
-    user.planExpiresAt ?? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-
   await db
     .update(users)
     .set({
-      plan: "family",
       familyMaxSeats: seats,
-      planExpiresAt: expires,
       updatedAt: new Date(),
     })
     .where(eq(users.id, user.id));
@@ -157,37 +146,47 @@ familyRoutes.post("/activate", authMiddleware, async (c) => {
 
   return c.json({
     ok: true,
-    plan: "family",
     maxSeats: seats,
-    planExpiresAt: expires,
   });
 });
 
 familyRoutes.post("/invite", authMiddleware, async (c) => {
   const user = c.get("user");
-  if (user.plan !== "family") {
+  if (!(await isFamilyOwner(user.id))) {
     return c.json({ error: "not_family_owner" }, 400);
   }
-  const max = user.familyMaxSeats || FAMILY_DEFAULT_SEATS;
-  const kids = await childCount(user.id);
-  if (kids >= max) {
-    return c.json({ error: "seats_full", maxSeats: max, childCount: kids }, 409);
+
+  const u = await db.query.users.findFirst({ where: eq(users.id, user.id) });
+  const max = u?.familyMaxSeats || FAMILY_DEFAULT_SEATS;
+  const current = await childCount(user.id);
+  const pendingCount = (
+    await db.query.familyInvites.findMany({
+      where: and(
+        eq(familyInvites.ownerUserId, user.id),
+        gt(familyInvites.expiresAt, new Date()),
+      ),
+    })
+  ).length;
+
+  if (current + pendingCount >= max) {
+    return c.json({ error: "seats_full", maxSeats: max }, 409);
   }
 
   const code = inviteCode();
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  await db.insert(familyInvites).values({
-    ownerUserId: user.id,
-    inviteCode: code,
-    expiresAt,
-  });
+  const [inv] = await db
+    .insert(familyInvites)
+    .values({
+      ownerUserId: user.id,
+      inviteCode: code,
+      expiresAt,
+    })
+    .returning();
 
   return c.json({
+    inviteId: inv.id,
     inviteCode: code,
     expiresAt,
-    claimPath: `/family?claim=${code}`,
-    maxSeats: max,
-    childCount: kids,
   });
 });
 
@@ -197,15 +196,14 @@ familyRoutes.post("/claim", authMiddleware, async (c) => {
   const rl = await rateLimit({
     key: `family-claim:${user.id}:${ip}`,
     limit: 10,
-    windowMs: 15 * 60_000,
+    windowMs: 60_000,
   });
-  if (!rl.ok) return c.json({ error: "rate_limited" }, 429);
-
+  if (!rl.ok) {
+    return c.json({ error: "rate_limited", retryAfter: rl.retryAfterSec }, 429);
+  }
   const body = await c.req.json().catch(() => ({}));
-  const code = String(body.inviteCode ?? "")
-    .trim()
-    .toUpperCase();
-  if (code.length < 12) return c.json({ error: "invalid_input" }, 400);
+  const code = String(body?.inviteCode ?? "").trim().toUpperCase();
+  if (!code) return c.json({ error: "missing_code" }, 400);
 
   const invite = await db.query.familyInvites.findFirst({
     where: and(
@@ -213,16 +211,17 @@ familyRoutes.post("/claim", authMiddleware, async (c) => {
       gt(familyInvites.expiresAt, new Date()),
     ),
   });
-  if (!invite) return c.json({ error: "not_found" }, 404);
+  if (!invite) return c.json({ error: "invalid_or_expired" }, 404);
+
   if (invite.ownerUserId === user.id) {
-    return c.json({ error: "cannot_claim_own" }, 400);
+    return c.json({ error: "cannot_join_own_family" }, 400);
   }
 
   const owner = await db.query.users.findFirst({
     where: eq(users.id, invite.ownerUserId),
   });
-  if (!owner || owner.plan !== "family") {
-    return c.json({ error: "family_inactive" }, 400);
+  if (!owner) {
+    return c.json({ error: "owner_not_found" }, 404);
   }
 
   const max = owner.familyMaxSeats || FAMILY_DEFAULT_SEATS;
@@ -250,7 +249,7 @@ familyRoutes.post("/claim", authMiddleware, async (c) => {
 
 familyRoutes.delete("/members/:memberUserId", authMiddleware, async (c) => {
   const user = c.get("user");
-  if (user.plan !== "family") return c.json({ error: "not_family_owner" }, 400);
+  if (!(await isFamilyOwner(user.id))) return c.json({ error: "not_family_owner" }, 400);
   const memberUserId = c.req.param("memberUserId") ?? "";
   if (!memberUserId) return c.json({ error: "invalid_input" }, 400);
   if (memberUserId === user.id) {

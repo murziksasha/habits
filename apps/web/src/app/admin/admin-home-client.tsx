@@ -122,7 +122,7 @@ export function AdminHomeClient() {
               {t.admin.metrics} →
             </a>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-2xl bg-slate-50 p-3 dark:bg-slate-900">
               <p className="text-xs font-bold text-ink-muted">First lesson</p>
               <p className="text-2xl font-black">{funnel.firstLessonComplete}</p>
@@ -130,14 +130,6 @@ export function AdminHomeClient() {
             <div className="rounded-2xl bg-slate-50 p-3 dark:bg-slate-900">
               <p className="text-xs font-bold text-ink-muted">Lessons done</p>
               <p className="text-2xl font-black">{funnel.lessonCompleted}</p>
-            </div>
-            <div className="rounded-2xl bg-slate-50 p-3 dark:bg-slate-900">
-              <p className="text-xs font-bold text-ink-muted">Paywall shown</p>
-              <p className="text-2xl font-black">{funnel.paywallShown}</p>
-            </div>
-            <div className="rounded-2xl bg-slate-50 p-3 dark:bg-slate-900">
-              <p className="text-xs font-bold text-ink-muted">Paywall CTA</p>
-              <p className="text-2xl font-black">{funnel.paywallCtaClick}</p>
             </div>
           </div>
         </section>

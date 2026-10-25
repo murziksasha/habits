@@ -11,14 +11,12 @@ import {
 } from "./entitlements.js";
 
 describe("canAccessLesson", () => {
-  it("allows premium any index", () => {
+  it("allows all plans at any lesson index", () => {
     expect(canAccessLesson({ plan: "premium", lessonIndexInCourse: 99 })).toBe(true);
-  });
-
-  it("allows free first 5 only", () => {
     expect(canAccessLesson({ plan: "free", lessonIndexInCourse: 0 })).toBe(true);
     expect(canAccessLesson({ plan: "free", lessonIndexInCourse: 4 })).toBe(true);
-    expect(canAccessLesson({ plan: "free", lessonIndexInCourse: 5 })).toBe(false);
+    expect(canAccessLesson({ plan: "free", lessonIndexInCourse: 5 })).toBe(true);
+    expect(canAccessLesson({ plan: "free", lessonIndexInCourse: 99 })).toBe(true);
   });
 });
 
@@ -28,8 +26,8 @@ describe("hearts", () => {
     expect(maxHearts("premium")).toBe(999);
   });
 
-  it("blocks free users with zero hearts", () => {
-    expect(canStartLesson({ plan: "free", hearts: 0 })).toBe(false);
+  it("canStartLesson always returns true", () => {
+    expect(canStartLesson({ plan: "free", hearts: 0 })).toBe(true);
     expect(canStartLesson({ plan: "free", hearts: 1 })).toBe(true);
     expect(canStartLesson({ plan: "premium", hearts: 0 })).toBe(true);
   });
@@ -57,25 +55,26 @@ describe("hearts", () => {
 });
 
 describe("rated chess quota", () => {
-  it("limits free plan", () => {
+  it("always allows rated chess for every plan", () => {
     expect(canPlayRatedChess({ plan: "free", ratedGamesToday: 4 })).toBe(true);
-    expect(canPlayRatedChess({ plan: "free", ratedGamesToday: 5 })).toBe(false);
+    expect(canPlayRatedChess({ plan: "free", ratedGamesToday: 5 })).toBe(true);
+    expect(canPlayRatedChess({ plan: "free", ratedGamesToday: 100 })).toBe(true);
     expect(canPlayRatedChess({ plan: "premium", ratedGamesToday: 100 })).toBe(true);
   });
 });
 
-describe("freemium matrix", () => {
-  it("exposes stable free limits", () => {
+describe("entitlements matrix", () => {
+  it("exposes unlimited limits", () => {
     const m = freemiumMatrix();
-    expect(m.freeLessonsPerCourse).toBe(5);
-    expect(m.freeHearts).toBe(5);
-    expect(m.trialDays).toBe(7);
+    expect(m.freeLessonsPerCourse).toBe(Infinity);
+    expect(m.freeHearts).toBe(999);
   });
 
-  it("builds plan feature rows", () => {
+  it("builds plan feature rows as unlimited", () => {
     const rows = planFeatureMatrix();
     expect(rows.some((r) => r.id === "lessons")).toBe(true);
-    expect(rows.find((r) => r.id === "hearts")?.premium).toBe("unlimited");
+    expect(rows.find((r) => r.id === "lessons")?.free).toBe("unlimited");
+    expect(rows.find((r) => r.id === "hearts")?.free).toBe("unlimited");
   });
 
   it("isPremiumActive respects expiry", () => {
