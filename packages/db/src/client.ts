@@ -1,8 +1,10 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema.js";
+import { loadRootEnv } from "./load-env.js";
 
 export function createDb(connectionString?: string) {
+  loadRootEnv();
   const url =
     connectionString ??
     process.env.DATABASE_URL ??

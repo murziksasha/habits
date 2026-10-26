@@ -15,6 +15,8 @@ export default async function Image({ params }: Props) {
   let xp = 0;
   let streak = 0;
   let achievements = 0;
+  let title = "";
+  let pathBadges = 0;
 
   try {
     const res = await fetch(`${API_URL}/profiles/card/${userId}`, {
@@ -28,6 +30,9 @@ export default async function Image({ params }: Props) {
           globalXp: number;
           streakDays: number;
           achievementsUnlocked: number;
+          titleEn?: string;
+          titleUk?: string;
+          pathBadgeCount?: number;
         };
       };
       displayName = data.card.displayName;
@@ -35,6 +40,8 @@ export default async function Image({ params }: Props) {
       xp = data.card.globalXp;
       streak = data.card.streakDays;
       achievements = data.card.achievementsUnlocked;
+      title = data.card.titleEn || data.card.titleUk || "";
+      pathBadges = data.card.pathBadgeCount ?? 0;
     }
   } catch {
     /* fallback card */
@@ -70,11 +77,15 @@ export default async function Image({ params }: Props) {
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div style={{ fontSize: 64, fontWeight: 900, lineHeight: 1.1 }}>{displayName}</div>
+          {title ? (
+            <div style={{ fontSize: 28, fontWeight: 700, opacity: 0.9 }}>{title}</div>
+          ) : null}
           <div style={{ display: "flex", gap: 20, fontSize: 28, fontWeight: 700, opacity: 0.95 }}>
             <span>L{level}</span>
             <span>{xp} XP</span>
             <span>🔥 {streak}d</span>
             <span>🏆 {achievements}</span>
+            {pathBadges > 0 ? <span>🎖️ {pathBadges}</span> : null}
           </div>
         </div>
         <div style={{ fontSize: 22, fontWeight: 600, opacity: 0.85 }}>

@@ -9,8 +9,25 @@ import {
   mcq,
   unit,
 } from "./builders.js";
+import {
+  accessUnit,
+  aggDepthLessons,
+  capstoneOracleExercises,
+  conversionUnit,
+  ddlDepthLessons,
+  dmlDepthLessons,
+  joinDepthLessons,
+  restrictDepthLessons,
+  schemaUnit,
+  selectDepthLessons,
+  selectIntroLessons,
+  setOpsUnit,
+  singleRowUnit,
+  subqueriesUnit,
+} from "./sql-oracle-track.js";
 
-const selectU = unit("select", "SELECT basics", "SELECT basics", [
+const selectU = unit("select", "SELECT і модель", "SELECT and the model", [
+  ...selectIntroLessons,
   lesson(
     "sqlf-select",
     "SELECT / FROM",
@@ -23,6 +40,7 @@ const selectU = unit("select", "SELECT basics", "SELECT basics", [
       mcq("sqlf-s3", "SELECT повертає:", "SELECT returns:", ["рядки (result set)", "лише schema", "git log", "CSS"], 0),
     ],
   ),
+  ...selectDepthLessons,
   lesson(
     "sqlf-where",
     "WHERE filters",
@@ -43,7 +61,7 @@ const selectU = unit("select", "SELECT basics", "SELECT basics", [
   ]),
 ]);
 
-const orderLimit = unit("order-limit", "ORDER BY / LIMIT", "ORDER BY / LIMIT", [
+const orderLimit = unit("order-limit", "Фільтри і сортування", "Filters and sorting", [
   lesson(
     "sqlf-order",
     "Sorting",
@@ -75,6 +93,7 @@ const orderLimit = unit("order-limit", "ORDER BY / LIMIT", "ORDER BY / LIMIT", [
       ),
     ],
   ),
+  ...restrictDepthLessons,
   exam("sqlf-order-exam", "Контрольна: order/limit", "Exam: order/limit", 2, [
     codeFill("sqlf-oe1", "ORDER BY", "ORDER BY", "sql", "SELECT * FROM t ___ name;", ["ORDER BY", "order by"], false),
     codeFill("sqlf-oe2", "DESC", "DESC", "sql", "ORDER BY n ___;", ["DESC", "desc"], false),
@@ -153,6 +172,7 @@ const joins = unit("joins", "JOINs", "JOINs", [
       ),
     ],
   ),
+  ...joinDepthLessons,
   exam("sqlf-join-exam", "Контрольна: JOINs", "Exam: JOINs", 2, [
     codeFill("sqlf-je1", "JOIN", "JOIN", "sql", "a ___ JOIN b ON …", ["INNER", "LEFT", "inner", "left"], false),
     codeFill("sqlf-je2", "ON", "ON", "sql", "JOIN b ___ a.id = b.a_id", ["ON", "on"], false),
@@ -208,6 +228,7 @@ const aggregates = unit("aggregates", "Aggregates", "Aggregates", [
       ),
     ],
   ),
+  ...aggDepthLessons,
   exam("sqlf-agg-exam", "Контрольна: aggregates", "Exam: aggregates", 2, [
     codeFill("sqlf-ae1", "COUNT", "COUNT", "sql", "SELECT ___(*) FROM t;", ["COUNT", "count"], false),
     codeFill("sqlf-ae2", "GROUP BY", "GROUP BY", "sql", "SELECT a, COUNT(*) FROM t ___ a;", ["GROUP BY", "group by"], false),
@@ -270,6 +291,7 @@ const dml = unit("dml", "INSERT / UPDATE / DELETE", "INSERT / UPDATE / DELETE", 
       ),
     ],
   ),
+  ...dmlDepthLessons,
   exam("sqlf-dml-exam", "Контрольна: DML", "Exam: DML", 2, [
     codeFill("sqlf-de1", "INSERT", "INSERT", "sql", "___ INTO t (a) VALUES (1);", ["INSERT", "insert"], false),
     codeFill("sqlf-de2", "SET", "SET", "sql", "UPDATE t ___ a = 2;", ["SET", "set"], false),
@@ -344,6 +366,7 @@ const modeling = unit("modeling", "Keys & modeling", "Keys & modeling", [
       ),
     ],
   ),
+  ...ddlDepthLessons,
   exam("sqlf-model-exam", "Контрольна: modeling", "Exam: modeling", 2, [
     mcq("sqlf-me1", "PK:", "PK:", ["unique row id", "optional dupes", "join type", "limit"], 0),
     mcq("sqlf-me2", "FK:", "FK:", ["reference other table", "sort", "CSS", "HTTP"], 0),
@@ -403,6 +426,123 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
     codeFill("sqlf-ce4", "GROUP BY", "GROUP BY", "sql", "SELECT a, COUNT(*) FROM t ___ a;", ["GROUP BY", "group by"], false),
     codeFill("sqlf-ce5", "COUNT", "COUNT", "sql", "SELECT ___(*) FROM t;", ["COUNT", "count"], false),
     mcq("sqlf-ce6", "LEFT JOIN keeps:", "LEFT JOIN keeps:", ["left rows", "only matches", "no left", "DDL"], 0),
+    ...capstoneOracleExercises,
+  ]),
+]);
+
+const windowsU = unit("windows", "NULL і віконні функції", "NULL and window functions", [
+  lesson(
+    "sqlf-null-coalesce",
+    "NULL & COALESCE",
+    "NULL & COALESCE",
+    2,
+    true,
+    [
+      mcq(
+        "sqlf-nc1",
+        "NULL means:",
+        "NULL means:",
+        ["unknown / missing value", "always zero", "empty string always", "boolean false only"],
+        0,
+      ),
+      codeFill(
+        "sqlf-nc2",
+        "IS NULL",
+        "IS NULL",
+        "sql",
+        "SELECT * FROM t WHERE email ___ NULL;",
+        ["IS", "is"],
+        false,
+      ),
+      codeFill(
+        "sqlf-nc3",
+        "COALESCE",
+        "COALESCE",
+        "sql",
+        "SELECT ___(nickname, 'anon') FROM users;",
+        ["COALESCE", "coalesce"],
+        false,
+      ),
+      mcq(
+        "sqlf-nc4",
+        "1 = NULL evaluates to:",
+        "1 = NULL evaluates to:",
+        ["NULL (unknown), not TRUE", "TRUE always", "FALSE always", "syntax error always"],
+        0,
+      ),
+    ],
+  ),
+  lesson(
+    "sqlf-window-row",
+    "ROW_NUMBER / OVER",
+    "ROW_NUMBER / OVER",
+    3,
+    false,
+    [
+      mcq(
+        "sqlf-w1",
+        "Window functions keep:",
+        "Window functions keep:",
+        ["row detail + analytic value", "only aggregate one row", "drop table", "indexes only"],
+        0,
+      ),
+      codeFill(
+        "sqlf-w2",
+        "row number",
+        "row number",
+        "sql",
+        "SELECT ___() OVER (ORDER BY created_at) AS rn FROM t;",
+        ["ROW_NUMBER", "row_number"],
+        false,
+      ),
+      codeFill(
+        "sqlf-w3",
+        "partition",
+        "partition",
+        "sql",
+        "… OVER (___ BY user_id ORDER BY ts)",
+        ["PARTITION", "partition"],
+        false,
+      ),
+    ],
+  ),
+  lesson(
+    "sqlf-window-rank",
+    "RANK vs DENSE_RANK",
+    "RANK vs DENSE_RANK",
+    3,
+    false,
+    [
+      mcq(
+        "sqlf-w4",
+        "RANK after ties 1,1 next is:",
+        "RANK after ties 1,1 next is:",
+        ["3 (skips)", "2 always", "0", "null"],
+        0,
+      ),
+      mcq(
+        "sqlf-w5",
+        "DENSE_RANK after ties 1,1 next is:",
+        "DENSE_RANK after ties 1,1 next is:",
+        ["2 (no skip)", "3", "1 only", "error"],
+        0,
+      ),
+      codeFill(
+        "sqlf-w6",
+        "dense",
+        "dense",
+        "sql",
+        "SELECT ___(score) OVER (ORDER BY score DESC) FROM t;",
+        ["DENSE_RANK", "dense_rank", "RANK", "rank"],
+        false,
+      ),
+    ],
+  ),
+  exam("sqlf-window-exam", "Контрольна: windows", "Exam: windows", 3, [
+    mcq("sqlf-we1", "OVER is used with:", "OVER is used with:", ["window funcs", "only DELETE", "only GRANT", "CSS"], 0),
+    codeFill("sqlf-we2", "ROW_NUMBER", "ROW_NUMBER", "sql", "___() OVER (ORDER BY id)", ["ROW_NUMBER", "row_number"], false),
+    mcq("sqlf-we3", "PARTITION BY:", "PARTITION BY:", ["groups window", "drops table", "renames DB", "locks only"], 0),
+    codeFill("sqlf-we4", "ORDER in window", "ORDER in window", "sql", "OVER (PARTITION BY u ___ BY ts)", ["ORDER", "order"], false),
   ]),
 ]);
 
@@ -411,10 +551,25 @@ export const sqlFundamentalsContent: CourseContent = {
   titleUk: "SQL: fundamentals",
   titleEn: "SQL Fundamentals",
   descriptionUk:
-    "SELECT, WHERE, ORDER/LIMIT, JOINs, aggregates, DML, keys/indexes + контрольні.",
+    "Oracle SQL за публічною програмою 1Z0-071: SELECT, функції, JOIN, підзапити, множини, DML/DDL, views, права. Оригінальні вправи, не конспект чужого відеокурсу.",
   descriptionEn:
-    "SELECT, WHERE, ORDER/LIMIT, JOINs, aggregates, DML, keys/indexes + unit exams.",
+    "Oracle SQL along the public 1Z0-071 checklist: SELECT, functions, joins, subqueries, set operators, DML/DDL, views, privileges. Original practice, not a copy of a video course.",
   icon: "🗄️",
   color: "#336791",
-  units: [selectU, orderLimit, joins, aggregates, dml, modeling, capstone],
+  units: [
+    selectU,
+    orderLimit,
+    singleRowUnit,
+    conversionUnit,
+    aggregates,
+    joins,
+    subqueriesUnit,
+    setOpsUnit,
+    dml,
+    modeling,
+    schemaUnit,
+    accessUnit,
+    windowsU,
+    capstone,
+  ],
 };

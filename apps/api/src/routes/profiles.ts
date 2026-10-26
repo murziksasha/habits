@@ -12,7 +12,13 @@ import {
   userLessonProgress,
   users,
 } from "@eduforge/db";
-import { PROGRAMMING_MINI_LESSON_SLUGS } from "@eduforge/shared";
+import {
+  PATH_BADGE_CATALOG,
+  PROGRAMMING_MINI_LESSON_SLUGS,
+  applyLevelUps,
+  normalizeProgression,
+  titleLabel,
+} from "@eduforge/shared";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 
@@ -38,6 +44,9 @@ profileRoutes.get("/card/:userId", async (c) => {
     .from(userAchievements)
     .where(eq(userAchievements.userId, userId));
 
+  const progression = applyLevelUps(normalizeProgression(ch.progression), ch.globalLevel);
+
+  const pathBadgeIds = progression.pathBadges ?? [];
   return c.json({
     card: {
       userId,
@@ -47,6 +56,12 @@ profileRoutes.get("/card/:userId", async (c) => {
       globalXp: ch.globalXp,
       streakDays: ch.streakDays,
       achievementsUnlocked: achCount?.n ?? 0,
+      equippedTitle: progression.equippedTitle ?? "rookie",
+      equippedFrame: progression.equippedFrame ?? "none",
+      titleUk: titleLabel(progression.equippedTitle, "uk"),
+      titleEn: titleLabel(progression.equippedTitle, "en"),
+      pathBadgeCount: pathBadgeIds.length,
+      pathBadges: pathBadgeIds.slice(0, 8),
     },
   });
 });
@@ -149,6 +164,8 @@ profileRoutes.get("/:userId", authMiddleware, async (c) => {
     };
   }
 
+  const progression = applyLevelUps(normalizeProgression(ch.progression), ch.globalLevel);
+
   return c.json({
     profile: {
       userId,
@@ -161,6 +178,22 @@ profileRoutes.get("/:userId", authMiddleware, async (c) => {
       isSelf: me.id === userId,
       friendship,
       achievementsUnlocked: achCount?.n ?? 0,
+      equippedTitle: progression.equippedTitle ?? "rookie",
+      equippedFrame: progression.equippedFrame ?? "none",
+      titleUk: titleLabel(progression.equippedTitle, "uk"),
+      titleEn: titleLabel(progression.equippedTitle, "en"),
+      unlockedTitles: progression.unlockedTitles,
+      unlockedFrames: progression.unlockedFrames,
+      pathBadges: (progression.pathBadges ?? [])
+        .map((id) => PATH_BADGE_CATALOG.find((b) => b.id === id))
+        .filter(Boolean)
+        .map((b) => ({
+          id: b!.id,
+          icon: b!.icon,
+          titleUk: b!.titleUk,
+          titleEn: b!.titleEn,
+          courseSlug: b!.courseSlug,
+        })),
       certificates: certs.map((x) => ({
         code: x.code,
         titleUk: x.titleUk,

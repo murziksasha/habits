@@ -32,4 +32,20 @@ describe("idempotency memory cache", () => {
     const hit = await getIdempotentResponse<{ ok: boolean; n: number }>(key);
     expect(hit).toEqual({ ok: true, n: 42 });
   });
+
+  it("stores full success-shaped lesson body", async () => {
+    const key = `lesson-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const body = {
+      accuracy: 1,
+      correctCount: 3,
+      total: 3,
+      xpGain: 12,
+      firstClear: true,
+      results: [{ exerciseId: "e1", correct: true }],
+      examFailed: false,
+      nextLesson: { id: "n1", href: "/courses/x/lessons/n1" },
+    };
+    await setIdempotentResponse(key, body, 180);
+    expect(await getIdempotentResponse(key)).toEqual(body);
+  });
 });

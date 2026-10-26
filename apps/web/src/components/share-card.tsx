@@ -11,6 +11,7 @@ export function ShareProfileCard({
   globalXp,
   streakDays,
   avatarEmoji = "🧙",
+  titleLabel,
   /** Also offer a friend-invite deep link */
   showFriendInvite = false,
 }: {
@@ -20,6 +21,8 @@ export function ShareProfileCard({
   globalXp: number;
   streakDays: number;
   avatarEmoji?: string;
+  /** Equipped character title (localized) */
+  titleLabel?: string | null;
   showFriendInvite?: boolean;
 }) {
   const { t, locale } = useLocale();
@@ -28,6 +31,7 @@ export function ShareProfileCard({
   const guestInvitePath = `/register?friend=${userId}`;
   /** Already logged-in: deep link on friends page */
   const loggedInInvitePath = `/friends?add=${userId}`;
+  const titleBit = titleLabel && titleLabel !== "rookie" ? titleLabel : null;
 
   return (
     <Card className="space-y-3 border-brand/30 bg-gradient-to-br from-brand-soft/30 to-white dark:to-slate-950">
@@ -38,6 +42,9 @@ export function ShareProfileCard({
         <div className="min-w-0 flex-1">
           <p className="text-xs font-black uppercase text-ink-muted">EduForge</p>
           <p className="truncate text-lg font-black">{displayName}</p>
+          {titleBit ? (
+            <p className="truncate text-xs font-bold text-grape">{titleBit}</p>
+          ) : null}
           <div className="mt-1 flex flex-wrap gap-1">
             <Badge tone="brand">
               {t.dashboard.level} {globalLevel}
@@ -52,8 +59,8 @@ export function ShareProfileCard({
         title={`${displayName} · EduForge`}
         text={
           locale === "en"
-            ? `Check out ${displayName} on EduForge — L${globalLevel}, streak ${streakDays}`
-            : `Профіль ${displayName} в EduForge — L${globalLevel}, серія ${streakDays}`
+            ? `Check out ${displayName}${titleBit ? ` (${titleBit})` : ""} on EduForge — L${globalLevel}, streak ${streakDays}`
+            : `Профіль ${displayName}${titleBit ? ` (${titleBit})` : ""} в EduForge — L${globalLevel}, серія ${streakDays}`
         }
       />
       {showFriendInvite && (

@@ -32,8 +32,9 @@ type Vars = { user: AuthedUser };
 
 export const parentRoutes = new Hono<{ Variables: Vars }>();
 
+/** 16 hex chars (~64 bit) + rate limits on claim reduce brute-force risk */
 function code() {
-  return randomBytes(4).toString("hex").toUpperCase();
+  return randomBytes(8).toString("hex").toUpperCase();
 }
 
 /** Student generates invite code for parent to claim */
@@ -78,11 +79,21 @@ parentRoutes.post("/invite", authMiddleware, async (c) => {
 /** Parent claims invite code */
 parentRoutes.post("/claim", authMiddleware, async (c) => {
   const user = c.get("user");
+  const { rateLimit, clientIp } = await import("../rate-limit.js");
+  const ip = clientIp({ get: (n) => c.req.header(n) ?? null });
+  const rl = await rateLimit({
+    key: `parent-claim:${user.id}:${ip}`,
+    limit: 10,
+    windowMs: 15 * 60 * 1000,
+  });
+  if (!rl.ok) {
+    return c.json({ error: "rate_limited", retryAfterSec: rl.retryAfterSec }, 429);
+  }
   const body = await c.req.json().catch(() => ({}));
   const inviteCode = String(body.inviteCode ?? "")
     .trim()
     .toUpperCase();
-  if (!inviteCode) return c.json({ error: "invalid_input" }, 400);
+  if (!inviteCode || inviteCode.length < 12) return c.json({ error: "invalid_input" }, 400);
 
   const link = await db.query.parentStudentLinks.findFirst({
     where: and(
@@ -627,14 +638,8 @@ parentRoutes.post("/children/:studentId/digest/send", authMiddleware, async (c) 
  * Auth: CRON_SECRET via x-cron-secret or Bearer, or admin session.
  */
 parentRoutes.post("/digest/run", async (c) => {
-  const cron = process.env.CRON_SECRET;
-  const secret =
-    c.req.header("x-cron-secret") ??
-    c.req.header("authorization")?.replace(/^Bearer\s+/i, "");
-
-  let allowed = false;
-  if (cron && secret === cron) allowed = true;
-  if (!cron && process.env.NODE_ENV !== "production") allowed = true;
+  const { cronAuthorized } = await import("../cron-auth.js");
+  let allowed = cronAuthorized(c);
 
   if (!allowed) {
     const { getUserFromToken } = await import("../auth.js");

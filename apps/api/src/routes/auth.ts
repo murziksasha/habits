@@ -1,29 +1,42 @@
 import { Hono } from "hono";
-import { and, eq, gt, isNull } from "drizzle-orm";
-import { characters, passwordResetTokens, users } from "@eduforge/db";
-import { loginSchema, registerSchema } from "@eduforge/shared";
+import { and, desc, eq, gt, isNull, ne } from "drizzle-orm";
+import {
+  characters,
+  emailVerificationTokens,
+  passwordResetTokens,
+  sessions,
+  users,
+} from "@eduforge/db";
+import {
+  applyLevelUps,
+  isFeatureEnabled,
+  loginSchema,
+  normalizeProgression,
+  passwordSchema,
+  registerSchema,
+} from "@eduforge/shared";
 import { z } from "zod";
 import { randomBytes } from "node:crypto";
 import {
   authMiddleware,
   clearSessionCookie,
-  createEmailVerificationToken,
   createSession,
-  consumeEmailVerificationToken,
   destroyOtherSessions,
   destroySession,
   hashPassword,
   hashToken,
   isAccountActive,
   listUserSessions,
-  publicUser,
   registerUser,
   setSessionCookie,
+  shouldIssueBearerToken,
+  userFromRequest,
   verifyPassword,
   type AuthedUser,
 } from "../auth.js";
+import { cronAuthorized, cronUnauthorized } from "../cron-auth.js";
 import { db } from "../db.js";
-import { passwordResetEmail, registrationVerifyEmail, sendMail, webOrigin } from "../email.js";
+import { passwordResetEmail, registrationVerifyEmail, sendMail } from "../email.js";
 import { env } from "../env.js";
 import { clientIp, rateLimit } from "../rate-limit.js";
 import { runUnverifiedLifecycle } from "../services/unverified-lifecycle.js";
@@ -52,6 +65,63 @@ async function guardAuth(
   return null;
 }
 
+const EMAIL_VERIFY_MS = 30 * 24 * 60 * 60 * 1000;
+
+async function issueEmailVerification(userId: string, email: string) {
+  if (!isFeatureEnabled("email_verify")) return { sent: false as const };
+  const raw = randomBytes(32).toString("hex");
+  const tokenHash = hashToken(raw);
+  const expiresAt = new Date(Date.now() + EMAIL_VERIFY_MS);
+  await db.insert(emailVerificationTokens).values({
+    userId,
+    tokenHash,
+    expiresAt,
+  });
+  const verifyUrl = `${env.webOrigin}/verify-email?token=${raw}`;
+  const [userRow, character] = await Promise.all([
+    db.query.users.findFirst({ where: eq(users.id, userId) }),
+    db.query.characters.findFirst({ where: eq(characters.userId, userId) }),
+  ]);
+  const mail = await sendMail(
+    registrationVerifyEmail({
+      to: email,
+      displayName: character?.displayName ?? "",
+      verifyUrl,
+      locale: userRow?.preferredLocale ?? "uk",
+    }),
+  );
+  const isDev = process.env.NODE_ENV !== "production" || Boolean(mail.dev);
+  if (isDev) console.log(`[email-verify] ${email} → ${verifyUrl}`);
+  return {
+    sent: mail.sent || Boolean(mail.dev),
+    ...(isDev ? { verifyUrl, devToken: raw } : {}),
+  };
+}
+
+function publicUser(user: {
+  id: string;
+  email: string;
+  plan: string;
+  role: string;
+  totpEnabled?: boolean;
+  mfaBackupCodeHashes?: string[] | null;
+  emailVerifiedAt?: Date | null;
+  accountStatus?: string | null;
+  planExpiresAt?: Date | null;
+}) {
+  return {
+    id: user.id,
+    email: user.email,
+    plan: user.plan,
+    role: user.role,
+    emailVerified: Boolean(user.emailVerifiedAt),
+    accountStatus: user.accountStatus ?? "active",
+    planExpiresAt: user.planExpiresAt ?? null,
+    totpEnabled: user.totpEnabled,
+    backupCodesRemaining: (user.mfaBackupCodeHashes ?? []).length,
+  };
+}
+
 authRoutes.post("/register", async (c) => {
   const limited = await guardAuth(c, "register");
   if (limited) return limited;
@@ -70,32 +140,17 @@ authRoutes.post("/register", async (c) => {
     if (parsed.data.referralCode) {
       await redeemReferralCode(user.id, parsed.data.referralCode);
     }
-
-    const { raw: verifyRaw } = await createEmailVerificationToken(user.id);
-    const verifyUrl = `${webOrigin()}/verify-email?token=${verifyRaw}`;
-    const mail = await sendMail(
-      registrationVerifyEmail({
-        to: user.email,
-        displayName: parsed.data.displayName,
-        verifyUrl,
-        locale: user.preferredLocale ?? "uk",
-      }),
-    );
-    console.log(`[email-verify] ${user.email} → ${verifyUrl}`);
-
+    const verify = await issueEmailVerification(user.id, user.email);
     const { token, expiresAt } = await createSession(user.id);
     setSessionCookie(c, token, expiresAt);
     const character = await db.query.characters.findFirst({
       where: eq(characters.userId, user.id),
     });
-    // Expose link in non-prod OR when SMTP is not configured (docker/local console mail)
-    const exposeVerify = process.env.NODE_ENV !== "production" || Boolean(mail.dev);
     return c.json({
       user: publicUser(user),
       character,
-      token,
-      verificationEmailSent: mail.sent || Boolean(mail.dev),
-      ...(exposeVerify ? { verifyUrl, devToken: verifyRaw } : {}),
+      ...(shouldIssueBearerToken(c) ? { token } : {}),
+      emailVerification: verify,
     });
   } catch (e) {
     if (e instanceof Error && e.message === "email_taken") {
@@ -114,111 +169,52 @@ authRoutes.post("/login", async (c) => {
   const user = await db.query.users.findFirst({
     where: eq(users.email, parsed.data.email.toLowerCase()),
   });
-  if (!user || !(await verifyPassword(parsed.data.password, user.passwordHash))) {
+  if (!user?.passwordHash || !(await verifyPassword(parsed.data.password, user.passwordHash))) {
     return c.json({ error: "invalid_credentials" }, 401);
   }
+
   if (!isAccountActive(user)) {
     return c.json({ error: "account_inactive" }, 403);
   }
-  const { token, expiresAt } = await createSession(user.id);
+
+  if (isFeatureEnabled("require_email_verify") && !user.emailVerifiedAt && user.role !== "admin") {
+    return c.json(
+      {
+        error: "email_unverified",
+        message: "Confirm your email before signing in",
+      },
+      403,
+    );
+  }
+
+  const { adminMfaEnforce, createMfaPending } = await import("../mfa.js");
+  // Challenge when any user has TOTP enrolled (admin or learner).
+  if (user.totpEnabled) {
+    const mfaToken = await createMfaPending(user.id);
+    return c.json({
+      mfaRequired: true,
+      mfaToken,
+      user: publicUser(user),
+    });
+  }
+
+  const mfaVerified = true;
+  const { token, expiresAt } = await createSession(user.id, { mfaVerified });
   setSessionCookie(c, token, expiresAt);
   const character = await db.query.characters.findFirst({
     where: eq(characters.userId, user.id),
   });
   return c.json({
-    user: publicUser(user),
+    user: {
+      ...publicUser(user),
+      totpEnabled: user.totpEnabled,
+      backupCodesRemaining: (user.mfaBackupCodeHashes ?? []).length,
+    },
     character,
-    token,
+    ...(shouldIssueBearerToken(c) ? { token } : {}),
+    mfaEnrollRequired:
+      user.role === "admin" && adminMfaEnforce() && !user.totpEnabled,
   });
-});
-
-const verifyEmailSchema = z.object({ token: z.string().min(20) });
-const resendSchema = z.object({ email: z.string().email() });
-
-authRoutes.post("/verify-email", async (c) => {
-  const limited = await guardAuth(c, "verify-email");
-  if (limited) return limited;
-  const body = await c.req.json().catch(() => null);
-  const parsed = verifyEmailSchema.safeParse(body);
-  if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
-
-  const result = await consumeEmailVerificationToken(parsed.data.token);
-  if (!result) return c.json({ error: "invalid_or_expired_token" }, 400);
-
-  // Issue session so user lands authenticated after confirm
-  const { token, expiresAt } = await createSession(result.user.id);
-  setSessionCookie(c, token, expiresAt);
-  const character = await db.query.characters.findFirst({
-    where: eq(characters.userId, result.user.id),
-  });
-  return c.json({
-    ok: true,
-    alreadyVerified: result.alreadyVerified,
-    user: publicUser(result.user),
-    character,
-    token,
-  });
-});
-
-/**
- * Public resend — always generic success (no email enumeration).
- * Works for active or inactive unverified accounts.
- */
-authRoutes.post("/resend-verification", async (c) => {
-  const limited = await guardAuth(c, "resend-verification");
-  if (limited) return limited;
-  const body = await c.req.json().catch(() => null);
-  const parsed = resendSchema.safeParse(body);
-  if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
-
-  const generic = {
-    ok: true,
-    message:
-      "Якщо акаунт існує і ще не підтверджений, ми надіслали лист (у dev — див. verifyUrl).",
-  };
-
-  const user = await db.query.users.findFirst({
-    where: eq(users.email, parsed.data.email.toLowerCase()),
-  });
-  if (!user || user.emailVerifiedAt) {
-    return c.json(generic);
-  }
-
-  const character = await db.query.characters.findFirst({
-    where: eq(characters.userId, user.id),
-  });
-  const { raw } = await createEmailVerificationToken(user.id);
-  const verifyUrl = `${webOrigin()}/verify-email?token=${raw}`;
-  const mail = await sendMail(
-    registrationVerifyEmail({
-      to: user.email,
-      displayName: character?.displayName ?? "friend",
-      verifyUrl,
-      locale: user.preferredLocale ?? "uk",
-    }),
-  );
-  console.log(`[email-verify:resend] ${user.email} → ${verifyUrl}`);
-
-  const exposeVerify = process.env.NODE_ENV !== "production" || Boolean(mail.dev);
-  return c.json({
-    ...generic,
-    emailSent: mail.sent || Boolean(mail.dev),
-    ...(exposeVerify ? { verifyUrl, devToken: raw } : {}),
-  });
-});
-
-/** Cron: inactivate 7d+ unverified; delete 30d+ unverified. If CRON_SECRET set, require it. */
-authRoutes.post("/cron/unverified-lifecycle", async (c) => {
-  const cron = process.env.CRON_SECRET;
-  const secret =
-    c.req.header("x-cron-secret") ??
-    c.req.header("authorization")?.replace(/^Bearer\s+/i, "");
-  // Same pattern as homework reminders: secret required only when configured
-  if (cron && secret !== cron) {
-    return c.json({ error: "unauthorized" }, 401);
-  }
-  const result = await runUnverifiedLifecycle();
-  return c.json({ ok: true, ...result });
 });
 
 authRoutes.post("/logout", authMiddleware, async (c) => {
@@ -234,6 +230,21 @@ authRoutes.get("/sessions", authMiddleware, async (c) => {
   const token = c.get("sessionToken");
   const list = await listUserSessions(user.id, token);
   return c.json({ sessions: list, count: list.length });
+});
+
+authRoutes.delete("/sessions/:id", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id") ?? "";
+  const current = c.get("sessionToken");
+  const row = await db.query.sessions.findFirst({
+    where: and(eq(sessions.id, id), eq(sessions.userId, user.id)),
+  });
+  if (!row) return c.json({ error: "not_found" }, 404);
+  if (current && row.tokenHash === hashToken(current)) {
+    return c.json({ error: "cannot_revoke_current" }, 400);
+  }
+  await db.delete(sessions).where(eq(sessions.id, id));
+  return c.json({ ok: true });
 });
 
 /**
@@ -255,34 +266,371 @@ authRoutes.post("/logout-others", authMiddleware, async (c) => {
   return c.json({ ok: true, revoked, currentRevoked: false });
 });
 
+/** Alias of /logout-others for admin security UI. */
+authRoutes.post("/sessions/revoke-others", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const token = c.get("sessionToken");
+  if (!token) return c.json({ error: "unauthorized" }, 401);
+  const { revoked } = await destroyOtherSessions(user.id, token);
+  return c.json({ ok: true, revoked, currentRevoked: false });
+});
+
 authRoutes.get("/me", authMiddleware, async (c) => {
   const user = c.get("user");
   let character = await db.query.characters.findFirst({
     where: eq(characters.userId, user.id),
   });
-  // Reset daily XP display if date rolled over
+  // Reset daily XP display if date rolled over; backfill talent skill points
   if (character) {
     const today = new Date().toISOString().slice(0, 10);
+    const patch: Partial<typeof characters.$inferInsert> = {};
     if (character.dailyXpDate !== today && (character.dailyXp ?? 0) > 0) {
+      patch.dailyXp = 0;
+      patch.dailyXpDate = today;
+    }
+    const progression = applyLevelUps(
+      normalizeProgression(character.progression),
+      character.globalLevel,
+    );
+    const prev = normalizeProgression(character.progression);
+    if (
+      progression.skillPoints !== prev.skillPoints ||
+      progression.lastLevelAwarded !== prev.lastLevelAwarded ||
+      progression.unlockedTitles.length !== prev.unlockedTitles.length
+    ) {
+      patch.progression = progression;
+    }
+    if (Object.keys(patch).length > 0) {
       const [updated] = await db
         .update(characters)
-        .set({ dailyXp: 0, dailyXpDate: today })
+        .set(patch)
         .where(eq(characters.id, character.id))
         .returning();
       character = updated;
     }
   }
+  const { adminMfaEnforce, getSessionMfaVerified } = await import("../mfa.js");
+  const sessionToken = c.get("sessionToken");
+  const mfaVerified =
+    user.role !== "admin" || !user.totpEnabled
+      ? true
+      : await getSessionMfaVerified(sessionToken);
   return c.json({
-    user: publicUser(user),
+    user: {
+      ...publicUser(user),
+      planExpiresAt: user.planExpiresAt,
+      totpEnabled: user.totpEnabled,
+      mfaVerified,
+      backupCodesRemaining: (user.mfaBackupCodeHashes ?? []).length,
+      mfaEnrollRequired:
+        user.role === "admin" && adminMfaEnforce() && !user.totpEnabled,
+      mfaRequired: user.role === "admin" && user.totpEnabled && !mfaVerified,
+    },
     character,
   });
+});
+
+/* ——— Email verification ——— */
+
+authRoutes.post("/verify-email", async (c) => {
+  const limited = await guardAuth(c, "verify_email");
+  if (limited) return limited;
+  const body = await c.req.json().catch(() => null);
+  const token = typeof body?.token === "string" ? body.token : "";
+  if (token.length < 20) return c.json({ error: "invalid_input" }, 400);
+
+  const tokenHash = hashToken(token);
+  const row = await db.query.emailVerificationTokens.findFirst({
+    where: and(
+      eq(emailVerificationTokens.tokenHash, tokenHash),
+      gt(emailVerificationTokens.expiresAt, new Date()),
+      isNull(emailVerificationTokens.usedAt),
+    ),
+  });
+  if (!row) return c.json({ error: "invalid_or_expired_token" }, 400);
+
+  const [updated] = await db
+    .update(users)
+    .set({
+      emailVerifiedAt: new Date(),
+      accountStatus: "active",
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, row.userId))
+    .returning();
+  await db
+    .update(emailVerificationTokens)
+    .set({ usedAt: new Date() })
+    .where(eq(emailVerificationTokens.id, row.id));
+
+  const sessionUser = updated ?? (await db.query.users.findFirst({ where: eq(users.id, row.userId) }));
+  if (sessionUser) {
+    const { token, expiresAt } = await createSession(sessionUser.id);
+    setSessionCookie(c, token, expiresAt);
+    return c.json({
+      ok: true,
+      emailVerified: true,
+      user: publicUser(sessionUser),
+      ...(shouldIssueBearerToken(c) ? { token } : {}),
+    });
+  }
+
+  return c.json({ ok: true, emailVerified: true });
+});
+
+authRoutes.post("/resend-verification", async (c) => {
+  const limited = await guardAuth(c, "resend_verify");
+  if (limited) return limited;
+  const body = await c.req.json().catch(() => ({}));
+  const sessionUser = await userFromRequest(c);
+  if (sessionUser && sessionUser.emailVerifiedAt) {
+    return c.json({ ok: true, alreadyVerified: true });
+  }
+  if (sessionUser && !sessionUser.emailVerifiedAt) {
+    const verify = await issueEmailVerification(sessionUser.id, sessionUser.email);
+    return c.json({ ok: true, ...verify });
+  }
+
+  const email = typeof body?.email === "string" ? body.email.toLowerCase() : "";
+  const generic = {
+    ok: true,
+    message:
+      "Якщо акаунт існує і ще не підтверджений, ми надіслали лист.",
+  };
+  if (!email.includes("@")) return c.json({ error: "invalid_input" }, 400);
+  const user = await db.query.users.findFirst({ where: eq(users.email, email) });
+  if (!user || user.emailVerifiedAt) return c.json(generic);
+  const verify = await issueEmailVerification(user.id, user.email);
+  const isDev = process.env.NODE_ENV !== "production";
+  return c.json({
+    ...generic,
+    ...(isDev && "verifyUrl" in verify
+      ? { verifyUrl: verify.verifyUrl, devToken: verify.devToken }
+      : {}),
+  });
+});
+
+/** Inactivate unverified accounts after 7 days; delete them after 30 days. */
+authRoutes.post("/cron/unverified-lifecycle", async (c) => {
+  if (!cronAuthorized(c)) return cronUnauthorized(c);
+  const result = await runUnverifiedLifecycle();
+  return c.json({ ok: true, ...result });
+});
+
+/* ——— User TOTP MFA (admin + learners) ——— */
+
+authRoutes.get("/mfa/status", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const { adminMfaEnforce, getSessionMfaVerified } = await import("../mfa.js");
+  const sessionToken = c.get("sessionToken");
+  const mfaVerified = await getSessionMfaVerified(sessionToken);
+  return c.json({
+    totpEnabled: user.totpEnabled,
+    mfaVerified,
+    mfaEnforced: user.role === "admin" ? adminMfaEnforce() : false,
+    backupCodesRemaining: (user.mfaBackupCodeHashes ?? []).length,
+    availableToAll: true,
+  });
+});
+
+authRoutes.post("/mfa/totp/setup", authMiddleware, async (c) => {
+  const user = c.get("user");
+  if (user.totpEnabled) return c.json({ error: "already_enabled" }, 400);
+  const limited = await guardAuth(c, "mfa_setup");
+  if (limited) return limited;
+
+  const {
+    generateTotpSecret,
+    encryptTotpSecret,
+    totpUri,
+  } = await import("../mfa.js");
+  const secret = generateTotpSecret();
+  await db
+    .update(users)
+    .set({
+      totpSecretEnc: encryptTotpSecret(secret),
+      totpEnabled: false,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, user.id));
+  return c.json({
+    secret,
+    otpauthUrl: totpUri(secret, user.email),
+  });
+});
+
+authRoutes.post("/mfa/totp/confirm", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const limited = await guardAuth(c, "mfa_confirm");
+  if (limited) return limited;
+  const body = await c.req.json().catch(() => null);
+  const code = typeof body?.code === "string" ? body.code : "";
+  const {
+    loadUserTotpSecret,
+    verifyTotpCode,
+    markSessionMfaVerified,
+    generateBackupCodes,
+    hashBackupCodes,
+  } = await import("../mfa.js");
+  const secret = await loadUserTotpSecret(user.id);
+  if (!secret) return c.json({ error: "setup_required" }, 400);
+  if (!verifyTotpCode(secret, code)) return c.json({ error: "invalid_code" }, 401);
+  const backupCodes = generateBackupCodes(10);
+  await db
+    .update(users)
+    .set({
+      totpEnabled: true,
+      totpVerifiedAt: new Date(),
+      mfaBackupCodeHashes: hashBackupCodes(backupCodes),
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, user.id));
+  const sessionToken = c.get("sessionToken");
+  if (sessionToken) await markSessionMfaVerified(sessionToken);
+  return c.json({
+    ok: true,
+    totpEnabled: true,
+    /** Shown once — store offline */
+    backupCodes,
+  });
+});
+
+authRoutes.post("/mfa/totp/verify", async (c) => {
+  const limited = await guardAuth(c, "mfa_verify");
+  if (limited) return limited;
+  const body = await c.req.json().catch(() => null);
+  const mfaToken = typeof body?.mfaToken === "string" ? body.mfaToken : "";
+  const code = typeof body?.code === "string" ? body.code : "";
+  const { consumeMfaPending, verifyUserMfaCode } = await import("../mfa.js");
+  // Peek pending without consume until code valid — use consume after verify
+  const { mfaPending } = await import("@eduforge/db");
+  const { and, eq, gt } = await import("drizzle-orm");
+  const { hashToken } = await import("../auth.js");
+  const pending = await db.query.mfaPending.findFirst({
+    where: and(
+      eq(mfaPending.tokenHash, hashToken(mfaToken)),
+      gt(mfaPending.expiresAt, new Date()),
+    ),
+  });
+  if (!pending) return c.json({ error: "invalid_mfa_token" }, 401);
+  const method = await verifyUserMfaCode(pending.userId, code);
+  if (!method) return c.json({ error: "invalid_code" }, 401);
+  await consumeMfaPending(mfaToken);
+  const user = await db.query.users.findFirst({ where: eq(users.id, pending.userId) });
+  if (!user) return c.json({ error: "not_found" }, 404);
+  if (!isAccountActive(user)) return c.json({ error: "account_inactive" }, 403);
+  const { token, expiresAt } = await createSession(user.id, { mfaVerified: true });
+  setSessionCookie(c, token, expiresAt);
+  const character = await db.query.characters.findFirst({
+    where: eq(characters.userId, user.id),
+  });
+  return c.json({
+    user: {
+      ...publicUser(user),
+      totpEnabled: true,
+      mfaVerified: true,
+      backupCodesRemaining: (user.mfaBackupCodeHashes ?? []).length,
+    },
+    character,
+    ...(shouldIssueBearerToken(c) ? { token } : {}),
+    mfaMethod: method,
+  });
+});
+
+authRoutes.post("/mfa/step-up", authMiddleware, async (c) => {
+  const user = c.get("user");
+  if (user.role !== "admin") return c.json({ error: "forbidden" }, 403);
+  const limited = await guardAuth(c, "mfa_stepup");
+  if (limited) return limited;
+  const body = await c.req.json().catch(() => null);
+  const code = typeof body?.code === "string" ? body.code : "";
+  const { verifyUserMfaCode, createStepUpToken } = await import("../mfa.js");
+  if (!user.totpEnabled) {
+    // No TOTP: allow step-up without code (dev / not enrolled)
+    const { token, expiresAt } = await createStepUpToken(user.id);
+    return c.json({ stepUpToken: token, expiresAt });
+  }
+  const method = await verifyUserMfaCode(user.id, code);
+  if (!method) return c.json({ error: "invalid_code" }, 401);
+  const { token, expiresAt } = await createStepUpToken(user.id);
+  return c.json({ stepUpToken: token, expiresAt, mfaMethod: method });
+});
+
+/** Disable TOTP (requires valid code) */
+authRoutes.post("/mfa/totp/disable", authMiddleware, async (c) => {
+  const user = c.get("user");
+  if (!user.totpEnabled) return c.json({ ok: true, totpEnabled: false });
+  if (user.role === "admin") {
+    const { adminMfaEnforce } = await import("../mfa.js");
+    if (adminMfaEnforce()) {
+      return c.json({ error: "admin_mfa_required", message: "Cannot disable admin MFA in production" }, 403);
+    }
+  }
+  const body = await c.req.json().catch(() => null);
+  const code = typeof body?.code === "string" ? body.code : "";
+  const { verifyUserMfaCode } = await import("../mfa.js");
+  if (!(await verifyUserMfaCode(user.id, code))) {
+    return c.json({ error: "invalid_code" }, 401);
+  }
+  await db
+    .update(users)
+    .set({
+      totpEnabled: false,
+      totpSecretEnc: null,
+      totpVerifiedAt: null,
+      mfaBackupCodeHashes: [],
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, user.id));
+  return c.json({ ok: true, totpEnabled: false });
+});
+
+/** Regenerate backup codes (requires valid TOTP code, invalidates old) */
+authRoutes.post("/mfa/backup-codes/regenerate", authMiddleware, async (c) => {
+  const user = c.get("user");
+  if (!user.totpEnabled) return c.json({ error: "mfa_enroll_required" }, 403);
+  const limited = await guardAuth(c, "mfa_backup_regen");
+  if (limited) return limited;
+  const body = await c.req.json().catch(() => null);
+  const code = typeof body?.code === "string" ? body.code : "";
+  // TOTP only for regen (don't burn a backup code to replace backups)
+  const {
+    loadUserTotpSecret,
+    verifyTotpCode,
+    generateBackupCodes,
+    hashBackupCodes,
+  } = await import("../mfa.js");
+  const secret = await loadUserTotpSecret(user.id);
+  if (!secret || !verifyTotpCode(secret, code)) {
+    return c.json({ error: "invalid_code", hint: "use_totp" }, 401);
+  }
+  const backupCodes = generateBackupCodes(10);
+  await db
+    .update(users)
+    .set({
+      mfaBackupCodeHashes: hashBackupCodes(backupCodes),
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, user.id));
+  if (user.role === "admin") {
+    const { writeAdminAudit } = await import("../audit.js");
+    await writeAdminAudit(db, {
+      actorUserId: user.id,
+      action: "backup_codes_regenerate",
+      targetType: "user",
+      targetId: user.id,
+      meta: {},
+    });
+  }
+  return c.json({ backupCodes, backupCodesRemaining: backupCodes.length });
 });
 
 authRoutes.patch("/me/character", authMiddleware, async (c) => {
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
+  const { sanitizeDisplayName } = await import("@eduforge/shared");
   const displayName =
-    typeof body.displayName === "string" ? body.displayName.trim().slice(0, 32) : null;
+    typeof body.displayName === "string" ? sanitizeDisplayName(body.displayName, 32) : null;
   const avatarKey =
     typeof body.avatarKey === "string" ? body.avatarKey.slice(0, 64) : null;
   if (!displayName && !avatarKey) return c.json({ error: "invalid_input" }, 400);
@@ -366,9 +714,17 @@ authRoutes.post("/onboarding/complete", authMiddleware, async (c) => {
     "completedFirstLesson",
     "triedChess",
     "triedTyping",
+    "triedFlashcards",
     "viewedLeaderboard",
     "exploredPricing",
     "dismissed",
+    "wizardCompleted",
+    "personaStudent",
+    "personaParent",
+    "personaTeacher",
+    "trackSkills",
+    "trackCode",
+    "trackChess",
   ] as const;
   if (!allowed.includes(key as (typeof allowed)[number])) {
     return c.json({ error: "invalid_key" }, 400);
@@ -377,7 +733,17 @@ authRoutes.post("/onboarding/complete", authMiddleware, async (c) => {
     where: eq(characters.userId, user.id),
   });
   if (!character) return c.json({ error: "not_found" }, 404);
-  const next = { ...(character.onboarding ?? {}), [key]: true };
+  const value = body.value === false ? false : true;
+  const next: Record<string, boolean> = {
+    ...((character.onboarding ?? {}) as Record<string, boolean>),
+    [key]: value,
+  };
+  // Exclusive persona flags when enabling one role
+  if (value && key.startsWith("persona")) {
+    next.personaStudent = key === "personaStudent";
+    next.personaParent = key === "personaParent";
+    next.personaTeacher = key === "personaTeacher";
+  }
   const [updated] = await db
     .update(characters)
     .set({ onboarding: next })
@@ -389,7 +755,7 @@ authRoutes.post("/onboarding/complete", authMiddleware, async (c) => {
 const forgotSchema = z.object({ email: z.string().email() });
 const resetSchema = z.object({
   token: z.string().min(20),
-  password: z.string().min(8).max(128),
+  password: passwordSchema,
 });
 
 authRoutes.post("/forgot-password", async (c) => {
@@ -457,5 +823,87 @@ authRoutes.post("/reset-password", async (c) => {
     .set({ usedAt: new Date() })
     .where(eq(passwordResetTokens.id, row.id));
 
+  // Invalidate all sessions after password reset
+  await db.delete(sessions).where(eq(sessions.userId, row.userId));
+
   return c.json({ ok: true });
+});
+
+/** Change password while authenticated (revokes other sessions). */
+authRoutes.post("/change-password", authMiddleware, async (c) => {
+  const limited = await guardAuth(c, "change_password");
+  if (limited) return limited;
+  const user = c.get("user");
+  const body = await c.req.json().catch(() => null);
+  const parsed = z
+    .object({
+      currentPassword: z.string().min(1),
+      newPassword: passwordSchema,
+    })
+    .safeParse(body);
+  if (!parsed.success) {
+    return c.json({ error: "invalid_input", details: parsed.error.flatten() }, 400);
+  }
+  const row = await db.query.users.findFirst({ where: eq(users.id, user.id) });
+  if (!row || !(await verifyPassword(parsed.data.currentPassword, row.passwordHash))) {
+    return c.json({ error: "invalid_credentials" }, 401);
+  }
+  if (parsed.data.currentPassword === parsed.data.newPassword) {
+    return c.json({ error: "same_password" }, 400);
+  }
+  const passwordHash = await hashPassword(parsed.data.newPassword);
+  await db
+    .update(users)
+    .set({ passwordHash, updatedAt: new Date() })
+    .where(eq(users.id, user.id));
+  const token = c.get("sessionToken");
+  if (token) {
+    await destroyOtherSessions(user.id, token);
+  }
+  return c.json({ ok: true, revokedOthers: true });
+});
+
+/**
+ * GDPR-style account deletion.
+ * Requires password + confirmation phrase "DELETE".
+ * Cascades via FK onDelete cascade for most user data.
+ */
+authRoutes.post("/account/delete", authMiddleware, async (c) => {
+  const limited = await guardAuth(c, "account_delete");
+  if (limited) return limited;
+  const user = c.get("user");
+  if (user.role === "admin") {
+    return c.json(
+      {
+        error: "admin_cannot_self_delete",
+        message: "Demote or use another admin before deleting this account",
+      },
+      400,
+    );
+  }
+  const body = await c.req.json().catch(() => null);
+  const parsed = z
+    .object({
+      password: z.string().min(1),
+      confirm: z.literal("DELETE"),
+    })
+    .safeParse(body);
+  if (!parsed.success) {
+    return c.json(
+      {
+        error: "invalid_input",
+        hint: 'Send { password, confirm: "DELETE" }',
+      },
+      400,
+    );
+  }
+  const row = await db.query.users.findFirst({ where: eq(users.id, user.id) });
+  if (!row || !(await verifyPassword(parsed.data.password, row.passwordHash))) {
+    return c.json({ error: "invalid_credentials" }, 401);
+  }
+  const token = c.get("sessionToken");
+  if (token) await destroySession(token);
+  clearSessionCookie(c);
+  await db.delete(users).where(eq(users.id, user.id));
+  return c.json({ ok: true, deleted: true });
 });

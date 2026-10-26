@@ -144,6 +144,18 @@ export type UnlockContext = {
   minisRaceRank?: number;
   /** Unit exam just passed */
   examPassed?: boolean;
+  /** Friend gift sent */
+  giftSent?: boolean;
+  /** Friend gift claimed */
+  giftClaimed?: boolean;
+  /** Talent rank purchased (skill points spent) */
+  talentSpent?: boolean;
+  /** Total talent ranks across tree (sum of ranks) */
+  talentRanksTotal?: number;
+  /** Path badges owned count */
+  pathBadgeCount?: number;
+  /** True when any new path badge unlocked this session */
+  pathBadgeEarned?: boolean;
 };
 
 /** Evaluate and unlock achievements; returns newly unlocked list */
@@ -231,6 +243,40 @@ export async function evaluateAchievements(
   }
   if (ctx.lessonCompleted && ctx.courseSlug === "express_fundamentals") {
     await tryUnlock("express_fundamentals_start");
+  }
+  if (ctx.lessonCompleted && ctx.courseSlug === "embedded_cpp") {
+    await tryUnlock("embedded_cpp_start");
+    const emb = await db.query.courses.findFirst({
+      where: eq(courses.slug, "embedded_cpp"),
+    });
+    if (emb) {
+      const [embCnt] = await db
+        .select({ n: sql<number>`count(*)::int` })
+        .from(userLessonProgress)
+        .where(
+          and(
+            eq(userLessonProgress.userId, userId),
+            eq(userLessonProgress.courseId, emb.id),
+            eq(userLessonProgress.status, "completed"),
+          ),
+        );
+      if ((embCnt?.n ?? 0) >= 15) await tryUnlock("embedded_cpp_deep");
+
+      const [embExamCnt] = await db
+        .select({ n: sql<number>`count(*)::int` })
+        .from(userLessonProgress)
+        .innerJoin(lessons, eq(lessons.id, userLessonProgress.lessonId))
+        .where(
+          and(
+            eq(userLessonProgress.userId, userId),
+            eq(userLessonProgress.courseId, emb.id),
+            eq(userLessonProgress.status, "completed"),
+            eq(lessons.isExam, true),
+          ),
+        );
+      if ((embExamCnt?.n ?? 0) >= 5) await tryUnlock("embedded_cpp_exams");
+      if ((embExamCnt?.n ?? 0) >= 12) await tryUnlock("embedded_cpp_complete");
+    }
   }
 
   if (ctx.lessonCompleted && ctx.courseSlug === "programming") {
@@ -332,6 +378,21 @@ export async function evaluateAchievements(
   if (ctx.chessPlayed) await tryUnlock("chess_player");
   if (ctx.joinedClass) await tryUnlock("social_learner");
   if (ctx.joinedTournament) await tryUnlock("tournament_entry");
+  if (ctx.giftSent) await tryUnlock("gift_first_send");
+  if (ctx.giftClaimed) await tryUnlock("gift_first_claim");
+  if (ctx.talentSpent) await tryUnlock("talent_first");
+  if ((ctx.talentRanksTotal ?? 0) >= 3) await tryUnlock("talent_three");
+  if (ctx.pathBadgeEarned || (ctx.pathBadgeCount ?? 0) >= 1) {
+    await tryUnlock("path_badge_first");
+  }
+  if ((ctx.pathBadgeCount ?? 0) >= 3) await tryUnlock("path_badge_3");
+  // Catalog size grows (path badges v3); unlock when holding all known catalog entries
+  {
+    const { PATH_BADGE_CATALOG } = await import("@eduforge/shared");
+    if ((ctx.pathBadgeCount ?? 0) >= PATH_BADGE_CATALOG.length) {
+      await tryUnlock("path_badge_all");
+    }
+  }
 
   return unlocked;
 }

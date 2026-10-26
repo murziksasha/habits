@@ -8,7 +8,8 @@ services:
     # Host 5433 avoids clashing with other local Postgres (e.g. another compose project on 5432).
     # In-container hostname remains postgres:5432 for api/realtime.
     ports:
-      - "${POSTGRES_HOST_PORT:-5433}:5432"
+      # Host port overridable when 5432 is taken by another project
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -22,7 +23,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -38,12 +39,12 @@ services:
       REDIS_URL: redis://redis:6379
       AUTH_SECRET: ${AUTH_SECRET:-dev-secret-change-me}
       API_PORT: 4000
-      WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
-      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
-      STRIPE_PRICE_MONTHLY: ${STRIPE_PRICE_MONTHLY:-}
-      STRIPE_PRICE_YEARLY: ${STRIPE_PRICE_YEARLY:-}
-      NODE_ENV: production
+      WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}      # Local compose defaults to development so weak AUTH_SECRET is refused only in real production
+      NODE_ENV: ${NODE_ENV:-development}
+      CRON_SECRET: ${CRON_SECRET:-}
+      BACKUP_DIR: /data/backups
+    volumes:
+      - backupdata:/data/backups
     ports:
       - "4000:4000"
     depends_on:
@@ -51,6 +52,18 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 25s
 
   realtime:
     build:
@@ -61,7 +74,7 @@ services:
       REDIS_URL: redis://redis:6379
       REALTIME_PORT: 4001
       WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}
-      NODE_ENV: production
+      NODE_ENV: ${NODE_ENV:-development}
     ports:
       - "4001:4001"
     depends_on:
@@ -69,6 +82,18 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 25s
 
   web:
     build:
@@ -84,8 +109,22 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - api
-      - realtime
+      api:
+        condition: service_healthy
+      realtime:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
 
   migrate:
     build:
@@ -93,6 +132,13 @@ services:
       dockerfile: docker/Dockerfile.api
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-eduforge}:${POSTGRES_PASSWORD:-eduforge}@postgres:5432/${POSTGRES_DB:-eduforge}
+      # Dockerfile.api sets NODE_ENV=production; override so seed enrolls admin TOTP/backup
+      NODE_ENV: ${NODE_ENV:-development}
+      ALLOW_PROD_SEED: ${ALLOW_PROD_SEED:-1}
+      SEED_ADMIN_TOTP_SECRET: ${SEED_ADMIN_TOTP_SECRET:-JBSWY3DPEHPK3PXP}
+      SEED_ADMIN_BACKUP_CODE: ${SEED_ADMIN_BACKUP_CODE:-AAAA-BBBB}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@eduforge.ua}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin12345}
     command: ["sh", "-c", "pnpm --filter @eduforge/db migrate && pnpm --filter @eduforge/db seed"]
     depends_on:
       postgres:
@@ -100,5 +146,18 @@ services:
     profiles:
       - tools
 
+  # Optional OpenTelemetry collector (profile: otel)
+  # Point API: OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.111.0
+    profiles: ["otel"]
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./docker/otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4318:4318"
+      - "4317:4317"
+
 volumes:
   pgdata:
+  backupdata:

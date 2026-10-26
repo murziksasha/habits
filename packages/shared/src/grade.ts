@@ -22,6 +22,7 @@ export type ProjectCheck = {
   fileId?: string;
   contains?: string[];
   containsHtml?: string[];
+  forbidden?: string[];
   kind?: string;
   selector?: string;
   minCount?: number;
@@ -94,6 +95,14 @@ export function gradeCodeProjectChecks(
       for (const needle of ch.contains) {
         const n = caseSensitive ? needle : needle.toLowerCase();
         if (!content.includes(n)) missing.push(`${ch.fileId}:${needle}`);
+      }
+    }
+    if (ch.fileId && ch.forbidden?.length) {
+      let content = map.get(ch.fileId) ?? "";
+      if (!caseSensitive) content = content.toLowerCase();
+      for (const needle of ch.forbidden) {
+        const n = caseSensitive ? needle : needle.toLowerCase();
+        if (content.includes(n)) missing.push(`forbidden ${ch.fileId}:${needle}`);
       }
     }
   }
@@ -175,6 +184,36 @@ export function gradeExercise(
         meta: missing.length
           ? { missing, partial, passedChecks: Math.max(0, total - failed), totalChecks: total }
           : { ok: true, partial: 1 },
+      };
+    }
+    case "code_run": {
+      // Client runs C++/etc; server grades source constraints (no server compiler).
+      // answer: string source | { source: string }
+      const raw = answer as string | { source?: string };
+      const source = typeof raw === "string" ? raw : String(raw?.source ?? "");
+      if (!source.trim()) return { correct: false, meta: { reason: "empty" } };
+      const cs = exercise.caseSensitive !== false;
+      const hay = cs ? source : source.toLowerCase();
+      const required = (exercise.requiredSource as string[]) ?? [];
+      const forbidden = (exercise.forbiddenSource as string[]) ?? [];
+      const missing: string[] = [];
+      const banned: string[] = [];
+      for (const n of required) {
+        const needle = cs ? n : n.toLowerCase();
+        if (!hay.includes(needle)) missing.push(n);
+      }
+      for (const n of forbidden) {
+        const needle = cs ? n : n.toLowerCase();
+        if (hay.includes(needle)) banned.push(n);
+      }
+      const lang = String(exercise.language ?? "");
+      if (lang === "cpp" && !/\bmain\s*\(/.test(source)) {
+        missing.push("main(");
+      }
+      const correct = missing.length === 0 && banned.length === 0;
+      return {
+        correct,
+        meta: correct ? { ok: true } : { missing, banned },
       };
     }
     case "translate":

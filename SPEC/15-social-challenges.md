@@ -29,12 +29,16 @@ UI: `/challenges`
 
 Table: `certificates`
 
-- Issued when ≥ **70%** of a course’s lessons are completed
+- Issued when **100%** of a course’s lessons are completed (including unit exams — exam lessons must be `completed`, which already enforces their pass threshold)
 - Unique public code `EF-XXXXXXXX`
-- `GET /certificates/mine` (auth)
-- `GET /certificates/verify/:code` (public)
+- `GET /certificates/mine` (auth) — includes course titles/icon + lesson counts
+- `GET /certificates/verify/:code` (public) — same payload for share/print pages
 
-UI: `/certificates`, `/certificates/[code]` (print-friendly)
+UI: `/certificates`, `/certificates/[code]`
+
+- Branded certificate art (platform logo / product name / brand colors)
+- Download **PDF** and **PNG**; print-friendly landscape A4
+- QR + verification code for public authenticity check
 
 ## OpenAPI
 

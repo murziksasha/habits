@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq, gt } from "drizzle-orm";
 import {
   characters,
   courses,
@@ -12,12 +12,14 @@ import {
   applyStreakOnActivity,
   canStartLesson,
   chessPuzzleXpAward,
+  clampDailyXpGain,
   globalXpFromCourseGain,
   lessonCompleteThreshold,
   lessonXpAward,
   levelFromXp,
   logicXpAward,
   maxHearts,
+  normalizeProgression,
   readingXpAward,
   regenerateHearts,
   typingXpAward,
@@ -25,13 +27,140 @@ import {
 } from "@eduforge/shared";
 import type { AuthedUser } from "../auth.js";
 import { db } from "../db.js";
-import { evaluateAchievements, logActivity, notifyUser } from "../engagement.js";
+import { logActivity, notifyUser } from "../engagement.js";
 import { gradeExercise } from "../grade.js";
-import { maybeIssueCertificate } from "../routes/certificates.js";
-import { addWeeklyXp } from "../routes/challenges.js";
-import { completeHomeworkForLesson } from "../routes/homework.js";
+import { buildXpPatch } from "./character-progression.js";
+import { applyLootDrop } from "./loot-apply.js";
+import { rollLevelUpLoot } from "@eduforge/shared";
+import { runSubmitSideEffects } from "./submit-side-effects.js";
 
 export type SubmitAnswer = { exerciseId: string; answer: unknown };
+
+export type GradedExerciseResult = {
+  exerciseId: string;
+  type: string;
+  correct: boolean;
+  partial?: number;
+  meta?: Record<string, unknown>;
+  [k: string]: unknown;
+};
+
+export type LessonGradingResult = {
+  results: GradedExerciseResult[];
+  correctCount: number;
+  accuracy: number;
+  passThreshold: number;
+  passed: boolean;
+  isExam: boolean;
+  examFailed: boolean;
+};
+
+export type NextLessonSummary = {
+  id: string;
+  titleUk: string;
+  titleEn: string | null;
+  href: string;
+};
+
+export function gradeLessonAttempt(
+  exercises: { id: string; type: string; [k: string]: unknown }[],
+  answers: SubmitAnswer[],
+  isExam: boolean,
+  passThreshold?: number | null,
+): LessonGradingResult {
+  const results = exercises.map((ex) => {
+    const a = answers.find((x) => x.exerciseId === ex.id);
+    const graded = gradeExercise(ex, a?.answer);
+    return { exerciseId: ex.id, type: ex.type, ...graded };
+  });
+
+  const correctCount = results.filter((r) => r.correct).length;
+  const accuracy = exercises.length
+    ? results.reduce((sum, r) => {
+        if (typeof r.partial === "number") return sum + Math.min(1, Math.max(0, r.partial));
+        return sum + (r.correct ? 1 : 0);
+      }, 0) / exercises.length
+    : 0;
+
+  const completeBar = lessonCompleteThreshold({
+    isExam,
+    passThreshold,
+  });
+  const passed = accuracy + 1e-9 >= completeBar;
+
+  return {
+    results,
+    correctCount,
+    accuracy,
+    passThreshold: completeBar,
+    passed,
+    isExam,
+    examFailed: isExam && !passed,
+  };
+}
+
+export async function getNextCourseLesson(
+  courseId: string,
+  courseSlug: string,
+  currentSortOrder: number,
+): Promise<NextLessonSummary | null> {
+  const next = await db.query.lessons.findFirst({
+    where: and(
+      eq(lessons.courseId, courseId),
+      gt(lessons.sortOrder, currentSortOrder),
+    ),
+    orderBy: [asc(lessons.sortOrder)],
+  });
+  if (!next) return null;
+  return {
+    id: next.id,
+    titleUk: next.titleUk,
+    titleEn: next.titleEn ?? null,
+    href: `/courses/${courseSlug}/lessons/${next.id}`,
+  };
+}
+
+export type GuestSubmitResultBody = {
+  guest: true;
+  accuracy: number;
+  passed: boolean;
+  results: GradedExerciseResult[];
+  correctCount: number;
+  total: number;
+  isExam: boolean;
+  examFailed: boolean;
+  passThreshold: number;
+  nextLesson: NextLessonSummary | null;
+  xpGain: 0;
+};
+
+export function buildGuestSubmitResult(opts: {
+  exercises: { id: string; type: string; [k: string]: unknown }[];
+  answers: SubmitAnswer[];
+  isExam: boolean;
+  passThreshold?: number | null;
+  nextLesson: NextLessonSummary | null;
+}): GuestSubmitResultBody {
+  const grading = gradeLessonAttempt(
+    opts.exercises,
+    opts.answers,
+    opts.isExam,
+    opts.passThreshold,
+  );
+  return {
+    guest: true,
+    accuracy: grading.accuracy,
+    passed: grading.passed,
+    results: grading.results,
+    correctCount: grading.correctCount,
+    total: opts.exercises.length,
+    isExam: grading.isExam,
+    examFailed: grading.examFailed,
+    passThreshold: grading.passThreshold,
+    nextLesson: grading.passed ? opts.nextLesson : null,
+    xpGain: 0,
+  };
+}
 
 export type SubmitLessonInput = {
   user: AuthedUser;
@@ -42,9 +171,8 @@ export type SubmitLessonInput = {
 
 export type SubmitLessonError = {
   ok: false;
-  status: 404 | 402;
-  error: "not_found" | "no_hearts";
-  hearts?: number;
+  status: 404;
+  error: "not_found";
 };
 
 export type SubmitLessonSuccess = {
@@ -71,26 +199,13 @@ export async function submitLesson(
 
   const exercises =
     (lesson.exercises as { id: string; type: string; [k: string]: unknown }[]) ?? [];
-  const results = exercises.map((ex) => {
-    const a = answers.find((x) => x.exerciseId === ex.id);
-    const graded = gradeExercise(ex, a?.answer);
-    return { exerciseId: ex.id, type: ex.type, ...graded };
-  });
-
-  const correctCount = results.filter((r) => r.correct).length;
-  // Partial credit when exercises expose `partial` (projects, multi-check, comprehension)
-  const accuracy = exercises.length
-    ? results.reduce((sum, r) => {
-        if (typeof r.partial === "number") return sum + Math.min(1, Math.max(0, r.partial));
-        return sum + (r.correct ? 1 : 0);
-      }, 0) / exercises.length
-    : 0;
-  const isExam = Boolean(lesson.isExam);
-  const completeBar = lessonCompleteThreshold({
-    isExam,
-    passThreshold: lesson.passThreshold,
-  });
-  const passed = accuracy + 1e-9 >= completeBar;
+  const grading = gradeLessonAttempt(
+    exercises,
+    answers,
+    Boolean(lesson.isExam),
+    lesson.passThreshold,
+  );
+  const { results, correctCount, accuracy, isExam, passThreshold: completeBar, passed } = grading;
 
   let xpGain = 0;
   if (course.slug === "typing") {
@@ -164,6 +279,13 @@ export async function submitLesson(
   }
 
   const plan = user.plan as Plan;
+  const characterEarly = await db.query.characters.findFirst({
+    where: eq(characters.userId, user.id),
+  });
+  const progressionEarly = characterEarly
+    ? normalizeProgression(characterEarly.progression)
+    : null;
+
   let cp = await db.query.userCourseProgress.findFirst({
     where: and(
       eq(userCourseProgress.userId, user.id),
@@ -178,7 +300,7 @@ export async function submitLesson(
         courseId: course.id,
         xp: 0,
         level: 1,
-        hearts: maxHearts(plan),
+        hearts: maxHearts(plan, progressionEarly),
       })
       .returning();
     cp = created;
@@ -187,6 +309,7 @@ export async function submitLesson(
       plan,
       hearts: cp.hearts,
       heartsUpdatedAt: cp.heartsUpdatedAt,
+      progression: progressionEarly,
     });
     if (regen.changed) {
       const [updated] = await db
@@ -198,16 +321,8 @@ export async function submitLesson(
     }
   }
 
-  if (!canStartLesson({ plan, hearts: cp.hearts })) {
-    return { ok: false, status: 402, error: "no_hearts", hearts: cp.hearts };
-  }
-
-  let hearts = cp.hearts;
-  let heartLost = false;
-  if (plan !== "premium" && !passed) {
-    hearts = Math.max(0, hearts - 1);
-    heartLost = true;
-  }
+  const hearts = cp.hearts;
+  const heartLost = false;
 
   const newCourseXp = cp.xp + xpGain;
   const newCourseLevel = levelFromXp(newCourseXp);
@@ -226,9 +341,7 @@ export async function submitLesson(
     })
     .where(eq(userCourseProgress.id, cp.id));
 
-  const character = await db.query.characters.findFirst({
-    where: eq(characters.userId, user.id),
-  });
+  const character = characterEarly;
   const weight = COURSE_GLOBAL_WEIGHT[course.slug] ?? 1;
   const globalGain = globalXpFromCourseGain(xpGain, weight);
   const today = new Date().toISOString().slice(0, 10);
@@ -259,16 +372,28 @@ export async function submitLesson(
         freezesLeft,
       });
     }
-    const newGlobalXp = character.globalXp + globalGain;
-    const dailyXp =
-      character.dailyXpDate === today
-        ? (character.dailyXp ?? 0) + globalGain
-        : globalGain;
+    const prevLevel = character.globalLevel;
+    let xpPatch = buildXpPatch(character, globalGain, {
+      applyIntellect: true,
+      applySpark: true,
+    });
+    const alreadyToday = character.dailyXpDate === today ? (character.dailyXp ?? 0) : 0;
+    const cappedGain = clampDailyXpGain(alreadyToday, xpPatch.effectiveGain);
+    if (cappedGain !== xpPatch.effectiveGain) {
+      xpPatch = {
+        ...xpPatch,
+        effectiveGain: cappedGain,
+        globalXp: character.globalXp + cappedGain,
+        globalLevel: levelFromXp(character.globalXp + cappedGain),
+      };
+    }
+    const dailyXp = alreadyToday + xpPatch.effectiveGain;
     await db
       .update(characters)
       .set({
-        globalXp: newGlobalXp,
-        globalLevel: levelFromXp(newGlobalXp),
+        globalXp: xpPatch.globalXp,
+        globalLevel: xpPatch.globalLevel,
+        progression: xpPatch.progression,
         streakDays: streak,
         streakFreezes: freezesLeft,
         lastActiveDate: today,
@@ -276,6 +401,20 @@ export async function submitLesson(
         dailyXpDate: today,
       })
       .where(eq(characters.id, character.id));
+
+    // Level-up loot drop (cosmetics / shields / bonus SP)
+    if (xpPatch.globalLevel > prevLevel) {
+      try {
+        const drop = rollLevelUpLoot(xpPatch.globalLevel);
+        await applyLootDrop(user.id, drop, { notify: true });
+        await logActivity(db, user.id, "level_up_loot", {
+          level: xpPatch.globalLevel,
+          drop,
+        });
+      } catch {
+        /* loot optional */
+      }
+    }
   }
 
   await db.insert(skillAttempts).values({
@@ -304,60 +443,6 @@ export async function submitLesson(
     }
   }
 
-  let homeworkCompleted = 0;
-  if (passed) {
-    await logActivity(db, user.id, isExam ? "exam_passed" : "lesson_completed", {
-      courseSlug: course.slug,
-      lessonId: lesson.id,
-      xpGain,
-      isExam,
-      accuracy,
-    });
-    await addWeeklyXp(user.id, globalGain);
-    homeworkCompleted = await completeHomeworkForLesson(user.id, lesson.id, accuracy);
-    const { bumpDailyQuests } = await import("../routes/quests.js");
-    await bumpDailyQuests(user.id, "lessons", 1);
-    if (globalGain > 0) await bumpDailyQuests(user.id, "xp", globalGain);
-    if (isExam) await bumpDailyQuests(user.id, "exams", 1);
-  } else if (isExam) {
-    const wrongTypes = [
-      ...new Set(results.filter((r) => !r.correct).map((r) => String(r.type || "unknown"))),
-    ];
-    await logActivity(db, user.id, "exam_failed", {
-      courseSlug: course.slug,
-      lessonId: lesson.id,
-      accuracy,
-      passThreshold: completeBar,
-      wrongTypes,
-      wrongExerciseIds: results.filter((r) => !r.correct).map((r) => r.exerciseId),
-    });
-    await notifyUser(db, user.id, {
-      type: "learning",
-      titleUk: "Контрольна: час на повторення",
-      titleEn: "Exam: time to review",
-      bodyUk: `Точність ${Math.round(accuracy * 100)}%. Відкрий /review — слабкі типи: ${wrongTypes.slice(0, 4).join(", ") || "—"}.`,
-      bodyEn: `Score ${Math.round(accuracy * 100)}%. Open /review — weak types: ${wrongTypes.slice(0, 4).join(", ") || "—"}.`,
-      href: "/review?from=exam",
-    });
-  }
-
-  // Persist last fail context for tutor (any lesson, not only exams)
-  if (!passed) {
-    const wrong = results.filter((r) => !r.correct).slice(0, 6);
-    await logActivity(db, user.id, "lesson_fail_context", {
-      courseSlug: course.slug,
-      lessonId: lesson.id,
-      isExam,
-      accuracy,
-      wrong: wrong.map((r) => ({
-        exerciseId: r.exerciseId,
-        type: r.type,
-        missing: r.meta?.missing ?? null,
-        partial: r.partial ?? null,
-      })),
-    });
-  }
-
   const chAfter = await db.query.characters.findFirst({
     where: eq(characters.userId, user.id),
   });
@@ -367,41 +452,36 @@ export async function submitLesson(
       chAfter.dailyXp >= (chAfter.dailyGoalXp || 50),
   );
 
-  const newAchievements = await evaluateAchievements(db, user.id, {
-    lessonCompleted: passed,
+  // Non-critical side effects (notify, cert, quests, analytics) — best-effort
+  const side = await runSubmitSideEffects({
+    user,
     courseSlug: course.slug,
+    courseId: course.id,
+    courseTitleUk: course.titleUk,
+    courseTitleEn: course.titleEn || course.titleUk,
+    lessonId: lesson.id,
+    passed,
+    firstClear,
+    isExam,
+    accuracy,
+    completeBar,
+    xpGain,
+    globalGain,
+    results,
     streakDays: chAfter?.streakDays,
     globalLevel: chAfter?.globalLevel,
     dailyGoalMet,
-    examPassed: isExam && passed,
   });
-  if (passed) {
-    const { evaluateLearningMilestones } = await import("../routes/learning.js");
-    await evaluateLearningMilestones(user.id);
-  }
-
-  let certificate = null;
-  if (passed) {
-    certificate = await maybeIssueCertificate(
-      user.id,
-      course.id,
-      course.slug,
-      course.slug === "programming"
-        ? "Програмування"
-        : course.slug === "typescript"
-          ? "TypeScript"
-          : course.titleUk,
-      course.slug === "programming"
-        ? "Programming"
-        : course.slug === "typescript"
-          ? "TypeScript"
-          : course.titleEn || course.titleUk,
-    );
-  }
+  const { homeworkCompleted, newAchievements, certificate } = side;
 
   const updatedCharacter = await db.query.characters.findFirst({
     where: eq(characters.userId, user.id),
   });
+
+  // Next lesson in course path (by sortOrder) for one-tap continue
+  const nextLesson = passed
+    ? await getNextCourseLesson(course.id, course.slug, lesson.sortOrder)
+    : null;
 
   return {
     ok: true,
@@ -419,7 +499,7 @@ export async function submitLesson(
       results,
       character: updatedCharacter,
       hearts,
-      maxHearts: maxHearts(plan),
+      maxHearts: maxHearts(plan, progressionEarly),
       heartLost,
       streakProtected,
       streakDays: streak,
@@ -433,6 +513,7 @@ export async function submitLesson(
       passed,
       passThreshold: completeBar,
       examFailed: isExam && !passed,
+      nextLesson,
     },
   };
 }

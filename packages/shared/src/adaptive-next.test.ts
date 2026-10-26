@@ -2,8 +2,29 @@ import { describe, expect, it } from "vitest";
 import {
   adaptiveScore,
   DEFAULT_ADAPTIVE_WEIGHTS,
+  loadAdaptiveWeights,
   rankByAdaptive,
 } from "./adaptive-next.js";
+
+describe("loadAdaptiveWeights", () => {
+  it("returns defaults when unset", () => {
+    expect(loadAdaptiveWeights({})).toEqual(DEFAULT_ADAPTIVE_WEIGHTS);
+  });
+
+  it("merges numeric overrides only", () => {
+    const w = loadAdaptiveWeights({
+      ADAPTIVE_WEIGHTS_JSON: JSON.stringify({ isWeak: 2.5, paywalled: "nope", junk: 1 }),
+    });
+    expect(w.isWeak).toBe(2.5);
+    expect(w.paywalled).toBe(DEFAULT_ADAPTIVE_WEIGHTS.paywalled);
+  });
+
+  it("falls back on invalid JSON", () => {
+    expect(loadAdaptiveWeights({ ADAPTIVE_WEIGHTS_JSON: "{not json" })).toEqual(
+      DEFAULT_ADAPTIVE_WEIGHTS,
+    );
+  });
+});
 
 describe("adaptiveScore", () => {
   it("boosts weak items", () => {

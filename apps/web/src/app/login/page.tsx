@@ -1,108 +1,12 @@
-"use client";
-
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
 import { UI } from "@eduforge/shared";
-import { useAuth } from "@/lib/auth-context";
-import { isFriendInviteId, sendFriendInvite } from "@/lib/friend-invite";
+import { LoginClient } from "./login-client";
 
-function LoginForm() {
-  const { login } = useAuth();
-  const router = useRouter();
-  const params = useSearchParams();
-  const friendId = params.get("friend");
-  const nextPath = params.get("next");
-  const hasFriendInvite = isFriendInviteId(friendId);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    try {
-      await login(email, password);
-      if (hasFriendInvite && friendId) {
-        await sendFriendInvite(friendId);
-        router.push("/friends");
-        return;
-      }
-      if (nextPath && nextPath.startsWith("/") && !nextPath.startsWith("//")) {
-        router.push(nextPath);
-        return;
-      }
-      router.push("/dashboard");
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "error";
-      if (msg === "account_inactive") {
-        setError(UI.auth.accountInactive);
-      } else {
-        setError(UI.auth.invalidCredentials);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <div className="mx-auto max-w-md card">
-      <h1 className="text-2xl font-black">{UI.auth.loginTitle}</h1>
-      {hasFriendInvite && (
-        <p className="mt-2 rounded-xl bg-brand-soft/40 px-3 py-2 text-sm font-bold text-ink">
-          👥 Friend invite — we will send a request after you sign in.
-        </p>
-      )}
-      <form onSubmit={onSubmit} className="mt-6 space-y-4">
-        <div>
-          <label className="label">{UI.auth.email}</label>
-          <input
-            className="input"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label className="label">{UI.auth.password}</label>
-          <input
-            className="input"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        {error && <p className="text-sm font-bold text-red-500">{error}</p>}
-        <button type="submit" className="btn-primary w-full" disabled={loading}>
-          {UI.auth.submitLogin}
-        </button>
-      </form>
-      <p className="mt-3 text-center text-sm">
-        <Link href="/forgot-password" className="font-bold text-sky">
-          {UI.password.forgot}
-        </Link>
-      </p>
-      <p className="mt-2 text-center text-sm text-ink-muted">
-        {UI.auth.noAccount}{" "}
-        <Link
-          href={hasFriendInvite && friendId ? `/register?friend=${friendId}` : "/register"}
-          className="font-bold text-sky"
-        >
-          {UI.nav.register}
-        </Link>
-      </p>
-    </div>
-  );
-}
-
+/** Auth login — RSC shell + client form island. */
 export default function LoginPage() {
   return (
-    <Suspense fallback={<p>{UI.common.loading}</p>}>
-      <LoginForm />
-    </Suspense>
+    <>
+      <h1 className="sr-only">{UI.appName} · {UI.nav.login}</h1>
+      <LoginClient />
+    </>
   );
 }

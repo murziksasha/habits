@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { and, eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import {
   certificates,
   characters,
@@ -11,6 +11,9 @@ import { randomBytes } from "node:crypto";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 import { logActivity, notifyUser } from "../engagement.js";
+import { isFullCourseComplete } from "../services/certificate-rules.js";
+
+export { isFullCourseComplete };
 
 type Vars = { user: AuthedUser };
 
@@ -20,7 +23,35 @@ function certCode() {
   return `EF-${randomBytes(4).toString("hex").toUpperCase()}`;
 }
 
-/** Issue certificate if user completed ≥70% of lessons in course */
+/** True when every lesson in the course (including exams) is completed. */
+export async function isCourseFullyCompleted(userId: string, courseId: string) {
+  const allLessons = await db.query.lessons.findMany({
+    where: eq(lessons.courseId, courseId),
+    columns: { id: true, isExam: true },
+  });
+  if (allLessons.length === 0) return { complete: false, total: 0, completed: 0 };
+
+  const completed = await db.query.userLessonProgress.findMany({
+    where: and(
+      eq(userLessonProgress.userId, userId),
+      eq(userLessonProgress.courseId, courseId),
+      eq(userLessonProgress.status, "completed"),
+    ),
+    columns: { lessonId: true },
+  });
+  const completedIds = completed.map((r) => r.lessonId);
+  // Exam lessons are part of allLessons; "completed" already required exam pass bar.
+  return {
+    complete: isFullCourseComplete(
+      allLessons.map((l) => l.id),
+      completedIds,
+    ),
+    total: allLessons.length,
+    completed: new Set(completedIds).size,
+  };
+}
+
+/** Issue certificate only when 100% of course lessons (incl. exams) are completed. */
 export async function maybeIssueCertificate(
   userId: string,
   courseId: string,
@@ -33,20 +64,8 @@ export async function maybeIssueCertificate(
   });
   if (existing) return existing;
 
-  const allLessons = await db.query.lessons.findMany({
-    where: eq(lessons.courseId, courseId),
-  });
-  if (allLessons.length < 3) return null;
-
-  const completed = await db.query.userLessonProgress.findMany({
-    where: and(
-      eq(userLessonProgress.userId, userId),
-      eq(userLessonProgress.courseId, courseId),
-      eq(userLessonProgress.status, "completed"),
-    ),
-  });
-
-  if (completed.length < Math.ceil(allLessons.length * 0.7)) return null;
+  const progress = await isCourseFullyCompleted(userId, courseId);
+  if (!progress.complete) return null;
 
   const [cert] = await db
     .insert(certificates)
@@ -127,6 +146,27 @@ export async function maybeIssueMinisCertificate(userId: string, courseId: strin
   return cert;
 }
 
+async function courseProgressCounts(userId: string, courseId: string) {
+  const [totalRow] = await db
+    .select({ n: count() })
+    .from(lessons)
+    .where(eq(lessons.courseId, courseId));
+  const [doneRow] = await db
+    .select({ n: count() })
+    .from(userLessonProgress)
+    .where(
+      and(
+        eq(userLessonProgress.userId, userId),
+        eq(userLessonProgress.courseId, courseId),
+        eq(userLessonProgress.status, "completed"),
+      ),
+    );
+  return {
+    lessonsTotal: Number(totalRow?.n ?? 0),
+    lessonsCompleted: Number(doneRow?.n ?? 0),
+  };
+}
+
 certificateRoutes.get("/mine", authMiddleware, async (c) => {
   const user = c.get("user");
   const rows = await db
@@ -136,13 +176,29 @@ certificateRoutes.get("/mine", authMiddleware, async (c) => {
       titleUk: certificates.titleUk,
       titleEn: certificates.titleEn,
       issuedAt: certificates.issuedAt,
+      courseId: certificates.courseId,
       courseSlug: courses.slug,
       courseTitleUk: courses.titleUk,
+      courseTitleEn: courses.titleEn,
+      courseIcon: courses.icon,
     })
     .from(certificates)
     .innerJoin(courses, eq(courses.id, certificates.courseId))
     .where(eq(certificates.userId, user.id));
-  return c.json({ certificates: rows });
+
+  const withProgress = await Promise.all(
+    rows.map(async (r) => {
+      const progress = await courseProgressCounts(user.id, r.courseId);
+      const { courseId: _courseId, ...rest } = r;
+      return {
+        ...rest,
+        ...progress,
+        verifyPath: `/certificates/${r.code}`,
+      };
+    }),
+  );
+
+  return c.json({ certificates: withProgress });
 });
 
 certificateRoutes.get("/verify/:code", async (c) => {
@@ -158,6 +214,7 @@ certificateRoutes.get("/verify/:code", async (c) => {
   const course = await db.query.courses.findFirst({
     where: eq(courses.id, cert.courseId),
   });
+  const progress = await courseProgressCounts(cert.userId, cert.courseId);
 
   return c.json({
     certificate: {
@@ -168,7 +225,11 @@ certificateRoutes.get("/verify/:code", async (c) => {
       displayName: ch?.displayName ?? "Learner",
       courseSlug: course?.slug,
       courseTitleUk: course?.titleUk,
+      courseTitleEn: course?.titleEn,
       courseIcon: course?.icon,
+      lessonsCompleted: progress.lessonsCompleted,
+      lessonsTotal: progress.lessonsTotal,
+      verifyPath: `/certificates/${cert.code}`,
     },
   });
 });

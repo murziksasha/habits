@@ -23,4 +23,18 @@ describe("resolveFeatureFlags", () => {
   it("tutor_ai from XAI key", () => {
     expect(isFeatureEnabled("tutor_ai", { XAI_API_KEY: "sk-test" })).toBe(true);
   });
+
+  it("enables strict_csrf by default in production", () => {
+    const f = resolveFeatureFlags({ NODE_ENV: "production" });
+    expect(f.strict_csrf).toBe(true);
+  });
+
+  it("allows disabling strict_csrf in production", () => {
+    const f = resolveFeatureFlags({ NODE_ENV: "production", FEATURE_STRICT_CSRF: "0" });
+    expect(f.strict_csrf).toBe(false);
+  });
+
+  it("email_verify defaults on", () => {
+    expect(resolveFeatureFlags({}).email_verify).toBe(true);
+  });
 });

@@ -26,9 +26,9 @@ const doc = {
   openapi: "3.0.3",
   info: {
     title: "EduForge API",
-    version: "2.4.0",
+    version: "2.5.0",
     description:
-      "Educational SaaS: learn map, exams, deep tracks (TS/HTML/CSS/QA/JS/React/SQL/Node/Express), trial+expiry, admin audit, feedback, minis, playground, schools, parents, metrics, chess, SRS, tutor. BFF: GET /me/home.",
+      "Educational SaaS: learn map, exams, deep tracks, admin platform v2 (TOTP MFA, theming, CMS draft/publish, backup codes), trial+expiry, feedback, minis, playground, schools, parents, metrics, chess, SRS, tutor. BFF: GET /me/home.",
   },
   servers: [{ url: "/", description: "Current host" }],
   tags: [
@@ -43,6 +43,9 @@ const doc = {
     { name: "tutor" },
     { name: "push" },
     { name: "analytics" },
+    { name: "judge" },
+    { name: "character" },
+    { name: "family" },
     { name: "speech" },
     { name: "ops" },
     { name: "parents" },
@@ -84,47 +87,42 @@ const doc = {
     "/judge/status": {
       get: {
         tags: ["judge"],
-        summary: "Code judge mode and languages",
-        responses: { "200": { description: "mode + langs" } },
+        summary: "Code judge mode, languages, queue stats",
+        responses: { "200": { description: "mode + langs + queue" } },
       },
     },
     "/judge/run": {
       post: {
         tags: ["judge"],
-        summary: "Run multi-lang code job (local or Docker)",
+        summary: "Run or enqueue multi-lang code job (body.async / processInline)",
         security: [{ bearerAuth: [] }],
-        responses: { "200": { description: "JudgeResult" } },
+        responses: { "200": { description: "JudgeResult or queued jobId + poll path" } },
+      },
+    },
+    "/judge/result/{jobId}": {
+      get: {
+        tags: ["judge"],
+        summary: "Poll async judge job result (TTL ~10m)",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "status queued|running|done|error + result" },
+          "404": { description: "not_found" },
+        },
+      },
+    },
+    "/judge/worker/drain": {
+      post: {
+        tags: ["judge"],
+        summary: "Worker tick: process up to N queued jobs (JUDGE_WORKER_SECRET / CRON_SECRET)",
+        responses: { "200": { description: "processed count + queue stats" }, "401": { description: "unauthorized" } },
       },
     },
     "/review": {
       get: {
         tags: ["learning"],
-        summary: "Review queue; ?from=exam adds exam fail context",
+        summary: "Review queue with reasons; ?from=exam adds exam fail context",
         security: [{ bearerAuth: [] }],
-        responses: { "200": { description: "items + optional examContext" } },
-      },
-    },
-    "/billing/entitlements": {
-      get: {
-        tags: ["ops"],
-        summary: "Public freemium matrix + plan feature rows",
-        responses: { "200": { description: "OK" } },
-      },
-    },
-    "/billing/status": {
-      get: {
-        tags: ["ops"],
-        summary: "Current plan + premiumActive",
-        security: [{ bearerAuth: [] }],
-        responses: { "200": { description: "OK" } },
-      },
-    },
-    "/billing/portal": {
-      post: {
-        tags: ["ops"],
-        summary: "Stripe Customer Portal session",
-        security: [{ bearerAuth: [] }],
-        responses: { "200": { description: "OK" } },
+        responses: { "200": { description: "items + reasons + optional examContext" } },
       },
     },
     "/metrics": {
@@ -223,6 +221,73 @@ const doc = {
         responses: { "200": { description: "User + character" } },
       },
     },
+    "/auth/mfa/status": {
+      get: {
+        tags: ["auth"],
+        summary: "Admin MFA status",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "totpEnabled, backupCodesRemaining" } },
+      },
+    },
+    "/auth/mfa/totp/setup": {
+      post: {
+        tags: ["auth"],
+        summary: "Start TOTP enroll",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "secret + otpauthUrl" } },
+      },
+    },
+    "/auth/mfa/totp/confirm": {
+      post: {
+        tags: ["auth"],
+        summary: "Confirm TOTP enroll (returns backup codes once)",
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: { type: "object", properties: { code: { type: "string" } } },
+            },
+          },
+        },
+        responses: { "200": { description: "ok + backupCodes" } },
+      },
+    },
+    "/auth/mfa/totp/verify": {
+      post: {
+        tags: ["auth"],
+        summary: "Complete login with TOTP or backup code",
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  mfaToken: { type: "string" },
+                  code: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+        responses: { "200": { description: "session token" } },
+      },
+    },
+    "/auth/mfa/step-up": {
+      post: {
+        tags: ["auth"],
+        summary: "Issue short-lived admin step-up token",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "stepUpToken" } },
+      },
+    },
+    "/auth/mfa/backup-codes/regenerate": {
+      post: {
+        tags: ["auth"],
+        summary: "Regenerate backup codes (TOTP required)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "new backupCodes" } },
+      },
+    },
     "/auth/sessions": {
       get: {
         tags: ["auth"],
@@ -231,12 +296,36 @@ const doc = {
         responses: { "200": { description: "sessions[] + count" } },
       },
     },
+    "/auth/sessions/{id}": {
+      delete: {
+        tags: ["auth"],
+        summary: "Revoke a session",
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { "200": { description: "ok" } },
+      },
+    },
     "/auth/logout-others": {
       post: {
         tags: ["auth"],
         summary: "Revoke other sessions; body { all: true } also ends current",
         security: [{ bearerAuth: [] }],
         responses: { "200": { description: "revoked count" } },
+      },
+    },
+    "/auth/sessions/revoke-others": {
+      post: {
+        tags: ["auth"],
+        summary: "Alias of logout-others",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "revoked count" } },
+      },
+    },
+    "/public/branding": {
+      get: {
+        tags: ["ops"],
+        summary: "Published theme + product branding",
+        responses: { "200": { description: "theme" } },
       },
     },
     "/courses": path("List courses"),
@@ -504,6 +593,41 @@ const doc = {
         responses: { "200": { description: "sent/failed counts" } },
       },
     },
+    "/analytics/events": {
+      post: {
+        tags: ["analytics"],
+        summary: "Track product funnel event (paywall_shown, first_lesson_complete, …)",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "{ ok, tracked, deduped? }" },
+          "400": { description: "unknown_event / invalid_input" },
+        },
+      },
+    },
+    "/analytics/funnel": {
+      get: {
+        tags: ["analytics"],
+        summary: "Admin product funnel aggregates (7d default); compare=1 for prior window deltas",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "days",
+            in: "query",
+            schema: { type: "integer", default: 7 },
+          },
+          {
+            name: "compare",
+            in: "query",
+            schema: { type: "string", enum: ["1", "true"] },
+            description: "Include previous equal window + percent deltas",
+          },
+        ],
+        responses: {
+          "200": { description: "funnel counts; optional history" },
+          "403": { description: "admin only" },
+        },
+      },
+    },
     "/analytics/class/{classId}": {
       get: {
         tags: ["analytics"],
@@ -620,12 +744,150 @@ const doc = {
         responses: { "200": { description: "sent/skipped counts" } },
       },
     },
+    "/admin/backup/status": {
+      get: {
+        tags: ["admin"],
+        summary: "Instance backup age and whether a local undo file exists",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "lastDownloadedAt, safetyAvailable, warning, migrationTag" } },
+      },
+    },
+    "/admin/backup/download": {
+      get: {
+        tags: ["admin"],
+        summary: "Download gzipped whole-school backup (admin, step-up when MFA is enforced)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "application/gzip attachment" } },
+      },
+    },
+    "/admin/backup/restore": {
+      post: {
+        tags: ["admin"],
+        summary: "Replace this PC database from an uploaded .gz. Body field confirm must be RESTORE",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "Replaced. Sessions cleared." } },
+      },
+    },
+    "/admin/backup/undo": {
+      post: {
+        tags: ["admin"],
+        summary: "Put back the local safety snapshot taken before the last restore. confirm=RESTORE",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "Undone. Sessions cleared." } },
+      },
+    },
+    "/admin/courses": {
+      get: {
+        tags: ["admin"],
+        summary: "List all courses (any status)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "courses" } },
+      },
+      post: {
+        tags: ["admin"],
+        summary: "Create draft course",
+        security: [{ bearerAuth: [] }],
+        responses: { "201": { description: "course" } },
+      },
+    },
+    "/admin/courses/{id}/publish": {
+      post: {
+        tags: ["admin"],
+        summary: "Publish course (step-up)",
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { "200": { description: "course" } },
+      },
+    },
+    "/admin/units": {
+      post: {
+        tags: ["admin"],
+        summary: "Create unit",
+        security: [{ bearerAuth: [] }],
+        responses: { "201": { description: "unit" } },
+      },
+    },
+    "/admin/units/{id}": {
+      patch: {
+        tags: ["admin"],
+        summary: "Patch unit",
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { "200": { description: "unit" } },
+      },
+      delete: {
+        tags: ["admin"],
+        summary: "Delete unit (step-up)",
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { "200": { description: "ok" } },
+      },
+    },
+    "/admin/units/reorder": {
+      post: {
+        tags: ["admin"],
+        summary: "Reorder units",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "ok" } },
+      },
+    },
+    "/admin/lessons/reorder": {
+      post: {
+        tags: ["admin"],
+        summary: "Reorder lessons",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "ok" } },
+      },
+    },
+    "/admin/appearance": {
+      get: {
+        tags: ["admin"],
+        summary: "Theme draft + published",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "appearance" } },
+      },
+    },
+    "/admin/appearance/draft": {
+      put: {
+        tags: ["admin"],
+        summary: "Save theme draft",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "ok" } },
+      },
+    },
+    "/admin/appearance/publish": {
+      post: {
+        tags: ["admin"],
+        summary: "Publish theme (step-up)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "published" } },
+      },
+    },
+    "/admin/overview/parents": {
+      get: {
+        tags: ["admin"],
+        summary: "Parents links + digests overview",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "counts" } },
+      },
+    },
     "/admin/metrics": {
       get: {
         tags: ["admin"],
         summary: "Product metrics (programming, playground, engagement)",
         security: [{ bearerAuth: [] }],
         responses: { "200": { description: "Metrics JSON" } },
+      },
+    },
+    "/admin/metrics/funnel.csv": {
+      get: {
+        tags: ["admin"],
+        summary: "Product funnel current vs previous window CSV",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: "days", in: "query", schema: { type: "integer", default: 7 } },
+        ],
+        responses: { "200": { description: "text/csv" } },
       },
     },
     "/admin/metrics.csv": {
@@ -694,14 +956,6 @@ const doc = {
             description: "weekKey, raceSlugs, entries ranked by this-week race score",
           },
         },
-      },
-    },
-    "/billing/trial": {
-      post: {
-        tags: ["auth"],
-        summary: "Start 7-day Premium trial (dev/demo)",
-        security: [{ bearerAuth: [] }],
-        responses: { "200": { description: "plan + expires" } },
       },
     },
     "/admin/audit": {
@@ -797,6 +1051,151 @@ const doc = {
         summary: "Search courses and users",
         security: [{ bearerAuth: [] }],
         responses: { "200": { description: "Results" } },
+      },
+    },
+    "/character/progression": {
+      get: {
+        tags: ["character"],
+        summary: "Talent tree, skill points, titles/frames",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "progression + catalogs" } },
+      },
+    },
+    "/character/talents/spend": {
+      post: {
+        tags: ["character"],
+        summary: "Spend skill points on a talent rank",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "updated character" },
+          "400": { description: "no_skill_points | max_rank" },
+        },
+      },
+    },
+    "/character/cosmetics/equip": {
+      post: {
+        tags: ["character"],
+        summary: "Equip unlocked title or avatar frame",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "updated progression" }, "400": { description: "locked" } },
+      },
+    },
+    "/character/talents/respec": {
+      post: {
+        tags: ["character"],
+        summary: "Refund all talent ranks into skill points (XP cost scales)",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "refunded + character" },
+          "402": { description: "insufficient_xp" },
+          "400": { description: "nothing_to_respec" },
+        },
+      },
+    },
+    "/character/weekly": {
+      get: {
+        tags: ["character"],
+        summary: "Weekly build/lesson quests for current ISO week",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "weekKey + quests[]" } },
+      },
+    },
+    "/character/weekly/{questKey}/claim": {
+      post: {
+        tags: ["character"],
+        summary: "Claim weekly quest XP",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "rewardXp + character" },
+          "400": { description: "not_completed | already_claimed" },
+        },
+      },
+    },
+    "/admin/ops/weekly-quest-remind": {
+      post: {
+        tags: ["ops"],
+        summary: "Nudge users with open weekly quests (notify + push)",
+        responses: { "200": { description: "scanned/eligible/notified/pushed" } },
+      },
+    },
+
+    "/gifts/catalog": {
+      get: {
+        tags: ["social"],
+        summary: "Friend gift catalog (cheer, XP, cosmetics, mystery)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "gifts[]" } },
+      },
+    },
+    "/gifts/inbox": {
+      get: {
+        tags: ["social"],
+        summary: "Pending gifts to claim",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "gifts[]" } },
+      },
+    },
+    "/gifts/send": {
+      post: {
+        tags: ["social"],
+        summary: "Send gift to accepted friend (notify + optional push)",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "gift created" },
+          "402": { description: "insufficient_xp" },
+          "403": { description: "not_friends" },
+          "429": { description: "daily_limit" },
+        },
+      },
+    },
+    "/gifts/claim/{id}": {
+      post: {
+        tags: ["social"],
+        summary: "Claim pending gift rewards",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "character + payload" }, "404": { description: "not_found" } },
+      },
+    },
+    "/me/login-bonus": {
+      post: {
+        tags: ["me"],
+        summary: "Daily check-in XP (streak-scaled, once per UTC day)",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "rewardXp + character; alreadyClaimed if repeat" },
+        },
+      },
+    },
+    "/quests/daily": {
+      get: {
+        tags: ["engagement"],
+        summary: "Daily quests (lessons, XP, focus, exams, gifts, talents, login)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "date + quests[]" } },
+      },
+    },
+    "/family": {
+      get: {
+        tags: ["social"],
+        summary: "Family plan seats and invites",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "family + members" } },
+      },
+    },
+    "/family/invite": {
+      post: {
+        tags: ["social"],
+        summary: "Create family seat invite",
+        security: [{ bearerAuth: [] }],
+        responses: { "201": { description: "invite code" } },
+      },
+    },
+    "/classroom/live/{classId}": {
+      get: {
+        tags: ["schools"],
+        summary: "Live classroom presence (Socket.IO class:{id} rooms)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "room hint" } },
       },
     },
   },

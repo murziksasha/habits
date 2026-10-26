@@ -25,6 +25,24 @@ describe("registerSchema", () => {
     });
     expect(r.success).toBe(false);
   });
+
+  it("rejects password without digit", () => {
+    const r = registerSchema.safeParse({
+      email: "a@b.com",
+      password: "passwordonly",
+      displayName: "Player",
+    });
+    expect(r.success).toBe(false);
+  });
+
+  it("rejects password without letter", () => {
+    const r = registerSchema.safeParse({
+      email: "a@b.com",
+      password: "12345678",
+      displayName: "Player",
+    });
+    expect(r.success).toBe(false);
+  });
 });
 
 describe("loginSchema", () => {

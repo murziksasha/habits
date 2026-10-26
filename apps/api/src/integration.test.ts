@@ -2,6 +2,7 @@
  * HTTP integration tests against real Postgres (DATABASE_URL).
  * Requires migrated + seeded DB. Skip with SKIP_INTEGRATION=1.
  */
+import { Secret, TOTP } from "otpauth";
 import { describe, expect, it, beforeAll } from "vitest";
 import { createApp } from "./app.js";
 
@@ -18,6 +19,8 @@ async function json(
     method: opts.method ?? (opts.body ? "POST" : "GET"),
     headers: {
       "Content-Type": "application/json",
+      // CI and production omit the bearer body unless the client opts in.
+      "X-Issue-Bearer": "1",
       ...(opts.token ? { Authorization: `Bearer ${opts.token}` } : {}),
     },
     body: opts.body ? JSON.stringify(opts.body) : undefined,
@@ -47,13 +50,14 @@ describeIntegration("API integration", () => {
     expect(r.status).toBe(200);
     expect(r.data.user.email).toBe(email);
     expect(r.data.user.emailVerified).toBe(false);
+    expect(r.data.user.accountStatus).toBe("active");
     expect(r.data.token).toBeTruthy();
-    expect(r.data.verifyUrl || r.data.devToken).toBeTruthy();
+    const issued = r.data.emailVerification as { verifyUrl?: string; devToken?: string };
+    expect(issued?.verifyUrl || issued?.devToken).toBeTruthy();
     token = r.data.token as string;
 
     const verifyToken =
-      (r.data.devToken as string) ||
-      String(r.data.verifyUrl).split("token=").pop();
+      issued.devToken || String(issued.verifyUrl).split("token=").pop();
     const v = await json("/auth/verify-email", {
       method: "POST",
       body: { token: verifyToken },
@@ -149,6 +153,61 @@ describeIntegration("API integration", () => {
     expect(submit.data.character.globalXp).toBeGreaterThan(0);
   });
 
+  it("guest GET /courses/english, lesson GET, and POST submit return 200 without auth", async () => {
+    const courseRes = await json("/courses/english");
+    expect(courseRes.status).toBe(200);
+    expect(courseRes.data.progress.xp).toBe(0);
+    expect(courseRes.data.progress.completedLessons).toBe(0);
+    const guestFirst = courseRes.data.units[0].lessons[0];
+    expect(guestFirst.status).toBe("available");
+    expect(guestFirst.locked).toBe(false);
+
+    const guestLesson = await json(`/courses/english/lessons/${guestFirst.id}`);
+    expect(guestLesson.status).toBe(200);
+    expect(guestLesson.data.lesson.id).toBe(guestFirst.id);
+    expect(guestLesson.data.hearts).toBe(5);
+
+    const exercises = guestLesson.data.lesson.exercises as {
+      id: string;
+      type: string;
+      correctIndex?: number;
+      accepted?: string[];
+      pairs?: { left: string; right: string }[];
+      correct?: string[];
+    }[];
+
+    const answers = exercises.map((ex) => {
+      if (ex.type === "mcq" || ex.type === "logic_puzzle") {
+        return { exerciseId: ex.id, answer: ex.correctIndex ?? 0 };
+      }
+      if (ex.type === "translate" || ex.type === "fill_blank") {
+        return { exerciseId: ex.id, answer: ex.accepted?.[0] ?? "" };
+      }
+      if (ex.type === "match") {
+        return { exerciseId: ex.id, answer: ex.pairs ?? [] };
+      }
+      if (ex.type === "order_words") {
+        return { exerciseId: ex.id, answer: ex.correct ?? [] };
+      }
+      return { exerciseId: ex.id, answer: true };
+    });
+
+    const guestSubmit = await json(`/courses/english/lessons/${guestFirst.id}/submit`, {
+      method: "POST",
+      body: { answers },
+    });
+    expect(guestSubmit.status).toBe(200);
+    expect(guestSubmit.data.guest).toBe(true);
+    expect(guestSubmit.data.xpGain).toBe(0);
+    expect(guestSubmit.data.character).toBeUndefined();
+    expect(guestSubmit.data.passed).toBe(true);
+    expect(guestSubmit.data.accuracy).toBe(1);
+    expect(guestSubmit.data.nextLesson).toBeTruthy();
+
+    const notFound = await json("/courses/non-existent-course-slug-xyz");
+    expect(notFound.status).toBe(404);
+  });
+
   it("password reset flow (dev)", async () => {
     const forgot = await json("/auth/forgot-password", {
       method: "POST",
@@ -186,9 +245,37 @@ describeIntegration("API integration", () => {
       return;
     }
     expect(login.data.user.role).toBe("admin");
-    const stats = await json("/admin/stats", {
-      token: login.data.token as string,
-    });
+
+    // Seed enrolls admin TOTP outside production. Password login then returns
+    // 200 + mfaToken and no session; /admin/stats with that missing token is 401.
+    let sessionToken = login.data.token as string | undefined;
+    if (login.data.mfaRequired) {
+      const mfaToken = login.data.mfaToken as string;
+      expect(mfaToken).toBeTruthy();
+      const secret = process.env.SEED_ADMIN_TOTP_SECRET ?? "JBSWY3DPEHPK3PXP";
+      const code = new TOTP({
+        algorithm: "SHA1",
+        digits: 6,
+        period: 30,
+        secret: Secret.fromBase32(secret),
+      }).generate();
+      let verified = await json("/auth/mfa/totp/verify", {
+        method: "POST",
+        body: { mfaToken, code },
+      });
+      if (verified.status !== 200) {
+        const backup = process.env.SEED_ADMIN_BACKUP_CODE ?? "AAAA-BBBB";
+        verified = await json("/auth/mfa/totp/verify", {
+          method: "POST",
+          body: { mfaToken, code: backup },
+        });
+      }
+      expect(verified.status).toBe(200);
+      sessionToken = verified.data.token as string;
+    }
+
+    expect(sessionToken).toBeTruthy();
+    const stats = await json("/admin/stats", { token: sessionToken });
     expect(stats.status).toBe(200);
     expect(stats.data.users).toBeGreaterThanOrEqual(1);
     expect(stats.data.lessons).toBeGreaterThan(0);

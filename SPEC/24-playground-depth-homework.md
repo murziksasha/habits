@@ -3,7 +3,8 @@
 ## Mini code playground
 
 - Route: `/playground` (nav + dashboard + programming hub)
-- Languages: HTML, CSS, JS, TypeScript (simple strip), SQL (in-memory demo), Bash (sim), JSON
+- Languages: HTML, CSS, JS, TypeScript (simple strip), **React (Sucrase TSX preview)**, C++, SQL (in-memory demo), Bash (sim), JSON  
+- External labs: Next / Playwright / Node via StackBlitz (`EXTERNAL_LABS`) — full Node in-app = WebContainers roadmap (SPEC 75)
 - Client runners: `apps/web/src/lib/playground-run.ts`
 - Shared examples: `PLAYGROUND_EXAMPLES` / `PLAYGROUND_LANGS`
 - API: `GET /playground/meta`, `POST /playground/log` (activity only; **no server eval**)

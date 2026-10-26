@@ -29,8 +29,9 @@ function slugify(s: string) {
   );
 }
 
+/** 16 hex chars — higher entropy than legacy 8-char codes */
 function inviteCode() {
-  return randomBytes(4).toString("hex").toUpperCase();
+  return randomBytes(8).toString("hex").toUpperCase();
 }
 
 orgRoutes.get("/mine", authMiddleware, async (c) => {

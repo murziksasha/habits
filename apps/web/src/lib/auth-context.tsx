@@ -16,9 +16,14 @@ export type User = {
   plan: "free" | "premium";
   role?: "user" | "admin";
   planExpiresAt?: string | null;
+  /** false = needs verification; true / undefined = ok */
   emailVerified?: boolean;
-  emailVerifiedAt?: string | null;
+  /** inactive = unverified past the 7-day grace window */
   accountStatus?: "active" | "inactive" | string;
+  totpEnabled?: boolean;
+  mfaVerified?: boolean;
+  mfaEnrollRequired?: boolean;
+  mfaRequired?: boolean;
 };
 
 export type Character = {
@@ -34,6 +39,22 @@ export type Character = {
   streakFreezes?: number;
   unlockedAvatars?: string[];
   onboarding?: Record<string, boolean>;
+  progression?: {
+    lastLevelAwarded?: number;
+    skillPoints?: number;
+    talents?: Record<string, number>;
+    unlockedTitles?: string[];
+    equippedTitle?: string | null;
+    unlockedFrames?: string[];
+    equippedFrame?: string | null;
+    pathBadges?: string[];
+    weekly?: {
+      weekKey: string;
+      talents: number;
+      lessons: number;
+      claimed: string[];
+    };
+  };
 };
 
 type AuthState = {
@@ -48,7 +69,11 @@ type AuthState = {
   token: string | null;
   loading: boolean;
   refresh: () => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
+  login: (
+    email: string,
+    password: string,
+  ) => Promise<{ mfaRequired?: boolean; mfaToken?: string } | void>;
+  completeMfaLogin: (mfaToken: string, code: string) => Promise<void>;
   register: (
     email: string,
     password: string,
@@ -121,9 +146,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [refresh]);
 
   const login = useCallback(async (email: string, password: string) => {
+    const data = await api<{
+      user: User;
+      character?: Character;
+      token?: string;
+      mfaRequired?: boolean;
+      mfaToken?: string;
+      mfaEnrollRequired?: boolean;
+    }>("/auth/login", { method: "POST", body: { email, password } });
+    if (data.mfaRequired && data.mfaToken) {
+      return { mfaRequired: true, mfaToken: data.mfaToken };
+    }
+    // Set-Cookie from API is primary; do not persist Bearer in localStorage
+    clearLegacyToken();
+    setToken(COOKIE_SESSION);
+    setUser(data.user);
+    setCharacter(data.character ?? null);
+  }, []);
+
+  const completeMfaLogin = useCallback(async (mfaToken: string, code: string) => {
     const data = await api<{ user: User; character: Character; token: string }>(
-      "/auth/login",
-      { method: "POST", body: { email, password } },
+      "/auth/mfa/totp/verify",
+      { method: "POST", body: { mfaToken, code } },
     );
     // Set-Cookie from API is primary; do not persist Bearer in localStorage
     clearLegacyToken();
@@ -175,11 +219,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       loading,
       refresh,
       login,
+      completeMfaLogin,
       register,
       logout,
       setCharacter,
     }),
-    [user, character, token, loading, refresh, login, register, logout],
+    [user, character, token, loading, refresh, login, completeMfaLogin, register, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

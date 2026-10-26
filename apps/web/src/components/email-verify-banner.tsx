@@ -1,65 +1,54 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
 
-const REGISTER_NOTICE_KEY = "eduforge_verify_notice";
-
 export function EmailVerifyBanner() {
-  const { user, refresh } = useAuth();
-  const { t } = useLocale();
-  const pathname = usePathname();
-  const [justRegistered, setJustRegistered] = useState(false);
-  const [msg, setMsg] = useState("");
+  const { user, token, refresh } = useAuth();
+  const { locale, t } = useLocale();
   const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
 
-  useEffect(() => {
-    try {
-      if (sessionStorage.getItem(REGISTER_NOTICE_KEY) === "1") {
-        setJustRegistered(true);
-        sessionStorage.removeItem(REGISTER_NOTICE_KEY);
-      }
-    } catch {
-      /* ignore */
-    }
-  }, []);
-
-  // Only when API explicitly reports unverified (missing field = treat as verified / legacy)
   if (!user || user.emailVerified !== false) return null;
-  // Hide on verify page itself
-  if (pathname?.startsWith("/verify-email")) return null;
+  // emailVerified undefined (old sessions) — treat as verified to avoid noise
+  if (user.emailVerified == null) return null;
 
   async function resend() {
-    if (!user?.email) return;
+    if (!token) return;
     setBusy(true);
-    setMsg("");
+    setMsg(null);
     try {
-      await api("/auth/resend-verification", {
-        method: "POST",
-        body: { email: user.email },
-      });
-      setMsg(t.auth.resendOk);
-      await refresh();
+      const r = await api<{ ok?: boolean; verifyUrl?: string; alreadyVerified?: boolean }>(
+        "/auth/resend-verification",
+        { method: "POST", token },
+      );
+      if (r.alreadyVerified) {
+        await refresh();
+        setMsg(locale === "en" ? "Already verified" : "Вже підтверджено");
+      } else {
+        setMsg(
+          r.verifyUrl
+            ? locale === "en"
+              ? `Dev link: ${r.verifyUrl}`
+              : `Dev: ${r.verifyUrl}`
+            : locale === "en"
+              ? "Check your inbox"
+              : "Перевірте пошту",
+        );
+      }
     } catch {
-      setMsg(t.common.error);
+      setMsg(locale === "en" ? "Could not resend" : "Не вдалося надіслати");
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <div
-      className="mb-6 rounded-2xl border border-amber-400/50 bg-amber-50 px-4 py-3 text-sm dark:border-amber-500/40 dark:bg-amber-950/40"
-      role="status"
-    >
-      {justRegistered && (
-        <p className="mb-1 text-base font-black text-ink">{t.auth.registerNoticeTitle}</p>
-      )}
-      <p className="font-bold text-ink">
-        {justRegistered ? t.auth.registerNoticeBody : t.auth.unverifiedBanner}
+    <div className="mb-4 rounded-2xl border-2 border-sun/40 bg-sun/10 px-4 py-3 text-sm font-bold">
+      <p>
+        {t.auth.unverifiedBanner}
       </p>
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <button
@@ -68,12 +57,10 @@ export function EmailVerifyBanner() {
           disabled={busy}
           onClick={() => void resend()}
         >
-          {busy ? "…" : t.auth.resendVerification}
+          {locale === "en" ? "Resend link" : "Надіслати знову"}
         </button>
-        {msg && <span className="text-xs font-bold text-ink-muted">{msg}</span>}
+        {msg && <span className="text-xs text-ink-muted break-all">{msg}</span>}
       </div>
     </div>
   );
 }
-
-export { REGISTER_NOTICE_KEY };

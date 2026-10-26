@@ -20,6 +20,7 @@ import {
   isoWeekBounds,
   isoWeekKey,
   levelFromXp,
+  parsePagination,
   PROGRAMMING_MINI_LESSON_SLUGS,
   PROGRAMMING_PLACEMENT,
   PROGRAMMING_UNIT_ORDER,
@@ -156,18 +157,26 @@ learningRoutes.get("/export", authMiddleware, async (c) => {
 
   const payload = {
     exportedAt: new Date().toISOString(),
+    exportVersion: 2,
     user: {
       id: user.id,
       email: u?.email,
       plan: u?.plan,
       preferredLocale: u?.preferredLocale,
+      emailVerifiedAt: u?.emailVerifiedAt ?? null,
+      role: u?.role,
+      createdAt: u?.createdAt,
     },
     character: ch
       ? {
           displayName: ch.displayName,
+          avatarKey: ch.avatarKey,
           globalXp: ch.globalXp,
           globalLevel: ch.globalLevel,
           streakDays: ch.streakDays,
+          streakFreezes: ch.streakFreezes,
+          dailyGoalXp: ch.dailyGoalXp,
+          onboarding: ch.onboarding,
         }
       : null,
     courses: courseProg,
@@ -506,7 +515,10 @@ learningRoutes.get("/programming/minis", authMiddleware, async (c) => {
  */
 learningRoutes.get("/programming/minis/leaderboard", authMiddleware, async (c) => {
   const user = c.get("user");
-  const limit = Math.min(50, Math.max(5, Number(c.req.query("limit") ?? 15)));
+  const { limit } = parsePagination(
+    { limit: c.req.query("limit") },
+    { max: 50, def: 15 },
+  );
 
   const course = await db.query.courses.findFirst({
     where: eq(courses.slug, "programming"),
@@ -830,7 +842,7 @@ export async function evaluateLearningMilestones(userId: string) {
       "Programming path завершено",
       "Programming path complete",
     );
-    // Path certificate: issue (≥70% of lessons; full path = 100%) or upgrade title if already issued
+    // Path certificate: issue (100% lessons) or upgrade title if already issued
     try {
       const { maybeIssueCertificate } = await import("./certificates.js");
       const pathUk = "Сертифікат: Programming Path";

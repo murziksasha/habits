@@ -3,6 +3,7 @@ import { and, asc, desc, eq, lt, or, sql } from "drizzle-orm";
 import { activityEvents, courses, lessons, userLessonProgress } from "@eduforge/db";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
+import { buildReviewReasons } from "../services/review-queue.js";
 
 type Vars = { user: AuthedUser };
 
@@ -73,12 +74,29 @@ reviewRoutes.get("/", authMiddleware, async (c) => {
     }
   }
 
-  const items = rows.map((r) => ({
-    ...r,
-    masteryPct: Math.round((r.bestScore ?? 0) * 100),
-    needsReview: true,
-    leech: (r.attempts ?? 0) >= 4 && (r.bestScore ?? 0) < 0.7,
-  }));
+  const items = rows.map((r) => {
+    const leech = (r.attempts ?? 0) >= 4 && (r.bestScore ?? 0) < 0.7;
+    const examCourseMatch = Boolean(
+      examContext?.courseSlug && r.courseSlug === examContext.courseSlug,
+    );
+    const reasons = buildReviewReasons({
+      bestScore: r.bestScore ?? 0,
+      attempts: r.attempts ?? 0,
+      status: r.status ?? "available",
+      threshold,
+      leech,
+      examCourseMatch,
+    });
+    return {
+      ...r,
+      masteryPct: Math.round((r.bestScore ?? 0) * 100),
+      needsReview: true,
+      leech,
+      reasons,
+      primaryReasonUk: reasons[0]?.labelUk ?? "",
+      primaryReasonEn: reasons[0]?.labelEn ?? "",
+    };
+  });
 
   // Boost non-exam lessons in same course as last failed exam
   if (examContext?.courseSlug) {

@@ -7,6 +7,7 @@ import {
   classes,
   organizationMembers,
 } from "@eduforge/db";
+import { sanitizeUserText } from "@eduforge/shared";
 import { z } from "zod";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
@@ -78,7 +79,7 @@ chatRoutes.post("/class/:classId", authMiddleware, async (c) => {
   const parsed = postSchema.safeParse(body);
   if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
 
-  const text = parsed.data.body.trim();
+  const text = sanitizeUserText(parsed.data.body.trim(), 2000);
   if (!text) return c.json({ error: "empty" }, 400);
 
   const [msg] = await db

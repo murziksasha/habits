@@ -48,4 +48,21 @@ Grading: `@eduforge/shared` `gradeExercise` (API + client soft-grade).
 
 ## Freemium
 
-Limits live in `packages/shared` `freemiumMatrix()` — keep content free lesson counts aligned with `FREE_LESSONS_PER_COURSE` (5).
+Limits live in `packages/shared` `freemiumMatrix()` / `FREE_LESSONS_PER_COURSE` (5).
+
+`normalizeCourseLocales()` also runs **`ensureFreemiumFreeLessons`**: first 5 non-exam lessons in path order get `isFree: true` (idempotent). Content tests gate every course ≥5 free lessons.
+
+### MDX authoring (preferred for new lessons)
+
+```ts
+import { parseMdxLesson, mdxToLesson } from "@eduforge/content";
+
+const parsed = parseMdxLesson(source);
+const lesson = mdxToLesson(parsed); // slug, titles, exercises, body
+```
+
+Supported markers: YAML frontmatter, `<!-- mcq ... -->`, `<!-- fill ... -->`, `<!-- translate ... -->`, fenced code → `code_fill`, `videoUrl` → video exercise.
+
+## Adaptive next weights
+
+`ADAPTIVE_WEIGHTS_JSON` overrides `DEFAULT_ADAPTIVE_WEIGHTS` in `@eduforge/shared` (`adaptive-next.ts`). Prefer weak lessons, deprioritize paywalled. Defaults are unit-tested; A/B via feature flags + env per environment.

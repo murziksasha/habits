@@ -12,12 +12,12 @@ export const speedReadingContent: CourseContent = {
     {
       slug: "foundations",
       titleUk: "Основи",
-      titleEn: "Основи",
+      titleEn: "Foundations",
       lessons: [
         {
           slug: "what-is-rsvp",
           titleUk: "Що таке RSVP",
-          titleEn: "Що таке RSVP",
+          titleEn: "What is RSVP",
           baseXp: 15,
           difficulty: 1,
           isFree: true,
@@ -48,7 +48,7 @@ export const speedReadingContent: CourseContent = {
         {
           slug: "reduce-subvocal",
           titleUk: "Менше субвокалізації",
-          titleEn: "Менше субвокалізації",
+          titleEn: "Less subvocalization",
           baseXp: 15,
           difficulty: 1,
           isFree: true,
@@ -77,7 +77,7 @@ export const speedReadingContent: CourseContent = {
         {
           slug: "chunking",
           titleUk: "Chunking — групи слів",
-          titleEn: "Chunking — групи слів",
+          titleEn: "Chunking — word groups",
           baseXp: 18,
           difficulty: 2,
           isFree: true,
@@ -106,7 +106,7 @@ export const speedReadingContent: CourseContent = {
         {
           slug: "comprehension-1",
           titleUk: "Розуміння 1",
-          titleEn: "Розуміння 1",
+          titleEn: "Comprehension 1",
           baseXp: 20,
           difficulty: 2,
           isFree: true,
@@ -457,6 +457,82 @@ export const speedReadingContent: CourseContent = {
                 "Тільки wpm",
                 "Ніколи не перевіряти зміст",
                 "Читати раз на рік",
+              ],
+              correctIndex: 0,
+            },
+          ],
+        },
+        {
+          slug: "news-skim",
+          titleUk: "Скімінг новин",
+          titleEn: "News skimming",
+          baseXp: 24,
+          difficulty: 3,
+          isFree: true,
+          exercises: [
+            {
+              id: "sr-15-1",
+              type: "comprehension",
+              promptUk: "Заголовок і суть",
+              passage:
+                "Місто відкрило нову бібліотеку з коворкінгом для студентів. У перший тиждень записалось понад 400 людей. Мер обіцяє розширити години роботи у вихідні.",
+              questions: [
+                {
+                  q: "Що відкрили?",
+                  options: ["Бібліотеку", "Стадіон", "Аеропорт", "Завод"],
+                  correctIndex: 0,
+                },
+                {
+                  q: "Скільки людей записалось за тиждень?",
+                  options: ["400+", "40", "4", "4000"],
+                  correctIndex: 0,
+                },
+              ],
+            },
+            {
+              id: "sr-15-2",
+              type: "rsvp",
+              promptUk: "RSVP 300 news",
+              text: "Читайте заголовок перший абзац і висновки. Деталі беріть лише якщо тема важлива для вас.",
+              wpm: 300,
+            },
+          ],
+        },
+        {
+          slug: "dense-tech",
+          titleUk: "Щільний tech-текст",
+          titleEn: "Dense tech text",
+          baseXp: 28,
+          difficulty: 5,
+          exercises: [
+            {
+              id: "sr-16-1",
+              type: "comprehension",
+              promptUk: "Кешування",
+              passage:
+                "HTTP-кеш зменшує latency, коли відповіді повторюються. ETag і Cache-Control допомагають клієнту вирішити, чи можна використати локальну копію. Неправильні заголовки можуть віддавати застарілі дані користувачам.",
+              questions: [
+                {
+                  q: "Навіщо HTTP-кеш?",
+                  options: ["Зменшити latency", "Збільшити RAM сервера", "Видалити CSS", "Зламати SSL"],
+                  correctIndex: 0,
+                },
+                {
+                  q: "Ризик неправильних заголовків?",
+                  options: ["Застарілі дані", "Швидший CPU", "Більше CSS", "Немає ризику"],
+                  correctIndex: 0,
+                },
+              ],
+            },
+            {
+              id: "sr-16-2",
+              type: "mcq",
+              promptUk: "Перед RSVP на tech-текст:",
+              options: [
+                "Знайдіть терміни й визначення",
+                "Ігноруйте заголовки",
+                "Читайте лише останнє речення",
+                "Вимкніть розуміння",
               ],
               correctIndex: 0,
             },

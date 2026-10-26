@@ -3,8 +3,11 @@ import { and, eq } from "drizzle-orm";
 import { characters, userDailyQuests } from "@eduforge/db";
 import {
   DAILY_QUEST_DEFS,
+  applyLevelUps,
   levelFromXp,
+  normalizeProgression,
   todayUtc,
+  type DailyQuestMetric,
 } from "@eduforge/shared";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
@@ -43,10 +46,10 @@ async function ensureDailyQuests(userId: string, date = todayUtc()) {
   });
 }
 
-/** Bump progress for metrics (lessons / xp / focus_min). Safe no-op if already complete. */
+/** Bump progress for metrics. Safe no-op if already complete. */
 export async function bumpDailyQuests(
   userId: string,
-  metric: "lessons" | "xp" | "focus_min" | "exams",
+  metric: DailyQuestMetric,
   amount: number,
 ) {
   if (amount <= 0) return;
@@ -82,6 +85,8 @@ questRoutes.get("/daily", authMiddleware, async (c) => {
       return {
         ...q,
         metric: def?.metric ?? "lessons",
+        titleUk: def?.titleUk,
+        titleEn: def?.titleEn,
       };
     }),
   });
@@ -90,6 +95,7 @@ questRoutes.get("/daily", authMiddleware, async (c) => {
 questRoutes.post("/daily/:questKey/claim", authMiddleware, async (c) => {
   const user = c.get("user");
   const questKey = c.req.param("questKey") as string;
+  if (!questKey) return c.json({ error: "not_found" }, 404);
   const date = todayUtc();
   await ensureDailyQuests(user.id, date);
 
@@ -110,9 +116,11 @@ questRoutes.post("/daily/:questKey/claim", authMiddleware, async (c) => {
   if (!ch) return c.json({ error: "no_character" }, 404);
 
   const newXp = ch.globalXp + row.rewardXp;
+  const globalLevel = levelFromXp(newXp);
+  const progression = applyLevelUps(normalizeProgression(ch.progression), globalLevel);
   const [updated] = await db
     .update(characters)
-    .set({ globalXp: newXp, globalLevel: levelFromXp(newXp) })
+    .set({ globalXp: newXp, globalLevel, progression })
     .where(eq(characters.id, ch.id))
     .returning();
 

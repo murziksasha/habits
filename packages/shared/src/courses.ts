@@ -16,6 +16,7 @@ export const COURSE_SLUGS = [
   "sql_fundamentals",
   "node_fundamentals",
   "express_fundamentals",
+  "embedded_cpp",
 ] as const;
 
 export type CourseSlug = (typeof COURSE_SLUGS)[number];
@@ -31,6 +32,13 @@ export function parseCourseSlug(value: string): CourseSlug | null {
 
 /** Catalog grouping for discoverability */
 export type CourseGroup = "skill" | "code" | "deep" | "chess";
+
+export function resolveCourseGroup(slug: string): CourseGroup {
+  if ((COURSE_SLUGS as readonly string[]).includes(slug)) {
+    return COURSE_GROUP[slug as CourseSlug];
+  }
+  return "skill";
+}
 
 export const COURSE_GROUP: Record<CourseSlug, CourseGroup> = {
   english: "skill",
@@ -48,6 +56,7 @@ export const COURSE_GROUP: Record<CourseSlug, CourseGroup> = {
   sql_fundamentals: "deep",
   node_fundamentals: "deep",
   express_fundamentals: "deep",
+  embedded_cpp: "deep",
 };
 
 export const COURSE_GROUP_META: Record<
@@ -201,8 +210,10 @@ export const COURSE_META: Record<
     slug: "sql_fundamentals",
     titleUk: "SQL",
     titleEn: "SQL",
-    descriptionUk: "SELECT, JOINs, aggregates, DML, keys — deep track.",
-    descriptionEn: "SELECT, JOINs, aggregates, DML, keys — deep track.",
+    descriptionUk:
+      "Oracle SQL за програмою 1Z0-071: функції, JOIN, підзапити, множини, DML/DDL, views.",
+    descriptionEn:
+      "Oracle SQL on the 1Z0-071 checklist: functions, joins, subqueries, sets, DML/DDL, views.",
     icon: "🗄️",
     color: "#336791",
     group: "deep",
@@ -227,10 +238,22 @@ export const COURSE_META: Record<
     color: "#000000",
     group: "deep",
   },
+  embedded_cpp: {
+    slug: "embedded_cpp",
+    titleUk: "Embedded C++ · MilTech",
+    titleEn: "Embedded C++ · MilTech",
+    descriptionUk:
+      "C++ для обмежених ресурсів: пам'ять, CMake, мережа, FreeRTOS, MAVLink, safety, mission — deep track + labs.",
+    descriptionEn:
+      "C++ for constrained systems: memory, CMake, networking, FreeRTOS, MAVLink, safety, mission — deep track + labs.",
+    icon: "🪖",
+    color: "#4B5320",
+    group: "deep",
+  },
 };
 
 /** Hub path for deep tracks / code (fallback /courses/:slug) */
-export const COURSE_HUB_HREF: Partial<Record<CourseSlug, string>> = {
+export const COURSE_HUB_HREF: Partial<Record<CourseSlug | string, string>> = {
   programming: "/programming",
   typescript: "/typescript",
   html_semantics: "/html-semantics",
@@ -241,6 +264,7 @@ export const COURSE_HUB_HREF: Partial<Record<CourseSlug, string>> = {
   sql_fundamentals: "/sql-fundamentals",
   node_fundamentals: "/node-fundamentals",
   express_fundamentals: "/express-fundamentals",
+  embedded_cpp: "/embedded-cpp",
   chess: "/play",
 };
 
@@ -406,7 +430,9 @@ export const DEFAULT_DAILY_GOAL_XP = 50;
 
 export const CHESS_TIME_CONTROLS = [
   { id: "3+0", initialMs: 180_000, incrementMs: 0, label: "3 хв" },
+  { id: "3+2", initialMs: 180_000, incrementMs: 2_000, label: "3+2" },
   { id: "5+0", initialMs: 300_000, incrementMs: 0, label: "5 хв" },
+  { id: "5+3", initialMs: 300_000, incrementMs: 3_000, label: "5+3" },
   { id: "10+0", initialMs: 600_000, incrementMs: 0, label: "10 хв" },
 ] as const;
 
@@ -427,5 +453,6 @@ export type ExerciseType =
   | "code_fill"
   | "code_order"
   | "code_project"
+  | "code_run"
   | "video"
   | "code_judge";

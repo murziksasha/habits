@@ -49,11 +49,15 @@ export async function runLocal(job: JudgeJob): Promise<JudgeResult> {
     };
   }
 
-  // Block obvious host escapes in local mode
-  if (/\b(require\s*\(\s*['"]child_process|process\.exit|fs\.|import\s+['"]fs)/.test(job.source) && lang !== "bash") {
-    // allow process-less learner code; soft warn only for child_process
-  }
-  if (/rm\s+-rf\s+[\/~]|curl\s+.+\|\s*sh/.test(job.source)) {
+  // Hard-block host escapes in local mode (bash still restricted by pattern list)
+  const dangerous =
+    /\b(require\s*\(\s*['"]child_process|require\s*\(\s*['"]fs|import\s+['"]node:|import\s+['"]fs|import\s+['"]child_process|process\.env|process\.exit|Deno\.|Bun\.)/.test(
+      job.source,
+    ) ||
+    /rm\s+-rf\s+[\/~]|curl\s+.+\|\s*sh|wget\s+.+\|\s*sh|\/etc\/passwd|powershell|Invoke-Expression/i.test(
+      job.source,
+    );
+  if (dangerous) {
     return {
       ok: false,
       mode: "local",
@@ -65,6 +69,21 @@ export async function runLocal(job: JudgeJob): Promise<JudgeResult> {
       durationMs: Date.now() - started,
       tests: [],
       error: "dangerous_pattern",
+    };
+  }
+  // Bash local is high-risk: refuse unless explicitly allowed
+  if (lang === "bash" && process.env.JUDGE_ALLOW_BASH_LOCAL !== "1") {
+    return {
+      ok: false,
+      mode: "local",
+      lang,
+      stdout: "",
+      stderr: "bash_local_disabled",
+      exitCode: null,
+      timedOut: false,
+      durationMs: Date.now() - started,
+      tests: [],
+      error: "bash_local_disabled",
     };
   }
 
@@ -82,9 +101,26 @@ export async function runLocal(job: JudgeJob): Promise<JudgeResult> {
       let stdout = "";
       let stderr = "";
       let timedOut = false;
+      // Minimal env — never inherit secrets (DATABASE_URL, AUTH_SECRET, Stripe, …)
       const child = spawn(cmd, args, {
         cwd: dir,
-        env: { ...process.env, NODE_OPTIONS: "" },
+        env: {
+          PATH: process.env.PATH ?? "",
+          LANG: process.env.LANG ?? "C.UTF-8",
+          HOME: dir,
+          TMPDIR: dir,
+          TEMP: dir,
+          TMP: dir,
+          NODE_OPTIONS: "",
+          NODE_ENV: "production",
+          // Windows needs SYSTEMROOT for some runtimes
+          ...(process.platform === "win32"
+            ? {
+                SYSTEMROOT: process.env.SYSTEMROOT ?? "C:\\Windows",
+                COMSPEC: process.env.COMSPEC ?? "cmd.exe",
+              }
+            : {}),
+        },
         windowsHide: true,
       });
       const timer = setTimeout(() => {

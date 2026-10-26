@@ -341,6 +341,139 @@ homeworkRoutes.get("/class/:classId", authMiddleware, async (c) => {
   return c.json({ assignments: result });
 });
 
+/**
+ * Teacher heat board: all classes the user teaches + assignment completion grid.
+ * Heat level 0–4 per student×assignment for UI heatmap.
+ */
+homeworkRoutes.get("/teacher/board", authMiddleware, async (c) => {
+  const user = c.get("user");
+
+  const taught = await db.query.classes.findMany({
+    where: eq(classes.teacherUserId, user.id),
+  });
+
+  // Also org teacher/owner classes
+  const orgMems = await db.query.organizationMembers.findMany({
+    where: eq(organizationMembers.userId, user.id),
+  });
+  const orgClassList: (typeof taught)[number][] = [];
+  for (const om of orgMems) {
+    if (om.role !== "owner" && om.role !== "teacher" && user.role !== "admin") continue;
+    const more = await db.query.classes.findMany({
+      where: eq(classes.organizationId, om.organizationId),
+    });
+    for (const cl of more) {
+      if (!taught.some((t) => t.id === cl.id) && !orgClassList.some((t) => t.id === cl.id)) {
+        orgClassList.push(cl);
+      }
+    }
+  }
+  if (user.role === "admin") {
+    const all = await db.query.classes.findMany();
+    for (const cl of all) {
+      if (!taught.some((t) => t.id === cl.id) && !orgClassList.some((t) => t.id === cl.id)) {
+        orgClassList.push(cl);
+      }
+    }
+  }
+
+  const allClasses = [...taught, ...orgClassList];
+  const board = [];
+
+  for (const cls of allClasses.slice(0, 20)) {
+    const members = await db
+      .select({
+        userId: classMembers.userId,
+        displayName: characters.displayName,
+      })
+      .from(classMembers)
+      .leftJoin(characters, eq(characters.userId, classMembers.userId))
+      .where(eq(classMembers.classId, cls.id));
+
+    const assignments = await db.query.classAssignments.findMany({
+      where: eq(classAssignments.classId, cls.id),
+      orderBy: [desc(classAssignments.createdAt)],
+      limit: 12,
+    });
+
+    const assignmentStats = [];
+    for (const a of assignments) {
+      const subs = await db
+        .select({
+          userId: assignmentSubmissions.userId,
+          status: assignmentSubmissions.status,
+          score: assignmentSubmissions.score,
+        })
+        .from(assignmentSubmissions)
+        .where(eq(assignmentSubmissions.assignmentId, a.id));
+
+      const byUser: Record<
+        string,
+        { status: string; score: number | null; heat: number }
+      > = {};
+      for (const s of subs) {
+        const heat =
+          s.status === "completed"
+            ? s.score != null && s.score >= 0.9
+              ? 4
+              : s.score != null && s.score >= 0.7
+                ? 3
+                : 2
+            : s.status === "overdue"
+              ? 0
+              : 1;
+        byUser[s.userId] = {
+          status: s.status,
+          score: s.score,
+          heat: s.status === "assigned" ? 1 : heat,
+        };
+      }
+
+      const completed = subs.filter((s) => s.status === "completed").length;
+      const total = Math.max(subs.length, members.length);
+      const pct = total ? Math.round((completed / total) * 100) : 0;
+
+      assignmentStats.push({
+        id: a.id,
+        titleUk: a.titleUk,
+        titleEn: a.titleEn,
+        dueAt: a.dueAt,
+        completed,
+        total,
+        pct,
+        heatLevel: pct >= 80 ? 4 : pct >= 60 ? 3 : pct >= 40 ? 2 : pct >= 1 ? 1 : 0,
+        cells: byUser,
+      });
+    }
+
+    const classPct =
+      assignmentStats.length === 0
+        ? 0
+        : Math.round(
+            assignmentStats.reduce((s, a) => s + a.pct, 0) / assignmentStats.length,
+          );
+
+    board.push({
+      classId: cls.id,
+      className: cls.name,
+      memberCount: members.length,
+      members: members.map((m) => ({
+        userId: m.userId,
+        displayName: m.displayName ?? "—",
+      })),
+      overallPct: classPct,
+      heatLevel: classPct >= 80 ? 4 : classPct >= 60 ? 3 : classPct >= 40 ? 2 : classPct >= 1 ? 1 : 0,
+      assignments: assignmentStats,
+    });
+  }
+
+  return c.json({
+    board,
+    classCount: board.length,
+    generatedAt: new Date().toISOString(),
+  });
+});
+
 /** Mark submission complete when matching lesson is finished */
 export async function completeHomeworkForLesson(
   userId: string,

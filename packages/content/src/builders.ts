@@ -45,14 +45,17 @@ export function unit(
   return { slug, titleUk, titleEn, lessons };
 }
 
+type Note = { explanationUk?: string; explanationEn?: string };
+
 export function mcq(
   id: string,
   promptUk: string,
   promptEn: string,
   options: string[],
   correctIndex: number,
+  note?: Note,
 ): Exercise {
-  return { id, type: "mcq", promptUk, promptEn, options, correctIndex };
+  return { id, type: "mcq", promptUk, promptEn, options, correctIndex, ...note };
 }
 
 export function codeFill(
@@ -63,6 +66,7 @@ export function codeFill(
   code: string,
   accepted: string[],
   caseSensitive = true,
+  note?: Note,
 ): Exercise {
   return {
     id,
@@ -73,6 +77,7 @@ export function codeFill(
     code,
     accepted,
     caseSensitive,
+    ...note,
   };
 }
 
@@ -84,6 +89,7 @@ export function codeRead(
   code: string,
   options: string[],
   correctIndex: number,
+  note?: Note,
 ): Exercise {
   return {
     id,
@@ -94,6 +100,7 @@ export function codeRead(
     code,
     options,
     correctIndex,
+    ...note,
   };
 }
 
@@ -104,8 +111,9 @@ export function codeOrder(
   language: string,
   lines: string[],
   correct: string[],
+  note?: Note,
 ): Exercise {
-  return { id, type: "code_order", promptUk, promptEn, language, lines, correct };
+  return { id, type: "code_order", promptUk, promptEn, language, lines, correct, ...note };
 }
 
 export function matchEx(
@@ -115,4 +123,62 @@ export function matchEx(
   pairs: { left: string; right: string }[],
 ): Exercise {
   return { id, type: "match", promptUk, promptEn, pairs };
+}
+
+export function codeRun(
+  id: string,
+  promptUk: string,
+  promptEn: string,
+  language: string,
+  starter: string,
+  tests: { stdin?: string; stdout: string }[],
+  extra?: {
+    requiredSource?: string[];
+    forbiddenSource?: string[];
+    timeLimitMs?: number;
+    hintUk?: string;
+    hintEn?: string;
+    solutionUk?: string;
+    solutionEn?: string;
+  },
+): Exercise {
+  return {
+    id,
+    type: "code_run",
+    promptUk,
+    promptEn,
+    language,
+    starter,
+    tests,
+    requiredSource: extra?.requiredSource,
+    forbiddenSource: extra?.forbiddenSource,
+    timeLimitMs: extra?.timeLimitMs,
+    hintUk: extra?.hintUk,
+    hintEn: extra?.hintEn,
+    solutionUk: extra?.solutionUk,
+    solutionEn: extra?.solutionEn,
+  };
+}
+
+export function codeOutputMcq(
+  id: string,
+  promptUk: string,
+  promptEn: string,
+  language: string,
+  code: string,
+  options: string[],
+  correctIndex: number,
+  note?: Note,
+): Exercise {
+  return {
+    id,
+    type: "code_output",
+    promptUk,
+    promptEn,
+    language,
+    code,
+    options,
+    correctIndex,
+    ...note,
+  };
 }

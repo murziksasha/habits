@@ -25,14 +25,26 @@ export async function runUnverifiedLifecycle(now = new Date()) {
     )
     .returning({ id: users.id });
 
-  const deleted = await db
-    .delete(users)
-    .where(and(isNull(users.emailVerifiedAt), lte(users.createdAt, deleteBefore)))
-    .returning({ id: users.id });
+  const doomed = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(and(isNull(users.emailVerifiedAt), lte(users.createdAt, deleteBefore)));
+
+  let deleted = 0;
+  let deleteFailed = 0;
+  for (const row of doomed) {
+    try {
+      await db.delete(users).where(eq(users.id, row.id));
+      deleted += 1;
+    } catch {
+      deleteFailed += 1;
+    }
+  }
 
   return {
     inactivated: inactivated.length,
-    deleted: deleted.length,
+    deleted,
+    deleteFailed,
     inactiveBefore: inactiveBefore.toISOString(),
     deleteBefore: deleteBefore.toISOString(),
   };

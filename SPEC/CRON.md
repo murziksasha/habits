@@ -21,7 +21,15 @@ Set in env: `CRON_SECRET=` (see `.env.example`).
 | Homework reminders | `POST /admin/ops/homework-reminders` **or** reminders run | Daily 08:00 | Due &lt;24h + overdue |
 | Learner weekly email | `POST /admin/ops/weekly-learners` | Weekly Sun 17:00 | Opt-in `weeklyEmailEnabled` |
 | Push re-engage | `POST /admin/ops/push-reengage` body `{"days":3}` | Daily 16:00 | `lastActiveDate` older than N days; throttle via `push_reengage_sent` |
+| Weekly quest remind | `POST /admin/ops/weekly-quest-remind` body `{"limit":300}` | Wed+Sat 15:00 | Incomplete weekly build/lessons; throttle 2d via `weekly_quest_remind` |
 | Unverified lifecycle | `POST /auth/cron/unverified-lifecycle` **or** `POST /admin/ops/unverified-lifecycle` | Daily 03:00 | Unverified ≥7d → `inactive`; ≥30d → hard delete |
+| Judge worker drain | `POST /judge/worker/drain` body `{"max":5}` | Every 10–30s if async judge used | Auth: `JUDGE_WORKER_SECRET` or `CRON_SECRET` |
+
+### Dry-run notes
+
+- Parent digests / push re-engage: run once against staging with a known inactive test user; verify throttle keys in Redis / activity log before production schedule.
+- Judge drain: safe no-op when queue empty; result store TTL is in-process/Redis (see `@eduforge/judge` queue).
+- Prefer admin Ops UI dry-check (buttons) then enable cron.
 
 Admin UI: `/admin` → Ops buttons (including **Push re-engage (3d)** and **Unverified cleanup**).
 
@@ -38,6 +46,12 @@ curl -sS -X POST "$API/parents/digest/run" \
 # Same via admin
 curl -sS -X POST "$API/admin/ops/parent-digests" \
   -H "Authorization: Bearer $ADMIN_TOKEN"
+
+# Judge queue worker (optional multi-process)
+curl -sS -X POST "$API/judge/worker/drain" \
+  -H "x-cron-secret: $CRON_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"max":10}'
 
 # Push re-engage inactive 3+ days
 curl -sS -X POST "$API/admin/ops/push-reengage" \

@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import { desc, eq } from "drizzle-orm";
 import { characters, chessGames, chessRatings } from "@eduforge/db";
-import { canPlayRatedChess, type Plan } from "@eduforge/shared";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 
@@ -72,10 +71,7 @@ chessRoutes.get("/can-rated", authMiddleware, async (c) => {
   const ratedToday =
     rating?.ratedGamesDate === today ? (rating?.ratedGamesToday ?? 0) : 0;
   return c.json({
-    allowed: canPlayRatedChess({
-      plan: user.plan as Plan,
-      ratedGamesToday: ratedToday,
-    }),
+    allowed: true,
     ratedGamesToday: ratedToday,
     plan: user.plan,
   });

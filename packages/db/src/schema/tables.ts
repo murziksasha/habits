@@ -13,11 +13,16 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-export const planEnum = pgEnum("plan", ["free", "premium"]);
+export const planEnum = pgEnum("plan", ["free", "premium", "family"]);
 /**
  * Course slugs are app-registry validated (`COURSE_SLUGS` in @eduforge/shared).
  * Stored as varchar so new courses do not require ALTER TYPE migrations.
  */
+export const coursePublishStatusEnum = pgEnum("course_publish_status", [
+  "draft",
+  "published",
+  "archived",
+]);
 export const lessonStatusEnum = pgEnum("lesson_status", [
   "locked",
   "available",
@@ -30,33 +35,86 @@ export const chessGameStatusEnum = pgEnum("chess_game_status", [
   "aborted",
 ]);
 
-export const users = pgTable(
-  "users",
+export const users = pgTable("users", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  /** Null for OAuth-only accounts (no local password) */
+  passwordHash: text("password_hash"),
+  role: varchar("role", { length: 32 }).notNull().default("user"),
+  plan: planEnum("plan").notNull().default("free"),
+  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
+  stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
+  planExpiresAt: timestamp("plan_expires_at", { withTimezone: true }),
+  /** Preferred UI/content locale */
+  preferredLocale: varchar("preferred_locale", { length: 8 }).notNull().default("uk"),
+  weeklyEmailEnabled: boolean("weekly_email_enabled").notNull().default(true),
+  lastWeeklyEmailAt: timestamp("last_weekly_email_at", { withTimezone: true }),
+  /** When the email was verified (null = unverified) */
+  emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true }),
+  /** active | inactive — unverified accounts go inactive after 7 days */
+  accountStatus: varchar("account_status", { length: 16 }).notNull().default("active"),
+  /** Encrypted TOTP secret (AES-GCM); null until enroll */
+  totpSecretEnc: text("totp_secret_enc"),
+  totpEnabled: boolean("totp_enabled").notNull().default(false),
+  totpVerifiedAt: timestamp("totp_verified_at", { withTimezone: true }),
+  /** SHA-256 hashes of one-time backup codes (plaintext shown once at generation) */
+  mfaBackupCodeHashes: jsonb("mfa_backup_code_hashes").$type<string[]>().notNull().default([]),
+  /** Family plan: max child seats when plan=family (owner) */
+  familyMaxSeats: integer("family_max_seats").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [
+  index("users_unverified_created_idx").on(t.emailVerifiedAt, t.createdAt),
+  index("users_account_status_idx").on(t.accountStatus),
+]);
+
+/** Linked OAuth identities (Google, …) */
+export const oauthAccounts = pgTable(
+  "oauth_accounts",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    email: varchar("email", { length: 255 }).notNull().unique(),
-    passwordHash: text("password_hash").notNull(),
-    role: varchar("role", { length: 32 }).notNull().default("user"),
-    plan: planEnum("plan").notNull().default("free"),
-    stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
-    stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
-    planExpiresAt: timestamp("plan_expires_at", { withTimezone: true }),
-    /** Preferred UI/content locale */
-    preferredLocale: varchar("preferred_locale", { length: 8 }).notNull().default("uk"),
-    weeklyEmailEnabled: boolean("weekly_email_enabled").notNull().default(true),
-    lastWeeklyEmailAt: timestamp("last_weekly_email_at", { withTimezone: true }),
-    /** null = email not confirmed yet */
-    emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true }),
-    /** active | inactive — inactive after 7d without verification */
-    accountStatus: varchar("account_status", { length: 16 }).notNull().default("active"),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    provider: varchar("provider", { length: 32 }).notNull(),
+    providerUserId: varchar("provider_user_id", { length: 255 }).notNull(),
+    email: varchar("email", { length: 255 }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("oauth_provider_uid").on(t.provider, t.providerUserId)],
+);
+
+/** Family plan membership (owner has plan=family; children get premium entitlements) */
+export const familyMembers = pgTable(
+  "family_members",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerUserId: uuid("owner_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    memberUserId: uuid("member_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    role: varchar("role", { length: 16 }).notNull().default("child"),
+    status: varchar("status", { length: 16 }).notNull().default("active"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
-    index("users_unverified_created_idx").on(t.emailVerifiedAt, t.createdAt),
-    index("users_account_status_idx").on(t.accountStatus),
+    uniqueIndex("family_owner_member").on(t.ownerUserId, t.memberUserId),
+    uniqueIndex("family_member_once").on(t.memberUserId),
   ],
 );
+
+/** Pending family seat invites (code claimed by child account) */
+export const familyInvites = pgTable("family_invites", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  ownerUserId: uuid("owner_user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  inviteCode: varchar("invite_code", { length: 32 }).notNull().unique(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
 
 export const characters = pgTable("characters", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -84,6 +142,13 @@ export const characters = pgTable("characters", {
       exploredPricing?: boolean;
       viewedLearnMap?: boolean;
       triedProgramming?: boolean;
+      wizardCompleted?: boolean;
+      personaStudent?: boolean;
+      personaParent?: boolean;
+      personaTeacher?: boolean;
+      /** UTC date YYYY-MM-DD of last daily login bonus */
+      dailyLoginDate?: string;
+      [key: string]: unknown;
     }>()
     .notNull()
     .default({}),
@@ -94,6 +159,30 @@ export const characters = pgTable("characters", {
     .$type<string[]>()
     .notNull()
     .default(["default", "wizard", "knight", "scholar", "fox", "robot"]),
+  /**
+   * Talent tree + cosmetics progression (skill points from levels).
+   * Shape: CharacterProgression from @eduforge/shared
+   */
+  progression: jsonb("progression")
+    .$type<{
+      lastLevelAwarded?: number;
+      skillPoints?: number;
+      talents?: Record<string, number>;
+      unlockedTitles?: string[];
+      equippedTitle?: string | null;
+      unlockedFrames?: string[];
+      equippedFrame?: string | null;
+    }>()
+    .notNull()
+    .default({
+      lastLevelAwarded: 1,
+      skillPoints: 0,
+      talents: {},
+      unlockedTitles: ["rookie"],
+      equippedTitle: "rookie",
+      unlockedFrames: ["none"],
+      equippedFrame: "none",
+    }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -121,6 +210,7 @@ export const emailVerificationTokens = pgTable("email_verification_tokens", {
 
 export const courses = pgTable("courses", {
   id: uuid("id").defaultRandom().primaryKey(),
+  /** Free-form slug (CMS can create new courses; app registry still lists built-ins) */
   slug: varchar("slug", { length: 64 }).notNull().unique(),
   titleUk: varchar("title_uk", { length: 128 }).notNull(),
   titleEn: varchar("title_en", { length: 128 }).notNull().default(""),
@@ -129,6 +219,13 @@ export const courses = pgTable("courses", {
   icon: varchar("icon", { length: 16 }).notNull(),
   color: varchar("color", { length: 16 }).notNull(),
   sortOrder: integer("sort_order").notNull().default(0),
+  status: coursePublishStatusEnum("status").notNull().default("published"),
+  /** Catalog group: code | deep | skill | chess */
+  category: varchar("category", { length: 32 }).notNull().default("skill"),
+  isVisible: boolean("is_visible").notNull().default(true),
+  publishedAt: timestamp("published_at", { withTimezone: true }),
+  /** seed | cms — seed may overwrite seed-owned courses */
+  contentSource: varchar("content_source", { length: 16 }).notNull().default("seed"),
 });
 
 export const units = pgTable("units", {
@@ -209,16 +306,23 @@ export const userLessonProgress = pgTable(
   ],
 );
 
-export const skillAttempts = pgTable("skill_attempts", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  courseSlug: varchar("course_slug", { length: 64 }).notNull(),
-  metrics: jsonb("metrics").notNull().$type<Record<string, unknown>>(),
-  xpGained: integer("xp_gained").notNull().default(0),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const skillAttempts = pgTable(
+  "skill_attempts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    courseSlug: varchar("course_slug", { length: 64 }).notNull(),
+    metrics: jsonb("metrics").notNull().$type<Record<string, unknown>>(),
+    xpGained: integer("xp_gained").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index("skill_attempts_user_course_idx").on(t.userId, t.courseSlug),
+    index("skill_attempts_user_created_idx").on(t.userId, t.createdAt),
+  ],
+);
 
 export const chessRatings = pgTable("chess_ratings", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -235,10 +339,12 @@ export const chessRatings = pgTable("chess_ratings", {
   ratedGamesDate: varchar("rated_games_date", { length: 10 }),
 });
 
-export const chessGames = pgTable("chess_games", {
+export const chessGames = pgTable(
+  "chess_games",
+  {
   id: uuid("id").defaultRandom().primaryKey(),
-  whiteId: uuid("white_id").references(() => users.id),
-  blackId: uuid("black_id").references(() => users.id),
+  whiteId: uuid("white_id").references(() => users.id, { onDelete: "set null" }),
+  blackId: uuid("black_id").references(() => users.id, { onDelete: "set null" }),
   fen: text("fen").notNull(),
   pgn: text("pgn").notNull().default(""),
   status: chessGameStatusEnum("status").notNull().default("waiting"),
@@ -254,9 +360,35 @@ export const chessGames = pgTable("chess_games", {
   blackEloDelta: integer("black_elo_delta"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   finishedAt: timestamp("finished_at", { withTimezone: true }),
-});
+  },
+  (t) => [
+    index("chess_games_white_idx").on(t.whiteId),
+    index("chess_games_black_idx").on(t.blackId),
+    index("chess_games_status_idx").on(t.status),
+  ],
+);
 
-export const sessions = pgTable("sessions", {
+export const sessions = pgTable(
+  "sessions",
+  {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  /** Set after successful admin TOTP (or when MFA not required) */
+  mfaVerifiedAt: timestamp("mfa_verified_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index("sessions_expires_at_idx").on(t.expiresAt),
+    index("sessions_user_id_idx").on(t.userId),
+  ],
+);
+
+/** Short-lived challenge after password login when admin has TOTP enabled */
+export const mfaPending = pgTable("mfa_pending", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: uuid("user_id")
     .notNull()
@@ -264,6 +396,28 @@ export const sessions = pgTable("sessions", {
   tokenHash: text("token_hash").notNull().unique(),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+/** Step-up re-auth tokens for dangerous admin actions */
+export const adminStepUpTokens = pgTable("admin_step_up_tokens", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+/** Platform-wide settings (theme draft/published, etc.) */
+export const platformSettings = pgTable("platform_settings", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  key: varchar("key", { length: 64 }).notNull().unique(),
+  value: jsonb("value").$type<Record<string, unknown>>().notNull().default({}),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedByUserId: uuid("updated_by_user_id").references(() => users.id, {
+    onDelete: "set null",
+  }),
 });
 
 /* ——— Tournaments ——— */
@@ -647,6 +801,33 @@ export const shopPurchases = pgTable("shop_purchases", {
   costXp: integer("cost_xp").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const giftStatusEnum = pgEnum("gift_status", ["pending", "claimed", "expired"]);
+
+/** Friend-to-friend gifts (hearts, XP, cosmetics, mystery). */
+export const characterGifts = pgTable(
+  "character_gifts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    fromUserId: uuid("from_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    toUserId: uuid("to_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    giftKey: varchar("gift_key", { length: 64 }).notNull(),
+    message: varchar("message", { length: 280 }),
+    status: giftStatusEnum("status").notNull().default("pending"),
+    /** Resolved mystery / grant payload for claim */
+    payload: jsonb("payload").$type<Record<string, unknown>>().notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    claimedAt: timestamp("claimed_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("character_gifts_to_status_idx").on(t.toUserId, t.status),
+    index("character_gifts_from_created_idx").on(t.fromUserId, t.createdAt),
+  ],
+);
 
 export const userDailyQuests = pgTable(
   "user_daily_quests",

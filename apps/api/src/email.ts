@@ -49,6 +49,24 @@ function ctaButton(href: string, label: string) {
   return `<p style="margin:20px 0"><a href="${href}" style="display:inline-block;background:#58CC02;color:#fff;font-weight:700;text-decoration:none;padding:12px 20px;border-radius:12px">${label}</a></p>`;
 }
 
+export function emailVerifyEmail(opts: {
+  to: string;
+  verifyUrl: string;
+  locale?: string;
+}): MailPayload {
+  const uk = (opts.locale ?? "uk") === "uk";
+  return {
+    to: opts.to,
+    subject: uk ? "Підтвердіть email — EduForge" : "Confirm your email — EduForge",
+    text: uk
+      ? `Вітаємо!\n\nПідтвердіть email за посиланням (дійсне 30 днів):\n${opts.verifyUrl}\n\nБез підтвердження: через 7 днів акаунт стане неактивним, а через 30 днів буде видалений.\n`
+      : `Hello!\n\nConfirm your email (valid 30 days):\n${opts.verifyUrl}\n\nWithout confirmation: after 7 days the account becomes inactive, and after 30 days it is deleted.\n`,
+    html: uk
+      ? `<p>Вітаємо!</p>${ctaButton(opts.verifyUrl, "Підтвердити email")}<p>Посилання дійсне 30 днів.</p><p>Без підтвердження: через 7 днів акаунт стане неактивним, а через 30 днів буде видалений.</p>`
+      : `<p>Hello!</p>${ctaButton(opts.verifyUrl, "Confirm email")}<p>Link valid 30 days.</p><p>Without confirmation: after 7 days the account becomes inactive, and after 30 days it is deleted.</p>`,
+  };
+}
+
 export function passwordResetEmail(opts: {
   to: string;
   resetUrl: string;

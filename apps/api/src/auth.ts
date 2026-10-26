@@ -1,20 +1,12 @@
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import bcrypt from "bcryptjs";
-import { and, desc, eq, gt, isNull, ne } from "drizzle-orm";
-import {
-  characters,
-  chessRatings,
-  emailVerificationTokens,
-  sessions,
-  users,
-} from "@eduforge/db";
+import { and, desc, eq, gt, ne } from "drizzle-orm";
+import { characters, chessRatings, sessions, users } from "@eduforge/db";
 import type { Context, Next } from "hono";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { db } from "./db.js";
 
 const SESSION_DAYS = 14;
-/** Verification link must remain valid until the 30-day delete deadline. */
-const EMAIL_VERIFY_DAYS = 30;
 const COOKIE = "eduforge_session";
 
 export function hashToken(token: string) {
@@ -22,18 +14,48 @@ export function hashToken(token: string) {
 }
 
 export async function hashPassword(password: string) {
-  return bcrypt.hash(password, 10);
+  return bcrypt.hash(password, 12);
 }
 
-export async function verifyPassword(password: string, hash: string) {
+/**
+ * Whether to include raw session token in JSON body.
+ * Production: only when client opts in (mobile/e2e via X-Issue-Bearer).
+ * Non-prod: yes by default for integration tests (ISSUE_BEARER_TOKENS=0 to disable).
+ */
+export function shouldIssueBearerToken(c: {
+  req: { header: (n: string) => string | undefined };
+}): boolean {
+  if (c.req.header("x-issue-bearer") === "1") return true;
+  if (process.env.ISSUE_BEARER_TOKENS === "0") return false;
+  if (process.env.ISSUE_BEARER_TOKENS === "1") return true;
+  return process.env.NODE_ENV !== "production";
+}
+
+export async function verifyPassword(password: string, hash: string | null | undefined) {
+  if (!hash) return false;
   return bcrypt.compare(password, hash);
 }
 
-export async function createSession(userId: string) {
+/** Return user as-is; access does not depend on plan and family children are not promoted to premium. */
+export async function withEffectivePlan<T extends { id: string; plan: string; planExpiresAt?: Date | null }>(
+  user: T,
+): Promise<T> {
+  return user;
+}
+
+export async function createSession(
+  userId: string,
+  opts?: { mfaVerified?: boolean },
+) {
   const token = randomBytes(32).toString("hex");
   const tokenHash = hashToken(token);
   const expiresAt = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000);
-  await db.insert(sessions).values({ userId, tokenHash, expiresAt });
+  await db.insert(sessions).values({
+    userId,
+    tokenHash,
+    expiresAt,
+    mfaVerifiedAt: opts?.mfaVerified ? new Date() : null,
+  });
   return { token, expiresAt };
 }
 
@@ -52,6 +74,7 @@ export async function listUserSessions(userId: string, currentToken?: string) {
     id: r.id,
     createdAt: r.createdAt,
     expiresAt: r.expiresAt,
+    mfaVerifiedAt: r.mfaVerifiedAt ?? null,
     current: currentHash !== null && r.tokenHash === currentHash,
   }));
 }
@@ -75,94 +98,28 @@ export async function getUserFromToken(token: string | undefined) {
   if (!row) return null;
   const user = await db.query.users.findFirst({ where: eq(users.id, row.userId) });
   if (!user) return null;
-  // Expire premium when planExpiresAt is in the past (trial / demo)
+  // Expire paid plans when planExpiresAt is in the past (trial / demo / family)
   if (
-    user.plan === "premium" &&
+    (user.plan === "premium" || user.plan === "family") &&
     user.planExpiresAt &&
     user.planExpiresAt.getTime() < Date.now()
   ) {
     const [updated] = await db
       .update(users)
-      .set({ plan: "free", planExpiresAt: null, updatedAt: new Date() })
+      .set({
+        plan: "free",
+        planExpiresAt: null,
+        familyMaxSeats: 0,
+        updatedAt: new Date(),
+      })
       .where(eq(users.id, user.id))
       .returning();
-    return updated ?? { ...user, plan: "free" as const, planExpiresAt: null };
+    return updated ?? { ...user, plan: "free" as const, planExpiresAt: null, familyMaxSeats: 0 };
   }
   return user;
 }
 
 export type AuthedUser = NonNullable<Awaited<ReturnType<typeof getUserFromToken>>>;
-
-export function isAccountActive(user: { accountStatus?: string | null }) {
-  return (user.accountStatus ?? "active") !== "inactive";
-}
-
-export function publicUser(user: AuthedUser | (typeof users.$inferSelect)) {
-  return {
-    id: user.id,
-    email: user.email,
-    plan: user.plan,
-    role: user.role,
-    planExpiresAt: user.planExpiresAt ?? null,
-    emailVerified: Boolean(user.emailVerifiedAt),
-    emailVerifiedAt: user.emailVerifiedAt ?? null,
-    accountStatus: user.accountStatus ?? "active",
-  };
-}
-
-/** Issue a fresh email verification token (raw returned once for email link). */
-export async function createEmailVerificationToken(userId: string) {
-  const raw = randomBytes(32).toString("hex");
-  const tokenHash = hashToken(raw);
-  const expiresAt = new Date(Date.now() + EMAIL_VERIFY_DAYS * 24 * 60 * 60 * 1000);
-  await db.insert(emailVerificationTokens).values({
-    userId,
-    tokenHash,
-    expiresAt,
-  });
-  return { raw, expiresAt };
-}
-
-/** Confirm email from raw token; reactivates inactive accounts. */
-export async function consumeEmailVerificationToken(raw: string) {
-  const tokenHash = hashToken(raw);
-  const row = await db.query.emailVerificationTokens.findFirst({
-    where: and(
-      eq(emailVerificationTokens.tokenHash, tokenHash),
-      gt(emailVerificationTokens.expiresAt, new Date()),
-      isNull(emailVerificationTokens.usedAt),
-    ),
-  });
-  if (!row) return null;
-
-  const user = await db.query.users.findFirst({ where: eq(users.id, row.userId) });
-  if (!user) return null;
-
-  if (user.emailVerifiedAt) {
-    await db
-      .update(emailVerificationTokens)
-      .set({ usedAt: new Date() })
-      .where(eq(emailVerificationTokens.id, row.id));
-    return { user, alreadyVerified: true as const };
-  }
-
-  const [updated] = await db
-    .update(users)
-    .set({
-      emailVerifiedAt: new Date(),
-      accountStatus: "active",
-      updatedAt: new Date(),
-    })
-    .where(eq(users.id, user.id))
-    .returning();
-
-  await db
-    .update(emailVerificationTokens)
-    .set({ usedAt: new Date() })
-    .where(eq(emailVerificationTokens.id, row.id));
-
-  return { user: updated ?? user, alreadyVerified: false as const };
-}
 
 /** Resolve session from httpOnly cookie first, then Bearer (dual-support). */
 function readSessionToken(c: Context): { token?: string; fromCookie: boolean } {
@@ -182,14 +139,42 @@ async function promoteBearerToCookie(c: Context, token: string, fromCookie: bool
   if (sess) setSessionCookie(c, token, sess.expiresAt);
 }
 
+export function isAccountActive(user: { accountStatus?: string | null }) {
+  return (user.accountStatus ?? "active") !== "inactive";
+}
+
+/** Session user if a cookie or bearer is present. Does not enforce account status. */
+export async function userFromRequest(c: Context) {
+  const { token } = readSessionToken(c);
+  if (!token) return null;
+  return getUserFromToken(token);
+}
+
 export async function authMiddleware(c: Context, next: Next) {
   const { token, fromCookie } = readSessionToken(c);
   const user = await getUserFromToken(token);
   if (!user) return c.json({ error: "unauthorized" }, 401);
-  if (!isAccountActive(user)) {
+  if (!isAccountActive(user) && c.req.path !== "/auth/logout") {
     return c.json({ error: "account_inactive" }, 403);
   }
-  c.set("user", user);
+  // Any user with TOTP must complete MFA for this session
+  if (user.totpEnabled) {
+    const { getSessionMfaVerified } = await import("./mfa.js");
+    const mfaOk = await getSessionMfaVerified(token);
+    if (!mfaOk) {
+      // Allow MFA setup/status/verify paths only — handled at route level via optional skip.
+      // Strict gate: block all authed APIs until MFA verified (except /auth/mfa/*).
+      const path = c.req.path;
+      const mfaExempt =
+        path.startsWith("/auth/mfa") ||
+        path === "/auth/logout" ||
+        path === "/auth/me";
+      if (!mfaExempt) {
+        return c.json({ error: "mfa_required" }, 403);
+      }
+    }
+  }
+  c.set("user", await withEffectivePlan(user));
   c.set("sessionToken", token);
   await promoteBearerToCookie(c, token!, fromCookie);
   await next();
@@ -199,21 +184,44 @@ export async function adminMiddleware(c: Context, next: Next) {
   const { token, fromCookie } = readSessionToken(c);
   const user = await getUserFromToken(token);
   if (!user) return c.json({ error: "unauthorized" }, 401);
-  if (!isAccountActive(user)) {
-    return c.json({ error: "account_inactive" }, 403);
-  }
+  if (!isAccountActive(user)) return c.json({ error: "account_inactive" }, 403);
   if (user.role !== "admin") return c.json({ error: "forbidden" }, 403);
-  c.set("user", user);
+
+  const { adminMfaEnforce, getSessionMfaVerified } = await import("./mfa.js");
+  const enforce = adminMfaEnforce();
+  // Enrolled admins must complete TOTP (or backup) for this session
+  if (user.totpEnabled) {
+    const mfaOk = await getSessionMfaVerified(token);
+    if (!mfaOk) {
+      return c.json({ error: "mfa_required" }, 403);
+    }
+  } else if (enforce) {
+    return c.json({ error: "mfa_enroll_required" }, 403);
+  }
+
+  c.set("user", await withEffectivePlan(user));
   c.set("sessionToken", token);
   await promoteBearerToCookie(c, token!, fromCookie);
   await next();
+}
+
+/** Returns error Response if step-up missing when MFA is enforced. */
+export async function requireStepUp(c: Context): Promise<Response | null> {
+  const user = c.get("user") as AuthedUser | undefined;
+  if (!user) return c.json({ error: "unauthorized" }, 401);
+  const { verifyStepUpToken, adminMfaEnforce } = await import("./mfa.js");
+  if (!adminMfaEnforce()) return null;
+  const stepUp = c.req.header("x-admin-step-up") ?? undefined;
+  const ok = await verifyStepUpToken(user.id, stepUp);
+  if (!ok) return c.json({ error: "step_up_required" }, 403);
+  return null;
 }
 
 export async function optionalAuth(c: Context, next: Next) {
   const { token, fromCookie } = readSessionToken(c);
   const user = await getUserFromToken(token);
   if (user && isAccountActive(user)) {
-    c.set("user", user);
+    c.set("user", await withEffectivePlan(user));
     c.set("sessionToken", token);
     if (token) await promoteBearerToCookie(c, token, fromCookie);
   }

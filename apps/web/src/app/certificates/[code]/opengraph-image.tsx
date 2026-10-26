@@ -11,9 +11,11 @@ type Props = { params: Promise<{ code: string }> };
 export default async function Image({ params }: Props) {
   const { code } = await params;
   const upper = code.toUpperCase();
-  let title = "EduForge Certificate";
+  let title = "Certificate of Completion";
   let displayName = "Learner";
   let certCode = upper;
+  let courseTitle = "";
+  let productName = "EduForge";
 
   try {
     const res = await fetch(`${API_URL}/certificates/verify/${upper}`, {
@@ -26,12 +28,31 @@ export default async function Image({ params }: Props) {
           titleEn: string;
           displayName: string;
           code: string;
+          courseTitleEn?: string;
+          courseTitleUk?: string;
         };
       };
       const c = data.certificate;
       title = c.titleEn || c.titleUk || title;
       displayName = c.displayName;
       certCode = c.code;
+      courseTitle = c.courseTitleEn || c.courseTitleUk || "";
+    }
+  } catch {
+    /* fallback */
+  }
+
+  try {
+    const brandRes = await fetch(`${API_URL}/public/branding`, {
+      next: { revalidate: 60 },
+    });
+    if (brandRes.ok) {
+      const brand = (await brandRes.json()) as {
+        theme?: { branding?: { productName?: string } };
+      };
+      if (brand.theme?.branding?.productName) {
+        productName = brand.theme.branding.productName;
+      }
     }
   } catch {
     /* fallback */
@@ -46,30 +67,71 @@ export default async function Image({ params }: Props) {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "linear-gradient(145deg, #1e1b4b 0%, #4c1d95 50%, #c026d3 100%)",
+          background: "linear-gradient(145deg, #0f172a 0%, #14532d 45%, #58CC02 100%)",
           color: "white",
-          padding: 64,
+          padding: 56,
           fontFamily: "system-ui, sans-serif",
         }}
       >
-        <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: 3, opacity: 0.9 }}>
-          EDUFORGE CERTIFICATE
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          <div style={{ fontSize: 48, fontWeight: 900, lineHeight: 1.15 }}>{title}</div>
-          <div style={{ fontSize: 36, fontWeight: 700, opacity: 0.95 }}>{displayName}</div>
-        </div>
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            fontSize: 22,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 16,
+              fontSize: 28,
+              fontWeight: 900,
+              letterSpacing: 1,
+            }}
+          >
+            <div
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: 14,
+                background: "#58CC02",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 28,
+                fontWeight: 900,
+              }}
+            >
+              {productName.charAt(0).toUpperCase()}
+            </div>
+            <span>{productName.toUpperCase()}</span>
+          </div>
+          <div style={{ fontSize: 18, fontWeight: 700, opacity: 0.85, letterSpacing: 2 }}>
+            CERTIFICATE
+          </div>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ fontSize: 22, fontWeight: 700, opacity: 0.85 }}>Awarded to</div>
+          <div style={{ fontSize: 48, fontWeight: 900, lineHeight: 1.1 }}>{displayName}</div>
+          {courseTitle ? (
+            <div style={{ fontSize: 28, fontWeight: 700, opacity: 0.95 }}>{courseTitle}</div>
+          ) : null}
+          <div style={{ fontSize: 24, fontWeight: 600, opacity: 0.9 }}>{title}</div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            fontSize: 20,
             fontWeight: 700,
           }}
         >
           <span style={{ fontFamily: "monospace", letterSpacing: 2 }}>{certCode}</span>
-          <span style={{ opacity: 0.85 }}>Verify on EduForge</span>
+          <span style={{ opacity: 0.85 }}>Verify on {productName}</span>
         </div>
       </div>
     ),

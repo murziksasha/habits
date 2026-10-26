@@ -878,6 +878,61 @@ const defects = unit("defects", "Дефекти", "Defects", [
     ],
   ),
   lesson(
+    "qt-df-report-practice",
+    "Bug report practice",
+    "Bug report practice",
+    2,
+    true,
+    [
+      mcq(
+        "qt-df-p1",
+        "Мінімум для clear bug title:",
+        "Minimum for a clear bug title:",
+        [
+          "що зламано + де (коротко)",
+          "лише «bug»",
+          "лише id тікета",
+          "тільки emoji",
+        ],
+        0,
+      ),
+      mcq(
+        "qt-df-p2",
+        "Steps to reproduce мають бути:",
+        "Steps to reproduce should be:",
+        [
+          "нумеровані, конкретні, відтворювані",
+          "одне речення «натисни щось»",
+          "тільки скрін без кроків",
+          "лише stack trace без UI path",
+        ],
+        0,
+      ),
+      mcq(
+        "qt-df-p3",
+        "Expected vs Actual:",
+        "Expected vs Actual:",
+        [
+          "очікувана поведінка vs фактична",
+          "те саме завжди",
+          "лише severity",
+          "лише assignee",
+        ],
+        0,
+      ),
+      matchEx(
+        "qt-df-p4",
+        "Evidence",
+        "Evidence",
+        [
+          { left: "Screenshot", right: "UI state" },
+          { left: "HAR / network", right: "API traffic" },
+          { left: "Console log", right: "client errors" },
+        ],
+      ),
+    ],
+  ),
+  lesson(
     "qt-df-report",
     "Good bug report",
     "Good bug report",

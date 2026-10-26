@@ -30,6 +30,30 @@ export function softGradeCodeProject(
   return gradeCodeProjectChecks(files, checks, caseSensitive);
 }
 
+export function softGradeCodeRunSource(
+  source: string,
+  required: string[] = [],
+  forbidden: string[] = [],
+  caseSensitive = true,
+  language = "cpp",
+): { ok: boolean; missing: string[]; banned: string[] } {
+  const hay = caseSensitive ? source : source.toLowerCase();
+  const missing: string[] = [];
+  const banned: string[] = [];
+  for (const n of required) {
+    const needle = caseSensitive ? n : n.toLowerCase();
+    if (!hay.includes(needle)) missing.push(n);
+  }
+  for (const n of forbidden) {
+    const needle = caseSensitive ? n : n.toLowerCase();
+    if (hay.includes(needle)) banned.push(n);
+  }
+  if (language === "cpp" && !/\bmain\s*\(/.test(source)) {
+    missing.push("main(");
+  }
+  return { ok: missing.length === 0 && banned.length === 0, missing, banned };
+}
+
 export function softGradeCodeOrder(answer: string[], correct: string[]): boolean {
   return (
     answer.length === correct.length && answer.every((w, i) => w === correct[i])

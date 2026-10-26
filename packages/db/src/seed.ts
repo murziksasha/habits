@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import {
   chessContent,
@@ -14,6 +15,7 @@ import {
   sqlFundamentalsContent,
   nodeFundamentalsContent,
   expressFundamentalsContent,
+  embeddedCppContent,
   typingContent,
   typescriptContent,
   type CourseContent,
@@ -21,6 +23,7 @@ import {
 import bcrypt from "bcryptjs";
 import { createDb } from "./client.js";
 import { ACHIEVEMENT_CATALOG } from "@eduforge/shared";
+import { seedAllowed } from "@eduforge/shared";
 import {
   achievements,
   characters,
@@ -49,6 +52,7 @@ const allCourses: CourseContent[] = [
   sqlFundamentalsContent,
   nodeFundamentalsContent,
   expressFundamentalsContent,
+  embeddedCppContent,
 ];
 
 async function seedCourse(
@@ -59,6 +63,26 @@ async function seedCourse(
   let course = await db.query.courses.findFirst({
     where: eq(courses.slug, content.slug),
   });
+
+  const category =
+    content.slug === "chess"
+      ? "chess"
+      : content.slug === "programming"
+        ? "code"
+        : [
+              "typescript",
+              "html_semantics",
+              "css_layout",
+              "qa_theory",
+              "js_fundamentals",
+              "react_fundamentals",
+              "sql_fundamentals",
+              "node_fundamentals",
+              "express_fundamentals",
+              "embedded_cpp",
+            ].includes(content.slug)
+          ? "deep"
+          : "skill";
 
   if (!course) {
     const [created] = await db
@@ -72,10 +96,17 @@ async function seedCourse(
         icon: content.icon,
         color: content.color,
         sortOrder,
+        status: "published",
+        category,
+        contentSource: "seed",
+        publishedAt: new Date(),
       })
       .returning();
     course = created;
     console.log(`Created course ${content.slug}`);
+  } else if (course.contentSource === "cms") {
+    console.log(`Skip seed overwrite for CMS course ${content.slug}`);
+    return;
   } else {
     await db
       .update(courses)
@@ -87,6 +118,10 @@ async function seedCourse(
         icon: content.icon,
         color: content.color,
         sortOrder,
+        status: "published",
+        category,
+        contentSource: "seed",
+        publishedAt: course.publishedAt ?? new Date(),
       })
       .where(eq(courses.id, course.id));
   }
@@ -233,9 +268,8 @@ async function seedAdmin(db: ReturnType<typeof createDb>) {
         email,
         passwordHash,
         role: "admin",
-        plan: "premium",
+        plan: "free",
         emailVerifiedAt: new Date(),
-        accountStatus: "active",
       })
       .returning();
     user = created;
@@ -247,71 +281,54 @@ async function seedAdmin(db: ReturnType<typeof createDb>) {
     await db.insert(chessRatings).values({ userId: user.id });
     console.log(`Admin created: ${email} / ${password}`);
   } else if (user.role !== "admin") {
-    await db
-      .update(users)
-      .set({
-        role: "admin",
-        plan: "premium",
-        emailVerifiedAt: user.emailVerifiedAt ?? new Date(),
-        accountStatus: "active",
-      })
-      .where(eq(users.id, user.id));
+    await db.update(users).set({ role: "admin" }).where(eq(users.id, user.id));
     console.log(`Promoted ${email} to admin`);
   } else {
-    if (!user.emailVerifiedAt) {
-      await db
-        .update(users)
-        .set({ emailVerifiedAt: new Date(), accountStatus: "active" })
-        .where(eq(users.id, user.id));
-    }
     console.log(`Admin exists: ${email}`);
   }
-}
 
-/** Demo premium user for local / Docker testing (not admin). */
-async function seedPremiumTestUser(db: ReturnType<typeof createDb>) {
-  const email = process.env.TEST_USER_EMAIL ?? "premium@eduforge.ua";
-  const password = process.env.TEST_USER_PASSWORD ?? "premium12345";
-  let user = await db.query.users.findFirst({ where: eq(users.email, email) });
-  if (!user) {
-    const passwordHash = await bcrypt.hash(password, 10);
-    const [created] = await db
-      .insert(users)
-      .values({
-        email,
-        passwordHash,
-        role: "user",
-        plan: "premium",
-        emailVerifiedAt: new Date(),
-        accountStatus: "active",
-      })
-      .returning();
-    user = created;
-    await db.insert(characters).values({
-      userId: user.id,
-      displayName: "Premium Test",
-      avatarKey: "default",
-    });
-    await db.insert(chessRatings).values({ userId: user.id });
-    console.log(`Premium test user created: ${email} / ${password}`);
-  } else if (user.plan !== "premium") {
-    await db
-      .update(users)
-      .set({
-        plan: "premium",
-        emailVerifiedAt: user.emailVerifiedAt ?? new Date(),
-        accountStatus: "active",
-      })
-      .where(eq(users.id, user.id));
-    console.log(`Upgraded ${email} to premium`);
-  } else {
-    if (!user.emailVerifiedAt) {
+  // Optional: pre-enroll admin TOTP for local/e2e (base32 secret)
+  // Default test secret is well-known; set SEED_ADMIN_TOTP_SECRET empty to skip.
+  const totpSecret =
+    process.env.SEED_ADMIN_TOTP_SECRET ??
+    (process.env.NODE_ENV === "production" ? "" : "JBSWY3DPEHPK3PXP");
+  if (totpSecret && user) {
+    // Known backup code for e2e: SEED_ADMIN_BACKUP_CODE or AAAA-BBBB
+    const backupPlain = process.env.SEED_ADMIN_BACKUP_CODE ?? "AAAA-BBBB";
+    const backupHash = createHash("sha256")
+      .update(`backup:${backupPlain.replace(/[\s-]/g, "").toUpperCase()}`)
+      .digest("hex");
+    if (!user.totpEnabled) {
       await db
         .update(users)
-        .set({ emailVerifiedAt: new Date(), accountStatus: "active" })
+        .set({
+          totpSecretEnc: `plain:${totpSecret}`,
+          totpEnabled: true,
+          totpVerifiedAt: new Date(),
+          mfaBackupCodeHashes: [backupHash],
+        })
         .where(eq(users.id, user.id));
+      console.log(
+        `Admin TOTP seeded (secret default/test); backup code: ${backupPlain}`,
+      );
+    } else {
+      // Dev/docker: always restore the known backup code (consumed codes leave empty/missing hash)
+      const hashes = Array.isArray(user.mfaBackupCodeHashes)
+        ? (user.mfaBackupCodeHashes as string[])
+        : [];
+      if (!hashes.includes(backupHash)) {
+        await db
+          .update(users)
+          .set({
+            mfaBackupCodeHashes: [...hashes, backupHash],
+            updatedAt: new Date(),
+          })
+          .where(eq(users.id, user.id));
+        console.log(`Admin backup code seeded: ${backupPlain}`);
+      } else {
+        console.log(`Admin TOTP already enrolled; backup code: ${backupPlain}`);
+      }
     }
-    console.log(`Premium test user exists: ${email}`);
   }
 }
 
@@ -328,10 +345,17 @@ async function seedAchievements(db: ReturnType<typeof createDb>) {
 }
 
 async function main() {
+  const { loadRootEnv } = await import("./load-env.js");
+  loadRootEnv();
+  if (!seedAllowed(process.env)) {
+    console.error(
+      "Refusing to seed production (demo admin passwords). Set ALLOW_PROD_SEED=1 to override.",
+    );
+    process.exit(1);
+  }
   const db = createDb();
   // Users first so accounts exist even if a course seed fails (e.g. missing enum value).
   await seedAdmin(db);
-  await seedPremiumTestUser(db);
   for (const [i, c] of allCourses.entries()) {
     await seedCourse(db, c, i);
   }
