@@ -12,7 +12,7 @@ Admin is a **modular control plane** (sidebar blocks) covering product ops, CMS,
 | Design tokens + branding | Yes (`platform_settings`, `/public/branding`) |
 | Course draft → publish | Yes (free slug varchar) |
 | Content tree CMS (EN/UK, exams) | Yes |
-| Domain overviews (billing, classroom, engagement, programming) | Read-only |
+| Domain overviews (classroom, engagement, programming) | Read-only |
 | Audit log | Extended |
 
 ## MFA (TOTP)
@@ -84,11 +84,10 @@ Seed skips overwrite when `contentSource === "cms"`.
 | `/admin/courses` | Create draft, publish, archive |
 | `/admin/content` | Tree + **visual exercise builder** + advanced JSON, EN/UK, exam |
 | `/admin/appearance` | Tokens + branding draft/publish |
-| `/admin/users` | Role / plan |
+| `/admin/users` | Role |
 | `/admin/metrics` | Product metrics + CSV |
 | `/admin/feedback` | Feedback triage |
 | `/admin/audit` | Audit log |
-| `/admin/billing` | Premium overview (read) |
 | `/admin/classroom` | Orgs / classes counts |
 | `/admin/engagement` | Catalog sizes (read) |
 | `/admin/programming` | PG / minis / race (read) |

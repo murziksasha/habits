@@ -1,6 +1,7 @@
 # CURRENT — Product surface freeze & IA map
 
 **Status:** Active (2026-07)  
+**Access:** EduForge is free. There is no subscription, Stripe checkout, trial, or premium unlock.  
 **Scope:** Consolidation after SPECs 01–71. Prefer quality, IA, and platform over new surface area.
 
 ## North star
@@ -11,14 +12,14 @@ Primary journeys:
 
 1. Register → confirm email (7d/30d policy) → first free lesson → daily return (streak / next step)
 2. Programming path + playground (+ deep tracks via hub)
-3. Freemium → Premium
+3. Keep practicing (hearts regen; nothing is locked behind a plan)
 4. Schools / homework / parents (B2B, supporting)
 
 ## Feature classification
 
 | Class | Meaning | Examples |
 |-------|---------|----------|
-| **Core** | Always surfaced in primary IA | Auth, `/learn`, courses, programming path, playground, XP/hearts/streak, freemium, lesson player |
+| **Core** | Always surfaced in primary IA | Auth, `/learn`, courses, programming path, playground, XP/hearts/streak, lesson player |
 | **Supporting** | Discoverable, secondary nav | Chess play, friends, leaderboard, flashcards, review, quests, tutor, certificates, homework, schools, parents |
 | **Labs** | Keep API/UI routes; not primary nav | Chat, referrals, export, focus timer, reports email, shop cosmetics |
 | **Ops** | Role-gated | Admin CMS, metrics, digests, audit |
@@ -38,7 +39,7 @@ Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, 
 | Play | `/play` or `/playground` | Chess / sandbox — primary uses Play + playground in More if needed |
 | Social | `/friends` | Friends + light social |
 
-**More:** toolkit (flashcards, review, quests, notes, tutor, shop), schools/parents/homework, certificates, leaderboard, search, pricing, feedback, admin (role).
+**More:** toolkit (flashcards, review, quests, notes, tutor, shop), schools/parents/homework, certificates, leaderboard, search, feedback, admin (role).
 
 ### Mobile bottom (5)
 
@@ -72,11 +73,11 @@ Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, 
 10. Course slugs: **varchar + app registry** (`isCourseSlug` / `COURSE_SLUGS`) — no ALTER TYPE per course  
 11. Onboarding v2: 4 core steps + primary CTA  
 12. Mastery: weak lessons → next-steps priority + `/review` queue when ≥2 weak  
-13. Freemium matrix + `/billing/entitlements` + PaywallCard / pricing compare  
+13. ~~Freemium matrix + `/billing/entitlements` + PaywallCard~~ — removed; the app is free  
 14. Design system light: `components/ui` (Button, Card, EmptyState, Skeleton, Badge)  
 15. Content DX guide: `SPEC/CONTENT-DX.md`  
 16. Retention emails: CTA buttons, exams in parent digest, inactive nudge  
-17. Stripe Customer Portal `POST /billing/portal`  
+17. ~~Stripe Customer Portal~~ — removed; the app is free  
 18. A11y: skip link, focus-visible rings, MCQ + text + order keyboard  
 19. Push re-engage: `POST /admin/ops/push-reengage` (inactive ≥3d)  
 20. Admin content: live ExercisePlayer preview + open lesson link  
@@ -103,7 +104,7 @@ Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, 
 ### Security & retention pack (2026-08 audit)
 
 48. Judge fail-closed: prod default `JUDGE_MODE=off` unless `docker`; no silent docker→local fallback  
-49. Dev billing gated: `ALLOW_DEV_BILLING` / non-prod default; blocked in real production  
+49. ~~Dev billing~~ — removed; the app is free  
 50. Security headers: Next CSP baseline + API `X-Content-Type-Options` / `X-Frame-Options` / HSTS prod; nginx headers  
 51. Cookie-first web: session `token` omitted from JSON in production unless `X-Issue-Bearer: 1`  
 52. Email verification: `email_verified_at` + tokens; resend; soft banner; optional hard gate  
@@ -113,14 +114,14 @@ Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, 
 56. Landing honesty (core loop only); compact More menu  
 57. Account privacy: change password, GDPR JSON export on profile, `POST /auth/account/delete`  
 58. Lesson summary `nextLesson` one-tap continue; Learn “mission of the day”  
-59. Pricing respects `devBilling` flag (hides demo trial/downgrade when off)  
+59. ~~Pricing / dev billing flag~~ — removed; there is no pricing page  
 60. Google OAuth (`/auth/oauth/google/*`, `oauth_accounts`)  
 61. User TOTP 2FA for all accounts (login challenge + profile enroll/disable)  
-62. Family plan (`plan=family`, seats, invites, child premium inheritance)  
+62. Family group (seats, invites). A seat does not change access  
 63. Teacher homework heat board (`GET /homework/teacher/board`, `/teacher` UI)  
 64. Daily mission card (`DailyQuestsCard` on dashboard + learn)  
-65. Teacher quick-assign homework from desk; family activate via demo billing  
-66. Family plan expiry clears seats; `isPaidPlan` freemium gates for family  
+65. Teacher quick-assign homework from desk; family activate is `POST /family/activate`  
+66. ~~Family plan expiry / paid gates~~ — removed  
 
 ### UX user pack (SPEC 79)
 
@@ -128,7 +129,7 @@ Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, 
 68. Register → `postRegisterPath` (intent/friend/learn); onboarding wizard persona/track  
 69. Persona nav (student/parent/teacher) desktop + mobile bottom  
 70. Lesson: human miss labels, celebration, share summary, skeleton/retry, hearts low, a11y progress  
-71. Course freemium path bar + lock labels; paywall recovery CTAs  
+71. ~~Course lock labels and paywall recovery~~ — removed; lessons stay open  
 72. ⌘K command palette + search tools hub; landing guest trial + persona cards  
 73. Streak calendar (dashboard/profile); parent/teacher home shells  
 74. Shared `packages/shared/src/ux.ts` pure helpers + unit tests  
@@ -138,7 +139,7 @@ Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, 
 75. Lesson result sheet + explanation delay; coach tip F/Esc  
 76. `safeNextPath` + login default `/learn`; `useRequireAuth` deep links  
 77. Programming hub continue CTA + freemium + skeleton  
-78. Paywall regen estimate; review/friends empty states  
+78. Heart regen estimate; review/friends empty states  
 79. Profile change role wizard; onboarding complete `value` + exclusive persona  
 
 ### UX chrome pack (SPEC 81)
@@ -182,18 +183,18 @@ Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, 
 101. Tournaments list/detail shells  
 102. 404 bilingual recovery CTAs  
 103. Parent child EmptyState; admin security/courses loading  
-104. Login/register alert live regions; pricing flags gate  
+104. Login/register alert live regions  
 
 ### Studio / classroom / visual (SPEC 87)
 
 105. Node Studio shell (Labs badge, auth, PageLoading)  
 106. Live classroom shell (connection status, sticky hide, chat a11y)  
-107. Admin appearance + billing polish  
+107. Admin appearance polish  
 108. Playwright visual regression baseline (`e2e/visual.spec.ts`)  
 
 ### Improvement program waves (2026-08)
 
-109. Product funnel: `POST /analytics/events`, first_lesson_complete, paywall_shown/cta  
+109. Product funnel: `POST /analytics/events`, first_lesson_complete, exams (no paywall events)  
 110. Metrics `productFunnel7d` + admin `GET /analytics/funnel`  
 111. Review inbox reasons (`buildReviewReasons` + UI Why)  
 112. Freemium content normalize + CI content-gate + e2e-smoke job  
@@ -202,9 +203,9 @@ Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, 
 115. Lazy Chessboard; PWA sw.js offline shell; OTel compose profile  
 116. Docs sync README/SPEC 01–87 + P2 strategic status  
 117. Judge result store + `GET /judge/result/:id` + `POST /judge/worker/drain`  
-118. Pricing RSC shell + client island; billing-ops service  
+118. ~~Pricing page and billing service~~ — removed  
 119. Classroom live: reconnect + outbound chat buffer  
-120. E2E smoke: pricing, review, openapi analytics/judge paths  
+120. E2E smoke: review, openapi analytics/judge paths  
 121. RSC shells: login, register, certificate, public profile, embed playground  
 122. Admin metrics product funnel (+ CSV columns)  
 123. Visual regression workflow (nightly / path / dispatch)  
@@ -272,7 +273,7 @@ Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, 
 46. Live classroom Socket.IO + `/classroom/live/[classId]`  
 47. Native mobile WebView shell `apps/mobile`  
 
-Still later: CRDT collab, judge worker pool, OAuth/SSO, family plan, store binaries, trained ML, full RSC migration, video CDN.
+Still later: CRDT collab, judge worker pool, OAuth/SSO, store binaries, trained ML, full RSC migration, video CDN.
 
 ### Auth model (current)
 
@@ -287,7 +288,6 @@ Still later: CRDT collab, judge worker pool, OAuth/SSO, family plan, store binar
 - Time to first completed lesson  
 - D1 / D7 retention  
 - Lessons / user / week  
-- Free → Premium conversion  
 - Exam pass rate  
 - Homework completion (B2B)  
 

@@ -1,6 +1,6 @@
 # Course registry
 
-App-level map of course slug → hub → freemium. DB stores `varchar` slugs; registry is in `@eduforge/shared` (`COURSE_SLUGS`, `COURSE_META`, `COURSE_GROUP`).
+App-level map of course slug → hub. DB stores `varchar` slugs; registry is in `@eduforge/shared` (`COURSE_SLUGS`, `COURSE_META`, `COURSE_GROUP`). Access is free for every account.
 
 ## Matrix
 

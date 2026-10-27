@@ -260,7 +260,7 @@ giftRoutes.post("/claim/:id", authMiddleware, async (c) => {
   patch.progression = progression;
 
   if (payload.hearts && payload.hearts > 0) {
-    const plan = user.plan as "free" | "premium" | "family";
+    const plan = user.plan;
     const allCourses = await db.query.courses.findMany();
     for (const course of allCourses) {
       let prog = await db.query.userCourseProgress.findFirst({
@@ -275,12 +275,12 @@ giftRoutes.post("/claim/:id", authMiddleware, async (c) => {
           .values({
             userId: user.id,
             courseId: course.id,
-            hearts: maxHearts(plan === "family" ? "premium" : plan),
+            hearts: maxHearts(plan),
           })
           .returning();
         prog = created;
       }
-      const max = maxHearts(plan === "family" ? "premium" : plan);
+      const max = maxHearts(plan);
       const next = Math.min(max, prog.hearts + payload.hearts);
       await db
         .update(userCourseProgress)

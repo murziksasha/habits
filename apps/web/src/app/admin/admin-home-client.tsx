@@ -36,8 +36,6 @@ export function AdminHomeClient() {
   const [funnel, setFunnel] = useState<{
     firstLessonComplete: number;
     lessonCompleted: number;
-    paywallShown: number;
-    paywallCtaClick: number;
   } | null>(null);
   const [opsMsg, setOpsMsg] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
@@ -60,8 +58,6 @@ export function AdminHomeClient() {
       funnel?: {
         firstLessonComplete: number;
         lessonCompleted: number;
-        paywallShown: number;
-        paywallCtaClick: number;
       };
     }>("/analytics/funnel?days=7", { token })
       .then((d) => setFunnel(d.funnel ?? null))

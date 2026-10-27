@@ -25,7 +25,7 @@ How to add courses and lessons without fighting the monorepo.
 - [ ] Author content file + export from content `index`
 - [ ] Dual locale: `titleUk`/`titleEn` on course/units/lessons
 - [ ] Exercises: `id`, known `type`, `promptUk` + `promptEn` (EN gate in content tests)
-- [ ] `isFree: true` on first N lessons for freemium
+- [ ] `isFree` on early lessons is content metadata only; it does not lock the lesson
 - [ ] Unit exams (`isExam`) if track has control tests
 - [ ] Rebuild: `pnpm --filter @eduforge/content build && pnpm db:seed`
 - [ ] Optional: hub page reusing `DeepCourseHub` (not primary nav)
@@ -46,11 +46,11 @@ Grading: `@eduforge/shared` `gradeExercise` (API + client soft-grade).
 - All courses: exercise with `promptUk` must have `promptEn` after normalize
 - Skill map regen: `node scripts/gen-skill-prompt-en.mjs` (after dumping missing prompts)
 
-## Freemium
+## Access
 
-Limits live in `packages/shared` `freemiumMatrix()` / `FREE_LESSONS_PER_COURSE` (5).
+The product is free. Shared rules live in `packages/shared` `accessMatrix()` (all lessons, shared heart cap, unlimited rated chess).
 
-`normalizeCourseLocales()` also runs **`ensureFreemiumFreeLessons`**: first 5 non-exam lessons in path order get `isFree: true` (idempotent). Content tests gate every course ≥5 free lessons.
+`normalizeCourseLocales()` also runs **`ensureFreemiumFreeLessons`**: first 5 non-exam lessons in path order get `isFree: true` (idempotent metadata). That flag does not hide lessons.
 
 ### MDX authoring (preferred for new lessons)
 
@@ -65,4 +65,4 @@ Supported markers: YAML frontmatter, `<!-- mcq ... -->`, `<!-- fill ... -->`, `<
 
 ## Adaptive next weights
 
-`ADAPTIVE_WEIGHTS_JSON` overrides `DEFAULT_ADAPTIVE_WEIGHTS` in `@eduforge/shared` (`adaptive-next.ts`). Prefer weak lessons, deprioritize paywalled. Defaults are unit-tested; A/B via feature flags + env per environment.
+`ADAPTIVE_WEIGHTS_JSON` overrides `DEFAULT_ADAPTIVE_WEIGHTS` in `@eduforge/shared` (`adaptive-next.ts`). Prefer weak lessons. Defaults are unit-tested; A/B via feature flags + env per environment.

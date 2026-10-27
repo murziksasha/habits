@@ -107,7 +107,6 @@ function publicUser(user: {
   mfaBackupCodeHashes?: string[] | null;
   emailVerifiedAt?: Date | null;
   accountStatus?: string | null;
-  planExpiresAt?: Date | null;
 }) {
   return {
     id: user.id,
@@ -116,7 +115,6 @@ function publicUser(user: {
     role: user.role,
     emailVerified: Boolean(user.emailVerifiedAt),
     accountStatus: user.accountStatus ?? "active",
-    planExpiresAt: user.planExpiresAt ?? null,
     totpEnabled: user.totpEnabled,
     backupCodesRemaining: (user.mfaBackupCodeHashes ?? []).length,
   };
@@ -318,7 +316,6 @@ authRoutes.get("/me", authMiddleware, async (c) => {
   return c.json({
     user: {
       ...publicUser(user),
-      planExpiresAt: user.planExpiresAt,
       totpEnabled: user.totpEnabled,
       mfaVerified,
       backupCodesRemaining: (user.mfaBackupCodeHashes ?? []).length,
@@ -716,7 +713,6 @@ authRoutes.post("/onboarding/complete", authMiddleware, async (c) => {
     "triedTyping",
     "triedFlashcards",
     "viewedLeaderboard",
-    "exploredPricing",
     "dismissed",
     "wizardCompleted",
     "personaStudent",

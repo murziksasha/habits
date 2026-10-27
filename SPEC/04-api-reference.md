@@ -78,7 +78,7 @@ Machine-readable: `GET /openapi.json` (v1.8) · human: `GET /docs`.
 | GET | `/chess/rating/me` | Yes | Elo stats |
 | GET | `/chess/games/me` | Yes | Recent games |
 | GET | `/chess/games/:id` | Yes | Game detail |
-| GET | `/chess/can-rated` | Yes | Freemium quota |
+| GET | `/chess/can-rated` | Yes | Rated chess is open to every account |
 
 Realtime: [07-chess-realtime](./07-chess-realtime.md). Coach: `POST /coach/hint`.
 
@@ -89,16 +89,6 @@ Realtime: [07-chess-realtime](./07-chess-realtime.md). Coach: `POST /coach/hint`
 | GET | `/leaderboard/global` | No | Top global XP |
 | GET | `/leaderboard/chess` | No | Top Elo |
 | GET | `/leaderboard/course/:slug` | No | Top course XP |
-
-## Billing (`/billing`)
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/billing/status` | Yes | Plan + Stripe flag |
-| POST | `/billing/checkout` | Yes | Stripe Checkout URL |
-| POST | `/billing/webhook` | Stripe | Subscription events |
-| POST | `/billing/dev-upgrade` | Yes | Demo Premium |
-| POST | `/billing/dev-downgrade` | Yes | Demo Free |
 
 ## Engagement & social
 
@@ -210,4 +200,4 @@ See [SPEC 72](./72-admin-platform-v2.md).
 { "error": "unauthorized" }
 ```
 
-Common codes: `400 invalid_input`, `401 unauthorized`, `402 premium_required | no_hearts`, `403 forbidden`, `404 not_found`, `409 email_taken`.
+Common codes: `400 invalid_input`, `401 unauthorized`, `402 insufficient_xp`, `403 forbidden`, `404 not_found`, `409 email_taken`.

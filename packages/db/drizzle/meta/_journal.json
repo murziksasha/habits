@@ -225,6 +225,13 @@
                         "when":  1740000031000,
                         "tag":  "0031_unverified_lifecycle",
                         "breakpoints":  true
+                    },
+                    {
+                        "idx":  32,
+                        "version":  "7",
+                        "when":  1740000032000,
+                        "tag":  "0032_drop_billing",
+                        "breakpoints":  true
                     }
                 ]
 }

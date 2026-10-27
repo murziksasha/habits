@@ -36,8 +36,8 @@ export async function verifyPassword(password: string, hash: string | null | und
   return bcrypt.compare(password, hash);
 }
 
-/** Return user as-is; access does not depend on plan and family children are not promoted to premium. */
-export async function withEffectivePlan<T extends { id: string; plan: string; planExpiresAt?: Date | null }>(
+/** Return user as-is. Access does not depend on plan. */
+export async function withEffectivePlan<T extends { id: string; plan: string }>(
   user: T,
 ): Promise<T> {
   return user;
@@ -98,24 +98,6 @@ export async function getUserFromToken(token: string | undefined) {
   if (!row) return null;
   const user = await db.query.users.findFirst({ where: eq(users.id, row.userId) });
   if (!user) return null;
-  // Expire paid plans when planExpiresAt is in the past (trial / demo / family)
-  if (
-    (user.plan === "premium" || user.plan === "family") &&
-    user.planExpiresAt &&
-    user.planExpiresAt.getTime() < Date.now()
-  ) {
-    const [updated] = await db
-      .update(users)
-      .set({
-        plan: "free",
-        planExpiresAt: null,
-        familyMaxSeats: 0,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, user.id))
-      .returning();
-    return updated ?? { ...user, plan: "free" as const, planExpiresAt: null, familyMaxSeats: 0 };
-  }
   return user;
 }
 

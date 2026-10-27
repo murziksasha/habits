@@ -9,7 +9,7 @@
 
 ## Trial expiry
 
-On session load (`getUserFromToken`): if `plan=premium` and `planExpiresAt < now` → force `free`.
+Removed. Session load does not downgrade a plan, and `plan_expires_at` is dropped (`0032_drop_billing`).
 
 ## Admin audit UI
 

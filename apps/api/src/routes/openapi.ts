@@ -596,7 +596,7 @@ const doc = {
     "/analytics/events": {
       post: {
         tags: ["analytics"],
-        summary: "Track product funnel event (paywall_shown, first_lesson_complete, …)",
+        summary: "Track product funnel event (first_lesson_complete, lesson_completed, exam_*)",
         security: [{ bearerAuth: [] }],
         responses: {
           "200": { description: "{ ok, tracked, deduped? }" },

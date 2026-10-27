@@ -13,6 +13,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
+/** Legacy labels. `premium` and `family` do not change access. */
 export const planEnum = pgEnum("plan", ["free", "premium", "family"]);
 /**
  * Course slugs are app-registry validated (`COURSE_SLUGS` in @eduforge/shared).
@@ -42,9 +43,6 @@ export const users = pgTable("users", {
   passwordHash: text("password_hash"),
   role: varchar("role", { length: 32 }).notNull().default("user"),
   plan: planEnum("plan").notNull().default("free"),
-  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
-  stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
-  planExpiresAt: timestamp("plan_expires_at", { withTimezone: true }),
   /** Preferred UI/content locale */
   preferredLocale: varchar("preferred_locale", { length: 8 }).notNull().default("uk"),
   weeklyEmailEnabled: boolean("weekly_email_enabled").notNull().default(true),
@@ -59,7 +57,7 @@ export const users = pgTable("users", {
   totpVerifiedAt: timestamp("totp_verified_at", { withTimezone: true }),
   /** SHA-256 hashes of one-time backup codes (plaintext shown once at generation) */
   mfaBackupCodeHashes: jsonb("mfa_backup_code_hashes").$type<string[]>().notNull().default([]),
-  /** Family plan: max child seats when plan=family (owner) */
+  /** Max child seats when this user owns a family group */
   familyMaxSeats: integer("family_max_seats").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
@@ -84,7 +82,7 @@ export const oauthAccounts = pgTable(
   (t) => [uniqueIndex("oauth_provider_uid").on(t.provider, t.providerUserId)],
 );
 
-/** Family plan membership (owner has plan=family; children get premium entitlements) */
+/** Family group membership (owner row plus child seats). */
 export const familyMembers = pgTable(
   "family_members",
   {
@@ -139,7 +137,6 @@ export const characters = pgTable("characters", {
       triedChess?: boolean;
       triedTyping?: boolean;
       viewedLeaderboard?: boolean;
-      exploredPricing?: boolean;
       viewedLearnMap?: boolean;
       triedProgramming?: boolean;
       wizardCompleted?: boolean;

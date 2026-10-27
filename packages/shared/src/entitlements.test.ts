@@ -1,12 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  accessMatrix,
   canAccessLesson,
   canPlayRatedChess,
   canStartLesson,
-  freemiumMatrix,
-  isPremiumActive,
   maxHearts,
-  planFeatureMatrix,
   regenerateHearts,
 } from "./entitlements.js";
 
@@ -21,9 +19,10 @@ describe("canAccessLesson", () => {
 });
 
 describe("hearts", () => {
-  it("max hearts by plan", () => {
+  it("uses one heart cap for every account", () => {
     expect(maxHearts("free")).toBe(5);
-    expect(maxHearts("premium")).toBe(999);
+    expect(maxHearts("premium")).toBe(5);
+    expect(maxHearts("family")).toBe(5);
   });
 
   it("canStartLesson always returns true", () => {
@@ -63,27 +62,13 @@ describe("rated chess quota", () => {
   });
 });
 
-describe("entitlements matrix", () => {
-  it("exposes unlimited limits", () => {
-    const m = freemiumMatrix();
-    expect(m.freeLessonsPerCourse).toBe(Infinity);
-    expect(m.freeHearts).toBe(999);
-  });
-
-  it("builds plan feature rows as unlimited", () => {
-    const rows = planFeatureMatrix();
-    expect(rows.some((r) => r.id === "lessons")).toBe(true);
-    expect(rows.find((r) => r.id === "lessons")?.free).toBe("unlimited");
-    expect(rows.find((r) => r.id === "hearts")?.free).toBe("unlimited");
-  });
-
-  it("isPremiumActive respects expiry", () => {
-    expect(isPremiumActive({ plan: "free" })).toBe(false);
-    expect(isPremiumActive({ plan: "family", planExpiresAt: null })).toBe(true);
-    expect(isPremiumActive({ plan: "premium", planExpiresAt: null })).toBe(true);
-    const past = new Date(Date.now() - 60_000);
-    expect(isPremiumActive({ plan: "premium", planExpiresAt: past })).toBe(false);
-    const future = new Date(Date.now() + 60_000);
-    expect(isPremiumActive({ plan: "premium", planExpiresAt: future })).toBe(true);
+describe("access matrix", () => {
+  it("opens lessons and rated chess and keeps a shared heart cap", () => {
+    const m = accessMatrix();
+    expect(m.lessons).toBe("all");
+    expect(m.hearts).toBe(5);
+    expect(m.heartRegenMinutes).toBeGreaterThan(0);
+    expect(m.ratedChessPerDay).toBe("unlimited");
+    expect(m.hintsPerDay).toBe("unlimited");
   });
 });

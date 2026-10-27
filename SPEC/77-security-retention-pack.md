@@ -5,7 +5,7 @@
 
 ## Goals
 
-1. Production-safe defaults (judge, billing, CSRF, tokens, headers)
+1. Production-safe defaults (judge, CSRF, tokens, headers)
 2. Trust: email verification, stronger passwords & parent invites
 3. Retention UX: Continue CTA, unified Review, progressive hints
 4. Depth surfaces without primary-nav bloat: skill tree, portfolio, teacher desk
@@ -16,7 +16,7 @@
 |--------|--------|
 | Judge | `getJudgeMode`: prod default `off`; `local` refused unless `JUDGE_ALLOW_LOCAL=1`; docker never falls back to local unless `JUDGE_DOCKER_FALLBACK_LOCAL=1` |
 | Local runner | Minimal child env; hard dangerous patterns; bash local off by default |
-| Billing | `isFeatureEnabled("dev_billing")` gates demo upgrade/trial/downgrade |
+| Access | No checkout or demo upgrade. The app is free. |
 | CSRF | `strict_csrf` default **true** when `NODE_ENV=production` |
 | Bearer issue | `shouldIssueBearerToken` — omit `token` in prod JSON |
 | Email verify | Migration `0027`; `POST /auth/verify-email`, `POST /auth/resend-verification` |
@@ -50,11 +50,11 @@
 
 - Profile: change password, download `/learning/export`, delete account (`DELETE` confirm)
 - Lesson summary: `nextLesson` CTA; Learn daily mission strip
-- Pricing UI gated by `/me/flags` `devBilling`
+- No pricing page. Access does not depend on flags or plan.
 
 ## Follow-ups (not blocking)
 
 - OAuth / magic link
 - User TOTP (non-admin)
 - Judge worker queue
-- Family plan / school seats
+- School seats beyond the free family group

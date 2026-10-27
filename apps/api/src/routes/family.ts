@@ -63,7 +63,6 @@ familyRoutes.get("/me", authMiddleware, async (c) => {
     return c.json({
       role: "owner",
       plan: user.plan,
-      planExpiresAt: user.planExpiresAt,
       maxSeats: user.familyMaxSeats || FAMILY_DEFAULT_SEATS,
       childCount: members.filter((m) => m.role === "child").length,
       members,
@@ -72,7 +71,6 @@ familyRoutes.get("/me", authMiddleware, async (c) => {
         inviteCode: p.inviteCode,
         expiresAt: p.expiresAt,
       })),
-      premiumActive: false,
     });
   }
 
@@ -88,7 +86,6 @@ familyRoutes.get("/me", authMiddleware, async (c) => {
     return c.json({
       role: "child",
       plan: user.plan,
-      premiumActive: false,
       owner: owner
         ? {
             id: owner.id,
@@ -102,7 +99,6 @@ familyRoutes.get("/me", authMiddleware, async (c) => {
   return c.json({
     role: "none",
     plan: user.plan,
-    premiumActive: false,
     maxSeats: FAMILY_DEFAULT_SEATS,
   });
 });

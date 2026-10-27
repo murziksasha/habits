@@ -805,7 +805,6 @@ export type AdminMetrics = {
   since: string;
   totals: {
     users: number;
-    premium: number;
     certificates: number;
     streakShieldsHeld: number;
     avgStreakDays: number;
@@ -845,8 +844,6 @@ export type AdminMetrics = {
   productFunnel: {
     firstLessonComplete: number;
     lessonCompleted: number;
-    paywallShown: number;
-    paywallCtaClick: number;
     examPassed: number;
     examFailed: number;
     windowDays: number;
@@ -861,10 +858,6 @@ export async function buildAdminMetrics(daysRaw?: number): Promise<AdminMetrics>
   const since30 = new Date(Date.now() - 30 * 86400000);
 
   const [usersTotal] = await db.select({ n: sql<number>`count(*)::int` }).from(users);
-  const [premium] = await db
-    .select({ n: sql<number>`count(*)::int` })
-    .from(users)
-    .where(eq(users.plan, "premium"));
 
   const [active7] = await db
     .select({ n: sql<number>`count(distinct ${activityEvents.userId})::int` })
@@ -1041,7 +1034,6 @@ export async function buildAdminMetrics(daysRaw?: number): Promise<AdminMetrics>
     since: since.toISOString(),
     totals: {
       users: usersTotal?.n ?? 0,
-      premium: premium?.n ?? 0,
       certificates: certs?.n ?? 0,
       streakShieldsHeld: shields?.n ?? 0,
       avgStreakDays: Math.round((avgStreak?.n ?? 0) * 10) / 10,
@@ -1137,7 +1129,6 @@ function metricsToCsv(m: AdminMetrics): string {
     ["windowDays", m.windowDays],
     ["since", m.since],
     ["users", m.totals.users],
-    ["premium", m.totals.premium],
     ["certificates", m.totals.certificates],
     ["streakShieldsHeld", m.totals.streakShieldsHeld],
     ["avgStreakDays", m.totals.avgStreakDays],
@@ -1163,8 +1154,6 @@ function metricsToCsv(m: AdminMetrics): string {
     ["deepTrackLearners", m.exams.deepTrackLearners],
     ["funnelFirstLesson", m.productFunnel.firstLessonComplete],
     ["funnelLessonCompleted", m.productFunnel.lessonCompleted],
-    ["funnelPaywallShown", m.productFunnel.paywallShown],
-    ["funnelPaywallCta", m.productFunnel.paywallCtaClick],
     ["funnelExamPassed", m.productFunnel.examPassed],
     ["funnelExamFailed", m.productFunnel.examFailed],
   ];

@@ -1,4 +1,4 @@
-# 08 — Auth, Billing & Admin
+# 08 — Auth & Admin
 
 ## Authentication
 
@@ -31,18 +31,9 @@ See **[SPEC/89-unverified-lifecycle.md](./89-unverified-lifecycle.md)** for full
 | `user` | Standard product |
 | `admin` | `/admin` UI + `/admin/*` API |
 
-## Billing / freemium
+## Access
 
-- Plan enum: `free` | `premium`  
-- Entitlements in `@eduforge/shared/entitlements`  
-- Stripe Checkout when keys configured  
-- Dev endpoints upgrade/downgrade without Stripe for demos  
-
-Premium unlocks:
-
-- All lessons beyond free index  
-- Unlimited hearts  
-- Unlimited rated chess  
+EduForge has no checkout, subscription, or trial. `users.plan` remains in the database as a legacy label and does not unlock or lock anything. Lessons, rated chess, and hints are open. Hearts use one shared cap.
 
 ## Admin CMS
 
@@ -54,9 +45,9 @@ See **[SPEC 72 — Admin Platform v2](./72-admin-platform-v2.md)** for the full 
 - `/admin/courses` — create draft courses, publish/archive  
 - `/admin/content` — course tree, lesson editor (UK/EN, exams, exercises JSON)  
 - `/admin/appearance` — design tokens + branding  
-- `/admin/users` — promote admin, change plan  
+- `/admin/users` — promote admin  
 - `/admin/metrics`, `/admin/feedback`, `/admin/audit`  
-- `/admin/billing`, `/admin/classroom`, `/admin/engagement`, `/admin/programming` — read-only overviews  
+- `/admin/classroom`, `/admin/engagement`, `/admin/programming` — read-only overviews  
 - `/admin/security` — TOTP enroll  
 
 Lesson editor stores `exercises` JSON; **publish** validates via Zod (`validateExercises`).

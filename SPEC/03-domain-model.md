@@ -3,12 +3,12 @@
 ## Entities
 
 ### User
-- `id`, `email`, `passwordHash`, `role` (`user` | `admin`), `plan` (`free` | `premium`)  
+- `id`, `email`, `passwordHash`, `role` (`user` | `admin`), `plan` (`free` | `premium` | `family`)  
+- `plan` is a legacy label. It does not gate lessons, hearts, or chess.  
 - Admin MFA: `totpSecretEnc`, `totpEnabled`, `totpVerifiedAt` (SPEC 72)  
 - Sessions: `mfaVerifiedAt` for admin TOTP gate  
 - `platform_settings` key/value JSON (theme draft/published)  
 - Courses: free-form `slug` varchar, `status` draft|published|archived, `category`, `contentSource`  
-- Stripe fields optional: `stripeCustomerId`, `stripeSubscriptionId`, `planExpiresAt`  
 
 ### Character (1:1 with User)
 - `displayName`, `avatarKey`  

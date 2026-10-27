@@ -17,8 +17,6 @@ export type AdaptiveFeatures = {
   isWeak: boolean;
   /** whether item is exam-related */
   isExam: boolean;
-  /** whether free tier and paywalled */
-  paywalled: boolean;
   /** base priority from rules engine */
   basePriority: number;
 };
@@ -31,11 +29,10 @@ export type AdaptiveWeights = {
   daysInactive: number;
   isWeak: number;
   isExam: number;
-  paywalled: number;
   basePriority: number;
 };
 
-/** Default weights: prefer weak + recent continuity, deprioritize paywall */
+/** Default weights: prefer weak items and recent continuity. */
 export const DEFAULT_ADAPTIVE_WEIGHTS: AdaptiveWeights = {
   intercept: 0.2,
   lastMastery: -0.8,
@@ -44,7 +41,6 @@ export const DEFAULT_ADAPTIVE_WEIGHTS: AdaptiveWeights = {
   daysInactive: 0.25,
   isWeak: 1.2,
   isExam: 0.3,
-  paywalled: -2.0,
   basePriority: 0.08,
 };
 
@@ -60,7 +56,6 @@ const WEIGHT_KEYS: (keyof AdaptiveWeights)[] = [
   "daysInactive",
   "isWeak",
   "isExam",
-  "paywalled",
   "basePriority",
 ];
 
@@ -106,7 +101,6 @@ export function adaptiveScore(
     weights.daysInactive * Math.min(14, f.daysInactive) +
     weights.isWeak * (f.isWeak ? 1 : 0) +
     weights.isExam * (f.isExam ? 1 : 0) +
-    weights.paywalled * (f.paywalled ? 1 : 0) +
     weights.basePriority * f.basePriority;
   const p = sigmoid(z);
   return f.basePriority * 0.4 + p * 25;

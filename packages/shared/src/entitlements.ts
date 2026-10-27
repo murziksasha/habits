@@ -1,22 +1,13 @@
-import {
-  FREE_HEARTS,
-  FREE_LESSONS_PER_COURSE,
-  FREE_RATED_CHESS_PER_DAY,
-  HEART_REGEN_MINUTES,
-} from './courses.js';
+import { FREE_HEARTS, HEART_REGEN_MINUTES } from './courses.js';
 import {
   ironWillHeartsBonus,
   type CharacterProgression,
 } from './character.js';
 
+/** Stored on users.plan. Access does not depend on this value. */
 export type Plan = 'free' | 'premium' | 'family';
 
-/** Premium-tier entitlements: personal premium or family plan. */
-export function isPaidPlan(plan: Plan | string): boolean {
-  return plan === 'premium' || plan === 'family';
-}
-
-/** Every lesson is accessible to every user regardless of plan. */
+/** Every lesson is accessible to every user. */
 export function canAccessLesson(_opts?: {
   plan?: Plan;
   lessonIndexInCourse?: number;
@@ -24,12 +15,11 @@ export function canAccessLesson(_opts?: {
   return true;
 }
 
-/** Free: 5 base (+ Iron Will synergy). Premium/family: unlimited. */
+/** Shared heart cap for every account (+ Iron Will synergy). */
 export function maxHearts(
-  plan: Plan,
+  _plan?: Plan | string,
   progression?: CharacterProgression | null,
 ): number {
-  if (isPaidPlan(plan)) return 999;
   const bonus = progression ? ironWillHeartsBonus(progression) : 0;
   return FREE_HEARTS + bonus;
 }
@@ -46,13 +36,6 @@ export function regenerateHearts(opts: {
 }): { hearts: number; heartsUpdatedAt: Date; changed: boolean } {
   const now = opts.now ?? new Date();
   const max = maxHearts(opts.plan, opts.progression);
-  if (isPaidPlan(opts.plan)) {
-    return {
-      hearts: max,
-      heartsUpdatedAt: now,
-      changed: opts.hearts !== max,
-    };
-  }
   let hearts = Math.min(max, Math.max(0, opts.hearts));
   const updatedAt = opts.heartsUpdatedAt
     ? new Date(opts.heartsUpdatedAt)
@@ -106,57 +89,24 @@ export function canUseUnlimitedHints(_plan?: Plan): boolean {
 
 export const FREE_HINTS_PER_DAY = Infinity;
 
-/** Single source of entitlements for API, UI (all unlimited in free EduForge). */
-export type FreemiumMatrix = {
-  freeLessonsPerCourse: number;
-  freeHearts: number;
+/** Shared access rules. There is no paid tier. */
+export type AccessMatrix = {
+  lessons: 'all';
+  hearts: number;
   heartRegenMinutes: number;
-  freeRatedChessPerDay: number;
-  freeHintsPerDay: number;
-  trialDays: number;
-  demoUpgradeDays: number;
+  ratedChessPerDay: 'unlimited';
+  hintsPerDay: 'unlimited';
 };
 
-export function freemiumMatrix(): FreemiumMatrix {
+export function accessMatrix(): AccessMatrix {
   return {
-    freeLessonsPerCourse: Infinity,
-    freeHearts: 999,
-    heartRegenMinutes: 0,
-    freeRatedChessPerDay: Infinity,
-    freeHintsPerDay: Infinity,
-    trialDays: 0,
-    demoUpgradeDays: 0,
+    lessons: 'all',
+    hearts: FREE_HEARTS,
+    heartRegenMinutes: HEART_REGEN_MINUTES,
+    ratedChessPerDay: 'unlimited',
+    hintsPerDay: 'unlimited',
   };
 }
 
-export type PlanFeatureRow = {
-  id: string;
-  free: string | boolean | number;
-  premium: string | boolean | number;
-};
-
-/** All features unlimited for every user. */
-export function planFeatureMatrix(): PlanFeatureRow[] {
-  return [
-    { id: 'lessons', free: 'unlimited', premium: 'unlimited' },
-    { id: 'hearts', free: 'unlimited', premium: 'unlimited' },
-    { id: 'heartRegen', free: 'n/a', premium: 'n/a' },
-    { id: 'ratedChess', free: 'unlimited', premium: 'unlimited' },
-    { id: 'hints', free: 'unlimited', premium: 'unlimited' },
-    { id: 'tutor', free: 'unlimited', premium: 'unlimited' },
-  ];
-}
-
-export function isPremiumActive(opts: {
-  plan: Plan;
-  planExpiresAt?: Date | string | null;
-  now?: Date;
-}): boolean {
-  if (!isPaidPlan(opts.plan)) return false;
-  if (!opts.planExpiresAt) return true;
-  const exp = new Date(opts.planExpiresAt).getTime();
-  return exp > (opts.now ?? new Date()).getTime();
-}
-
-/** Default child seats for family plan owner */
+/** Default child seats for a family group owner. */
 export const FAMILY_DEFAULT_SEATS = 4;

@@ -5,8 +5,6 @@ import { db } from "../db.js";
 
 export type EffectivePlan = {
   plan: Plan;
-  planExpiresAt: Date | null;
-  premiumActive: boolean;
   family: {
     isOwner: boolean;
     ownerUserId: string | null;
@@ -16,16 +14,14 @@ export type EffectivePlan = {
 };
 
 /**
- * Resolve effective plan and family relationships.
- * In free EduForge, access does not depend on plan; children are not promoted to premium.
+ * Resolve the stored plan label and family-group membership.
+ * Membership does not change lesson, heart, or chess access.
  */
 export async function resolveEffectivePlan(userId: string): Promise<EffectivePlan> {
   const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
   if (!user) {
     return {
       plan: "free",
-      planExpiresAt: null,
-      premiumActive: false,
       family: null,
     };
   }
@@ -46,8 +42,6 @@ export async function resolveEffectivePlan(userId: string): Promise<EffectivePla
     });
     return {
       plan: (user.plan as Plan) ?? "free",
-      planExpiresAt: user.planExpiresAt,
-      premiumActive: false,
       family: {
         isOwner: true,
         ownerUserId: userId,
@@ -57,7 +51,6 @@ export async function resolveEffectivePlan(userId: string): Promise<EffectivePla
     };
   }
 
-  // Child seat: do not promote to premium
   const membership = await db.query.familyMembers.findFirst({
     where: and(
       eq(familyMembers.memberUserId, userId),
@@ -71,8 +64,6 @@ export async function resolveEffectivePlan(userId: string): Promise<EffectivePla
     });
     return {
       plan: (user.plan as Plan) ?? "free",
-      planExpiresAt: user.planExpiresAt,
-      premiumActive: false,
       family: {
         isOwner: false,
         ownerUserId: membership.ownerUserId,
@@ -84,8 +75,6 @@ export async function resolveEffectivePlan(userId: string): Promise<EffectivePla
 
   return {
     plan: (user.plan as Plan) ?? "free",
-    planExpiresAt: user.planExpiresAt,
-    premiumActive: false,
     family: null,
   };
 }

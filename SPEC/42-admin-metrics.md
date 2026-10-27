@@ -8,7 +8,7 @@
 
 | Block | Fields |
 |-------|--------|
-| `totals` | users, premium, certificates, streakShieldsHeld, avgStreakDays |
+| `totals` | users, certificates, streakShieldsHeld, avgStreakDays |
 | `engagement` | activeUsers (window), activeUsers30d, lessonsCompleted, xpFromAttempts, homeworkCompleted |
 | `programming` | learners, lessonsCompletedAll/Window, lessonsTotal |
 | `playground` | catalogChallenges, solvesWindow, solvesAllTime |

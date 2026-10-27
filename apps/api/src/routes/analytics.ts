@@ -37,7 +37,7 @@ const productEventSchema = z.object({
 });
 
 /**
- * Client product events (paywall_shown, paywall_cta_click, onboarding_*).
+ * Client product events (lesson_completed, exam_*, onboarding_*).
  * first_lesson_complete is also emitted server-side from submit-lesson.
  */
 analyticsRoutes.post("/events", authMiddleware, async (c) => {

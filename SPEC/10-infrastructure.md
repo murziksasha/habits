@@ -48,7 +48,6 @@ See `.env.example`:
 - `DATABASE_URL`, `REDIS_URL`  
 - `AUTH_SECRET`, `WEB_ORIGIN`  
 - `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_REALTIME_URL`  
-- Stripe keys (optional)  
 - `ADMIN_EMAIL`, `ADMIN_PASSWORD` for seed  
 - `MFA_ENCRYPTION_KEY` — encrypt admin TOTP secrets (optional; falls back to `AUTH_SECRET`)  
 - `ADMIN_MFA_ENFORCE` — force admin TOTP (`true`/`false`; default on in production)  
@@ -71,6 +70,5 @@ pnpm db:seed
 - [ ] Enroll admin TOTP (`ADMIN_MFA_ENFORCE` / production)  
 - [ ] Set `MFA_ENCRYPTION_KEY`  
 - [ ] TLS reverse proxy (nginx sample in `docker/nginx.conf`)  
-- [ ] Configure Stripe webhooks  
 - [ ] Backups for Postgres volume  
 - [ ] Restrict CORS `WEB_ORIGIN`  
