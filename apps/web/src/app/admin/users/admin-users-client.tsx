@@ -12,7 +12,6 @@ type Row = {
   id: string;
   email: string;
   role: string;
-  plan: string;
   displayName: string | null;
   globalXp: number | null;
   globalLevel: number | null;

@@ -20,7 +20,6 @@ type Profile = {
   globalLevel: number;
   globalXp: number;
   streakDays: number;
-  plan: string;
   isSelf: boolean;
   friendship: string;
   achievementsUnlocked: number;

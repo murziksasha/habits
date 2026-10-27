@@ -10,7 +10,6 @@ import { PageLoading } from "@/components/page-loading";
 
 type FamilyMe = {
   role: "owner" | "child" | "none";
-  plan?: string;
   maxSeats?: number;
   childCount?: number;
   members?: {

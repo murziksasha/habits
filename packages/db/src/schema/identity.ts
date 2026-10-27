@@ -1,5 +1,4 @@
 export {
-  planEnum,
   users,
   characters,
   passwordResetTokens,

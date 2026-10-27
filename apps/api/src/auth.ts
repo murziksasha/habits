@@ -36,12 +36,6 @@ export async function verifyPassword(password: string, hash: string | null | und
   return bcrypt.compare(password, hash);
 }
 
-/** Return user as-is. Access does not depend on plan. */
-export async function withEffectivePlan<T extends { id: string; plan: string }>(
-  user: T,
-): Promise<T> {
-  return user;
-}
 
 export async function createSession(
   userId: string,
@@ -156,7 +150,7 @@ export async function authMiddleware(c: Context, next: Next) {
       }
     }
   }
-  c.set("user", await withEffectivePlan(user));
+  c.set("user", user);
   c.set("sessionToken", token);
   await promoteBearerToCookie(c, token!, fromCookie);
   await next();
@@ -181,7 +175,7 @@ export async function adminMiddleware(c: Context, next: Next) {
     return c.json({ error: "mfa_enroll_required" }, 403);
   }
 
-  c.set("user", await withEffectivePlan(user));
+  c.set("user", user);
   c.set("sessionToken", token);
   await promoteBearerToCookie(c, token!, fromCookie);
   await next();
@@ -203,7 +197,7 @@ export async function optionalAuth(c: Context, next: Next) {
   const { token, fromCookie } = readSessionToken(c);
   const user = await getUserFromToken(token);
   if (user && isAccountActive(user)) {
-    c.set("user", await withEffectivePlan(user));
+    c.set("user", user);
     c.set("sessionToken", token);
     if (token) await promoteBearerToCookie(c, token, fromCookie);
   }

@@ -13,7 +13,6 @@ import {
   regenerateHearts,
   resolveFeatureFlags,
   todayUtc,
-  type Plan,
 } from "@eduforge/shared";
 import { characters, courses, userDailyQuests, userCourseProgress } from "@eduforge/db";
 import { authMiddleware, optionalAuth, type AuthedUser } from "../auth.js";
@@ -116,12 +115,11 @@ meRoutes.post("/login-bonus", authMiddleware, async (c) => {
  */
 meRoutes.get("/hearts", authMiddleware, async (c) => {
   const user = c.get("user");
-  const plan = user.plan as Plan;
   const ch = await db.query.characters.findFirst({
     where: eq(characters.userId, user.id),
   });
   const prog = normalizeProgression(ch?.progression);
-  const max = maxHearts(plan, prog);
+  const max = maxHearts(prog);
   const regenMinutes = Math.max(
     10,
     HEART_REGEN_MINUTES - heartRegenMinutesBonus(prog),
@@ -157,7 +155,6 @@ meRoutes.get("/hearts", authMiddleware, async (c) => {
 
   for (const row of rows) {
     const regen = regenerateHearts({
-      plan,
       hearts: row.hearts,
       heartsUpdatedAt: row.heartsUpdatedAt,
       regenMinutes,

@@ -50,7 +50,7 @@
 
 - Profile: change password, download `/learning/export`, delete account (`DELETE` confirm)
 - Lesson summary: `nextLesson` CTA; Learn daily mission strip
-- No pricing page. Access does not depend on flags or plan.
+- No pricing page. Access does not depend on flags or a plan flag (users.plan dropped).
 
 ## Follow-ups (not blocking)
 

@@ -478,6 +478,7 @@ const uk = {
   },
   parents: {
     title: "Батьківський кабінет",
+    family: "Сімʼя",
     generateInvite: "Код для батьків",
     claimInvite: "Підключити дитину",
     inviteCode: "Код запрошення",
@@ -1227,6 +1228,7 @@ const en: UiDict = {
   },
   parents: {
     title: "Parent portal",
+    family: "Family",
     generateInvite: "Code for parent",
     claimInvite: "Link a child",
     inviteCode: "Invite code",

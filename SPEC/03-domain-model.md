@@ -3,8 +3,7 @@
 ## Entities
 
 ### User
-- `id`, `email`, `passwordHash`, `role` (`user` | `admin`), `plan` (`free` | `premium` | `family`)  
-- `plan` is a legacy label. It does not gate lessons, hearts, or chess.  
+- `id`, `email`, `passwordHash`, `role` (`user` | `admin`)  
 - Admin MFA: `totpSecretEnc`, `totpEnabled`, `totpVerifiedAt` (SPEC 72)  
 - Sessions: `mfaVerifiedAt` for admin TOTP gate  
 - `platform_settings` key/value JSON (theme draft/published)  

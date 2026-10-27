@@ -23,7 +23,6 @@ import {
   readingXpAward,
   regenerateHearts,
   typingXpAward,
-  type Plan,
 } from "@eduforge/shared";
 import type { AuthedUser } from "../auth.js";
 import { db } from "../db.js";
@@ -278,7 +277,6 @@ export async function submitLesson(
     });
   }
 
-  const plan = user.plan as Plan;
   const characterEarly = await db.query.characters.findFirst({
     where: eq(characters.userId, user.id),
   });
@@ -300,13 +298,12 @@ export async function submitLesson(
         courseId: course.id,
         xp: 0,
         level: 1,
-        hearts: maxHearts(plan, progressionEarly),
+        hearts: maxHearts(progressionEarly),
       })
       .returning();
     cp = created;
   } else {
     const regen = regenerateHearts({
-      plan,
       hearts: cp.hearts,
       heartsUpdatedAt: cp.heartsUpdatedAt,
       progression: progressionEarly,
@@ -499,7 +496,7 @@ export async function submitLesson(
       results,
       character: updatedCharacter,
       hearts,
-      maxHearts: maxHearts(plan, progressionEarly),
+      maxHearts: maxHearts(progressionEarly),
       heartLost,
       streakProtected,
       streakDays: streak,

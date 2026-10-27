@@ -12,7 +12,7 @@ Primary journeys:
 
 1. Register → confirm email (7d/30d policy) → first free lesson → daily return (streak / next step)
 2. Programming path + playground (+ deep tracks via hub)
-3. Keep practicing (hearts regen; nothing is locked behind a plan)
+3. Keep practicing (hearts regen; the legacy plan label is gone and nothing is locked)
 4. Schools / homework / parents (B2B, supporting)
 
 ## Feature classification

@@ -86,7 +86,6 @@ adminRoutes.get("/users", async (c) => {
       id: users.id,
       email: users.email,
       role: users.role,
-      plan: users.plan,
       createdAt: users.createdAt,
       displayName: characters.displayName,
       globalXp: characters.globalXp,
@@ -149,7 +148,6 @@ adminRoutes.patch("/users/:id", async (c) => {
       id: updated.id,
       email: updated.email,
       role: updated.role,
-      plan: updated.plan,
     },
   });
 });

@@ -28,7 +28,7 @@ const doc = {
     title: "EduForge API",
     version: "2.5.0",
     description:
-      "Educational SaaS: learn map, exams, deep tracks, admin platform v2 (TOTP MFA, theming, CMS draft/publish, backup codes), trial+expiry, feedback, minis, playground, schools, parents, metrics, chess, SRS, tutor. BFF: GET /me/home.",
+      "Educational SaaS: learn map, exams, deep tracks, admin platform v2 (TOTP MFA, theming, CMS draft/publish, backup codes), feedback, minis, playground, schools, parents, metrics, chess, SRS, tutor. BFF: GET /me/home.",
   },
   servers: [{ url: "/", description: "Current host" }],
   tags: [

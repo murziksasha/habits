@@ -101,7 +101,6 @@ async function issueEmailVerification(userId: string, email: string) {
 function publicUser(user: {
   id: string;
   email: string;
-  plan: string;
   role: string;
   totpEnabled?: boolean;
   mfaBackupCodeHashes?: string[] | null;
@@ -111,7 +110,6 @@ function publicUser(user: {
   return {
     id: user.id,
     email: user.email,
-    plan: user.plan,
     role: user.role,
     emailVerified: Boolean(user.emailVerifiedAt),
     accountStatus: user.accountStatus ?? "active",

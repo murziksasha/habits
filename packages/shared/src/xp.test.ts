@@ -87,13 +87,12 @@ describe("daily XP cap", () => {
 });
 
 describe("hearts smoke", () => {
-  it("does not refill hearts because of a stored plan", () => {
+  it("keeps shared cap and regen without instant refill", () => {
     const r = regenerateHearts({
-      plan: "premium",
       hearts: 0,
       heartsUpdatedAt: new Date(),
     });
     expect(r.hearts).toBe(0);
-    expect(maxHearts("premium")).toBe(maxHearts("free"));
+    expect(maxHearts()).toBe(5);
   });
 });

@@ -37,7 +37,7 @@ Read the matching doc **before** changing that domain. Index: `SPEC/README.md`. 
 
 New API routes inherit the same auth as existing siblings: public stays public, user routes use `authMiddleware`, admin routes use `adminMiddleware`, dangerous admin mutations call `requireStepUp`. Do not add unauthenticated or all-role access unless the spec says so.
 
-The product is **free**. Do not add checkout, trials, paywalls, or plan gates. `users.plan` is a legacy label and does not lock lessons or chess.
+The product is **free**. Do not add checkout, trials, paywalls, or plan gates. There is no `users.plan` column.
 
 Invariants (details live in the docs above):
 

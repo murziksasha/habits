@@ -1,10 +1,8 @@
 import { and, eq, ne } from "drizzle-orm";
 import { familyMembers, users } from "@eduforge/db";
-import type { Plan } from "@eduforge/shared";
 import { db } from "../db.js";
 
 export type EffectivePlan = {
-  plan: Plan;
   family: {
     isOwner: boolean;
     ownerUserId: string | null;
@@ -14,14 +12,13 @@ export type EffectivePlan = {
 };
 
 /**
- * Resolve the stored plan label and family-group membership.
+ * Resolve family-group membership.
  * Membership does not change lesson, heart, or chess access.
  */
 export async function resolveEffectivePlan(userId: string): Promise<EffectivePlan> {
   const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
   if (!user) {
     return {
-      plan: "free",
       family: null,
     };
   }
@@ -36,12 +33,11 @@ export async function resolveEffectivePlan(userId: string): Promise<EffectivePla
     ),
   });
 
-  if (ownerRecord || user.plan === "family") {
+  if (ownerRecord) {
     const members = await db.query.familyMembers.findMany({
       where: and(eq(familyMembers.ownerUserId, userId), eq(familyMembers.status, "active")),
     });
     return {
-      plan: (user.plan as Plan) ?? "free",
       family: {
         isOwner: true,
         ownerUserId: userId,
@@ -63,7 +59,6 @@ export async function resolveEffectivePlan(userId: string): Promise<EffectivePla
       where: eq(users.id, membership.ownerUserId),
     });
     return {
-      plan: (user.plan as Plan) ?? "free",
       family: {
         isOwner: false,
         ownerUserId: membership.ownerUserId,
@@ -74,7 +69,6 @@ export async function resolveEffectivePlan(userId: string): Promise<EffectivePla
   }
 
   return {
-    plan: (user.plan as Plan) ?? "free",
     family: null,
   };
 }

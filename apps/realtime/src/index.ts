@@ -17,14 +17,12 @@ import {
 import {
   CHESS_TIME_CONTROLS,
   applyElo,
-  canPlayRatedChess,
   clampElo,
   chessGameXpAward,
   chessMoveSchema,
   globalXpFromCourseGain,
   levelFromXp,
   seekGameSchema,
-  type Plan,
 } from "@eduforge/shared";
 import { Chess } from "chess.js";
 import { assignColors, type SeekEntry } from "./matchmaking.js";

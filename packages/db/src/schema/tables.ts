@@ -13,8 +13,6 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-/** Legacy labels. `premium` and `family` do not change access. */
-export const planEnum = pgEnum("plan", ["free", "premium", "family"]);
 /**
  * Course slugs are app-registry validated (`COURSE_SLUGS` in @eduforge/shared).
  * Stored as varchar so new courses do not require ALTER TYPE migrations.
@@ -42,7 +40,6 @@ export const users = pgTable("users", {
   /** Null for OAuth-only accounts (no local password) */
   passwordHash: text("password_hash"),
   role: varchar("role", { length: 32 }).notNull().default("user"),
-  plan: planEnum("plan").notNull().default("free"),
   /** Preferred UI/content locale */
   preferredLocale: varchar("preferred_locale", { length: 8 }).notNull().default("uk"),
   weeklyEmailEnabled: boolean("weekly_email_enabled").notNull().default(true),

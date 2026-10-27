@@ -11,7 +11,7 @@ describe("oauth/family contracts", () => {
   });
 
   it("free access rules apply to family members", () => {
-    expect(canAccessLesson({ plan: "free", lessonIndexInCourse: 10 })).toBe(true);
-    expect(canStartLesson({ plan: "free", hearts: 0 })).toBe(true);
+    expect(canAccessLesson({ lessonIndexInCourse: 10 })).toBe(true);
+    expect(canStartLesson({ hearts: 0 })).toBe(true);
   });
 });

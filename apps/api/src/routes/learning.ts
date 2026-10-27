@@ -161,7 +161,6 @@ learningRoutes.get("/export", authMiddleware, async (c) => {
     user: {
       id: user.id,
       email: u?.email,
-      plan: u?.plan,
       preferredLocale: u?.preferredLocale,
       emailVerifiedAt: u?.emailVerifiedAt ?? null,
       role: u?.role,

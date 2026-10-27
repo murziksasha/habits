@@ -13,7 +13,6 @@ import { api, COOKIE_SESSION, LEGACY_TOKEN_KEY } from "./api";
 export type User = {
   id: string;
   email: string;
-  plan: "free" | "premium" | "family";
   role?: "user" | "admin";
   /** false = needs verification; true / undefined = ok */
   emailVerified?: boolean;
