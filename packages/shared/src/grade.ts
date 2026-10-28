@@ -291,6 +291,19 @@ export function gradeExercise(
         typeof answer === "number" ? answer : Number((answer as { index?: number })?.index);
       return { correct: idx === quiz.correctIndex };
     }
+    case "concept": {
+      // Theory card: acknowledged → correct; optional self-check must match.
+      const check = exercise.check as { correctIndex: number } | undefined;
+      if (!check) {
+        const ack =
+          answer === true ||
+          Boolean((answer as { acknowledged?: boolean } | null)?.acknowledged);
+        return { correct: ack, partial: ack ? 1 : 0, meta: { concept: true } };
+      }
+      const idx =
+        typeof answer === "number" ? answer : Number((answer as { index?: number })?.index);
+      return { correct: idx === check.correctIndex, meta: { concept: true } };
+    }
     case "video": {
       // answer: { watchedSec, durationSec } or { completed: true }
       const a = answer as {

@@ -182,3 +182,35 @@ export function codeOutputMcq(
     ...note,
   };
 }
+
+/**
+ * Concept card (theory + key points + optional code + optional self-check).
+ * Put it first in a lesson so practice follows a worked explanation.
+ */
+export function concept(
+  id: string,
+  titleUk: string,
+  titleEn: string,
+  body: { uk: string; en: string },
+  extra?: {
+    keyPointsUk?: string[];
+    keyPointsEn?: string[];
+    code?: string;
+    language?: string;
+    check?: { qUk: string; qEn: string; options: string[]; correctIndex: number };
+  },
+): Exercise {
+  return {
+    id,
+    type: "concept",
+    promptUk: titleUk,
+    promptEn: titleEn,
+    bodyUk: body.uk,
+    bodyEn: body.en,
+    keyPointsUk: extra?.keyPointsUk,
+    keyPointsEn: extra?.keyPointsEn,
+    code: extra?.code,
+    language: extra?.language,
+    check: extra?.check,
+  };
+}

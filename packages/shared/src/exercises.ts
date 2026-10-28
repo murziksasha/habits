@@ -22,6 +22,7 @@ export const EXERCISE_TYPES = [
   "code_run",
   "video",
   "code_judge",
+  "concept",
 ] as const satisfies readonly ExerciseType[];
 
 export const exerciseTypeSchema = z.enum(EXERCISE_TYPES);
@@ -153,6 +154,24 @@ export const exerciseSchema = z.discriminatedUnion("type", [
         q: z.string(),
         qEn: z.string().optional(),
         options: z.array(z.string()).min(2),
+        correctIndex: z.number().int().min(0),
+      })
+      .optional(),
+  }),
+  z.object({
+    ...base,
+    type: z.literal("concept"),
+    bodyUk: z.string().min(1).max(6000),
+    bodyEn: z.string().max(6000).optional(),
+    keyPointsUk: z.array(z.string().max(400)).max(8).optional(),
+    keyPointsEn: z.array(z.string().max(400)).max(8).optional(),
+    code: z.string().max(4000).optional(),
+    language: z.string().optional(),
+    check: z
+      .object({
+        qUk: z.string().min(1),
+        qEn: z.string().optional(),
+        options: z.array(z.string()).min(2).max(8),
         correctIndex: z.number().int().min(0),
       })
       .optional(),

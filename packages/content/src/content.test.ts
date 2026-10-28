@@ -86,6 +86,7 @@ const EXERCISE_TYPES = new Set([
   "code_project",
   "code_run",
   "video",
+  "concept",
 ]);
 
 function collectExercises(course: CourseContent): Exercise[] {

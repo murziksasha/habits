@@ -240,6 +240,7 @@ export function exerciseTypeLabel(
     chess_puzzle: ["Шахова задача", "Chess puzzle"],
     chess_lesson: ["Шаховий урок", "Chess lesson"],
     video: ["Відео", "Video"],
+    concept: ["Теорія", "Concept"],
   };
   const pair = type ? map[type] : undefined;
   if (!pair) return type || (en ? "Exercise" : "Вправа");
