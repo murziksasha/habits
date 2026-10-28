@@ -125,6 +125,26 @@ const doc = {
         responses: { "200": { description: "items + reasons + optional examContext" } },
       },
     },
+    "/review/mixed": {
+      get: {
+        tags: ["learning"],
+        summary: "Interleaved retrieval practice set from completed lessons (?course=&count=&seed=)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "seed + items[{ lessonId, courseSlug, exercise }]" } },
+      },
+    },
+    "/review/mixed/check": {
+      post: {
+        tags: ["learning"],
+        summary: "Grade a mixed practice session server-side (answers[{ lessonId, exerciseId, answer }])",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "results + correct/total/accuracy" },
+          "400": { description: "no_answers" },
+          "429": { description: "rate_limited" },
+        },
+      },
+    },
     "/metrics": {
       get: {
         tags: ["ops"],

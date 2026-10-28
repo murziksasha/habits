@@ -14,6 +14,7 @@ export * from "./quests.js";
 export * from "./loot.js";
 export * from "./srs.js";
 export * from "./retention.js";
+export * from "./interleave.js";
 export * from "./locale-content.js";
 export * from "./placement.js";
 export * from "./playground.js";

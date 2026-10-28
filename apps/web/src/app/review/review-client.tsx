@@ -150,6 +150,22 @@ function ReviewBody() {
         </section>
       )}
 
+      {stats.total > 0 && (
+        <section className="card flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-black">🔀 {locale === "en" ? "Mixed practice" : "Змішана практика"}</p>
+            <p className="text-sm font-bold text-ink-muted">
+              {locale === "en"
+                ? "10 interleaved questions from completed lessons — weak ones more often."
+                : "10 питань вперемішку з пройдених уроків — слабкі частіше."}
+            </p>
+          </div>
+          <Link href="/review/mixed" className="btn-secondary shrink-0 !py-2 text-sm">
+            {locale === "en" ? "Start mix" : "Почати мікс"} →
+          </Link>
+        </section>
+      )}
+
       {fromExam && (
         <div className="card border-grape/40 bg-grape/10 space-y-2">
           <p className="text-sm font-black text-grape">
