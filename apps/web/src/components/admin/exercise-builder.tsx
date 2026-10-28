@@ -3,6 +3,12 @@
 import { useMemo, useState } from "react";
 import { validateExercises } from "@eduforge/shared";
 import clsx from "clsx";
+import {
+  formatKeyIdeasLines,
+  linesToList,
+  listToLines,
+  parseKeyIdeasLines,
+} from "@/lib/builder-fields";
 
 export type BuilderExercise = {
   id: string;
@@ -30,6 +36,7 @@ const TYPES = [
   "chess_lesson",
   "code_project",
   "concept",
+  "explain",
 ] as const;
 
 function newId() {
@@ -158,6 +165,15 @@ function blankExercise(type: string): BuilderExercise {
         promptUk: "Шаховий урок",
         fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         notesUk: "Початкова позиція.",
+      };
+    case "explain":
+      return {
+        id,
+        type,
+        promptUk: "Поясніть своїми словами…",
+        promptEn: "Explain in your own words…",
+        minWords: 15,
+        keyIdeas: [{ labelUk: "Ключова ідея", labelEn: "Key idea", anyOf: ["ключов", "key"] }],
       };
     case "concept":
       return {
@@ -514,6 +530,145 @@ export function ExerciseBuilder({ exercises, onChange, onJsonSync }: Props) {
                 className="input min-h-20"
                 value={ex.text}
                 onChange={(e) => updateAt(selected, { text: e.target.value })}
+              />
+            </div>
+          )}
+
+          {ex.type === "concept" && (
+            <div className="space-y-2">
+              <label className="label">Теорія (UK) — абзаци через порожній рядок</label>
+              <textarea
+                className="input min-h-28"
+                value={String(ex.bodyUk ?? "")}
+                onChange={(e) => updateAt(selected, { bodyUk: e.target.value })}
+              />
+              <label className="label">Theory (EN)</label>
+              <textarea
+                className="input min-h-28"
+                value={String(ex.bodyEn ?? "")}
+                onChange={(e) => updateAt(selected, { bodyEn: e.target.value })}
+              />
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div>
+                  <label className="label">Головне (UK), по рядку</label>
+                  <textarea
+                    className="input min-h-20"
+                    value={listToLines(ex.keyPointsUk)}
+                    onChange={(e) => updateAt(selected, { keyPointsUk: linesToList(e.target.value) })}
+                  />
+                </div>
+                <div>
+                  <label className="label">Key points (EN), one per line</label>
+                  <textarea
+                    className="input min-h-20"
+                    value={listToLines(ex.keyPointsEn)}
+                    onChange={(e) => updateAt(selected, { keyPointsEn: linesToList(e.target.value) })}
+                  />
+                </div>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-[1fr_10rem]">
+                <div>
+                  <label className="label">Code example (optional)</label>
+                  <textarea
+                    className="input min-h-20 font-mono text-xs"
+                    value={String(ex.code ?? "")}
+                    onChange={(e) => updateAt(selected, { code: e.target.value || undefined })}
+                  />
+                </div>
+                <div>
+                  <label className="label">Language</label>
+                  <input
+                    className="input"
+                    value={String(ex.language ?? "")}
+                    onChange={(e) => updateAt(selected, { language: e.target.value || undefined })}
+                  />
+                </div>
+              </div>
+              <label className="flex items-center gap-2 text-sm font-bold">
+                <input
+                  type="checkbox"
+                  checked={Boolean(ex.check)}
+                  onChange={(e) =>
+                    updateAt(selected, {
+                      check: e.target.checked
+                        ? { qUk: "Питання?", qEn: "Question?", options: ["A", "B"], correctIndex: 0 }
+                        : undefined,
+                    })
+                  }
+                />
+                Self-check question
+              </label>
+              {Boolean(ex.check) && (() => {
+                const check = ex.check as { qUk: string; qEn?: string; options: string[]; correctIndex: number };
+                const setCheck = (patch: Partial<typeof check>) =>
+                  updateAt(selected, { check: { ...check, ...patch } });
+                return (
+                  <div className="space-y-2 rounded-xl border border-slate-200 p-2 dark:border-slate-700">
+                    <input className="input" value={check.qUk} placeholder="qUk" onChange={(e) => setCheck({ qUk: e.target.value })} />
+                    <input className="input" value={check.qEn ?? ""} placeholder="qEn" onChange={(e) => setCheck({ qEn: e.target.value })} />
+                    <label className="label">Options (one per line)</label>
+                    <textarea
+                      className="input min-h-20"
+                      value={check.options.join("\n")}
+                      onChange={(e) => setCheck({ options: linesToList(e.target.value) })}
+                    />
+                    <label className="label">Correct index (0-based)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      className="input !w-28"
+                      value={check.correctIndex}
+                      onChange={(e) => setCheck({ correctIndex: Math.max(0, Number(e.target.value) || 0) })}
+                    />
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+
+          {ex.type === "explain" && (
+            <div className="space-y-2">
+              <label className="label">Key ideas — one per line: labelUk | labelEn | stem1, stem2</label>
+              <textarea
+                className="input min-h-24 font-mono text-xs"
+                defaultValue={formatKeyIdeasLines(ex.keyIdeas)}
+                onBlur={(e) => updateAt(selected, { keyIdeas: parseKeyIdeasLines(e.target.value) })}
+              />
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div>
+                  <label className="label">Min words</label>
+                  <input
+                    type="number"
+                    min={0}
+                    className="input"
+                    value={Number(ex.minWords ?? 12)}
+                    onChange={(e) => updateAt(selected, { minWords: Math.max(0, Number(e.target.value) || 0) })}
+                  />
+                </div>
+                <div>
+                  <label className="label">Pass ratio (0.1–1)</label>
+                  <input
+                    type="number"
+                    step={0.1}
+                    min={0.1}
+                    max={1}
+                    className="input"
+                    value={Number(ex.passRatio ?? 0.6)}
+                    onChange={(e) => updateAt(selected, { passRatio: Math.min(1, Math.max(0.1, Number(e.target.value) || 0.6)) })}
+                  />
+                </div>
+              </div>
+              <label className="label">Sample answer (UK)</label>
+              <textarea
+                className="input min-h-16"
+                value={String(ex.sampleAnswerUk ?? "")}
+                onChange={(e) => updateAt(selected, { sampleAnswerUk: e.target.value || undefined })}
+              />
+              <label className="label">Sample answer (EN)</label>
+              <textarea
+                className="input min-h-16"
+                value={String(ex.sampleAnswerEn ?? "")}
+                onChange={(e) => updateAt(selected, { sampleAnswerEn: e.target.value || undefined })}
               />
             </div>
           )}
