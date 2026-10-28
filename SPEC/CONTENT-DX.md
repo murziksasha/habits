@@ -43,6 +43,10 @@ Canonical list: `@eduforge/shared` `EXERCISE_TYPES` / `packages/content` integri
 
 Start every new deep lesson with a `concept(...)` card from `builders.ts` (theory paragraphs, key points, optional code, optional self-check), then 3+ retrieval exercises. Keep concept cards out of exams. Example and fields: [SPEC/91](./91-deep-learning-features.md). New deep units live in `packages/content/src/deep-units.ts`.
 
+### Explain steps
+
+Add an `explain(id, promptUk, promptEn, keyIdeas, { minWords, sampleAnswerUk, sampleAnswerEn })` after the retrieval exercises: each key idea has `labelUk`, `labelEn`, `anyOf` stems (lowercase word starts, UK + EN). Always provide sample answers — the content test checks that they pass their own rubric. Details: [SPEC/92](./92-deep-learning-2.md).
+
 Grading: `@eduforge/shared` `gradeExercise` (API + client soft-grade).
 
 ## EN gate
@@ -65,7 +69,7 @@ const parsed = parseMdxLesson(source);
 const lesson = mdxToLesson(parsed); // slug, titles, exercises, body
 ```
 
-Supported markers: YAML frontmatter, `<!-- mcq ... -->`, `<!-- fill ... -->`, `<!-- translate ... -->`, fenced code → `code_fill`, `videoUrl` → video exercise.
+Supported markers: YAML frontmatter, `<!-- mcq ... -->`, `<!-- fill ... -->`, `<!-- translate ... -->`, `<!-- concept ... --> … <!-- /concept -->`, `<!-- explain ... -->`, fenced code → `code_fill`, `videoUrl` → video exercise. Syntax for concept/explain: [SPEC/92 §5](./92-deep-learning-2.md); example `src/mdx/concept-lesson.mdx`.
 
 ## Adaptive next weights
 

@@ -97,6 +97,7 @@ This folder is the **source of truth** for the EduForge educational SaaS monorep
 | 89 | [Unverified lifecycle](./89-unverified-lifecycle.md) | Inactive after 7 days, delete after 30 if email is unconfirmed |
 | 90 | [Deep improvements plan](./90-deep-improvements-plan.md) | Analysis, findings, step-by-step plan + backlog for learning depth |
 | 91 | [Deep-learning features](./91-deep-learning-features.md) | Concept cards, forgetting-curve memory model, interleaved mixed practice, new deep lessons |
+| 92 | [Deep learning, round 2](./92-deep-learning-2.md) | Confidence calibration, mistake notebook (exercise SRS), mastery map, explain-in-own-words, MDX concept markers |
 | — | **[CURRENT.md](./CURRENT.md)** | **Active product surface freeze, IA, improvement checklist** |
 | — | [CONTENT-DX.md](./CONTENT-DX.md) | Content authoring DX + EN gate |
 | — | [CRON.md](./CRON.md) | Digest / re-engage cron runbook |
