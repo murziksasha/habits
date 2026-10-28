@@ -137,7 +137,10 @@ Realtime: [07-chess-realtime](./07-chess-realtime.md). Coach: `POST /coach/hint`
 | `/tutor` | chat, history, status |
 | `/reports` | weekly stats, prefs, send |
 | `/shop` | catalog, buy (shields) |
-| `/review` | weak lesson queue |
+| `/review` | weak lesson queue (+ `retentionPct`, `dueInDays`) |
+| `/review/mixed` | GET interleaved practice set · POST `/review/mixed/check` grade + capped XP (SPEC 91/92) |
+| `/review/mistakes` | GET due missed exercises (`limit`) · POST `/review/mistakes/check` (SPEC 92) |
+| `/deep` | GET `/deep/calibration?days=` · GET `/deep/mastery-map/:slug` · POST `/deep/explain-feedback` (SPEC 92) |
 | `/quests` | daily quests + claim |
 | `/notes`, `/focus`, `/bookmarks` | study tools |
 | `/search` | courses + users |

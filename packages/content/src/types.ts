@@ -213,6 +213,33 @@ export type Exercise =
     }
   | {
       id: string;
+      /** Theory / worked-example card shown before practice (deep learning) */
+      type: "concept";
+      promptUk: string;
+      promptEn?: string;
+      bodyUk: string;
+      bodyEn?: string;
+      keyPointsUk?: string[];
+      keyPointsEn?: string[];
+      code?: string;
+      language?: string;
+      /** Optional 1-question self-check; without it the card is graded as acknowledged */
+      check?: { qUk: string; qEn?: string; options: string[]; correctIndex: number };
+    }
+  | {
+      id: string;
+      /** Self-explanation, graded by keyword rubric (+ optional tutor feedback) */
+      type: "explain";
+      promptUk: string;
+      promptEn?: string;
+      keyIdeas: { labelUk: string; labelEn?: string; anyOf: string[] }[];
+      minWords?: number;
+      passRatio?: number;
+      sampleAnswerUk?: string;
+      sampleAnswerEn?: string;
+    }
+  | {
+      id: string;
       type: "code_judge";
       promptUk: string;
       promptEn?: string;

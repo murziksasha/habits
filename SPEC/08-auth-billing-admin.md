@@ -33,7 +33,7 @@ See **[SPEC/89-unverified-lifecycle.md](./89-unverified-lifecycle.md)** for full
 
 ## Access
 
-EduForge has no checkout, subscription, or trial. The legacy `users.plan` column and `plan` enum are dropped in migration `0033_drop_plan`. Lessons, rated chess, and hints are open. Hearts use one shared cap.
+EduForge has no checkout, subscription, or trial. The legacy `users.plan` column and `plan` enum are dropped in migration `0034_drop_plan`. Lessons, rated chess, and hints are open. Hearts use one shared cap.
 
 ## Admin CMS
 

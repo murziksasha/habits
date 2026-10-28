@@ -33,7 +33,14 @@ import { applyLootDrop } from "./loot-apply.js";
 import { rollLevelUpLoot } from "@eduforge/shared";
 import { runSubmitSideEffects } from "./submit-side-effects.js";
 
-export type SubmitAnswer = { exerciseId: string; answer: unknown };
+export type SubmitAnswer = {
+  exerciseId: string;
+  answer: unknown;
+  /** Wrong soft attempts before this answer (client-reported, SPEC 92) */
+  wrongAttempts?: number;
+  /** 1 guess · 2 unsure · 3 sure (optional, SPEC 92) */
+  confidence?: number | null;
+};
 
 export type GradedExerciseResult = {
   exerciseId: string;
@@ -465,6 +472,7 @@ export async function submitLesson(
     xpGain,
     globalGain,
     results,
+    answers,
     streakDays: chAfter?.streakDays,
     globalLevel: chAfter?.globalLevel,
     dailyGoalMet,

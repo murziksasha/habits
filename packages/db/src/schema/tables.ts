@@ -1053,3 +1053,57 @@ export const feedbackMessages = pgTable("feedback_messages", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+/* ——— Deep learning (SPEC 92): per-exercise attempts + mistake SRS ——— */
+
+/**
+ * One row per answered exercise (lesson / mixed / mistakes sessions).
+ * `firstTry` = graded correct with no wrong soft attempts; `confidence` 1 guess · 2 unsure · 3 sure.
+ */
+export const exerciseAttempts = pgTable(
+  "exercise_attempts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    lessonId: uuid("lesson_id")
+      .notNull()
+      .references(() => lessons.id, { onDelete: "cascade" }),
+    exerciseId: varchar("exercise_id", { length: 128 }).notNull(),
+    exerciseType: varchar("exercise_type", { length: 32 }).notNull().default(""),
+    correct: boolean("correct").notNull(),
+    firstTry: boolean("first_try").notNull(),
+    wrongAttempts: integer("wrong_attempts").notNull().default(0),
+    confidence: integer("confidence"),
+    source: varchar("source", { length: 16 }).notNull().default("lesson"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [index("exercise_attempts_user_created_idx").on(t.userId, t.createdAt)],
+);
+
+/** Exercise-level spaced repetition ("mistake notebook"), SM-2 state from `@eduforge/shared` srs. */
+export const exerciseReviews = pgTable(
+  "exercise_reviews",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    lessonId: uuid("lesson_id")
+      .notNull()
+      .references(() => lessons.id, { onDelete: "cascade" }),
+    exerciseId: varchar("exercise_id", { length: 128 }).notNull(),
+    ease: integer("ease").notNull().default(250),
+    intervalDays: integer("interval_days").notNull().default(0),
+    repetitions: integer("repetitions").notNull().default(0),
+    lapses: integer("lapses").notNull().default(0),
+    dueAt: timestamp("due_at", { withTimezone: true }).defaultNow().notNull(),
+    lastReviewedAt: timestamp("last_reviewed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("exercise_reviews_user_ex_uq").on(t.userId, t.lessonId, t.exerciseId),
+    index("exercise_reviews_user_due_idx").on(t.userId, t.dueAt),
+  ],
+);

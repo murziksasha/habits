@@ -150,6 +150,16 @@ export function CourseDetailClient() {
               : {pickLocale(locale, continueLesson.titleUk, continueLesson.titleEn)} →
             </Link>
           ) : null}
+          {user && completedCount > 0 ? (
+            <div className="mt-3 flex flex-wrap gap-3 text-sm font-bold">
+              <Link href={`/courses/${slug}/mastery`} className="text-sky hover:underline">
+                🗺️ {locale === "en" ? "Mastery map" : "Карта майстерності"} →
+              </Link>
+              <Link href={`/review/mixed?course=${slug}`} className="text-sky hover:underline">
+                🔀 {locale === "en" ? "Mixed practice" : "Змішана практика"} →
+              </Link>
+            </div>
+          ) : null}
         </div>
         <div className="w-full max-w-xs space-y-3">
           {user ? (

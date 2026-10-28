@@ -2,7 +2,7 @@
 
 Освітній SaaS: **англійська**, **шахи** (уроки + online PvP), **друк**, **швидкочитання**, **логіка**, **програмування** (Mimo-style path + playground + mini-projects).
 
-UI: **українська + англійська** · повна технічна документація: [`SPEC/`](./SPEC/) (English, 01–87 + CURRENT) · surface freeze: [`SPEC/CURRENT.md`](./SPEC/CURRENT.md).
+UI: **українська + англійська** · повна технічна документація: [`SPEC/`](./SPEC/) (English, 01–91 + CURRENT) · surface freeze: [`SPEC/CURRENT.md`](./SPEC/CURRENT.md).
 
 - Monorepo: **pnpm + Turborepo**
 - Apps: `web` (Next.js), `api` (Hono), `realtime` (Socket.IO)
@@ -64,6 +64,8 @@ docker compose --profile tools run --rm migrate
 | Курси | english, chess, typing, speed_reading, logic, **programming**, **typescript**, **html_semantics**, **css_layout**, **qa_theory** |
 | Programming | path units, Monaco drills, mini-projects, weekly race, stack hubs |
 | Deep tracks | HTML semantics, CSS Flex/Grid, QA theory (+ unit exams) |
+| Deep learning | **concept cards** (теорія перед практикою), **крива забування** (`/review` памʼять ≈ %), **змішана практика** `/review/mixed` — [SPEC/91](./SPEC/91-deep-learning-features.md) |
+| Deep learning 2 | **впевненість + калібрування**, **зошит помилок** `/review/mistakes` (SRS на рівні вправ), **карта майстерності** `/courses/[slug]/mastery`, вправа **«поясни своїми словами»** з відгуком тьютора — [SPEC/92](./SPEC/92-deep-learning-2.md) |
 | Playground | client sandbox (JS/TS/HTML/CSS + **React Studio** + **C++**), race |
 | Node Studio | **WebContainers** in-browser Node/npm/Express (`/studio/node`, flag `NEXT_PUBLIC_WEBCONTAINERS`) |
 | Соціальне | friends, minis vs friends, weekly race vs friends, certificates |
@@ -149,17 +151,22 @@ packages/content  Seed-уроки + MDX pipeline
 packages/shared   XP, Elo, entitlements, i18n, minis race
 packages/judge    Multi-lang judge + job queue
 packages/chess-core
-SPEC/             Product & technical docs (English) 01–87 + CURRENT
+SPEC/             Product & technical docs (English) 01–91 + CURRENT
 ```
 
 ## Documentation
 
 - [`SPEC/README.md`](./SPEC/README.md) — full index  
 - [`SPEC/CURRENT.md`](./SPEC/CURRENT.md) — product surface freeze & IA map  
+- [`SPEC/90-deep-improvements-plan.md`](./SPEC/90-deep-improvements-plan.md) — deep-learning analysis + step-by-step plan  
+- [`SPEC/91-deep-learning-features.md`](./SPEC/91-deep-learning-features.md) — concept cards, memory model, mixed practice  
+- [`SPEC/92-deep-learning-2.md`](./SPEC/92-deep-learning-2.md) — calibration, mistake notebook, mastery map, explain step  
 - [`SPEC/58-docs-freeze.md`](./SPEC/58-docs-freeze.md) — historical closeout 01–58  
 - [`.env.example`](./.env.example) — environment variables  
 
 ## Tests
+
+> pnpm 11 має вбудовану команду `pnpm ci` (clean install) — для нашого скрипта використовуйте **`pnpm run ci`**. Потрібен Node 22 (`.nvmrc`).
 
 ```bash
 pnpm --filter @eduforge/content test

@@ -22,6 +22,8 @@ export const EXERCISE_TYPES = [
   "code_run",
   "video",
   "code_judge",
+  "concept",
+  "explain",
 ] as const satisfies readonly ExerciseType[];
 
 export const exerciseTypeSchema = z.enum(EXERCISE_TYPES);
@@ -156,6 +158,42 @@ export const exerciseSchema = z.discriminatedUnion("type", [
         correctIndex: z.number().int().min(0),
       })
       .optional(),
+  }),
+  z.object({
+    ...base,
+    type: z.literal("concept"),
+    bodyUk: z.string().min(1).max(6000),
+    bodyEn: z.string().max(6000).optional(),
+    keyPointsUk: z.array(z.string().max(400)).max(8).optional(),
+    keyPointsEn: z.array(z.string().max(400)).max(8).optional(),
+    code: z.string().max(4000).optional(),
+    language: z.string().optional(),
+    check: z
+      .object({
+        qUk: z.string().min(1),
+        qEn: z.string().optional(),
+        options: z.array(z.string()).min(2).max(8),
+        correctIndex: z.number().int().min(0),
+      })
+      .optional(),
+  }),
+  z.object({
+    ...base,
+    type: z.literal("explain"),
+    keyIdeas: z
+      .array(
+        z.object({
+          labelUk: z.string().min(1).max(200),
+          labelEn: z.string().max(200).optional(),
+          anyOf: z.array(z.string().min(1).max(80)).min(1).max(12),
+        }),
+      )
+      .min(1)
+      .max(8),
+    minWords: z.number().int().min(0).max(400).optional(),
+    passRatio: z.number().min(0.1).max(1).optional(),
+    sampleAnswerUk: z.string().max(2000).optional(),
+    sampleAnswerEn: z.string().max(2000).optional(),
   }),
   z.object({
     ...base,

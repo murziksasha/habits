@@ -65,7 +65,7 @@ See [CRON.md](./CRON.md). Protect with `CRON_SECRET`. Feature flags:
 4. TLS at edge + optional HSTS (API sets HSTS when `NODE_ENV=production`)
 5. Change/remove seed admin passwords; never `pnpm db:seed` on real prod with defaults
 6. SMTP configured for password reset + email verify
-7. Run migrations through `0033_drop_plan`
+7. Run migrations through `0034_drop_plan`
 8. Optional: Google OAuth client + redirect `…/auth/oauth/google/callback`
 
 ## Metrics & product funnel

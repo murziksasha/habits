@@ -125,6 +125,67 @@ const doc = {
         responses: { "200": { description: "items + reasons + optional examContext" } },
       },
     },
+    "/review/mixed": {
+      get: {
+        tags: ["learning"],
+        summary: "Interleaved retrieval practice set from completed lessons (?course=&count=&seed=)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "seed + items[{ lessonId, courseSlug, exercise }]" } },
+      },
+    },
+    "/review/mixed/check": {
+      post: {
+        tags: ["learning"],
+        summary: "Grade a mixed practice session server-side (answers[{ lessonId, exerciseId, answer }])",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "results + correct/total/accuracy" },
+          "400": { description: "no_answers" },
+          "429": { description: "rate_limited" },
+        },
+      },
+    },
+    "/review/mistakes": {
+      get: {
+        tags: ["learning"],
+        summary: "Mistake notebook: due exercise-level SRS items (?limit=)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "items + due/total/graduated counts" } },
+      },
+    },
+    "/review/mistakes/check": {
+      post: {
+        tags: ["learning"],
+        summary: "Grade mistake review answers; applies SM-2 per exercise; capped XP",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "results + correct/total/accuracy/xpGain" }, "400": { description: "no_answers" } },
+      },
+    },
+    "/deep/calibration": {
+      get: {
+        tags: ["learning"],
+        summary: "Confidence calibration over last ?days= (default 30)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "buckets + overconfidence/underconfidence + tip" } },
+      },
+    },
+    "/deep/mastery-map/{slug}": {
+      get: {
+        tags: ["learning"],
+        summary: "Per-unit mastery map with retention for a course",
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
+        responses: { "200": { description: "units[] + totals" }, "404": { description: "not_found" } },
+      },
+    },
+    "/deep/explain-feedback": {
+      post: {
+        tags: ["learning"],
+        summary: "Rubric grade + tutor feedback for an explain-in-your-own-words answer",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "correct/partial/matched/missing/feedback/source" }, "404": { description: "not_found" } },
+      },
+    },
     "/metrics": {
       get: {
         tags: ["ops"],

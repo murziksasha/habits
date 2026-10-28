@@ -9,7 +9,7 @@
 
 ## Trial expiry
 
-Removed. Session load does not downgrade a plan, and `plan_expires_at` is dropped (`0032_drop_billing`).
+Removed. Session load does not downgrade a plan, and `plan_expires_at` is dropped (`0033_drop_billing`).
 
 ## Admin audit UI
 
