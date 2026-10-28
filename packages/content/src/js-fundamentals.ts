@@ -9,6 +9,7 @@ import {
   mcq,
   unit,
 } from "./builders.js";
+import { jsClosuresEventLoopUnit } from "./deep-units.js";
 
 const values = unit("values", "Values & types", "Values & types", [
   lesson(
@@ -508,9 +509,9 @@ export const jsFundamentalsContent: CourseContent = {
   titleUk: "JavaScript: fundamentals",
   titleEn: "JavaScript Fundamentals",
   descriptionUk:
-    "Глибокий JS: типи, operators, functions, arrays, objects, async/await, DOM, modules, errors/prototypes + контрольні.",
+    "Глибокий JS: типи, operators, functions, arrays, objects, async/await, DOM, modules, errors/prototypes, замикання й event loop + контрольні.",
   descriptionEn:
-    "Deep JS: types, operators, functions, arrays, objects, async/await, DOM, modules, errors/prototypes + unit exams.",
+    "Deep JS: types, operators, functions, arrays, objects, async/await, DOM, modules, errors/prototypes, closures & event loop + unit exams.",
   icon: "⚡",
   color: "#F7DF1E",
   units: [
@@ -523,6 +524,7 @@ export const jsFundamentalsContent: CourseContent = {
     domU,
     modulesU,
     errorsProto,
+    jsClosuresEventLoopUnit,
     capstone,
   ],
 };

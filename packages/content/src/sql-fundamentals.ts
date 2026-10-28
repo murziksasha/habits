@@ -25,6 +25,7 @@ import {
   singleRowUnit,
   subqueriesUnit,
 } from "./sql-oracle-track.js";
+import { sqlCtePerformanceUnit } from "./deep-units.js";
 
 const selectU = unit("select", "SELECT і модель", "SELECT and the model", [
   ...selectIntroLessons,
@@ -570,6 +571,7 @@ export const sqlFundamentalsContent: CourseContent = {
     schemaUnit,
     accessUnit,
     windowsU,
+    sqlCtePerformanceUnit,
     capstone,
   ],
 };
