@@ -241,6 +241,7 @@ export function exerciseTypeLabel(
     chess_lesson: ["Шаховий урок", "Chess lesson"],
     video: ["Відео", "Video"],
     concept: ["Теорія", "Concept"],
+    explain: ["Поясніть своїми словами", "Explain in your own words"],
   };
   const pair = type ? map[type] : undefined;
   if (!pair) return type || (en ? "Exercise" : "Вправа");
