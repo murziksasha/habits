@@ -259,6 +259,10 @@ Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, 
 169. **Deep hubs + content:** TS Pick/Required free; QA bug-report practice free; CSS flex gap/center free; DeepCourseHub path bar, unit next, exams ready, sticky continue; review leech-first sort + sticky; profile SP banner → #build
 170. **Retention surfaces:** chess opposition free + EN endgame; logic deduction intro free; HTML semantics intro free; flashcards meetings deck + programming map/filter/SQL; quests claim-all + metric deep-links; search quick links; certificates empty CTAs; playground sticky run + next challenge
 
+### Deep learning pack (SPEC 90–91)
+
+171. **Learning depth:** `concept` exercise type (theory + key points + code + self-check) · forgetting-curve memory model (`retentionPct` / `dueInDays` on `/review`) · interleaved mixed practice (`/review/mixed`, `GET /review/mixed`, `POST /review/mixed/check`) · 14 new lessons: JS closures/this/event loop, TS conditional/mapped/template-literal types, SQL CTE/indexes/EXPLAIN, English learning skills. Backlog (confidence ratings, self-explanation, exercise-level SRS, mastery map) in SPEC/90.
+
 **What not to build next:** native store apps, full multi-worker judge pool, trained ML ranking, new deep track without CONTENT-DX + IA justification, extra primary nav slots.
 
 ### P2 strategic foundations (scaffolds live — see SPEC/P2-STRATEGIC.md)

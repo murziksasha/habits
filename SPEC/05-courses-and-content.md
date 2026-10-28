@@ -65,6 +65,9 @@ CMS-owned courses are not overwritten by seed. See SPEC 72 for publish gates.
 | `code_order` | ordered lines | Programming |
 | `code_project` | multi-file + substring checks | Programming minis |
 | `code_run` | client run (C++ via JSCPP) + source needles | embedded_cpp labs, playground-style |
+| `video` | watch ratio ≥ `minWatchRatio` | MDX `videoUrl` lessons |
+| `code_judge` | judge result `{ ok }` / tests ratio | Judge-enabled drills |
+| `concept` | acknowledged, or optional `check` MCQ | Theory card first in deep lessons (SPEC 91) |
 
 See also [23-programming-track.md](./23-programming-track.md) and SPECs 33–54 (playground, minis, race).
 

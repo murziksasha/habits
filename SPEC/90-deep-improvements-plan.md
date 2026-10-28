@@ -110,3 +110,17 @@ status. Steps marked **Done** shipped in this branch; **Later** is the backlog.
 
 ### Phase H — Docs (final step)
 30. **Done** — Update docs: `SPEC/91-deep-learning-features.md` (feature spec), `SPEC/README.md` index, `SPEC/CURRENT.md`, `SPEC/CONTENT-DX.md` (concept builder), `README.md` (features table + `pnpm run ci` note), this plan's statuses.
+
+---
+
+## 4. Results (verification on this branch)
+
+| Check | Result |
+|-------|--------|
+| `pnpm run test:unit` (8 packages) | ✅ all pass — shared 175 tests (+16 new), content 43 (+3 new), api 97, web 10 |
+| `pnpm run typecheck` | ✅ |
+| `pnpm run lint` | ✅ |
+| `pnpm --filter @eduforge/web build` | ✅ (`/review/mixed` route built) |
+| API integration (Postgres) / e2e | ⏭ not run locally (needs Postgres + Redis stack); CI does not trigger on `deepImprovements` PRs (see D9) |
+
+New content: 14 lessons / 59 exercises across 4 courses (details in SPEC/91).
