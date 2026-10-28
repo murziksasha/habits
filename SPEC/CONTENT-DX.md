@@ -39,6 +39,10 @@ How to add courses and lessons without fighting the monorepo.
 
 Canonical list: `@eduforge/shared` `EXERCISE_TYPES` / `packages/content` integrity tests.
 
+### Concept cards (deep lessons)
+
+Start every new deep lesson with a `concept(...)` card from `builders.ts` (theory paragraphs, key points, optional code, optional self-check), then 3+ retrieval exercises. Keep concept cards out of exams. Example and fields: [SPEC/91](./91-deep-learning-features.md). New deep units live in `packages/content/src/deep-units.ts`.
+
 Grading: `@eduforge/shared` `gradeExercise` (API + client soft-grade).
 
 ## EN gate

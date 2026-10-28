@@ -1,4 +1,5 @@
 import type { CourseContent } from "./types.js";
+import { englishLearningSkillsUnit } from "./deep-units.js";
 
 export const englishContent: CourseContent = {
   slug: "english",
@@ -1113,5 +1114,6 @@ export const englishContent: CourseContent = {
         },
       ],
     },
+    englishLearningSkillsUnit,
   ],
 };

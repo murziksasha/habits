@@ -455,4 +455,5 @@ export type ExerciseType =
   | "code_project"
   | "code_run"
   | "video"
-  | "code_judge";
+  | "code_judge"
+  | "concept";

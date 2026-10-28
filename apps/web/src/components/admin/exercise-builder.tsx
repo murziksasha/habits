@@ -29,6 +29,7 @@ const TYPES = [
   "chess_puzzle",
   "chess_lesson",
   "code_project",
+  "concept",
 ] as const;
 
 function newId() {
@@ -157,6 +158,17 @@ function blankExercise(type: string): BuilderExercise {
         promptUk: "Шаховий урок",
         fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         notesUk: "Початкова позиція.",
+      };
+    case "concept":
+      return {
+        id,
+        type,
+        promptUk: "Теорія",
+        promptEn: "Concept",
+        bodyUk: "Пояснення концепції.",
+        bodyEn: "Concept explanation.",
+        keyPointsUk: ["Головна думка"],
+        keyPointsEn: ["Key idea"],
       };
     case "code_project":
       return {

@@ -95,6 +95,8 @@ This folder is the **source of truth** for the EduForge educational SaaS monorep
 | 87 | [Studio classroom visual](./87-studio-classroom-admin-visual.md) | Node Studio, live class, admin polish, visual baselines |
 | 88 | [Instance backup](./88-instance-backup.md) | Admin `.gz` handoff of the whole school between PCs |
 | 89 | [Unverified lifecycle](./89-unverified-lifecycle.md) | Inactive after 7 days, delete after 30 if email is unconfirmed |
+| 90 | [Deep improvements plan](./90-deep-improvements-plan.md) | Analysis, findings, step-by-step plan + backlog for learning depth |
+| 91 | [Deep-learning features](./91-deep-learning-features.md) | Concept cards, forgetting-curve memory model, interleaved mixed practice, new deep lessons |
 | — | **[CURRENT.md](./CURRENT.md)** | **Active product surface freeze, IA, improvement checklist** |
 | — | [CONTENT-DX.md](./CONTENT-DX.md) | Content authoring DX + EN gate |
 | — | [CRON.md](./CRON.md) | Digest / re-engage cron runbook |
@@ -102,9 +104,9 @@ This folder is the **source of truth** for the EduForge educational SaaS monorep
 | — | [OPS.md](./OPS.md) | Backups, multi-instance, flags, incidents |
 | — | [P2-STRATEGIC.md](./P2-STRATEGIC.md) | Judge, OTel, MDX, video, classroom, mobile foundations |
 
-> **Note:** Specs 01–89 are historical feature logs. Day-to-day product truth is **[CURRENT.md](./CURRENT.md)**.
+> **Note:** Specs 01–91 are historical feature logs. Day-to-day product truth is **[CURRENT.md](./CURRENT.md)**.
 
-**Status:** SPECs **01–89** + improvement waves through **142** (full RSC strangler, character talents, friend gifts, course expansion). Active surface: **[CURRENT.md](./CURRENT.md)**. Content: **[CONTENT-DX.md](./CONTENT-DX.md)**. Cron: **[CRON.md](./CRON.md)**. Foundations: **[P2-STRATEGIC.md](./P2-STRATEGIC.md)**.
+**Status:** SPECs **01–91** + improvement waves through **142** (full RSC strangler, character talents, friend gifts, course expansion). Active surface: **[CURRENT.md](./CURRENT.md)**. Content: **[CONTENT-DX.md](./CONTENT-DX.md)**. Cron: **[CRON.md](./CRON.md)**. Foundations: **[P2-STRATEGIC.md](./P2-STRATEGIC.md)**.
 
 ## Product name
 

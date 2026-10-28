@@ -26,6 +26,9 @@ type Item = {
   masteryPct: number;
   attempts: number;
   leech?: boolean;
+  /** Forgetting-curve estimate 0..100 (null when lesson not completed yet) */
+  retentionPct?: number | null;
+  dueInDays?: number | null;
   reasons?: ReviewReason[];
   primaryReasonUk?: string;
   primaryReasonEn?: string;
@@ -147,6 +150,22 @@ function ReviewBody() {
         </section>
       )}
 
+      {stats.total > 0 && (
+        <section className="card flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-black">🔀 {locale === "en" ? "Mixed practice" : "Змішана практика"}</p>
+            <p className="text-sm font-bold text-ink-muted">
+              {locale === "en"
+                ? "10 interleaved questions from completed lessons — weak ones more often."
+                : "10 питань вперемішку з пройдених уроків — слабкі частіше."}
+            </p>
+          </div>
+          <Link href="/review/mixed" className="btn-secondary shrink-0 !py-2 text-sm">
+            {locale === "en" ? "Start mix" : "Почати мікс"} →
+          </Link>
+        </section>
+      )}
+
       {fromExam && (
         <div className="card border-grape/40 bg-grape/10 space-y-2">
           <p className="text-sm font-black text-grape">
@@ -217,6 +236,25 @@ function ReviewBody() {
                 <p className="text-sm font-bold">
                   {t.review.mastery}: {it.masteryPct}% · attempts: {it.attempts}
                 </p>
+                {it.retentionPct != null && (
+                  <p
+                    className="text-xs font-bold text-ink-muted"
+                    title={
+                      locale === "en"
+                        ? "Estimated chance you still remember this lesson (forgetting curve)"
+                        : "Оцінка ймовірності, що ви ще памʼятаєте урок (крива забування)"
+                    }
+                  >
+                    🧠 {locale === "en" ? "Memory" : "Памʼять"} ≈ {it.retentionPct}%
+                    {it.dueInDays != null && it.dueInDays > 0
+                      ? locale === "en"
+                        ? ` · review in ~${Math.ceil(it.dueInDays)}d`
+                        : ` · повторити через ~${Math.ceil(it.dueInDays)} дн.`
+                      : locale === "en"
+                        ? " · review now"
+                        : " · повторити зараз"}
+                  </p>
+                )}
                 {(it.primaryReasonUk || it.reasons?.[0]) && (
                   <p className="mt-1 text-xs font-bold text-ink-muted">
                     {locale === "en" ? "Why:" : "Чому:"}{" "}
