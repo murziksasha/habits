@@ -26,6 +26,9 @@ type Item = {
   masteryPct: number;
   attempts: number;
   leech?: boolean;
+  /** Forgetting-curve estimate 0..100 (null when lesson not completed yet) */
+  retentionPct?: number | null;
+  dueInDays?: number | null;
   reasons?: ReviewReason[];
   primaryReasonUk?: string;
   primaryReasonEn?: string;
@@ -217,6 +220,25 @@ function ReviewBody() {
                 <p className="text-sm font-bold">
                   {t.review.mastery}: {it.masteryPct}% · attempts: {it.attempts}
                 </p>
+                {it.retentionPct != null && (
+                  <p
+                    className="text-xs font-bold text-ink-muted"
+                    title={
+                      locale === "en"
+                        ? "Estimated chance you still remember this lesson (forgetting curve)"
+                        : "Оцінка ймовірності, що ви ще памʼятаєте урок (крива забування)"
+                    }
+                  >
+                    🧠 {locale === "en" ? "Memory" : "Памʼять"} ≈ {it.retentionPct}%
+                    {it.dueInDays != null && it.dueInDays > 0
+                      ? locale === "en"
+                        ? ` · review in ~${Math.ceil(it.dueInDays)}d`
+                        : ` · повторити через ~${Math.ceil(it.dueInDays)} дн.`
+                      : locale === "en"
+                        ? " · review now"
+                        : " · повторити зараз"}
+                  </p>
+                )}
                 {(it.primaryReasonUk || it.reasons?.[0]) && (
                   <p className="mt-1 text-xs font-bold text-ink-muted">
                     {locale === "en" ? "Why:" : "Чому:"}{" "}

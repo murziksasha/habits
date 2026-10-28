@@ -3,6 +3,7 @@ import { and, asc, desc, eq, lt, or, sql } from "drizzle-orm";
 import { activityEvents, courses, lessons, userLessonProgress } from "@eduforge/db";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
+import { retentionSummary } from "@eduforge/shared";
 import { buildReviewReasons } from "../services/review-queue.js";
 
 type Vars = { user: AuthedUser };
@@ -74,6 +75,7 @@ reviewRoutes.get("/", authMiddleware, async (c) => {
     }
   }
 
+  const now = new Date();
   const items = rows.map((r) => {
     const leech = (r.attempts ?? 0) >= 4 && (r.bestScore ?? 0) < 0.7;
     const examCourseMatch = Boolean(
@@ -87,8 +89,22 @@ reviewRoutes.get("/", authMiddleware, async (c) => {
       leech,
       examCourseMatch,
     });
+    // Forgetting-curve estimate (SPEC 91): only meaningful once the lesson was completed
+    const memory = r.completedAt
+      ? retentionSummary(
+          {
+            bestScore: r.bestScore ?? 0,
+            attempts: r.attempts ?? 0,
+            lastPracticedAt: r.completedAt,
+          },
+          now,
+        )
+      : null;
     return {
       ...r,
+      retentionPct: memory?.retentionPct ?? null,
+      stabilityDays: memory?.stabilityDays ?? null,
+      dueInDays: memory?.dueInDays ?? null,
       masteryPct: Math.round((r.bestScore ?? 0) * 100),
       needsReview: true,
       leech,
