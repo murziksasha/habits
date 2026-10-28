@@ -10,6 +10,7 @@ import {
   codeRead,
   concept,
   exam,
+  explain,
   lesson,
   matchEx,
   mcq,
@@ -89,6 +90,23 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
           "Заміна HTTP-запитів",
         ],
         0,
+      ),
+      explain(
+        "jsf-cl-x1",
+        "Поясніть своїми словами: що таке замикання і чому лічильник counter() памʼятає n?",
+        "Explain in your own words: what is a closure and why does counter() remember n?",
+        [
+          { labelUk: "внутрішня функція", labelEn: "inner function", anyOf: ["функці", "function", "стрілк", "arrow"] },
+          { labelUk: "зовнішня змінна / оточення", labelEn: "outer variable / environment", anyOf: ["зовнішн", "outer", "оточенн", "environment", "scope", "област", "лексичн", "lexical"] },
+          { labelUk: "після завершення зовнішньої функції", labelEn: "after the outer function returns", anyOf: ["після", "after", "return", "заверш", "finished"] },
+        ],
+        {
+          minWords: 12,
+          sampleAnswerUk:
+            "Замикання — це внутрішня функція, яка зберігає доступ до змінних зовнішньої функції (її лексичного оточення) навіть після того, як зовнішня функція завершилась. Тому стрілка з counter() бачить ту саму n і збільшує її.",
+          sampleAnswerEn:
+            "A closure is an inner function that keeps access to the outer function's variables (its lexical environment) even after the outer function has returned. That is why the arrow from counter() still sees the same n and increments it.",
+        },
       ),
     ]),
     lesson("jsf-this", "this і bind", "this & bind", 3, false, [
@@ -196,6 +214,23 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
         ],
         0,
       ),
+      explain(
+        "jsf-cl-x2",
+        "Поясніть своїми словами, чому Promise.then спрацьовує раніше за setTimeout(..., 0).",
+        "Explain in your own words why Promise.then runs before setTimeout(..., 0).",
+        [
+          { labelUk: "мікрозадачі", labelEn: "microtasks", anyOf: ["мікро", "micro"] },
+          { labelUk: "макрозадачі / таймери", labelEn: "macrotasks / timers", anyOf: ["макро", "macro", "таймер", "timer", "settimeout", "task queue", "черг"] },
+          { labelUk: "порожній стек / event loop", labelEn: "empty stack / event loop", anyOf: ["стек", "stack", "event loop", "цикл подій", "loop"] },
+        ],
+        {
+          minWords: 12,
+          sampleAnswerUk:
+            "Коли стек викликів порожній, event loop спочатку виконує всі мікрозадачі (Promise.then), і лише потім бере наступну макрозадачу з черги таймерів (setTimeout). Тому then завжди раніше.",
+          sampleAnswerEn:
+            "When the call stack is empty the event loop first drains all microtasks (Promise.then) and only then takes the next macrotask from the timer queue (setTimeout), so then always runs first.",
+        },
+      ),
     ]),
     exam("jsf-closures-exam", "Контрольна: замикання й event loop", "Exam: closures & event loop", 4, [
       mcq(
@@ -292,6 +327,23 @@ export const tsAdvancedTypesUnit: UnitContent = unit(
           "умова виконується лише в JS",
         ],
         0,
+      ),
+      explain(
+        "tsc-adv-x1",
+        "Поясніть своїми словами, як працює infer в умовному типі Awaited2<T>.",
+        "Explain in your own words how infer works in the conditional type Awaited2<T>.",
+        [
+          { labelUk: "умова extends", labelEn: "extends condition", anyOf: ["extends", "умов", "condition", "сумісн", "assignab"] },
+          { labelUk: "infer витягує тип", labelEn: "infer extracts a type", anyOf: ["infer", "витяг", "extract", "вивод"] },
+          { labelUk: "інакше повертає T", labelEn: "otherwise returns T", anyOf: ["інакше", "otherwise", "else", ": t", "сам t", "itself"] },
+        ],
+        {
+          minWords: 12,
+          sampleAnswerUk:
+            "Awaited2 перевіряє умову T extends Promise<infer V>: якщо T — проміс, infer витягує тип значення V і повертає його, інакше повертає сам T.",
+          sampleAnswerEn:
+            "Awaited2 checks T extends Promise<infer V>: if T is a promise, infer extracts the value type V and returns it; otherwise it returns T itself.",
+        },
       ),
     ]),
     lesson("tsc-mapped", "Mapped types", "Mapped types", 4, false, [
@@ -497,6 +549,23 @@ export const sqlCtePerformanceUnit: UnitContent = unit(
         ["повільніші INSERT/UPDATE і більше місця", "повільніший SELECT завжди", "втрата даних", "неможливість JOIN"],
         0,
       ),
+      explain(
+        "sqlf-cte-x1",
+        "Поясніть своїми словами, коли індекс прискорює запит і чому не варто індексувати все.",
+        "Explain in your own words when an index speeds up a query and why you should not index everything.",
+        [
+          { labelUk: "пошук без повного сканування", labelEn: "lookup without a full scan", anyOf: ["скан", "scan", "log", "швидш", "faster", "пошук", "lookup", "b-tree", "btree"] },
+          { labelUk: "колонки WHERE / JOIN / ORDER BY", labelEn: "WHERE / JOIN / ORDER BY columns", anyOf: ["where", "join", "order by", "фільтр", "filter"] },
+          { labelUk: "ціна запису", labelEn: "write cost", anyOf: ["insert", "update", "запис", "write", "місц", "space", "повільн", "slower"] },
+        ],
+        {
+          minWords: 15,
+          sampleAnswerUk:
+            "Індекс (B-tree) дозволяє знайти рядки без повного сканування таблиці, тому корисний для колонок у WHERE, JOIN і ORDER BY. Але кожен індекс займає місце і робить INSERT/UPDATE повільнішими, тому індексують лише потрібне.",
+          sampleAnswerEn:
+            "An index (B-tree) finds rows without a full table scan, so it helps columns used in WHERE, JOIN and ORDER BY. But every index takes space and makes INSERT/UPDATE slower, so you index only what queries need.",
+        },
+      ),
     ]),
     lesson("sqlf-explain", "EXPLAIN", "EXPLAIN", 4, false, [
       concept(
@@ -618,6 +687,22 @@ export const englishLearningSkillsUnit: UnitContent = unit(
         explanationUk: "teach — навчати когось (taught); learn — вчитися самому.",
         explanationEn: "teach someone (taught); learn yourself.",
       },
+      explain(
+        "en-ls-x1",
+        "Describe in English how you study (at least 10 words). Use: study / practise / review.",
+        "Describe in English how you study (at least 10 words). Use: study / practise / review.",
+        [
+          { labelUk: "study", labelEn: "study", anyOf: ["study", "studied", "learn"] },
+          { labelUk: "practise / practice", labelEn: "practise / practice", anyOf: ["practis", "practic"] },
+          { labelUk: "review / revise", labelEn: "review / revise", anyOf: ["review", "revis", "repeat"] },
+        ],
+        {
+          minWords: 10,
+          passRatio: 0.66,
+          sampleAnswerUk: "I study English every morning, practise speaking with a friend and review new words in the evening.",
+          sampleAnswerEn: "I study English every morning, practise speaking with a friend and review new words in the evening.",
+        },
+      ),
     ]),
     lesson("study-phrasal", "Фразові дієслова для навчання", "Phrasal verbs for studying", 3, false, [
       concept(

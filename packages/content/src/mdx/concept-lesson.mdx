@@ -1,0 +1,28 @@
+---
+slug: mdx-closures-concept
+titleUk: Замикання (MDX)
+titleEn: Closures (MDX)
+difficulty: 3
+---
+
+<!-- concept titleUk="Що таке замикання" titleEn="What a closure is" -->
+::uk
+Замикання — це функція разом із лексичним оточенням, де її створили.
+
+Вона памʼятає зовнішні змінні навіть після завершення зовнішньої функції.
+::en
+A closure is a function bundled with the lexical environment it was created in.
+
+It remembers outer variables even after the outer function returns.
+::points-uk Область — за місцем оголошення | Кожен виклик — нове оточення
+::points-en Scope is where it is declared | Each call gets a new environment
+::check q="Що поверне третій next()?" qEn="What does the third next() return?" options="3|1|undefined" answer=0
+
+```js
+function counter() { let n = 0; return () => ++n; }
+```
+<!-- /concept -->
+
+<!-- explain q="Поясніть своїми словами, що таке замикання" qEn="Explain in your own words what a closure is" ideas="функція|function|функці,function;зовнішні змінні|outer variables|зовнішн,outer,lexical,лексичн;після завершення|after the outer returns|після,after,return" minWords=12 -->
+
+<!-- mcq q="Closures are often used for:" options="Private state|CSS|SQL" answer=0 -->

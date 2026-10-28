@@ -228,6 +228,18 @@ export type Exercise =
     }
   | {
       id: string;
+      /** Self-explanation, graded by keyword rubric (+ optional tutor feedback) */
+      type: "explain";
+      promptUk: string;
+      promptEn?: string;
+      keyIdeas: { labelUk: string; labelEn?: string; anyOf: string[] }[];
+      minWords?: number;
+      passRatio?: number;
+      sampleAnswerUk?: string;
+      sampleAnswerEn?: string;
+    }
+  | {
+      id: string;
       type: "code_judge";
       promptUk: string;
       promptEn?: string;

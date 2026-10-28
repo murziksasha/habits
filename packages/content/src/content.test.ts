@@ -87,6 +87,7 @@ const EXERCISE_TYPES = new Set([
   "code_run",
   "video",
   "concept",
+  "explain",
 ]);
 
 function collectExercises(course: CourseContent): Exercise[] {
@@ -611,5 +612,25 @@ describe("deep-learning units (SPEC 90/91)", () => {
         }
       }
     }
+  });
+});
+
+describe("explain exercises (SPEC 92)", async () => {
+  const { gradeExercise } = await import("@eduforge/shared");
+  it("sample answers pass their own rubric; empty answers fail", () => {
+    let n = 0;
+    for (const c of courses) {
+      for (const ex of collectExercises(c)) {
+        if (ex.type !== "explain") continue;
+        n += 1;
+        expect(ex.keyIdeas.length, ex.id).toBeGreaterThan(0);
+        for (const sample of [ex.sampleAnswerUk, ex.sampleAnswerEn]) {
+          if (!sample) continue;
+          expect(gradeExercise(ex, { text: sample }).correct, `${ex.id}: ${sample}`).toBe(true);
+        }
+        expect(gradeExercise(ex, { text: "" }).correct).toBe(false);
+      }
+    }
+    expect(n).toBeGreaterThanOrEqual(5);
   });
 });
