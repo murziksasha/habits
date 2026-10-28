@@ -144,8 +144,8 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
       ),
       codeFill(
         "jsf-cl-5",
-        "Зафіксуйте this",
-        "Bind this",
+        "Зафіксуйте this для обробника кліку.",
+        "Bind this for the click handler.",
         "javascript",
         "button.addEventListener('click', user.hi.___(user));",
         ["bind"],
@@ -242,14 +242,14 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
       ),
       codeOutputMcq(
         "jsf-cle-2",
-        "Вивід?",
-        "Output?",
+        "Який буде порядок виводу?",
+        "What is the output order?",
         "javascript",
         "Promise.resolve().then(() => console.log('p'));\nsetTimeout(() => console.log('t'));\nconsole.log('s');",
         ["s p t", "p s t", "t p s", "s t p"],
         0,
       ),
-      codeFill("jsf-cle-3", "Лексичний this", "Lexical this", "javascript", "const f = () ___ this;", ["=>"], true),
+      codeFill("jsf-cle-3", "Допишіть стрілку з лексичним this.", "Complete the arrow with lexical this.", "javascript", "const f = () ___ this;", ["=>"], true),
       mcq(
         "jsf-cle-4",
         "Мікрозадачі виконуються:",

@@ -634,3 +634,18 @@ describe("explain exercises (SPEC 92)", async () => {
     expect(n).toBeGreaterThanOrEqual(5);
   });
 });
+
+describe("js_fundamentals prompt quality (SPEC 92)", () => {
+  it("exercises have distinct, descriptive UK and EN prompts", () => {
+    for (const u of jsFundamentalsContent.units) {
+      for (const l of u.lessons) {
+        for (const ex of l.exercises) {
+          if (ex.type === "code_project" || ex.type === "concept" || ex.type === "explain") continue;
+          expect(ex.promptUk, ex.id).not.toBe(ex.promptEn);
+          expect(ex.promptUk.length, ex.id).toBeGreaterThanOrEqual(12);
+          expect((ex.promptEn ?? "").length, ex.id).toBeGreaterThanOrEqual(12);
+        }
+      }
+    }
+  });
+});
