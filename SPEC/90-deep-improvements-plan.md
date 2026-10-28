@@ -4,7 +4,7 @@ Branch: `feature/deep-improvements` → merged into `deepImprovements`.
 
 This document is the analysis + step-by-step plan for making EduForge lessons teach
 *deeper* (understanding and long-term retention), not only quiz recall. Each step has a
-status. Steps marked **Done** shipped in this branch; **Later** is the backlog.
+status. Steps marked **Done** shipped in this branch; **Later** was the backlog, delivered in round 2 (SPEC 92).
 
 ---
 
@@ -54,12 +54,12 @@ status. Steps marked **Done** shipped in this branch; **Later** is the backlog.
 | D2 | **Memory-strength model** — `estimateRetention()` (exponential forgetting curve, stability grows with mastery and successful attempts). Review items expose `retentionPct`, `stabilityDays`, `dueInDays`. | Makes "when to review" explicit (F3). | Done |
 | D3 | **Interleaved mixed practice** — `GET /review/mixed` builds a mixed retrieval set from completed lessons (weak lessons weighted higher, round-robin across lessons/units, seeded shuffle); `POST /review/mixed/check` grades server-side; `/review/mixed` UI. | Interleaving + retrieval practice (F4). | Done |
 | D4 | New lessons in JS, TypeScript, SQL, English — each starting with a concept card. | Fill depth gaps (F5). | Done |
-| D5 | Confidence rating (sure / unsure / guess) per answer + calibration chart. | Metacognition (F8). | Later |
-| D6 | Elaborative "explain in your own words" free-text step graded by tutor (SpaceXAI) with rubric. | Self-explanation effect. | Later |
-| D7 | Exercise-level SRS (mistake notebook): each wrong exercise becomes an SRS item reusing `srs.ts`. | Finer-grained review than lesson level. | Later |
-| D8 | Mastery map per unit (skill graph) using retention estimates. | Visibility of decay. | Later |
-| D9 | Add `deepImprovements` to CI `pull_request` branches. | Quality gate (F6). | Later |
-| D10 | Rewrite short/duplicated prompts in early JS lessons with real Ukrainian text (F2). | Clarity. | Later |
+| D5 | Confidence rating (sure / unsure / guess) per answer + calibration chart. | Metacognition (F8). | Done (SPEC 92) |
+| D6 | Elaborative "explain in your own words" free-text step graded by tutor (SpaceXAI) with rubric. | Self-explanation effect. | Done (SPEC 92) |
+| D7 | Exercise-level SRS (mistake notebook): each wrong exercise becomes an SRS item reusing `srs.ts`. | Finer-grained review than lesson level. | Done (SPEC 92) |
+| D8 | Mastery map per unit (skill graph) using retention estimates. | Visibility of decay. | Done (SPEC 92) |
+| D9 | Add `deepImprovements` to CI `pull_request` branches. | Quality gate (F6). | Done (SPEC 92) |
+| D10 | Rewrite short/duplicated prompts in early JS lessons with real Ukrainian text (F2). | Clarity. | Done (SPEC 92) |
 
 ---
 
@@ -100,13 +100,13 @@ status. Steps marked **Done** shipped in this branch; **Later** is the backlog.
 ### Phase F — Verification
 23. **Done** — Rebuild packages, `pnpm run test:unit`, `pnpm run typecheck`, `pnpm run lint`, web `next build`.
 
-### Phase G — Later (backlog)
-24. **Later** — D5 confidence rating + calibration (needs `exercise_attempts` table / migration).
-25. **Later** — D6 self-explanation step graded by tutor.
-26. **Later** — D7 exercise-level SRS mistake notebook (migration + `/review` tab).
-27. **Later** — D8 unit mastery map with retention heat colors.
-28. **Later** — D9 CI branch filter; D10 prompt rewrite pass; MDX authoring for concept cards (`<!-- concept -->` marker).
-29. **Later** — Admin exercise builder form for `concept` (currently editable as JSON).
+### Phase G — Round 2 (branch `feature/deep-improvements-2`)
+24. **Done** — D5 confidence rating + calibration (needs `exercise_attempts` table / migration).
+25. **Done** — D6 self-explanation step graded by tutor.
+26. **Done** — D7 exercise-level SRS mistake notebook (migration + `/review` tab).
+27. **Done** — D8 unit mastery map with retention heat colors.
+28. **Done** — D9 CI branch filter; D10 prompt rewrite pass; MDX authoring for concept cards (`<!-- concept -->` marker).
+29. **Done** — Admin exercise builder forms for `concept` and `explain`; XP for mixed practice / mistake review (capped).
 
 ### Phase H — Docs (final step)
 30. **Done** — Update docs: `SPEC/91-deep-learning-features.md` (feature spec), `SPEC/README.md` index, `SPEC/CURRENT.md`, `SPEC/CONTENT-DX.md` (concept builder), `README.md` (features table + `pnpm run ci` note), this plan's statuses.
@@ -124,3 +124,17 @@ status. Steps marked **Done** shipped in this branch; **Later** is the backlog.
 | API integration (Postgres) / e2e | ⏭ not run locally (needs Postgres + Redis stack); CI does not trigger on `deepImprovements` PRs (see D9) |
 
 New content: 14 lessons / 59 exercises across 4 courses (details in SPEC/91).
+
+---
+
+## 5. Round 2 results (`feature/deep-improvements-2`, SPEC 92)
+
+| Check | Result |
+|-------|--------|
+| `pnpm run test:unit` | ✅ shared 188, content 46, api 102, web 12, realtime 16, chess-core 13, judge 9, mobile 4 |
+| `pnpm run typecheck` / `pnpm run lint` | ✅ |
+| `pnpm --filter @eduforge/api build` / `@eduforge/web build` | ✅ (`/review/mistakes`, `/courses/[slug]/mastery` built) |
+| Migration `0032` | ✅ applied on PGlite locally; Postgres integration runs in GitHub CI (now triggered for `deepImprovements`) |
+| e2e | ⏭ e2e workflow does not target `deepImprovements` |
+
+Delivered: D5 confidence + calibration, D6 explain step (rubric + tutor feedback), D7 mistake notebook, D8 mastery map, D9 CI branches, D10 JS prompt rewrite, concept/explain MDX markers + admin forms, capped review XP.

@@ -34,6 +34,20 @@ type Item = {
   primaryReasonEn?: string;
 };
 
+type Calibration = {
+  rated: number;
+  score: number | null;
+  tipUk: string;
+  tipEn: string;
+  buckets: { level: number; code: string; count: number; accuracy: number | null; expected: number }[];
+};
+
+const CONF_LABEL: Record<string, [string, string]> = {
+  sure: ["🎯 Впевнений", "🎯 Sure"],
+  unsure: ["🤔 Не впевнений", "🤔 Unsure"],
+  guess: ["🎲 Вгадую", "🎲 Guessing"],
+};
+
 type ExamContext = {
   courseSlug?: string;
   wrongTypes?: string[];
@@ -51,6 +65,8 @@ function ReviewBody() {
   const [examContext, setExamContext] = useState<ExamContext | null>(null);
   const [dueCards, setDueCards] = useState(0);
   const [dataLoading, setDataLoading] = useState(true);
+  const [mistakes, setMistakes] = useState({ due: 0, total: 0, graduated: 0 });
+  const [calibration, setCalibration] = useState<Calibration | null>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -80,6 +96,12 @@ function ReviewBody() {
           setDueCards(n);
         })
         .catch(() => setDueCards(0)),
+      api<{ due: number; total: number; graduated: number }>("/review/mistakes?limit=1", { token })
+        .then((d) => setMistakes({ due: d.due ?? 0, total: d.total ?? 0, graduated: d.graduated ?? 0 }))
+        .catch(() => undefined),
+      api<Calibration>("/deep/calibration?days=30", { token })
+        .then(setCalibration)
+        .catch(() => setCalibration(null)),
     ]).finally(() => setDataLoading(false));
   }, [token, fromExam]);
 
@@ -147,6 +169,50 @@ function ReviewBody() {
               {dueCards > 0 ? ` (${dueCards})` : ""}
             </Link>
           </div>
+        </section>
+      )}
+
+      {mistakes.total > 0 && (
+        <section className="card flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-black">📓 {locale === "en" ? "Mistake notebook" : "Зошит помилок"}</p>
+            <p className="text-sm font-bold text-ink-muted">
+              {locale === "en"
+                ? `${mistakes.due} due · ${mistakes.total} tracked · ${mistakes.graduated} learned`
+                : `${mistakes.due} до повторення · ${mistakes.total} у зошиті · ${mistakes.graduated} засвоєно`}
+            </p>
+          </div>
+          <Link
+            href="/review/mistakes"
+            className={mistakes.due > 0 ? "btn-primary shrink-0 !py-2 text-sm" : "btn-secondary shrink-0 !py-2 text-sm"}
+          >
+            {locale === "en" ? "Review mistakes" : "Повторити помилки"} →
+          </Link>
+        </section>
+      )}
+
+      {calibration && calibration.rated > 0 && (
+        <section className="card space-y-2">
+          <p className="font-black">
+            🧭 {locale === "en" ? "Confidence calibration (30 days)" : "Калібровка впевненості (30 днів)"}
+            {calibration.score != null ? ` · ${Math.round(calibration.score * 100)}%` : ""}
+          </p>
+          <div className="grid gap-2 sm:grid-cols-3">
+            {[...calibration.buckets].reverse().map((b) => (
+              <div key={b.code} className="rounded-2xl bg-slate-100 p-3 dark:bg-slate-800">
+                <p className="text-xs font-bold text-ink-muted">
+                  {(CONF_LABEL[b.code] ?? [b.code, b.code])[locale === "en" ? 1 : 0]}
+                </p>
+                <p className="text-lg font-black">
+                  {b.accuracy != null ? `${Math.round(b.accuracy * 100)}%` : "—"}
+                  <span className="ml-1 text-xs font-bold text-ink-muted">({b.count})</span>
+                </p>
+              </div>
+            ))}
+          </div>
+          <p className="text-sm font-bold text-ink-muted">
+            {locale === "en" ? calibration.tipEn : calibration.tipUk}
+          </p>
         </section>
       )}
 

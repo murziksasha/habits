@@ -214,3 +214,27 @@ export function concept(
     check: extra?.check,
   };
 }
+
+/**
+ * "Explain in your own words" (self-explanation) — rubric of key ideas with stems.
+ * Graded deterministically; the tutor can add feedback (SPEC 92).
+ */
+export function explain(
+  id: string,
+  promptUk: string,
+  promptEn: string,
+  keyIdeas: { labelUk: string; labelEn: string; anyOf: string[] }[],
+  extra?: { minWords?: number; passRatio?: number; sampleAnswerUk?: string; sampleAnswerEn?: string },
+): Exercise {
+  return {
+    id,
+    type: "explain",
+    promptUk,
+    promptEn,
+    keyIdeas,
+    minWords: extra?.minWords ?? 12,
+    passRatio: extra?.passRatio,
+    sampleAnswerUk: extra?.sampleAnswerUk,
+    sampleAnswerEn: extra?.sampleAnswerEn,
+  };
+}

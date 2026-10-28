@@ -87,6 +87,7 @@ const EXERCISE_TYPES = new Set([
   "code_run",
   "video",
   "concept",
+  "explain",
 ]);
 
 function collectExercises(course: CourseContent): Exercise[] {
@@ -608,6 +609,41 @@ describe("deep-learning units (SPEC 90/91)", () => {
         }
         if (ex.type === "order_words") {
           expect([...ex.words].sort()).toEqual([...ex.correct].sort());
+        }
+      }
+    }
+  });
+});
+
+describe("explain exercises (SPEC 92)", async () => {
+  const { gradeExercise } = await import("@eduforge/shared");
+  it("sample answers pass their own rubric; empty answers fail", () => {
+    let n = 0;
+    for (const c of courses) {
+      for (const ex of collectExercises(c)) {
+        if (ex.type !== "explain") continue;
+        n += 1;
+        expect(ex.keyIdeas.length, ex.id).toBeGreaterThan(0);
+        for (const sample of [ex.sampleAnswerUk, ex.sampleAnswerEn]) {
+          if (!sample) continue;
+          expect(gradeExercise(ex, { text: sample }).correct, `${ex.id}: ${sample}`).toBe(true);
+        }
+        expect(gradeExercise(ex, { text: "" }).correct).toBe(false);
+      }
+    }
+    expect(n).toBeGreaterThanOrEqual(5);
+  });
+});
+
+describe("js_fundamentals prompt quality (SPEC 92)", () => {
+  it("exercises have distinct, descriptive UK and EN prompts", () => {
+    for (const u of jsFundamentalsContent.units) {
+      for (const l of u.lessons) {
+        for (const ex of l.exercises) {
+          if (ex.type === "code_project" || ex.type === "concept" || ex.type === "explain") continue;
+          expect(ex.promptUk, ex.id).not.toBe(ex.promptEn);
+          expect(ex.promptUk.length, ex.id).toBeGreaterThanOrEqual(12);
+          expect((ex.promptEn ?? "").length, ex.id).toBeGreaterThanOrEqual(12);
         }
       }
     }

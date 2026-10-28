@@ -43,5 +43,11 @@ export {
   FREEMIUM_FREE_LESSON_COUNT,
 } from "./locale-normalize.js";
 export { SKILL_PROMPT_EN_BY_ID } from "./skill-prompt-en.js";
-export { parseMdxLesson, mdxToExercises, mdxToLesson } from "./mdx/parse.js";
-export type { MdxFrontmatter, ParsedMdxLesson, MdxLessonSeed } from "./mdx/parse.js";
+export {
+  parseMdxLesson,
+  mdxToExercises,
+  mdxToLesson,
+  parseConceptBlock,
+  parseExplainIdeas,
+} from "./mdx/parse.js";
+export type { MdxFrontmatter, ParsedMdxLesson, MdxLessonSeed, MdxConcept } from "./mdx/parse.js";

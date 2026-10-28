@@ -68,6 +68,7 @@ CMS-owned courses are not overwritten by seed. See SPEC 72 for publish gates.
 | `video` | watch ratio ≥ `minWatchRatio` | MDX `videoUrl` lessons |
 | `code_judge` | judge result `{ ok }` / tests ratio | Judge-enabled drills |
 | `concept` | acknowledged, or optional `check` MCQ | Theory card first in deep lessons (SPEC 91) |
+| `explain` | rubric: ≥ `minWords` words and ≥ `passRatio` of `keyIdeas` stems | Self-explanation; optional tutor feedback (SPEC 92) |
 
 See also [23-programming-track.md](./23-programming-track.md) and SPECs 33–54 (playground, minis, race).
 
