@@ -28,6 +28,8 @@ export type SubmitSideEffectCtx = {
     partial?: number;
     meta?: Record<string, unknown>;
   }[];
+  /** Raw answers (wrongAttempts / confidence for exercise-level learning, SPEC 92) */
+  answers?: { exerciseId: string; wrongAttempts?: number; confidence?: number | null }[];
   streakDays?: number;
   globalLevel?: number;
   dailyGoalMet: boolean;
@@ -63,6 +65,24 @@ export async function runSubmitSideEffects(
   let newAchievements: SideEffectExtras["newAchievements"] = [];
   let certificate: SideEffectExtras["certificate"] = null;
   const { user } = ctx;
+
+  // Exercise attempts + mistake notebook (SPEC 92) — independent of pass/fail
+  await safe("exercise_learning", user.id, async () => {
+    const { recordExerciseLearning } = await import("./exercise-learning.js");
+    const byId = new Map((ctx.answers ?? []).map((a) => [a.exerciseId, a]));
+    await recordExerciseLearning(
+      user.id,
+      ctx.results.map((r) => ({
+        lessonId: ctx.lessonId,
+        exerciseId: r.exerciseId,
+        type: r.type ?? "",
+        correct: r.correct,
+        wrongAttempts: byId.get(r.exerciseId)?.wrongAttempts,
+        confidence: byId.get(r.exerciseId)?.confidence ?? null,
+      })),
+      "lesson",
+    );
+  });
 
   if (ctx.passed) {
     await safe("log_lesson_completed", user.id, async () => {

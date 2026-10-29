@@ -36,12 +36,6 @@ export async function verifyPassword(password: string, hash: string | null | und
   return bcrypt.compare(password, hash);
 }
 
-/** Return user as-is; access does not depend on plan and family children are not promoted to premium. */
-export async function withEffectivePlan<T extends { id: string; plan: string; planExpiresAt?: Date | null }>(
-  user: T,
-): Promise<T> {
-  return user;
-}
 
 export async function createSession(
   userId: string,
@@ -98,24 +92,6 @@ export async function getUserFromToken(token: string | undefined) {
   if (!row) return null;
   const user = await db.query.users.findFirst({ where: eq(users.id, row.userId) });
   if (!user) return null;
-  // Expire paid plans when planExpiresAt is in the past (trial / demo / family)
-  if (
-    (user.plan === "premium" || user.plan === "family") &&
-    user.planExpiresAt &&
-    user.planExpiresAt.getTime() < Date.now()
-  ) {
-    const [updated] = await db
-      .update(users)
-      .set({
-        plan: "free",
-        planExpiresAt: null,
-        familyMaxSeats: 0,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, user.id))
-      .returning();
-    return updated ?? { ...user, plan: "free" as const, planExpiresAt: null, familyMaxSeats: 0 };
-  }
   return user;
 }
 
@@ -139,10 +115,24 @@ async function promoteBearerToCookie(c: Context, token: string, fromCookie: bool
   if (sess) setSessionCookie(c, token, sess.expiresAt);
 }
 
+export function isAccountActive(user: { accountStatus?: string | null }) {
+  return (user.accountStatus ?? "active") !== "inactive";
+}
+
+/** Session user if a cookie or bearer is present. Does not enforce account status. */
+export async function userFromRequest(c: Context) {
+  const { token } = readSessionToken(c);
+  if (!token) return null;
+  return getUserFromToken(token);
+}
+
 export async function authMiddleware(c: Context, next: Next) {
   const { token, fromCookie } = readSessionToken(c);
   const user = await getUserFromToken(token);
   if (!user) return c.json({ error: "unauthorized" }, 401);
+  if (!isAccountActive(user) && c.req.path !== "/auth/logout") {
+    return c.json({ error: "account_inactive" }, 403);
+  }
   // Any user with TOTP must complete MFA for this session
   if (user.totpEnabled) {
     const { getSessionMfaVerified } = await import("./mfa.js");
@@ -160,7 +150,7 @@ export async function authMiddleware(c: Context, next: Next) {
       }
     }
   }
-  c.set("user", await withEffectivePlan(user));
+  c.set("user", user);
   c.set("sessionToken", token);
   await promoteBearerToCookie(c, token!, fromCookie);
   await next();
@@ -170,6 +160,7 @@ export async function adminMiddleware(c: Context, next: Next) {
   const { token, fromCookie } = readSessionToken(c);
   const user = await getUserFromToken(token);
   if (!user) return c.json({ error: "unauthorized" }, 401);
+  if (!isAccountActive(user)) return c.json({ error: "account_inactive" }, 403);
   if (user.role !== "admin") return c.json({ error: "forbidden" }, 403);
 
   const { adminMfaEnforce, getSessionMfaVerified } = await import("./mfa.js");
@@ -184,7 +175,7 @@ export async function adminMiddleware(c: Context, next: Next) {
     return c.json({ error: "mfa_enroll_required" }, 403);
   }
 
-  c.set("user", await withEffectivePlan(user));
+  c.set("user", user);
   c.set("sessionToken", token);
   await promoteBearerToCookie(c, token!, fromCookie);
   await next();
@@ -205,8 +196,8 @@ export async function requireStepUp(c: Context): Promise<Response | null> {
 export async function optionalAuth(c: Context, next: Next) {
   const { token, fromCookie } = readSessionToken(c);
   const user = await getUserFromToken(token);
-  if (user) {
-    c.set("user", await withEffectivePlan(user));
+  if (user && isAccountActive(user)) {
+    c.set("user", user);
     c.set("sessionToken", token);
     if (token) await promoteBearerToCookie(c, token, fromCookie);
   }

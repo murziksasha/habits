@@ -1,6 +1,6 @@
 /**
  * UX helpers — pure logic for persona nav, post-register routing,
- * contextual toolkit, freemium path labels, lesson miss titles.
+ * contextual toolkit, lesson progress labels, lesson miss titles.
  * Keep web/API free of duplicated decision trees.
  */
 
@@ -42,7 +42,6 @@ export const UX_ONBOARDING_KEYS = [
   "triedChess",
   "triedFlashcards",
   "viewedLeaderboard",
-  "exploredPricing",
   "dismissed",
 ] as const;
 
@@ -240,6 +239,8 @@ export function exerciseTypeLabel(
     chess_puzzle: ["Шахова задача", "Chess puzzle"],
     chess_lesson: ["Шаховий урок", "Chess lesson"],
     video: ["Відео", "Video"],
+    concept: ["Теорія", "Concept"],
+    explain: ["Поясніть своїми словами", "Explain in your own words"],
   };
   const pair = type ? map[type] : undefined;
   if (!pair) return type || (en ? "Exercise" : "Вправа");
@@ -249,17 +250,13 @@ export function exerciseTypeLabel(
 export function freemiumPathLabel(opts: {
   freeCompleted: number;
   freeLessonCount: number;
-  isPremium: boolean;
   locale?: "uk" | "en";
 }): string {
-  if (opts.isPremium) {
-    return opts.locale === "en" ? "Premium · all unlocked" : "Premium · усе відкрито";
-  }
   const left = Math.max(0, opts.freeLessonCount - opts.freeCompleted);
   if (opts.locale === "en") {
-    return `${opts.freeCompleted}/${opts.freeLessonCount} free · ${left} left`;
+    return `${opts.freeCompleted}/${opts.freeLessonCount} · ${left} left`;
   }
-  return `${opts.freeCompleted}/${opts.freeLessonCount} free · лишилось ${left}`;
+  return `${opts.freeCompleted}/${opts.freeLessonCount} · лишилось ${left}`;
 }
 
 /** Static discovery tools for ⌘K / search hub (no network). */
@@ -349,13 +346,6 @@ export function discoveryTools(): {
       group: "toolkit",
     },
     {
-      href: "/pricing",
-      titleUk: "Тарифи",
-      titleEn: "Pricing",
-      keywords: "premium pricing plan",
-      group: "account",
-    },
-    {
       href: "/parents",
       titleUk: "Батьки",
       titleEn: "Parents",
@@ -372,7 +362,7 @@ export function discoveryTools(): {
     {
       href: "/family",
       titleUk: "Сімʼя",
-      titleEn: "Family plan",
+      titleEn: "Family group",
       keywords: "family seats",
       group: "school",
     },
@@ -567,7 +557,7 @@ export function exerciseExplanation(
 
 /**
  * Approx minutes until next heart regen given last update time.
- * Returns 0 if full / paid / unknown.
+ * Returns 0 when the heart stack is already full.
  */
 export function minutesUntilHeartRegen(opts: {
   hearts: number;
@@ -576,7 +566,7 @@ export function minutesUntilHeartRegen(opts: {
   regenMinutes: number;
   now?: Date;
 }): number {
-  if (opts.hearts >= opts.maxHearts || opts.maxHearts >= 900) return 0;
+  if (opts.hearts >= opts.maxHearts) return 0;
   if (!opts.heartsUpdatedAt || opts.regenMinutes <= 0) return opts.regenMinutes;
   const updated = new Date(opts.heartsUpdatedAt).getTime();
   const now = (opts.now ?? new Date()).getTime();

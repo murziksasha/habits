@@ -65,20 +65,20 @@ CMS-owned courses are not overwritten by seed. See SPEC 72 for publish gates.
 | `code_order` | ordered lines | Programming |
 | `code_project` | multi-file + substring checks | Programming minis |
 | `code_run` | client run (C++ via JSCPP) + source needles | embedded_cpp labs, playground-style |
+| `video` | watch ratio ≥ `minWatchRatio` | MDX `videoUrl` lessons |
+| `code_judge` | judge result `{ ok }` / tests ratio | Judge-enabled drills |
+| `concept` | acknowledged, or optional `check` MCQ | Theory card first in deep lessons (SPEC 91) |
+| `explain` | rubric: ≥ `minWords` words and ≥ `passRatio` of `keyIdeas` stems | Self-explanation; optional tutor feedback (SPEC 92) |
 
 See also [23-programming-track.md](./23-programming-track.md) and SPECs 33–54 (playground, minis, race).
 
 Normalization for text answers: trim, lowercase, strip trailing punctuation, collapse spaces.
 
-## Freemium access
+## Access
 
-A lesson is accessible if:
+Every lesson is open to every account. `lesson.isFree` is leftover content metadata and does not lock the player.
 
-- `lesson.isFree === true`, **or**  
-- user plan is `premium`, **or**  
-- lesson index in course (sorted by unit order then lesson order) `< FREE_LESSONS_PER_COURSE` (5)
-
-Hearts gate: free users with 0 hearts cannot open/submit lessons.
+Hearts are a shared practice counter (5, then regen). Running out of hearts does not block opening or submitting a lesson.
 
 ## Default admin seed
 
@@ -86,4 +86,4 @@ After seed:
 
 - Email: `admin@eduforge.ua` (override `ADMIN_EMAIL`)  
 - Password: `admin12345` (override `ADMIN_PASSWORD`)  
-- Role: `admin`, plan: `premium`  
+- Role: `admin`, plan: `free`  

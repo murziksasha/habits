@@ -26,7 +26,7 @@ Russian is **not** used in product copy.
 
 ## Target users
 
-- Individual learners (B2C freemium)  
+- Individual learners (the product is free)  
 - Adults and teens practicing languages, mental skills, chess, and coding  
 - Teachers / school orgs (B2B classes, homework, gradebook)  
 - Parents linked to student accounts  
@@ -34,27 +34,26 @@ Russian is **not** used in product copy.
 ## Core user journeys
 
 1. **Register** → character created → onboarding checklist  
-2. **Complete a free lesson** → course XP + global XP + streak  
-3. **Hit freemium gate** → upgrade via Premium (Stripe or dev demo)  
-4. **Play chess online** or vs bot → Elo only for rated human games  
-5. **Programming hub** → path units, mini-projects, weekly minis race  
-6. **Playground** → client sandbox challenges + race  
-7. **Climb leaderboards** (global / course / chess / minis)  
-8. **Schools / homework / parents** for classroom & family loops  
-9. **Admin** edits content, runs ops digests, views product metrics  
+2. **Complete a lesson** → course XP + global XP + streak  
+3. **Play chess online** or vs bot → Elo only for rated human games  
+4. **Programming hub** → path units, mini-projects, weekly minis race  
+5. **Playground** → client sandbox challenges + race  
+6. **Climb leaderboards** (global / course / chess / minis)  
+7. **Schools / homework / parents** for classroom and family loops  
+8. **Admin** edits content, runs ops digests, views product metrics  
 
 ## Feature matrix
 
-| Feature | Free | Premium |
-|---------|------|---------|
-| First N lessons per course | Yes (5) | All |
-| Hearts (lives) | 5, regen 30 min | Unlimited |
-| Rated chess / day | Limited (5) | Unlimited |
-| Bot chess | Yes | Yes |
-| Programming minis / playground | Yes (freemium lesson rules) | Yes |
-| Leaderboards | Yes | Yes |
-| Streak shields (shop XP) | Yes (capped) | Yes |
-| Admin CMS / ops | Role-gated | Role-gated |
+| Feature | Access |
+|---------|--------|
+| Lessons | All lessons, every account |
+| Hearts (lives) | 5, regen about 30 min |
+| Rated chess | Unlimited |
+| Bot chess | Yes |
+| Programming minis / playground | Yes |
+| Leaderboards | Yes |
+| Streak shields (shop XP) | Yes (capped) |
+| Admin CMS / ops | Role-gated |
 
 ## Non-goals (product freeze)
 
@@ -71,5 +70,4 @@ Russian is **not** used in product copy.
 - Lessons completed per user per week  
 - Programming minis completions + weekly race participation  
 - Chess games finished rate  
-- Free → Premium conversion  
 - Parent digest open / homework completion (B2B)  

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { applyElo, clampElo, DEFAULT_ELO, ELO_FLOOR, expectedScore } from "./chess-rating.js";
-import { regenerateHearts } from "./entitlements.js";
+import { maxHearts, regenerateHearts } from "./entitlements.js";
 import {
   chessGameXpAward,
   clampDailyXpGain,
@@ -87,12 +87,12 @@ describe("daily XP cap", () => {
 });
 
 describe("hearts smoke", () => {
-  it("premium always full", () => {
+  it("keeps shared cap and regen without instant refill", () => {
     const r = regenerateHearts({
-      plan: "premium",
       hearts: 0,
       heartsUpdatedAt: new Date(),
     });
-    expect(r.hearts).toBe(999);
+    expect(r.hearts).toBe(0);
+    expect(maxHearts()).toBe(5);
   });
 });

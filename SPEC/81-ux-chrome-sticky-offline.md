@@ -12,7 +12,7 @@
 
 ## API
 
-`GET /me/hearts` → `{ hearts, maxHearts, heartsUpdatedAt, isPremium, regenMinutes, courseSlug }`.
+`GET /me/hearts` → `{ hearts, maxHearts, heartsUpdatedAt, regenMinutes, courseSlug }`.
 
 ## Web
 

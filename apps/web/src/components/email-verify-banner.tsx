@@ -7,7 +7,7 @@ import { api } from "@/lib/api";
 
 export function EmailVerifyBanner() {
   const { user, token, refresh } = useAuth();
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -48,9 +48,7 @@ export function EmailVerifyBanner() {
   return (
     <div className="mb-4 rounded-2xl border-2 border-sun/40 bg-sun/10 px-4 py-3 text-sm font-bold">
       <p>
-        {locale === "en"
-          ? "Confirm your email to secure the account and unlock parent/school features."
-          : "Підтвердіть email, щоб захистити акаунт і відкрити функції батьків/школи."}
+        {t.auth.unverifiedBanner}
       </p>
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <button

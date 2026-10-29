@@ -7,14 +7,12 @@ import {
   HEART_REGEN_MINUTES,
   applyLevelUps,
   heartRegenMinutesBonus,
-  isPaidPlan,
   levelFromXp,
   maxHearts,
   normalizeProgression,
   regenerateHearts,
   resolveFeatureFlags,
   todayUtc,
-  type Plan,
 } from "@eduforge/shared";
 import { characters, courses, userDailyQuests, userCourseProgress } from "@eduforge/db";
 import { authMiddleware, optionalAuth, type AuthedUser } from "../auth.js";
@@ -113,30 +111,19 @@ meRoutes.post("/login-bonus", authMiddleware, async (c) => {
 
 /**
  * Aggregate hearts for nav chrome: most restrictive (lowest) course after regen.
- * Free users without progress rows get a full free stack.
+ * Accounts without progress rows get a full stack.
  */
 meRoutes.get("/hearts", authMiddleware, async (c) => {
   const user = c.get("user");
-  const plan = user.plan as Plan;
   const ch = await db.query.characters.findFirst({
     where: eq(characters.userId, user.id),
   });
   const prog = normalizeProgression(ch?.progression);
-  const max = maxHearts(plan, prog);
+  const max = maxHearts(prog);
   const regenMinutes = Math.max(
     10,
     HEART_REGEN_MINUTES - heartRegenMinutesBonus(prog),
   );
-  if (isPaidPlan(plan)) {
-    return c.json({
-      hearts: max,
-      maxHearts: max,
-      heartsUpdatedAt: null as string | null,
-      isPremium: true,
-      regenMinutes,
-      courseSlug: null as string | null,
-    });
-  }
 
   const rows = await db
     .select({
@@ -154,7 +141,6 @@ meRoutes.get("/hearts", authMiddleware, async (c) => {
       hearts: max,
       maxHearts: max,
       heartsUpdatedAt: null as string | null,
-      isPremium: false,
       regenMinutes,
       courseSlug: null as string | null,
     });
@@ -169,7 +155,6 @@ meRoutes.get("/hearts", authMiddleware, async (c) => {
 
   for (const row of rows) {
     const regen = regenerateHearts({
-      plan,
       hearts: row.hearts,
       heartsUpdatedAt: row.heartsUpdatedAt,
       regenMinutes,
@@ -197,7 +182,6 @@ meRoutes.get("/hearts", authMiddleware, async (c) => {
     heartsUpdatedAt: best.heartsUpdatedAt
       ? best.heartsUpdatedAt.toISOString()
       : null,
-    isPremium: false,
     regenMinutes,
     courseSlug: best.slug,
   });

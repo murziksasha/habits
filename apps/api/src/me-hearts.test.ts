@@ -12,14 +12,13 @@ import {
  */
 describe("me hearts contract", () => {
   it("lesson access never blocked by hearts", () => {
-    expect(canStartLesson({ plan: "free", hearts: 0 })).toBe(true);
+    expect(canStartLesson({ hearts: 0 })).toBe(true);
   });
 
   it("free regen aligns with countdown helper", () => {
     const now = new Date("2026-08-04T12:00:00Z");
     const updated = new Date("2026-08-04T11:40:00Z");
     const regen = regenerateHearts({
-      plan: "free",
       hearts: 2,
       heartsUpdatedAt: updated,
       now,
@@ -27,7 +26,7 @@ describe("me hearts contract", () => {
     expect(regen.hearts).toBe(2); // 20 min < 30 cycle
     const mins = minutesUntilHeartRegen({
       hearts: regen.hearts,
-      maxHearts: maxHearts("free"),
+      maxHearts: maxHearts(),
       heartsUpdatedAt: regen.heartsUpdatedAt,
       regenMinutes: HEART_REGEN_MINUTES,
       now,

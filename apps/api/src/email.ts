@@ -59,11 +59,11 @@ export function emailVerifyEmail(opts: {
     to: opts.to,
     subject: uk ? "Підтвердіть email — EduForge" : "Confirm your email — EduForge",
     text: uk
-      ? `Вітаємо!\n\nПідтвердіть email за посиланням (дійсне 48 годин):\n${opts.verifyUrl}\n`
-      : `Hello!\n\nConfirm your email (valid 48 hours):\n${opts.verifyUrl}\n`,
+      ? `Вітаємо!\n\nПідтвердіть email за посиланням (дійсне 30 днів):\n${opts.verifyUrl}\n\nБез підтвердження: через 7 днів акаунт стане неактивним, а через 30 днів буде видалений.\n`
+      : `Hello!\n\nConfirm your email (valid 30 days):\n${opts.verifyUrl}\n\nWithout confirmation: after 7 days the account becomes inactive, and after 30 days it is deleted.\n`,
     html: uk
-      ? `<p>Вітаємо!</p>${ctaButton(opts.verifyUrl, "Підтвердити email")}<p>Посилання дійсне 48 годин.</p>`
-      : `<p>Hello!</p>${ctaButton(opts.verifyUrl, "Confirm email")}<p>Link valid 48 hours.</p>`,
+      ? `<p>Вітаємо!</p>${ctaButton(opts.verifyUrl, "Підтвердити email")}<p>Посилання дійсне 30 днів.</p><p>Без підтвердження: через 7 днів акаунт стане неактивним, а через 30 днів буде видалений.</p>`
+      : `<p>Hello!</p>${ctaButton(opts.verifyUrl, "Confirm email")}<p>Link valid 30 days.</p><p>Without confirmation: after 7 days the account becomes inactive, and after 30 days it is deleted.</p>`,
   };
 }
 
@@ -83,6 +83,32 @@ export function passwordResetEmail(opts: {
       ? `<p>Вітаємо!</p><p><a href="${opts.resetUrl}">Скинути пароль</a></p><p>Посилання дійсне 1 годину.</p>`
       : `<p>Hello!</p><p><a href="${opts.resetUrl}">Reset password</a></p><p>Link valid for 1 hour.</p>`,
   };
+}
+
+/** Welcome + email confirmation with unverified lifecycle policy (7d inactive / 30d delete). */
+export function registrationVerifyEmail(opts: {
+  to: string;
+  displayName: string;
+  verifyUrl: string;
+  locale?: string;
+}): MailPayload {
+  const uk = (opts.locale ?? "uk") === "uk";
+  const name = opts.displayName.trim() || (uk ? "друже" : "friend");
+  const subject = uk
+    ? "Підтвердіть акаунт EduForge"
+    : "Confirm your EduForge account";
+  const policyUk =
+    "Без підтвердження: через 7 днів акаунт стане неактивним, а через 30 днів буде видалений.";
+  const policyEn =
+    "Without confirmation: after 7 days the account becomes inactive, and after 30 days it is deleted.";
+  const text = uk
+    ? `Привіт, ${name}!\n\nВітаємо в EduForge. Підтвердіть email, щоб зберегти акаунт:\n${opts.verifyUrl}\n\n${policyUk}\n\nЯкщо ви не реєструвались — ігноруйте цей лист.\n— Команда EduForge`
+    : `Hi, ${name}!\n\nWelcome to EduForge. Confirm your email to keep your account:\n${opts.verifyUrl}\n\n${policyEn}\n\nIf you did not sign up, ignore this email.\n— EduForge team`;
+  const cta = ctaButton(opts.verifyUrl, uk ? "Підтвердити email" : "Confirm email");
+  const html = uk
+    ? `<div style="font-family:system-ui,sans-serif;max-width:520px"><h2 style="color:#1a1a1a">Вітаємо в EduForge</h2><p>Привіт, <b>${name}</b>!</p><p>Підтвердіть email, щоб зберегти акаунт.</p>${cta}<p style="color:#444">${policyUk}</p><p style="color:#666;font-size:12px"><a href="${opts.verifyUrl}">${opts.verifyUrl}</a></p><p style="color:#666;font-size:12px">EduForge</p></div>`
+    : `<div style="font-family:system-ui,sans-serif;max-width:520px"><h2 style="color:#1a1a1a">Welcome to EduForge</h2><p>Hi <b>${name}</b>!</p><p>Confirm your email to keep your account.</p>${cta}<p style="color:#444">${policyEn}</p><p style="color:#666;font-size:12px"><a href="${opts.verifyUrl}">${opts.verifyUrl}</a></p><p style="color:#666;font-size:12px">EduForge</p></div>`;
+  return { to: opts.to, subject, text, html };
 }
 
 export function weeklyReportEmail(stats: {

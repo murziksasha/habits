@@ -12,8 +12,6 @@ import { FunnelChart } from "@/components/admin/funnel-chart";
 type ProductFunnel = {
   firstLessonComplete: number;
   lessonCompleted: number;
-  paywallShown: number;
-  paywallCtaClick: number;
   examPassed: number;
   examFailed: number;
   windowDays: number;
@@ -38,7 +36,6 @@ type Metrics = {
   since: string;
   totals: {
     users: number;
-    premium: number;
     certificates: number;
     streakShieldsHeld: number;
     avgStreakDays: number;
@@ -304,9 +301,8 @@ export function AdminMetricsClient() {
 
           <section className="space-y-2">
             <h2 className="font-black">{t.admin.totals}</h2>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <Stat label={t.admin.users} value={data.totals.users} />
-              <Stat label="Premium" value={data.totals.premium} />
               <Stat label={t.nav.certificates} value={data.totals.certificates} />
               <Stat label={`🛡️ ${t.streak.shields}`} value={data.totals.streakShieldsHeld} />
               <Stat label={`🔥 ${t.streak.label} avg`} value={data.totals.avgStreakDays} />

@@ -2,7 +2,7 @@
 
 ## Goals
 
-- Protect **domain rules** (XP, Elo, hearts, freemium gates)
+- Protect **domain rules** (XP, Elo, hearts, open lesson access)
 - Protect **grading** of all exercise types
 - Protect **chess move/puzzle** helpers
 - Validate **content seed structure**

@@ -19,15 +19,18 @@ Machine-readable: `GET /openapi.json` (v1.8) · human: `GET /docs`.
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| POST | `/auth/register` | No | `{ email, password, displayName, referralCode? }` |
-| POST | `/auth/login` | No | `{ email, password }` |
+| POST | `/auth/register` | No | `{ email, password, displayName, referralCode? }` → user includes `emailVerified`; sends verify email; dev may return `verifyUrl` |
+| POST | `/auth/login` | No | `{ email, password }`; `403 account_inactive` if unverified past grace |
 | POST | `/auth/logout` | Yes | Invalidate session |
-| GET | `/auth/me` | Yes | User + character |
+| GET | `/auth/me` | Yes | User + character (`emailVerified`, `accountStatus`) |
 | PATCH | `/auth/me/character` | Yes | `displayName` / `avatarKey` |
 | GET | `/auth/onboarding` | Yes | Checklist |
 | POST | `/auth/onboarding/complete` | Yes | `{ key }` |
 | POST | `/auth/forgot-password` | No | `{ email }` |
 | POST | `/auth/reset-password` | No | `{ token, password }` |
+| POST | `/auth/verify-email` | No | `{ token }` confirm email; issues session |
+| POST | `/auth/resend-verification` | No | `{ email }` generic success |
+| POST | `/auth/cron/unverified-lifecycle` | Cron | Inactivate 7d+ unverified; delete 30d+ |
 
 ## Courses (`/courses`)
 
@@ -75,7 +78,7 @@ Machine-readable: `GET /openapi.json` (v1.8) · human: `GET /docs`.
 | GET | `/chess/rating/me` | Yes | Elo stats |
 | GET | `/chess/games/me` | Yes | Recent games |
 | GET | `/chess/games/:id` | Yes | Game detail |
-| GET | `/chess/can-rated` | Yes | Freemium quota |
+| GET | `/chess/can-rated` | Yes | Rated chess is open to every account |
 
 Realtime: [07-chess-realtime](./07-chess-realtime.md). Coach: `POST /coach/hint`.
 
@@ -86,16 +89,6 @@ Realtime: [07-chess-realtime](./07-chess-realtime.md). Coach: `POST /coach/hint`
 | GET | `/leaderboard/global` | No | Top global XP |
 | GET | `/leaderboard/chess` | No | Top Elo |
 | GET | `/leaderboard/course/:slug` | No | Top course XP |
-
-## Billing (`/billing`)
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/billing/status` | Yes | Plan + Stripe flag |
-| POST | `/billing/checkout` | Yes | Stripe Checkout URL |
-| POST | `/billing/webhook` | Stripe | Subscription events |
-| POST | `/billing/dev-upgrade` | Yes | Demo Premium |
-| POST | `/billing/dev-downgrade` | Yes | Demo Free |
 
 ## Engagement & social
 
@@ -144,7 +137,10 @@ Realtime: [07-chess-realtime](./07-chess-realtime.md). Coach: `POST /coach/hint`
 | `/tutor` | chat, history, status |
 | `/reports` | weekly stats, prefs, send |
 | `/shop` | catalog, buy (shields) |
-| `/review` | weak lesson queue |
+| `/review` | weak lesson queue (+ `retentionPct`, `dueInDays`) |
+| `/review/mixed` | GET interleaved practice set · POST `/review/mixed/check` grade + capped XP (SPEC 91/92) |
+| `/review/mistakes` | GET due missed exercises (`limit`) · POST `/review/mistakes/check` (SPEC 92) |
+| `/deep` | GET `/deep/calibration?days=` · GET `/deep/mastery-map/:slug` · POST `/deep/explain-feedback` (SPEC 92) |
 | `/quests` | daily quests + claim |
 | `/notes`, `/focus`, `/bookmarks` | study tools |
 | `/search` | courses + users |
@@ -207,4 +203,4 @@ See [SPEC 72](./72-admin-platform-v2.md).
 { "error": "unauthorized" }
 ```
 
-Common codes: `400 invalid_input`, `401 unauthorized`, `402 premium_required | no_hearts`, `403 forbidden`, `404 not_found`, `409 email_taken`.
+Common codes: `400 invalid_input`, `401 unauthorized`, `402 insufficient_xp`, `403 forbidden`, `404 not_found`, `409 email_taken`.

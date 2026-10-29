@@ -28,7 +28,7 @@ const doc = {
     title: "EduForge API",
     version: "2.5.0",
     description:
-      "Educational SaaS: learn map, exams, deep tracks, admin platform v2 (TOTP MFA, theming, CMS draft/publish, backup codes), trial+expiry, feedback, minis, playground, schools, parents, metrics, chess, SRS, tutor. BFF: GET /me/home.",
+      "Educational SaaS: learn map, exams, deep tracks, admin platform v2 (TOTP MFA, theming, CMS draft/publish, backup codes), feedback, minis, playground, schools, parents, metrics, chess, SRS, tutor. BFF: GET /me/home.",
   },
   servers: [{ url: "/", description: "Current host" }],
   tags: [
@@ -125,6 +125,67 @@ const doc = {
         responses: { "200": { description: "items + reasons + optional examContext" } },
       },
     },
+    "/review/mixed": {
+      get: {
+        tags: ["learning"],
+        summary: "Interleaved retrieval practice set from completed lessons (?course=&count=&seed=)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "seed + items[{ lessonId, courseSlug, exercise }]" } },
+      },
+    },
+    "/review/mixed/check": {
+      post: {
+        tags: ["learning"],
+        summary: "Grade a mixed practice session server-side (answers[{ lessonId, exerciseId, answer }])",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "results + correct/total/accuracy" },
+          "400": { description: "no_answers" },
+          "429": { description: "rate_limited" },
+        },
+      },
+    },
+    "/review/mistakes": {
+      get: {
+        tags: ["learning"],
+        summary: "Mistake notebook: due exercise-level SRS items (?limit=)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "items + due/total/graduated counts" } },
+      },
+    },
+    "/review/mistakes/check": {
+      post: {
+        tags: ["learning"],
+        summary: "Grade mistake review answers; applies SM-2 per exercise; capped XP",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "results + correct/total/accuracy/xpGain" }, "400": { description: "no_answers" } },
+      },
+    },
+    "/deep/calibration": {
+      get: {
+        tags: ["learning"],
+        summary: "Confidence calibration over last ?days= (default 30)",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "buckets + overconfidence/underconfidence + tip" } },
+      },
+    },
+    "/deep/mastery-map/{slug}": {
+      get: {
+        tags: ["learning"],
+        summary: "Per-unit mastery map with retention for a course",
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
+        responses: { "200": { description: "units[] + totals" }, "404": { description: "not_found" } },
+      },
+    },
+    "/deep/explain-feedback": {
+      post: {
+        tags: ["learning"],
+        summary: "Rubric grade + tutor feedback for an explain-in-your-own-words answer",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "correct/partial/matched/missing/feedback/source" }, "404": { description: "not_found" } },
+      },
+    },
     "/metrics": {
       get: {
         tags: ["ops"],
@@ -136,7 +197,7 @@ const doc = {
     "/auth/register": {
       post: {
         tags: ["auth"],
-        summary: "Register",
+        summary: "Register (sends verification email; 7d/30d policy)",
         requestBody: {
           content: {
             "application/json": {
@@ -153,20 +214,70 @@ const doc = {
             },
           },
         },
-        responses: { "200": { description: "User + token" } },
+        responses: {
+          "200": {
+            description: "User + token; emailVerified false; dev may include verifyUrl",
+          },
+        },
       },
     },
     "/auth/login": {
       post: {
         tags: ["auth"],
         summary: "Login",
-        responses: { "200": { description: "User + token" } },
+        responses: {
+          "200": { description: "User + token" },
+          "403": { description: "account_inactive" },
+        },
+      },
+    },
+    "/auth/verify-email": {
+      post: {
+        tags: ["auth"],
+        summary: "Confirm email from registration link",
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["token"],
+                properties: { token: { type: "string" } },
+              },
+            },
+          },
+        },
+        responses: { "200": { description: "Verified user + session" } },
+      },
+    },
+    "/auth/resend-verification": {
+      post: {
+        tags: ["auth"],
+        summary: "Resend verification email (no enumeration)",
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["email"],
+                properties: { email: { type: "string" } },
+              },
+            },
+          },
+        },
+        responses: { "200": { description: "Generic ok" } },
+      },
+    },
+    "/auth/cron/unverified-lifecycle": {
+      post: {
+        tags: ["ops"],
+        summary: "Inactivate 7d+ unverified; delete 30d+ (CRON_SECRET)",
+        responses: { "200": { description: "inactivated + deleted counts" } },
       },
     },
     "/auth/me": {
       get: {
         tags: ["auth"],
-        summary: "Current user",
+        summary: "Current user (includes emailVerified, accountStatus)",
         security: [{ bearerAuth: [] }],
         responses: { "200": { description: "User + character" } },
       },
@@ -546,7 +657,7 @@ const doc = {
     "/analytics/events": {
       post: {
         tags: ["analytics"],
-        summary: "Track product funnel event (paywall_shown, first_lesson_complete, …)",
+        summary: "Track product funnel event (first_lesson_complete, lesson_completed, exam_*)",
         security: [{ bearerAuth: [] }],
         responses: {
           "200": { description: "{ ok, tracked, deduped? }" },

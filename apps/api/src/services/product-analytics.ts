@@ -3,14 +3,12 @@ import { activityEvents } from "@eduforge/db";
 import type { Db } from "@eduforge/db";
 import { logActivity } from "../engagement.js";
 
-/** Product funnel event kinds (core loop + conversion). */
+/** Product funnel event kinds (learning loop). */
 export const PRODUCT_EVENT_KINDS = [
   "first_lesson_complete",
   "lesson_completed",
   "exam_passed",
   "exam_failed",
-  "paywall_shown",
-  "paywall_cta_click",
   "onboarding_complete",
   "onboarding_skipped",
 ] as const;
@@ -50,8 +48,6 @@ export async function trackProductEvent(
 export type ProductFunnelCounts = {
   firstLessonComplete: number;
   lessonCompleted: number;
-  paywallShown: number;
-  paywallCtaClick: number;
   examPassed: number;
   examFailed: number;
   windowDays: number;
@@ -60,8 +56,6 @@ export type ProductFunnelCounts = {
 const FUNNEL_KINDS = [
   "first_lesson_complete",
   "lesson_completed",
-  "paywall_shown",
-  "paywall_cta_click",
   "exam_passed",
   "exam_failed",
 ] as const;
@@ -88,8 +82,6 @@ async function countsInRange(
   return {
     firstLessonComplete: map.get("first_lesson_complete") ?? 0,
     lessonCompleted: map.get("lesson_completed") ?? 0,
-    paywallShown: map.get("paywall_shown") ?? 0,
-    paywallCtaClick: map.get("paywall_cta_click") ?? 0,
     examPassed: map.get("exam_passed") ?? 0,
     examFailed: map.get("exam_failed") ?? 0,
   };
@@ -128,8 +120,6 @@ export function funnelDeltas(
   const keys = [
     "firstLessonComplete",
     "lessonCompleted",
-    "paywallShown",
-    "paywallCtaClick",
     "examPassed",
     "examFailed",
   ] as const;

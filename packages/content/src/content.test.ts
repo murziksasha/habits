@@ -86,6 +86,8 @@ const EXERCISE_TYPES = new Set([
   "code_project",
   "code_run",
   "video",
+  "concept",
+  "explain",
 ]);
 
 function collectExercises(course: CourseContent): Exercise[] {
@@ -557,5 +559,93 @@ describe("course content integrity", () => {
       .map((l) => l.slug);
     expect(miniSlugs).toEqual(expect.arrayContaining([...PROGRAMMING_MINI_SLUGS]));
     expect(miniSlugs.length).toBeGreaterThanOrEqual(PROGRAMMING_MINI_SLUGS.length);
+  });
+});
+
+describe("deep-learning units (SPEC 90/91)", () => {
+  const wired: [CourseContent, string][] = [
+    [jsFundamentalsContent, "closures_event_loop"],
+    [typescriptContent, "advanced_types"],
+    [sqlFundamentalsContent, "cte-performance"],
+    [englishContent, "learning-skills"],
+  ];
+
+  it("new units are wired into their courses", () => {
+    for (const [course, slug] of wired) {
+      expect(course.units.map((u) => u.slug), course.slug).toContain(slug);
+    }
+  });
+
+  it("every non-exam lesson opens with a bilingual concept card; exams have none", () => {
+    for (const [course, slug] of wired) {
+      const u = course.units.find((x) => x.slug === slug)!;
+      for (const l of u.lessons) {
+        if (l.isExam) {
+          expect(l.exercises.some((e) => e.type === "concept"), l.slug).toBe(false);
+          expect(l.exercises.length).toBeGreaterThanOrEqual(4);
+          continue;
+        }
+        const first = l.exercises[0]!;
+        expect(first.type, `${course.slug}/${l.slug}`).toBe("concept");
+        if (first.type === "concept") {
+          expect(first.bodyUk.length).toBeGreaterThan(40);
+          expect(first.bodyEn?.length ?? 0).toBeGreaterThan(40);
+          if (first.check) {
+            expect(first.check.correctIndex).toBeLessThan(first.check.options.length);
+            expect(first.check.qEn).toBeTruthy();
+          }
+        }
+        expect(l.exercises.length).toBeGreaterThanOrEqual(4);
+      }
+    }
+  });
+
+  it("code_order / order_words in new units are permutations", () => {
+    for (const [course, slug] of wired) {
+      const u = course.units.find((x) => x.slug === slug)!;
+      for (const ex of u.lessons.flatMap((l) => l.exercises)) {
+        if (ex.type === "code_order") {
+          expect([...ex.lines].sort()).toEqual([...ex.correct].sort());
+        }
+        if (ex.type === "order_words") {
+          expect([...ex.words].sort()).toEqual([...ex.correct].sort());
+        }
+      }
+    }
+  });
+});
+
+describe("explain exercises (SPEC 92)", async () => {
+  const { gradeExercise } = await import("@eduforge/shared");
+  it("sample answers pass their own rubric; empty answers fail", () => {
+    let n = 0;
+    for (const c of courses) {
+      for (const ex of collectExercises(c)) {
+        if (ex.type !== "explain") continue;
+        n += 1;
+        expect(ex.keyIdeas.length, ex.id).toBeGreaterThan(0);
+        for (const sample of [ex.sampleAnswerUk, ex.sampleAnswerEn]) {
+          if (!sample) continue;
+          expect(gradeExercise(ex, { text: sample }).correct, `${ex.id}: ${sample}`).toBe(true);
+        }
+        expect(gradeExercise(ex, { text: "" }).correct).toBe(false);
+      }
+    }
+    expect(n).toBeGreaterThanOrEqual(5);
+  });
+});
+
+describe("js_fundamentals prompt quality (SPEC 92)", () => {
+  it("exercises have distinct, descriptive UK and EN prompts", () => {
+    for (const u of jsFundamentalsContent.units) {
+      for (const l of u.lessons) {
+        for (const ex of l.exercises) {
+          if (ex.type === "code_project" || ex.type === "concept" || ex.type === "explain") continue;
+          expect(ex.promptUk, ex.id).not.toBe(ex.promptEn);
+          expect(ex.promptUk.length, ex.id).toBeGreaterThanOrEqual(12);
+          expect((ex.promptEn ?? "").length, ex.id).toBeGreaterThanOrEqual(12);
+        }
+      }
+    }
   });
 });

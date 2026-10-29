@@ -101,7 +101,7 @@ export async function runLocal(job: JudgeJob): Promise<JudgeResult> {
       let stdout = "";
       let stderr = "";
       let timedOut = false;
-      // Minimal env — never inherit secrets (DATABASE_URL, AUTH_SECRET, Stripe, …)
+      // Minimal env — never inherit secrets (DATABASE_URL, AUTH_SECRET, …)
       const child = spawn(cmd, args, {
         cwd: dir,
         env: {

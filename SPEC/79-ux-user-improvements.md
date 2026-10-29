@@ -11,7 +11,7 @@
 3. **Register →** `postRegisterPath` (intent / friend / learn) instead of always dashboard.
 4. **Lesson player**: skeleton load, retry on fail, human miss labels (`exerciseTypeLabel`), celebration, share on summary, hearts low warning, progress a11y, mobile focus default, code mobile layout class.
 5. **Course path freemium**: `freemiumPathLabel` progress bar + lock copy with free count.
-6. **Paywall recovery**: review / flashcards / learn CTAs + regen hint.
+6. **Out of hearts**: review / flashcards / learn CTAs + regen hint. Lessons stay open.
 
 ### P1 — Roles & discovery
 7. **Onboarding wizard** (role → track → start); keys on `character.onboarding`.

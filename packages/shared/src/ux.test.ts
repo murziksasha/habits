@@ -115,21 +115,9 @@ describe("freemiumPathLabel", () => {
       freemiumPathLabel({
         freeCompleted: 2,
         freeLessonCount: 5,
-        isPremium: false,
         locale: "en",
       }),
     ).toContain("2/5");
-  });
-
-  it("premium label", () => {
-    expect(
-      freemiumPathLabel({
-        freeCompleted: 0,
-        freeLessonCount: 5,
-        isPremium: true,
-        locale: "en",
-      }),
-    ).toMatch(/premium/i);
   });
 });
 

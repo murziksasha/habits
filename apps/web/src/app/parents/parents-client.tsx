@@ -73,7 +73,7 @@ export function ParentsClient() {
         </p>
         <div className="flex flex-wrap gap-2">
           <Link href="/family" className="btn-secondary !py-2 !px-3 text-sm min-h-11">
-            👨‍👩‍👧‍👦 {locale === "en" ? "Family plan" : "Сімейний план"}
+            👨‍👩‍👧‍👦 {t.parents.family}
           </Link>
           <Link href="/reports" className="btn-secondary !py-2 !px-3 text-sm min-h-11">
             📊 {t.nav.reports}

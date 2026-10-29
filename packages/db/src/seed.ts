@@ -268,7 +268,6 @@ async function seedAdmin(db: ReturnType<typeof createDb>) {
         email,
         passwordHash,
         role: "admin",
-        plan: "free",
         emailVerifiedAt: new Date(),
       })
       .returning();

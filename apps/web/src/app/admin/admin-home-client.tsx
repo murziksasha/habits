@@ -24,6 +24,7 @@ export function AdminHomeClient() {
     parentLinksActive: number;
     digestsSentLast7d: number;
     weeklyEmailOptIn: number;
+    unverifiedUsers?: number;
     recentDigests: {
       parentUserId: string;
       parentName: string;
@@ -35,8 +36,6 @@ export function AdminHomeClient() {
   const [funnel, setFunnel] = useState<{
     firstLessonComplete: number;
     lessonCompleted: number;
-    paywallShown: number;
-    paywallCtaClick: number;
   } | null>(null);
   const [opsMsg, setOpsMsg] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
@@ -59,8 +58,6 @@ export function AdminHomeClient() {
       funnel?: {
         firstLessonComplete: number;
         lessonCompleted: number;
-        paywallShown: number;
-        paywallCtaClick: number;
       };
     }>("/analytics/funnel?days=7", { token })
       .then((d) => setFunnel(d.funnel ?? null))
@@ -152,7 +149,7 @@ export function AdminHomeClient() {
 
       <section className="card space-y-4 border-grape/30">
         <h2 className="text-xl font-black">⚙️ {t.admin.ops}</h2>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-2xl bg-slate-50 p-3 dark:bg-slate-900">
             <p className="text-xs font-bold text-ink-muted">{t.admin.parentLinks}</p>
             <p className="text-2xl font-black">{ops?.parentLinksActive ?? "…"}</p>
@@ -164,6 +161,10 @@ export function AdminHomeClient() {
           <div className="rounded-2xl bg-slate-50 p-3 dark:bg-slate-900">
             <p className="text-xs font-bold text-ink-muted">{t.admin.weeklyOptIn}</p>
             <p className="text-2xl font-black">{ops?.weeklyEmailOptIn ?? "…"}</p>
+          </div>
+          <div className="rounded-2xl bg-slate-50 p-3 dark:bg-slate-900">
+            <p className="text-xs font-bold text-ink-muted">{t.admin.unverifiedUsers}</p>
+            <p className="text-2xl font-black">{ops?.unverifiedUsers ?? "…"}</p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -216,6 +217,14 @@ export function AdminHomeClient() {
             }
           >
             {busy === "re" ? "…" : "🔔 Push re-engage (3d)"}
+          </button>
+          <button
+            type="button"
+            className="btn-secondary !py-2 text-sm"
+            disabled={Boolean(busy)}
+            onClick={() => void runOps("/admin/ops/unverified-lifecycle", "uv")}
+          >
+            {busy === "uv" ? "…" : `🧹 ${t.admin.runUnverifiedLifecycle}`}
           </button>
         </div>
         {opsMsg && (

@@ -13,7 +13,6 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-export const planEnum = pgEnum("plan", ["free", "premium", "family"]);
 /**
  * Course slugs are app-registry validated (`COURSE_SLUGS` in @eduforge/shared).
  * Stored as varchar so new courses do not require ALTER TYPE migrations.
@@ -41,27 +40,28 @@ export const users = pgTable("users", {
   /** Null for OAuth-only accounts (no local password) */
   passwordHash: text("password_hash"),
   role: varchar("role", { length: 32 }).notNull().default("user"),
-  plan: planEnum("plan").notNull().default("free"),
-  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
-  stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
-  planExpiresAt: timestamp("plan_expires_at", { withTimezone: true }),
   /** Preferred UI/content locale */
   preferredLocale: varchar("preferred_locale", { length: 8 }).notNull().default("uk"),
   weeklyEmailEnabled: boolean("weekly_email_enabled").notNull().default(true),
   lastWeeklyEmailAt: timestamp("last_weekly_email_at", { withTimezone: true }),
   /** When the email was verified (null = unverified) */
   emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true }),
+  /** active | inactive — unverified accounts go inactive after 7 days */
+  accountStatus: varchar("account_status", { length: 16 }).notNull().default("active"),
   /** Encrypted TOTP secret (AES-GCM); null until enroll */
   totpSecretEnc: text("totp_secret_enc"),
   totpEnabled: boolean("totp_enabled").notNull().default(false),
   totpVerifiedAt: timestamp("totp_verified_at", { withTimezone: true }),
   /** SHA-256 hashes of one-time backup codes (plaintext shown once at generation) */
   mfaBackupCodeHashes: jsonb("mfa_backup_code_hashes").$type<string[]>().notNull().default([]),
-  /** Family plan: max child seats when plan=family (owner) */
+  /** Max child seats when this user owns a family group */
   familyMaxSeats: integer("family_max_seats").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  index("users_unverified_created_idx").on(t.emailVerifiedAt, t.createdAt),
+  index("users_account_status_idx").on(t.accountStatus),
+]);
 
 /** Linked OAuth identities (Google, …) */
 export const oauthAccounts = pgTable(
@@ -79,7 +79,7 @@ export const oauthAccounts = pgTable(
   (t) => [uniqueIndex("oauth_provider_uid").on(t.provider, t.providerUserId)],
 );
 
-/** Family plan membership (owner has plan=family; children get premium entitlements) */
+/** Family group membership (owner row plus child seats). */
 export const familyMembers = pgTable(
   "family_members",
   {
@@ -134,7 +134,6 @@ export const characters = pgTable("characters", {
       triedChess?: boolean;
       triedTyping?: boolean;
       viewedLeaderboard?: boolean;
-      exploredPricing?: boolean;
       viewedLearnMap?: boolean;
       triedProgramming?: boolean;
       wizardCompleted?: boolean;
@@ -1054,3 +1053,57 @@ export const feedbackMessages = pgTable("feedback_messages", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+/* ——— Deep learning (SPEC 92): per-exercise attempts + mistake SRS ——— */
+
+/**
+ * One row per answered exercise (lesson / mixed / mistakes sessions).
+ * `firstTry` = graded correct with no wrong soft attempts; `confidence` 1 guess · 2 unsure · 3 sure.
+ */
+export const exerciseAttempts = pgTable(
+  "exercise_attempts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    lessonId: uuid("lesson_id")
+      .notNull()
+      .references(() => lessons.id, { onDelete: "cascade" }),
+    exerciseId: varchar("exercise_id", { length: 128 }).notNull(),
+    exerciseType: varchar("exercise_type", { length: 32 }).notNull().default(""),
+    correct: boolean("correct").notNull(),
+    firstTry: boolean("first_try").notNull(),
+    wrongAttempts: integer("wrong_attempts").notNull().default(0),
+    confidence: integer("confidence"),
+    source: varchar("source", { length: 16 }).notNull().default("lesson"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [index("exercise_attempts_user_created_idx").on(t.userId, t.createdAt)],
+);
+
+/** Exercise-level spaced repetition ("mistake notebook"), SM-2 state from `@eduforge/shared` srs. */
+export const exerciseReviews = pgTable(
+  "exercise_reviews",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    lessonId: uuid("lesson_id")
+      .notNull()
+      .references(() => lessons.id, { onDelete: "cascade" }),
+    exerciseId: varchar("exercise_id", { length: 128 }).notNull(),
+    ease: integer("ease").notNull().default(250),
+    intervalDays: integer("interval_days").notNull().default(0),
+    repetitions: integer("repetitions").notNull().default(0),
+    lapses: integer("lapses").notNull().default(0),
+    dueAt: timestamp("due_at", { withTimezone: true }).defaultNow().notNull(),
+    lastReviewedAt: timestamp("last_reviewed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("exercise_reviews_user_ex_uq").on(t.userId, t.lessonId, t.exerciseId),
+    index("exercise_reviews_user_due_idx").on(t.userId, t.dueAt),
+  ],
+);

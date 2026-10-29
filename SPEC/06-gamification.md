@@ -41,12 +41,11 @@ On successful activity day:
 
 ## Hearts (lives)
 
-| Plan | Max | On failed lesson (accuracy &lt; 0.5) | Regen |
-|------|-----|--------------------------------------|-------|
-| free | 5 | −1 heart | +1 every 30 minutes |
-| premium | 999 (∞ in UI) | no loss | always full |
+| Account | Max | On failed lesson (accuracy &lt; 0.5) | Regen |
+|---------|-----|--------------------------------------|-------|
+| every user | 5 | −1 heart | +1 every 30 minutes |
 
-Implemented via `regenerateHearts` + course progress timestamps.
+Implemented via `regenerateHearts` + course progress timestamps. Plan does not change the cap.
 
 ## Chess Elo
 
@@ -69,5 +68,4 @@ Flags on `character.onboarding`:
 - `triedChess`  
 - `triedTyping`  
 - `viewedLeaderboard`  
-- `exploredPricing`  
 - `dismissed`  

@@ -174,7 +174,6 @@ profileRoutes.get("/:userId", authMiddleware, async (c) => {
       globalLevel: ch.globalLevel,
       globalXp: ch.globalXp,
       streakDays: ch.streakDays,
-      plan: u.plan,
       isSelf: me.id === userId,
       friendship,
       achievementsUnlocked: achCount?.n ?? 0,

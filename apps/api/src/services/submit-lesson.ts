@@ -23,7 +23,6 @@ import {
   readingXpAward,
   regenerateHearts,
   typingXpAward,
-  type Plan,
 } from "@eduforge/shared";
 import type { AuthedUser } from "../auth.js";
 import { db } from "../db.js";
@@ -34,7 +33,14 @@ import { applyLootDrop } from "./loot-apply.js";
 import { rollLevelUpLoot } from "@eduforge/shared";
 import { runSubmitSideEffects } from "./submit-side-effects.js";
 
-export type SubmitAnswer = { exerciseId: string; answer: unknown };
+export type SubmitAnswer = {
+  exerciseId: string;
+  answer: unknown;
+  /** Wrong soft attempts before this answer (client-reported, SPEC 92) */
+  wrongAttempts?: number;
+  /** 1 guess · 2 unsure · 3 sure (optional, SPEC 92) */
+  confidence?: number | null;
+};
 
 export type GradedExerciseResult = {
   exerciseId: string;
@@ -278,7 +284,6 @@ export async function submitLesson(
     });
   }
 
-  const plan = user.plan as Plan;
   const characterEarly = await db.query.characters.findFirst({
     where: eq(characters.userId, user.id),
   });
@@ -300,13 +305,12 @@ export async function submitLesson(
         courseId: course.id,
         xp: 0,
         level: 1,
-        hearts: maxHearts(plan, progressionEarly),
+        hearts: maxHearts(progressionEarly),
       })
       .returning();
     cp = created;
   } else {
     const regen = regenerateHearts({
-      plan,
       hearts: cp.hearts,
       heartsUpdatedAt: cp.heartsUpdatedAt,
       progression: progressionEarly,
@@ -468,6 +472,7 @@ export async function submitLesson(
     xpGain,
     globalGain,
     results,
+    answers,
     streakDays: chAfter?.streakDays,
     globalLevel: chAfter?.globalLevel,
     dailyGoalMet,
@@ -499,7 +504,7 @@ export async function submitLesson(
       results,
       character: updatedCharacter,
       hearts,
-      maxHearts: maxHearts(plan, progressionEarly),
+      maxHearts: maxHearts(progressionEarly),
       heartLost,
       streakProtected,
       streakDays: streak,

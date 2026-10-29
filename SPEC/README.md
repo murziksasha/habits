@@ -13,7 +13,7 @@ This folder is the **source of truth** for the EduForge educational SaaS monorep
 | 05 | [Courses & Content](./05-courses-and-content.md) | Course types, exercises, seeding |
 | 06 | [Gamification](./06-gamification.md) | XP, levels, hearts, streaks, Elo |
 | 07 | [Chess Realtime](./07-chess-realtime.md) | Matchmaking, Socket.IO, bot mode |
-| 08 | [Auth, Billing & Admin](./08-auth-billing-admin.md) | Sessions, freemium, CMS |
+| 08 | [Auth & Admin](./08-auth-billing-admin.md) | Sessions, free access, CMS |
 | 09 | [Frontend](./09-frontend.md) | Next.js routes and UX |
 | 10 | [Infrastructure](./10-infrastructure.md) | Docker, env, runbooks |
 | 11 | [Testing](./11-testing.md) | Test strategy and commands |
@@ -82,7 +82,7 @@ This folder is the **source of truth** for the EduForge educational SaaS monorep
 | 74 | [Client C++ runner](./74-cpp-wasm-playground.md) | JSCPP/mock playground + code_run (no server judge) |
 | 75 | [React Studio + WebContainers roadmap](./75-react-studio-webcontainers-roadmap.md) | In-app React preview; WC Phase W → SPEC 76 |
 | 76 | [WebContainers Node Studio](./76-webcontainers-node-studio.md) | /studio/node Node+npm+Express/Next preview |
-| 77 | [Security & retention pack](./77-security-retention-pack.md) | Judge/billing/CSRF/email verify, Continue+Review, skill tree |
+| 77 | [Security & retention pack](./77-security-retention-pack.md) | Judge/CSRF/email verify, Continue+Review, skill tree |
 | 78 | [OAuth, 2FA, family, teacher heat](./78-oauth-2fa-family-teacher.md) | Google OAuth, user TOTP, family seats, homework heatmap |
 | 79 | [UX user improvements](./79-ux-user-improvements.md) | Thin home, persona nav, lesson polish, ⌘K, guest trial |
 | 80 | [UX result sheet + auth polish](./80-ux-result-sheet-auth-polish.md) | Result sheet, next=, programming CTA, empty states |
@@ -91,8 +91,13 @@ This folder is the **source of truth** for the EduForge educational SaaS monorep
 | 83 | [Hubs error keys match](./83-ux-hubs-error-keys-match.md) | Deep hubs loading, error toast, lesson keys, play sticky |
 | 84 | [PageLoading sweep](./84-ux-page-loading-sweep.md) | Notes/focus/homework/placement shells + play seek |
 | 85 | [Admin schools labs a11y](./85-admin-schools-labs-a11y.md) | Admin shell, schools detail, labs polish, a11y |
-| 86 | [Labs tournaments auth](./86-ux-labs-auth-tournaments.md) | Reports Labs, tournaments, 404, pricing/auth a11y |
+| 86 | [Labs tournaments auth](./86-ux-labs-auth-tournaments.md) | Reports Labs, tournaments, 404, auth a11y |
 | 87 | [Studio classroom visual](./87-studio-classroom-admin-visual.md) | Node Studio, live class, admin polish, visual baselines |
+| 88 | [Instance backup](./88-instance-backup.md) | Admin `.gz` handoff of the whole school between PCs |
+| 89 | [Unverified lifecycle](./89-unverified-lifecycle.md) | Inactive after 7 days, delete after 30 if email is unconfirmed |
+| 90 | [Deep improvements plan](./90-deep-improvements-plan.md) | Analysis, findings, step-by-step plan + backlog for learning depth |
+| 91 | [Deep-learning features](./91-deep-learning-features.md) | Concept cards, forgetting-curve memory model, interleaved mixed practice, new deep lessons |
+| 92 | [Deep learning, round 2](./92-deep-learning-2.md) | Confidence calibration, mistake notebook (exercise SRS), mastery map, explain-in-own-words, MDX concept markers |
 | — | **[CURRENT.md](./CURRENT.md)** | **Active product surface freeze, IA, improvement checklist** |
 | — | [CONTENT-DX.md](./CONTENT-DX.md) | Content authoring DX + EN gate |
 | — | [CRON.md](./CRON.md) | Digest / re-engage cron runbook |
@@ -100,11 +105,9 @@ This folder is the **source of truth** for the EduForge educational SaaS monorep
 | — | [OPS.md](./OPS.md) | Backups, multi-instance, flags, incidents |
 | — | [P2-STRATEGIC.md](./P2-STRATEGIC.md) | Judge, OTel, MDX, video, classroom, mobile foundations |
 
-| 88 | [Instance backup](./88-instance-backup.md) | Admin `.gz` handoff of the whole school between PCs |
+> **Note:** Specs 01–91 are historical feature logs. Day-to-day product truth is **[CURRENT.md](./CURRENT.md)**.
 
-> **Note:** Specs 01–88 are historical feature logs. Day-to-day product truth is **[CURRENT.md](./CURRENT.md)**.
-
-**Status:** SPECs **01–88** + improvement waves through **142** (full RSC strangler, character talents, friend gifts, course expansion). Active surface: **[CURRENT.md](./CURRENT.md)**. Content: **[CONTENT-DX.md](./CONTENT-DX.md)**. Cron: **[CRON.md](./CRON.md)**. Foundations: **[P2-STRATEGIC.md](./P2-STRATEGIC.md)**.
+**Status:** SPECs **01–91** + improvement waves through **142** (full RSC strangler, character talents, friend gifts, course expansion). Active surface: **[CURRENT.md](./CURRENT.md)**. Content: **[CONTENT-DX.md](./CONTENT-DX.md)**. Cron: **[CRON.md](./CRON.md)**. Foundations: **[P2-STRATEGIC.md](./P2-STRATEGIC.md)**.
 
 ## Product name
 
@@ -118,7 +121,7 @@ This folder is the **source of truth** for the EduForge educational SaaS monorep
 - **Realtime:** Socket.IO (chess)  
 - **DB:** PostgreSQL + Drizzle ORM  
 - **Cache/queues:** Redis (matchmaking-ready)  
-- **Billing:** Stripe (optional) + dev upgrade  
+- **Access:** free for every account. No checkout or subscription.
 
 ## Related root docs
 

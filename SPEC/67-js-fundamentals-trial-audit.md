@@ -13,8 +13,7 @@ Migration: `0017_js_audit_trial`
 
 ## Billing trial
 
-- `POST /billing/trial` — 7-day Premium when Stripe not forcing checkout (dev/demo)
-- Pricing UI: “Trial 7 днів”
+Removed. The app is free. There is no `/billing/trial` and no pricing page.
 
 ## Admin audit
 

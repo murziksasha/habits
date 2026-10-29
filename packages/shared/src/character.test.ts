@@ -166,7 +166,7 @@ describe("character v3: synergies + archetypes + power", () => {
     });
     expect(hasSynergy(p, "iron_will")).toBe(true);
     expect(ironWillHeartsBonus(p)).toBe(1);
-    expect(maxHearts("free", p)).toBe(6);
+    expect(maxHearts(p)).toBe(6);
   });
 
   it("deep study boosts mentor depth", () => {

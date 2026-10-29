@@ -25,17 +25,21 @@ import {
   destroySession,
   hashPassword,
   hashToken,
+  isAccountActive,
   listUserSessions,
   registerUser,
   setSessionCookie,
   shouldIssueBearerToken,
+  userFromRequest,
   verifyPassword,
   type AuthedUser,
 } from "../auth.js";
+import { cronAuthorized, cronUnauthorized } from "../cron-auth.js";
 import { db } from "../db.js";
-import { emailVerifyEmail, passwordResetEmail, sendMail } from "../email.js";
+import { passwordResetEmail, registrationVerifyEmail, sendMail } from "../email.js";
 import { env } from "../env.js";
 import { clientIp, rateLimit } from "../rate-limit.js";
+import { runUnverifiedLifecycle } from "../services/unverified-lifecycle.js";
 import { ensureReferralCode, redeemReferralCode } from "./referrals.js";
 
 type Vars = { user: AuthedUser; sessionToken?: string };
@@ -61,22 +65,35 @@ async function guardAuth(
   return null;
 }
 
+const EMAIL_VERIFY_MS = 30 * 24 * 60 * 60 * 1000;
+
 async function issueEmailVerification(userId: string, email: string) {
   if (!isFeatureEnabled("email_verify")) return { sent: false as const };
   const raw = randomBytes(32).toString("hex");
   const tokenHash = hashToken(raw);
-  const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+  const expiresAt = new Date(Date.now() + EMAIL_VERIFY_MS);
   await db.insert(emailVerificationTokens).values({
     userId,
     tokenHash,
     expiresAt,
   });
   const verifyUrl = `${env.webOrigin}/verify-email?token=${raw}`;
-  const mail = await sendMail(emailVerifyEmail({ to: email, verifyUrl }));
-  const isDev = process.env.NODE_ENV !== "production";
+  const [userRow, character] = await Promise.all([
+    db.query.users.findFirst({ where: eq(users.id, userId) }),
+    db.query.characters.findFirst({ where: eq(characters.userId, userId) }),
+  ]);
+  const mail = await sendMail(
+    registrationVerifyEmail({
+      to: email,
+      displayName: character?.displayName ?? "",
+      verifyUrl,
+      locale: userRow?.preferredLocale ?? "uk",
+    }),
+  );
+  const isDev = process.env.NODE_ENV !== "production" || Boolean(mail.dev);
   if (isDev) console.log(`[email-verify] ${email} → ${verifyUrl}`);
   return {
-    sent: mail.sent,
+    sent: mail.sent || Boolean(mail.dev),
     ...(isDev ? { verifyUrl, devToken: raw } : {}),
   };
 }
@@ -84,20 +101,18 @@ async function issueEmailVerification(userId: string, email: string) {
 function publicUser(user: {
   id: string;
   email: string;
-  plan: string;
   role: string;
   totpEnabled?: boolean;
   mfaBackupCodeHashes?: string[] | null;
   emailVerifiedAt?: Date | null;
-  planExpiresAt?: Date | null;
+  accountStatus?: string | null;
 }) {
   return {
     id: user.id,
     email: user.email,
-    plan: user.plan,
     role: user.role,
     emailVerified: Boolean(user.emailVerifiedAt),
-    planExpiresAt: user.planExpiresAt ?? null,
+    accountStatus: user.accountStatus ?? "active",
     totpEnabled: user.totpEnabled,
     backupCodesRemaining: (user.mfaBackupCodeHashes ?? []).length,
   };
@@ -152,6 +167,10 @@ authRoutes.post("/login", async (c) => {
   });
   if (!user?.passwordHash || !(await verifyPassword(parsed.data.password, user.passwordHash))) {
     return c.json({ error: "invalid_credentials" }, 401);
+  }
+
+  if (!isAccountActive(user)) {
+    return c.json({ error: "account_inactive" }, 403);
   }
 
   if (isFeatureEnabled("require_email_verify") && !user.emailVerifiedAt && user.role !== "admin") {
@@ -295,7 +314,6 @@ authRoutes.get("/me", authMiddleware, async (c) => {
   return c.json({
     user: {
       ...publicUser(user),
-      planExpiresAt: user.planExpiresAt,
       totpEnabled: user.totpEnabled,
       mfaVerified,
       backupCodesRemaining: (user.mfaBackupCodeHashes ?? []).length,
@@ -326,27 +344,72 @@ authRoutes.post("/verify-email", async (c) => {
   });
   if (!row) return c.json({ error: "invalid_or_expired_token" }, 400);
 
-  await db
+  const [updated] = await db
     .update(users)
-    .set({ emailVerifiedAt: new Date(), updatedAt: new Date() })
-    .where(eq(users.id, row.userId));
+    .set({
+      emailVerifiedAt: new Date(),
+      accountStatus: "active",
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, row.userId))
+    .returning();
   await db
     .update(emailVerificationTokens)
     .set({ usedAt: new Date() })
     .where(eq(emailVerificationTokens.id, row.id));
 
+  const sessionUser = updated ?? (await db.query.users.findFirst({ where: eq(users.id, row.userId) }));
+  if (sessionUser) {
+    const { token, expiresAt } = await createSession(sessionUser.id);
+    setSessionCookie(c, token, expiresAt);
+    return c.json({
+      ok: true,
+      emailVerified: true,
+      user: publicUser(sessionUser),
+      ...(shouldIssueBearerToken(c) ? { token } : {}),
+    });
+  }
+
   return c.json({ ok: true, emailVerified: true });
 });
 
-authRoutes.post("/resend-verification", authMiddleware, async (c) => {
+authRoutes.post("/resend-verification", async (c) => {
   const limited = await guardAuth(c, "resend_verify");
   if (limited) return limited;
-  const user = c.get("user");
-  if (user.emailVerifiedAt) {
+  const body = await c.req.json().catch(() => ({}));
+  const sessionUser = await userFromRequest(c);
+  if (sessionUser && sessionUser.emailVerifiedAt) {
     return c.json({ ok: true, alreadyVerified: true });
   }
+  if (sessionUser && !sessionUser.emailVerifiedAt) {
+    const verify = await issueEmailVerification(sessionUser.id, sessionUser.email);
+    return c.json({ ok: true, ...verify });
+  }
+
+  const email = typeof body?.email === "string" ? body.email.toLowerCase() : "";
+  const generic = {
+    ok: true,
+    message:
+      "Якщо акаунт існує і ще не підтверджений, ми надіслали лист.",
+  };
+  if (!email.includes("@")) return c.json({ error: "invalid_input" }, 400);
+  const user = await db.query.users.findFirst({ where: eq(users.email, email) });
+  if (!user || user.emailVerifiedAt) return c.json(generic);
   const verify = await issueEmailVerification(user.id, user.email);
-  return c.json({ ok: true, ...verify });
+  const isDev = process.env.NODE_ENV !== "production";
+  return c.json({
+    ...generic,
+    ...(isDev && "verifyUrl" in verify
+      ? { verifyUrl: verify.verifyUrl, devToken: verify.devToken }
+      : {}),
+  });
+});
+
+/** Inactivate unverified accounts after 7 days; delete them after 30 days. */
+authRoutes.post("/cron/unverified-lifecycle", async (c) => {
+  if (!cronAuthorized(c)) return cronUnauthorized(c);
+  const result = await runUnverifiedLifecycle();
+  return c.json({ ok: true, ...result });
 });
 
 /* ——— User TOTP MFA (admin + learners) ——— */
@@ -450,6 +513,7 @@ authRoutes.post("/mfa/totp/verify", async (c) => {
   await consumeMfaPending(mfaToken);
   const user = await db.query.users.findFirst({ where: eq(users.id, pending.userId) });
   if (!user) return c.json({ error: "not_found" }, 404);
+  if (!isAccountActive(user)) return c.json({ error: "account_inactive" }, 403);
   const { token, expiresAt } = await createSession(user.id, { mfaVerified: true });
   setSessionCookie(c, token, expiresAt);
   const character = await db.query.characters.findFirst({
@@ -647,7 +711,6 @@ authRoutes.post("/onboarding/complete", authMiddleware, async (c) => {
     "triedTyping",
     "triedFlashcards",
     "viewedLeaderboard",
-    "exploredPricing",
     "dismissed",
     "wizardCompleted",
     "personaStudent",

@@ -22,6 +22,7 @@ Set in env: `CRON_SECRET=` (see `.env.example`).
 | Learner weekly email | `POST /admin/ops/weekly-learners` | Weekly Sun 17:00 | Opt-in `weeklyEmailEnabled` |
 | Push re-engage | `POST /admin/ops/push-reengage` body `{"days":3}` | Daily 16:00 | `lastActiveDate` older than N days; throttle via `push_reengage_sent` |
 | Weekly quest remind | `POST /admin/ops/weekly-quest-remind` body `{"limit":300}` | Wed+Sat 15:00 | Incomplete weekly build/lessons; throttle 2d via `weekly_quest_remind` |
+| Unverified lifecycle | `POST /auth/cron/unverified-lifecycle` **or** `POST /admin/ops/unverified-lifecycle` | Daily 03:00 | Unverified ≥7d → `inactive`; ≥30d → hard delete |
 | Judge worker drain | `POST /judge/worker/drain` body `{"max":5}` | Every 10–30s if async judge used | Auth: `JUDGE_WORKER_SECRET` or `CRON_SECRET` |
 
 ### Dry-run notes
@@ -30,7 +31,7 @@ Set in env: `CRON_SECRET=` (see `.env.example`).
 - Judge drain: safe no-op when queue empty; result store TTL is in-process/Redis (see `@eduforge/judge` queue).
 - Prefer admin Ops UI dry-check (buttons) then enable cron.
 
-Admin UI: `/admin` → Ops buttons (including **Push re-engage (3d)**).
+Admin UI: `/admin` → Ops buttons (including **Push re-engage (3d)** and **Unverified cleanup**).
 
 ## curl examples
 
@@ -60,6 +61,10 @@ curl -sS -X POST "$API/admin/ops/push-reengage" \
 
 # Homework reminders
 curl -sS -X POST "$API/admin/ops/homework-reminders" \
+  -H "x-cron-secret: $CRON_SECRET"
+
+# Unverified: inactive 7d / delete 30d
+curl -sS -X POST "$API/auth/cron/unverified-lifecycle" \
   -H "x-cron-secret: $CRON_SECRET"
 ```
 

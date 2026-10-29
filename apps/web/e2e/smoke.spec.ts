@@ -311,7 +311,7 @@ test.describe("EduForge smoke", () => {
     await page.goto("/admin/metrics");
     await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
     await expect(
-      page.getByText(/Product funnel|First lesson|Paywall|Metrics|Метрик|previous/i).first(),
+      page.getByText(/Product funnel|First lesson|Metrics|Метрик|previous/i).first(),
     ).toBeVisible({ timeout: 20_000 });
   });
 
