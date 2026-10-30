@@ -209,7 +209,7 @@ authRoutes.post("/login", async (c) => {
     character,
     ...(shouldIssueBearerToken(c) ? { token } : {}),
     mfaEnrollRequired:
-      user.role === "admin" && adminMfaEnforce() && !user.totpEnabled,
+      user.role === "admin" && adminMfaEnforce() && !user.totpEnabled && !user.mfaExempt,
   });
 });
 
@@ -318,7 +318,7 @@ authRoutes.get("/me", authMiddleware, async (c) => {
       mfaVerified,
       backupCodesRemaining: (user.mfaBackupCodeHashes ?? []).length,
       mfaEnrollRequired:
-        user.role === "admin" && adminMfaEnforce() && !user.totpEnabled,
+        user.role === "admin" && adminMfaEnforce() && !user.totpEnabled && !user.mfaExempt,
       mfaRequired: user.role === "admin" && user.totpEnabled && !mfaVerified,
     },
     character,
@@ -477,6 +477,7 @@ authRoutes.post("/mfa/totp/confirm", authMiddleware, async (c) => {
       totpEnabled: true,
       totpVerifiedAt: new Date(),
       mfaBackupCodeHashes: hashBackupCodes(backupCodes),
+      mfaExempt: false,
       updatedAt: new Date(),
     })
     .where(eq(users.id, user.id));
@@ -604,6 +605,7 @@ authRoutes.post("/mfa/backup-codes/regenerate", authMiddleware, async (c) => {
     .update(users)
     .set({
       mfaBackupCodeHashes: hashBackupCodes(backupCodes),
+      mfaExempt: false,
       updatedAt: new Date(),
     })
     .where(eq(users.id, user.id));

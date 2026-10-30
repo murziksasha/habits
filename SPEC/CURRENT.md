@@ -266,6 +266,8 @@ Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, 
 
 172. **Learning depth 2 (SPEC 92):** confidence ratings + calibration card · mistake notebook `/review/mistakes` (exercise-level SRS, migration 0032) · mastery map `/courses/[slug]/mastery` · `explain` exercise type (rubric + tutor feedback `POST /deep/explain-feedback`) · MDX `<!-- concept -->` / `<!-- explain -->` markers + admin forms · capped XP for mixed/mistake practice · js_fundamentals prompt rewrite · CI on `deepImprovements`.
 
+173. **Admin God Mode (`/admin/users`):** Any admin can hard-delete another account (with school-owner cascade, detaching teacher and pairing seats), set password (destroys sessions, audits `user_set_password`), turn 2FA off (clears TOTP/backup hashes, sets `mfa_exempt = true` for admins, kills sessions, audits `user_mfa_off`), and require 2FA (clears `mfa_exempt`, kills sessions, audits `user_mfa_require`). Own row hides controls; API rejects self-target (`400 self_target`). Step-up enforced with auto-pass when admin 2FA is off. Migration `0035_admin_mfa_exempt`.
+
 **What not to build next:** native store apps, full multi-worker judge pool, trained ML ranking, new deep track without CONTENT-DX + IA justification, extra primary nav slots.
 
 ### P2 strategic foundations (scaffolds live — see SPEC/P2-STRATEGIC.md)

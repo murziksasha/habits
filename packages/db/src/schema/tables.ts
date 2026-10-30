@@ -54,6 +54,7 @@ export const users = pgTable("users", {
   totpVerifiedAt: timestamp("totp_verified_at", { withTimezone: true }),
   /** SHA-256 hashes of one-time backup codes (plaintext shown once at generation) */
   mfaBackupCodeHashes: jsonb("mfa_backup_code_hashes").$type<string[]>().notNull().default([]),
+  mfaExempt: boolean("mfa_exempt").notNull().default(false),
   /** Max child seats when this user owns a family group */
   familyMaxSeats: integer("family_max_seats").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),

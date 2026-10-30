@@ -20,8 +20,10 @@
 
 - Any user may `POST /auth/mfa/totp/setup` → `confirm` (was admin-only).
 - Login challenges **all** `totpEnabled` users (not only admin).
-- `POST /auth/mfa/totp/disable` with valid code (admin enforce blocks disable in prod).
+- `POST /auth/mfa/totp/disable` with valid code (admin enforce blocks self-service disable in prod).
+- Admin God Mode: An admin can turn 2FA off for any other user (`POST /admin/users/:id/reset-mfa`). If the target is an admin, sets `users.mfa_exempt = true` (exempting them from `ADMIN_MFA_ENFORCE` wall until re-enrolled or required).
 - `authMiddleware` returns `mfa_required` for API until session MFA-verified (exempt: `/auth/mfa/*`, `/auth/me`, logout).
+- `mfaEnrollRequired` applies when `user.role === "admin" && adminMfaEnforce() && !user.totpEnabled && !user.mfaExempt`.
 - Profile UI: enable / confirm / disable + backup codes display.
 
 ## 3. Family group
