@@ -90,7 +90,7 @@ See [SPEC 89](./89-unverified-lifecycle.md).
 | `OnlineStatusWatcher` | Offline / online toasts |
 | `PageLoading` | Consistent loading skeleton |
 | `DeepCourseHub` | Deep track hubs + PageLoading |
-| `LessonShortcutsHelp` | Lesson `?` keyboard modal |
+| `LessonShortcutsHelp` | Lesson `?` keyboard modal (`1`–`9` is `Digit*` and `Numpad*`, and it works without focusing the card first) |
 | `NodeStudio` | WebContainers Node lab (`/studio/node`) |
 | Live classroom | Socket.IO collab (`/classroom/live/[classId]`) |
 | `SpeakButton` | Pronunciation (Web Speech) |
