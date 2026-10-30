@@ -22,11 +22,14 @@ import {
   isoWeekBounds,
   paginatedMeta,
   parsePagination,
+  passwordSchema,
 } from "@eduforge/shared";
 import { z } from "zod";
 import {
   adminMiddleware,
   requireStepUp,
+  destroyAllUserSessions,
+  hashPassword,
   type AuthedUser,
 } from "../auth.js";
 import { db } from "../db.js";
@@ -51,7 +54,7 @@ import {
   validateExercises,
   type PlatformTheme,
 } from "@eduforge/shared";
-import { platformSettings, organizations, classes } from "@eduforge/db";
+import { platformSettings, organizations, classes, tournamentPairings, adminAuditLog } from "@eduforge/db";
 import { adminBackupRoutes } from "./admin-backup.js";
 
 type Vars = { user: AuthedUser; sessionToken?: string };
@@ -90,6 +93,8 @@ adminRoutes.get("/users", async (c) => {
       displayName: characters.displayName,
       globalXp: characters.globalXp,
       globalLevel: characters.globalLevel,
+      totpEnabled: users.totpEnabled,
+      mfaExempt: users.mfaExempt,
     })
     .from(users)
     .leftJoin(characters, eq(characters.userId, users.id))
@@ -1429,29 +1434,128 @@ adminRoutes.get("/security/status", async (c) => {
   });
 });
 
+adminRoutes.post("/users/:id/password", async (c) => {
+  const denied = await requireStepUp(c);
+  if (denied) return denied;
+  const actor = c.get("user");
+  const id = c.req.param("id") as string;
+  if (id === actor.id) return c.json({ error: "self_target" }, 400);
+
+  const body = await c.req.json().catch(() => null);
+  const parsed = passwordSchema.safeParse(body?.password);
+  if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
+
+  const target = await db.query.users.findFirst({ where: eq(users.id, id) });
+  if (!target) return c.json({ error: "not_found" }, 404);
+
+  const passwordHash = await hashPassword(parsed.data);
+  await db.update(users).set({ passwordHash, updatedAt: new Date() }).where(eq(users.id, id));
+  await destroyAllUserSessions(id);
+
+  const { writeAdminAudit } = await import("../audit.js");
+  await writeAdminAudit(db, {
+    actorUserId: actor.id,
+    action: "user_set_password",
+    targetType: "user",
+    targetId: id,
+    meta: {},
+  });
+  return c.json({ ok: true });
+});
+
 adminRoutes.post("/users/:id/reset-mfa", async (c) => {
   const denied = await requireStepUp(c);
   if (denied) return denied;
   const actor = c.get("user");
-  const id = c.req.param("id");
-  const [updated] = await db
+  const id = c.req.param("id") as string;
+  if (id === actor.id) return c.json({ error: "self_target" }, 400);
+
+  const target = await db.query.users.findFirst({ where: eq(users.id, id) });
+  if (!target) return c.json({ error: "not_found" }, 404);
+
+  await db
     .update(users)
     .set({
       totpEnabled: false,
       totpSecretEnc: null,
       totpVerifiedAt: null,
+      mfaBackupCodeHashes: [],
+      mfaExempt: target.role === "admin" ? true : target.mfaExempt,
       updatedAt: new Date(),
     })
-    .where(eq(users.id, id))
-    .returning();
-  if (!updated) return c.json({ error: "not_found" }, 404);
+    .where(eq(users.id, id));
+  await destroyAllUserSessions(id);
+
   const { writeAdminAudit } = await import("../audit.js");
   await writeAdminAudit(db, {
     actorUserId: actor.id,
-    action: "reset_mfa",
+    action: "user_mfa_off",
     targetType: "user",
     targetId: id,
-    meta: { stepUp: true },
+    meta: {},
+  });
+  return c.json({ ok: true });
+});
+
+adminRoutes.post("/users/:id/require-mfa", async (c) => {
+  const denied = await requireStepUp(c);
+  if (denied) return denied;
+  const actor = c.get("user");
+  const id = c.req.param("id") as string;
+  if (id === actor.id) return c.json({ error: "self_target" }, 400);
+
+  const target = await db.query.users.findFirst({ where: eq(users.id, id) });
+  if (!target) return c.json({ error: "not_found" }, 404);
+  if (target.role !== "admin") return c.json({ error: "mfa_require_admin_only" }, 400);
+
+  await db
+    .update(users)
+    .set({
+      mfaExempt: false,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, id));
+  await destroyAllUserSessions(id);
+
+  const { writeAdminAudit } = await import("../audit.js");
+  await writeAdminAudit(db, {
+    actorUserId: actor.id,
+    action: "user_mfa_require",
+    targetType: "user",
+    targetId: id,
+    meta: {},
+  });
+  return c.json({ ok: true });
+});
+
+adminRoutes.delete("/users/:id", async (c) => {
+  const denied = await requireStepUp(c);
+  if (denied) return denied;
+  const actor = c.get("user");
+  const id = c.req.param("id") as string;
+  if (id === actor.id) return c.json({ error: "self_target" }, 400);
+
+  const target = await db.query.users.findFirst({ where: eq(users.id, id) });
+  if (!target) return c.json({ error: "not_found" }, 404);
+
+  const body = await c.req.json().catch(() => null);
+  const confirmEmail = typeof body?.confirmEmail === "string" ? body.confirmEmail.trim() : "";
+  if (!confirmEmail || confirmEmail.toLowerCase() !== target.email.toLowerCase()) {
+    return c.json({ error: "confirm_mismatch" }, 400);
+  }
+
+  await db.transaction(async (tx) => {
+    await tx.update(classes).set({ teacherUserId: null }).where(eq(classes.teacherUserId, id));
+    await tx.update(tournamentPairings).set({ whiteId: null }).where(eq(tournamentPairings.whiteId, id));
+    await tx.update(tournamentPairings).set({ blackId: null }).where(eq(tournamentPairings.blackId, id));
+    await tx.delete(users).where(eq(users.id, id));
+    await tx.insert(adminAuditLog).values({
+      actorUserId: actor.id,
+      action: "user_delete",
+      targetType: "user",
+      targetId: id,
+      meta: { email: target.email },
+    });
   });
   return c.json({ ok: true });
 });

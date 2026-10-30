@@ -48,7 +48,7 @@ type ExamSummary = {
 
 const GROUP_ORDER: CourseGroup[] = ["code", "deep", "skill", "chess"];
 
-/** Learning map: mission + groups + contextual toolkit (no Continue CTA dupe). */
+/** Learning map: tight one-session fold + collapsed quests + catalog. */
 export function LearnClient() {
   const { t, locale } = useLocale();
   const { user, token, character, loading: authLoading } = useAuth();
@@ -101,7 +101,6 @@ export function LearnClient() {
     );
   }
 
-  const next = (data.next?.recommendations ?? []).slice(0, 5);
   const exams = data.exams ?? null;
   const readyExams =
     exams?.courses.flatMap((c) =>
@@ -110,13 +109,12 @@ export function LearnClient() {
         .map((e) => ({ ...e, icon: c.icon, course: c.titleUk })),
     ) ?? [];
 
-  const secondary = next.slice(1, 4);
   const showExams =
     exams &&
     (exams.summary.ready > 0 || exams.summary.passed > 0 || exams.summary.locked > 0);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {!user ? <GuestBanner /> : <OnboardingWizard />}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -134,28 +132,72 @@ export function LearnClient() {
       </div>
 
       {user && (
-        <>
+        <div className="space-y-3">
+          {/* One session above the fold: mission with reason */}
           <PrimaryMission showSecondary={false} />
-          {/* Quests only on Learn (not also on dashboard) */}
-          <DailyQuestsCard />
-          <WeeklyQuestsCard />
 
-          {secondary.length > 0 && (
-            <section className="space-y-2">
-              <h2 className="text-lg font-black">{t.learning.nextSteps}</h2>
-              {secondary.map((r, i) => (
-                <Link
-                  key={`${r.href}-${i}`}
-                  href={r.href}
-                  className="card flex min-h-11 justify-between font-bold hover:border-brand/40"
-                >
-                  <span>{locale === "en" ? r.titleEn : r.titleUk}</span>
-                  <span>→</span>
-                </Link>
-              ))}
+          {/* Quests start closed; open on tap */}
+          <DailyQuestsCard defaultOpen={false} />
+          <WeeklyQuestsCard defaultOpen={false} />
+        </div>
+      )}
+
+      {/* Catalog groups stay: code, deep, skill, chess */}
+      <div className="space-y-6 pt-2">
+        {GROUP_ORDER.map((g) => {
+          const meta = COURSE_GROUP_META[g];
+          const slugs = (Object.keys(COURSE_META) as CourseSlug[]).filter(
+            (s) => COURSE_META[s].group === g,
+          );
+          return (
+            <section key={g} className="space-y-3">
+              <h2 className="text-lg font-black">
+                {locale === "en" ? meta.titleEn : meta.titleUk}
+              </h2>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {slugs.map((slug) => {
+                  const c = COURSE_META[slug];
+                  const href = COURSE_HUB_HREF[slug] ?? `/courses/${slug}`;
+                  return (
+                    <Link
+                      key={slug}
+                      href={href}
+                      className="card flex min-h-11 items-center gap-3 hover:border-brand/40 border-l-4"
+                      style={{ borderLeftColor: c.color }}
+                    >
+                      <span className="text-2xl" aria-hidden>
+                        {c.icon}
+                      </span>
+                      <span className="font-black">
+                        {pickLocale(locale, c.titleUk, c.titleEn)}
+                      </span>
+                    </Link>
+                  );
+                })}
+
+                {/* Extra line for Chess group: Practice vs Club bot */}
+                {g === "chess" && (
+                  <Link
+                    href="/play?level=club"
+                    className="card flex min-h-11 items-center justify-between border-l-4 border-l-sky bg-sky/5 hover:border-sky/40 font-bold transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl" aria-hidden>🤖</span>
+                      <span className="font-black text-brand-dark">
+                        {t.chess.practiceClubBot}
+                      </span>
+                    </div>
+                    <span className="text-sky font-black">→</span>
+                  </Link>
+                )}
+              </div>
             </section>
-          )}
+          );
+        })}
+      </div>
 
+      {user && (
+        <div className="space-y-6 pt-4 border-t border-slate-100 dark:border-slate-800">
           <ContextualToolkit />
 
           {showExams && exams && (
@@ -189,43 +231,8 @@ export function LearnClient() {
               ))}
             </section>
           )}
-        </>
+        </div>
       )}
-
-      {GROUP_ORDER.map((g) => {
-        const meta = COURSE_GROUP_META[g];
-        const slugs = (Object.keys(COURSE_META) as CourseSlug[]).filter(
-          (s) => COURSE_META[s].group === g,
-        );
-        return (
-          <section key={g} className="space-y-3">
-            <h2 className="text-lg font-black">
-              {locale === "en" ? meta.titleEn : meta.titleUk}
-            </h2>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {slugs.map((slug) => {
-                const c = COURSE_META[slug];
-                const href = COURSE_HUB_HREF[slug] ?? `/courses/${slug}`;
-                return (
-                  <Link
-                    key={slug}
-                    href={href}
-                    className="card flex min-h-11 items-center gap-3 hover:border-brand/40 border-l-4"
-                    style={{ borderLeftColor: c.color }}
-                  >
-                    <span className="text-2xl" aria-hidden>
-                      {c.icon}
-                    </span>
-                    <span className="font-black">
-                      {pickLocale(locale, c.titleUk, c.titleEn)}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          </section>
-        );
-      })}
     </div>
   );
 }

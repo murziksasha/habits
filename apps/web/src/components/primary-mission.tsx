@@ -27,6 +27,32 @@ function kindIcon(kind: string): string {
   return "✨";
 }
 
+function getRecommendationReason(kind: string | undefined, t: ReturnType<typeof useLocale>["t"]): string {
+  if (!kind) return t.learn.reasonDefault;
+  if (kind === "review_weak" || kind === "leech") {
+    return t.learn.reasonWeak;
+  }
+  if (kind === "spaced_review" || kind === "review_queue") {
+    return t.learn.reasonSpaced;
+  }
+  if (kind.includes("exam")) {
+    return t.learn.reasonExam;
+  }
+  if (kind.includes("placement")) {
+    return t.learn.reasonPlacement;
+  }
+  if (kind.includes("continue")) {
+    return t.learn.reasonContinue;
+  }
+  if (kind.includes("start")) {
+    return t.learn.reasonStart;
+  }
+  if (kind.includes("flash")) {
+    return t.learn.reasonFlashcards;
+  }
+  return t.learn.reasonDefault;
+}
+
 /** Single source-of-truth primary CTA for thin home / learn. */
 export function PrimaryMission({
   variant = "hero",
@@ -113,8 +139,10 @@ export function PrimaryMission({
       </p>
       {next?.kind ? (
         <p className="text-xs font-bold text-ink-muted">
-          {locale === "en" ? "Why this" : "Чому це"}:{" "}
-          <span className="font-black text-brand-dark">{next.kind.replace(/_/g, " ")}</span>
+          {t.learn.whyThis}:{" "}
+          <span className="font-black text-brand-dark">
+            {getRecommendationReason(next.kind, t)}
+          </span>
         </p>
       ) : null}
       <div className="flex flex-wrap gap-2">

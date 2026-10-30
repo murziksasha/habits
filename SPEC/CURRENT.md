@@ -266,6 +266,23 @@ Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, 
 
 172. **Learning depth 2 (SPEC 92):** confidence ratings + calibration card · mistake notebook `/review/mistakes` (exercise-level SRS, migration 0032) · mastery map `/courses/[slug]/mastery` · `explain` exercise type (rubric + tutor feedback `POST /deep/explain-feedback`) · MDX `<!-- concept -->` / `<!-- explain -->` markers + admin forms · capped XP for mixed/mistake practice · js_fundamentals prompt rewrite · CI on `deepImprovements`.
 
+173. **Admin God Mode (`/admin/users`):** Any admin can hard-delete another account (with school-owner cascade, detaching teacher and pairing seats), set password (destroys sessions, audits `user_set_password`), turn 2FA off (clears TOTP/backup hashes, sets `mfa_exempt = true` for admins, kills sessions, audits `user_mfa_off`), and require 2FA (clears `mfa_exempt`, kills sessions, audits `user_mfa_require`). Own row hides controls; API rejects self-target (`400 self_target`). Step-up enforced with auto-pass when admin 2FA is off. Migration `0035_admin_mfa_exempt`.
+
+174. **Smarter chess practice & tighter Learn session:**
+   - **Chess bot practice (Phase A):** Move selection moved into `@eduforge/chess-core` as `chooseBotMove(fen, level)`. Three calibrated levels:
+     - `Learner`: 1-ply search scoring hanging pieces/safe captures and development, with ~25% random blunder moves.
+     - `Club`: Depth-2 alpha-beta search with MVV-LVA capture ordering, piece-square tables (development, center control, castling), and occasional second-best move selection (~35%) among moves within 35 cp of best score.
+     - `Strong`: Depth-3 alpha-beta search with near-zero noise, offloaded in the browser to a Web Worker (`chess-bot-worker.ts`) to keep board rendering smooth, falling back to Club on failure.
+     - Natural opening book for first moves (1. e4, d4, c4, Nf3 and principal replies).
+     - Pre-game color selection (White or Black) and level selector (`/play?level=club|learner|strong`).
+     - Bot displays level name with no fake Elo; invariant preserved (no DB `chess_games` rows, no Elo changes for bot matches).
+   - **Learn UX session fold:**
+     - One focused session above the fold: `PrimaryMission` paired with a dedicated explanation line showing recommendation reasoning (weak lesson review, spaced repetition due, exam ready, course progress).
+     - Quests start collapsed: Daily and weekly quest cards on `/learn` show compact summaries (e.g. `2 of 3 today`, `1 of 2 this week`) and expand on tap.
+     - Course catalog groups remain directly accessible below the session fold.
+     - Extra "Practice vs Club bot" link in the Chess course group directly deep-linking to `/play?level=club`.
+
+
 **What not to build next:** native store apps, full multi-worker judge pool, trained ML ranking, new deep track without CONTENT-DX + IA justification, extra primary nav slots.
 
 ### P2 strategic foundations (scaffolds live — see SPEC/P2-STRATEGIC.md)

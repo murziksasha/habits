@@ -18,12 +18,13 @@ type Quest = {
   titleEn?: string;
 };
 
-/** Compact daily quests for dashboard / learn (primary mission loop). */
-export function DailyQuestsCard() {
+/** Compact daily quests for learn — starts closed, opens on tap. */
+export function DailyQuestsCard({ defaultOpen = false }: { defaultOpen?: boolean } = {}) {
   const { token, user, setCharacter, refresh } = useAuth();
   const { locale, t } = useLocale();
   const [quests, setQuests] = useState<Quest[]>([]);
   const [date, setDate] = useState("");
+  const [open, setOpen] = useState(defaultOpen);
 
   useEffect(() => {
     if (!token || !user) return;
@@ -36,6 +37,9 @@ export function DailyQuestsCard() {
   }, [token, user]);
 
   if (!user || quests.length === 0) return null;
+
+  const completedCount = quests.filter((q) => q.completed || q.claimed).length;
+  const totalCount = quests.length;
 
   const primary =
     quests.find((q) => !q.claimed && !q.completed) ??
@@ -92,12 +96,52 @@ export function DailyQuestsCard() {
     }
   }
 
+  if (!open) {
+    return (
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => setOpen(true)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setOpen(true);
+          }
+        }}
+        className="card cursor-pointer border-sun/30 bg-gradient-to-br from-sun/10 to-brand-soft/20 py-2.5 px-4 flex items-center justify-between hover:border-sun/50 transition-colors"
+        aria-expanded={false}
+      >
+        <div className="flex items-center gap-2">
+          <span>🗡️</span>
+          <span className="font-bold text-sm">
+            {en ? "Daily quests" : "Щоденні квести"}:{" "}
+            <strong className="text-sun">
+              {completedCount} {en ? "of" : "з"} {totalCount} {t.learn.questsTodaySummary}
+            </strong>
+          </span>
+        </div>
+        <span className="text-xs font-bold text-ink-muted">
+          ▼ {t.learn.tapToOpen}
+        </span>
+      </div>
+    );
+  }
+
   return (
     <section className="card border-sun/30 bg-gradient-to-br from-sun/10 to-brand-soft/20 space-y-2">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs font-black uppercase text-sun">
-          {en ? "Daily mission" : "Місія дня"}
-        </p>
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          className="flex items-center gap-1.5 text-xs font-black uppercase text-sun hover:underline"
+          aria-expanded={true}
+        >
+          <span>🗡️ {en ? "Daily quests" : "Щоденні квести"}</span>
+          <span className="text-ink-muted font-normal lowercase">
+            ({completedCount} {en ? "of" : "з"} {totalCount} {t.learn.questsTodaySummary})
+          </span>
+          <span className="text-[10px] text-ink-muted">▲</span>
+        </button>
         {date && <span className="text-[10px] font-bold text-ink-muted">{date}</span>}
       </div>
       <p className="font-black">{title}</p>

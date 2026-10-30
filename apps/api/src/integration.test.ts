@@ -5,23 +5,31 @@
 import { Secret, TOTP } from "otpauth";
 import { describe, expect, it, beforeAll } from "vitest";
 import { createApp } from "./app.js";
+import { db } from "./db.js";
+import { users, classes, tournamentPairings, tournaments, organizations } from "@eduforge/db";
+import { eq } from "drizzle-orm";
 
 const skip = process.env.SKIP_INTEGRATION === "1";
 const describeIntegration = skip ? describe.skip : describe;
 
 const app = createApp();
 
+let ipSeq = 1;
+
 async function json(
   path: string,
-  opts: { method?: string; body?: unknown; token?: string } = {},
+  opts: { method?: string; body?: unknown; token?: string; headers?: Record<string, string> } = {},
 ) {
+  const ip = `10.0.${Math.floor(ipSeq / 250)}.${(ipSeq++ % 250) + 1}`;
   const res = await app.request(path, {
     method: opts.method ?? (opts.body ? "POST" : "GET"),
     headers: {
       "Content-Type": "application/json",
+      "X-Forwarded-For": ip,
       // CI and production omit the bearer body unless the client opts in.
       "X-Issue-Bearer": "1",
       ...(opts.token ? { Authorization: `Bearer ${opts.token}` } : {}),
+      ...(opts.headers ?? {}),
     },
     body: opts.body ? JSON.stringify(opts.body) : undefined,
   });
@@ -323,5 +331,423 @@ describeIntegration("API integration", () => {
     const r = await json("/chess/rating/me", { token: t as string });
     expect(r.status).toBe(200);
     expect(r.data.rating.elo).toBeGreaterThanOrEqual(1000);
+  });
+
+  describe("Admin god mode on /admin/users", () => {
+    let adminToken = "";
+    let adminId = "";
+    let stepUpToken = "";
+
+    beforeAll(async () => {
+      const adminEmail = process.env.ADMIN_EMAIL ?? "admin@eduforge.ua";
+      const adminPass = process.env.ADMIN_PASSWORD ?? "admin12345";
+      const login = await json("/auth/login", {
+        method: "POST",
+        body: { email: adminEmail, password: adminPass },
+      });
+      if (login.data.mfaRequired) {
+        const mfaToken = login.data.mfaToken as string;
+        const secret = process.env.SEED_ADMIN_TOTP_SECRET ?? "JBSWY3DPEHPK3PXP";
+        const code = new TOTP({
+          algorithm: "SHA1",
+          digits: 6,
+          period: 30,
+          secret: Secret.fromBase32(secret),
+        }).generate();
+        let verified = await json("/auth/mfa/totp/verify", {
+          method: "POST",
+          body: { mfaToken, code },
+        });
+        if (verified.status !== 200) {
+          const backup = process.env.SEED_ADMIN_BACKUP_CODE ?? "AAAA-BBBB";
+          verified = await json("/auth/mfa/totp/verify", {
+            method: "POST",
+            body: { mfaToken, code: backup },
+          });
+        }
+        adminToken = verified.data.token as string;
+      } else {
+        adminToken = login.data.token as string;
+      }
+
+      const me = await json("/auth/me", { token: adminToken });
+      adminId = me.data.user.id as string;
+
+      // Obtain a step-up token
+      const secret = process.env.SEED_ADMIN_TOTP_SECRET ?? "JBSWY3DPEHPK3PXP";
+      const code = new TOTP({
+        algorithm: "SHA1",
+        digits: 6,
+        period: 30,
+        secret: Secret.fromBase32(secret),
+      }).generate();
+      const su = await json("/auth/mfa/step-up", {
+        method: "POST",
+        token: adminToken,
+        body: { code },
+      });
+      stepUpToken = (su.data.stepUpToken as string) ?? "";
+    });
+
+    it("self-target refused for all god mode mutations", async () => {
+      const headers = stepUpToken ? { "X-Admin-StepUp": stepUpToken } : {};
+
+      const pwd = await json(`/admin/users/${adminId}/password`, {
+        method: "POST",
+        token: adminToken,
+        headers,
+        body: { password: "ValidPassword123" },
+      });
+      expect(pwd.status).toBe(400);
+      expect(pwd.data.error).toBe("self_target");
+
+      const resetMfa = await json(`/admin/users/${adminId}/reset-mfa`, {
+        method: "POST",
+        token: adminToken,
+        headers,
+      });
+      expect(resetMfa.status).toBe(400);
+      expect(resetMfa.data.error).toBe("self_target");
+
+      const reqMfa = await json(`/admin/users/${adminId}/require-mfa`, {
+        method: "POST",
+        token: adminToken,
+        headers,
+      });
+      expect(reqMfa.status).toBe(400);
+      expect(reqMfa.data.error).toBe("self_target");
+
+      const del = await json(`/admin/users/${adminId}`, {
+        method: "DELETE",
+        token: adminToken,
+        headers,
+        body: { confirmEmail: "admin@eduforge.local" },
+      });
+      expect(del.status).toBe(400);
+      expect(del.data.error).toBe("self_target");
+    });
+
+    it("email mismatch refused on delete", async () => {
+      const headers = stepUpToken ? { "X-Admin-StepUp": stepUpToken } : {};
+      const targetEmail = `target-mismatch-${Date.now()}@eduforge.test`;
+      const reg = await json("/auth/register", {
+        method: "POST",
+        body: { email: targetEmail, password: "password123", displayName: "Target Mismatch" },
+      });
+      const targetId = reg.data.user.id as string;
+
+      const del = await json(`/admin/users/${targetId}`, {
+        method: "DELETE",
+        token: adminToken,
+        headers,
+        body: { confirmEmail: "wrong@eduforge.test" },
+      });
+      expect(del.status).toBe(400);
+      expect(del.data.error).toBe("confirm_mismatch");
+    });
+
+    it("delete nulls teacher and pairing then removes the user", async () => {
+      const headers = stepUpToken ? { "X-Admin-StepUp": stepUpToken } : {};
+      const targetEmail = `target-del-${Date.now()}@eduforge.test`;
+      const reg = await json("/auth/register", {
+        method: "POST",
+        body: { email: targetEmail, password: "password123", displayName: "Target Delete" },
+      });
+      const targetId = reg.data.user.id as string;
+
+      // Create organization owned by admin where target is a teacher
+      const [org] = await db
+        .insert(organizations)
+        .values({
+          name: "Admin Org",
+          slug: `admin-org-${Date.now()}`,
+          ownerUserId: adminId,
+        })
+        .returning();
+
+      const [cls] = await db
+        .insert(classes)
+        .values({
+          organizationId: org.id,
+          name: "Test Class",
+          inviteCode: `INV-${Date.now().toString().slice(-8)}`,
+          teacherUserId: targetId,
+        })
+        .returning();
+
+      // Create organization owned by target (should cascade on user delete)
+      const [ownedOrg] = await db
+        .insert(organizations)
+        .values({
+          name: "Target Owned School",
+          slug: `owned-school-${Date.now()}`,
+          ownerUserId: targetId,
+        })
+        .returning();
+
+      // Create tournament and tournament pairing with whiteId and blackId = targetId
+      const [tourn] = await db
+        .insert(tournaments)
+        .values({
+          slug: `test-tourn-${Date.now()}`,
+          titleUk: "Тестовий турнір",
+          hostUserId: adminId,
+        })
+        .returning();
+
+      const [pairing] = await db
+        .insert(tournamentPairings)
+        .values({
+          tournamentId: tourn.id,
+          round: 1,
+          whiteId: targetId,
+          blackId: targetId,
+        })
+        .returning();
+
+      // Delete the user with trimmed case-insensitive confirmEmail
+      const del = await json(`/admin/users/${targetId}`, {
+        method: "DELETE",
+        token: adminToken,
+        headers,
+        body: { confirmEmail: `  ${targetEmail.toUpperCase()}  ` },
+      });
+      expect(del.status).toBe(200);
+      expect(del.data.ok).toBe(true);
+
+      // Verify class still exists, teacherUserId is set to null
+      const checkClass = await db.query.classes.findFirst({ where: eq(classes.id, cls.id) });
+      expect(checkClass).toBeDefined();
+      expect(checkClass?.teacherUserId).toBeNull();
+
+      // Verify pairing still exists, whiteId and blackId are set to null
+      const checkPairing = await db.query.tournamentPairings.findFirst({
+        where: eq(tournamentPairings.id, pairing.id),
+      });
+      expect(checkPairing).toBeDefined();
+      expect(checkPairing?.whiteId).toBeNull();
+      expect(checkPairing?.blackId).toBeNull();
+
+      // Verify user row is deleted
+      const checkUser = await db.query.users.findFirst({ where: eq(users.id, targetId) });
+      expect(checkUser).toBeUndefined();
+
+      // Verify owned school was deleted via cascade
+      const checkOwnedOrg = await db.query.organizations.findFirst({
+        where: eq(organizations.id, ownedOrg.id),
+      });
+      expect(checkOwnedOrg).toBeUndefined();
+    });
+
+    it("password kills sessions and allows login", async () => {
+      const headers = stepUpToken ? { "X-Admin-StepUp": stepUpToken } : {};
+      const targetEmail = `target-pwd-${Date.now()}@eduforge.test`;
+      const reg = await json("/auth/register", {
+        method: "POST",
+        body: { email: targetEmail, password: "oldPassword123", displayName: "Target Pwd" },
+      });
+      const targetId = reg.data.user.id as string;
+      const initialToken = reg.data.token as string;
+
+      // Verify initial session works
+      const meBefore = await json("/auth/me", { token: initialToken });
+      expect(meBefore.status).toBe(200);
+
+      // Set new password via admin god mode
+      const newPassword = "newSecurePassword456";
+      const setPwd = await json(`/admin/users/${targetId}/password`, {
+        method: "POST",
+        token: adminToken,
+        headers,
+        body: { password: newPassword },
+      });
+      expect(setPwd.status).toBe(200);
+      expect(setPwd.data.ok).toBe(true);
+
+      // Verify old session is killed immediately
+      const meAfter = await json("/auth/me", { token: initialToken });
+      expect(meAfter.status).toBe(401);
+
+      // Login with old password fails
+      const loginOld = await json("/auth/login", {
+        method: "POST",
+        body: { email: targetEmail, password: "oldPassword123" },
+      });
+      expect(loginOld.status).toBe(401);
+
+      // Login with new password succeeds
+      const loginNew = await json("/auth/login", {
+        method: "POST",
+        body: { email: targetEmail, password: newPassword },
+      });
+      expect(loginNew.status).toBe(200);
+      expect(loginNew.data.user.id).toBe(targetId);
+    });
+
+    it("mfa-off sets exemption and clears backup hashes", async () => {
+      const headers = stepUpToken ? { "X-Admin-StepUp": stepUpToken } : {};
+      const targetEmail = `target-admin2-${Date.now()}@eduforge.test`;
+      const reg = await json("/auth/register", {
+        method: "POST",
+        body: { email: targetEmail, password: "admin2Password123", displayName: "Target Admin 2" },
+      });
+      const targetId = reg.data.user.id as string;
+      let targetToken = reg.data.token as string;
+
+      // Promote to admin
+      await db.update(users).set({ role: "admin" }).where(eq(users.id, targetId));
+
+      // Setup and confirm TOTP for target admin
+      const setup = await json("/auth/mfa/totp/setup", {
+        method: "POST",
+        token: targetToken,
+      });
+      expect(setup.status).toBe(200);
+      const secret = setup.data.secret as string;
+      const code = new TOTP({
+        algorithm: "SHA1",
+        digits: 6,
+        period: 30,
+        secret: Secret.fromBase32(secret),
+      }).generate();
+
+      const conf = await json("/auth/mfa/totp/confirm", {
+        method: "POST",
+        token: targetToken,
+        body: { code },
+      });
+      expect(conf.status).toBe(200);
+      expect(conf.data.backupCodes.length).toBe(10);
+
+      // Check user row before reset-mfa
+      const userBefore = await db.query.users.findFirst({ where: eq(users.id, targetId) });
+      expect(userBefore?.totpEnabled).toBe(true);
+      expect(userBefore?.mfaBackupCodeHashes.length).toBe(10);
+
+      // Surviving admin turns 2FA off
+      const reset = await json(`/admin/users/${targetId}/reset-mfa`, {
+        method: "POST",
+        token: adminToken,
+        headers,
+      });
+      expect(reset.status).toBe(200);
+
+      // Check user row: exemption is true, backup hashes empty, totp disabled
+      const userAfter = await db.query.users.findFirst({ where: eq(users.id, targetId) });
+      expect(userAfter?.totpEnabled).toBe(false);
+      expect(userAfter?.totpSecretEnc).toBeNull();
+      expect(userAfter?.totpVerifiedAt).toBeNull();
+      expect(userAfter?.mfaBackupCodeHashes).toEqual([]);
+      expect(userAfter?.mfaExempt).toBe(true);
+
+      // Old session was killed
+      const meDead = await json("/auth/me", { token: targetToken });
+      expect(meDead.status).toBe(401);
+
+      // Target admin logs in again: mfaEnrollRequired is false because mfaExempt = true
+      const login = await json("/auth/login", {
+        method: "POST",
+        body: { email: targetEmail, password: "admin2Password123" },
+      });
+      expect(login.status).toBe(200);
+      expect(login.data.mfaEnrollRequired).toBe(false);
+      targetToken = login.data.token as string;
+
+      // GET /admin/users returns totpEnabled and mfaExempt
+      const list = await json("/admin/users", { token: adminToken });
+      const rowInList = list.data.users.find((u: { id: string }) => u.id === targetId);
+      expect(rowInList).toBeDefined();
+      expect(rowInList.totpEnabled).toBe(false);
+      expect(rowInList.mfaExempt).toBe(true);
+    });
+
+    it("enroll clears exemption", async () => {
+      const targetEmail = `target-exempt-enroll-${Date.now()}@eduforge.test`;
+      const reg = await json("/auth/register", {
+        method: "POST",
+        body: { email: targetEmail, password: "adminPassword123", displayName: "Admin Exempt" },
+      });
+      const targetId = reg.data.user.id as string;
+      const token = reg.data.token as string;
+
+      // Make admin and set mfaExempt = true
+      await db.update(users).set({ role: "admin", mfaExempt: true }).where(eq(users.id, targetId));
+
+      const setup = await json("/auth/mfa/totp/setup", {
+        method: "POST",
+        token,
+      });
+      const secret = setup.data.secret as string;
+      const code = new TOTP({
+        algorithm: "SHA1",
+        digits: 6,
+        period: 30,
+        secret: Secret.fromBase32(secret),
+      }).generate();
+
+      const conf = await json("/auth/mfa/totp/confirm", {
+        method: "POST",
+        token,
+        body: { code },
+      });
+      expect(conf.status).toBe(200);
+
+      const userAfter = await db.query.users.findFirst({ where: eq(users.id, targetId) });
+      expect(userAfter?.totpEnabled).toBe(true);
+      expect(userAfter?.mfaExempt).toBe(false);
+    });
+
+    it("require-mfa on a learner is rejected", async () => {
+      const headers = stepUpToken ? { "X-Admin-StepUp": stepUpToken } : {};
+      const learnerEmail = `learner-req-${Date.now()}@eduforge.test`;
+      const reg = await json("/auth/register", {
+        method: "POST",
+        body: { email: learnerEmail, password: "password123", displayName: "Learner" },
+      });
+      const learnerId = reg.data.user.id as string;
+
+      const reqMfa = await json(`/admin/users/${learnerId}/require-mfa`, {
+        method: "POST",
+        token: adminToken,
+        headers,
+      });
+      expect(reqMfa.status).toBe(400);
+      expect(reqMfa.data.error).toBe("mfa_require_admin_only");
+    });
+
+    it("require-mfa on an exempt admin clears the flag", async () => {
+      const headers = stepUpToken ? { "X-Admin-StepUp": stepUpToken } : {};
+      const targetEmail = `target-req-admin-${Date.now()}@eduforge.test`;
+      const reg = await json("/auth/register", {
+        method: "POST",
+        body: { email: targetEmail, password: "adminPassword123", displayName: "Exempt Admin" },
+      });
+      const targetId = reg.data.user.id as string;
+      const targetSession = reg.data.token as string;
+
+      // Set target to admin with mfaExempt = true
+      await db.update(users).set({ role: "admin", mfaExempt: true }).where(eq(users.id, targetId));
+
+      // Verify active session before require-mfa
+      const meBefore = await json("/auth/me", { token: targetSession });
+      expect(meBefore.status).toBe(200);
+
+      // Admin calls require-mfa
+      const reqMfa = await json(`/admin/users/${targetId}/require-mfa`, {
+        method: "POST",
+        token: adminToken,
+        headers,
+      });
+      expect(reqMfa.status).toBe(200);
+      expect(reqMfa.data.ok).toBe(true);
+
+      // Verify mfaExempt is false
+      const userAfter = await db.query.users.findFirst({ where: eq(users.id, targetId) });
+      expect(userAfter?.mfaExempt).toBe(false);
+
+      // Verify sessions were killed
+      const meAfter = await json("/auth/me", { token: targetSession });
+      expect(meAfter.status).toBe(401);
+    });
   });
 });

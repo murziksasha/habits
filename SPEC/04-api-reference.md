@@ -176,8 +176,11 @@ Realtime: [07-chess-realtime](./07-chess-realtime.md). Coach: `POST /coach/hint`
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/admin/stats` | Counts |
-| GET/PATCH | `/admin/users` | Users (role → step-up) |
-| POST | `/admin/users/:id/reset-mfa` | Clear TOTP (step-up) |
+| GET/PATCH | `/admin/users` | Users (role → step-up; returns totpEnabled, mfaExempt) |
+| POST | `/admin/users/:id/password` | Set user password (step-up; kills sessions; audit user_set_password) |
+| POST | `/admin/users/:id/reset-mfa` | Turn 2FA off (step-up; sets mfaExempt if admin; kills sessions; audit user_mfa_off) |
+| POST | `/admin/users/:id/require-mfa` | Require 2FA on exempt admin (step-up; clears mfaExempt; kills sessions; audit user_mfa_require) |
+| DELETE | `/admin/users/:id` | Delete user with confirmEmail (step-up; detaches teacher/pairings; cascades org; audit user_delete) |
 | GET | `/admin/courses`, `/admin/courses/:slug/tree` | CMS tree |
 | POST/PATCH | `/admin/courses`, `/admin/courses/:id` | Draft create / metadata |
 | POST | `/admin/courses/:id/publish` | Publish (step-up + validation) |

@@ -83,6 +83,14 @@ export async function destroyOtherSessions(userId: string, keepToken: string) {
   return { revoked: deleted.length };
 }
 
+export async function destroyAllUserSessions(userId: string) {
+  const deleted = await db
+    .delete(sessions)
+    .where(eq(sessions.userId, userId))
+    .returning({ id: sessions.id });
+  return { revoked: deleted.length };
+}
+
 export async function getUserFromToken(token: string | undefined) {
   if (!token) return null;
   const tokenHash = hashToken(token);
@@ -171,7 +179,7 @@ export async function adminMiddleware(c: Context, next: Next) {
     if (!mfaOk) {
       return c.json({ error: "mfa_required" }, 403);
     }
-  } else if (enforce) {
+  } else if (enforce && !user.mfaExempt) {
     return c.json({ error: "mfa_enroll_required" }, 403);
   }
 

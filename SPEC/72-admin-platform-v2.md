@@ -47,7 +47,13 @@ Admin is a **modular control plane** (sidebar blocks) covering product ops, CMS,
 - Course publish / archive / delete
 - Lesson delete
 - Appearance publish / revert
-- Reset another admin MFA
+- User god mode mutations on `/admin/users/:id` (password, reset-mfa, require-mfa, delete)
+
+### MFA Exemption (`mfa_exempt`)
+
+- Turning 2FA off for an admin via `POST /admin/users/:id/reset-mfa` sets `users.mfa_exempt = true`, exempting that admin from `ADMIN_MFA_ENFORCE`.
+- Enrolling a new authenticator via `POST /auth/mfa/totp/confirm` or calling `POST /admin/users/:id/require-mfa` clears the exemption (`mfa_exempt = false`) and returns the production enrollment wall.
+- Self-target is refused on all god-mode mutations (`400 self_target`).
 
 ## Appearance
 
@@ -84,7 +90,7 @@ Seed skips overwrite when `contentSource === "cms"`.
 | `/admin/courses` | Create draft, publish, archive |
 | `/admin/content` | Tree + **visual exercise builder** + advanced JSON, EN/UK, exam |
 | `/admin/appearance` | Tokens + branding draft/publish |
-| `/admin/users` | Role |
+| `/admin/users` | Role + God mode (password, turn-2FA-off, require-2FA, delete) |
 | `/admin/metrics` | Product metrics + CSV |
 | `/admin/feedback` | Feedback triage |
 | `/admin/audit` | Audit log |
@@ -112,7 +118,10 @@ Seed skips overwrite when `contentSource === "cms"`.
 | DELETE | `/admin/courses/:id` | Admin + step-up |
 | GET/PUT/POST | `/admin/appearance*` | Admin (+ step-up publish) |
 | GET | `/admin/overview/*` | Admin |
-| POST | `/admin/users/:id/reset-mfa` | Admin + step-up |
+| POST | `/admin/users/:id/password` | Admin + step-up |
+| POST | `/admin/users/:id/reset-mfa` | Admin + step-up (turn 2FA off, sets mfaExempt for admin) |
+| POST | `/admin/users/:id/require-mfa` | Admin + step-up (clears mfaExempt for admin) |
+| DELETE | `/admin/users/:id` | Admin + step-up (confirmEmail, nulls teacher/pairing seats, cascades org) |
 
 ## Visual exercise builder
 
