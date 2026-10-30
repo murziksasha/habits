@@ -144,6 +144,16 @@ html.lesson-focus main {
 .lesson-code-mobile [data-monaco] {
   min-height: 40vh;
 }
+
+/* Monaco editor hidden input resets to prevent browser/Tailwind styles from breaking layout */
+.monaco-editor textarea.inputarea {
+  background: transparent !important;
+  color: transparent !important;
+  border: none !important;
+  outline: none !important;
+  resize: none !important;
+  box-shadow: none !important;
+}
 @media (max-width: 767px) {
   .lesson-check-bar {
     @apply sticky bottom-16 z-20 -mx-1 rounded-2xl border-2 border-slate-200 bg-white/95 p-2 shadow-lg backdrop-blur dark:border-slate-700 dark:bg-slate-950/95;

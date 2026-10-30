@@ -125,16 +125,12 @@ export function ExercisePlayer({
   );
 }
 
-function CodeBlock({ code, language }: { code: string; language?: string }) {
+function CodeBlock({ code }: { code: string; language?: string }) {
   if (!code) return null;
   return (
-    <MonacoCodeEditor
-      value={code}
-      onChange={() => undefined}
-      language={language || "javascript"}
-      height="200px"
-      readOnly
-    />
+    <pre className="overflow-x-auto rounded-2xl border-2 border-slate-200 bg-slate-900 p-4 font-mono text-sm leading-relaxed text-slate-100 shadow-sm dark:border-slate-800">
+      <code>{code}</code>
+    </pre>
   );
 }
 
@@ -927,6 +923,7 @@ function CodeFillExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
+  const { locale } = useLocale();
   const prompt = usePrompt(exercise);
   const code = String(exercise.code ?? "");
   const [value, setValue] = useState("");
@@ -950,15 +947,30 @@ function CodeFillExercise({
       <h2 className="text-xl font-black">{prompt}</h2>
       <CodeBlock code={code} language={String(exercise.language ?? "")} />
       {hint.panel}
-      <p className="text-xs font-bold text-ink-muted">Your answer (fill ___)</p>
-      <MonacoCodeEditor
+      <label htmlFor={`code-fill-${exercise.id}`} className="block text-xs font-bold text-ink-muted">
+        {locale === "en" ? "Your answer (fill ___)" : "Ваша відповідь (заповніть ___)"}
+      </label>
+      <input
+        id={`code-fill-${exercise.id}`}
+        type="text"
+        className="input font-mono text-base font-bold"
         value={value}
-        onChange={(v) => {
-          setValue(v);
+        onChange={(e) => {
+          setValue(e.target.value);
           soft.resetSoft();
         }}
-        language={String(exercise.language ?? "javascript")}
-        height="100px"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && value.trim()) {
+            e.preventDefault();
+            check();
+          }
+        }}
+        placeholder={locale === "en" ? "Type the missing code…" : "Введіть код для ___…"}
+        autoFocus
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck={false}
       />
       <DrillFooter
         canCheck={Boolean(value.trim())}
