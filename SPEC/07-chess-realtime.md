@@ -43,6 +43,24 @@ Server drains clocks using elapsed time between moves; timeout decides winner.
 - Illegal moves rejected with `illegal_move`  
 - Puzzle helper: SAN compare ignoring check/mate markers  
 
+## Board learning hints
+
+Layered UI feedback rendered via `ChessBoardFrame` on top of `@eduforge/chess-core`:
+
+- **Check chip**: Sits above the board (`role="status"`). Identifies attacker (`Шах · ферзь` / `Check · queen`), or `Шах · подвійний` / `Check · double`. King gets a red inset ring; attacker(s) get a thinner red ring.
+- **Center cards**:
+  - Checkmate: Compact card with `Мат` and `[attacker] · [you won/lost]` (or `Задачу розв’язано` in puzzles). Dismissable on click in `/play`; king and attacker rings remain visible for study.
+  - Stalemate: Quiet card with `Пат · нічия` (no rings).
+- **Move indicators**:
+  - Green radial dots on empty legal destination squares.
+  - Amber inset ring on legal capture squares (including en passant).
+  - Selected square receives brand tint.
+  - Selected piece with no legal moves shows `Немає ходу` / `No legal move`.
+- **Surfaces**:
+  - `/play` (bot, seek, invite): full treatment (check chip, mate/stalemate cards, move dots, click-to-move and drag).
+  - Puzzles: side to move play; mate/stalemate card on solved terminal move (`Задачу розв’язано`); 2.5s hold (`LESSON_MATE_RESULT_MS`).
+  - Lesson diagrams: explore mode allowing pieces of either color to preview legal dots only; no check chip, cards, or move execution.
+
 ## Freemium rated games
 
 `canPlayRatedChess` blocks free users after `FREE_RATED_CHESS_PER_DAY` (5).  

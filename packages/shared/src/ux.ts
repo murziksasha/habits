@@ -531,6 +531,7 @@ export function safeNextPath(
 
 /** Ms to show intermediate correct result sheet before next exercise. */
 export const LESSON_RESULT_SHEET_MS = 1100;
+export const LESSON_MATE_RESULT_MS = 2500;
 
 /** Explanation / hint text from exercise payload for result sheet. */
 export function exerciseExplanation(

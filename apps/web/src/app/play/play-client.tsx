@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { io, type Socket } from "socket.io-client";
-import { Chessboard } from "@/components/chessboard-lazy";
-import { Chess } from "chess.js";
+import { ChessBoardFrame } from "@/components/chess-board-frame";
+import { Chess, gameTermination } from "@eduforge/chess-core";
 import { CHESS_TIME_CONTROLS, UI } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
@@ -60,6 +60,7 @@ function PlayPageInner() {
   const [whiteTime, setWhiteTime] = useState(0);
   const [blackTime, setBlackTime] = useState(0);
   const [result, setResult] = useState<string | null>(null);
+  const [gameOverReason, setGameOverReason] = useState<string | null>(null);
   const [status, setStatus] = useState("");
   const [inviteId, setInviteId] = useState<string | null>(null);
   const [inviteUrl, setInviteUrl] = useState("");
@@ -67,6 +68,42 @@ function PlayPageInner() {
   const [copied, setCopied] = useState(false);
   const [hintText, setHintText] = useState("");
   const [hintLoading, setHintLoading] = useState(false);
+
+  const testFen = process.env.NODE_ENV !== "production" ? searchParams.get("testFen") : null;
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production" || !testFen) return;
+    try {
+      const viewer = (searchParams.get("testViewer") as "w" | "b") || "w";
+      const reason = searchParams.get("testReason") as "checkmate" | "stalemate" | null;
+      const testResult = searchParams.get("testResult") as "1-0" | "0-1" | "1/2-1/2" | null;
+      setMatch({
+        gameId: "test-game",
+        fen: testFen,
+        youAre: viewer,
+        white: { userId: "me", displayName: "Ви", elo: 1200 },
+        black: { userId: "opponent", displayName: "Суперник", elo: 1200 },
+        whiteTimeMs: 300_000,
+        blackTimeMs: 300_000,
+        timeControl: "5+0",
+        rated: false,
+        vsBot: true,
+      });
+      setFen(testFen);
+      if (reason) {
+        setGameOverReason(reason);
+        if (testResult) {
+          setResult(testResult);
+        } else if (reason === "checkmate") {
+          setResult(viewer === "w" ? "1-0" : "0-1");
+        } else if (reason === "stalemate") {
+          setResult("1/2-1/2");
+        }
+      }
+    } catch {
+      /* ignore invalid test FEN */
+    }
+  }, [testFen, searchParams]);
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
@@ -102,6 +139,7 @@ function PlayPageInner() {
       setWhiteTime(m.whiteTimeMs);
       setBlackTime(m.blackTimeMs);
       setResult(null);
+      setGameOverReason(null);
       setStatus("");
       s.emit("join_game", { gameId: m.gameId });
     });
@@ -119,6 +157,7 @@ function PlayPageInner() {
     );
     s.on("game_over", (p: { result?: string; reason?: string }) => {
       setResult(p.result ?? "finished");
+      setGameOverReason(p.reason ?? null);
       setStatus(p.reason ?? "");
       setSeeking(false);
     });
@@ -187,9 +226,11 @@ function PlayPageInner() {
         return;
       }
       setFen(g.fen());
-      if (g.isGameOver()) {
-        if (g.isCheckmate()) setResult(g.turn() === "w" ? "0-1" : "1-0");
-        else setResult("1/2-1/2");
+      const term = gameTermination(g.fen());
+      if (term.over) {
+        setResult(term.result);
+        setGameOverReason(term.reason);
+        if (term.reason) setStatus(term.reason);
       }
     }, 450 + Math.random() * 600);
     return () => clearTimeout(timer);
@@ -221,6 +262,7 @@ function PlayPageInner() {
   function findMatch() {
     if (!socket) return;
     setResult(null);
+    setGameOverReason(null);
     markTriedChess();
     socket.emit("seek", { timeControl, rated }, (res: { error?: string }) => {
       if (res?.error === "rated_limit") {
@@ -267,6 +309,7 @@ function PlayPageInner() {
     setWhiteTime(ms);
     setBlackTime(ms);
     setResult(null);
+    setGameOverReason(null);
     setStatus("");
   }
 
@@ -366,9 +409,11 @@ function PlayPageInner() {
         const m = g.move({ from, to, promotion: "q" });
         if (!m) return false;
         setFen(g.fen());
-        if (g.isGameOver()) {
-          if (g.isCheckmate()) setResult(g.turn() === "w" ? "0-1" : "1-0");
-          else setResult("1/2-1/2");
+        const term = gameTermination(g.fen());
+        if (term.over) {
+          setResult(term.result);
+          setGameOverReason(term.reason);
+          if (term.reason) setStatus(term.reason);
         }
         return true;
       } catch {
@@ -392,10 +437,33 @@ function PlayPageInner() {
     if (!match) return;
     if (match.vsBot) {
       setResult(match.youAre === "w" ? "0-1" : "1-0");
+      setGameOverReason("resign");
       return;
     }
     socket?.emit("resign", { gameId: match.gameId });
   }
+
+    const endReason: "checkmate" | "stalemate" | null =
+    gameOverReason === "checkmate" || gameOverReason === "stalemate"
+      ? gameOverReason
+      : null;
+
+  const cardEndLine = useMemo(() => {
+    if (!endReason) return null;
+    if (endReason === "stalemate") {
+      return UI.chess.draw;
+    }
+    if (endReason === "checkmate") {
+      if (!result) return null;
+      if (result === "1-0") {
+        return match?.youAre === "w" ? UI.chess.cardYouWon : UI.chess.cardYouLost;
+      }
+      if (result === "0-1") {
+        return match?.youAre === "b" ? UI.chess.cardYouWon : UI.chess.cardYouLost;
+      }
+    }
+    return null;
+  }, [endReason, result, match?.youAre, UI.chess]);
 
   if (loading || !user) return <PageLoading label={UI.common.loading} />;
 
@@ -510,18 +578,22 @@ function PlayPageInner() {
             role="application"
             aria-label="Chess board"
           >
-            <Chessboard
-              position={fen === "start" ? undefined : fen}
-              onPieceDrop={onDrop}
-              boardOrientation={orientation}
-              arePiecesDraggable={!!myTurn && !result}
+            <ChessBoardFrame
+              fen={fen === "start" ? "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" : fen}
+              mode="play"
+              orientation={orientation}
+              viewer={match.youAre}
+              interactive={!result}
+              onMove={onDrop}
+              endReason={endReason}
+              endLine={cardEndLine}
               boardWidth={Math.min(
                 480,
                 typeof window !== "undefined" ? Math.max(240, window.innerWidth - 48) : 360,
               )}
             />
             <p className="sr-only">
-              {myTurn ? "Your turn. Drag a piece to move." : "Waiting for opponent."}
+              {UI.chess.moveHint}
             </p>
           </div>
           <div className="card space-y-4">

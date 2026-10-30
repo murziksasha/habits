@@ -129,4 +129,124 @@ export function tryPuzzleMove(
   return { ok: true, fen: applied.fen, san: applied.san };
 }
 
-export { Chess };
+export type CheckAttacker = {
+  square: Square;
+  type: "p" | "n" | "b" | "r" | "q" | "k";
+};
+
+export type CheckInfo = {
+  inCheck: boolean;
+  king: Square | null;
+  attackers: CheckAttacker[];
+  double: boolean;
+};
+
+export type Destination = {
+  to: Square;
+  capture: boolean;
+};
+
+/**
+ * Return check info for the side to move.
+ * Uses chess.js attackers() against the king square of the side to move.
+ */
+export function checkInfo(fen: string): CheckInfo {
+  try {
+    const game = new Chess(fen);
+    const inCheck = game.inCheck();
+    if (!inCheck) {
+      return { inCheck: false, king: null, attackers: [], double: false };
+    }
+    const turn = game.turn();
+    const kings = game.findPiece({ type: "k", color: turn });
+    const kingSquare = kings[0] ?? null;
+    if (!kingSquare) {
+      return { inCheck: true, king: null, attackers: [], double: false };
+    }
+    const opponentColor = turn === "w" ? "b" : "w";
+    const attackerSquares = game.attackers(kingSquare, opponentColor);
+    const attackers: CheckAttacker[] = [];
+    for (const sq of attackerSquares) {
+      const piece = game.get(sq);
+      if (piece) {
+        attackers.push({ square: sq, type: piece.type });
+      }
+    }
+    return {
+      inCheck: true,
+      king: kingSquare,
+      attackers,
+      double: attackers.length > 1,
+    };
+  } catch {
+    return { inCheck: false, king: null, attackers: [], double: false };
+  }
+}
+
+/**
+ * Legal destinations for a piece of the side to move.
+ * Deduplicates multiple promotion variants into a single destination.
+ */
+export function destinations(fen: string, square: string): Destination[] {
+  if (!isChessSquare(square)) return [];
+  try {
+    const game = new Chess(fen);
+    const piece = game.get(square as Square);
+    if (!piece || piece.color !== game.turn()) {
+      return [];
+    }
+    const verboseMoves = game.moves({ verbose: true, square: square as Square });
+    const seen = new Set<Square>();
+    const result: Destination[] = [];
+    for (const m of verboseMoves) {
+      if (!seen.has(m.to)) {
+        seen.add(m.to);
+        const isCap = Boolean(
+          (typeof m.isCapture === "function" && m.isCapture()) ||
+          (typeof m.isEnPassant === "function" && m.isEnPassant()) ||
+          m.captured !== undefined ||
+          (typeof m.flags === "string" && (m.flags.includes("c") || m.flags.includes("e")))
+        );
+        result.push({ to: m.to, capture: isCap });
+      }
+    }
+    return result;
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Destinations for pieces of either color on diagrams/exploration.
+ * When square is not the side to move, swaps the FEN active turn.
+ * If chess.js rejects the swapped FEN or the side not to move is in check, returns [].
+ */
+export function exploreDestinations(fen: string, square: string): Destination[] {
+  if (!isChessSquare(square)) return [];
+  try {
+    const game = new Chess(fen);
+    const piece = game.get(square as Square);
+    if (!piece) return [];
+    if (piece.color === game.turn()) {
+      return destinations(fen, square);
+    }
+    const parts = fen.trim().split(/\s+/);
+    if (parts.length < 2) return [];
+    parts[1] = piece.color;
+    if (parts[3] && parts[3] !== "-") {
+      parts[3] = "-";
+    }
+    const swappedFen = parts.join(" ");
+    const swappedGame = new Chess(swappedFen);
+    const otherColor = piece.color === "w" ? "b" : "w";
+    const otherKing = swappedGame.findPiece({ type: "k", color: otherColor })[0];
+    if (otherKing && swappedGame.isAttacked(otherKing, piece.color)) {
+      return [];
+    }
+    return destinations(swappedFen, square);
+  } catch {
+    return [];
+  }
+}
+
+export { Chess, type Square };

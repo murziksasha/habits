@@ -1,8 +1,8 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { Chessboard } from "@/components/chessboard-lazy";
-import { Chess } from "chess.js";
+import { ChessBoardFrame } from "@/components/chess-board-frame";
+import { Chess } from "@eduforge/chess-core";
 import {
   countWords,
   exercisePrompt,
@@ -1478,6 +1478,16 @@ function ChessPuzzleExercise({
   const [game, setGame] = useState(() => new Chess(fen));
   const [sans, setSans] = useState<string[]>([]);
   const [msg, setMsg] = useState("");
+  const [endReason, setEndReason] = useState<"checkmate" | "stalemate" | null>(null);
+
+  const viewer = useMemo(() => {
+    try {
+      return (new Chess(fen)).turn();
+    } catch {
+      return "w";
+    }
+  }, [fen]);
+  const orientation = viewer === "b" ? "black" : "white";
 
   function onDrop(from: string, to: string) {
     const g = new Chess(game.fen());
@@ -1485,8 +1495,6 @@ function ChessPuzzleExercise({
       const move = g.move({ from, to, promotion: "q" });
       if (!move) return false;
       const nextSans = [...sans, move.san];
-      setSans(nextSans);
-      setGame(g);
       const expected = solution[nextSans.length - 1];
       const norm = (s: string) => s.replace(/[+#]/g, "");
       if (expected && norm(move.san) !== norm(expected)) {
@@ -1495,12 +1503,23 @@ function ChessPuzzleExercise({
           setGame(new Chess(fen));
           setSans([]);
           setMsg("");
+          setEndReason(null);
         }, 800);
         return true;
       }
+      setSans(nextSans);
+      setGame(g);
       if (nextSans.length >= solution.length) {
         setMsg(UI.lesson.correct);
-        onAnswer({ solved: true, sans: nextSans });
+        if (g.isCheckmate()) {
+          setEndReason("checkmate");
+          onAnswer({ solved: true, sans: nextSans, mate: true });
+        } else if (g.isStalemate()) {
+          setEndReason("stalemate");
+          onAnswer({ solved: true, sans: nextSans, stalemate: true });
+        } else {
+          onAnswer({ solved: true, sans: nextSans });
+        }
       }
       return true;
     } catch {
@@ -1512,7 +1531,16 @@ function ChessPuzzleExercise({
     <div className="space-y-4">
       <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
       <div className="mx-auto max-w-md">
-        <Chessboard position={game.fen()} onPieceDrop={onDrop} boardWidth={360} />
+        <ChessBoardFrame
+          fen={game.fen()}
+          mode="puzzle"
+          orientation={orientation}
+          viewer={viewer}
+          onMove={onDrop}
+          endReason={endReason}
+          endLine={UI.chess.puzzleSolved}
+          boardWidth={360}
+        />
       </div>
       {msg && <p className="font-bold text-center">{msg}</p>}
     </div>
@@ -1528,12 +1556,27 @@ function ChessLessonExercise({
 }) {
   const quiz = exercise.quiz as { q: string; options: string[]; correctIndex: number } | undefined;
   const [selected, setSelected] = useState<number | null>(null);
+  const fen = String(exercise.fen);
+  const viewer = useMemo(() => {
+    try {
+      return (new Chess(fen)).turn();
+    } catch {
+      return "w";
+    }
+  }, [fen]);
+  const orientation = viewer === "b" ? "black" : "white";
 
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
       <div className="mx-auto max-w-md">
-        <Chessboard position={String(exercise.fen)} arePiecesDraggable={false} boardWidth={360} />
+        <ChessBoardFrame
+          fen={fen}
+          mode="explore"
+          orientation={orientation}
+          viewer={viewer}
+          boardWidth={360}
+        />
       </div>
       <p className="rounded-2xl bg-slate-100 p-4 leading-relaxed">{String(exercise.notesUk)}</p>
       {quiz ? (

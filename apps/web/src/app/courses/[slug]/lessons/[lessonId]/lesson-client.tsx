@@ -7,6 +7,7 @@ import {
   exerciseExplanation,
   exerciseTypeLabel,
 
+  LESSON_MATE_RESULT_MS,
   LESSON_RESULT_SHEET_MS,
   UI,
 } from "@eduforge/shared";
@@ -63,6 +64,16 @@ export function LessonClient() {
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<LessonAnswer[]>([]);
   const [confidence, setConfidence] = useState<ConfidenceLevel | null>(null);
+  const [isMateHold, setIsMateHold] = useState(false);
+  const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (advanceTimerRef.current) {
+        clearTimeout(advanceTimerRef.current);
+      }
+    };
+  }, []);
   const wrongAttemptsRef = useRef(0);
   const [feedback, setFeedback] = useState<"ok" | "bad" | null>(null);
   const [feedbackExplain, setFeedbackExplain] = useState("");
@@ -303,19 +314,38 @@ export function LessonClient() {
       locale === "en" ? "en" : "uk",
     );
 
+    const isMateOrStalemate =
+      typeof answer === "object" &&
+      answer !== null &&
+      (Boolean((answer as { mate?: boolean }).mate) ||
+        Boolean((answer as { stalemate?: boolean }).stalemate));
+
+    if (isMateOrStalemate) {
+      setIsMateHold(true);
+    }
+
     if (idx < lesson.exercises.length - 1) {
       // Result sheet: show correct + explanation before next
       setFeedback("ok");
       setFeedbackExplain(explain);
-      setTimeout(() => {
+      const delay = isMateOrStalemate ? LESSON_MATE_RESULT_MS : LESSON_RESULT_SHEET_MS;
+      advanceTimerRef.current = setTimeout(() => {
         setFeedback(null);
         setFeedbackExplain("");
+        setIsMateHold(false);
         setIdx((i) => i + 1);
-      }, LESSON_RESULT_SHEET_MS);
+      }, delay);
     } else {
       setFeedback("ok");
       setFeedbackExplain(explain);
-      await submitLessonAnswers(nextAnswers);
+      if (isMateOrStalemate) {
+        advanceTimerRef.current = setTimeout(async () => {
+          setIsMateHold(false);
+          await submitLessonAnswers(nextAnswers);
+        }, LESSON_MATE_RESULT_MS);
+      } else {
+        await submitLessonAnswers(nextAnswers);
+      }
     }
   }
 
@@ -824,7 +854,7 @@ export function LessonClient() {
       )}
       <div className="card relative">
         <p className="mb-4 text-sm font-bold text-ink-muted">{lesson.titleUk}</p>
-        <div className={feedback === "ok" ? "pointer-events-none opacity-60" : undefined}>
+        <div className={feedback === "ok" ? (isMateHold ? "pointer-events-none" : "pointer-events-none opacity-60") : undefined}>
           {isConfidenceRateable(ex.type) && (
             <div className="mb-3">
               <ConfidencePicker value={confidence} onChange={setConfidence} />

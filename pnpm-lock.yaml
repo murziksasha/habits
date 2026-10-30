@@ -148,6 +148,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@eduforge/chess-core':
+        specifier: workspace:*
+        version: link:../../packages/chess-core
       '@eduforge/shared':
         specifier: workspace:*
         version: link:../../packages/shared
