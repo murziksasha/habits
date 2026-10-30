@@ -40,6 +40,7 @@ docker compose --profile tools run --rm migrate
 ```
 
 Dockerfiles under `docker/`. Web production image can use Next `standalone` when `NEXT_OUTPUT=standalone`.
+- `Dockerfile.web` copies `packages/shared` and `packages/chess-core` (`package.json` in `deps`, sources in `build`) to satisfy `workspace:*` dependencies and pre-build workspace packages before Next.js.
 
 ## Environment variables
 

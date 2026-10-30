@@ -30,6 +30,7 @@ import {
   formatExerciseSolution,
   getApplyableAnswer,
 } from "@/lib/exercise-solution";
+import { hasOpenDialog, isTypingTarget, optionIndexFromKey } from "@/lib/answer-keys";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 
@@ -478,41 +479,56 @@ function McqExercise({
     onAnswer(selected);
   }
 
-  function onKeyDown(e: React.KeyboardEvent) {
-    const n = options.length;
-    if (!n) return;
-    if (e.key >= "1" && e.key <= "9") {
-      const idx = Number(e.key) - 1;
-      if (idx < n) {
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (isTypingTarget(e.target)) return;
+      if (hasOpenDialog()) return;
+
+      const optIdx = optionIndexFromKey(e);
+      if (optIdx !== null) {
         e.preventDefault();
-        setSelected(idx);
+        if (optIdx < options.length) {
+          setSelected(optIdx);
+          soft.resetSoft();
+        }
+        return;
       }
-      return;
+
+      const n = options.length;
+      if (!n) return;
+
+      const target = e.target as HTMLElement | null;
+      const isButtonOrLink = Boolean(target?.closest?.("button, a"));
+      if (isButtonOrLink) return;
+
+      if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+        e.preventDefault();
+        setSelected((s) => (s === null ? 0 : Math.min(n - 1, s + 1)));
+        return;
+      }
+      if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+        e.preventDefault();
+        setSelected((s) => (s === null ? 0 : Math.max(0, s - 1)));
+        return;
+      }
+      if (e.key === "Enter" && selected !== null) {
+        e.preventDefault();
+        check();
+      }
     }
-    if (e.key === "ArrowDown" || e.key === "ArrowRight") {
-      e.preventDefault();
-      setSelected((s) => (s === null ? 0 : Math.min(n - 1, s + 1)));
-      return;
-    }
-    if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
-      e.preventDefault();
-      setSelected((s) => (s === null ? 0 : Math.max(0, s - 1)));
-      return;
-    }
-    if (e.key === "Enter" && selected !== null) {
-      e.preventDefault();
-      check();
-    }
-  }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [options.length, selected, correctIndex, soft, onAnswer]);
 
   const { locale } = useLocale();
   const keysHint =
     locale === "en"
-      ? "Keys: 1–9 select · arrows move · Enter check"
-      : "Клавіші: 1–9 вибір · стрілки · Enter перевірка";
+      ? "Keys: 1–9 (top row and numpad) select · arrows move · Enter check"
+      : "Клавіші: 1–9 (верхній ряд і numpad) вибір · стрілки · Enter перевірка";
 
   return (
-    <div className="space-y-4" onKeyDown={onKeyDown}>
+    <div className="space-y-4">
       <h2 className="text-xl font-black" id={`ex-prompt-${exercise.id}`}>
         {prompt}
       </h2>
@@ -543,6 +559,9 @@ function McqExercise({
               soft.resetSoft();
             }}
           >
+            {i < 9 && (
+              <span className="mr-2 text-xs text-ink-muted">{i + 1}.</span>
+            )}
             {opt}
           </button>
         ))}
@@ -648,38 +667,55 @@ function MatchExercise({
     setSelectedLeft(null);
   }
 
-  function onKeyDown(e: React.KeyboardEvent) {
-    if (e.key >= "1" && e.key <= "9") {
-      const idx = Number(e.key) - 1;
-      e.preventDefault();
-      if (!selectedLeft) {
-        const left = freeLefts[idx]?.left;
-        if (left) setSelectedLeft(left);
-      } else {
-        const right = freeRights[idx];
-        if (right) pickRight(right);
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (isTypingTarget(e.target)) return;
+      if (hasOpenDialog()) return;
+
+      const optIdx = optionIndexFromKey(e);
+      if (optIdx !== null) {
+        e.preventDefault();
+        if (!selectedLeft) {
+          const left = freeLefts[optIdx]?.left;
+          if (left) setSelectedLeft(left);
+        } else {
+          const right = freeRights[optIdx];
+          if (right) pickRight(right);
+        }
+        return;
       }
-      return;
+
+      if (e.key === "Escape") {
+        if (selectedLeft) {
+          e.preventDefault();
+          setSelectedLeft(null);
+        }
+        return;
+      }
+
+      if (e.key === "Backspace" && matched.length) {
+        e.preventDefault();
+        setMatched((m) => m.slice(0, -1));
+        setSelectedLeft(null);
+        return;
+      }
+
+      if (e.key === "Enter" && matched.length === pairs.length) {
+        const target = e.target as HTMLElement | null;
+        const isButtonOrLink = Boolean(target?.closest?.("button, a"));
+        if (!isButtonOrLink) {
+          e.preventDefault();
+          onAnswer(matched);
+        }
+      }
     }
-    if (e.key === "Escape") {
-      e.preventDefault();
-      setSelectedLeft(null);
-      return;
-    }
-    if (e.key === "Backspace" && matched.length) {
-      e.preventDefault();
-      setMatched((m) => m.slice(0, -1));
-      setSelectedLeft(null);
-      return;
-    }
-    if (e.key === "Enter" && matched.length === pairs.length) {
-      e.preventDefault();
-      onAnswer(matched);
-    }
-  }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [freeLefts, freeRights, matched, pairs.length, selectedLeft, onAnswer]);
 
   return (
-    <div className="space-y-4" onKeyDown={onKeyDown} tabIndex={0}>
+    <div className="space-y-4">
       <h2 className="text-xl font-black" id={`ex-prompt-${exercise.id}`}>
         {prompt}
       </h2>
@@ -995,6 +1031,18 @@ type ProjectFile = {
   starter: string;
 };
 
+function projectFileLanguage(lang?: string, name?: string): string {
+  if (name?.endsWith(".md") || lang === "markdown") return "Markdown";
+  if (name?.endsWith(".sql") || lang === "sql") return "SQL";
+  if (name?.endsWith(".html") || lang === "html") return "HTML";
+  if (name?.endsWith(".css") || lang === "css") return "CSS";
+  if (name?.endsWith(".ts") || lang === "typescript" || lang === "ts") return "TypeScript";
+  if (name?.endsWith(".js") || lang === "javascript" || lang === "js") return "JavaScript";
+  if (name?.endsWith(".json") || lang === "json") return "JSON";
+  if (lang) return lang.toUpperCase();
+  return "";
+}
+
 function CodeProjectExercise({
   exercise,
   onAnswer,
@@ -1091,18 +1139,27 @@ function CodeProjectExercise({
           showPreview && previewable && "lg:grid-cols-2",
         )}
       >
-        <div>
+        <div className="min-w-0 w-full">
+          <div className="flex items-center justify-between rounded-t-2xl border-2 border-b-0 border-slate-200 bg-slate-100/90 px-3 py-1.5 text-xs font-mono font-bold dark:border-slate-700 dark:bg-slate-800/90">
+            <span className="text-ink dark:text-slate-100">{current?.name}</span>
+            <span className="text-[11px] font-semibold text-ink-muted">
+              {projectFileLanguage(current?.language, current?.name)}
+            </span>
+          </div>
           {current ? (
-            <MonacoCodeEditor
-              key={current.id}
-              value={contents[current.id] ?? ""}
-              onChange={(v) => {
-                setContents((c) => ({ ...c, [current.id]: v }));
-                soft.resetSoft();
-              }}
-              language={current.language || "javascript"}
-              height="280px"
-            />
+            <div className="[&>div]:rounded-t-none [&>div]:border-t-0">
+              <MonacoCodeEditor
+                key={current.id}
+                value={contents[current.id] ?? ""}
+                onChange={(v) => {
+                  setContents((c) => ({ ...c, [current.id]: v }));
+                  soft.resetSoft();
+                }}
+                language={current.language || "javascript"}
+                height="360px"
+                fileName={current.name}
+              />
+            </div>
           ) : null}
         </div>
         {showPreview && previewable ? (
@@ -1114,7 +1171,7 @@ function CodeProjectExercise({
               key={previewKey}
               title="project-preview"
               sandbox="allow-scripts"
-              className="h-[280px] w-full bg-white"
+              className="h-[360px] w-full bg-white"
               srcDoc={srcDoc}
             />
           </div>
@@ -1184,34 +1241,48 @@ function OrderWordsExercise({
     onAnswer(built);
   }
 
-  function onKeyDown(e: React.KeyboardEvent) {
-    if (e.key >= "1" && e.key <= "9") {
-      const idx = Number(e.key) - 1;
-      if (idx < pool.length) {
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (isTypingTarget(e.target)) return;
+      if (hasOpenDialog()) return;
+
+      const optIdx = optionIndexFromKey(e);
+      if (optIdx !== null) {
         e.preventDefault();
-        const w = pool[idx]!;
-        setPool((p) => p.filter((_, j) => j !== idx));
-        setBuilt((b) => [...b, w]);
-        soft.resetSoft();
+        if (optIdx < pool.length) {
+          const w = pool[optIdx]!;
+          setPool((p) => p.filter((_, j) => j !== optIdx));
+          setBuilt((b) => [...b, w]);
+          soft.resetSoft();
+        }
+        return;
       }
-      return;
+
+      if (e.key === "Backspace" && built.length) {
+        e.preventDefault();
+        const last = built[built.length - 1]!;
+        setBuilt((b) => b.slice(0, -1));
+        setPool((p) => [...p, last]);
+        soft.resetSoft();
+        return;
+      }
+
+      if (e.key === "Enter" && built.length) {
+        const target = e.target as HTMLElement | null;
+        const isButtonOrLink = Boolean(target?.closest?.("button, a"));
+        if (!isButtonOrLink) {
+          e.preventDefault();
+          check();
+        }
+      }
     }
-    if (e.key === "Backspace" && built.length) {
-      e.preventDefault();
-      const last = built[built.length - 1]!;
-      setBuilt((b) => b.slice(0, -1));
-      setPool((p) => [...p, last]);
-      soft.resetSoft();
-      return;
-    }
-    if (e.key === "Enter" && built.length) {
-      e.preventDefault();
-      check();
-    }
-  }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [pool, built, soft, correct, onAnswer]);
 
   return (
-    <div className="space-y-4" onKeyDown={onKeyDown} tabIndex={0}>
+    <div className="space-y-4">
       <h2 className="text-xl font-black" id={`ex-prompt-${exercise.id}`}>
         {prompt}
       </h2>

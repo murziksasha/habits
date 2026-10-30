@@ -67,7 +67,8 @@ See [SPEC 89](./89-unverified-lifecycle.md).
 - ⌘K / Ctrl+K command palette (`CommandPalette`)  
 - Admin link when `user.role === "admin"`  
 - Embed routes hide chrome  
-- School/family in More only for parent/teacher personas  
+- School/family in More only for parent/teacher personas  
+- The bell and the “Ще” menu dismiss through a body portal because the header blur traps `position: fixed`, and Monaco is bundled same-origin because CSP blocks the CDN stylesheet.  
 
 ## Key components
 
@@ -89,7 +90,7 @@ See [SPEC 89](./89-unverified-lifecycle.md).
 | `OnlineStatusWatcher` | Offline / online toasts |
 | `PageLoading` | Consistent loading skeleton |
 | `DeepCourseHub` | Deep track hubs + PageLoading |
-| `LessonShortcutsHelp` | Lesson `?` keyboard modal |
+| `LessonShortcutsHelp` | Lesson `?` keyboard modal (`1`–`9` is `Digit*` and `Numpad*`, and it works without focusing the card first) |
 | `NodeStudio` | WebContainers Node lab (`/studio/node`) |
 | Live classroom | Socket.IO collab (`/classroom/live/[classId]`) |
 | `SpeakButton` | Pronunciation (Web Speech) |

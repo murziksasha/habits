@@ -741,7 +741,7 @@ export function LessonClient() {
 
   return (
     <div
-      className={`mx-auto max-w-2xl space-y-4 ${isCodeEx ? "lesson-code-mobile" : ""}`}
+      className={`mx-auto ${isCodeEx ? "max-w-3xl lesson-code-mobile" : "max-w-2xl"} space-y-4`}
     >
       <LessonShortcutsHelp open={keysHelp} onClose={() => setKeysHelp(false)} />
       <Breadcrumbs

@@ -3,7 +3,11 @@
 import { useLocale } from "@/lib/locale-context";
 
 const ROWS: { keys: string; uk: string; en: string }[] = [
-  { keys: "1–9", uk: "Вибір варіанта (MCQ)", en: "Select option (MCQ)" },
+  {
+    keys: "1–9",
+    uk: "Вибір варіанта (верхній ряд і numpad)",
+    en: "Select option (top row and numeric keypad)",
+  },
   { keys: "↑ ↓ ← →", uk: "Навігація по варіантах", en: "Move between options" },
   { keys: "Enter", uk: "Перевірити відповідь", en: "Check answer" },
   { keys: "F", uk: "Режим фокусу (сховати chrome)", en: "Focus mode (hide chrome)" },
