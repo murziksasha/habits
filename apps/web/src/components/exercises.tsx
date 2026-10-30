@@ -995,6 +995,18 @@ type ProjectFile = {
   starter: string;
 };
 
+function projectFileLanguage(lang?: string, name?: string): string {
+  if (name?.endsWith(".md") || lang === "markdown") return "Markdown";
+  if (name?.endsWith(".sql") || lang === "sql") return "SQL";
+  if (name?.endsWith(".html") || lang === "html") return "HTML";
+  if (name?.endsWith(".css") || lang === "css") return "CSS";
+  if (name?.endsWith(".ts") || lang === "typescript" || lang === "ts") return "TypeScript";
+  if (name?.endsWith(".js") || lang === "javascript" || lang === "js") return "JavaScript";
+  if (name?.endsWith(".json") || lang === "json") return "JSON";
+  if (lang) return lang.toUpperCase();
+  return "";
+}
+
 function CodeProjectExercise({
   exercise,
   onAnswer,
@@ -1091,18 +1103,27 @@ function CodeProjectExercise({
           showPreview && previewable && "lg:grid-cols-2",
         )}
       >
-        <div>
+        <div className="min-w-0 w-full">
+          <div className="flex items-center justify-between rounded-t-2xl border-2 border-b-0 border-slate-200 bg-slate-100/90 px-3 py-1.5 text-xs font-mono font-bold dark:border-slate-700 dark:bg-slate-800/90">
+            <span className="text-ink dark:text-slate-100">{current?.name}</span>
+            <span className="text-[11px] font-semibold text-ink-muted">
+              {projectFileLanguage(current?.language, current?.name)}
+            </span>
+          </div>
           {current ? (
-            <MonacoCodeEditor
-              key={current.id}
-              value={contents[current.id] ?? ""}
-              onChange={(v) => {
-                setContents((c) => ({ ...c, [current.id]: v }));
-                soft.resetSoft();
-              }}
-              language={current.language || "javascript"}
-              height="280px"
-            />
+            <div className="[&>div]:rounded-t-none [&>div]:border-t-0">
+              <MonacoCodeEditor
+                key={current.id}
+                value={contents[current.id] ?? ""}
+                onChange={(v) => {
+                  setContents((c) => ({ ...c, [current.id]: v }));
+                  soft.resetSoft();
+                }}
+                language={current.language || "javascript"}
+                height="360px"
+                fileName={current.name}
+              />
+            </div>
           ) : null}
         </div>
         {showPreview && previewable ? (
@@ -1114,7 +1135,7 @@ function CodeProjectExercise({
               key={previewKey}
               title="project-preview"
               sandbox="allow-scripts"
-              className="h-[280px] w-full bg-white"
+              className="h-[360px] w-full bg-white"
               srcDoc={srcDoc}
             />
           </div>

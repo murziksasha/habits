@@ -67,7 +67,8 @@ See [SPEC 89](./89-unverified-lifecycle.md).
 - ⌘K / Ctrl+K command palette (`CommandPalette`)  
 - Admin link when `user.role === "admin"`  
 - Embed routes hide chrome  
-- School/family in More only for parent/teacher personas  
+- School/family in More only for parent/teacher personas  
+- The bell and the “Ще” menu dismiss through a body portal because the header blur traps `position: fixed`, and Monaco is bundled same-origin because CSP blocks the CDN stylesheet.  
 
 ## Key components
 

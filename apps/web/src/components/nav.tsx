@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { PopoverLayer } from "@/components/popover-layer";
 import clsx from "clsx";
 import {
   mobileNavForPersona,
@@ -48,6 +49,7 @@ export function Nav() {
   const { theme, toggle } = useTheme();
   const [open, setOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
+  const moreButtonRef = useRef<HTMLButtonElement | null>(null);
   const [labsOn, setLabsOn] = useState(false);
   const persona = resolvePersona(character?.onboarding);
 
@@ -198,6 +200,7 @@ export function Nav() {
             })}
             <div className="relative">
               <button
+                ref={moreButtonRef}
                 type="button"
                 className={clsx(
                   "rounded-xl px-3 py-2 text-sm font-bold transition",
@@ -207,18 +210,18 @@ export function Nav() {
                 )}
                 onClick={() => setMoreOpen((v) => !v)}
                 aria-expanded={moreOpen}
+                aria-controls="more-menu-panel"
               >
                 {moreLabel} ▾
               </button>
-              {moreOpen && (
-                <>
-                  <button
-                    type="button"
-                    className="fixed inset-0 z-40 cursor-default"
-                    aria-label="Close"
-                    onClick={() => setMoreOpen(false)}
-                  />
-                  <div className="absolute right-0 top-full z-50 mt-1 max-h-[70vh] w-64 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-lg dark:border-slate-700 dark:bg-slate-950">
+              <PopoverLayer
+                open={moreOpen}
+                anchorRef={moreButtonRef}
+                onClose={() => setMoreOpen(false)}
+                label={moreLabel}
+                id="more-menu-panel"
+              >
+                <div className="max-h-[70vh] w-full overflow-y-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-lg dark:border-slate-700 dark:bg-slate-950">
                     {Object.entries(moreByGroup).map(([group, links]) => (
                       <div key={group} className="mb-2 last:mb-0">
                         <p className="px-3 py-1 text-[10px] font-black uppercase tracking-wide text-ink-muted">
@@ -270,8 +273,7 @@ export function Nav() {
                       </button>
                     </div>
                   </div>
-                </>
-              )}
+              </PopoverLayer>
             </div>
           </nav>
 

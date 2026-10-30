@@ -139,20 +139,21 @@ html.lesson-focus main {
   @apply sr-only;
 }
 
-/* Mobile code lesson: sticky check / editor height */
-.lesson-code-mobile .monaco-editor,
-.lesson-code-mobile [data-monaco] {
-  min-height: 40vh;
-}
-
 /* Monaco editor hidden input resets to prevent browser/Tailwind styles from breaking layout */
-.monaco-editor textarea.inputarea {
-  background: transparent !important;
-  color: transparent !important;
+.monaco-editor textarea.inputarea,
+.monaco-editor textarea.inputarea:focus,
+.monaco-editor textarea.inputarea:focus-visible {
+  position: absolute !important;
+  margin: 0 !important;
+  padding: 0 !important;
   border: none !important;
   outline: none !important;
-  resize: none !important;
   box-shadow: none !important;
+  resize: none !important;
+  color: transparent !important;
+  background: transparent !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
 }
 @media (max-width: 767px) {
   .lesson-check-bar {
