@@ -7,7 +7,7 @@
 # Test info
 
 - Name: chess-learning-hints.spec.ts >> Chess board learning hints (check chip, mate card, dots) >> 1. /play bot game: click dots, capture rings, drag, cancel, resign without card
-- Location: e2e\chess-learning-hints.spec.ts:5:7
+- Location: e2e\chess-learning-hints.spec.ts:20:7
 
 # Error details
 
@@ -15,7 +15,6 @@
 TimeoutError: page.waitForURL: Timeout 25000ms exceeded.
 =========================== logs ===========================
 waiting for navigation until "load"
-  navigated to "http://localhost:3000/login"
 ============================================================
 ```
 
@@ -79,121 +78,121 @@ waiting for navigation until "load"
 # Test source
 
 ```ts
-  6   |   process.env.SEED_ADMIN_TOTP_SECRET ?? "JBSWY3DPEHPK3PXP";
-  7   | 
-  8   | export const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@eduforge.ua";
-  9   | export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin12345";
-  10  | export const ADMIN_BACKUP_CODE = process.env.SEED_ADMIN_BACKUP_CODE ?? "AAAA-BBBB";
-  11  | 
-  12  | export function currentTotp(secret: string = ADMIN_TOTP_SECRET): string {
-  13  |   const totp = new TOTP({
-  14  |     algorithm: "SHA1",
-  15  |     digits: 6,
-  16  |     period: 30,
-  17  |     secret: Secret.fromBase32(secret),
-  18  |   });
-  19  |   return totp.generate();
-  20  | }
-  21  | 
-  22  | const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000";
-  23  | const WEB_ORIGIN = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
-  24  | 
-  25  | /**
-  26  |  * Prefer API login + session cookie (works when UI form / MFA differs per env).
-  27  |  * Falls back to form + TOTP.
-  28  |  */
-  29  | export async function loginAsAdmin(page: Page) {
-  30  |   try {
-  31  |     const res = await page.request.post(`${API_URL}/auth/login`, {
-  32  |       data: { email: ADMIN_EMAIL, password: ADMIN_PASSWORD },
-  33  |       headers: {
-  34  |         "Content-Type": "application/json",
-  35  |         "X-Issue-Bearer": "1",
-  36  |       },
-  37  |     });
-  38  |     if (res.ok()) {
-  39  |       const json = (await res.json()) as {
-  40  |         token?: string;
-  41  |         mfaRequired?: boolean;
-  42  |         mfaToken?: string;
-  43  |       };
-  44  |       if (json.mfaRequired && json.mfaToken) {
-  45  |         const mfaRes = await page.request.post(`${API_URL}/auth/mfa/verify-login`, {
-  46  |           data: { mfaToken: json.mfaToken, code: currentTotp() },
-  47  |           headers: {
-  48  |             "Content-Type": "application/json",
-  49  |             "X-Issue-Bearer": "1",
-  50  |           },
-  51  |         });
-  52  |         if (mfaRes.ok()) {
-  53  |           const mfaJson = (await mfaRes.json()) as { token?: string };
-  54  |           if (mfaJson.token) {
-  55  |             for (const u of [WEB_ORIGIN, "http://localhost:3000", "http://127.0.0.1:3000"]) {
-  56  |               await page.context().addCookies([
-  57  |                 {
-  58  |                   name: "eduforge_session",
-  59  |                   value: mfaJson.token,
-  60  |                   url: u,
-  61  |                   httpOnly: true,
-  62  |                   sameSite: "Lax",
-  63  |                 },
-  64  |               ]);
-  65  |             }
-  66  |             await page.goto("/learn");
-  67  |             return;
-  68  |           }
-  69  |         }
-  70  |       } else if (json.token) {
-  71  |         await page.context().addCookies([
-  72  |           {
-  73  |             name: "eduforge_session",
-  74  |             value: json.token,
-  75  |             url: WEB_ORIGIN,
-  76  |             httpOnly: true,
-  77  |             sameSite: "Lax",
-  78  |           },
-  79  |         ]);
-  80  |         await page.goto("/learn");
-  81  |         return;
-  82  |       }
-  83  |     }
-  84  |   } catch {
-  85  |     /* fall through to form login */
-  86  |   }
-  87  | 
-  88  |   await page.goto("/login");
-  89  |   await page.locator('input[type="email"]').fill(ADMIN_EMAIL);
-  90  |   await page.locator('input[type="password"]').fill(ADMIN_PASSWORD);
-  91  |   await page.getByRole("button", { name: /Увійти|Log in/i }).click();
-  92  | 
-  93  |   // MFA step: TOTP or backup code field
-  94  |   const mfaInput = page.locator('input[placeholder="123456"], input[autocomplete="one-time-code"]');
-  95  |   const mfaVisible = await mfaInput
-  96  |     .first()
-  97  |     .isVisible({ timeout: 5_000 })
-  98  |     .catch(() => false);
-  99  | 
-  100 |   if (mfaVisible) {
-  101 |     await mfaInput.first().fill(currentTotp());
-  102 |     await page.getByRole("button", { name: /2FA|Підтвердити|Увійти|Log in/i }).click();
-  103 |   }
-  104 | 
-  105 |   // Post-login may land on /learn (persona home), dashboard, admin, or profile
-> 106 |   await page.waitForURL(/learn|dashboard|admin|profile|courses/, { timeout: 25_000 });
-      |              ^ TimeoutError: page.waitForURL: Timeout 25000ms exceeded.
-  107 | }
+  27  | /**
+  28  |  * Prefer API login + session cookie (works when UI form / MFA differs per env).
+  29  |  * Falls back to form + TOTP.
+  30  |  */
+  31  | export async function loginAsAdmin(page: Page) {
+  32  |   if (cachedAdminToken) {
+  33  |     for (const u of [WEB_ORIGIN, "http://localhost:3000", "http://127.0.0.1:3000"]) {
+  34  |       await page.context().addCookies([
+  35  |         {
+  36  |           name: "eduforge_session",
+  37  |           value: cachedAdminToken,
+  38  |           url: u,
+  39  |           httpOnly: true,
+  40  |           sameSite: "Lax",
+  41  |         },
+  42  |       ]);
+  43  |     }
+  44  |     await page.goto("/learn");
+  45  |     return;
+  46  |   }
+  47  |   try {
+  48  |     const res = await page.request.post(`${API_URL}/auth/login`, {
+  49  |       data: { email: ADMIN_EMAIL, password: ADMIN_PASSWORD },
+  50  |       headers: {
+  51  |         "Content-Type": "application/json",
+  52  |         "X-Issue-Bearer": "1",
+  53  |       },
+  54  |     });
+  55  |     if (res.ok()) {
+  56  |       const json = (await res.json()) as {
+  57  |         token?: string;
+  58  |         mfaRequired?: boolean;
+  59  |         mfaToken?: string;
+  60  |       };
+  61  |       if (json.mfaRequired && json.mfaToken) {
+  62  |         const mfaRes = await page.request.post(`${API_URL}/auth/mfa/totp/verify`, {
+  63  |           data: { mfaToken: json.mfaToken, code: currentTotp() },
+  64  |           headers: {
+  65  |             "Content-Type": "application/json",
+  66  |             "X-Issue-Bearer": "1",
+  67  |           },
+  68  |         });
+  69  |         if (mfaRes.ok()) {
+  70  |           const mfaJson = (await mfaRes.json()) as { token?: string };
+  71  |           if (mfaJson.token) {
+  72  |             cachedAdminToken = mfaJson.token;
+  73  |             for (const u of [WEB_ORIGIN, "http://localhost:3000", "http://127.0.0.1:3000"]) {
+  74  |               await page.context().addCookies([
+  75  |                 {
+  76  |                   name: "eduforge_session",
+  77  |                   value: mfaJson.token,
+  78  |                   url: u,
+  79  |                   httpOnly: true,
+  80  |                   sameSite: "Lax",
+  81  |                 },
+  82  |               ]);
+  83  |             }
+  84  |             await page.goto("/learn");
+  85  |             return;
+  86  |           }
+  87  |         }
+  88  |       } else if (json.token) {
+  89  |         cachedAdminToken = json.token;
+  90  |         for (const u of [WEB_ORIGIN, "http://localhost:3000", "http://127.0.0.1:3000"]) {
+  91  |           await page.context().addCookies([
+  92  |             {
+  93  |               name: "eduforge_session",
+  94  |               value: json.token,
+  95  |               url: u,
+  96  |               httpOnly: true,
+  97  |               sameSite: "Lax",
+  98  |             },
+  99  |           ]);
+  100 |         }
+  101 |         await page.goto("/learn");
+  102 |         return;
+  103 |       }
+  104 |     }
+  105 |   } catch {
+  106 |     /* fall through to form login */
+  107 |   }
   108 | 
-  109 | export async function loginAsAdminWithBackup(page: Page) {
-  110 |   await page.goto("/login");
-  111 |   await page.locator('input[type="email"]').fill(ADMIN_EMAIL);
-  112 |   await page.locator('input[type="password"]').fill(ADMIN_PASSWORD);
-  113 |   await page.getByRole("button", { name: /Увійти|Log in/i }).click();
-  114 | 
+  109 |   await page.goto("/login");
+  110 |   await page.locator('input[type="email"]').fill(ADMIN_EMAIL);
+  111 |   await page.locator('input[type="password"]').fill(ADMIN_PASSWORD);
+  112 |   await page.getByRole("button", { name: /Увійти|Log in/i }).click();
+  113 | 
+  114 |   // MFA step: TOTP or backup code field
   115 |   const mfaInput = page.locator('input[placeholder="123456"], input[autocomplete="one-time-code"]');
-  116 |   await expect(mfaInput.first()).toBeVisible({ timeout: 10_000 });
-  117 |   await mfaInput.first().fill(ADMIN_BACKUP_CODE);
-  118 |   await page.getByRole("button", { name: /2FA|Підтвердити|Увійти|Log in/i }).click();
-  119 |   await page.waitForURL(/learn|dashboard|admin|profile|courses/, { timeout: 25_000 });
-  120 | }
-  121 | 
+  116 |   const mfaVisible = await mfaInput
+  117 |     .first()
+  118 |     .isVisible({ timeout: 5_000 })
+  119 |     .catch(() => false);
+  120 | 
+  121 |   if (mfaVisible) {
+  122 |     await mfaInput.first().fill(currentTotp());
+  123 |     await page.getByRole("button", { name: /2FA|Підтвердити|Увійти|Log in/i }).click();
+  124 |   }
+  125 | 
+  126 |   // Post-login may land on /learn (persona home), dashboard, admin, or profile
+> 127 |   await page.waitForURL(/learn|dashboard|admin|profile|courses/, { timeout: 25_000 });
+      |              ^ TimeoutError: page.waitForURL: Timeout 25000ms exceeded.
+  128 | }
+  129 | 
+  130 | export async function loginAsAdminWithBackup(page: Page) {
+  131 |   await page.goto("/login");
+  132 |   await page.locator('input[type="email"]').fill(ADMIN_EMAIL);
+  133 |   await page.locator('input[type="password"]').fill(ADMIN_PASSWORD);
+  134 |   await page.getByRole("button", { name: /Увійти|Log in/i }).click();
+  135 | 
+  136 |   const mfaInput = page.locator('input[placeholder="123456"], input[autocomplete="one-time-code"]');
+  137 |   await expect(mfaInput.first()).toBeVisible({ timeout: 10_000 });
+  138 |   await mfaInput.first().fill(ADMIN_BACKUP_CODE);
+  139 |   await page.getByRole("button", { name: /2FA|Підтвердити|Увійти|Log in/i }).click();
+  140 |   await page.waitForURL(/learn|dashboard|admin|profile|courses/, { timeout: 25_000 });
+  141 | }
+  142 | 
 ```

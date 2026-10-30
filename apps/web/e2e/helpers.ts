@@ -22,11 +22,28 @@ export function currentTotp(secret: string = ADMIN_TOTP_SECRET): string {
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000";
 const WEB_ORIGIN = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
 
+let cachedAdminToken: string | null = null;
+
 /**
  * Prefer API login + session cookie (works when UI form / MFA differs per env).
  * Falls back to form + TOTP.
  */
 export async function loginAsAdmin(page: Page) {
+  if (cachedAdminToken) {
+    for (const u of [WEB_ORIGIN, "http://localhost:3000", "http://127.0.0.1:3000"]) {
+      await page.context().addCookies([
+        {
+          name: "eduforge_session",
+          value: cachedAdminToken,
+          url: u,
+          httpOnly: true,
+          sameSite: "Lax",
+        },
+      ]);
+    }
+    await page.goto("/learn");
+    return;
+  }
   try {
     const res = await page.request.post(`${API_URL}/auth/login`, {
       data: { email: ADMIN_EMAIL, password: ADMIN_PASSWORD },
@@ -42,7 +59,7 @@ export async function loginAsAdmin(page: Page) {
         mfaToken?: string;
       };
       if (json.mfaRequired && json.mfaToken) {
-        const mfaRes = await page.request.post(`${API_URL}/auth/mfa/verify-login`, {
+        const mfaRes = await page.request.post(`${API_URL}/auth/mfa/totp/verify`, {
           data: { mfaToken: json.mfaToken, code: currentTotp() },
           headers: {
             "Content-Type": "application/json",
@@ -52,6 +69,7 @@ export async function loginAsAdmin(page: Page) {
         if (mfaRes.ok()) {
           const mfaJson = (await mfaRes.json()) as { token?: string };
           if (mfaJson.token) {
+            cachedAdminToken = mfaJson.token;
             for (const u of [WEB_ORIGIN, "http://localhost:3000", "http://127.0.0.1:3000"]) {
               await page.context().addCookies([
                 {
@@ -68,15 +86,18 @@ export async function loginAsAdmin(page: Page) {
           }
         }
       } else if (json.token) {
-        await page.context().addCookies([
-          {
-            name: "eduforge_session",
-            value: json.token,
-            url: WEB_ORIGIN,
-            httpOnly: true,
-            sameSite: "Lax",
-          },
-        ]);
+        cachedAdminToken = json.token;
+        for (const u of [WEB_ORIGIN, "http://localhost:3000", "http://127.0.0.1:3000"]) {
+          await page.context().addCookies([
+            {
+              name: "eduforge_session",
+              value: json.token,
+              url: u,
+              httpOnly: true,
+              sameSite: "Lax",
+            },
+          ]);
+        }
         await page.goto("/learn");
         return;
       }

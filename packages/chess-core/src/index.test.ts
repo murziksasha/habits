@@ -3,6 +3,7 @@ import {
   applyFischerIncrement,
   applyMove,
   checkInfo,
+  chooseBotMove,
   createGame,
   destinations,
   exploreDestinations,
@@ -188,3 +189,109 @@ describe("exploreDestinations", () => {
     expect(dests).toEqual([]);
   });
 });
+
+describe("chooseBotMove", () => {
+  it("illegal FENs return null", () => {
+    expect(chooseBotMove("invalid fen", "club")).toBeNull();
+    expect(chooseBotMove("", "strong")).toBeNull();
+    expect(chooseBotMove("8/8/8/8/8/8/8/8 w - - 0 1", "learner")).toBeNull();
+  });
+
+  it("mate in one is played on Club and Strong", () => {
+    // White mate in one: Re8#
+    const whiteMateFen = "6k1/5ppp/8/8/8/8/5PPP/4R1K1 w - - 0 1";
+    const clubMove = chooseBotMove(whiteMateFen, "club");
+    expect(clubMove).toEqual({
+      from: "e1",
+      to: "e8",
+      promotion: undefined,
+      san: "Re8#",
+    });
+
+    const strongMove = chooseBotMove(whiteMateFen, "strong");
+    expect(strongMove).toEqual({
+      from: "e1",
+      to: "e8",
+      promotion: undefined,
+      san: "Re8#",
+    });
+
+    // Black mate in one: Re1#
+    const blackMateFen = "4r1k1/5ppp/8/8/8/8/5PPP/6K1 b - - 0 1";
+    const blackClubMove = chooseBotMove(blackMateFen, "club");
+    expect(blackClubMove?.san).toBe("Re1#");
+    const blackStrongMove = chooseBotMove(blackMateFen, "strong");
+    expect(blackStrongMove?.san).toBe("Re1#");
+  });
+
+  it("the bot does not give away the queen when a safe move exists", () => {
+    // White Queen on e4, Black Pawn on d5 defended by King on d6.
+    // Qxd5+ gives away queen for pawn (Kxd5). Other moves (e.g. Qd3, Qe2, Qe3, Qf3) keep queen safe.
+    const fen = "8/8/3k4/3p4/4Q3/8/8/4K3 w - - 0 1";
+
+    const clubMove = chooseBotMove(fen, "club");
+    expect(clubMove).not.toBeNull();
+    expect(clubMove?.san).not.toBe("Qxd5+");
+
+    const strongMove = chooseBotMove(fen, "strong");
+    expect(strongMove).not.toBeNull();
+    expect(strongMove?.san).not.toBe("Qxd5+");
+
+    // Also learner when not random (rng >= 0.25) takes care not to blunder queen into defended piece
+    const learnerSafe = chooseBotMove(fen, "learner", { rng: () => 0.9 });
+    expect(learnerSafe).not.toBeNull();
+    expect(learnerSafe?.san).not.toBe("Qxd5+");
+  });
+
+  it("Learner sometimes misses a capture", () => {
+    // White pawn on e4 can capture undefended Black queen on d5 (exd5)
+    const fen = "3k4/8/8/3q4/4P3/8/8/4K3 w - - 0 1";
+
+    // When rng < 0.25, learner picks random legal move (which can miss capture)
+    // When rng >= 0.25, learner captures hanging queen
+    let captured = 0;
+    let missed = 0;
+    for (let i = 0; i < 40; i++) {
+      const move = chooseBotMove(fen, "learner");
+      if (move?.from === "e4" && move?.to === "d5") {
+        captured++;
+      } else {
+        missed++;
+      }
+    }
+
+    expect(captured).toBeGreaterThan(0);
+    expect(missed).toBeGreaterThan(0);
+
+    // Deterministic verification with injected RNG:
+    const willMiss = chooseBotMove(fen, "learner", {
+      // Pick random branch, index 0 in moves list (e.g. Kd2 or e5)
+      rng: () => 0.05,
+    });
+    expect(willMiss).not.toBeNull();
+
+    const willCapture = chooseBotMove(fen, "learner", {
+      rng: () => 0.8,
+    });
+    expect(willCapture).toEqual({
+      from: "e4",
+      to: "d5",
+      promotion: undefined,
+      san: "exd5",
+    });
+  });
+
+  it("opening book provides sensible first moves", () => {
+    // White move 1 from start
+    const move = chooseBotMove(START, "club");
+    expect(move).not.toBeNull();
+    expect(["e2e4", "d2d4", "c2c4", "g1f3"]).toContain(`${move?.from}${move?.to}`);
+
+    // Black response to 1. e4
+    const e4Fen = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1";
+    const blackMove = chooseBotMove(e4Fen, "club");
+    expect(blackMove).not.toBeNull();
+    expect(["c7c5", "e7e5", "e7e6", "c7c6"]).toContain(`${blackMove?.from}${blackMove?.to}`);
+  });
+});
+

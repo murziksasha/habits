@@ -1,5 +1,20 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { loginAsAdmin } from "./helpers";
+
+function squareContent(page: Page, square: string) {
+  return page.locator(`[data-square="${square}"] > div`);
+}
+
+async function getLessonIdBySlug(page: Page, courseSlug: string, lessonSlug: string): Promise<string> {
+  const res = await page.request.get(`http://127.0.0.1:4000/courses/${courseSlug}`);
+  const json = (await res.json()) as { units?: { lessons?: { slug: string; id: string }[] }[] };
+  for (const unit of json.units || []) {
+    for (const l of unit.lessons || []) {
+      if (l.slug === lessonSlug) return l.id;
+    }
+  }
+  throw new Error(`Lesson slug ${lessonSlug} not found in course ${courseSlug}`);
+}
 
 test.describe("Chess board learning hints (check chip, mate card, dots)", () => {
   test("1. /play bot game: click dots, capture rings, drag, cancel, resign without card", async ({
@@ -21,19 +36,17 @@ test.describe("Chess board learning hints (check chip, mate card, dots)", () => 
     const e2 = page.locator('[data-square="e2"]');
     await e2.click();
 
-    const e3 = page.locator('[data-square="e3"]');
-    const e4 = page.locator('[data-square="e4"]');
-
     // Confirm legal empty dots on e3 and e4
-    await expect(e3).toHaveCSS("background-image", /radial-gradient/);
-    await expect(e4).toHaveCSS("background-image", /radial-gradient/);
+    await expect(squareContent(page, "e3")).toHaveCSS("background-image", /radial-gradient/);
+    await expect(squareContent(page, "e4")).toHaveCSS("background-image", /radial-gradient/);
 
     // Step 2: Cancel by clicking e2 again
     await e2.click();
-    await expect(e3).not.toHaveCSS("background-image", /radial-gradient/);
-    await expect(e4).not.toHaveCSS("background-image", /radial-gradient/);
+    await expect(squareContent(page, "e3")).not.toHaveCSS("background-image", /radial-gradient/);
+    await expect(squareContent(page, "e4")).not.toHaveCSS("background-image", /radial-gradient/);
 
     // Step 3: Click e2 and click dot e4 to make the move
+    const e4 = page.locator('[data-square="e4"]');
     await e2.click();
     await e4.click();
 
@@ -56,9 +69,9 @@ test.describe("Chess board learning hints (check chip, mate card, dots)", () => 
     page,
   }) => {
     await loginAsAdmin(page);
-    // White king on e1 in check by Black queen on e8; White pawn on e2 is pinned/blocked
+    // White king on e1 in check by Black queen on e8; White pawn on a2 has no legal moves
     await page.goto(
-      "/play?testFen=k3q3/8/8/8/8/8/4P3/4K3%20w%20-%20-%200%201",
+      "/play?testFen=k3q3/8/8/8/8/8/P7/4K3%20w%20-%20-%200%201",
     );
 
     // Check strip is visible at the top naming the attacker
@@ -66,18 +79,16 @@ test.describe("Chess board learning hints (check chip, mate card, dots)", () => 
     await expect(checkStrip).toBeVisible({ timeout: 10_000 });
 
     // Red ring on king (e1)
-    const e1 = page.locator('[data-square="e1"]');
-    await expect(e1).toHaveCSS("box-shadow", /rgb\(239,\s*68,\s*68\)/);
+    await expect(squareContent(page, "e1")).toHaveCSS("box-shadow", /rgb\(239,\s*68,\s*68\)/);
 
     // Thinner red ring on attacker (e8)
-    const e8 = page.locator('[data-square="e8"]');
-    await expect(e8).toHaveCSS("box-shadow", /rgb\(239,\s*68,\s*68\)/);
+    await expect(squareContent(page, "e8")).toHaveCSS("box-shadow", /rgb\(239,\s*68,\s*68\)/);
 
-    // White pawn on e2 has no legal moves (king is in check, moving pawn leaves king in check)
-    const e2 = page.locator('[data-square="e2"]');
-    await e2.click();
+    // White pawn on a2 has no legal moves (king is in check, moving pawn leaves king in check)
+    const a2 = page.locator('[data-square="a2"]');
+    await a2.click();
 
-    // Shows "Немає ходу" on e2
+    // Shows "Немає ходу" on a2
     const noMoveBadge = page.getByText(/Немає ходу|No legal move/i);
     await expect(noMoveBadge).toBeVisible();
 
@@ -85,10 +96,10 @@ test.describe("Chess board learning hints (check chip, mate card, dots)", () => 
     await expect(checkStrip).toBeVisible();
 
     // Click king (e1): noMove disappears, king evasion dots appear on d1, d2, f1, f2
+    const e1 = page.locator('[data-square="e1"]');
     await e1.click();
     await expect(noMoveBadge).not.toBeVisible();
-    const d1 = page.locator('[data-square="d1"]');
-    await expect(d1).toHaveCSS("background-image", /radial-gradient/);
+    await expect(squareContent(page, "d1")).toHaveCSS("background-image", /radial-gradient/);
   });
 
   test("3. Double check: names double and rings both attackers", async ({
@@ -105,10 +116,8 @@ test.describe("Chess board learning hints (check chip, mate card, dots)", () => 
     await expect(checkStrip).toBeVisible({ timeout: 10_000 });
 
     // Both attackers e8 and a5 have red rings
-    const e8 = page.locator('[data-square="e8"]');
-    const a5 = page.locator('[data-square="a5"]');
-    await expect(e8).toHaveCSS("box-shadow", /rgb\(239,\s*68,\s*68\)/);
-    await expect(a5).toHaveCSS("box-shadow", /rgb\(239,\s*68,\s*68\)/);
+    await expect(squareContent(page, "e8")).toHaveCSS("box-shadow", /rgb\(239,\s*68,\s*68\)/);
+    await expect(squareContent(page, "a5")).toHaveCSS("box-shadow", /rgb\(239,\s*68,\s*68\)/);
   });
 
   test("4. Checkmate center card: dismiss, rings stay, chip does not return", async ({
@@ -133,10 +142,8 @@ test.describe("Chess board learning hints (check chip, mate card, dots)", () => 
     await expect(mateDialog).not.toBeVisible();
 
     // Rings remain on king e1 and attacker e8 for study
-    const e1 = page.locator('[data-square="e1"]');
-    const e8 = page.locator('[data-square="e8"]');
-    await expect(e1).toHaveCSS("box-shadow", /rgb\(239,\s*68,\s*68\)/);
-    await expect(e8).toHaveCSS("box-shadow", /rgb\(239,\s*68,\s*68\)/);
+    await expect(squareContent(page, "e1")).toHaveCSS("box-shadow", /rgb\(239,\s*68,\s*68\)/);
+    await expect(squareContent(page, "e8")).toHaveCSS("box-shadow", /rgb\(239,\s*68,\s*68\)/);
 
     // Check strip does NOT return after dismiss
     const checkStrip = page.locator('[role="status"]').filter({ hasText: /Шах|Check/i });
@@ -157,8 +164,7 @@ test.describe("Chess board learning hints (check chip, mate card, dots)", () => 
     await expect(stalemateDialog.getByText(/Пат · нічия|Stalemate · draw/i)).toBeVisible();
 
     // No rings on the board
-    const kSquare = page.locator('[data-square="h8"]');
-    await expect(kSquare).not.toHaveCSS("box-shadow", /rgb\(239,\s*68,\s*68\)/);
+    await expect(squareContent(page, "h8")).not.toHaveCSS("box-shadow", /rgb\(239,\s*68,\s*68\)/);
 
     // Click card to dismiss
     await stalemateDialog.click();
@@ -169,7 +175,8 @@ test.describe("Chess board learning hints (check chip, mate card, dots)", () => 
     page,
   }) => {
     await loginAsAdmin(page);
-    await page.goto("/courses/chess/lessons/mate-in-1-a");
+    const lessonId = await getLessonIdBySlug(page, "chess", "mate-in-1-a");
+    await page.goto(`/courses/chess/lessons/${lessonId}`);
 
     // Wait for the board to load
     const e1 = page.locator('[data-square="e1"]');
@@ -180,7 +187,7 @@ test.describe("Chess board learning hints (check chip, mate card, dots)", () => 
 
     // Destination dot on e8
     const e8 = page.locator('[data-square="e8"]');
-    await expect(e8).toHaveCSS("background-image", /radial-gradient/);
+    await expect(squareContent(page, "e8")).toHaveCSS("background-image", /radial-gradient/);
 
     // Click e8 to play Re8#
     await e8.click();
@@ -198,7 +205,7 @@ test.describe("Chess board learning hints (check chip, mate card, dots)", () => 
     await expect(mateDialog).toBeVisible();
 
     // Result sheet appears below
-    await expect(page.getByText(/Вірно|Correct/i).first()).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText(/Правильно|Correct/i).first()).toBeVisible({ timeout: 5_000 });
 
     // Holds for ~2.5s before advancing to next exercise (ex 2: Qxf7#)
     await expect(mateDialog).not.toBeVisible({ timeout: 6_000 });
@@ -208,7 +215,8 @@ test.describe("Chess board learning hints (check chip, mate card, dots)", () => 
     page,
   }) => {
     await loginAsAdmin(page);
-    await page.goto("/courses/chess/lessons/forks");
+    const lessonId = await getLessonIdBySlug(page, "chess", "forks");
+    await page.goto(`/courses/chess/lessons/${lessonId}`);
 
     // Wait for knight on g5
     const g5 = page.locator('[data-square="g5"]');
@@ -218,14 +226,14 @@ test.describe("Chess board learning hints (check chip, mate card, dots)", () => 
     await g5.click();
 
     // Legal capture square on f7 has amber inset ring
-    const f7 = page.locator('[data-square="f7"]');
-    await expect(f7).toHaveCSS("box-shadow", /rgb\(245,\s*158,\s*11\)/);
+    await expect(squareContent(page, "f7")).toHaveCSS("box-shadow", /rgb\(245,\s*158,\s*11\)/);
 
     // Click f7 to execute Nxf7
+    const f7 = page.locator('[data-square="f7"]');
     await f7.click();
 
     // Solved! Result sheet appears
-    await expect(page.getByText(/Вірно|Correct/i).first()).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText(/Правильно|Correct/i).first()).toBeVisible({ timeout: 5_000 });
 
     // NO mate card was opened!
     await expect(page.getByRole("dialog")).toHaveCount(0);
@@ -235,7 +243,8 @@ test.describe("Chess board learning hints (check chip, mate card, dots)", () => 
     page,
   }) => {
     await loginAsAdmin(page);
-    await page.goto("/courses/chess/lessons/board-pieces");
+    const lessonId = await getLessonIdBySlug(page, "chess", "board-pieces");
+    await page.goto(`/courses/chess/lessons/${lessonId}`);
 
     // First exercise is chess_lesson diagram
     const e2 = page.locator('[data-square="e2"]');
@@ -243,12 +252,11 @@ test.describe("Chess board learning hints (check chip, mate card, dots)", () => 
 
     // Click White pawn e2: shows dots on e3 and e4
     await e2.click();
-    const e3 = page.locator('[data-square="e3"]');
-    const e4 = page.locator('[data-square="e4"]');
-    await expect(e3).toHaveCSS("background-image", /radial-gradient/);
-    await expect(e4).toHaveCSS("background-image", /radial-gradient/);
+    await expect(squareContent(page, "e3")).toHaveCSS("background-image", /radial-gradient/);
+    await expect(squareContent(page, "e4")).toHaveCSS("background-image", /radial-gradient/);
 
     // Click dot e4: DOES NOT move!
+    const e4 = page.locator('[data-square="e4"]');
     await e4.click();
     // Pawn is still on e2!
     await expect(page.locator('[data-square="e2"] [data-piece="wP"]')).toBeVisible();
@@ -256,10 +264,8 @@ test.describe("Chess board learning hints (check chip, mate card, dots)", () => 
     // Click Black piece e7 (side not to move): shows legal moves for Black (e6, e5)
     const e7 = page.locator('[data-square="e7"]');
     await e7.click();
-    const e6 = page.locator('[data-square="e6"]');
-    const e5 = page.locator('[data-square="e5"]');
-    await expect(e6).toHaveCSS("background-image", /radial-gradient/);
-    await expect(e5).toHaveCSS("background-image", /radial-gradient/);
+    await expect(squareContent(page, "e6")).toHaveCSS("background-image", /radial-gradient/);
+    await expect(squareContent(page, "e5")).toHaveCSS("background-image", /radial-gradient/);
 
     // No check chip, no mate card, no 'Немає ходу'
     await expect(page.getByRole("dialog")).toHaveCount(0);
@@ -267,4 +273,3 @@ test.describe("Chess board learning hints (check chip, mate card, dots)", () => 
     await expect(page.getByText(/Немає ходу|No legal move/i)).toHaveCount(0);
   });
 });
-

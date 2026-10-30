@@ -24,8 +24,15 @@ Other events: `cancel_seek`, `join_game`, `resign`.
 
 ### Bot practice (client-side)
 
-- UI path `/play` starts local game vs simple random/capture-preferring bot  
-- No DB game, no Elo, onboarding flag `triedChess` still set  
+- UI path `/play` supports three engine levels via `@eduforge/chess-core` `chooseBotMove(fen, level)`:
+  - **Learner**: 1-ply search scoring hanging pieces/safe captures and development; ~25% random legal moves.
+  - **Club**: Depth-2 alpha-beta search with MVV-LVA capture ordering, piece-square tables (development, center control, castling), and occasional second-best move selection among moves within 35 cp.
+  - **Strong**: Depth-3 alpha-beta search with near-zero noise, executed off the main thread in a Web Worker (`chess-bot-worker.ts`) with automatic Club fallback.
+- Natural opening book for move 1 for all levels.
+- Pre-game selector for level and color (White or Black). Bot plays White from move 1 when user chooses Black.
+- Shows level name (no fake Elo).
+- Preserved invariants: No DB `chess_games` row, no Elo updates. Onboarding flag `triedChess` is recorded.
+- Deep-linkable via `/play?level=club|learner|strong`.
 
 ## Time controls
 

@@ -384,7 +384,8 @@ export function ChessBoardFrame({
           isDraggablePiece={isDraggablePiece}
           onPieceDragBegin={handleDragBegin}
           onPieceDrop={handlePieceDrop}
-          onSquareClick={handleSquareClick}
+          onPieceClick={(_piece, square) => handleSquareClick(square)}
+          onSquareClick={(square) => handleSquareClick(square)}
           customSquareStyles={customSquareStyles}
           autoPromoteToQueen={true}
           animationDuration={200}

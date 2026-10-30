@@ -250,3 +250,5 @@ export function exploreDestinations(fen: string, square: string): Destination[] 
 }
 
 export { Chess, type Square };
+export * from "./bot.js";
+
