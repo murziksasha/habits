@@ -25,8 +25,8 @@ test.describe("Smarter chess practice & tighter Learn session", () => {
     await expect(weeklyQuestToggle).toContainText(/тижня|this week/i);
 
     // Course groups are rendered
-    await expect(page.getByRole("heading", { name: /Код|Code/i })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /Шахи|Chess/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Технології|Technology/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Мислення|Thinking/i })).toBeVisible();
 
     // Chess group has "Practice vs Club bot" extra link
     const clubBotLink = page.getByRole("link", { name: /Практика проти клубного бота|Practice vs Club bot/i });

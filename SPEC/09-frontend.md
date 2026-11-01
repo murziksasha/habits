@@ -24,7 +24,7 @@
 | `/verify-email` | Confirm email from registration mail (`?token=`) |
 | `/forgot-password`, `/reset-password` | Password recovery |
 | `/dashboard` | Character, next steps, exams, programming/race teaser |
-| `/learn` | Learning map: recommended, exams, groups, toolkit |
+| `/learn` | Continue learning, subject catalog, exams, toolkit |
 | `/courses`, `/courses/[slug]` | Catalog + path map |
 | `/courses/[slug]/lessons/[lessonId]` | Lesson player (soft-grade, skip, solution) |
 | `/programming`, `/programming/[stack]` | Programming hub + stack filter |
@@ -44,8 +44,8 @@
 | `/certificates`, `/certificates/[code]` | Certificates (branded art, PDF/PNG download, print) |
 | `/homework`, `/schools/*` | Classroom |
 | `/parents`, `/parents/child/[studentId]` | Parent portal + digest |
-| `/flashcards`, `/tutor`, `/review`, `/quests`, `/shop` | Learning tools |
-| `/calendar`, `/export`, `/reports`, `/focus`, `/notes` | Learning OS |
+| `/flashcards`, `/tutor`, `/review`, `/quests`, `/shop` | Practice, tutor, quests, shop. `/review` is the Practice tab |
+| `/calendar`, `/export`, `/reports`, `/focus`, `/notes` | Calendar, export, reports, focus, notes |
 | `/bookmarks`, `/search`, `/referrals` | Extra UX |
 | `/achievements`, `/u/[userId]` | Social profile |
 | `/profile` | Character, push, minis, certificates |
@@ -62,12 +62,14 @@ See [SPEC 89](./89-unverified-lifecycle.md).
 
 ## Navigation
 
-- Desktop: **persona primary** (student / parent / teacher) + **More** dropdown (SPEC 57 + 79)  
-- Mobile: bottom 5 persona slots + hamburger drawer  
+- Desktop student: Home (`/dashboard`), Learn, Courses, Practice (`/review`), Friends, plus More. Programming and chess stay in Courses and More.
+- Desktop parent and teacher keep their own primary slots (SPEC 57 + 79).
+- Mobile student: Learn, Courses, Practice, Friends, Profile. Home stays on the logo.
+- Mobile parent and teacher keep their existing five slots. A hamburger drawer covers the rest.
 - ⌘K / Ctrl+K command palette (`CommandPalette`)  
 - Admin link when `user.role === "admin"`  
 - Embed routes hide chrome  
-- School/family in More only for parent/teacher personas  
+- School/family in More only for parent/teacher personas  
 - The bell and the “Ще” menu dismiss through a body portal because the header blur traps `position: fixed`, and Monaco is bundled same-origin because CSP blocks the CDN stylesheet.  
 
 ## Key components

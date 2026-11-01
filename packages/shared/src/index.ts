@@ -31,5 +31,7 @@ export * from "./js-static.js";
 export * from "./feature-flags.js";
 export * from "./adaptive-next.js";
 export * from "./ux.js";
+export * from "./subjects.js";
+export * from "./oracle-path.js";
 export * from "./secrets.js";
 export * from "./pagination.js";

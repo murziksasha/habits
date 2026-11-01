@@ -20,7 +20,7 @@ const config: Config = {
       },
       boxShadow: {
         card: "var(--ef-shadow-card)",
-        btn: "0 4px 0 0 rgba(0,0,0,0.15)",
+        btn: "0 1px 2px rgba(15, 23, 42, 0.12)",
       },
       fontFamily: {
         sans: ["var(--font-geist)", "system-ui", "sans-serif"],

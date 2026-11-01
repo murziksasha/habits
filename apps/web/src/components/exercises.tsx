@@ -7,6 +7,8 @@ import {
   countWords,
   exercisePrompt,
   gradeExplanation,
+  localizeExerciseOptions,
+  localizeMatchPairs,
   UI,
   type ExplainKeyIdea,
 } from "@eduforge/shared";
@@ -129,7 +131,7 @@ export function ExercisePlayer({
 function CodeBlock({ code }: { code: string; language?: string }) {
   if (!code) return null;
   return (
-    <pre className="overflow-x-auto rounded-2xl border-2 border-slate-200 bg-slate-900 p-4 font-mono text-sm leading-relaxed text-slate-100 shadow-sm dark:border-slate-800">
+    <pre className="overflow-x-auto rounded-2xl border border-slate-700 bg-slate-950 p-4 font-mono text-[15px] leading-7 text-slate-50 shadow-card">
       <code>{code}</code>
     </pre>
   );
@@ -452,8 +454,9 @@ function McqExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
+  const { locale } = useLocale();
   const prompt = usePrompt(exercise);
-  const options = (exercise.options as string[]) ?? [];
+  const options = localizeExerciseOptions(locale, exercise as { options?: string[]; optionsEn?: string[] });
   const [selected, setSelected] = useState<number | null>(null);
   const hint = useExerciseHint(exercise);
   const soft = useSoftAttempts(hint.setOpen);
@@ -521,7 +524,6 @@ function McqExercise({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [options.length, selected, correctIndex, soft, onAnswer]);
 
-  const { locale } = useLocale();
   const keysHint =
     locale === "en"
       ? "Keys: 1–9 (top row and numpad) select · arrows move · Enter check"
@@ -648,17 +650,24 @@ function MatchExercise({
 }) {
   const { locale } = useLocale();
   const prompt = usePrompt(exercise);
-  const pairs = (exercise.pairs as { left: string; right: string }[]) ?? [];
+  const pairs = useMemo(
+    () =>
+      localizeMatchPairs(locale, {
+        pairs: exercise.pairs as { left: string; right: string }[] | undefined,
+        pairsEn: (exercise as { pairsEn?: { left: string; right: string }[] }).pairsEn,
+      }),
+    [exercise, locale],
+  );
   const rights = useMemo(
-    () => [...pairs.map((p) => p.right)].sort(() => Math.random() - 0.5),
+    () => [...pairs].sort(() => Math.random() - 0.5),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [exercise.id],
+    [exercise.id, locale],
   );
   const [selectedLeft, setSelectedLeft] = useState<string | null>(null);
   const [matched, setMatched] = useState<{ left: string; right: string }[]>([]);
 
   const freeLefts = pairs.filter((p) => !matched.some((m) => m.left === p.left));
-  const freeRights = rights.filter((r) => !matched.some((m) => m.right === r));
+  const freeRights = rights.filter((r) => !matched.some((m) => m.right === r.right));
 
   function pickRight(right: string) {
     if (!selectedLeft) return;
@@ -679,7 +688,7 @@ function MatchExercise({
           const left = freeLefts[optIdx]?.left;
           if (left) setSelectedLeft(left);
         } else {
-          const right = freeRights[optIdx];
+          const right = freeRights[optIdx]?.right;
           if (right) pickRight(right);
         }
         return;
@@ -742,26 +751,26 @@ function MatchExercise({
                 {freeIdx >= 0 && (
                   <span className="mr-1 text-[10px] text-ink-muted">{freeIdx + 1}.</span>
                 )}
-                {p.left}
+                {p.labelLeft}
               </button>
             );
           })}
         </div>
         <div className="space-y-2" role="list" aria-label="right">
           {rights.map((r) => {
-            const freeIdx = freeRights.indexOf(r);
+            const freeIdx = freeRights.findIndex((x) => x.right === r.right);
             return (
               <button
-                key={r}
+                key={r.right}
                 type="button"
-                disabled={matched.some((m) => m.right === r)}
+                disabled={matched.some((m) => m.right === r.right)}
                 className="w-full rounded-2xl border-2 border-slate-200 px-3 py-2 font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky"
-                onClick={() => pickRight(r)}
+                onClick={() => pickRight(r.right)}
               >
                 {freeIdx >= 0 && (
                   <span className="mr-1 text-[10px] text-ink-muted">{freeIdx + 1}.</span>
                 )}
-                {r}
+                {r.labelRight}
               </button>
             );
           })}
@@ -769,7 +778,12 @@ function MatchExercise({
       </div>
       {matched.length > 0 && (
         <p className="text-xs font-bold text-ink-muted">
-          {matched.map((m) => `${m.left}→${m.right}`).join(" · ")}
+          {matched
+            .map((m) => {
+              const pair = pairs.find((p) => p.left === m.left);
+              return `${pair?.labelLeft ?? m.left}→${pair?.labelRight ?? m.right}`;
+            })
+            .join(" · ")}
         </p>
       )}
       <button

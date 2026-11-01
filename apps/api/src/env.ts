@@ -1,6 +1,9 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadRootEnv } from "@eduforge/db";
 import { isProductionEnv, isWeakSecret } from "@eduforge/shared";
+
+loadRootEnv();
 
 function resolveAuthSecret(): string {
   const raw = (process.env.AUTH_SECRET ?? "").trim();

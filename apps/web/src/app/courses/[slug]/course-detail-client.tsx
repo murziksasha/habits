@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { pickLocale, UI } from "@eduforge/shared";
+import { OracleSectionBar, prerequisiteLabels, unitInOracleSection } from "@/components/oracle-sections";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
@@ -27,12 +28,14 @@ type Lesson = {
   baseXp?: number;
 };
 
-type Unit = { id: string; titleUk: string; titleEn?: string; lessons: Lesson[] };
+type Unit = { id: string; slug?: string; titleUk: string; titleEn?: string; lessons: Lesson[] };
 
 export function CourseDetailClient() {
   const { slug } = useParams<{ slug: string }>();
   const { token, user, loading } = useAuth();
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
+  const [section, setSection] = useState("all");
+  const [openUnits, setOpenUnits] = useState<Record<string, boolean>>({});
   const [data, setData] = useState<{
     course: {
       titleUk: string;
@@ -89,8 +92,8 @@ export function CourseDetailClient() {
           setData(res);
         }
       })
-      .catch(() => setError("Не вдалося завантажити курс"));
-  }, [loading, token, user, slug]);
+      .catch(() => setError(t.common.error));
+  }, [loading, token, user, slug, t]);
 
   if (loading || (!data && !error)) {
     return (
@@ -106,15 +109,17 @@ export function CourseDetailClient() {
   if (!data) {
     return (
       <div className="card mx-auto max-w-lg space-y-3 text-center">
-        <p className="font-bold text-red-500">{error || UI.common.error}</p>
+        <p className="font-bold text-red-700 dark:text-red-300">{error || t.common.error}</p>
         <button type="button" className="btn-primary" onClick={() => window.location.reload()}>
-          {locale === "en" ? "Retry" : "Спробувати знову"}
+          {t.catalog.retry}
         </button>
       </div>
     );
   }
 
-  const allLessons = data.units.flatMap((u) => u.lessons);
+  const oracle = slug === "sql_fundamentals";
+  const visibleUnits = oracle ? data.units.filter((u) => unitInOracleSection(u.slug, section)) : data.units;
+  const allLessons = visibleUnits.flatMap((u) => u.lessons);
   const continueLesson =
     allLessons.find((l) => !l.locked && l.status !== "completed") ??
     allLessons.find((l) => !l.locked) ??
@@ -140,13 +145,7 @@ export function CourseDetailClient() {
               href={`/courses/${slug}/lessons/${continueLesson.id}`}
               className="btn-primary mt-4 inline-flex min-h-11"
             >
-              {continueLesson.status === "completed"
-                ? locale === "en"
-                  ? "Review lesson"
-                  : "Повторити урок"
-                : locale === "en"
-                  ? "Continue"
-                  : "Продовжити"}
+              {continueLesson.status === "completed" ? t.coursePage.reviewLesson : t.coursePage.continue}
               : {pickLocale(locale, continueLesson.titleUk, continueLesson.titleEn)} →
             </Link>
           ) : null}
@@ -178,9 +177,7 @@ export function CourseDetailClient() {
             </>
           ) : null}
           <p className="text-sm font-bold text-ink-muted">
-            {locale === "en" ? "Completed lessons" : "Завершено уроків"}:{" "}
-            {data.progress.completedLessons}
-            {totalCount > 0 ? ` / ${totalCount}` : ""}
+            {t.coursePage.completed}: {completedCount} / {allLessons.length}
           </p>
           <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
             <div
@@ -193,27 +190,68 @@ export function CourseDetailClient() {
         </div>
       </div>
 
-      {data.units.map((unit, ui) => {
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-xl font-black">{t.coursePage.outline}</h2>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className="btn-secondary !px-3 !py-2 text-sm"
+            onClick={() =>
+              setOpenUnits(Object.fromEntries(visibleUnits.map((u) => [u.id, true])))
+            }
+          >
+            {t.coursePage.expandAll}
+          </button>
+          <button
+            type="button"
+            className="btn-secondary !px-3 !py-2 text-sm"
+            onClick={() =>
+              setOpenUnits(Object.fromEntries(visibleUnits.map((u) => [u.id, false])))
+            }
+          >
+            {t.coursePage.collapseAll}
+          </button>
+        </div>
+      </div>
+      {oracle ? <OracleSectionBar units={data.units} value={section} onChange={setSection} /> : null}
+
+      {visibleUnits.map((unit, ui) => {
+        const defaultOpenId =
+          visibleUnits.find((u) => u.lessons.some((l) => l.status !== "completed"))?.id ??
+          visibleUnits[0]?.id;
+        const open = openUnits[unit.id] ?? unit.id === defaultOpenId;
+        const prereq = prerequisiteLabels(unit.slug, data.units, locale);
         const unitDone = unit.lessons.filter((l) => l.status === "completed").length;
         const unitTotal = unit.lessons.length || 1;
         return (
           <section key={unit.id} className="space-y-3">
             <div className="flex flex-wrap items-end justify-between gap-2">
-              <h2 className="text-lg font-black text-ink-muted">
-                {locale === "en" ? "Unit" : "Розділ"} {ui + 1}:{" "}
-                {pickLocale(locale, unit.titleUk, unit.titleEn)}
-              </h2>
+              <h3 className="text-lg font-black text-ink">
+                <button
+                  type="button"
+                  className="min-h-11 text-left"
+                  aria-expanded={open}
+                  onClick={() => setOpenUnits((prev) => ({ ...prev, [unit.id]: !open }))}
+                >
+                  {open ? "▾" : "▸"} {ui + 1}. {pickLocale(locale, unit.titleUk, unit.titleEn)}
+                </button>
+              </h3>
               <span className="text-xs font-black text-ink-muted">
-                {unitDone}/{unitTotal}
+                {unitDone}/{unitTotal} · {unitDone === unit.lessons.length && unit.lessons.length > 0 ? t.coursePage.completed : t.coursePage.available}
               </span>
             </div>
+            {prereq.length > 0 ? (
+              <p className="text-xs text-ink-muted">
+                {t.coursePage.prerequisites}: {prereq.join(", ")}
+              </p>
+            ) : null}
             <div className="h-1.5 max-w-md overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
               <div
                 className="h-full rounded-full bg-sky transition-all"
                 style={{ width: `${Math.min(100, (unitDone / unitTotal) * 100)}%` }}
               />
             </div>
-            <div className="relative mx-auto flex max-w-md flex-col items-center gap-4">
+            {open ? <div className="relative mx-auto flex max-w-md flex-col items-center gap-4">
               {unit.lessons.map((lesson, i) => (
                 <div key={lesson.id} className="w-full">
                   {lesson.locked ? (
@@ -229,7 +267,7 @@ export function CourseDetailClient() {
                           {pickLocale(locale, lesson.titleUk, lesson.titleEn)}
                         </p>
                         <p className="text-sm text-ink-muted">
-                          {locale === "en" ? "Finish unit lessons first" : "Пройдіть уроки розділу"}
+                          {t.coursePage.locked}
                         </p>
                       </div>
                     </div>
@@ -267,10 +305,23 @@ export function CourseDetailClient() {
                   )}
                 </div>
               ))}
-            </div>
+            </div> : null}
           </section>
         );
       })}
+
+      {continueLesson ? (
+        <div className="fixed inset-x-0 bottom-16 z-30 border-t border-slate-200 bg-[var(--ef-card-bg)]/95 p-3 shadow-card backdrop-blur md:bottom-0">
+          <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
+            <p className="truncate text-sm font-bold">
+              {t.coursePage.continue}: {pickLocale(locale, continueLesson.titleUk, continueLesson.titleEn)}
+            </p>
+            <Link href={`/courses/${slug}/lessons/${continueLesson.id}`} className="btn-primary shrink-0 !py-2 text-sm min-h-11">
+              {t.coursePage.continue} →
+            </Link>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

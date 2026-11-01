@@ -6,7 +6,7 @@
 
 ## North star
 
-EduForge is a **Learning OS** for skills + coding (with chess as a strong pillar), not an unbounded feature kitchen sink.
+EduForge is a free learning place for many subjects: English, thinking, reading, chess, and technology.
 
 Primary journeys:
 
@@ -33,17 +33,20 @@ Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, 
 | Slot | Route | Notes |
 |------|-------|--------|
 | Home | `/dashboard` | Thin shell: next action, streak, progress |
-| Learn | `/learn` | Learning map (recommended home of curriculum) |
-| Courses | `/courses` | Catalog by group |
-| Code | `/programming` | Path hub (deep tracks linked from here) |
-| Play | `/play` or `/playground` | Chess / sandbox — primary uses Play + playground in More if needed |
-| Social | `/friends` | Friends + light social |
+| Learn | `/learn` | One continue action, then subjects. Quests stay below the catalog |
+| Courses | `/courses` | Searchable grid. Filters: Languages, Thinking & Strategy, Learning Skills, Technology |
+| Practice | `/review` | Spaced review. Programming and chess stay in Courses and More |
+| Friends | `/friends` | Friends + light social |
 
-**More:** toolkit (flashcards, review, quests, notes, tutor, shop), schools/parents/homework, certificates, leaderboard, search, feedback, admin (role).
+**More (student):** Programming (`/programming`) and chess (`/play`), plus toolkit (flashcards, review, quests, tutor), certificates, leaderboard, search, feedback, admin (role). Parent and teacher primary nav stay as they were.
 
 ### Mobile bottom (5)
 
-`Learn · Code · Play · Courses · Profile` — Home/dashboard remains reachable from logo or profile.
+`Learn · Courses · Practice · Friends · Profile` — Home stays on the logo. Programming and chess are not bottom tabs.
+
+### SQL & Oracle Database
+
+`sql_fundamentals` stays one course at `/sql-fundamentals`. Learners browse three sections: SQL & Modern Oracle, PL/SQL, and Database Administration. Prerequisites are advice, not locks. Modern syntax is labeled with the Oracle version. Examples follow the Oracle Database 26 documentation and are not claimed as live-server runs unless a check actually executed them.
 
 ### Explicitly removed from global nav clutter
 

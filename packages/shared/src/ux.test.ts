@@ -47,12 +47,18 @@ describe("resolvePersona / tracks", () => {
 });
 
 describe("nav presets", () => {
-  it("student primary has home + learn + code", () => {
-    const ids = primaryNavForPersona("student").map((n) => n.id);
-    expect(ids).toContain("home");
-    expect(ids).toContain("learn");
-    expect(ids).toContain("code");
-    expect(ids.length).toBeLessThanOrEqual(6);
+  it("student primary is subject-neutral and includes practice", () => {
+    const desktop = primaryNavForPersona("student");
+    expect(desktop.map((n) => n.id)).toEqual([
+      "home",
+      "learn",
+      "courses",
+      "practice",
+      "friends",
+    ]);
+    expect(desktop.find((n) => n.id === "practice")?.href).toBe("/review");
+    const mobile = mobileNavForPersona("student").map((n) => n.id);
+    expect(mobile).toEqual(["learn", "courses", "practice", "friends", "profile"]);
   });
 
   it("parent mobile has children first", () => {
@@ -129,7 +135,7 @@ describe("discovery + guest trial", () => {
 
   it("guest trial has correct answer", () => {
     const g = guestTrialMcq("en");
-    expect(g.options[g.correctIndex]).toMatch(/constant/i);
+    expect(g.options[g.correctIndex]).toMatch(/explanation/i);
   });
 });
 

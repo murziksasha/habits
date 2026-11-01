@@ -16,7 +16,7 @@
 | `qa_theory` | QA theory deep track | principles, levels, types, techniques, STLC + exams |
 | `js_fundamentals` | JavaScript deep track | types, functions, arrays, async, DOM, modules + exams |
 | `react_fundamentals` | React deep track | components, props, state, lists, effects, forms + exams |
-| `sql_fundamentals` | SQL deep track | Oracle 1Z0-071 path: functions, joins, subqueries, sets, DDL, views + exams |
+| `sql_fundamentals` | SQL & Oracle Database | One course, three sections: SQL & Modern Oracle (22 units including the capstone), PL/SQL (8), Database Administration (8). 38 units, 155 lessons. Identities stay stable across incremental seeds |
 | `node_fundamentals` | Node.js deep track | runtime, modules, fs, env, http, npm, async + exams |
 | `express_fundamentals` | Express deep track | app, routes, middleware, REST, errors, Router + exams |
 | `embedded_cpp` | Embedded C++ · MilTech | memory, CMake, net, RTOS, MAVLink, safety, datalink, mission + labs/exams |

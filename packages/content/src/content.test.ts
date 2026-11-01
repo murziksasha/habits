@@ -199,8 +199,10 @@ describe("course content integrity", () => {
       expect(slugs).toContain("set-ops");
       expect(slugs).toContain("schema-objects");
       expect(slugs).toContain("access-dict");
-      const last = sqlFundamentalsContent.units.at(-1);
-      expect(last?.slug).toBe("capstone");
+      expect(slugs.at(-1)).toBe("dba-operations");
+      const capstoneAt = slugs.indexOf("capstone");
+      expect(capstoneAt).toBeGreaterThan(0);
+      expect(slugs[capstoneAt + 1]).toBe("plsql-blocks");
       for (const ex of collectExercises(sqlFundamentalsContent)) {
         if (ex.type === "code_order") {
           expect(ex.lines.length).toBe(ex.correct.length);

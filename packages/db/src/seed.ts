@@ -55,7 +55,7 @@ const allCourses: CourseContent[] = [
   embeddedCppContent,
 ];
 
-async function seedCourse(
+export async function seedCourse(
   db: ReturnType<typeof createDb>,
   content: CourseContent,
   sortOrder: number,
@@ -364,7 +364,12 @@ async function main() {
   process.exit(0);
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+const seedEntrypoint = process.argv[1]?.replace(/\\/g, "/") ?? "";
+const launchedAsCli = seedEntrypoint.endsWith("/seed.ts") || seedEntrypoint.endsWith("/seed.js");
+
+if (launchedAsCli) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

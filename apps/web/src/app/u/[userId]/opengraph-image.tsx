@@ -89,7 +89,7 @@ export default async function Image({ params }: Props) {
           </div>
         </div>
         <div style={{ fontSize: 22, fontWeight: 600, opacity: 0.85 }}>
-          Learning OS · skills + code
+          EduForge · languages, thinking, and technology
         </div>
       </div>
     ),

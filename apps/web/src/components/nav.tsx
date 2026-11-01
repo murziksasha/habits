@@ -38,6 +38,7 @@ function labelForSlot(
     homework: t.nav.homework,
     class: t.nav.schools,
     friends: t.nav.friends,
+    practice: t.nav.practice,
   };
   return map[id] ?? id;
 }
@@ -109,6 +110,13 @@ export function Nav() {
     { href: "/shop", label: t.nav.shop, icon: "🛒", group: accountLabel },
   ];
 
+  if (persona === "student") {
+    moreDefs.unshift(
+      { href: "/programming", label: t.nav.programming, icon: "💻", group: toolkitLabel },
+      { href: "/play", label: t.nav.play, icon: "♟️", group: toolkitLabel },
+    );
+  }
+
   if (persona === "parent" || persona === "teacher" || persona === "student") {
     // Student: soft-hide school (still discoverable via search); parent/teacher surface school
     if (persona !== "student") {
@@ -170,14 +178,14 @@ export function Nav() {
             className="flex items-center gap-2 font-black text-xl text-brand-dark"
             onClick={() => setOpen(false)}
           >
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand text-white shadow-btn">
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-dark text-white shadow-btn dark:text-emerald-950">
               E
             </span>
             <span className="hidden xs:inline sm:inline">{t.appName}</span>
           </Link>
 
           <nav
-            className="hidden lg:flex items-center gap-1 relative"
+            className="hidden md:flex items-center gap-1 relative"
             aria-label={locale === "en" ? "Primary" : "Головна навігація"}
           >
             {primaryLinks.map((l) => {
@@ -301,18 +309,10 @@ export function Nav() {
                 >
                   {t.nav.logout}
                 </button>
-                <button
-                  type="button"
-                  className="lg:hidden grid h-10 w-10 place-items-center rounded-xl border-2 border-slate-200 font-black dark:border-slate-700"
-                  aria-label="Menu"
-                  onClick={() => setOpen((v) => !v)}
-                >
-                  {open ? "✕" : "☰"}
-                </button>
               </>
             ) : (
               <>
-                <Link href="/login" className="btn-secondary !py-2 !px-3 text-sm">
+                <Link href="/login" className="btn-secondary !py-2 !px-3 text-sm hidden sm:inline-flex">
                   {t.nav.login}
                 </Link>
                 <Link href="/register" className="btn-primary !py-2 !px-3 text-sm hidden sm:inline-flex">
@@ -333,7 +333,7 @@ export function Nav() {
                 type="button"
                 className={clsx(
                   "px-2 py-1.5",
-                  locale === "uk" ? "bg-brand text-white" : "bg-white dark:bg-slate-900",
+                  locale === "uk" ? "bg-brand-dark text-white dark:text-emerald-950" : "bg-white text-ink dark:bg-slate-900",
                 )}
                 onClick={() => setLocale("uk")}
               >
@@ -343,18 +343,27 @@ export function Nav() {
                 type="button"
                 className={clsx(
                   "px-2 py-1.5",
-                  locale === "en" ? "bg-brand text-white" : "bg-white dark:bg-slate-900",
+                  locale === "en" ? "bg-brand-dark text-white dark:text-emerald-950" : "bg-white text-ink dark:bg-slate-900",
                 )}
                 onClick={() => setLocale("en")}
               >
                 EN
               </button>
             </div>
+            <button
+              type="button"
+              className="md:hidden grid h-10 w-10 place-items-center rounded-xl border-2 border-slate-200 font-black dark:border-slate-700"
+              aria-label="Menu"
+              aria-expanded={open}
+              onClick={() => setOpen((v) => !v)}
+            >
+              {open ? "✕" : "☰"}
+            </button>
           </div>
         </div>
 
         {open && (
-          <div className="lg:hidden border-t border-slate-100 bg-white px-4 py-3 space-y-1 max-h-[70vh] overflow-y-auto dark:border-slate-800 dark:bg-slate-950">
+          <div className="md:hidden border-t border-slate-100 bg-white px-4 py-3 space-y-1 max-h-[70vh] overflow-y-auto dark:border-slate-800 dark:bg-slate-950">
             {mobileLinks.map((l) => (
               <Link
                 key={l.href}
