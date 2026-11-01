@@ -23,7 +23,8 @@ export type NavSlot = {
     | "desk"
     | "homework"
     | "class"
-    | "friends";
+    | "friends"
+    | "practice";
   icon: string;
 };
 
@@ -102,8 +103,7 @@ export function primaryNavForPersona(persona: UxPersona): NavSlot[] {
         { href: "/dashboard", id: "home", icon: "🏠" },
         { href: "/learn", id: "learn", icon: "🗺️" },
         { href: "/courses", id: "courses", icon: "📚" },
-        { href: "/programming", id: "code", icon: "💻" },
-        { href: "/play", id: "play", icon: "♟️" },
+        { href: "/review", id: "practice", icon: "🔁" },
         { href: "/friends", id: "friends", icon: "👥" },
       ];
   }
@@ -131,9 +131,9 @@ export function mobileNavForPersona(persona: UxPersona): NavSlot[] {
     default:
       return [
         { href: "/learn", id: "learn", icon: "🗺️" },
-        { href: "/programming", id: "code", icon: "💻" },
-        { href: "/play", id: "play", icon: "♟️" },
         { href: "/courses", id: "courses", icon: "📚" },
+        { href: "/review", id: "practice", icon: "🔁" },
+        { href: "/friends", id: "friends", icon: "👥" },
         { href: "/profile", id: "profile", icon: "🧙" },
       ];
   }
@@ -441,19 +441,19 @@ export function landingPersonas(): {
   return [
     {
       intent: "skills",
-      titleUk: "Навички",
-      titleEn: "Skills",
-      bodyUk: "Англійська, друк, логіка, швидкочитання",
-      bodyEn: "English, typing, logic, speed reading",
-      icon: "📚",
+      titleUk: "Англійська",
+      titleEn: "English",
+      bodyUk: "Слова, фрази та короткі розмови з перевіркою.",
+      bodyEn: "Words, phrases, and short conversations with checks.",
+      icon: "📗",
       href: "/register?intent=skills",
     },
     {
       intent: "code",
-      titleUk: "Код",
-      titleEn: "Code",
-      bodyUk: "Programming path, playground, mini-projects",
-      bodyEn: "Programming path, playground, mini-projects",
+      titleUk: "Технології",
+      titleEn: "Technology",
+      bodyUk: "Програмування, SQL і практика на своїх прикладах.",
+      bodyEn: "Programming, SQL, and practice on your own examples.",
       icon: "💻",
       href: "/register?intent=code",
     },
@@ -461,8 +461,8 @@ export function landingPersonas(): {
       intent: "chess",
       titleUk: "Шахи",
       titleEn: "Chess",
-      bodyUk: "Уроки + online / бот",
-      bodyEn: "Lessons + online / bot",
+      bodyUk: "Ідеї позицій, задачі та партії у своєму темпі.",
+      bodyEn: "Ideas, puzzles, and games at your own pace.",
       icon: "♟️",
       href: "/register?intent=chess",
     },
@@ -478,17 +478,27 @@ export function guestTrialMcq(locale: "uk" | "en" = "uk"): {
 } {
   if (locale === "en") {
     return {
-      prompt: "What does `const x = 1` declare in JavaScript?",
-      options: ["A constant binding", "A function", "A CSS class", "A database"],
+      prompt: "You read a short example, then try a similar question. What should you do next?",
+      options: [
+        "Try the question from memory, then read the explanation",
+        "Skip every explanation",
+        "Only collect points",
+        "Open a different subject at random",
+      ],
       correctIndex: 0,
-      explanation: "const creates a block-scoped constant binding (not reassignable).",
+      explanation: "A short try, then the explanation, is how the lesson checks that the idea stuck.",
     };
   }
   return {
-    prompt: "Що робить `const x = 1` у JavaScript?",
-    options: ["Оголошує константу", "Створює функцію", "CSS-клас", "Базу даних"],
+    prompt: "Ви прочитали короткий приклад і бачите схоже питання. Що робити далі?",
+    options: [
+      "Спробувати відповісти з пам’яті, потім прочитати пояснення",
+      "Пропустити всі пояснення",
+      "Лише збирати бали",
+      "Відкрити випадковий інший предмет",
+    ],
     correctIndex: 0,
-    explanation: "const створює блокову константу (без переприсвоєння).",
+    explanation: "Коротка спроба, а потім пояснення, показує, що ідея залишилась.",
   };
 }
 

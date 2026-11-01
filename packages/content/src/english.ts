@@ -7,7 +7,7 @@ export const englishContent: CourseContent = {
   titleEn: "English",
   descriptionUk: "Вивчай англійську через короткі інтерактивні уроки.",
   descriptionEn: "Learn English through short interactive lessons.",
-  icon: "🇬🇧",
+  icon: "📗",
   color: "#58CC02",
   units: [
     {

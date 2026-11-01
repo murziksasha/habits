@@ -629,7 +629,7 @@ export function CharacterProgressionPanel() {
                   onClick={() => void equip("title", t.id)}
                   className={`rounded-full px-2 py-1 text-xs font-black ${
                     p.equippedTitle === t.id
-                      ? "bg-brand text-white"
+                      ? "bg-brand-dark text-white dark:text-emerald-950"
                       : "bg-slate-100 dark:bg-slate-800"
                   }`}
                 >
@@ -653,7 +653,7 @@ export function CharacterProgressionPanel() {
                   onClick={() => void equip("frame", f.id)}
                   className={`rounded-full px-2 py-1 text-xs font-black ${
                     p.equippedFrame === f.id
-                      ? "bg-brand text-white"
+                      ? "bg-brand-dark text-white dark:text-emerald-950"
                       : "bg-slate-100 dark:bg-slate-800"
                   }`}
                 >

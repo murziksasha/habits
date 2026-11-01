@@ -92,7 +92,7 @@ export const COURSE_META: Record<
     titleEn: "English",
     descriptionUk: "Вивчай англійську як у Duolingo — уроки, серії, досвід.",
     descriptionEn: "Learn English like Duolingo — lessons, streaks, XP.",
-    icon: "🇬🇧",
+    icon: "📗",
     color: "#58CC02",
     group: "skill",
   },
@@ -208,12 +208,12 @@ export const COURSE_META: Record<
   },
   sql_fundamentals: {
     slug: "sql_fundamentals",
-    titleUk: "SQL",
-    titleEn: "SQL",
+    titleUk: "SQL і Oracle Database",
+    titleEn: "SQL & Oracle Database",
     descriptionUk:
-      "Oracle SQL за програмою 1Z0-071: функції, JOIN, підзапити, множини, DML/DDL, views.",
+      "SQL, PL/SQL і адміністрування Oracle: від перших запитів до JSON, векторів і сценаріїв супроводу.",
     descriptionEn:
-      "Oracle SQL on the 1Z0-071 checklist: functions, joins, subqueries, sets, DML/DDL, views.",
+      "Oracle SQL, PL/SQL, and administration: from first queries to JSON, vectors, and operations scenarios.",
     icon: "🗄️",
     color: "#336791",
     group: "deep",

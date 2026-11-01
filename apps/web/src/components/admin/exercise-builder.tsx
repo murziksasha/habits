@@ -289,7 +289,7 @@ export function ExerciseBuilder({ exercises, onChange, onJsonSync }: Props) {
             type="button"
             className={clsx(
               "rounded-xl px-2 py-1 text-xs font-bold",
-              i === selected ? "bg-brand text-white" : "bg-slate-100 dark:bg-slate-800",
+              i === selected ? "bg-brand-dark text-white dark:text-emerald-950" : "bg-slate-100 dark:bg-slate-800",
             )}
             onClick={() => setSelected(i)}
           >

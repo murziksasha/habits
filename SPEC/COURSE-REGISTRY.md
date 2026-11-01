@@ -12,7 +12,7 @@ App-level map of course slug → hub. DB stores `varchar` slugs; registry is in 
 | `css_layout` | deep | `/programming` | same | Deep |
 | `js_fundamentals` | deep | `/programming` | same | Deep |
 | `react_fundamentals` | deep | `/programming` | same | Deep |
-| `sql_fundamentals` | deep | `/programming` | same | Deep |
+| `sql_fundamentals` | deep / technology | `/sql-fundamentals` | same | Three sections: SQL, PL/SQL, DBA. Subject filter: Technology |
 | `node_fundamentals` | deep | `/programming` | same | Deep |
 | `express_fundamentals` | deep | `/programming` | same | Deep |
 | `qa_theory` | deep | `/programming` | same | Deep |

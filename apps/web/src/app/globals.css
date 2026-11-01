@@ -5,18 +5,17 @@
 :root {
   color-scheme: light;
   --ef-brand: #58cc02;
-  --ef-brand-dark: #46a302;
-  --ef-brand-soft: #d7ffb8;
-  --ef-sky: #1cb0f6;
-  --ef-grape: #ce82ff;
-  --ef-sun: #ff9600;
-  --ef-ink: #3c3c3c;
-  /* Slightly darker muted for WCAG-ish contrast on white */
-  --ef-ink-muted: #5c5c5c;
-  --ef-bg: #f8fafc;
+  --ef-brand-dark: #166534;
+  --ef-brand-soft: #e7f6d8;
+  --ef-sky: #0369a1;
+  --ef-grape: #7e22ce;
+  --ef-sun: #c2410c;
+  --ef-ink: #1f2937;
+  --ef-ink-muted: #4b5563;
+  --ef-bg: #f4f7f5;
   --ef-card-bg: #ffffff;
-  --ef-radius: 24px;
-  --ef-shadow-card: 0 4px 0 0 rgba(0, 0, 0, 0.08);
+  --ef-radius: 16px;
+  --ef-shadow-card: 0 1px 2px rgba(15, 23, 42, 0.06);
 }
 
 html.dark {
@@ -24,17 +23,15 @@ html.dark {
 }
 
 body {
-  @apply bg-slate-50 text-ink antialiased min-h-screen;
-  background-image:
-    radial-gradient(circle at 10% 10%, rgba(88, 204, 2, 0.08), transparent 40%),
-    radial-gradient(circle at 90% 0%, rgba(28, 176, 246, 0.08), transparent 35%);
+  @apply antialiased min-h-screen;
+  background-color: var(--ef-bg);
+  color: var(--ef-ink);
+  font-family: var(--ef-font, var(--font-geist), system-ui, sans-serif);
 }
 
 html.dark body {
-  @apply bg-slate-950 text-slate-100;
-  background-image:
-    radial-gradient(circle at 10% 10%, rgba(88, 204, 2, 0.12), transparent 40%),
-    radial-gradient(circle at 90% 0%, rgba(28, 176, 246, 0.1), transparent 35%);
+  background-color: var(--ef-bg);
+  color: var(--ef-ink);
 }
 
 /* Lesson focus mode: hide global chrome so the exercise is full-width */
@@ -66,16 +63,25 @@ html.lesson-focus main {
     @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-bold transition active:translate-y-0.5 active:shadow-none disabled:opacity-50 disabled:pointer-events-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky;
   }
   .btn-primary {
-    @apply btn bg-brand text-white shadow-btn hover:bg-brand-dark;
+    @apply btn shadow-btn hover:brightness-110;
+    background-color: var(--ef-brand-dark);
+    color: #ffffff;
+  }
+  html.dark .btn-primary {
+    color: #052e16;
   }
   .btn-secondary {
-    @apply btn bg-white text-ink border-2 border-slate-200 shadow-card hover:bg-slate-50;
+    @apply btn text-ink border border-slate-200 shadow-card hover:bg-slate-50;
+    background-color: var(--ef-card-bg);
   }
   .btn-sky {
     @apply btn bg-sky text-white shadow-btn hover:brightness-95;
   }
   .card {
-    @apply rounded-3xl bg-white border-2 border-slate-100 shadow-card p-5;
+    @apply border border-slate-200/80 shadow-card p-5;
+    border-radius: var(--ef-radius);
+    background-color: var(--ef-card-bg);
+    color: var(--ef-ink);
   }
   .input {
     @apply w-full rounded-2xl border-2 border-slate-200 bg-white px-4 py-3 outline-none focus:border-sky;
@@ -85,16 +91,23 @@ html.lesson-focus main {
   }
 
   html.dark .btn-secondary {
-    @apply bg-slate-900 text-slate-100 border-slate-700 hover:bg-slate-800;
+    background-color: var(--ef-card-bg);
+    color: var(--ef-ink);
+    border-color: rgb(51 65 85 / 0.9);
   }
   html.dark .card {
-    @apply bg-slate-900 border-slate-800;
+    background-color: var(--ef-card-bg);
+    color: var(--ef-ink);
+    border-color: rgb(51 65 85 / 0.9);
   }
   html.dark .input {
-    @apply bg-slate-900 border-slate-700 text-slate-100;
+    background-color: var(--ef-card-bg);
+    color: var(--ef-ink);
+    border-color: rgb(51 65 85 / 0.9);
   }
   html.dark header {
-    @apply bg-slate-950/90 border-slate-800;
+    background-color: color-mix(in srgb, var(--ef-bg) 92%, transparent);
+    border-color: rgb(51 65 85 / 0.9);
   }
 }
 
@@ -155,13 +168,28 @@ html.lesson-focus main {
   min-width: 0 !important;
   min-height: 0 !important;
 }
-@media (max-width: 767px) {
+.lesson-check-bar {
+  position: sticky;
+  bottom: 4.5rem;
+  z-index: 20;
+  margin-inline: -0.25rem;
+  border-radius: var(--ef-radius);
+  border: 1px solid rgb(226 232 240);
+  background: color-mix(in srgb, var(--ef-card-bg) 94%, transparent);
+  padding: 0.5rem;
+  box-shadow: var(--ef-shadow-card);
+  backdrop-filter: blur(8px);
+}
+@media (min-width: 768px) {
   .lesson-check-bar {
-    @apply sticky bottom-16 z-20 -mx-1 rounded-2xl border-2 border-slate-200 bg-white/95 p-2 shadow-lg backdrop-blur dark:border-slate-700 dark:bg-slate-950/95;
+    bottom: 0.5rem;
   }
-  html.lesson-focus .lesson-check-bar {
-    @apply bottom-2;
-  }
+}
+html.dark .lesson-check-bar {
+  border-color: rgb(51 65 85);
+}
+html.lesson-focus .lesson-check-bar {
+  bottom: 0.5rem;
 }
 
 /* Touch-friendly MCQ / bottom nav */

@@ -2,14 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import {
-  COURSE_GROUP_META,
-  COURSE_HUB_HREF,
-  COURSE_META,
-  pickLocale,
-  type CourseGroup,
-  type CourseSlug,
-} from "@eduforge/shared";
+import { pickLocale } from "@eduforge/shared";
 import { useLocale } from "@/lib/locale-context";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api";
@@ -20,6 +13,7 @@ import { DailyQuestsCard } from "@/components/daily-quests-card";
 import { WeeklyQuestsCard } from "@/components/weekly-quests-card";
 import { OnboardingWizard } from "@/components/onboarding-wizard";
 import { GuestBanner } from "@/components/guest-banner";
+import { SubjectCatalog } from "@/components/subject-catalog";
 
 type NextRec = {
   kind: string;
@@ -46,13 +40,10 @@ type ExamSummary = {
   }[];
 };
 
-const GROUP_ORDER: CourseGroup[] = ["code", "deep", "skill", "chess"];
-
-/** Learning map: tight one-session fold + collapsed quests + catalog. */
+/** Learning map: one continue action, then subjects, with quests kept below. */
 export function LearnClient() {
   const { t, locale } = useLocale();
-  const { user, token, character, loading: authLoading } = useAuth();
-  const skillPoints = character?.progression?.skillPoints ?? 0;
+  const { user, token, loading: authLoading } = useAuth();
   const [data, setData] = useState<{
     next: { recommendations: NextRec[] } | null;
     exams: ExamSummary | null;
@@ -116,85 +107,25 @@ export function LearnClient() {
   return (
     <div className="space-y-6">
       {!user ? <GuestBanner /> : <OnboardingWizard />}
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-black">🗺️ {t.learn.title}</h1>
+      <div>
+          <h1 className="text-3xl font-black">{t.learn.title}</h1>
           <p className="text-sm font-bold text-ink-muted">{t.learn.mapTitle}</p>
         </div>
-        {user && skillPoints > 0 ? (
-          <Link
-            href="/profile#build"
-            className="btn-secondary shrink-0 !py-2 text-sm ring-1 ring-grape/40"
-          >
-            ⭐ {locale === "en" ? "Build" : "Прокачка"} ({skillPoints})
-          </Link>
-        ) : null}
-      </div>
 
-      {user && (
+      {user ? <PrimaryMission showSecondary={false} /> : (
+        <Link href="/courses" className="btn-primary inline-flex min-h-11">
+          {t.coursePage.continue} →
+        </Link>
+      )}
+
+      <SubjectCatalog variant="sections" showChessBot />
+
+      {user ? (
         <div className="space-y-3">
-          {/* One session above the fold: mission with reason */}
-          <PrimaryMission showSecondary={false} />
-
-          {/* Quests start closed; open on tap */}
           <DailyQuestsCard defaultOpen={false} />
           <WeeklyQuestsCard defaultOpen={false} />
         </div>
-      )}
-
-      {/* Catalog groups stay: code, deep, skill, chess */}
-      <div className="space-y-6 pt-2">
-        {GROUP_ORDER.map((g) => {
-          const meta = COURSE_GROUP_META[g];
-          const slugs = (Object.keys(COURSE_META) as CourseSlug[]).filter(
-            (s) => COURSE_META[s].group === g,
-          );
-          return (
-            <section key={g} className="space-y-3">
-              <h2 className="text-lg font-black">
-                {locale === "en" ? meta.titleEn : meta.titleUk}
-              </h2>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {slugs.map((slug) => {
-                  const c = COURSE_META[slug];
-                  const href = COURSE_HUB_HREF[slug] ?? `/courses/${slug}`;
-                  return (
-                    <Link
-                      key={slug}
-                      href={href}
-                      className="card flex min-h-11 items-center gap-3 hover:border-brand/40 border-l-4"
-                      style={{ borderLeftColor: c.color }}
-                    >
-                      <span className="text-2xl" aria-hidden>
-                        {c.icon}
-                      </span>
-                      <span className="font-black">
-                        {pickLocale(locale, c.titleUk, c.titleEn)}
-                      </span>
-                    </Link>
-                  );
-                })}
-
-                {/* Extra line for Chess group: Practice vs Club bot */}
-                {g === "chess" && (
-                  <Link
-                    href="/play?level=club"
-                    className="card flex min-h-11 items-center justify-between border-l-4 border-l-sky bg-sky/5 hover:border-sky/40 font-bold transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl" aria-hidden>🤖</span>
-                      <span className="font-black text-brand-dark">
-                        {t.chess.practiceClubBot}
-                      </span>
-                    </div>
-                    <span className="text-sky font-black">→</span>
-                  </Link>
-                )}
-              </div>
-            </section>
-          );
-        })}
-      </div>
+      ) : null}
 
       {user && (
         <div className="space-y-6 pt-4 border-t border-slate-100 dark:border-slate-800">

@@ -123,12 +123,9 @@ export function PrimaryMission({
           {t.onboarding.missionOfDay}
         </p>
         {skillPoints > 0 ? (
-          <Link
-            href="/profile#build"
-            className="rounded-full bg-grape/15 px-2 py-0.5 text-[10px] font-black text-grape hover:underline"
-          >
-            ⭐ {skillPoints} SP
-          </Link>
+          <span className="rounded-full bg-grape/10 px-2 py-0.5 text-[10px] font-bold text-ink-muted">
+            {skillPoints} SP
+          </span>
         ) : null}
       </div>
       <p className="text-xl font-black">
@@ -145,16 +142,9 @@ export function PrimaryMission({
           </span>
         </p>
       ) : null}
-      <div className="flex flex-wrap gap-2">
-        <Link href={href} className="btn-primary inline-flex">
-          {t.onboarding.startNow} →
-        </Link>
-        {skillPoints > 0 ? (
-          <Link href="/profile#build" className="btn-secondary inline-flex">
-            ⭐ {locale === "en" ? "Spend skill points" : "Вкласти очки"}
-          </Link>
-        ) : null}
-      </div>
+      <Link href={href} className="btn-primary inline-flex min-h-11">
+        {t.coursePage.continue} →
+      </Link>
       {showSecondary && secondary.length > 0 && (
         <ul className="space-y-1 pt-1">
           {secondary.map((r, i) => (

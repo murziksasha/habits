@@ -13,8 +13,8 @@ export function SqlFundamentalsClient() {
       title={t.courses.sql_fundamentals}
       subtitle={
         locale === "en"
-          ? "Oracle SQL through the public 1Z0-071 checklist — functions, joins, subqueries, sets, DDL, and unit exams."
-          : "Oracle SQL за публічною програмою 1Z0-071 — функції, JOIN, підзапити, множини, DDL і контрольні."
+          ? "SQL, PL/SQL, and database administration. Browse every section. Earlier topics are only a suggestion."
+          : "SQL, PL/SQL і адміністрування. Усі розділи відкриті. Попередні теми лише підказують порядок."
       }
       backHref="/programming"
       backLabel={`💻 ${t.nav.programming}`}

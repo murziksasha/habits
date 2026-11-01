@@ -1,4 +1,4 @@
-import type { CourseContent } from "./types.js";
+import type { CourseContent, UnitContent } from "./types.js";
 import {
   codeFill,
   codeOrder,
@@ -26,6 +26,19 @@ import {
   subqueriesUnit,
 } from "./sql-oracle-track.js";
 import { sqlCtePerformanceUnit } from "./deep-units.js";
+import { rebalanceExamLessons } from "./sql-exam-balance.js";
+import { modernSqlUnits } from "./sql-expansion.js";
+import { modernSqlUnitsB } from "./sql-expansion-b.js";
+import { modernSqlUnitsC } from "./sql-expansion-c.js";
+import { plsqlUnitsA } from "./sql-plsql-units.js";
+import { plsqlUnitsB } from "./sql-plsql-units-b.js";
+import { plsqlUnitsC } from "./sql-plsql-units-c.js";
+import { dbaUnitsA } from "./sql-dba-units.js";
+import { dbaUnitsB } from "./sql-dba-units-b.js";
+
+function withBalancedExams(units: UnitContent[]): UnitContent[] {
+  return units.map((u) => ({ ...u, lessons: rebalanceExamLessons(u.lessons) }));
+}
 
 const selectU = unit("select", "SELECT і модель", "SELECT and the model", [
   ...selectIntroLessons,
@@ -77,20 +90,34 @@ const orderLimit = unit("order-limit", "Фільтри і сортування",
   ),
   lesson(
     "sqlf-limit",
-    "LIMIT / OFFSET",
-    "LIMIT / OFFSET",
+    "OFFSET і FETCH",
+    "OFFSET and FETCH",
     2,
     false,
     [
-      codeFill("sqlf-o4", "limit", "limit", "sql", "SELECT * FROM t LIMIT ___;", ["10", "1", "100"], false),
-      mcq("sqlf-o5", "OFFSET used for:", "OFFSET used for:", ["pagination skip", "delete all", "create table", "grant"], 0),
+      codeFill(
+        "sqlf-o4",
+        "Перші рядки в Oracle 12c і новіше",
+        "First rows on Oracle 12c and later",
+        "sql",
+        "SELECT * FROM t ORDER BY id ___ FIRST 10 ROWS ONLY;",
+        ["FETCH", "fetch"],
+        false,
+      ),
+      mcq(
+        "sqlf-o5",
+        "OFFSET … ROWS у Oracle означає:",
+        "OFFSET … ROWS in Oracle means:",
+        ["видалення всіх рядків", "пропуск рядків сторінки", "створення таблиці", "видачу права"],
+        1,
+      ),
       codeOrder(
         "sqlf-o6",
-        "Typical page query order",
-        "Typical page query order",
+        "Порядок сторінки: пропустити 40, взяти 20",
+        "Page order: skip 40, take 20",
         "sql",
-        ["LIMIT 20;", "SELECT * FROM posts", "ORDER BY id DESC", "OFFSET 40;"],
-        ["SELECT * FROM posts", "ORDER BY id DESC", "LIMIT 20;", "OFFSET 40;"],
+        ["FETCH NEXT 20 ROWS ONLY;", "SELECT * FROM posts", "ORDER BY id DESC", "OFFSET 40 ROWS"],
+        ["SELECT * FROM posts", "ORDER BY id DESC", "OFFSET 40 ROWS", "FETCH NEXT 20 ROWS ONLY;"],
       ),
     ],
   ),
@@ -98,8 +125,22 @@ const orderLimit = unit("order-limit", "Фільтри і сортування",
   exam("sqlf-order-exam", "Контрольна: order/limit", "Exam: order/limit", 2, [
     codeFill("sqlf-oe1", "ORDER BY", "ORDER BY", "sql", "SELECT * FROM t ___ name;", ["ORDER BY", "order by"], false),
     codeFill("sqlf-oe2", "DESC", "DESC", "sql", "ORDER BY n ___;", ["DESC", "desc"], false),
-    codeFill("sqlf-oe3", "LIMIT", "LIMIT", "sql", "SELECT * FROM t ___ 5;", ["LIMIT", "limit"], false),
-    mcq("sqlf-oe4", "OFFSET:", "OFFSET:", ["skip rows", "sort only", "group only", "DDL"], 0),
+    codeFill(
+      "sqlf-oe3",
+      "Перші 5 рядків",
+      "First 5 rows",
+      "sql",
+      "SELECT * FROM t ORDER BY id ___ FIRST 5 ROWS ONLY;",
+      ["FETCH", "fetch"],
+      false,
+    ),
+    mcq(
+      "sqlf-oe4",
+      "OFFSET … ROWS:",
+      "OFFSET … ROWS:",
+      ["лише сортування", "пропуск рядків перед FETCH", "лише групування", "команда DDL"],
+      1,
+    ),
   ]),
 ]);
 
@@ -386,10 +427,26 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
     [
       mcq(
         "sqlf-c1",
-        "Список імен + total orders:",
-        "Names + order totals:",
-        ["JOIN + GROUP BY SUM", "only DELETE", "only DROP", "only LIMIT without FROM"],
-        0,
+        "Імена користувачів і сума їхніх замовлень:",
+        "User names and the sum of their orders:",
+        ["лише DROP", "JOIN і GROUP BY SUM", "лише DELETE", "EXPLAIN ANALYZE"],
+        1,
+      ),
+      codeRead(
+        "sqlf-c5",
+        "Друга сторінка стрічки по 20 рядків на Oracle 12c і новіше:",
+        "Second page of a feed, 20 rows, on Oracle 12c and later:",
+        "sql",
+        "SELECT * FROM posts\nORDER BY id DESC\nOFFSET 20 ROWS\nFETCH NEXT 20 ROWS ONLY",
+        ["LIMIT 20 OFFSET 20", "OFFSET і FETCH NEXT", "WITH RECURSIVE", "EXPLAIN ANALYZE"],
+        1,
+      ),
+      mcq(
+        "sqlf-c6",
+        "Відібрати rn = 1 після ROW_NUMBER у тому самому SELECT. На Oracle 26ai це:",
+        "Keep rn = 1 after ROW_NUMBER in the same SELECT. On Oracle 26ai that is:",
+        ["WHERE rn = 1, бо аналітика вже відома в WHERE", "QUALIFY", "обов’язкове слово RECURSIVE", "GRANT SELECT"],
+        1,
       ),
       codeFill(
         "sqlf-c2",
@@ -426,7 +483,21 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
     codeFill("sqlf-ce3", "JOIN ON", "JOIN ON", "sql", "JOIN b ___ a.id = b.a_id", ["ON", "on"], false),
     codeFill("sqlf-ce4", "GROUP BY", "GROUP BY", "sql", "SELECT a, COUNT(*) FROM t ___ a;", ["GROUP BY", "group by"], false),
     codeFill("sqlf-ce5", "COUNT", "COUNT", "sql", "SELECT ___(*) FROM t;", ["COUNT", "count"], false),
-    mcq("sqlf-ce6", "LEFT JOIN keeps:", "LEFT JOIN keeps:", ["left rows", "only matches", "no left", "DDL"], 0),
+    mcq("sqlf-ce6", "LEFT JOIN keeps:", "LEFT JOIN keeps:", ["only matches", "left rows", "no left", "DDL"], 1),
+    mcq(
+      "sqlf-ce7",
+      "Фільтр аналітики QUALIFY належить до:",
+      "The QUALIFY analytic filter belongs to:",
+      ["Oracle 11g", "Oracle 19c як єдина форма", "Oracle 26ai; раніше потрібен зовнішній запит", "лише PL/SQL"],
+      2,
+    ),
+    mcq(
+      "sqlf-ce8",
+      "now() і INTERVAL у діалекті Oracle замінюють на:",
+      "In Oracle dialect, now() and INTERVAL are replaced by:",
+      ["EXPLAIN ANALYZE", "WITH RECURSIVE", "LIMIT", "SYSDATE і арифметику днів"],
+      3,
+    ),
     ...capstoneOracleExercises,
   ]),
 ]);
@@ -534,7 +605,7 @@ const windowsU = unit("windows", "NULL і віконні функції", "NULL 
         "dense",
         "sql",
         "SELECT ___(score) OVER (ORDER BY score DESC) FROM t;",
-        ["DENSE_RANK", "dense_rank", "RANK", "rank"],
+        ["DENSE_RANK", "dense_rank"],
         false,
       ),
     ],
@@ -549,15 +620,15 @@ const windowsU = unit("windows", "NULL і віконні функції", "NULL 
 
 export const sqlFundamentalsContent: CourseContent = {
   slug: "sql_fundamentals",
-  titleUk: "SQL: fundamentals",
-  titleEn: "SQL Fundamentals",
+  titleUk: "SQL і Oracle Database",
+  titleEn: "SQL & Oracle Database",
   descriptionUk:
-    "Oracle SQL за публічною програмою 1Z0-071: SELECT, функції, JOIN, підзапити, множини, DML/DDL, views, права. Оригінальні вправи, не конспект чужого відеокурсу.",
+    "Три розділи одного курсу: SQL і сучасний Oracle, PL/SQL, адміністрування. Запити, JSON, вектори, блоки, резервні копії. Нові можливості позначені версією. Приклади звірені з документацією Oracle Database 26, не з живим сервером.",
   descriptionEn:
-    "Oracle SQL along the public 1Z0-071 checklist: SELECT, functions, joins, subqueries, set operators, DML/DDL, views, privileges. Original practice, not a copy of a video course.",
+    "Three sections of one course: SQL and modern Oracle, PL/SQL, and administration. Queries, JSON, vectors, blocks, and backups. Newer features are labeled with a version. Examples follow the Oracle Database 26 documentation and were not executed on a live server.",
   icon: "🗄️",
   color: "#336791",
-  units: [
+  units: withBalancedExams([
     selectU,
     orderLimit,
     singleRowUnit,
@@ -572,6 +643,14 @@ export const sqlFundamentalsContent: CourseContent = {
     accessUnit,
     windowsU,
     sqlCtePerformanceUnit,
+    ...modernSqlUnits,
+    ...modernSqlUnitsB,
+    ...modernSqlUnitsC,
     capstone,
-  ],
+    ...plsqlUnitsA,
+    ...plsqlUnitsB,
+    ...plsqlUnitsC,
+    ...dbaUnitsA,
+    ...dbaUnitsB,
+  ]),
 };
