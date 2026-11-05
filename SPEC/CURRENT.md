@@ -257,6 +257,7 @@ Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, 
 168. **Courses + UX loop:** english meetings/phone unit; node JSON/errors free lesson; express JSON body unit + exam; dashboard course strip + review/quests; ContinueCta icons; programming sticky continue + path bar; lesson wrong-answer nudge; learn course cards color rail
 169. **Deep hubs + content:** TS Pick/Required free; QA bug-report practice free; CSS flex gap/center free; DeepCourseHub path bar, unit next, exams ready, sticky continue; review leech-first sort + sticky; profile SP banner → #build
 170. **Retention surfaces:** chess opposition free + EN endgame; logic deduction intro free; HTML semantics intro free; flashcards meetings deck + programming map/filter/SQL; quests claim-all + metric deep-links; search quick links; certificates empty CTAs; playground sticky run + next challenge
+171. **Campfire syllabus alignment:** JS scope/closures, recursion, this/classes, collections, time, page widgets units; React hooks_more (useRef, useReducer, derived state); programming delegation, classList, fetch/json lessons; CSS positioning & specificity lesson.
 
 **What not to build next:** native store apps, full multi-worker judge pool, trained ML ranking, new deep track without CONTENT-DX + IA justification, extra primary nav slots.
 
