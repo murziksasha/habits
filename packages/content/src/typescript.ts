@@ -1,4 +1,5 @@
 import type { CourseContent, Exercise, LessonContent, UnitContent } from "./types.js";
+import { codeFill, codeRead, codeOrder, mcq } from "./builders.js";
 
 function lesson(
   slug: string,
@@ -1059,6 +1060,224 @@ const modules = unit("modules", "Modules & tsconfig", "Modules & tsconfig", [
 ]);
 
 /* ——— capstone ——— */
+const appliedErrorDiagnosis = unit(
+  "applied_error_diagnosis",
+  "Applied: діагностика помилок TypeScript",
+  "Applied: Diagnosing TypeScript Errors",
+  [
+    lesson(
+      "ts-dbg-assignability",
+      "Діагностика: Type X is not assignable to type Y",
+      "Diagnosing: Type X is not assignable to type Y",
+      3,
+      false,
+      [
+        codeRead(
+          "ts-app-1",
+          "Чому TypeScript видає помилку невідповідності типів (assignability)?",
+          "Why TypeScript flags assignability error",
+          "ts",
+          "type User = { id: string; role: 'admin' | 'user' };\nconst role = 'admin'; // inferred as string\nconst u: User = { id: 'u1', role }; // Error!",
+          [
+            "Змінна role має тип string (широкий тип), який не можна присвоїти літералу 'admin' | 'user'",
+            "id не може бути рядком",
+            "User вимагає використання interface",
+            "admin є зарезервованим словом TypeScript",
+          ],
+          0,
+          {
+            explanationUk: "Для виправлення використовуйте const role = 'admin' as const або явний тип.",
+            explanationEn: "Fix by using 'as const' or an explicit type annotation.",
+          },
+        ),
+        codeFill(
+          "ts-app-2",
+          "Звуження типу літералу за допомогою as const",
+          "Narrow literal type using as const assertion",
+          "ts",
+          "const config = { env: 'production', port: 8080 } as ___;",
+          ["const"],
+          true,
+        ),
+        mcq(
+          "ts-app-3",
+          "Що таке Excess Property Check в об'єктних літералах TypeScript?",
+          "What is an Excess Property Check in TypeScript object literals?",
+          [
+            "Сувора перевірка на зайві невідомі поля при прямому створенні об'єктного літерала",
+            "Перевірка швидкості виконання об'єкта",
+            "Автоматичне видалення ключів під час компіляції",
+            "Перевірка довжини імені властивості",
+          ],
+          0,
+        ),
+      ],
+    ),
+    lesson(
+      "ts-dbg-narrowing-undefined",
+      "Діагностика: Object is possibly undefined",
+      "Diagnosing: Object is possibly undefined & narrowing",
+      3,
+      false,
+      [
+        codeFill(
+          "ts-app-4",
+          "Безпечний доступ через optional chaining",
+          "Safe property access via optional chaining",
+          "ts",
+          "function getCity(user?: { address?: { city: string } }) {\n  return user?.address___city ?? 'Unknown';\n}",
+          ["?."],
+          true,
+        ),
+        codeRead(
+          "ts-app-5",
+          "Звуження типу через кастомний Type Predicate",
+          "Custom Type Predicate narrowing",
+          "ts",
+          "function isError(val: unknown): val is Error {\n  return val instanceof Error;\n}\nfunction handle(res: unknown) {\n  if (isError(res)) { console.log(res.message); }\n}",
+          [
+            "val is Error гарантує компілятору всередині блоку if, що res є екземпляром Error",
+            "isError повертає string",
+            "instanceof Error викидає виняток",
+            "res.message доступний завжди без перевірки",
+          ],
+          0,
+        ),
+      ],
+    ),
+    lesson(
+      "ts-dbg-generic-constraints",
+      "Діагностика: Generic constraints та keyof",
+      "Diagnosing: Generic constraints & keyof",
+      3,
+      false,
+      [
+        codeFill(
+          "ts-app-6",
+          "Обмеження ключа об'єкта через K extends keyof T",
+          "Constrain key parameter using K extends keyof T",
+          "ts",
+          "function getProperty<T, K extends ___ T>(obj: T, key: K): T[K] {\n  return obj[key];\n}",
+          ["keyof"],
+          true,
+        ),
+        codeRead(
+          "ts-app-7",
+          "Чому TypeScript видає помилку 'Type string cannot be used to index type T'?",
+          "Why string cannot index generic T without constraint",
+          "ts",
+          "function readField<T>(item: T, field: string) {\n  // return item[field]; // Error!\n}",
+          [
+            "TypeScript не знає, чи містить довільний тип T властивість з довільним рядковим ім'ям",
+            "item обов'язково має бути масивом",
+            "field має бути числом",
+            "TypeScript не підтримує динамічний доступ до полів",
+          ],
+          0,
+        ),
+      ],
+    ),
+    lesson(
+      "ts-app-cumulative-task",
+      "Підсумковий таск: типізований клієнт API",
+      "Applied task: type-safe API client & error guards",
+      3,
+      false,
+      [
+        codeOrder(
+          "ts-app-8",
+          "Побудова безпечного discriminated union для результатів API",
+          "Build type-safe discriminated union for API results",
+          "ts",
+          [
+            "type ApiResponse<T> =",
+            "  | { status: 'success'; data: T }",
+            "  | { status: 'error'; message: string };",
+            "function handleResult<T>(res: ApiResponse<T>) {",
+            "  if (res.status === 'success') return res.data;",
+            "  throw new Error(res.message);",
+            "}",
+          ],
+          [
+            "type ApiResponse<T> =",
+            "  | { status: 'success'; data: T }",
+            "  | { status: 'error'; message: string };",
+            "function handleResult<T>(res: ApiResponse<T>) {",
+            "  if (res.status === 'success') return res.data;",
+            "  throw new Error(res.message);",
+            "}",
+          ],
+        ),
+        codeFill(
+          "ts-app-9",
+          "Використання типу never для вичерпної перевірки (exhaustive check)",
+          "Exhaustive check pattern with never type",
+          "ts",
+          "default:\n  const _exhaustiveCheck: ___ = action;\n  return _exhaustiveCheck;",
+          ["never"],
+          true,
+        ),
+      ],
+    ),
+    exam(
+      "ts-app-exam",
+      "Екзамен: діагностика помилок TypeScript",
+      "Exam: TS diagnostics & typing",
+      3,
+      [
+        mcq(
+          "ts-app-10",
+          "Який вбудований utility type робить усі поля типу необов'язковими?",
+          "Which built-in utility type makes all fields optional?",
+          ["Partial<T>", "Required<T>", "Readonly<T>", "Record<K, T>"],
+          0,
+        ),
+        codeRead(
+          "ts-app-11",
+          "Що повертає тип ReturnType<typeof fn>?",
+          "What does ReturnType<typeof fn> yield?",
+          "ts",
+          "function makeId() { return { id: 'abc', timestamp: 123 }; }\ntype IdPayload = ReturnType<typeof makeId>;",
+          [
+            "{ id: string; timestamp: number }",
+            "Function",
+            "void",
+            "string",
+          ],
+          0,
+        ),
+        codeFill(
+          "ts-app-12",
+          "Створення типу об'єкта зі строго визначеними ключами та значеннями",
+          "Create key-value record type with Record",
+          "ts",
+          "type UserMap = ___<string, { name: string; age: number }>;",
+          ["Record"],
+          true,
+        ),
+        codeOrder(
+          "ts-app-13",
+          "Порядок виконання компілятора TypeScript (tsc)",
+          "TypeScript compiler pipeline order",
+          "text",
+          [
+            "1. Парсинг вихідного коду в AST (Scanner + Parser)",
+            "2. Зв'язування символів та скоупів (Binder)",
+            "3. Перевірка типів та сумісності (Type Checker)",
+            "4. Генерація цільового JavaScript та d.ts файлів (Emitter)",
+          ],
+          [
+            "1. Парсинг вихідного коду в AST (Scanner + Parser)",
+            "2. Зв'язування символів та скоупів (Binder)",
+            "3. Перевірка типів та сумісності (Type Checker)",
+            "4. Генерація цільового JavaScript та d.ts файлів (Emitter)",
+          ],
+        ),
+      ],
+    ),
+  ],
+);
+
 const capstone = unit("capstone", "Capstone", "Capstone", [
   lesson(
     "tsc-capstone-util",
@@ -1178,6 +1397,7 @@ export const typescriptContent: CourseContent = {
     narrowing,
     utilities,
     modules,
+    appliedErrorDiagnosis,
     capstone,
   ],
 };

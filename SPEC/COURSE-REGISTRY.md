@@ -15,6 +15,7 @@ App-level map of course slug → hub → freemium. DB stores `varchar` slugs; re
 | `sql_fundamentals` | deep | `/programming` | same | Deep |
 | `node_fundamentals` | deep | `/programming` | same | Deep |
 | `express_fundamentals` | deep | `/programming` | same | Deep |
+| `embedded_cpp` | deep | `/embedded-cpp` | same | MilTech C++ deep track |
 | `qa_theory` | deep | `/programming` | same | Deep |
 | `english` | skill | `/courses/english` | same | Core skill |
 | `typing` | skill | `/courses/typing` | same | |
