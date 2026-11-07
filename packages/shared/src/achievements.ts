@@ -246,6 +246,15 @@ export const ACHIEVEMENT_CATALOG: AchievementDef[] = [
     xpReward: 20,
   },
   {
+    code: "sysadmin_start",
+    titleUk: "Консоль увімкнена",
+    titleEn: "Console on",
+    descriptionUk: "Перший урок курсу Сисадмін",
+    descriptionEn: "First Sysadmin lesson",
+    icon: "🖥️",
+    xpReward: 20,
+  },
+  {
     code: "qa_theory_start",
     titleUk: "QA theorist",
     titleEn: "QA theorist",

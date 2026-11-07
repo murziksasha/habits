@@ -14,6 +14,7 @@ import { sqlFundamentalsContent as sqlFundamentalsRaw } from "./sql-fundamentals
 import { nodeFundamentalsContent as nodeFundamentalsRaw } from "./node-fundamentals.js";
 import { expressFundamentalsContent as expressFundamentalsRaw } from "./express-fundamentals.js";
 import { embeddedCppContent as embeddedCppRaw } from "./embedded-cpp.js";
+import { sysadminContent as sysadminRaw } from "./sysadmin.js";
 import { normalizeCourseLocales } from "./locale-normalize.js";
 
 /** Skill tracks: promptEn filled via skill-prompt-en map when missing in source. */
@@ -33,6 +34,7 @@ export const sqlFundamentalsContent = normalizeCourseLocales(sqlFundamentalsRaw)
 export const nodeFundamentalsContent = normalizeCourseLocales(nodeFundamentalsRaw);
 export const expressFundamentalsContent = normalizeCourseLocales(expressFundamentalsRaw);
 export const embeddedCppContent = normalizeCourseLocales(embeddedCppRaw);
+export const sysadminContent = normalizeCourseLocales(sysadminRaw);
 
 export { FLASHCARD_DECKS } from "./flashcards.js";
 export type { CourseContent, UnitContent, LessonContent, Exercise } from "./types.js";

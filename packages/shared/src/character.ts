@@ -193,6 +193,17 @@ export const PATH_BADGE_CATALOG: PathBadgeDef[] = [
     rewardSkillPoints: 1,
   },
   {
+    id: "path_sysadmin",
+    courseSlug: "sysadmin",
+    minLessons: 6,
+    icon: "🖥️",
+    titleUk: "Sysadmin path",
+    titleEn: "Sysadmin path",
+    descUk: "6+ уроків сисадміна",
+    descEn: "6+ sysadmin lessons",
+    rewardSkillPoints: 1,
+  },
+  {
     id: "path_typing",
     courseSlug: "typing",
     minLessons: 5,

@@ -229,6 +229,9 @@ export async function evaluateAchievements(
   if (ctx.lessonCompleted && ctx.courseSlug === "qa_theory") {
     await tryUnlock("qa_theory_start");
   }
+  if (ctx.lessonCompleted && ctx.courseSlug === "sysadmin") {
+    await tryUnlock("sysadmin_start");
+  }
   if (ctx.lessonCompleted && ctx.courseSlug === "js_fundamentals") {
     await tryUnlock("js_fundamentals_start");
   }

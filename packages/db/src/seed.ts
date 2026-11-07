@@ -16,6 +16,7 @@ import {
   nodeFundamentalsContent,
   expressFundamentalsContent,
   embeddedCppContent,
+  sysadminContent,
   typingContent,
   typescriptContent,
   type CourseContent,
@@ -53,6 +54,7 @@ const allCourses: CourseContent[] = [
   nodeFundamentalsContent,
   expressFundamentalsContent,
   embeddedCppContent,
+  sysadminContent,
 ];
 
 async function seedCourse(

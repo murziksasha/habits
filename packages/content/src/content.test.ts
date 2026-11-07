@@ -14,6 +14,7 @@ import {
   nodeFundamentalsContent,
   expressFundamentalsContent,
   embeddedCppContent,
+  sysadminContent,
   typingContent,
   typescriptContent,
   type CourseContent,
@@ -65,6 +66,7 @@ const courses: CourseContent[] = [
   nodeFundamentalsContent,
   expressFundamentalsContent,
   embeddedCppContent,
+  sysadminContent,
 ];
 
 const EXERCISE_TYPES = new Set([
@@ -109,6 +111,7 @@ describe("course content integrity", () => {
         "node_fundamentals",
         "express_fundamentals",
         "embedded_cpp",
+        "sysadmin",
         "sql_fundamentals",
         "typing",
         "typescript",
@@ -225,6 +228,50 @@ describe("course content integrity", () => {
       expect(lessons.length).toBeGreaterThanOrEqual(16);
       expect(lessons.filter((l) => l.isExam).length).toBeGreaterThanOrEqual(6);
       expect(lessons.some((l) => l.isFree)).toBe(true);
+    });
+
+    it("sysadmin volume", () => {
+      expect(sysadminContent.units.length).toBeGreaterThanOrEqual(12);
+      const lessons = sysadminContent.units.flatMap((u) => u.lessons);
+      expect(lessons.length).toBeGreaterThanOrEqual(60);
+      const exams = lessons.filter((l) => l.isExam);
+      expect(exams.length).toBeGreaterThanOrEqual(12);
+      for (const e of exams) {
+        expect(e.exercises.length).toBeGreaterThanOrEqual(6);
+      }
+      expect(lessons.some((l) => l.isFree)).toBe(true);
+      expect(lessons).toHaveLength(60);
+      const bySlug = Object.fromEntries(lessons.map((l) => [l.slug, l]));
+      expect(bySlug["sa-etc"]?.titleEn).toBe("Git for configs");
+      expect(bySlug["sa-least"]?.titleEn).toBe("VPN instead of an open port");
+      const prompts = collectExercises(sysadminContent).map((e) => e.promptEn).join("\n");
+      expect(prompts).toContain("RAID 1");
+      expect(prompts).toContain("Tailscale");
+      expect(prompts).toContain("git init");
+      const slugs = sysadminContent.units.map((u) => u.slug);
+      expect(slugs).toContain("foundations");
+      expect(slugs).toContain("soho-network");
+      expect(slugs).toContain("shell");
+      expect(slugs).toContain("capstone");
+      for (const u of sysadminContent.units) {
+        expect(u.lessons.some((l) => l.isExam)).toBe(true);
+      }
+      for (const ex of collectExercises(sysadminContent)) {
+        if (ex.type === "code_order") {
+          expect(ex.lines.length).toBe(ex.correct.length);
+          expect([...ex.lines].sort()).toEqual([...ex.correct].sort());
+        }
+        if (ex.type === "mcq" || ex.type === "code_read" || ex.type === "code_output") {
+          expect(ex.correctIndex).toBeGreaterThanOrEqual(0);
+          expect(ex.correctIndex).toBeLessThan(
+            (ex.type === "code_output" ? ex.options?.length : ex.options.length) ?? 0,
+          );
+        }
+        if (ex.type === "match") {
+          const rights = ex.pairs.map((p) => p.right);
+          expect(new Set(rights).size).toBe(rights.length);
+        }
+      }
     });
 
     it("embedded_cpp volume", () => {

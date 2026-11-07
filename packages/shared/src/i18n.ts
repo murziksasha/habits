@@ -22,6 +22,7 @@ const uk = {
     node_fundamentals: "Node.js",
     express_fundamentals: "Express",
     embedded_cpp: "Embedded C++ · MilTech",
+    sysadmin: "Сисадмін",
   },
   nav: {
     home: "Головна",
@@ -793,6 +794,7 @@ const en: UiDict = {
     node_fundamentals: "Node.js",
     express_fundamentals: "Express",
     embedded_cpp: "Embedded C++ · MilTech",
+    sysadmin: "Sysadmin",
   },
   nav: {
     home: "Home",

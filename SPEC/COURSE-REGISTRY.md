@@ -21,6 +21,7 @@ App-level map of course slug → hub → freemium. DB stores `varchar` slugs; re
 | `typing` | skill | `/courses/typing` | same | |
 | `speed_reading` | skill | `/courses/speed_reading` | same | |
 | `logic` | skill | `/courses/logic` | same | |
+| `sysadmin` | skill | `/courses/sysadmin` | same | SOHO + Linux console: VPN (WireGuard/Tailscale), RAID vs backup, git for configs. Containers, reverse proxies, and LVM are out of this track. Not a primary-nav item |
 | `chess` | chess | `/play` | same + free rated/day | |
 
 Constants live in `packages/shared/src/entitlements.ts` (`FREE_LESSONS_PER_COURSE`, hearts, rated chess).

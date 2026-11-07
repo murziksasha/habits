@@ -17,6 +17,7 @@ export const COURSE_SLUGS = [
   "node_fundamentals",
   "express_fundamentals",
   "embedded_cpp",
+  "sysadmin",
 ] as const;
 
 export type CourseSlug = (typeof COURSE_SLUGS)[number];
@@ -57,6 +58,7 @@ export const COURSE_GROUP: Record<CourseSlug, CourseGroup> = {
   node_fundamentals: "deep",
   express_fundamentals: "deep",
   embedded_cpp: "deep",
+  sysadmin: "skill",
 };
 
 export const COURSE_GROUP_META: Record<
@@ -134,6 +136,18 @@ export const COURSE_META: Record<
     descriptionEn: "Sequences, patterns, and critical thinking.",
     icon: "🧩",
     color: "#FF9600",
+    group: "skill",
+  },
+  sysadmin: {
+    slug: "sysadmin",
+    titleUk: "Сисадмін",
+    titleEn: "Sysadmin",
+    descriptionUk:
+      "SOHO і Linux-консоль: мережа офісу, бекапи, git для конфігів, systemd, VPN, RAID і відновлення.",
+    descriptionEn:
+      "SOHO and the Linux console: office network, backups, git for configs, systemd, VPN, RAID, and recovery.",
+    icon: "🖥️",
+    color: "#0F766E",
     group: "skill",
   },
   programming: {
