@@ -1,0 +1,267 @@
+import { unit } from "../builders.js";
+import { quiz, teach, why } from "./kit.js";
+
+export const networks = unit("networks", "Мережі", "Networks", [
+  teach("do-tcp", "TCP і адреси", "TCP and addresses", 2, "do-tcp", [
+    {
+      t: "mcq",
+      uk: "Три кроки встановлення TCP:",
+      en: "The three steps that open a TCP connection:",
+      o: ["SYN, SYN-ACK, ACK", "GET, POST, PUT", "ARP, ICMP, UDP", "TLS ClientHello одразу без TCP"],
+      i: 0,
+      note: why(
+        "HTTP живе поверх TCP. UDP не будує це рукостискання і не гарантує доставку.",
+        "HTTP sits on TCP. UDP does not build this handshake and does not guarantee delivery.",
+      ),
+    },
+    {
+      t: "mcq",
+      uk: "10.0.0.0/8 — це:",
+      en: "10.0.0.0/8 is:",
+      o: [
+        "Приватний діапазон, його не маршрутизують в інтернеті як публічний",
+        "Єдина публічна адреса вашого дому",
+        "Мультикаст",
+        "Адреса loopback",
+      ],
+      i: 0,
+    },
+    {
+      t: "fill",
+      uk: "Маска для /24 у звичній формі.",
+      en: "The dotted mask for /24.",
+      lang: "text",
+      code: "192.168.1.10/___",
+      ok: ["24"],
+    },
+    {
+      t: "mcq",
+      uk: "NAT на домашньому роутері:",
+      en: "NAT on a home router:",
+      o: [
+        "Ховає кілька приватних адрес за однією зовнішньою",
+        "Замінює DNS",
+        "Шифрує HTTP без сертифіката",
+        "Видає імена з /etc/hosts усім у світі",
+      ],
+      i: 0,
+    },
+  ]),
+  teach("do-dns", "Записи DNS", "DNS records", 2, "do-dns", [
+    {
+      t: "match",
+      uk: "Зіставте запис і зміст.",
+      en: "Match the record to its meaning.",
+      pairs: [
+        { left: "A", right: "Ім'я на IPv4" },
+        { left: "AAAA", right: "Ім'я на IPv6" },
+        { left: "CNAME", right: "Ім'я на інше ім'я" },
+        { left: "TXT", right: "Довільний текст, часто перевірка домену" },
+      ],
+    },
+    {
+      t: "mcq",
+      uk: "Авторитативний сервер зони відрізняється від рекурсивного тим, що:",
+      en: "An authoritative server differs from a recursive resolver because:",
+      o: [
+        "Він відповідає за свої зони, а рекурсивний шукає відповідь для клієнта",
+        "Він лише кешує і ніколи не є джерелом",
+        "Він замінює TLS",
+        "Він слухає лише порт 80",
+      ],
+      i: 0,
+    },
+    {
+      t: "fill",
+      uk: "Запитати A-запис у вказаного сервера.",
+      en: "Ask one server for the A record.",
+      lang: "bash",
+      code: "___ @127.0.0.1 forge-status.lab A",
+      ok: ["dig"],
+    },
+    {
+      t: "mcq",
+      uk: "Внутрішній dnsmasq у лабі з трьох VM потрібен, щоб:",
+      en: "dnsmasq in a three-VM lab exists so that:",
+      o: [
+        "Імена lab резолвились без публічного DNS",
+        "Замінити Nginx",
+        "Видавати сертифікати Let's Encrypt у закриту мережу без перевірки",
+        "Маршрутизувати пакети замість ядра",
+      ],
+      i: 0,
+      note: why(
+        "MX і NS теж записи DNS, але для forge-status у лабі вистачає A на внутрішнє ім'я.",
+        "MX and NS are DNS records too, but the forge-status lab only needs an A record for an internal name.",
+      ),
+    },
+  ]),
+  teach("do-tls", "TLS і діагностика", "TLS and diagnosis", 3, "do-tls", [
+    {
+      t: "mcq",
+      uk: "Self-signed сертифікат на навчальному reverse proxy:",
+      en: "A self-signed certificate on the lab reverse proxy:",
+      o: [
+        "Шифрує канал, але клієнт йому не довіряє, поки ви самі не додасте довіру",
+        "Дорівнює сертифікату публічного CA",
+        "Вимикає HTTPS",
+        "Замінює ключ SSH",
+      ],
+      i: 0,
+    },
+    {
+      t: "order",
+      uk: "Перевірити, що forge-status слухає і відповідає.",
+      en: "Check that forge-status is listening and answers.",
+      lang: "bash",
+      correct: ["ss -lnt", "curl -fsS http://127.0.0.1:8080/health", "curl -kI https://forge-status.lab"],
+    },
+    {
+      t: "mcq",
+      uk: "ss замість netstat у нових системах, бо:",
+      en: "ss replaces netstat on current systems because:",
+      o: [
+        "Він показує сокети з iproute2 і є в мінімальних образах",
+        "Він сканує чужі мережі",
+        "Він підписує сертифікати",
+        "Він замінює dig",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "tcpdump на своїй VM дивляться, щоб:",
+      en: "You run tcpdump on your own VM to:",
+      o: [
+        "Побачити, чи SYN взагалі доходить до порта",
+        "Підібрати пароль сусіда",
+        "Змінити запис A у публічному DNS",
+        "Зібрати образ",
+      ],
+      i: 0,
+      note: why(
+        "Скан і зняття трафіку — лише на машинах, які вам дозволені. Чужі мережі не чіпаємо.",
+        "Capture and scan only machines you are allowed to touch. Leave other networks alone.",
+      ),
+    },
+  ]),
+  teach("do-nginx", "Проксі і firewall", "Proxy and firewall", 3, "do-nginx", [
+    {
+      t: "read",
+      uk: "Куди Nginx віддасть запит / ?",
+      en: "Where does Nginx send a request for / ?",
+      lang: "nginx",
+      code: "upstream app {\n  server 10.0.0.10:8080;\n  server 10.0.0.11:8080;\n}\nserver {\n  listen 443 ssl;\n  location / { proxy_pass http://app; }\n}",
+      o: [
+        "На один із двох бекендів upstream, TLS завершується на Nginx",
+        "На обидва одразу і склеює відповіді",
+        "Лише на порт 22",
+        "У файл /etc/hosts",
+      ],
+      i: 0,
+      note: why(
+        "least_conn і ip_hash — інші політики. Типовий приклад без них ділить по черзі.",
+        "least_conn and ip_hash are other policies. The plain upstream above takes turns.",
+      ),
+    },
+    {
+      t: "mcq",
+      uk: "ufw — це:",
+      en: "ufw is:",
+      o: [
+        "Зручна оболонка над правилами файрвола хоста",
+        "Заміна DNS",
+        "Балансувальник замість Nginx",
+        "Клієнт SSH",
+      ],
+      i: 0,
+    },
+    {
+      t: "match",
+      uk: "Ланцюги iptables.",
+      en: "iptables chains.",
+      pairs: [
+        { left: "INPUT", right: "Пакети до локальних процесів" },
+        { left: "OUTPUT", right: "Пакети, які створив сам хост" },
+        { left: "FORWARD", right: "Пакети, які хост лише передає" },
+      ],
+    },
+    {
+      t: "mcq",
+      uk: "Перед ufw enable на VM:",
+      en: "Before ufw enable on the VM:",
+      o: [
+        "Дозволити SSH, інакше відріжете собі вхід",
+        "Вимкнути SSH назавжди",
+        "Відкрити всі порти",
+        "Поставити сертифікат у /root",
+      ],
+      i: 0,
+    },
+  ]),
+  quiz("do-net-exam", "Контроль: мережа", "Check: networks", 3, "do-net-exam", [
+    {
+      t: "mcq",
+      uk: "Порт у TCP ідентифікує:",
+      en: "A TCP port identifies:",
+      o: ["Сервіс на цьому хості", "Виробника диска", "Користувача sudo", "Гілку Git"],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "CNAME не ставлять на apex поруч із іншими даними зони без потреби, бо:",
+      en: "You avoid a CNAME at the zone apex next to other data because:",
+      o: [
+        "CNAME не може співіснувати з іншими записами того самого імені",
+        "CNAME вимикає IPv4",
+        "CNAME замінює сертифікат",
+        "DNS не має типу CNAME",
+      ],
+      i: 0,
+    },
+    {
+      t: "fill",
+      uk: "Показати шлях пакетів до хоста.",
+      en: "Show the path packets take to a host.",
+      lang: "bash",
+      code: "___ forge-status.lab",
+      ok: ["traceroute"],
+    },
+    {
+      t: "mcq",
+      uk: "curl -k на навчальному HTTPS:",
+      en: "curl -k against the lab HTTPS:",
+      o: [
+        "Ігнорує перевірку сертифіката. Для публічного сайту це маскує підміну",
+        "Вмикає перевірку суворіше за звичайну",
+        "Друкує лише DNS",
+        "Відкриває порт у firewall",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "least_conn у upstream обирає:",
+      en: "least_conn on an upstream picks:",
+      o: [
+        "Бекенд із найменшою кількістю активних з'єднань",
+        "Завжди перший сервер у списку",
+        "Випадковий порт SSH",
+        "Запис MX",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "IPv6 у цьому курсі:",
+      en: "IPv6 in this course:",
+      o: [
+        "Знати, що AAAA — його запис, і не плутати з A",
+        "Повний дизайн мережі датацентру",
+        "Заміна TLS",
+        "Заборонений у Nginx",
+      ],
+      i: 0,
+    },
+  ]),
+]);

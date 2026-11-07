@@ -66,6 +66,7 @@ export const COURSE_GLOBAL_WEIGHT: Record<string, number> = {
   express_fundamentals: 1.05,
   embedded_cpp: 1.1,
   sysadmin: 1,
+  devops: 1,
 };
 
 export function typingXpAward(wpm: number, accuracy: number): number {

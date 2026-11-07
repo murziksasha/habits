@@ -29,6 +29,7 @@ How to add courses and lessons without fighting the monorepo.
 - [ ] Unit exams (`isExam`) if track has control tests
 - [ ] Rebuild: `pnpm --filter @eduforge/content build && pnpm db:seed`
 - [ ] Optional: hub page reusing `DeepCourseHub` (not primary nav)
+- [ ] Update `SPEC/courses/<slug>.md` and the index row in `SPEC/courses/README.md` so the program matches the seed
 
 ### What you do **not** need
 

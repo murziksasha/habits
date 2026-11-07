@@ -2,6 +2,8 @@
 
 This folder is the **source of truth** for the EduForge educational SaaS monorepo. All documents are written in **English**.
 
+Course programs and the depth of the seeded lessons live in [courses/](./courses/README.md), one file per slug.
+
 ## Document index
 
 | # | Document | Description |

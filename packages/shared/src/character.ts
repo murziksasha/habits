@@ -204,6 +204,17 @@ export const PATH_BADGE_CATALOG: PathBadgeDef[] = [
     rewardSkillPoints: 1,
   },
   {
+    id: "path_devops",
+    courseSlug: "devops",
+    minLessons: 6,
+    icon: "🚀",
+    titleUk: "DevOps path",
+    titleEn: "DevOps path",
+    descUk: "6+ уроків DevOps",
+    descEn: "6+ DevOps lessons",
+    rewardSkillPoints: 1,
+  },
+  {
     id: "path_typing",
     courseSlug: "typing",
     minLessons: 5,

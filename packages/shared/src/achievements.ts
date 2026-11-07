@@ -255,6 +255,15 @@ export const ACHIEVEMENT_CATALOG: AchievementDef[] = [
     xpReward: 20,
   },
   {
+    code: "devops_start",
+    titleUk: "Пайплайн відкрито",
+    titleEn: "Pipeline open",
+    descriptionUk: "Перший урок курсу DevOps",
+    descriptionEn: "First DevOps lesson",
+    icon: "🚀",
+    xpReward: 20,
+  },
+  {
     code: "qa_theory_start",
     titleUk: "QA theorist",
     titleEn: "QA theorist",

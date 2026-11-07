@@ -232,6 +232,9 @@ export async function evaluateAchievements(
   if (ctx.lessonCompleted && ctx.courseSlug === "sysadmin") {
     await tryUnlock("sysadmin_start");
   }
+  if (ctx.lessonCompleted && ctx.courseSlug === "devops") {
+    await tryUnlock("devops_start");
+  }
   if (ctx.lessonCompleted && ctx.courseSlug === "js_fundamentals") {
     await tryUnlock("js_fundamentals_start");
   }

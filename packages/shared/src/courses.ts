@@ -18,6 +18,7 @@ export const COURSE_SLUGS = [
   "express_fundamentals",
   "embedded_cpp",
   "sysadmin",
+  "devops",
 ] as const;
 
 export type CourseSlug = (typeof COURSE_SLUGS)[number];
@@ -59,6 +60,7 @@ export const COURSE_GROUP: Record<CourseSlug, CourseGroup> = {
   express_fundamentals: "deep",
   embedded_cpp: "deep",
   sysadmin: "skill",
+  devops: "skill",
 };
 
 export const COURSE_GROUP_META: Record<
@@ -148,6 +150,18 @@ export const COURSE_META: Record<
       "SOHO and the Linux console: office network, backups, git for configs, systemd, VPN, RAID, and recovery.",
     icon: "🖥️",
     color: "#0F766E",
+    group: "skill",
+  },
+  devops: {
+    slug: "devops",
+    titleUk: "DevOps",
+    titleEn: "DevOps",
+    descriptionUk:
+      "Один сервіс forge-status: від Git і Linux до образу, Kubernetes, GitOps і алерту. CI не деплоїть. AWS — до Terraform.",
+    descriptionEn:
+      "One service, forge-status: from Git and Linux to an image, Kubernetes, GitOps, and an alert. CI does not deploy. AWS comes before Terraform.",
+    icon: "🚀",
+    color: "#7C3AED",
     group: "skill",
   },
   programming: {

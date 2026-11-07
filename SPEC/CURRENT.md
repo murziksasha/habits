@@ -25,6 +25,8 @@ Primary journeys:
 
 Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, `react_*`, `sql_*`, `node_*`, `express_*`) are **Core content** but **not** primary nav entries — reach via `/learn`, `/courses`, `/programming`.
 
+Skill tracks `sysadmin` and `devops` are the same kind of surface: `/learn` and `/courses`, not a new primary-nav slot. `devops` is the container, Kubernetes, and delivery path. `sysadmin` stops before those topics. Per-course depth is `SPEC/courses/`.
+
 ## Information architecture (target)
 
 ### Desktop primary (≤6 + More)

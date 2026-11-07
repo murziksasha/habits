@@ -15,6 +15,7 @@ import {
   expressFundamentalsContent,
   embeddedCppContent,
   sysadminContent,
+  devopsContent,
   typingContent,
   typescriptContent,
   type CourseContent,
@@ -67,6 +68,7 @@ const courses: CourseContent[] = [
   expressFundamentalsContent,
   embeddedCppContent,
   sysadminContent,
+  devopsContent,
 ];
 
 const EXERCISE_TYPES = new Set([
@@ -112,6 +114,7 @@ describe("course content integrity", () => {
         "express_fundamentals",
         "embedded_cpp",
         "sysadmin",
+        "devops",
         "sql_fundamentals",
         "typing",
         "typescript",
@@ -257,6 +260,70 @@ describe("course content integrity", () => {
         expect(u.lessons.some((l) => l.isExam)).toBe(true);
       }
       for (const ex of collectExercises(sysadminContent)) {
+        if (ex.type === "code_order") {
+          expect(ex.lines.length).toBe(ex.correct.length);
+          expect([...ex.lines].sort()).toEqual([...ex.correct].sort());
+        }
+        if (ex.type === "mcq" || ex.type === "code_read" || ex.type === "code_output") {
+          expect(ex.correctIndex).toBeGreaterThanOrEqual(0);
+          expect(ex.correctIndex).toBeLessThan(
+            (ex.type === "code_output" ? ex.options?.length : ex.options.length) ?? 0,
+          );
+        }
+        if (ex.type === "match") {
+          const rights = ex.pairs.map((p) => p.right);
+          expect(new Set(rights).size).toBe(rights.length);
+        }
+      }
+    });
+
+    it("devops volume", () => {
+      expect(devopsContent.units).toHaveLength(13);
+      const lessons = devopsContent.units.flatMap((u) => u.lessons);
+      expect(lessons).toHaveLength(65);
+      const exams = lessons.filter((l) => l.isExam);
+      expect(exams).toHaveLength(13);
+      for (const e of exams) {
+        expect(e.exercises.length).toBeGreaterThanOrEqual(6);
+      }
+      for (const lesson of lessons.filter((l) => !l.isExam)) {
+        expect(lesson.exercises.length).toBeGreaterThanOrEqual(4);
+      }
+      expect(lessons.some((l) => l.isFree)).toBe(true);
+      expect(devopsContent.units.map((u) => u.slug)).toEqual([
+        "git-workstation",
+        "linux-base",
+        "bash",
+        "networks",
+        "python-ops",
+        "containers",
+        "aws-survival",
+        "iac",
+        "ci",
+        "kubernetes",
+        "observability",
+        "devsecops-gitops",
+        "sre-capstone",
+      ]);
+      for (const u of devopsContent.units) {
+        expect(u.lessons.some((l) => l.isExam)).toBe(true);
+        expect(u.lessons.filter((l) => !l.isExam)).toHaveLength(4);
+      }
+      const prompts = collectExercises(devopsContent).map((e) => e.promptEn).join("\n");
+      expect(prompts).toContain("OIDC");
+      expect(prompts).toContain("readiness probe");
+      expect(prompts).toContain("cosign");
+      expect(prompts).toContain("Argo CD");
+      expect(prompts).toContain("error budget");
+      const ciUnit = devopsContent.units.find((u) => u.slug === "ci");
+      const ciText = ciUnit!.lessons
+        .flatMap((l) => l.exercises)
+        .map((e) => `${e.promptEn ?? ""}\n${"explanationEn" in e ? (e.explanationEn ?? "") : ""}`)
+        .join("\n")
+        .toLowerCase();
+      expect(ciText).not.toContain("production");
+      expect(ciText).not.toContain("deploy to");
+      for (const ex of collectExercises(devopsContent)) {
         if (ex.type === "code_order") {
           expect(ex.lines.length).toBe(ex.correct.length);
           expect([...ex.lines].sort()).toEqual([...ex.correct].sort());

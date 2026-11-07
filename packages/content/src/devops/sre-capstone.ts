@@ -1,0 +1,296 @@
+import { unit } from "../builders.js";
+import { quiz, teach, why } from "./kit.js";
+
+export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the capstone", [
+  teach("do-slo", "Бюджет помилок", "The error budget", 5, "do-slo", [
+    {
+      t: "mcq",
+      uk: "SLO forge-status: 99% успішних запитів за 30 днів. Що таке error budget?",
+      en: "The forge-status SLO is 99% successful requests over 30 days. What is the error budget?",
+      o: [
+        "Той 1%, який можна витратити на збої і релізи, не порушивши ціль",
+        "Гроші на сервери",
+        "Кількість pod",
+        "Розмір образу",
+      ],
+      i: 0,
+      note: why(
+        "Поки бюджет є, реліз можна везти. Коли він вичерпаний, наступна зміна — це ремонт надійності, не нова кнопка.",
+        "While the budget remains, a release can ship. When it is gone, the next change is reliability work, not a new button.",
+      ),
+    },
+    {
+      t: "mcq",
+      uk: "Toil — це:",
+      en: "Toil is:",
+      o: [
+        "Ручна повторювана робота, яку можна віддати скрипту або контролеру",
+        "Будь-яка цікава аварія",
+        "Написання дизайну",
+        "Код-рев'ю",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "k6 у кінці курсу потрібен, щоб:",
+      en: "k6 at the end of the course exists so that:",
+      o: [
+        "Побачити, на якій частоті запитів latency і помилки ламають SLO, до того як це зроблять люди",
+        "Замінити тести одиниць",
+        "Підписати образ",
+        "Знести VPC",
+      ],
+      i: 0,
+    },
+    {
+      t: "read",
+      uk: "Що означає цей бюджет у числах за 30 днів по 1000 запитів на день?",
+      en: "What does this budget mean in counts, 1000 requests a day for 30 days?",
+      lang: "text",
+      code: "SLO 99% success\nrequests = 30000\nbudget = 1%",
+      o: [
+        "Близько 300 неуспішних запитів на місяць, далі ціль провалена",
+        "30000 помилок ще норма",
+        "Жодної помилки ніколи",
+        "1 помилка на рік",
+      ],
+      i: 0,
+    },
+  ]),
+  teach("do-incident", "Інцидент і розбір", "Incident and the write-up", 5, "do-incident", [
+    {
+      t: "mcq",
+      uk: "Під час аварії forge-status спершу:",
+      en: "During a forge-status outage, first:",
+      o: [
+        "Зупинити шкоду і сказати, що ви знаєте. Причину шукають паралельно, не замість цього",
+        "Шукати винного",
+        "Переписати все з нуля",
+        "Вимкнути моніторинг, щоб не шуміло",
+      ],
+      i: 0,
+    },
+    {
+      t: "order",
+      uk: "Порядок першої години.",
+      en: "Order of the first hour.",
+      lang: "text",
+      correct: [
+        "Визначити важкість",
+        "Написати в канал, що зламано і хто веде",
+        "Повернути сервіс",
+        "Лише потім збирати хронологію",
+      ],
+    },
+    {
+      t: "mcq",
+      uk: "Blameless розбір означає:",
+      en: "A blameless write-up means:",
+      o: [
+        "Дивитись, яка система дозволила помилці дійти до людей, і які дії це закриють",
+        "Нікого не згадувати і нічого не міняти",
+        "Покарання в кінці документа",
+        "Приховати логи",
+      ],
+      i: 0,
+      note: why(
+        "Хронологія з годинами, вплив, причина, дії з власником і датою. Без дати дія не існує.",
+        "A timeline with times, the impact, the cause, and actions with an owner and a date. An action without a date does not exist.",
+      ),
+    },
+    {
+      t: "mcq",
+      uk: "Сторінка статусу для людей зовні:",
+      en: "A status page for people outside:",
+      o: [
+        "Коротко: що не працює, чи є обхід, коли оновите. Без внутрішніх імен вузлів",
+        "Повний дамп логів",
+        "Імена on-call",
+        "Ключі доступу",
+      ],
+      i: 0,
+    },
+  ]),
+  teach("do-dr", "Відновлення і гроші", "Recovery and money", 5, "do-dr", [
+    {
+      t: "mcq",
+      uk: "RPO і RTO для бази forge-status:",
+      en: "RPO and RTO for the forge-status database:",
+      o: [
+        "RPO — скільки даних можна втратити. RTO — за скільки сервіс має повернутись",
+        "Навпаки",
+        "Обидва про ціну NAT",
+        "Це типи DNS",
+      ],
+      i: 0,
+      note: why(
+        "Бекап, який ніхто не відновлював, не рахується. Перевірка — це відновити копію і прочитати рядок.",
+        "A backup nobody has restored does not count. The check is restoring a copy and reading a row.",
+      ),
+    },
+    {
+      t: "mcq",
+      uk: "Теги вартості на ресурсах потрібні, щоб:",
+      en: "Cost tags on resources exist so that:",
+      o: [
+        "Рахунок можна розкласти на forge-status, а не дивитись одну купу",
+        "Замінити IAM",
+        "Прискорити pod",
+        "Підписати образ",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "Chaos-день на навчальному кластері:",
+      en: "A chaos hour on the learning cluster:",
+      o: [
+        "Навмисно прибрати одну репліку і перевірити, що алерт і Service це пережили",
+        "Вимкнути прод чужої компанії",
+        "Видалити state без копії",
+        "Відкрити security group усьому інтернету",
+      ],
+      i: 0,
+    },
+    {
+      t: "match",
+      uk: "Що чим міряють.",
+      en: "What measures what.",
+      pairs: [
+        { left: "RPO", right: "Втрачені хвилини даних" },
+        { left: "RTO", right: "Хвилини до повернення сервісу" },
+        { left: "error budget", right: "Скільки ненадійності ще можна витратити" },
+      ],
+    },
+  ]),
+  teach("do-path", "Увесь шлях forge-status", "The whole forge-status path", 5, "do-path", [
+    {
+      t: "order",
+      uk: "Від порожньої теки до алерту. Це весь курс одним ланцюгом.",
+      en: "From an empty directory to an alert. The whole course as one chain.",
+      lang: "text",
+      correct: [
+        "Git і рев'ю",
+        "Образ із health",
+        "CI пушить просканований тег",
+        "GitOps піднімає pod",
+        "Алерт на 5xx",
+      ],
+      note: why(
+        "Жоден крок не замінює сусідній. Зелений CI без probe на pod усе одно віддасть трафік у неготове.",
+        "No step replaces its neighbour. A green CI with no probe on the pod still sends traffic to something that is not ready.",
+      ),
+    },
+    {
+      t: "mcq",
+      uk: "Де в цьому ланцюгу живе Terraform?",
+      en: "Where does Terraform sit in this chain?",
+      o: [
+        "Він створює мережу і кластер. Він не збирає образ і не робить рев'ю коду",
+        "Він замінює GitOps",
+        "Він лежить усередині Dockerfile",
+        "Він пише postmortem",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "Що з цього курсу навмисно лишилось ім'ям, а не практикою?",
+      en: "What in this course stayed a name, not a practice?",
+      o: [
+        "Написання Go, Jenkinsfile, Terragrunt і внутрішності service mesh",
+        "Readiness",
+        "Remote state",
+        "Підпис образу",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "Курс sysadmin поруч потрібен, коли:",
+      en: "The sysadmin course next to this one is the place for:",
+      o: [
+        "Офіс, Windows-столи, RAID як дзеркало і VPN замість проброса портів",
+        "Helm values",
+        "Argo CD",
+        "PromQL",
+      ],
+      i: 0,
+    },
+  ]),
+  quiz("do-cap-exam", "Capstone forge-status", "Capstone: forge-status", 5, "do-cap-exam", [
+    {
+      t: "order",
+      uk: "Ніч, коли 5xx пішли вгору одразу після нового тега.",
+      en: "The night 5xx climbed right after a new tag.",
+      lang: "text",
+      correct: [
+        "Подивитись, який тег щойно синхронізував Argo CD",
+        "Повернути попередній тег у Git",
+        "Переконатись, що readiness знову зелений",
+        "Записати хронологію і дію",
+      ],
+    },
+    {
+      t: "mcq",
+      uk: "Образ без підпису, CI зелений, GitOps готовий синхронізувати:",
+      en: "An unsigned image, CI green, GitOps ready to sync:",
+      o: [
+        "Не пускати. Зелені тести не замінюють підпис",
+        "Пускати, бо тести зелені",
+        "Пускати лише в п'ятницю",
+        "Перейменувати тег на latest і пускати",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "NAT Gateway лишився з навчального вечора:",
+      en: "A NAT Gateway left over from a lab evening:",
+      o: [
+        "Це щогодинні гроші. Його має бути в списку teardown",
+        "Він безкоштовний після зупинки EC2",
+        "Він потрібен Git",
+        "Він замінює бекап",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "Секрет у values, який уже в історії Git:",
+      en: "A secret in values that is already in Git history:",
+      o: [
+        "Ротувати в сховищі секретів і прибрати з історії. Новий коміт із видаленням рядка не достатній",
+        "Досить .gitignore",
+        "Argo сам його зашифрує заднім числом",
+        "Можна лишити, репозиторій приватний",
+      ],
+      i: 0,
+    },
+    {
+      t: "fill",
+      uk: "Ціль на частку успішних запитів називається:",
+      en: "The target for the share of successful requests is called an:",
+      lang: "text",
+      code: "___",
+      ok: ["SLO"],
+    },
+    {
+      t: "mcq",
+      uk: "Який крок цього курсу не деплоїть сервіс?",
+      en: "Which step of this course does not deploy the service?",
+      o: [
+        "Workflow, який закінчується на push образу",
+        "Синхронізація Argo CD",
+        "helm upgrade на кластер",
+        "Відкат тега в Git",
+      ],
+      i: 0,
+      note: why(
+        "CI віддає незмінний образ. Живий сервіс змінює лише те, що читає Git: чарт, тег, синхронізація.",
+        "CI hands over an immutable image. The live service changes only through what reads Git: the chart, the tag, the sync.",
+      ),
+    },
+  ]),
+]);
