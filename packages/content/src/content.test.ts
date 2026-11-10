@@ -278,11 +278,20 @@ describe("course content integrity", () => {
     });
 
     it("devops volume", () => {
-      expect(devopsContent.units).toHaveLength(13);
+      const advanced = new Set(["k8s-workloads", "traffic-identity", "gitops-delivery", "data-plane", "alerts-runbooks", "incident-drills"]);
+      const advancedLessons: Record<string, string[]> = {
+        "k8s-workloads": ["do-w-config", "do-w-roll", "do-w-probes", "do-w-qos", "do-w-hpa", "do-w-pdb", "do-w-exam"],
+        "traffic-identity": ["do-edge-svc", "do-edge-ingress", "do-edge-netpol", "do-edge-sa", "do-edge-tls", "do-edge-quota", "do-edge-exam"],
+        "gitops-delivery": ["do-del-env", "do-del-digest", "do-del-app", "do-del-drift", "do-del-undo", "do-del-gate", "do-del-exam"],
+        "data-plane": ["do-data-place", "do-data-migrate", "do-data-backup", "do-data-pool", "do-data-rpo", "do-data-dsn", "do-data-exam"],
+        "alerts-runbooks": ["do-alert-symptom", "do-alert-burn", "do-alert-use", "do-alert-labels", "do-alert-trace", "do-alert-book", "do-alert-exam"],
+        "incident-drills": ["do-drill-cert", "do-drill-digest", "do-drill-disk", "do-drill-5xx", "do-drill-secret", "do-drill-write", "do-drill-exam"],
+      };
+      expect(devopsContent.units).toHaveLength(19);
       const lessons = devopsContent.units.flatMap((u) => u.lessons);
-      expect(lessons).toHaveLength(65);
+      expect(lessons).toHaveLength(107);
       const exams = lessons.filter((l) => l.isExam);
-      expect(exams).toHaveLength(13);
+      expect(exams).toHaveLength(19);
       for (const e of exams) {
         expect(e.exercises.length).toBeGreaterThanOrEqual(6);
       }
@@ -303,11 +312,49 @@ describe("course content integrity", () => {
         "kubernetes",
         "observability",
         "devsecops-gitops",
+        "k8s-workloads",
+        "traffic-identity",
+        "gitops-delivery",
+        "data-plane",
+        "alerts-runbooks",
+        "incident-drills",
         "sre-capstone",
       ]);
       for (const u of devopsContent.units) {
+        if (advanced.has(u.slug)) expect(u.lessons.map((l) => l.slug)).toEqual(advancedLessons[u.slug]);
         expect(u.lessons.some((l) => l.isExam)).toBe(true);
-        expect(u.lessons.filter((l) => !l.isExam)).toHaveLength(4);
+        expect(u.lessons.filter((l) => !l.isExam)).toHaveLength(advanced.has(u.slug) ? 6 : 4);
+        for (const l of u.lessons) {
+          expect(l.slug.length).toBeLessThanOrEqual(64);
+          if (!advanced.has(u.slug)) {
+            if (!l.isExam) expect(l.exercises).toHaveLength(4);
+            continue;
+          }
+          expect([4, 5]).toContain(l.difficulty);
+          expect(l.isFree).toBe(false);
+          expect(l.exercises).toHaveLength(l.isExam ? 8 : 6);
+          for (const exercise of l.exercises) {
+            expect(exercise.promptUk.trim().length).toBeGreaterThan(0);
+            expect(exercise.promptEn?.trim().length).toBeGreaterThan(0);
+            expect("explanationUk" in exercise && !!exercise.explanationUk?.trim()).toBe(true);
+            expect("explanationEn" in exercise && !!exercise.explanationEn?.trim()).toBe(true);
+          }
+          const types = l.exercises.map((e) => e.type);
+          if (l.isExam) {
+            expect(l.passThreshold).toBe(0.7);
+            expect(types.filter((t) => t === "code_order").length).toBeGreaterThanOrEqual(2);
+            expect(types.filter((t) => t === "code_read").length).toBeGreaterThanOrEqual(2);
+          } else {
+            expect(types.filter((t) => t === "mcq").length).toBeLessThanOrEqual(2);
+            expect(types.some((t) => t === "code_read" || t === "code_output")).toBe(true);
+            expect(types.some((t) => t === "code_fill" || t === "code_order")).toBe(true);
+            expect(types.some((t) => t === "match" || t === "comprehension")).toBe(true);
+            if (u.slug === "incident-drills") {
+              expect(types[0]).toBe("comprehension");
+              expect(types[1]).toBe("code_order");
+            }
+          }
+        }
       }
       const prompts = collectExercises(devopsContent).map((e) => e.promptEn).join("\n");
       expect(prompts).toContain("OIDC");
@@ -315,6 +362,12 @@ describe("course content integrity", () => {
       expect(prompts).toContain("cosign");
       expect(prompts).toContain("Argo CD");
       expect(prompts).toContain("error budget");
+      for (const marker of ["cert-manager", "NetworkPolicy", "PITR", "burn rate", "image digest"]) {
+        expect(JSON.stringify(devopsContent)).toContain(marker);
+      }
+      expect(lessons.filter((l) => l.isFree).map((l) => l.slug)).toEqual([
+        "do-ssh", "do-git-objects", "do-git-branch", "do-git-hooks", "do-distro",
+      ]);
       const ciUnit = devopsContent.units.find((u) => u.slug === "ci");
       const ciText = ciUnit!.lessons
         .flatMap((l) => l.exercises)
@@ -324,6 +377,16 @@ describe("course content integrity", () => {
       expect(ciText).not.toContain("production");
       expect(ciText).not.toContain("deploy to");
       for (const ex of collectExercises(devopsContent)) {
+        if (ex.type === "comprehension") {
+          expect(ex.passage.trim().length).toBeGreaterThan(0);
+          expect(ex.questions.length).toBeGreaterThan(0);
+          for (const question of ex.questions) {
+            expect(question.q.trim().length).toBeGreaterThan(0);
+            expect(question.qEn?.trim().length).toBeGreaterThan(0);
+            expect(question.correctIndex).toBeGreaterThanOrEqual(0);
+            expect(question.correctIndex).toBeLessThan(question.options.length);
+          }
+        }
         if (ex.type === "code_order") {
           expect(ex.lines.length).toBe(ex.correct.length);
           expect([...ex.lines].sort()).toEqual([...ex.correct].sort());

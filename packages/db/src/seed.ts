@@ -24,6 +24,7 @@ import {
 } from "@eduforge/content";
 import bcrypt from "bcryptjs";
 import { createDb } from "./client.js";
+import { selectFlashcardInserts } from "./seed-flashcards.js";
 import { ACHIEVEMENT_CATALOG } from "@eduforge/shared";
 import { seedAllowed } from "@eduforge/shared";
 import {
@@ -244,18 +245,19 @@ async function seedFlashcards(db: ReturnType<typeof createDb>) {
     const existingCards = await db.query.flashcards.findMany({
       where: eq(flashcards.deckId, d.id),
     });
-    if (existingCards.length === 0) {
-      for (const [i, card] of deck.cards.entries()) {
+    const missingCards = selectFlashcardInserts(deck, existingCards);
+    if (missingCards.length > 0) {
+      for (const card of missingCards) {
         await db.insert(flashcards).values({
           deckId: d.id,
           front: card.front,
           back: card.back,
           hint: card.hint ?? "",
           tags: card.tags ?? [],
-          sortOrder: i,
+          sortOrder: card.sortOrder,
         });
       }
-      console.log(`  + ${deck.cards.length} cards in ${deck.slug}`);
+      console.log(`  + ${missingCards.length} cards in ${deck.slug}`);
     }
   }
 }

@@ -10,6 +10,21 @@ export type AchievementDef = {
   xpReward: number;
 };
 
+/** Each DevOps milestone belongs to one specific completed lesson. */
+export const DEVOPS_LESSON_ACHIEVEMENTS = {
+  "do-k8s-exam": "devops_cluster",
+  "do-del-exam": "devops_gitops",
+  "do-drill-exam": "devops_oncall",
+} as const;
+
+export type DevopsLessonAchievement = (typeof DEVOPS_LESSON_ACHIEVEMENTS)[keyof typeof DEVOPS_LESSON_ACHIEVEMENTS];
+
+export function devopsLessonAchievement(slug: string): DevopsLessonAchievement | null {
+  return Object.hasOwn(DEVOPS_LESSON_ACHIEVEMENTS, slug)
+    ? DEVOPS_LESSON_ACHIEVEMENTS[slug as keyof typeof DEVOPS_LESSON_ACHIEVEMENTS]
+    : null;
+}
+
 export const ACHIEVEMENT_CATALOG: AchievementDef[] = [
   {
     code: "first_lesson",
@@ -261,6 +276,33 @@ export const ACHIEVEMENT_CATALOG: AchievementDef[] = [
     descriptionUk: "Перший урок курсу DevOps",
     descriptionEn: "First DevOps lesson",
     icon: "🚀",
+    xpReward: 20,
+  },
+  {
+    code: "devops_cluster",
+    titleUk: "Кластер готовий",
+    titleEn: "Cluster ready",
+    descriptionUk: "Складіть контрольну Kubernetes у курсі DevOps",
+    descriptionEn: "Pass the Kubernetes exam in the DevOps course",
+    icon: "🛡️",
+    xpReward: 20,
+  },
+  {
+    code: "devops_gitops",
+    titleUk: "Git — це кластер",
+    titleEn: "Git is the cluster",
+    descriptionUk: "Складіть контрольну доставки GitOps у курсі DevOps",
+    descriptionEn: "Pass the GitOps delivery exam in the DevOps course",
+    icon: "🔄",
+    xpReward: 20,
+  },
+  {
+    code: "devops_oncall",
+    titleUk: "На зміні",
+    titleEn: "On call",
+    descriptionUk: "Складіть контрольну інцидентів у курсі DevOps",
+    descriptionEn: "Pass the incident drills exam in the DevOps course",
+    icon: "📟",
     xpReward: 20,
   },
   {

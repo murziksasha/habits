@@ -27,6 +27,8 @@ App-level map of course slug → hub → freemium. DB stores `varchar` slugs; re
 
 Constants live in `packages/shared/src/entitlements.ts` (`FREE_LESSONS_PER_COURSE`, hearts, rated chess).
 
+`devops` now has Stay up and On call after the survey, on `/courses/devops`, with the capstone last.
+
 ## Rules
 
 1. **No new root nav entry** per deep track — link from `/learn`, `/courses`, `/programming`.

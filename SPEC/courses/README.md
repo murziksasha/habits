@@ -23,4 +23,4 @@ Update the matching file in the same change as the content. SPEC/CONTENT-DX.md l
 | [`express_fundamentals`](./express_fundamentals.md) | deep | 9 | 26 | 9 | App, routes, middleware, REST, errors, Router — deep track + unit exams. |
 | [`embedded_cpp`](./embedded_cpp.md) | deep | 17 | 69 | 17 | C++ for constrained systems and miltech stack: memory, CMake, networking, FreeRTOS, MAVLink, safety, data-lin… |
 | [`sysadmin`](./sysadmin.md) | skill | 12 | 60 | 12 | From a small office to the console: network, backups, Windows desks, bash, permissions, packages, git for con… |
-| [`devops`](./devops.md) | skill | 13 | 65 | 13 | One service, forge-status: Git, Linux, bash, the network, Python, containers, AWS before Terraform, CI throug… |
+| [`devops`](./devops.md) | skill | 19 | 107 | 19 | forge-status survey, then Stay up and On call: workloads, traffic, delivery, data recovery, alerts, and incidents. AWS before Terraform; CI ends at the image. |

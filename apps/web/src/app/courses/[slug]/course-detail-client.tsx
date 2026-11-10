@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { pickLocale, UI } from "@eduforge/shared";
+import { Fragment, useEffect, useState } from "react";
+import { getCourseParts, pickLocale, UI } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
@@ -27,7 +27,7 @@ type Lesson = {
   baseXp?: number;
 };
 
-type Unit = { id: string; titleUk: string; titleEn?: string; lessons: Lesson[] };
+type Unit = { id: string; slug: string; titleUk: string; titleEn?: string; lessons: Lesson[] };
 
 export function CourseDetailClient() {
   const { slug } = useParams<{ slug: string }>();
@@ -121,6 +121,7 @@ export function CourseDetailClient() {
     null;
   const completedCount = allLessons.filter((l) => l.status === "completed").length;
   const totalCount = allLessons.length || 1;
+  const parts = getCourseParts(slug);
 
   return (
     <div className="space-y-8 pb-24 md:pb-8">
@@ -184,15 +185,25 @@ export function CourseDetailClient() {
       </div>
 
       {data.units.map((unit, ui) => {
+        const part = parts.find((part) => part.unitSlugs.includes(unit.slug));
+        const previousPart = parts.find((part) => part.unitSlugs.includes(data.units[ui - 1]?.slug));
+        const showPartHeading = part && part.id !== previousPart?.id;
+        const UnitHeading = part ? "h3" : "h2";
         const unitDone = unit.lessons.filter((l) => l.status === "completed").length;
         const unitTotal = unit.lessons.length || 1;
         return (
-          <section key={unit.id} className="space-y-3">
+          <Fragment key={unit.id}>
+          {showPartHeading ? (
+            <h2 id={`part-${part.id}`} className="border-b border-slate-200 pb-3 text-2xl font-black dark:border-slate-800">
+              {pickLocale(locale, part.titleUk, part.titleEn)}
+            </h2>
+          ) : null}
+          <section className="space-y-3">
             <div className="flex flex-wrap items-end justify-between gap-2">
-              <h2 className="text-lg font-black text-ink-muted">
+              <UnitHeading className="text-lg font-black text-ink-muted">
                 {locale === "en" ? "Unit" : "Розділ"} {ui + 1}:{" "}
                 {pickLocale(locale, unit.titleUk, unit.titleEn)}
-              </h2>
+              </UnitHeading>
               <span className="text-xs font-black text-ink-muted">
                 {unitDone}/{unitTotal}
               </span>
@@ -259,6 +270,7 @@ export function CourseDetailClient() {
               ))}
             </div>
           </section>
+          </Fragment>
         );
       })}
     </div>

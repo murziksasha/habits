@@ -27,6 +27,8 @@ Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, 
 
 Skill tracks `sysadmin` and `devops` are the same kind of surface: `/learn` and `/courses`, not a new primary-nav slot. `devops` is the container, Kubernetes, and delivery path. `sysadmin` stops before those topics. Per-course depth is `SPEC/courses/`.
 
+`devops` is still reached from `/learn` and `/courses`; Stay up and On call are more units on that course page, not a new nav slot.
+
 ## Information architecture (target)
 
 ### Desktop primary (≤6 + More)

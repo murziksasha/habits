@@ -24,6 +24,8 @@ export type Exercise =
       promptUk: string;
       promptEn?: string;
       pairs: { left: string; right: string }[];
+      explanationUk?: string;
+      explanationEn?: string;
     }
   | {
       id: string;
@@ -65,6 +67,8 @@ export type Exercise =
       promptEn?: string;
       passage: string;
       questions: { q: string; qEn?: string; options: string[]; correctIndex: number }[];
+      explanationUk?: string;
+      explanationEn?: string;
     }
   | {
       id: string;

@@ -174,8 +174,10 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
         "Git і рев'ю",
         "Образ із health",
         "CI пушить просканований тег",
+        "Просунути image digest у Git для середовища",
         "GitOps піднімає pod",
         "Алерт на 5xx",
+        "Відновити копію бази та перевірити restore drill",
       ],
       note: why(
         "Жоден крок не замінює сусідній. Зелений CI без probe на pod усе одно віддасть трафік у неготове.",
@@ -220,6 +222,24 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
     },
   ]),
   quiz("do-cap-exam", "Capstone forge-status", "Capstone: forge-status", 5, "do-cap-exam", [
+    {
+      t: "order",
+      uk: "Продовжіть шлях перевіреного образу до відновлюваного сервісу.",
+      en: "Continue the verified image's path to a recoverable service.",
+      lang: "text",
+      correct: ["Promote the verified image digest in Git / Просунути digest у Git", "Approve and sync the environment / Схвалити й синхронізувати середовище", "Verify readiness and user signals / Перевірити готовність і сигнали користувачів", "Restore a database copy and measure recovery / Відновити копію бази й виміряти час"],
+      note: why("CI завершується образом. Просування, перевірка сервісу й відновлення копії — окремі перевірки ланцюга.", "CI ends at the image. Promotion, service verification, and restoring a copy are separate checks in the chain."),
+    },
+    {
+      t: "read",
+      uk: "Що ще потрібно перевірити після просування digest?",
+      en: "What remains to verify after promoting the digest?",
+      lang: "text",
+      code: "forge-status: image digest verified\nArgo CD: Synced / Healthy\nbackup: completed\nrestore drill: never",
+      o: ["Restore an isolated copy and measure RPO/RTO / Відновити ізольовану копію й виміряти RPO/RTO", "Rebuild for prod / Перезібрати для prod", "Restart every pod / Перезапустити всі pod"],
+      i: 0,
+      note: why("Зелена доставка не доводить відновлюваність даних. Копію відновлюють окремо, без перемикання живого DSN.", "A green delivery does not prove data recovery. Restore separately without switching the live DSN."),
+    },
     {
       t: "order",
       uk: "Ніч, коли 5xx пішли вгору одразу після нового тега.",

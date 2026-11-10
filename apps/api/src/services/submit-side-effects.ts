@@ -194,6 +194,7 @@ export async function runSubmitSideEffects(
     newAchievements = await evaluateAchievements(db, user.id, {
       lessonCompleted: ctx.passed,
       courseSlug: ctx.courseSlug,
+      lessonId: ctx.lessonId,
       streakDays: ctx.streakDays,
       globalLevel: ctx.globalLevel,
       dailyGoalMet: ctx.dailyGoalMet,

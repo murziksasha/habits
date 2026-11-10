@@ -12,6 +12,7 @@ import {
 } from "@eduforge/db";
 import {
   ACHIEVEMENT_CATALOG,
+  devopsLessonAchievement,
   isoWeekBounds,
   levelFromXp,
   PROGRAMMING_MINI_LESSON_SLUGS,
@@ -132,6 +133,8 @@ async function unlock(
 export type UnlockContext = {
   lessonCompleted?: boolean;
   courseSlug?: string;
+  /** The submitted lesson, used to verify persisted milestone completion. */
+  lessonId?: string;
   streakDays?: number;
   globalLevel?: number;
   dailyGoalMet?: boolean;
@@ -234,6 +237,26 @@ export async function evaluateAchievements(
   }
   if (ctx.lessonCompleted && ctx.courseSlug === "devops") {
     await tryUnlock("devops_start");
+    if (ctx.lessonId) {
+      const completedExams = await db
+        .select({ slug: lessons.slug })
+        .from(userLessonProgress)
+        .innerJoin(lessons, eq(lessons.id, userLessonProgress.lessonId))
+        .innerJoin(courses, eq(courses.id, lessons.courseId))
+        .where(
+          and(
+            eq(userLessonProgress.userId, userId),
+            eq(userLessonProgress.status, "completed"),
+            eq(courses.slug, "devops"),
+            eq(lessons.isExam, true),
+            eq(lessons.id, ctx.lessonId),
+          ),
+        );
+      for (const exam of completedExams) {
+        const code = devopsLessonAchievement(exam.slug);
+        if (code) await tryUnlock(code);
+      }
+    }
   }
   if (ctx.lessonCompleted && ctx.courseSlug === "js_fundamentals") {
     await tryUnlock("js_fundamentals_start");

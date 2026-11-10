@@ -42,7 +42,7 @@ export async function loginAsAdmin(page: Page) {
         mfaToken?: string;
       };
       if (json.mfaRequired && json.mfaToken) {
-        const mfaRes = await page.request.post(`${API_URL}/auth/mfa/verify-login`, {
+        const mfaRes = await page.request.post(`${API_URL}/auth/mfa/totp/verify`, {
           data: { mfaToken: json.mfaToken, code: currentTotp() },
           headers: {
             "Content-Type": "application/json",

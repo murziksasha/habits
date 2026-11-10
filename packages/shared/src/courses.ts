@@ -77,6 +77,53 @@ export function coursesByGroup(group: CourseGroup): CourseSlug[] {
   return COURSE_SLUGS.filter((s) => COURSE_GROUP[s] === group);
 }
 
+export type CoursePart = {
+  id: string;
+  titleUk: string;
+  titleEn: string;
+  unitSlugs: readonly string[];
+};
+
+/** Presentation groups on an existing course page; these do not create courses or locks. */
+export const COURSE_PARTS: Partial<Record<CourseSlug, readonly CoursePart[]>> = {
+  devops: [
+    {
+      id: "foundations",
+      titleUk: "Основи",
+      titleEn: "Foundations",
+      unitSlugs: ["git-workstation", "linux-base", "bash", "networks", "python-ops"],
+    },
+    {
+      id: "ship-an-image",
+      titleUk: "Випустити образ",
+      titleEn: "Ship an image",
+      unitSlugs: ["containers", "aws-survival", "iac", "ci"],
+    },
+    {
+      id: "run-it",
+      titleUk: "Запустити сервіс",
+      titleEn: "Run it",
+      unitSlugs: ["kubernetes", "observability", "devsecops-gitops"],
+    },
+    {
+      id: "stay-up",
+      titleUk: "Тримати сервіс",
+      titleEn: "Stay up",
+      unitSlugs: ["k8s-workloads", "traffic-identity", "gitops-delivery"],
+    },
+    {
+      id: "on-call",
+      titleUk: "На зміні",
+      titleEn: "On call",
+      unitSlugs: ["data-plane", "alerts-runbooks", "incident-drills", "sre-capstone"],
+    },
+  ],
+};
+
+export function getCourseParts(slug: string): readonly CoursePart[] {
+  return isCourseSlug(slug) ? COURSE_PARTS[slug] ?? [] : [];
+}
+
 export const COURSE_META: Record<
   CourseSlug,
   {
@@ -157,9 +204,9 @@ export const COURSE_META: Record<
     titleUk: "DevOps",
     titleEn: "DevOps",
     descriptionUk:
-      "Один сервіс forge-status: від Git і Linux до образу, Kubernetes, GitOps і алерту. CI не деплоїть. AWS — до Terraform.",
+      "Один сервіс forge-status: від Git і Linux до образу, Kubernetes і GitOps. Далі — надійні workloads, TLS, доставка digest, відновлення бази й чергування. CI завершується push образу; AWS — до Terraform.",
     descriptionEn:
-      "One service, forge-status: from Git and Linux to an image, Kubernetes, GitOps, and an alert. CI does not deploy. AWS comes before Terraform.",
+      "One service, forge-status: from Git and Linux to an image, Kubernetes, and GitOps. Then resilient workloads, TLS, digest promotion, database recovery, and on-call drills. CI ends at the image push; AWS comes before Terraform.",
     icon: "🚀",
     color: "#7C3AED",
     group: "skill",
