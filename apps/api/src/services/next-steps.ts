@@ -10,6 +10,7 @@ import {
 import {
   adaptiveScore,
   applyLevelUps,
+  coursesByGroup,
   DEFAULT_ADAPTIVE_WEIGHTS,
   isoWeekBounds,
   loadAdaptiveWeights,
@@ -49,18 +50,7 @@ export type NextStepsPrefetch = {
   }[];
 };
 
-const DEEP_TRACK_SLUGS = [
-  "html_semantics",
-  "css_layout",
-  "qa_theory",
-  "typescript",
-  "js_fundamentals",
-  "react_fundamentals",
-  "sql_fundamentals",
-  "node_fundamentals",
-  "express_fundamentals",
-  "embedded_cpp",
-] as const;
+const DEEP_TRACK_SLUGS = coursesByGroup("deep");
 
 const MAX_EXPLORE = 4;
 

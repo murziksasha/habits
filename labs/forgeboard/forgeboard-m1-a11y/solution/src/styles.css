@@ -1,0 +1,77 @@
+@layer tokens, base, layout, components;
+
+@layer tokens {
+  :root {
+    --space-sm: 0.75rem;
+    --space-md: 1.25rem;
+    --surface-bg: #f8fafc;
+    --surface-card: #ffffff;
+    --ink-primary: #0f172a;
+    --accent-focus: #2563eb;
+    --text-body: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
+  }
+}
+
+@layer base {
+  body {
+    margin: 0;
+    background: var(--surface-bg);
+    color: var(--ink-primary);
+    font-family: system-ui, sans-serif;
+    font-size: var(--text-body);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--accent-focus);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer layout {
+  .workspace {
+    inline-size: min(100%, 64rem);
+    margin-inline: auto;
+    padding-inline: var(--space-md);
+    margin-block: var(--space-md);
+  }
+
+  .board-shell {
+    container-type: inline-size;
+    container-name: board;
+  }
+
+  .task-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-sm);
+    padding-inline: 0;
+    list-style: none;
+  }
+
+  @container board (min-width: 36rem) {
+    .task-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}
+
+@layer components {
+  .task-card {
+    min-width: 0;
+    background: var(--surface-card);
+    padding-inline: var(--space-md);
+    padding-block: var(--space-sm);
+    border-radius: 0.75rem;
+    overflow-wrap: anywhere;
+  }
+}

@@ -18,11 +18,20 @@ searchRoutes.get("/", authMiddleware, async (c) => {
     .select({
       slug: courses.slug,
       titleUk: courses.titleUk,
+      titleEn: courses.titleEn,
       descriptionUk: courses.descriptionUk,
+      descriptionEn: courses.descriptionEn,
       icon: courses.icon,
     })
     .from(courses)
-    .where(or(ilike(courses.titleUk, pattern), ilike(courses.descriptionUk, pattern)))
+    .where(
+      or(
+        ilike(courses.titleUk, pattern),
+        ilike(courses.titleEn, pattern),
+        ilike(courses.descriptionUk, pattern),
+        ilike(courses.descriptionEn, pattern),
+      ),
+    )
     .limit(10);
 
   const userHits = await db

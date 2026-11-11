@@ -310,4 +310,84 @@ describeIntegration("API integration", () => {
     expect(r.status).toBe(200);
     expect(r.data.rating.elo).toBeGreaterThanOrEqual(1000);
   });
+
+  it("exposes 7 new full-stack courses and localLab manifest without self-reported XP bypass", async () => {
+    const courseRes = await json("/courses/postgresql_apps");
+    expect(courseRes.status).toBe(200);
+    const units = courseRes.data.units as { lessons: { id: string; slug: string; hasLocalLab?: boolean }[] }[];
+    const pgLabLesson = units.flatMap((u) => u.lessons).find((l) => l.slug === "pg-forgeboard-db-lab");
+    expect(pgLabLesson).toBeTruthy();
+    expect(pgLabLesson!.hasLocalLab).toBe(true);
+
+    const htmlRes = await json("/courses/html_semantics");
+    expect(htmlRes.status).toBe(200);
+    const htmlUnits = htmlRes.data.units as { lessons: { id: string; slug: string; hasLocalLab?: boolean }[] }[];
+    const m1 = htmlUnits.flatMap((u) => u.lessons).find((l) => l.slug === "hs-forgeboard-a11y-lab");
+    expect(m1).toBeTruthy();
+
+    const m1Detail = await json(`/courses/html_semantics/lessons/${m1!.id}`);
+    expect(m1Detail.status).toBe(200);
+    expect(m1Detail.data.localLab?.labId).toBe("forgeboard-m1-a11y");
+    expect(m1Detail.data.localLab?.assessmentMode).toBe("local_practice");
+    expect(m1Detail.data.localLab?.downloadPath).toBe("/labs/forgeboard-m1-a11y-v1.0.0.zip");
+
+    // Reuse session token (or login once cleanly with existing user credentials)
+    let activeToken = token;
+    if (!activeToken) {
+      const login = await json("/auth/login", { method: "POST", body: { email, password } });
+      expect(login.status).toBe(200);
+      activeToken = login.data.token as string;
+    }
+    expect(activeToken).toBeTruthy();
+
+    const fakeSubmit = await json(`/courses/html_semantics/lessons/${m1!.id}/submit`, {
+      method: "POST",
+      token: activeToken,
+      body: {
+        answers: [],
+        localTestsPassed: true,
+        localLabResult: "passed",
+      },
+    });
+    expect(fakeSubmit.status).toBe(200);
+    expect(fakeSubmit.data.accuracy).toBe(0);
+    expect(
+      (fakeSubmit.data.results as { correct: boolean }[]).every((x) => !x.correct),
+    ).toBe(true);
+
+    // Complete unit 1 lessons of software_testing, then fail its exam even with localTestsPassed: true
+    const stRes = await json("/courses/software_testing", { token: activeToken });
+    expect(stRes.status).toBe(200);
+    const stUnit1 = (
+      stRes.data.units as { slug: string; lessons: { id: string; slug: string; isExam?: boolean }[] }[]
+    ).find((u) => u.slug === "st_testable_requirements")!;
+    for (const l of stUnit1.lessons.filter((x) => !x.isExam)) {
+      const s = await json(`/courses/software_testing/lessons/${l.id}/submit`, {
+        method: "POST",
+        token: activeToken,
+        body: { answers: [] },
+      });
+      expect(s.status).toBe(200);
+    }
+    const stExam = stUnit1.lessons.find((x) => x.isExam)!;
+    const examBypassAttempt = await json(`/courses/software_testing/lessons/${stExam.id}/submit`, {
+      method: "POST",
+      token: activeToken,
+      body: {
+        answers: [],
+        localTestsPassed: true,
+      },
+    });
+    expect(examBypassAttempt.status).toBe(200);
+    expect(examBypassAttempt.data.passed).toBe(false);
+    expect(examBypassAttempt.data.examFailed).toBe(true);
+    expect(examBypassAttempt.data.xpGain).toBe(0);
+
+    // Search EN titles & descriptions
+    const searchRes = await json("/search?q=PostgreSQL", { token: activeToken });
+    expect(searchRes.status).toBe(200);
+    expect(
+      (searchRes.data.courses as { slug: string }[]).some((c) => c.slug === "postgresql_apps"),
+    ).toBe(true);
+  });
 });

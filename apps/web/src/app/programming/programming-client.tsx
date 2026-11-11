@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
+  COURSE_HUB_HREF,
+  COURSE_META,
+  coursesByGroup,
   firstAvailableLessonHref,
   isProgrammingMiniSlug,
   PROGRAMMING_MINI_LESSON_SLUGS,
@@ -296,36 +299,19 @@ export function ProgrammingClient() {
                 {t.programming.takePlacement}
               </Link>
             ) : null}
-            <Link href="/typescript" className="btn-secondary !py-2 text-sm inline-flex">
-              📘 {t.courses.typescript}
-            </Link>
-            <Link href="/html-semantics" className="btn-secondary !py-2 text-sm inline-flex">
-              🌐 {t.courses.html_semantics}
-            </Link>
-            <Link href="/css-layout" className="btn-secondary !py-2 text-sm inline-flex">
-              🎨 {t.courses.css_layout}
-            </Link>
-            <Link href="/qa-theory" className="btn-secondary !py-2 text-sm inline-flex">
-              🧪 {t.courses.qa_theory}
-            </Link>
-            <Link href="/js-fundamentals" className="btn-secondary !py-2 text-sm inline-flex">
-              ⚡ {t.courses.js_fundamentals}
-            </Link>
-            <Link href="/react-fundamentals" className="btn-secondary !py-2 text-sm inline-flex">
-              ⚛️ {t.courses.react_fundamentals}
-            </Link>
-            <Link href="/sql-fundamentals" className="btn-secondary !py-2 text-sm inline-flex">
-              🗄️ {t.courses.sql_fundamentals}
-            </Link>
-            <Link href="/node-fundamentals" className="btn-secondary !py-2 text-sm inline-flex">
-              🟢 {t.courses.node_fundamentals}
-            </Link>
-            <Link href="/express-fundamentals" className="btn-secondary !py-2 text-sm inline-flex">
-              🚂 {t.courses.express_fundamentals}
-            </Link>
-            <Link href="/embedded-cpp" className="btn-secondary !py-2 text-sm inline-flex">
-              🪖 {t.courses.embedded_cpp}
-            </Link>
+            {coursesByGroup("deep").map((slug) => {
+              const meta = COURSE_META[slug];
+              const href = COURSE_HUB_HREF[slug] ?? `/courses/${slug}`;
+              return (
+                <Link
+                  key={slug}
+                  href={href}
+                  className="btn-secondary !py-2 text-sm inline-flex"
+                >
+                  {meta.icon} {pickLocale(locale, meta.titleUk, meta.titleEn)}
+                </Link>
+              );
+            })}
             <Link href="/playground" className="btn-secondary !py-2 text-sm inline-flex">
               🖥️ {t.nav.playground}
             </Link>

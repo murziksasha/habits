@@ -1,5 +1,5 @@
 import type { CourseContent, Exercise, LessonContent, UnitContent } from "./types.js";
-import { codeFill, codeRead, codeOrder, mcq } from "./builders.js";
+import { codeFill, codeRead, codeOrder, codeOrderAuto, mcq, matchEx, why } from "./builders.js";
 
 function lesson(
   slug: string,
@@ -306,6 +306,69 @@ const htmlUnit = unit("html", "HTML", "HTML", [
         options: ["тільки CSS", "screen readers / a11y", "Node runtime", "SQL index"],
         correctIndex: 1,
       },
+    ],
+  ),
+  lesson(
+    "prog-env-terminal-http",
+    "Середовище, термінал, HTTP та карта треків",
+    "Environment setup, terminal basics, HTTP overview & deep tracks",
+    1,
+    false,
+    [
+      mcq(
+        "pr-env-1",
+        "Яка команда в терміналі (Bash та PowerShell) показує поточний робочий каталог і список файлів?",
+        "Which terminal commands inspect the current directory and list files across Bash and PowerShell?",
+        [
+          "`pwd` і `ls` (у Windows CMD також `cd` / `dir`)",
+          "`http` і `css`",
+          "`git push` і `sql select`",
+          "`npm delete`",
+        ],
+        0,
+        why(
+          "Навігація у терміналі (pwd/ls/cd) — перша навичка для запуску проєктів, Git та тестів локально.",
+          "Terminal navigation (pwd/ls/cd) is foundational for running local dev servers, Git, and test runners.",
+        ),
+      ),
+      matchEx("pr-env-2", "Роль кожної технології у вебзастосунку", "Role of each web technology", [
+        { left: "HTML + CSS", right: "структура, доступність і адаптивний вигляд" },
+        { left: "JS / TypeScript / React", right: "інтерактивна клієнтська поведінка та типізований стан" },
+        { left: "Node / Express + PostgreSQL", right: "HTTP API, валідація, авторизація та збереження даних" },
+        { left: "Git + Tests", right: "історія змін, перевірка поведінки та безпечний реліз" },
+      ]),
+      codeOrderAuto(
+        "pr-env-3",
+        "Відтворимий цикл налагодження (debugging workflow) при збої у браузері або сервері",
+        "Reproducible debugging workflow when an app fails",
+        "text",
+        [
+          "1. Відтворити помилку мінімальними кроками та зафіксувати текст у DevTools/терміналі",
+          "2. Сформулювати гіпотезу, на якій межі (UI, Network, API, БД) розійшлися очікування",
+          "3. Перевірити вхідні дані, статус HTTP та стан змінних (breakpoint / лог)",
+          "4. Виправити першопричину і закріпити перевірку тестом",
+        ],
+        why(
+          "Дисципліноване відтворення → гіпотеза → ізоляція межі → перевірка тестом економить години хаотичних правок.",
+          "Reproduce → hypothesize → isolate boundary → verify with a test avoids blind trial-and-error edits.",
+        ),
+      ),
+      mcq(
+        "pr-env-4",
+        "Куди звертатись за повною практикою після оглядового юніту в цьому path?",
+        "Where do you go for deeper mastery after completing an overview unit here?",
+        [
+          "У відповідний deep-курс (`/html-semantics`, `/css-layout`, `/js-fundamentals`, `/typescript`, `/react-fundamentals`, `/express-fundamentals`, `/postgresql-apps`, `/software-testing`)",
+          "Лише у вкладку «Профіль»",
+          "Видалити репозиторій і почати заново",
+          "Тільки у консольний калькулятор",
+        ],
+        0,
+        why(
+          "Оглядовий path веде до deep-курсів із повним проєктом ForgeBoard та локальними лабораторними.",
+          "The overview path links straight into each deep course and shared ForgeBoard milestones.",
+        ),
+      ),
     ],
   ),
   lesson(
@@ -1839,6 +1902,38 @@ const gitUnit = unit("git", "Git", "Git", [
           { left: "cherry-pick", right: "один commit" },
         ],
       },
+    ],
+  ),
+  lesson(
+    "git-early-debug",
+    "Git на старті: дифи, відкат та діагностика помилок",
+    "Early Git workflow: diffs, safe undo & error inspection",
+    2,
+    false,
+    [
+      codeFill(
+        "pr-git-early-1",
+        "Переглянути неіндексовані зміни перед комітом",
+        "Inspect unstaged file changes before staging",
+        "bash",
+        "git ___",
+        ["diff"],
+        true,
+        why("Перевірка `git diff` перед `git add` ловить випадкові правки та секрети.", "Reviewing `git diff` catches accidental edits and stray secrets before staging."),
+      ),
+      mcq(
+        "pr-git-early-2",
+        "Навіщо вчитися робити малі коміти у новій гілці з першого тижня?",
+        "Why practice small commits on a branch from week one?",
+        [
+          "Легше локалізувати регресію через `git diff`/`git log` та безпечно відкотити одну зміну",
+          "Щоб Git працював без інтернету швидше за SSD",
+          "Тому що main-гілка забороняє більше одного файлу",
+          "Щоб приховати помилки TypeScript",
+        ],
+        0,
+        why("Малі сфокусовані коміти роблять діагностику помилок і код-рев'ю прозорими.", "Small focused commits make regression diagnosis and reviews straightforward."),
+      ),
     ],
   ),
   lesson(

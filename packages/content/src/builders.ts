@@ -182,3 +182,54 @@ export function codeOutputMcq(
     ...note,
   };
 }
+
+export function why(explanationUk: string, explanationEn: string): Note {
+  return { explanationUk, explanationEn };
+}
+
+/** Deterministic non-identity scramble for code_order lines when authored in target order. */
+export function codeOrderAuto(
+  id: string,
+  promptUk: string,
+  promptEn: string,
+  language: string,
+  correct: string[],
+  note?: Note,
+): Exercise {
+  const lines =
+    correct.length >= 2 ? [...correct.slice(1), correct[0]!] : [...correct];
+  return codeOrder(id, promptUk, promptEn, language, lines, correct, note);
+}
+
+export function codeProject(
+  id: string,
+  promptUk: string,
+  promptEn: string,
+  files: { id: string; name: string; language: string; starter: string }[],
+  checks: {
+    fileId?: string;
+    contains?: string[];
+    containsHtml?: string[];
+    forbidden?: string[];
+    kind?: "source" | "dom";
+    selector?: string;
+    minCount?: number;
+  }[],
+  extra?: {
+    caseSensitive?: boolean;
+    hintUk?: string;
+    hintEn?: string;
+    explanationUk?: string;
+    explanationEn?: string;
+  },
+): Exercise {
+  return {
+    id,
+    type: "code_project",
+    promptUk,
+    promptEn,
+    files,
+    checks,
+    ...extra,
+  };
+}

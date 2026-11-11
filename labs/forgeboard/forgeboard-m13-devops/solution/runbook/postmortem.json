@@ -1,0 +1,6 @@
+{
+  "incident": "rollout-503",
+  "rootCause": "New image shifted readiness traffic before database migration created the tasks relation.",
+  "immediateMitigation": "Rollback image tag in Git to previous digest and run pending DB migration cleanly before retry.",
+  "prevention": "Enforce migration job completion gate before readiness traffic shift and verify via /ready DB check."
+}

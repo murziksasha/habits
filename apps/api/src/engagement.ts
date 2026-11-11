@@ -273,6 +273,19 @@ export async function evaluateAchievements(
   if (ctx.lessonCompleted && ctx.courseSlug === "express_fundamentals") {
     await tryUnlock("express_fundamentals_start");
   }
+  const newTrackStarts: Record<string, string> = {
+    software_testing: "software_testing_start",
+    postgresql_apps: "postgresql_apps_start",
+    git_workflows: "git_workflows_start",
+    web_security: "web_security_start",
+    ai_development: "ai_development_start",
+    nextjs_fullstack: "nextjs_fullstack_start",
+    applied_algorithms: "applied_algorithms_start",
+  };
+  const newStartCode = ctx.lessonCompleted && ctx.courseSlug ? newTrackStarts[ctx.courseSlug] : undefined;
+  if (newStartCode) {
+    await tryUnlock(newStartCode);
+  }
   if (ctx.lessonCompleted && ctx.courseSlug === "embedded_cpp") {
     await tryUnlock("embedded_cpp_start");
     const emb = await db.query.courses.findFirst({

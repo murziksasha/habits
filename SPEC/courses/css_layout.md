@@ -3,7 +3,9 @@
 Slug: `css_layout`
 Group: deep
 Hub: `/css-layout`
-Freemium: the first 5 non-exam lessons in path order.
+Freemium: first 6 non-exam lesson(s) open without Pro.
+Prerequisites: `programming`, `html_semantics`
+Recommended next: `js_fundamentals`, `react_fundamentals`
 
 ## What this course is
 
@@ -13,82 +15,87 @@ Deep layout track: box model, Flexbox, CSS Grid, responsive, flex vs grid. Unit 
 
 ### `box-flow` — Box & flow
 
-- `cl-box-model` — Box model. Box model includes: (3 exercises)
-- `cl-display` — display values. display (2 exercises)
-- `cl-position-stacking` — Positioning & specificity. Absolute positioning relative to nearest positioned ancestor (4 exercises)
-- `cl-box-exam` — Exam: box. Exam. padding is: (4 exercises)
+- `cl-box-model` — Box model [free] (3 exercises)
+- `cl-display` — display values [free] (2 exercises)
+- `cl-position-stacking` — Positioning & specificity [free] (4 exercises)
+- `cl-box-exam` — Exam: box [exam] (4 exercises)
 
 ### `flex-core` — Flex core
 
-- `cl-flex-container` — Flex container. flex container (3 exercises)
-- `cl-flex-wrap` — wrap & gap. Allow wrapping (3 exercises)
-- `cl-flex-justify-align` — justify & align. Main axis center (row) (3 exercises)
-- `cl-flex-space` — space-between / around. space-between: (2 exercises)
-- `cl-flex-gap-center` — gap & centering. gap (4 exercises)
-- `cl-flex-core-exam` — Exam: flex core. Exam. display (5 exercises)
+- `cl-flex-container` — Flex container [free] (3 exercises)
+- `cl-flex-wrap` — wrap & gap [free] (3 exercises)
+- `cl-flex-justify-align` — justify & align (3 exercises)
+- `cl-flex-space` — space-between / around (2 exercises)
+- `cl-flex-gap-center` — gap & centering [free] (4 exercises)
+- `cl-flex-core-exam` — Exam: flex core [exam] (5 exercises)
 
 ### `flex-items` — Flex items
 
-- `cl-fi-grow` — flex-grow. flex-grow: 1 means: (2 exercises)
-- `cl-fi-shrink-basis` — shrink & basis. Don't shrink (3 exercises)
-- `cl-fi-align-self` — align-self & order. align-self end (2 exercises)
-- `cl-fi-exam` — Exam: flex items. Exam. grow (4 exercises)
+- `cl-fi-grow` — flex-grow (2 exercises)
+- `cl-fi-shrink-basis` — shrink & basis (3 exercises)
+- `cl-fi-align-self` — align-self & order (2 exercises)
+- `cl-fi-exam` — Exam: flex items [exam] (4 exercises)
 
 ### `flex-recipes` — Flex patterns
 
-- `cl-fr-nav` — Navbar pattern. Typical navbar: (2 exercises)
-- `cl-fr-cards` — Card row. Cards in a wrapping row: (2 exercises)
-- `cl-fr-exam` — Exam: flex recipes. Exam. navbar often uses: (4 exercises)
+- `cl-fr-nav` — Navbar pattern (2 exercises)
+- `cl-fr-cards` — Card row (2 exercises)
+- `cl-fr-exam` — Exam: flex recipes [exam] (4 exercises)
 
 ### `grid-core` — Grid core
 
-- `cl-g-display` — Grid container. grid container (3 exercises)
-- `cl-g-gap-minmax` — gap, minmax, repeat. gap (3 exercises)
-- `cl-g-rows` — Rows & auto. template rows (2 exercises)
-- `cl-grid-core-exam` — Exam: grid core. Exam. display grid (5 exercises)
+- `cl-g-display` — Grid container (3 exercises)
+- `cl-g-gap-minmax` — gap, minmax, repeat (3 exercises)
+- `cl-g-rows` — Rows & auto (2 exercises)
+- `cl-grid-core-exam` — Exam: grid core [exam] (5 exercises)
 
 ### `grid-placement` — Grid placement
 
-- `cl-gp-lines` — Line-based placement. column span start/end (2 exercises)
-- `cl-gp-areas` — grid-template-areas. Named areas pattern: (2 exercises)
-- `cl-gp-autofit` — auto-fit / auto-fill. auto-fit with minmax is often for: (2 exercises)
-- `cl-gp-exam` — Exam: placement. Exam. span (4 exercises)
+- `cl-gp-lines` — Line-based placement (2 exercises)
+- `cl-gp-areas` — grid-template-areas (2 exercises)
+- `cl-gp-autofit` — auto-fit / auto-fill (2 exercises)
+- `cl-gp-exam` — Exam: placement [exam] (4 exercises)
 
 ### `grid-responsive` — Responsive grid
 
-- `cl-gr-media` — Media + grid. Typical responsive: (2 exercises)
-- `cl-gr-clamp` — clamp intro. clamp(min, preferred, max): (2 exercises)
-- `cl-gr-exam` — Exam: responsive. Exam. media queries adjust: (4 exercises)
+- `cl-gr-media` — Media + grid (2 exercises)
+- `cl-gr-clamp` — clamp intro (2 exercises)
+- `cl-gr-exam` — Exam: responsive [exam] (4 exercises)
 
 ### `choose-tool` — Flex vs Grid
 
-- `cl-ct-when` — When to choose what. Flex is best for: (2 exercises)
-- `cl-ct-nested` — Nested layouts. Common pattern: (2 exercises)
-- `cl-ct-exam` — Exam: choose tool. Exam. 1D UI chrome: (4 exercises)
+- `cl-ct-when` — When to choose what (2 exercises)
+- `cl-ct-nested` — Nested layouts (2 exercises)
+- `cl-ct-exam` — Exam: choose tool [exam] (4 exercises)
 
 ### `applied_responsive_troubleshooting` — Applied: Layout Troubleshooting & Responsive Patterns
 
-- `css-dbg-flex-overflow` — Debug Flexbox: text truncation & min-width: 0. Fix text-overflow ellipsis inside flex item (3 exercises)
-- `css-dbg-grid-auto-fit` — Responsive grid: auto-fit vs auto-fill with minmax. Create responsive columns without media queries (2 exercises)
-- `css-dbg-stacking-context` — Debug z-index: stacking contexts & sticky containment. Why z-index: 9999 fails to overlap outside element (2 exercises)
-- `css-app-cumulative-task` — Applied task: responsive multi-panel layout. Responsive dashboard CSS: mobile stacked → desktop columns (2 exercises)
-- `css-app-exam` — Exam: layout troubleshooting. Exam. Which CSS Grid unit represents a fraction of available free space? (4 exercises)
+- `css-dbg-flex-overflow` — Debug Flexbox: text truncation & min-width: 0 (3 exercises)
+- `css-dbg-grid-auto-fit` — Responsive grid: auto-fit vs auto-fill with minmax (2 exercises)
+- `css-dbg-stacking-context` — Debug z-index: stacking contexts & sticky containment (2 exercises)
+- `css-app-cumulative-task` — Applied task: responsive multi-panel layout (2 exercises)
+- `css-app-exam` — Exam: layout troubleshooting [exam] (4 exercises)
+
+### `modern_css_resilience` — Cascade Layers, Container Queries, Tokens & Overflow Resilience
+
+- `cl-layers-tokens` — @layer, design tokens & logical properties (2 exercises)
+- `cl-container-overflow` — @container queries, fluid typography, reduced motion & overflow (3 exercises)
+- `cl-mod-exam` — Exam: modern resilient CSS [exam] (4 exercises)
 
 ### `capstone` — Capstone
 
-- `cl-capstone-dashboard` — Dashboard shell. Layout: .page display:grid areas header/nav/main; .nav display:flex. HTML: header, nav, main. README: flex vs grid. (1 exercises)
-- `cl-cap-exam` — Final exam. Exam. flex (6 exercises)
+- `cl-capstone-dashboard` — Dashboard shell (1 exercises)
+- `cl-cap-exam` — Final exam [exam] (6 exercises)
 
 ## Depth now
 
-- Units: 10
-- Lessons: 38
-- Exams: 10
-- Free non-exam lessons after the freemium pass: 6
-- Exercise types in the seed: code_fill, code_order, code_project, code_read, match, mcq
+- Units: 11
+- Lessons: 41
+- Exams: 11
+- Free non-exam lessons: 6
+- Exercise types in seed: code_fill, code_order, code_project, code_read, match, mcq
 
-Depth here is the seeded player, not a lab you run on a VM. A lesson covers the point in its bullet. It does not add topics that are absent from that bullet.
+## References
 
-## Not in this course
+- MDN CSS Cascade, Layout & Container Queries: https://developer.mozilla.org/
 
-Semantic landmarks and form accessibility. Those live in html_semantics.

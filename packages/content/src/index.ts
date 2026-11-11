@@ -16,6 +16,13 @@ import { expressFundamentalsContent as expressFundamentalsRaw } from "./express-
 import { embeddedCppContent as embeddedCppRaw } from "./embedded-cpp.js";
 import { sysadminContent as sysadminRaw } from "./sysadmin.js";
 import { devopsContent as devopsRaw } from "./devops/index.js";
+import { softwareTestingContent as softwareTestingRaw } from "./software-testing.js";
+import { postgresqlAppsContent as postgresqlAppsRaw } from "./postgresql-apps.js";
+import { gitWorkflowsContent as gitWorkflowsRaw } from "./git-workflows.js";
+import { webSecurityContent as webSecurityRaw } from "./web-security.js";
+import { aiDevelopmentContent as aiDevelopmentRaw } from "./ai-development.js";
+import { nextjsFullstackContent as nextjsFullstackRaw } from "./nextjs-fullstack.js";
+import { appliedAlgorithmsContent as appliedAlgorithmsRaw } from "./applied-algorithms.js";
 import { normalizeCourseLocales } from "./locale-normalize.js";
 
 /** Skill tracks: promptEn filled via skill-prompt-en map when missing in source. */
@@ -37,6 +44,13 @@ export const expressFundamentalsContent = normalizeCourseLocales(expressFundamen
 export const embeddedCppContent = normalizeCourseLocales(embeddedCppRaw);
 export const sysadminContent = normalizeCourseLocales(sysadminRaw);
 export const devopsContent = normalizeCourseLocales(devopsRaw);
+export const softwareTestingContent = normalizeCourseLocales(softwareTestingRaw);
+export const postgresqlAppsContent = normalizeCourseLocales(postgresqlAppsRaw);
+export const gitWorkflowsContent = normalizeCourseLocales(gitWorkflowsRaw);
+export const webSecurityContent = normalizeCourseLocales(webSecurityRaw);
+export const aiDevelopmentContent = normalizeCourseLocales(aiDevelopmentRaw);
+export const nextjsFullstackContent = normalizeCourseLocales(nextjsFullstackRaw);
+export const appliedAlgorithmsContent = normalizeCourseLocales(appliedAlgorithmsRaw);
 
 export { FLASHCARD_DECKS } from "./flashcards.js";
 export type { CourseContent, UnitContent, LessonContent, Exercise } from "./types.js";

@@ -1,5 +1,5 @@
 import type { CourseContent } from "./types.js";
-import { exam, lesson, matchEx, mcq, unit } from "./builders.js";
+import { codeOrderAuto, exam, lesson, matchEx, mcq, unit, why } from "./builders.js";
 
 const foundations = unit("foundations", "Основи якості", "Quality foundations", [
   lesson(
@@ -1697,6 +1697,119 @@ const appliedQaScenarios = unit(
   ],
 );
 
+const riskPlansRequirements = unit(
+  "risk_plans_requirements",
+  "Вимоги, ризик-аналіз, тест-план і баг-репорт для ForgeBoard",
+  "Requirements, Risk Assessment, Test Plans & Reproducible Bug Reports",
+  [
+    lesson(
+      "qt-req-risk-plan",
+      "Від вимог і ризиків до конкретного тест-плану",
+      "From written requirements & risk matrix to a test plan",
+      3,
+      false,
+      [
+        mcq(
+          "qt-rpr1",
+          "Вимога ForgeBoard: «Користувач може редагувати лише власні задачі; заголовок 1..120 символів». Який ризик має найвищий пріоритет у тест-плані?",
+          "Requirement: 'Users can edit only their own tasks; title 1..120 chars.' Which risk gets top priority in the test plan?",
+          [
+            "Порушення доступу (IDOR: інший користувач змінює чужу задачу) та пошкодження даних при граничній довжині",
+            "Колір іконки олівця на кнопці редагування",
+            "Шрифт у футері",
+            "Розмір favicon",
+          ],
+          0,
+          why(
+            "Ризик-орієнтований тест-план ставить у пріоритет безпеку (authz) і цілісність даних.",
+            "Risk-based test planning prioritizes authorization boundaries and data integrity first.",
+          ),
+        ),
+        matchEx(
+          "qt-rpr2",
+          "Зіставте секцію тест-плану з її конкретним змістом для ForgeBoard",
+          "Match test plan section to concrete ForgeBoard content",
+          [
+            { left: "Scope / In-scope", right: "CRUD задач, фільтрація, перевірка власника (401/403)" },
+            { left: "Test data / Fixtures", right: "Користувач A (власник), користувач B, межові заголовки 0/1/120/121" },
+            { left: "Exit criteria", right: "Усі high-risk authz та API/UI регресійні перевірки зелені" },
+          ],
+        ),
+        codeOrderAuto(
+          "qt-rpr3",
+          "Послідовність створення відтворюваного баг-репорту",
+          "Sequence for writing a reproducible bug report",
+          "text",
+          [
+            "1. Зафіксувати точне середовище (commit/версія, браузер/ОС, роль користувача)",
+            "2. Надати мінімальні передумови та покроковий сценарій відтворення",
+            "3. Протиставити Expected (з вимоги) vs Actual (статус, скріншот, лог/requestId)",
+            "4. Вказати severity, scope впливу та запропонований регресійний кейс",
+          ],
+          why(
+            "Відтворювані кроки й контраст Expected/Actual дозволяють розробнику швидко локалізувати і полагодити дефект.",
+            "Deterministic steps and Expected vs Actual contrast let engineers reproduce and fix defects fast.",
+          ),
+        ),
+      ],
+    ),
+    exam("qt-rpr-exam", "Контрольна: ризик-планування та баг-репорти", "Exam: test strategy & bug reports", 3, [
+      mcq(
+        "qt-rpre1",
+        "Чим вимірюється якість тест-плану перед початком автоматизації?",
+        "What makes a test plan actionable before writing automated tests?",
+        [
+          "Пряма трасованість до вимог, матриця ризиків (impact × likelihood) та чіткі вхідні/вихідні критерії",
+          "Кількість кольорів у таблиці",
+          "Перелік усіх бібліотек із package.json",
+          "Заборона будь-яких негативних кейсів",
+        ],
+        0,
+        why("Трасованість і ризики гарантують, що ми не пропустимо критичні шляхи.", "Requirements traceability and risk ranking focus effort on critical paths."),
+      ),
+      mcq(
+        "qt-rpre2",
+        "Яка інформація в баг-репорті критична для діагностики міжфронтового збою?",
+        "Which evidence in a bug report best narrows a cross-stack failure?",
+        [
+          "HTTP статус + payload помилки з Network tab та `requestId` серверного логу поряд із кроками відтворення",
+          "Лише фраза «кнопка не працює»",
+          "Тільки версія Node без кроків",
+          "Порожній скріншот робочого столу",
+        ],
+        0,
+        why("Зв'язок UI-дії з HTTP-відповіддю й `requestId` миттєво вказує на шар дефекту.", "Pairing UI steps with HTTP status and `requestId` isolates the failing layer immediately."),
+      ),
+      mcq(
+        "qt-rpre3",
+        "Вимога: «пошук не враховує регістр і ігнорує пробіли по краях». Які кейси покривають це без зайвого шуму?",
+        "Requirement: 'search is case-insensitive and trims outer whitespace.' Which cases verify it cleanly?",
+        [
+          "`'  Login  '` знаходить `'Fix login bug'`, а порожній запит `'   '` показує весь список",
+          "Перевіряти лише `'a'` 50 разів",
+          "Пропускати пробіли в тестах",
+          "Перевіряти тільки колір інпуту",
+        ],
+        0,
+        why("Обидві поведінкові умови (регістр + trim + порожній стан) перевіряються двома точними кейсами.", "Testing case folding, whitespace trim, and empty-input reset covers the contract cleanly."),
+      ),
+      mcq(
+        "qt-rpre4",
+        "Чому в одному середовищі з'являється баг «іноді зникає задача після швидкого пошуку»? Що має додати QA у репорт?",
+        "An intermittent bug drops task rows during fast typing. What should QA include in the bug report?",
+        [
+          "Таймінг (швидкий послідовний ввід 2 запитів), мережевий запис (Network waterfall) та спостереження, що 1-й повільний запит перекрив 2-й",
+          "Перезавантажити комп'ютер і не реєструвати",
+          "Вказати severity Low без кроків",
+          "Припустити, що винен DNS",
+        ],
+        0,
+        why("Для race conditions ключовими є послідовність подій та порядок відповідей у мережі.", "Concurrency/race bugs require capturing event timing and response ordering."),
+      ),
+    ]),
+  ],
+);
+
 const capstone = unit("capstone", "Capstone case", "Capstone case", [
   lesson(
     "qt-cap-feature",
@@ -1772,6 +1885,7 @@ export const qaTheoryContent: CourseContent = {
     automation,
     metrics,
     appliedQaScenarios,
+    riskPlansRequirements,
     capstone,
   ],
 };

@@ -1,0 +1,18 @@
+diff --git a/src/review-target.ts b/src/review-target.ts
+--- a/src/review-target.ts
++++ b/src/review-target.ts
+@@ -1,5 +1,18 @@
++// AI Candidate Proposal (contains subtle defects!):
+ export function parseLimit(raw: unknown): number {
++  // Defect 1: allows floats, negatives, and silently accepts "abc" -> 20
+   return Math.min(Number(raw) || 20, 50);
+ }
++
+ export async function safeSaveTaskNote(store: { write: (id: number, n: string) => Promise<void> }, id: number, note: string) {
++  try {
++    await store.write(id, note);
++  } catch {
++    return { ok: true }; // Defect 2: lies on failure + unescaped HTML
++  }
++  return { ok: true };
+ }

@@ -24,6 +24,13 @@ const uk = {
     embedded_cpp: "Embedded C++ · MilTech",
     sysadmin: "Сисадмін",
     devops: "DevOps",
+    software_testing: "Практичне тестування ПЗ",
+    postgresql_apps: "PostgreSQL для вебдодатків",
+    git_workflows: "Git та командні воркфлоу",
+    web_security: "Безпечні вебдодатки",
+    ai_development: "AI-асистована розробка",
+    nextjs_fullstack: "Full-Stack на Next.js",
+    applied_algorithms: "Прикладні алгоритми",
   },
   nav: {
     home: "Головна",
@@ -771,6 +778,26 @@ const uk = {
     f6d: "Озвучка й practice speaking у браузері.",
     apiDocs: "API docs",
   },
+  labs: {
+    badge: "Локальна практика",
+    noMasteryNote:
+      "Локальні результати не додають XP, життів і не зараховуються як складені контрольні. Зарахування лишається на сервері.",
+    downloadStarter: "Завантажити стартовий архів",
+    runtime: "Середовище",
+    prerequisites: "Передумови",
+    setupTitle: "Встановлення та запуск",
+    testTitle: "Перевірка локально",
+    windowsNotes: "Підказка для Windows (PowerShell)",
+    rubricTitle: "Критерії прийняття",
+    failuresTitle: "Типові збої та відновлення",
+    milestoneLabel: "Етап ForgeBoard",
+    hasLabChip: "Локальна лаба",
+  },
+  roadmap: {
+    prerequisites: "Рекомендовано перед курсом",
+    nextCourses: "Далі за маршрутом",
+    fullStackTitle: "Full-stack маршрут (ForgeBoard)",
+  },
 };
 
 export type UiDict = typeof uk;
@@ -797,6 +824,13 @@ const en: UiDict = {
     embedded_cpp: "Embedded C++ · MilTech",
     sysadmin: "Sysadmin",
     devops: "DevOps",
+    software_testing: "Practical Software Testing",
+    postgresql_apps: "PostgreSQL for Web Apps",
+    git_workflows: "Git & Team Workflows",
+    web_security: "Secure Web Applications",
+    ai_development: "AI-Assisted Development",
+    nextjs_fullstack: "Full-Stack Next.js",
+    applied_algorithms: "Applied Algorithms",
   },
   nav: {
     home: "Home",
@@ -1543,6 +1577,26 @@ const en: UiDict = {
     f6t: "Pronunciation",
     f6d: "Browser TTS and speaking practice.",
     apiDocs: "API docs",
+  },
+  labs: {
+    badge: "Local practice",
+    noMasteryNote:
+      "Local lab test results do not grant verified XP, hearts, or exam passes. Server-graded checkpoints keep normal rewards.",
+    downloadStarter: "Download starter bundle",
+    runtime: "Supported runtime",
+    prerequisites: "Prerequisites",
+    setupTitle: "Setup & install",
+    testTitle: "Run local checks",
+    windowsNotes: "Windows setup notes (PowerShell)",
+    rubricTitle: "Acceptance criteria",
+    failuresTitle: "Common failures & recovery",
+    milestoneLabel: "ForgeBoard milestone",
+    hasLabChip: "Local lab",
+  },
+  roadmap: {
+    prerequisites: "Recommended prerequisites",
+    nextCourses: "Next in path",
+    fullStackTitle: "Full-stack roadmap (ForgeBoard)",
   },
 };
 

@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
-import { filterDiscoveryTools } from "@eduforge/shared";
+import { filterDiscoveryTools, pickLocale } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
@@ -17,7 +16,14 @@ function SearchInner() {
   const params = useSearchParams();
   const [q, setQ] = useState(params.get("q") ?? "");
   const [courses, setCourses] = useState<
-    { slug: string; titleUk: string; descriptionUk: string; icon: string }[]
+    {
+      slug: string;
+      titleUk: string;
+      titleEn?: string | null;
+      descriptionUk: string;
+      descriptionEn?: string | null;
+      icon: string;
+    }[]
   >([]);
   const [users, setUsers] = useState<
     { userId: string; displayName: string; globalLevel: number; email: string }[]
@@ -132,8 +138,10 @@ function SearchInner() {
           {courses.map((c) => (
             <Link key={c.slug} href={`/courses/${c.slug}`} className="card block hover:border-brand/40">
               <span className="text-2xl mr-2">{c.icon}</span>
-              <span className="font-black">{c.titleUk}</span>
-              <p className="text-sm text-ink-muted mt-1">{c.descriptionUk}</p>
+              <span className="font-black">{pickLocale(locale, c.titleUk, c.titleEn)}</span>
+              <p className="text-sm text-ink-muted mt-1">
+                {pickLocale(locale, c.descriptionUk, c.descriptionEn)}
+              </p>
             </Link>
           ))}
         </section>

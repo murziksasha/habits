@@ -19,6 +19,13 @@ export const COURSE_SLUGS = [
   "embedded_cpp",
   "sysadmin",
   "devops",
+  "software_testing",
+  "postgresql_apps",
+  "git_workflows",
+  "web_security",
+  "ai_development",
+  "nextjs_fullstack",
+  "applied_algorithms",
 ] as const;
 
 export type CourseSlug = (typeof COURSE_SLUGS)[number];
@@ -61,6 +68,13 @@ export const COURSE_GROUP: Record<CourseSlug, CourseGroup> = {
   embedded_cpp: "deep",
   sysadmin: "skill",
   devops: "skill",
+  software_testing: "deep",
+  postgresql_apps: "deep",
+  git_workflows: "deep",
+  web_security: "deep",
+  ai_development: "deep",
+  nextjs_fullstack: "deep",
+  applied_algorithms: "deep",
 };
 
 export const COURSE_GROUP_META: Record<
@@ -325,6 +339,90 @@ export const COURSE_META: Record<
     color: "#4B5320",
     group: "deep",
   },
+  software_testing: {
+    slug: "software_testing",
+    titleUk: "Практичне тестування ПЗ",
+    titleEn: "Practical Software Testing",
+    descriptionUk:
+      "Вимоги, Vitest, межові кейси й фікстури, тести React-компонентів, API/DB інтеграція, Playwright і CI.",
+    descriptionEn:
+      "Testable requirements, Vitest unit tests, boundary cases & fixtures, React component tests, API/DB integration, Playwright & CI.",
+    icon: "🧪",
+    color: "#0F766E",
+    group: "deep",
+  },
+  postgresql_apps: {
+    slug: "postgresql_apps",
+    titleUk: "PostgreSQL для вебдодатків",
+    titleEn: "PostgreSQL for Web Applications",
+    descriptionUk:
+      "Реляційне моделювання, обмеження й міграції, параметризований CRUD, JOIN, пагінація, транзакції та індекси.",
+    descriptionEn:
+      "Relational modeling, constraints & migrations, parameterized CRUD, joins & pagination, transactions, and indexes/EXPLAIN.",
+    icon: "🐘",
+    color: "#336791",
+    group: "deep",
+  },
+  git_workflows: {
+    slug: "git_workflows",
+    titleUk: "Git та командні воркфлоу",
+    titleEn: "Git and Team Workflows",
+    descriptionUk:
+      "Історія репозиторію, гілки й атомарні коміти, розв'язання конфліктів, код-рев'ю та релізні процеси.",
+    descriptionEn:
+      "Repository history, branches & clean commits, conflict resolution, code reviews, recovery, and release workflows.",
+    icon: "🌿",
+    color: "#F05032",
+    group: "deep",
+  },
+  web_security: {
+    slug: "web_security",
+    titleUk: "Безпечні вебдодатки",
+    titleEn: "Secure Web Applications",
+    descriptionUk:
+      "Межі довіри, валідація й екранування, сесії, авторизація й ownership, CSP/CORS/CSRF, секрети й залежності (OWASP 2025).",
+    descriptionEn:
+      "Trust boundaries, input validation & output handling, sessions, authorization, browser security, and dependency/config hygiene (OWASP 2025).",
+    icon: "🛡️",
+    color: "#DC2626",
+    group: "deep",
+  },
+  ai_development: {
+    slug: "ai_development",
+    titleUk: "AI-асистована розробка",
+    titleEn: "AI-Assisted Development",
+    descriptionUk:
+      "Специфікація задач, вибір контексту, малі дифи, верифікація й рев'ю коду, приватність та аудит залежностей.",
+    descriptionEn:
+      "Task specification, context selection, small diffs, verification & debugging, privacy, and dependency review.",
+    icon: "🤖",
+    color: "#6366F1",
+    group: "deep",
+  },
+  nextjs_fullstack: {
+    slug: "nextjs_fullstack",
+    titleUk: "Full-Stack на Next.js",
+    titleEn: "Full-Stack Applications with Next.js",
+    descriptionUk:
+      "Маршрутизація App Router, межі Server/Client, доступ до даних, мутації, авторизація, кешування й діагностика.",
+    descriptionEn:
+      "App Router routing, server/client boundaries, data access, mutations, identity & authz, caching/errors, and deployment diagnostics.",
+    icon: "▲",
+    color: "#111827",
+    group: "deep",
+  },
+  applied_algorithms: {
+    slug: "applied_algorithms",
+    titleUk: "Прикладні алгоритми та структури даних",
+    titleEn: "Applied Algorithms & Data Structures",
+    descriptionUk:
+      "Складність, Map/Set/індекси, стеки й черги, пошук і сортування, дерева й обходи та вимірювані компроміси.",
+    descriptionEn:
+      "Complexity analysis, collections, stacks & queues, searching & sorting, trees & traversal, and measurable application tradeoffs.",
+    icon: "📐",
+    color: "#D97706",
+    group: "deep",
+  },
 };
 
 /** Hub path for deep tracks / code (fallback /courses/:slug) */
@@ -340,8 +438,86 @@ export const COURSE_HUB_HREF: Partial<Record<CourseSlug | string, string>> = {
   node_fundamentals: "/node-fundamentals",
   express_fundamentals: "/express-fundamentals",
   embedded_cpp: "/embedded-cpp",
+  software_testing: "/software-testing",
+  postgresql_apps: "/postgresql-apps",
+  git_workflows: "/git-workflows",
+  web_security: "/web-security",
+  ai_development: "/ai-development",
+  nextjs_fullstack: "/nextjs-fullstack",
+  applied_algorithms: "/applied-algorithms",
   chess: "/play",
 };
+
+/** Canonical full-stack progression across EduForge courses. */
+export const FULL_STACK_ROADMAP_ORDER: readonly CourseSlug[] = [
+  "programming",
+  "html_semantics",
+  "css_layout",
+  "git_workflows",
+  "js_fundamentals",
+  "typescript",
+  "react_fundamentals",
+  "node_fundamentals",
+  "express_fundamentals",
+  "postgresql_apps",
+  "software_testing",
+  "web_security",
+  "ai_development",
+  "nextjs_fullstack",
+  "applied_algorithms",
+  "sysadmin",
+  "devops",
+] as const;
+
+export const COURSE_PREREQUISITES: Partial<Record<CourseSlug, readonly CourseSlug[]>> = {
+  html_semantics: ["programming"],
+  css_layout: ["programming", "html_semantics"],
+  git_workflows: ["programming"],
+  js_fundamentals: ["programming", "html_semantics", "css_layout"],
+  typescript: ["js_fundamentals"],
+  react_fundamentals: ["js_fundamentals", "typescript"],
+  node_fundamentals: ["js_fundamentals"],
+  express_fundamentals: ["node_fundamentals"],
+  sql_fundamentals: ["programming"],
+  postgresql_apps: ["express_fundamentals", "sql_fundamentals"],
+  qa_theory: ["programming"],
+  software_testing: ["js_fundamentals", "react_fundamentals", "express_fundamentals"],
+  web_security: ["express_fundamentals", "postgresql_apps"],
+  ai_development: ["typescript", "git_workflows", "software_testing"],
+  nextjs_fullstack: ["react_fundamentals", "express_fundamentals", "postgresql_apps"],
+  applied_algorithms: ["js_fundamentals", "typescript"],
+  devops: ["sysadmin", "express_fundamentals", "postgresql_apps", "software_testing"],
+};
+
+export const COURSE_NEXT_MAP: Partial<Record<CourseSlug, readonly CourseSlug[]>> = {
+  programming: ["html_semantics", "css_layout", "git_workflows", "js_fundamentals"],
+  html_semantics: ["css_layout", "js_fundamentals"],
+  css_layout: ["js_fundamentals", "react_fundamentals"],
+  git_workflows: ["js_fundamentals", "ai_development"],
+  js_fundamentals: ["typescript", "react_fundamentals", "node_fundamentals"],
+  typescript: ["react_fundamentals", "express_fundamentals", "applied_algorithms"],
+  react_fundamentals: ["software_testing", "nextjs_fullstack"],
+  node_fundamentals: ["express_fundamentals", "sysadmin"],
+  express_fundamentals: ["postgresql_apps", "software_testing", "web_security"],
+  sql_fundamentals: ["postgresql_apps"],
+  postgresql_apps: ["software_testing", "web_security", "nextjs_fullstack"],
+  qa_theory: ["software_testing"],
+  software_testing: ["web_security", "ai_development", "devops"],
+  web_security: ["ai_development", "nextjs_fullstack", "devops"],
+  ai_development: ["nextjs_fullstack", "applied_algorithms"],
+  nextjs_fullstack: ["applied_algorithms", "devops"],
+  applied_algorithms: ["devops"],
+  sysadmin: ["devops"],
+  devops: ["applied_algorithms"],
+};
+
+export function getCoursePrerequisites(slug: string): readonly CourseSlug[] {
+  return isCourseSlug(slug) ? COURSE_PREREQUISITES[slug] ?? [] : [];
+}
+
+export function getCourseNextSteps(slug: string): readonly CourseSlug[] {
+  return isCourseSlug(slug) ? COURSE_NEXT_MAP[slug] ?? [] : [];
+}
 
 /** Ordered learning path for the programming course units */
 export const PROGRAMMING_UNIT_ORDER = [

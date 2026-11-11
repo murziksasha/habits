@@ -221,6 +221,77 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
       i: 0,
     },
   ]),
+  teach(
+    "do-forgeboard-delivery-lab",
+    "Лаб: деплой та відновлення ForgeBoard",
+    "Lab: ForgeBoard deploy & recovery",
+    5,
+    "do-forgeboard-delivery-lab",
+    [
+      {
+        t: "mcq",
+        uk: "Застосунок ForgeBoard деплоїться з env-конфігом. Чому не можна залишати DB_URL із fallback на localhost у prod-конфігу?",
+        en: "ForgeBoard deploys with env configuration. Why must production config fail fast instead of falling back DB_URL to localhost?",
+        o: [
+          "Сервіс стартує з хибною адресою і тихо падає пізніше замість негайної зупинки дефектного релізу",
+          "localhost швидший у контейнері",
+          "Docker сам змінює localhost на RDS",
+          "TLS забороняє змінні середовища",
+        ],
+        i: 0,
+        note: why(
+          "Fail-fast конфіг одразу зупиняє дефектний реліз до перемикання трафіку.",
+          "Fail-fast configuration stops a defective release before traffic shifts.",
+        ),
+      },
+      {
+        t: "read",
+        uk: "Діагностуйте failed rollout з логів:",
+        en: "Diagnose the failed rollout from logs:",
+        lang: "text",
+        code: "GET /health -> 503 {\"db\":false,\"error\":\"relation tasks does not exist\"}\nContainer stays restarting on readiness check.",
+        o: [
+          "Новий образ стартував без застосування міграцій БД перед перемиканням трафіку",
+          "Бракує CSS-файлів у nginx",
+          "DNS не резолвить домен",
+          "Проблема лише в розмірі бандлу",
+        ],
+        i: 0,
+        note: why(
+          "Missing table після деплою вказує на невиконаний крок міграції або невірну схему.",
+          "A missing table right after release points to an unapplied migration step or wrong schema.",
+        ),
+      },
+      {
+        t: "order",
+        uk: "Відпрацюйте плановий restore drill PostgreSQL перед релізом:",
+        en: "Order the pre-release PostgreSQL restore drill:",
+        lang: "text",
+        correct: [
+          "Take timestamped dump or snapshot from source DB",
+          "Restore into an isolated scratch Postgres instance",
+          "Run row-count and smoke query checks against ForgeBoard schema",
+          "Record measured RTO/RPO and destroy scratch artifacts",
+        ],
+        note: why(
+          "Ізольований restore drill доводить відновлюваність без ризику для живої БД.",
+          "An isolated restore drill proves recoverability without endangering the live database.",
+        ),
+      },
+      {
+        t: "fill",
+        uk: "Який endpoint перевіряє готовність сервісу та бази перед переключенням трафіку в rollout?",
+        en: "Which probe verifies service + DB readiness before rollout traffic shifts?",
+        lang: "text",
+        code: "GET /___",
+        ok: ["health", "ready"],
+        note: why(
+          "Readiness / health endpoint із перевіркою БД не дає балансувальнику пустити запити на напівмертвий інстанс.",
+          "A DB-aware readiness/health check prevents traffic routing to unready instances.",
+        ),
+      },
+    ],
+  ),
   quiz("do-cap-exam", "Capstone forge-status", "Capstone: forge-status", 5, "do-cap-exam", [
     {
       t: "order",

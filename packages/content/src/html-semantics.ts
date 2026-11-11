@@ -2,12 +2,16 @@ import type { CourseContent, Exercise } from "./types.js";
 import {
   codeFill,
   codeOrder,
+  codeOrderAuto,
+  codeOutputMcq,
+  codeProject,
   codeRead,
   exam,
   lesson,
   matchEx,
   mcq,
   unit,
+  why,
 } from "./builders.js";
 
 const document = unit("document", "Документ", "Document", [
@@ -887,6 +891,176 @@ const appliedAccessibleMarkup = unit(
   ],
 );
 
+const accessibleInteractions = unit(
+  "accessible_interactions",
+  "Доступна валідація, фокус, <dialog> і live regions",
+  "Accessible Validation, Focus, Native <dialog> & Live Regions",
+  [
+    lesson(
+      "hs-a11y-validation",
+      "Доступні помилки форм та асинхронні статус-оголошення",
+      "Accessible form validation & live status announcements",
+      3,
+      false,
+      [
+        mcq(
+          "hs-ai1",
+          "Користувач із screen reader надсилає порожню форму, і текст помилки з'являється під полем. Чого бракує, якщо атрибут `aria-describedby` не підключений?",
+          "A screen-reader user submits an empty form and an error text renders below the input. What is missing without `aria-describedby`?",
+          [
+            "При фокусі на інпуті допоміжна технологія не прочитає прив'язане повідомлення про помилку",
+            "Браузер заблокує подію submit",
+            "CSS не зможе пофарбувати рамку в червоний",
+            "Поле автоматично стане disabled",
+          ],
+          0,
+          why(
+            "Зв'язка `aria-invalid=\"true\"` + `aria-describedby=\"err-id\"` дає screen reader контекст помилки саме в момент фокусу.",
+            "Pairing `aria-invalid=\"true\"` with `aria-describedby=\"err-id\"` announces the error message when the input receives focus.",
+          ),
+        ),
+        codeFill(
+          "hs-ai2",
+          "Додайте атрибут, щоб статус-банер асинхронного збереження задачі оголошувався ввічливо без переривання вводу",
+          "Configure a live region so async task save status announces politely without interrupting typing",
+          "html",
+          '<p id="save-status" role="status" aria-live="___">Saved</p>',
+          ["polite"],
+          true,
+          why(
+            "`aria-live=\"polite\"` (або `role=\"status\"`) чекає паузи мовлення, тоді як `assertive` перериває користувача.",
+            "`aria-live=\"polite\"` waits for speech pause; reserve `assertive` for critical alerts.",
+          ),
+        ),
+        codeRead(
+          "hs-ai3",
+          "Діагностуйте збій доступності: чому кнопка «Деталі» у списку не працює з клавіатури?",
+          "Diagnose the keyboard accessibility failure in this task card:",
+          "html",
+          '<div class="task-card" onclick="openTask(42)">\n  <h3>Fix login bug</h3>\n</div>',
+          [
+            "`<div>` не є фокусованим (`Tab` його пропускає) і не реагує на Enter/Space — потрібен нативний `<button type=\"button\">`",
+            "`onclick` не підтримується в HTML5",
+            "Всередині `<div>` не можна використовувати `<h3>`",
+            "Потрібен атрибут `aria-hidden=\"true\"`",
+          ],
+          0,
+          why(
+            "Використовуйте нативний `<button>` (або `<a>` для навігації), щоб отримати Tab-фокус, Enter/Space і роль автоматично.",
+            "Native `<button>` provides focusability, Enter/Space activation, and semantic role out of the box.",
+          ),
+        ),
+      ],
+    ),
+    lesson(
+      "hs-native-dialog-focus",
+      "Нативний <dialog> і керування фокусом",
+      "Native <dialog> & focus management",
+      3,
+      false,
+      [
+        codeOutputMcq(
+          "hs-ai4",
+          "Яка різниця між `dialog.show()` та `dialog.showModal()` у браузері?",
+          "Predict the difference between `dialog.show()` and `dialog.showModal()`:",
+          "js",
+          "const dlg = document.getElementById('task-modal');\ndlg.showModal();",
+          [
+            "`showModal()` відкриває модальний шар із `::backdrop`, інертом (inert) фонового контенту та підтримкою Esc",
+            "`show()` автоматично видаляє сторінку з історії",
+            "`showModal()` не дозволяє натискати кнопки всередині діалогу",
+            "Вони абсолютно однакові",
+          ],
+          0,
+          why(
+            "`showModal()` робить фон інертним, підтримує `Escape` і повертає фокус на тригер після закриття.",
+            "`showModal()` makes background inert, wires `Escape` close, and restores focus cleanly.",
+          ),
+        ),
+        codeFill(
+          "hs-ai5",
+          "Закрийте нативний `<dialog>` після підтвердження видалення задачі",
+          "Close a native `<dialog>` after confirming task deletion",
+          "js",
+          "dialog.___('confirm');",
+          ["close"],
+          true,
+          why("`dialog.close(returnValue)` закриває діалог і записує `dialog.returnValue`.", "`dialog.close(returnValue)` closes the modal and records `returnValue`."),
+        ),
+        codeOrderAuto(
+          "hs-ai6",
+          "Порядок відновлення фокусу при видаленні елемента списку",
+          "Focus management sequence when deleting the currently focused task row",
+          "text",
+          [
+            "1. Користувач підтверджує видалення в `<dialog>`",
+            "2. Застосунок переміщує фокус на сусідню задачу або на заголовок/кнопку «Додати»",
+            "3. Оновлюється live region (`role=\"status\"`: «Задачу видалено»)",
+            "4. Вузол видаленої задачі прибирається з DOM без втрати фокусу на `<body>`",
+          ],
+          why(
+            "Переміщення фокусу до видалення вузла не дає клавіатурному користувачу загубитися на початку сторінки.",
+            "Moving focus before removing the node prevents keyboard focus from dropping back to `<body>`.",
+          ),
+        ),
+      ],
+    ),
+    exam("hs-ai-exam", "Контрольна: інтерактивна доступність", "Exam: accessible interactions", 3, [
+      mcq(
+        "hs-aie1",
+        "Яка зв'язка атрибутів найкраще описує невалідне поле форми?",
+        "Which attribute pair best communicates an invalid form field and its error message?",
+        [
+          "`aria-invalid=\"true\"` + `aria-describedby=\"error-id\"`",
+          "`placeholder=\"Error\"` + `title=\"bad\"`",
+          "`aria-hidden=\"true\"` + `tabindex=\"-1\"`",
+          "`role=\"presentation\"`",
+        ],
+        0,
+        why("`aria-invalid` сигналізує стан помилки, а `aria-describedby` пов'язує текст пояснення.", "`aria-invalid` flags invalidity and `aria-describedby` links the explanation."),
+      ),
+      codeFill(
+        "hs-aie2",
+        "Вбудований HTML-елемент для модального вікна",
+        "Built-in HTML element for modal dialogs",
+        "html",
+        "<___ id=\"details-modal\" aria-labelledby=\"modal-title\">…</___>",
+        ["dialog"],
+        true,
+        why("Нативний `<dialog>` бере на себе top-layer, backdrop та Esc.", "Native `<dialog>` handles top-layer, backdrop, and Escape."),
+      ),
+      codeRead(
+        "hs-aie3",
+        "Чому встановлювати `tabindex=\"5\"` на кнопки — погана практика?",
+        "Why is positive `tabindex=\"5\"` an accessibility anti-pattern?",
+        "html",
+        '<button tabindex="5">Save</button>',
+        [
+          "Порушує природний порядок навігації по DOM і плутає користувачів клавіатури; краще порядок в HTML або `0`/`-1`",
+          "Браузер ігнорує CSS для tabindex > 0",
+          "tabindex працює лише на `<img>`",
+          "Це заборонено для `<button>`",
+        ],
+        0,
+        why("Позитивний `tabindex` ламає очікуваний порядок Tab-обходу.", "Positive `tabindex` overrides natural DOM tab order unexpectedly."),
+      ),
+      mcq(
+        "hs-aie4",
+        "Який регіон підходить для повідомлення «Задачу додано» після збереження?",
+        "Which live-region pattern fits a non-blocking «Task added» confirmation?",
+        [
+          "`<p role=\"status\" aria-live=\"polite\">`",
+          "`alert()` у циклі",
+          "`aria-hidden=\"true\"`",
+          "`<span tabindex=\"-1\">` без role",
+        ],
+        0,
+        why("`role=\"status\"` + `aria-live=\"polite\"` озвучує статус без переривання користувача.", "`role=\"status\"` with `aria-live=\"polite\"` announces cleanly without stealing focus."),
+      ),
+    ]),
+  ],
+);
+
 const capstone = unit("capstone", "Capstone", "Capstone", [
   lesson(
     "hs-capstone-landing",
@@ -944,6 +1118,38 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
       } as Exercise,
     ],
   ),
+  lesson(
+    "hs-forgeboard-a11y-lab",
+    "ForgeBoard M1: Доступний інтерфейс реєстрації й задач",
+    "ForgeBoard M1: Accessible Task & Settings Interface",
+    4,
+    false,
+    [
+      mcq(
+        "hs-fb1",
+        "У локальній лабі ForgeBoard M1: як пов'язати поле «Назва задачі» з текстом помилки для screen reader?",
+        "In ForgeBoard M1: how do you bind a task title input to its validation error message?",
+        [
+          "`<label for=\"task-title\">` + `aria-describedby=\"task-title-error\"` + `aria-invalid`",
+          "Лише `placeholder` без `<label>`",
+          "`title` атрибут і червона рамка",
+          "Окремий `<div>` без атрибутів",
+        ],
+        0,
+        why("Семантичний `<label>` і `aria-describedby` забезпечують читання і підпису, і помилки.", "Semantic `<label>` plus `aria-describedby` expose both label and error."),
+      ),
+      codeFill(
+        "hs-fb2",
+        "У ForgeBoard M1: додайте підтримку налаштувань зменшення руху в CSS",
+        "In ForgeBoard M1: add reduced-motion media query in CSS",
+        "css",
+        "@media (___: reduce) { * { transition-duration: 0.01ms !important; } }",
+        ["prefers-reduced-motion"],
+        true,
+        why("Користувачі з вестибулярною чутливістю очікують поваги до `prefers-reduced-motion`.", "Respecting `prefers-reduced-motion` prevents unwanted motion for sensitive users."),
+      ),
+    ],
+  ),
   exam("hs-cap-exam", "Фінальна контрольна", "Final exam", 3, [
     mcq("hs-ce1", "main is:", "main is:", ["primary content landmark", "meta", "doctype", "charset"], 0),
     codeFill("hs-ce2", "nav", "nav", "html", "<___>…</___>", ["nav"], true),
@@ -959,9 +1165,9 @@ export const htmlSemanticsContent: CourseContent = {
   titleUk: "HTML: семантика",
   titleEn: "HTML Semantics",
   descriptionUk:
-    "Семантична верстка: landmarks, outline, forms a11y, media, ARIA. Контрольні після розділів.",
+    "Семантична верстка: landmarks, outline, доступні форми й валідація, фокус, <dialog>, live regions та ForgeBoard M1.",
   descriptionEn:
-    "Semantic markup: landmarks, outline, accessible forms, media, ARIA. Unit exams included.",
+    "Semantic markup: landmarks, outline, accessible forms & validation, focus management, native <dialog>, live regions, and ForgeBoard M1.",
   icon: "🌐",
   color: "#E34F26",
   units: [
@@ -974,6 +1180,7 @@ export const htmlSemanticsContent: CourseContent = {
     interactive,
     a11y,
     appliedAccessibleMarkup,
+    accessibleInteractions,
     capstone,
   ],
 };

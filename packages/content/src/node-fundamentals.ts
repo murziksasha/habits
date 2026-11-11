@@ -2,12 +2,16 @@ import type { CourseContent, Exercise } from "./types.js";
 import {
   codeFill,
   codeOrder,
+  codeOrderAuto,
+  codeOutputMcq,
+  codeProject,
   codeRead,
   exam,
   lesson,
   matchEx,
   mcq,
   unit,
+  why,
 } from "./builders.js";
 
 const runtime = unit("runtime", "Node runtime", "Node runtime", [
@@ -432,11 +436,11 @@ const nodeResilienceScenarios = unit(
           "Node.js Event Loop phases in order",
           "text",
           [
-            "1. Timers (setTimeout, setInterval)",
-            "2. Pending callbacks (системні I/O операції)",
             "3. Poll (отримання нових I/O подій)",
-            "4. Check (setImmediate)",
+            "1. Timers (setTimeout, setInterval)",
             "5. Close callbacks (socket.on('close'))",
+            "2. Pending callbacks (системні I/O операції)",
+            "4. Check (setImmediate)",
           ],
           [
             "1. Timers (setTimeout, setInterval)",
@@ -445,6 +449,10 @@ const nodeResilienceScenarios = unit(
             "4. Check (setImmediate)",
             "5. Close callbacks (socket.on('close'))",
           ],
+          why(
+            "libuv проходить фази циклічно: Timers → Pending → Poll (очікування I/O) → Check (setImmediate) → Close.",
+            "libuv cycles through phases: Timers → Pending → Poll (I/O) → Check (setImmediate) → Close.",
+          ),
         ),
       ],
     ),
@@ -632,15 +640,223 @@ const eventsU = unit("events_streams", "Events & streams", "Events & streams", [
   ),
 ]);
 
+const productionPatternsU = unit(
+  "production_patterns",
+  "Конфіг, скасування та сервісні патерни",
+  "Config Validation, Cancellation & Service Reliability",
+  [
+    lesson(
+      "nf-config-shutdown",
+      "Fail-fast конфіг, AbortController та graceful shutdown",
+      "Fail-fast config, AbortController & graceful shutdown",
+      3,
+      false,
+      [
+        mcq(
+          "nf-prod-1",
+          "Чому сервіс повинен валідувати `process.env` одразу при старті (fail-fast), а не в момент першого запиту?",
+          "Why should a Node service validate `process.env` at startup (fail-fast) rather than on first request?",
+          [
+            "Щоб процес упав негайно при старті контейнера до перемикання трафіку, замість прихованих 500 на проді",
+            "Щоб зменшити розмір node_modules",
+            "Тому що Node.js забороняє читати process.env усередині функцій",
+            "Щоб автоматично створювати базу даних",
+          ],
+          0,
+          why(
+            "Проблеми з відсутнім DATABASE_URL або AUTH_SECRET мають блокувати деплой під час старту.",
+            "Missing secrets or ports should fail healthchecks before traffic reaches the instance.",
+          ),
+        ),
+        codeOutputMcq(
+          "nf-prod-2",
+          "Передбачте поведінку: що станеться з fetch, коли спрацює AbortSignal.timeout(50)?",
+          "Predict: what happens when `AbortSignal.timeout(50)` fires while `fetch` is still pending?",
+          "js",
+          "const res = await fetch(url, { signal: AbortSignal.timeout(50) });",
+          [
+            "Promise відхилиться з TimeoutError / AbortError і звільнить з'єднання",
+            "fetch поверне порожній рядок зі статусом 200",
+            "Node.js поставить процес на паузу на 50 секунд",
+            "Таймер проігнорується, якщо сервер відповідає 500",
+          ],
+          0,
+          why(
+            "Таймаути через AbortSignal запобігають зависанню сокетів при повільному upstream.",
+            "AbortSignal timeouts cancel pending I/O so slow upstreams do not exhaust sockets.",
+          ),
+        ),
+        codeFill(
+          "nf-prod-3",
+          "Виправте збій: додайте перевірку структурованого JSON-логу та примусовий тайм-аут завершення при SIGTERM",
+          "Repair the shutdown: add structured JSON log and unref'd safety timer on SIGTERM",
+          "js",
+          "const timer = setTimeout(() => process.exit(1), 5000);\ntimer.___();",
+          ["unref"],
+          true,
+          why(
+            "`timer.unref()` дозволяє процесу вийти раніше, якщо `server.close()` завершився успішно.",
+            "`timer.unref()` lets Node exit cleanly as soon as `server.close()` finishes draining connections.",
+          ),
+        ),
+      ],
+    ),
+    lesson(
+      "nf-logs-blocking-tests",
+      "Структуровані логи, CPU-робота та інтеграційні тести",
+      "Structured logs, blocking CPU work & node:test",
+      3,
+      false,
+      [
+        codeRead(
+          "nf-prod-4",
+          "Чому важке синхронне хешування або парсинг 50 МБ JSON у роуті ламає сусідній `/health`?",
+          "Why does heavy sync work inside a request handler stall unrelated `/health` probes?",
+          "js",
+          "app.get('/report', (req, res) => {\n  const out = heavySyncSort(millionRows);\n  res.json(out);\n});",
+          [
+            "Головний потік Event Loop один: поки синхронна функція крутиться, жоден інший запит чи таймер не обробляється",
+            "Express блокує порт 4000 під час JSON.stringify",
+            "healthcheck завжди чекає 30 секунд за стандартом HTTP",
+            "V8 очищає всі сокети при масивах понад 1000 елементів",
+          ],
+          0,
+          why(
+            "CPU-інтенсивні задачі виносять у worker_threads, черги або окремі процеси.",
+            "Offload CPU-heavy work to worker_threads or background queues so the event loop stays responsive.",
+          ),
+        ),
+        codeFill(
+          "nf-prod-5",
+          "Створіть структурований JSON-рядок логу з рівнем, подією та `requestId`",
+          "Emit a structured JSON log line with level, msg, and requestId",
+          "js",
+          "console.log(JSON.___({ level: 'info', msg: 'ready', requestId }));",
+          ["stringify"],
+          true,
+          why(
+            "Однорядковий JSON спрощує пошук за `requestId` у системах агрегації логів.",
+            "Single-line JSON enables filtering by `requestId` across log collectors.",
+          ),
+        ),
+        codeProject(
+          "nf-prod-6",
+          "Напишіть міні-сервіс Node із fail-fast перевіркою `PORT`, `AbortSignal.timeout` та тестом на `node:test`.",
+          "Build a predictable Node service helper with fail-fast `PORT` validation, timeout signal, and `node:test` verification.",
+          [
+            {
+              id: "js",
+              name: "service.js",
+              language: "javascript",
+              starter: `export function readConfig(env) {
+  // TODO: validate PORT (1..65535) or throw
+  return { port: 3000 };
+}
+`,
+            },
+            {
+              id: "test",
+              name: "service.test.js",
+              language: "javascript",
+              starter: `import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readConfig } from './service.js';
+
+// TODO: test valid and invalid PORT
+`,
+            },
+          ],
+          [
+            { fileId: "js", contains: ["readConfig", "throw", "Number"] },
+            { fileId: "test", contains: ["test(", "assert", "throws"] },
+          ],
+          {
+            hintUk: "Перевірте Number.isInteger(port) && port >= 1 && port <= 65535; у тесті використайте assert.throws.",
+            hintEn: "Validate Number.isInteger(port) && port >= 1 && port <= 65535; assert failure with assert.throws.",
+          },
+        ),
+      ],
+    ),
+    exam("nf-prod-exam", "Контрольна: надійний Node-сервіс", "Exam: production Node service", 3, [
+      mcq(
+        "nf-pe1",
+        "Коли варто валідувати обов'язкові змінні середовища?",
+        "When should required environment variables be validated?",
+        [
+          "Одразу при старті процесу до прослуховування порту",
+          "Тільки при отриманні POST /login",
+          "У браузерному localStorage",
+          "Після першого SIGKILL",
+        ],
+        0,
+        why("Ранній збій не дозволяє несправному інстансу приймати трафік.", "Early validation keeps broken replicas out of rotation."),
+      ),
+      codeFill(
+        "nf-pe2",
+        "Таймаут скасування зовнішнього запиту",
+        "Timeout cancellation for outbound fetch",
+        "js",
+        "fetch(url, { signal: AbortSignal.___(2000) });",
+        ["timeout"],
+        true,
+        why("AbortSignal.timeout створює сигнал автоскасування.", "AbortSignal.timeout aborts slow requests cleanly."),
+      ),
+      codeRead(
+        "nf-pe3",
+        "Що поверне `readConfig({ PORT: 'abc' })` при строгій валідації?",
+        "What does strict config validation do when `PORT='abc'`?",
+        "js",
+        "const port = Number(env.PORT);\nif (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('invalid_port');",
+        [
+          "Викине помилку `invalid_port` одразу при старті",
+          "Тихо підставить порт 80",
+          "Сконвертує 'abc' у 3000",
+          "Поверне undefined без виключення",
+        ],
+        0,
+        why("Невалідна конфігурація має зупиняти запуск явно.", "Invalid config must fail explicitly rather than falling back silently."),
+      ),
+      codeOrderAuto(
+        "nf-pe4",
+        "Порядок безпечного завершення Node HTTP-сервісу",
+        "Order of graceful Node HTTP shutdown",
+        "text",
+        [
+          "1. Отримати SIGTERM і позначити /ready як not-ready",
+          "2. Викликати server.close(), щоб перестати приймати нові з'єднання",
+          "3. Закрити пул БД та ресурси після завершення активних запитів",
+          "4. Вийти з кодом 0 (або 1 по timeout.unref() запобіжнику)",
+        ],
+        why(
+          "Спочатку знімаємо навантаження та закриваємо сервер, потім звільняємо пули БД.",
+          "Stop accepting new traffic first, finish active requests, then close DB pools.",
+        ),
+      ),
+    ]),
+  ],
+);
+
 export const nodeFundamentalsContent: CourseContent = {
   slug: "node_fundamentals",
   titleUk: "Node.js: fundamentals",
   titleEn: "Node.js Fundamentals",
   descriptionUk:
-    "Runtime, modules, fs/path, env, http server, npm, async, events/streams — deep track + контрольні.",
+    "Runtime, modules, fs/path, env, http server, npm, async, events/streams, стійкість процесів та надійні сервіси — deep track + контрольні.",
   descriptionEn:
-    "Runtime, modules, fs/path, env, http server, npm, async, events/streams — deep track + unit exams.",
+    "Runtime, modules, fs/path, env, http server, npm, async, events/streams, process resilience, and service reliability — deep track + unit exams.",
   icon: "🟢",
   color: "#339933",
-  units: [runtime, modulesU, fsU, envU, httpU, npmU, asyncU, eventsU, capstone],
+  units: [
+    runtime,
+    modulesU,
+    fsU,
+    envU,
+    httpU,
+    npmU,
+    asyncU,
+    eventsU,
+    nodeResilienceScenarios,
+    productionPatternsU,
+    capstone,
+  ],
 };

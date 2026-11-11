@@ -2,7 +2,15 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { firstAvailableLessonHref, pickLocale } from "@eduforge/shared";
+import {
+  COURSE_HUB_HREF,
+  COURSE_META,
+  type CourseSlug,
+  firstAvailableLessonHref,
+  getCourseNextSteps,
+  getCoursePrerequisites,
+  pickLocale,
+} from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
@@ -186,6 +194,49 @@ export function DeepCourseHub({
               </Link>
             )}
           </div>
+          {(() => {
+            const prereqs = getCoursePrerequisites(courseSlug);
+            const nextSteps = getCourseNextSteps(courseSlug);
+            if (!prereqs.length && !nextSteps.length) return null;
+            return (
+              <div className="space-y-1.5 border-t border-slate-200 pt-2 text-xs dark:border-slate-800">
+                {prereqs.length > 0 && (
+                  <p className="flex flex-wrap items-center gap-1.5 text-ink-muted">
+                    <span className="font-bold">{t.roadmap.prerequisites}:</span>
+                    {prereqs.map((pSlug) => {
+                      const meta = COURSE_META[pSlug];
+                      return (
+                        <Link
+                          key={pSlug}
+                          href={COURSE_HUB_HREF[pSlug] ?? `/courses/${pSlug}`}
+                          className="rounded-md bg-slate-100 px-2 py-0.5 font-semibold hover:underline dark:bg-slate-800"
+                        >
+                          {meta.icon} {pickLocale(locale, meta.titleUk, meta.titleEn)}
+                        </Link>
+                      );
+                    })}
+                  </p>
+                )}
+                {nextSteps.length > 0 && (
+                  <p className="flex flex-wrap items-center gap-1.5 text-ink-muted">
+                    <span className="font-bold">{t.roadmap.nextCourses}:</span>
+                    {nextSteps.map((nSlug) => {
+                      const meta = COURSE_META[nSlug];
+                      return (
+                        <Link
+                          key={nSlug}
+                          href={COURSE_HUB_HREF[nSlug] ?? `/courses/${nSlug}`}
+                          className="rounded-md bg-indigo-50 px-2 py-0.5 font-semibold text-indigo-700 hover:underline dark:bg-indigo-950/60 dark:text-indigo-300"
+                        >
+                          {meta.icon} {pickLocale(locale, meta.titleUk, meta.titleEn)} →
+                        </Link>
+                      );
+                    })}
+                  </p>
+                )}
+              </div>
+            );
+          })()}
         </div>
       </section>
 
@@ -275,5 +326,22 @@ export function DeepCourseHub({
         </div>
       ) : null}
     </div>
+  );
+}
+
+/** Shared hub wrapper driven from @eduforge/shared COURSE_META for new full-stack tracks. */
+export function RoadmapCourseHub({ courseSlug }: { courseSlug: CourseSlug }) {
+  const { t, locale } = useLocale();
+  const meta = COURSE_META[courseSlug];
+  return (
+    <DeepCourseHub
+      courseSlug={courseSlug}
+      icon={meta.icon}
+      color={meta.color}
+      title={pickLocale(locale, meta.titleUk, meta.titleEn)}
+      subtitle={pickLocale(locale, meta.descriptionUk, meta.descriptionEn)}
+      backHref="/programming"
+      backLabel={`💻 ${t.nav.programming}`}
+    />
   );
 }

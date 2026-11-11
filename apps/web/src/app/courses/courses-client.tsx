@@ -6,6 +6,7 @@ import {
   COURSE_GROUP_META,
   COURSE_HUB_HREF,
   COURSE_META,
+  isCourseSlugWithLabs,
   pickLocale,
   type CourseGroup,
   type CourseSlug,
@@ -84,6 +85,11 @@ export function CoursesClient() {
                       {c.icon}
                     </div>
                     <div className="flex flex-wrap gap-1 justify-end">
+                      {isCourseSlugWithLabs(slug) && (
+                        <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-black text-indigo-800 dark:bg-indigo-950 dark:text-indigo-200">
+                          💻 Lab
+                        </span>
+                      )}
                       {group === "deep" && (
                         <span className="rounded-full bg-grape/15 px-2 py-0.5 text-[10px] font-black text-grape">
                           Deep

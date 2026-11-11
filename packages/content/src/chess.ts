@@ -1114,6 +1114,89 @@ export const chessContent: CourseContent = {
           ],
         },
       ],
-    }
+    },
+    {
+      slug: "endgame-accuracy-review",
+      titleUk: "Ендшпіль та змішана тактична перевірка",
+      titleEn: "Endgame Principles & Mixed Tactical Review",
+      lessons: [
+        {
+          slug: "king-opposition-passed-pawn",
+          titleUk: "Опозиція королів і прохідний пішак",
+          titleEn: "King Opposition & Passed Pawns",
+          baseXp: 24,
+          difficulty: 3,
+          isFree: false,
+          exercises: [
+            {
+              id: "ch-ear-1",
+              type: "chess_lesson",
+              promptUk: "Тура позаду прохідного пішака та активний король",
+              promptEn: "Rook behind the passed pawn & active king",
+              fen: "8/3P4/8/4k3/8/3K4/8/3R4 w - - 0 1",
+              notesUk:
+                "У туровому ендшпілі ставайте турою позаду прохідного пішака (свого чи суперника): просування пішака лише розширює лінію дії вашої тури.",
+              notesEn:
+                "In rook endgames, place the rook behind the passed pawn (yours or your opponent's): advancing the pawn opens lines for the rook.",
+              quiz: {
+                q: "Де найсильніше тримати туру відносно власного прохідного пішака на 7-й горизонталі?",
+                options: [
+                  "Позаду пішака (щоб не блокувати перетворення і тримати тиск по вертикалі)",
+                  "Безпосередньо попереду пішака на полі перетворення надовго",
+                  "На крайній лінії без зв'язку з пішаком",
+                  "Туру краще завжди розмінювати за коня",
+                ],
+                correctIndex: 0,
+              },
+            },
+            {
+              id: "ch-ear-2",
+              type: "chess_puzzle",
+              promptUk: "Поставте мат турою та королем на останній горизонталі (білий король на e6 тримає поля відступу)",
+              promptEn: "Deliver mate in 1 with king and rook (white king on e6 controls d7/e7/f7)",
+              fen: "4k3/8/4K3/8/8/8/8/R7 w - - 0 1",
+              solutionSans: ["Ra8#"],
+              difficulty: 2,
+            },
+          ],
+        },
+        {
+          slug: "mixed-calculation-checkpoint",
+          titleUk: "Контрольна: точність розрахунку в ендшпілі",
+          titleEn: "Checkpoint: Mixed Endgame Calculation",
+          baseXp: 28,
+          difficulty: 4,
+          isFree: false,
+          isExam: true,
+          passThreshold: 0.7,
+          exercises: [
+            {
+              id: "ch-ear-e1",
+              type: "chess_puzzle",
+              promptUk: "Знайдіть точний матуючий хід по 8-й горизонталі",
+              promptEn: "Find the precise back-rank checkmate",
+              fen: "6k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1",
+              solutionSans: ["Rd8#"],
+              difficulty: 2,
+            },
+            {
+              id: "ch-ear-e2",
+              type: "mcq",
+              promptUk: "Перед ходом у складній позиції що перевіряють першим у порядку форсованості?",
+              promptEn: "Before choosing a move in a sharp position, what do you calculate first?",
+              options: [
+                "Шахи, взяття, прямі загрози мату або виграшу фігури",
+                "Лише симетрію пішаків на ферзевому фланзі",
+                "Історію дебюту без оцінки тактики",
+                "Кількість розіграних партій у рейтингу",
+              ],
+              correctIndex: 0,
+              explanationUk: "Перевірка форсованих відповідей (Checks, Captures, Threats) рятує від зівків тактики в один-два ходи.",
+              explanationEn: "Scanning checks, captures, and forcing threats first catches tactical oversights.",
+            },
+          ],
+        },
+      ],
+    },
   ],
 };

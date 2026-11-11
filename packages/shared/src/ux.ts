@@ -390,6 +390,55 @@ export function discoveryTools(): {
       keywords: "leaderboard rank",
       group: "social",
     },
+    {
+      href: "/software-testing",
+      titleUk: "Практичне тестування ПЗ",
+      titleEn: "Practical Software Testing",
+      keywords: "testing vitest playwright rtl qa software_testing",
+      group: "core",
+    },
+    {
+      href: "/postgresql-apps",
+      titleUk: "PostgreSQL для вебдодатків",
+      titleEn: "PostgreSQL for Web Apps",
+      keywords: "postgres postgresql migrations sql transactions",
+      group: "core",
+    },
+    {
+      href: "/git-workflows",
+      titleUk: "Git та командні воркфлоу",
+      titleEn: "Git and Team Workflows",
+      keywords: "git branch merge conflict pr",
+      group: "core",
+    },
+    {
+      href: "/web-security",
+      titleUk: "Безпечні вебдодатки",
+      titleEn: "Secure Web Applications",
+      keywords: "security owasp xss csrf idor auth",
+      group: "core",
+    },
+    {
+      href: "/ai-development",
+      titleUk: "AI-асистована розробка",
+      titleEn: "AI-Assisted Development",
+      keywords: "ai review diff verification prompt",
+      group: "core",
+    },
+    {
+      href: "/nextjs-fullstack",
+      titleUk: "Full-Stack на Next.js",
+      titleEn: "Full-Stack Next.js",
+      keywords: "nextjs next app router server client",
+      group: "core",
+    },
+    {
+      href: "/applied-algorithms",
+      titleUk: "Прикладні алгоритми",
+      titleEn: "Applied Algorithms",
+      keywords: "algorithms complexity map set tree queue",
+      group: "core",
+    },
   ];
 }
 

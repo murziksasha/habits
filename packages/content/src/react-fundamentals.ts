@@ -2,12 +2,15 @@ import type { CourseContent, Exercise } from "./types.js";
 import {
   codeFill,
   codeOrder,
+  codeOrderAuto,
+  codeProject,
   codeRead,
   exam,
   lesson,
   matchEx,
   mcq,
   unit,
+  why,
 } from "./builders.js";
 
 const intro = unit("intro", "React intro", "React intro", [
@@ -669,6 +672,52 @@ export function Toggle() {
       } as Exercise,
     ],
   ),
+  lesson(
+    "rf-forgeboard-client-lab",
+    "Лаб: багатосторінковий клієнт ForgeBoard (M4)",
+    "Lab: Multi-View ForgeBoard Client (M4)",
+    4,
+    false,
+    [
+      mcq(
+        "rf-fb1",
+        "На дошці ForgeBoard фільтр статусу та рядок пошуку мають зберігатися при копіюванні URL і натисканні кнопки «Назад» у браузері. Де тримати цей стан?",
+        "Filter status and search query on ForgeBoard must survive URL sharing and browser Back navigation. Where should this state live?",
+        [
+          "В URL search parameters (URLSearchParams / router query), а не лише в локальному useState",
+          "Тільки в sessionStorage без оновлення URL",
+          "У глобальній змінній window.__filter",
+          "У CSS custom properties",
+        ],
+        0,
+        why(
+          "URL — єдине джерело правди для фільтрів і навігації: посилання стають відтворюваними, а History API працює нативно.",
+          "Storing filter/search state in URL query parameters makes views shareable and Back/Forward-safe.",
+        ),
+      ),
+      codeProject(
+        "rf-fb2",
+        "Складіть оболонку станів loading/empty/error/retry для ForgeBoard; локальний пакет M4 нижче містить повні React Testing Library перевірки.",
+        "Sketch a loading/empty/error/retry task board view for ForgeBoard; download Milestone 4 below for full React component tests.",
+        [
+          {
+            id: "tsx",
+            name: "BoardView.tsx",
+            language: "tsx",
+            starter: `export function BoardView({ status, tasks, onRetry }) {\n  if (status === "loading") return <p role="status">Loading...</p>;\n  if (status === "error") return <button onClick={onRetry}>Retry</button>;\n  if (tasks.length === 0) return <p>No tasks match filters.</p>;\n  return <ul>{tasks.map((t) => <li key={t.id}>{t.title}</li>)}</ul>;\n}\n`,
+          },
+        ],
+        [
+          { fileId: "tsx", contains: ["role=\"status\"", "onRetry", "tasks.map", "key="] },
+        ],
+        {
+          hintUk: "Завантажте M4 нижче для реальних React Testing Library та accessible form тестів.",
+          hintEn: "Download M4 below to run real React Testing Library & accessible form checks locally.",
+        },
+      ),
+    ],
+    { baseXp: 40 },
+  ),
   exam("rf-cap-exam", "Фінальна контрольна React", "Final React exam", 3, [
     mcq("rf-cae1", "React is:", "React is:", ["UI library", "DB", "OS", "CDN only"], 0),
     codeFill("rf-cae2", "useState", "useState", "tsx", "const [a, setA] = ___(0);", ["useState"], true),
@@ -1017,6 +1066,165 @@ const hooksMore = unit("hooks_more", "Хуки: useRef, useReducer та стан
   ]),
 ]);
 
+const architectureRoutingForms = unit(
+  "architecture_routing_forms",
+  "Архітектура React, роутінг та тестування",
+  "Thinking in React, Routing & Component Tests",
+  [
+    lesson(
+      "rf-arf-thinking-in-react",
+      "Межі компонентів і власність стану (Thinking in React)",
+      "Component Boundaries & State Ownership",
+      3, false, [
+        mcq(
+          "rf-arf1",
+          "У додатку ForgeBoard є пошуковий інпут, чекбокс фільтра та список задач, відфільтрований за обома. Де тримати список `filteredTasks`?",
+          "ForgeBoard has a search input, a status filter, and a task list filtered by both. Where should `filteredTasks` live?",
+          [
+            "Обчислювати напряму під час рендеру з `tasks`, `query` та `status` без окремого `useState` і `useEffect`",
+            "Синхронізувати через три `useEffect` в окремий `useState`",
+            "Зберігати в `window.filteredTasks`",
+            "Дублювати копію масиву в кожному дочірньому компоненті",
+          ],
+          0,
+          why(
+            "Згідно з Thinking in React, похідні значення не зберігають у стані — це усуває розсинхрон і зайві ререндери.",
+            "Following Thinking in React, derive filtered lists during render instead of mirroring state in effects.",
+          ),
+        ),
+        codeRead(
+          "rf-arf2",
+          "Знайдіть причину розсинхрону копії пропсів: Що трапиться, якщо батько переключиться на іншу задачу без `key={task.id}`?",
+          "Diagnose stale prop copy bug: What happens when the parent selects another task without `key={task.id}`?",
+          "tsx",
+          "function TaskEditor({ initialTitle }: { initialTitle: string }) {\n  const [title, setTitle] = useState(initialTitle);\n  return <input value={title} onChange={(e) => setTitle(e.target.value)} />;\n}",
+          [
+            "Інпут показуватиме старий `title` першої задачі, бо `useState(initialTitle)` читається лише при монтуванні",
+            "React автоматично скине `title` при зміні будь-якого prop",
+            "Компонент впаде з ErrorBoundary",
+            "`onChange` перестане працювати",
+          ],
+          0,
+          why(
+            "Передайте `key={task.id}` при зміні сутності або керуйте полем повністю через контрольовані props.",
+            "Reset component state cleanly on entity switch via `key={task.id}` or lift controlled state up.",
+          ),
+        ),
+      ], { baseXp: 24 },
+    ),
+    lesson(
+      "rf-arf-routing-server-state",
+      "Маршрутизація, URL-стан та серверні стани",
+      "Routing, URL State & Resilient Fetching",
+      3, false, [
+        codeOrderAuto(
+          "rf-arf3",
+          "Впорядкуйте стани UI при завантаженні списку з API так, щоб жоден стан не маскував помилку",
+          "Order the UI state checks so empty never masks loading or error",
+          "tsx",
+          [
+            "if (status === \"loading\") return <LoadingBanner />;",
+            "if (status === \"error\") return <ErrorRetry onRetry={reload} />;",
+            "if (items.length === 0) return <EmptyState />;",
+            "return <TaskList items={items} />;",
+          ],
+          why(
+            "Спершу перевіряють loading та error (з кнопкою Retry), і лише коли дані успішно завантажені й порожні — EmptyState.",
+            "Check loading and error with retry before empty state, preventing blank/misleading empty screens on failure.",
+          ),
+        ),
+        mcq(
+          "rf-arf4",
+          "Навіщо в `useEffect` передавати `AbortController` у функцію завантаження даних?",
+          "Why pass an `AbortController` created inside `useEffect` to your fetch call?",
+          [
+            "Щоб при швидкій зміні маршруту чи параметра фільтра скасувати застарілий запит у cleanup",
+            "Щоб перетворити React-компонент на Web Worker",
+            "Щоб обійти валідацію сервера",
+            "Щоб вимкнути StrictMode в розробці",
+          ],
+          0,
+          why(
+            "Cleanup `return () => controller.abort()` виключає стан race condition, коли старий запит переписує новіший.",
+            "Cleanup `controller.abort()` prevents out-of-order responses from overwriting fresher state.",
+          ),
+        ),
+      ], { baseXp: 25 },
+    ),
+    lesson(
+      "rf-arf-a11y-forms-rtl",
+      "Доступні форми та тестування компонентів",
+      "Accessible Forms & Component Testing",
+      3, false, [
+        mcq(
+          "rf-arf5",
+          "У тесті React Testing Library замість пошуку за внутрішньою CSS-назвою `.btn-submit-1` який запит найкраще перевіряє реальну доступність для користувача?",
+          "In React Testing Library, instead of querying brittle class `.btn-submit-1`, which query validates both behavior and accessibility?",
+          [
+            "`screen.getByRole(\"button\", { name: /save task/i })`",
+            "`container.querySelector(\"div > div:nth-child(3)\")`",
+            "`wrapper.state(\"isSubmitting\")`",
+            "`document.getElementsByClassName(\"btn-submit-1\")[0]`",
+          ],
+          0,
+          why(
+            "Запити за ARIA role та доступною назвою перевіряють контракт, яким користується людина та скрінрідер.",
+            "`getByRole` with accessible name verifies both visible UX and screen-reader semantics.",
+          ),
+        ),
+        codeFill(
+          "rf-arf6",
+          "Зв'язати підпис помилки з полем форми",
+          "Link error feedback to input element",
+          "tsx",
+          "<input id=\"title\" aria-invalid={Boolean(err)} aria-___={err ? \"title-err\" : undefined} />",
+          ["describedby"],
+          true,
+          why(
+            "`aria-describedby` підказує скрінрідеру точне повідомлення про помилку поля.",
+            "`aria-describedby` associates the validation message programmatically with the input.",
+          ),
+        ),
+      ], { baseXp: 25 },
+    ),
+    exam("rf-arf-exam", "Контрольна: архітектура і тестування React", "Checkpoint: React Architecture & Tests", 3, [
+      mcq(
+        "rf-arf-e1",
+        "Який підхід найкраще зменшує дублювання стану в багаторівневій формі?",
+        "Which strategy eliminates duplicate state bugs in multi-section React forms?",
+        [
+          "Одне джерело правди (single source of truth) у найближчому спільному предку або URL",
+          "Копіювання всіх полів у 5 різних `useState`",
+          "Таймер `setInterval`, що копіює DOM-значення",
+          "Зміна пропсів напряму без callback",
+        ],
+        0,
+      ),
+      mcq(
+        "rf-arf-e2",
+        "Якщо компонент падає під час кліку на кнопку «Повторити» при 500 від API, що має перевірити компонентний тест?",
+        "What should a component test verify when clicking Retry after an API 500 error?",
+        [
+          "Відображається alert/повідомлення про помилку, а клік Retry запускає повторний запит і рендерить отримані задачі",
+          "Лише те, що `useState` викликано 3 рази",
+          "Назву CSS-модуля",
+          "Внутрішній індекс Fiber-ноди",
+        ],
+        0,
+      ),
+      codeFill(
+        "rf-arf-e3",
+        "Семантичний контейнер статусу завантаження",
+        "Accessible loading status attribute",
+        "tsx",
+        "<div ___=\"status\">Loading tasks...</div>",
+        ["role"],
+        true,
+      ),
+    ]),
+  ],
+);
+
 export const reactFundamentalsContent: CourseContent = {
   slug: "react_fundamentals",
   titleUk: "React: fundamentals",
@@ -1027,5 +1235,18 @@ export const reactFundamentalsContent: CourseContent = {
     "Components, props, useState, lists/keys, useEffect, forms, composition, advanced hooks + unit exams.",
   icon: "⚛️",
   color: "#61DAFB",
-  units: [intro, components, stateU, lists, effects, forms, composition, hooksAdv, hooksMore, appliedReactResilience, capstone],
+  units: [
+    intro,
+    components,
+    stateU,
+    lists,
+    effects,
+    forms,
+    composition,
+    hooksAdv,
+    hooksMore,
+    appliedReactResilience,
+    architectureRoutingForms,
+    capstone,
+  ],
 };

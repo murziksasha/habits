@@ -1,0 +1,10 @@
+/* TODO: Organize with @layer tokens, base, layout, components; add logical properties, @container, :focus-visible, reduced motion, and 320px wrap rules */
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+}
+
+.task-grid {
+  display: flex;
+  gap: 16px;
+}

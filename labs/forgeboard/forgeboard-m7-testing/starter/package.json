@@ -1,0 +1,10 @@
+{
+  "name": "forgeboard-m7-testing",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/suite.test.mjs",
+    "test:mutations": "node scripts/check-mutations.mjs"
+  }
+}

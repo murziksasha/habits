@@ -2,12 +2,16 @@ import type { CourseContent, Exercise } from "./types.js";
 import {
   codeFill,
   codeOrder,
+  codeOrderAuto,
+  codeOutputMcq,
+  codeProject,
   codeRead,
   exam,
   lesson,
   matchEx,
   mcq,
   unit,
+  why,
 } from "./builders.js";
 
 const intro = unit("intro", "Express intro", "Express intro", [
@@ -554,11 +558,11 @@ const expressResilienceScenarios = unit(
           "Express middleware execution order for secure route",
           "text",
           [
-            "1. app.use(express.json()) (парсинг тіла)",
-            "2. authMiddleware (перевірка сесії / токена)",
             "3. validateBody(schema) (валідація схеми даних)",
-            "4. routeHandler (бізнес-логіка та збереження в БД)",
+            "1. app.use(express.json()) (парсинг тіла)",
             "5. errorHandler (4 параметри — перехоплення збоїв)",
+            "2. authMiddleware (перевірка сесії / токена)",
+            "4. routeHandler (бізнес-логіка та збереження в БД)",
           ],
           [
             "1. app.use(express.json()) (парсинг тіла)",
@@ -567,9 +571,199 @@ const expressResilienceScenarios = unit(
             "4. routeHandler (бізнес-логіка та збереження в БД)",
             "5. errorHandler (4 параметри — перехоплення збоїв)",
           ],
+          why(
+            "Спочатку парсинг і аутентифікація, потім валідація тіла, далі контролер і централізований обробник помилок наприкінці.",
+            "Parse JSON and verify auth first, validate inputs next, run handler, and keep the 4-arg error middleware last.",
+          ),
         ),
       ],
     ),
+  ],
+);
+
+const apiContractsAuthz = unit(
+  "api_contracts_authz",
+  "Валідований CRUD, пагінація та auth vs authz",
+  "Validated CRUD, Pagination & Auth vs Ownership",
+  [
+    lesson(
+      "ef-auth-vs-authz",
+      "Аутентифікація (401) проти авторизації / ownership (403)",
+      "Authentication (401) vs authorization & ownership (403)",
+      3,
+      false,
+      [
+        mcq(
+          "ef-ca1",
+          "Користувач увійшов у систему як `user-b`, але намагається змінити задачу, власником якої є `user-a`. Який HTTP статус коректний?",
+          "User `user-b` is logged in and tries to patch a task owned by `user-a`. Which HTTP status fits best?",
+          [
+            "403 Forbidden (`{ error: 'forbidden' }`)",
+            "401 Unauthorized (потрібен ще один логін)",
+            "200 OK із порожнім тілом",
+            "500 Internal Server Error",
+          ],
+          0,
+          why(
+            "401 означає відсутню/невалідну аутентифікацію; 403 — особа відома, але доступу до ресурсу немає.",
+            "401 means missing/invalid credentials; 403 means authenticated user lacks permission on that resource.",
+          ),
+        ),
+        codeRead(
+          "ef-ca2",
+          "Знайдіть вразливість (IDOR) у цьому Express-обробнику:",
+          "Diagnose the broken ownership check (IDOR) in this Express handler:",
+          "js",
+          "app.delete('/tasks/:id', requireAuth, async (req, res) => {\n  const deleted = await repo.deleteById(req.params.id);\n  if (!deleted) return res.status(404).json({ error: 'not_found' });\n  res.json({ ok: true });\n});",
+          [
+            "Перевірено лише факт логіну (`requireAuth`), але не перевірено `task.ownerId === req.user.id` перед видаленням",
+            "Метод app.delete не підтримує async",
+            "Слід повернути статус 201 замість 200",
+            "req.params.id завжди є числом",
+          ],
+          0,
+          why(
+            "Авторизація потребує перевірки власника або ролі для конкретного ресурсу.",
+            "Authorization requires checking resource ownership (`ownerId === req.user.id`) or explicit role.",
+          ),
+        ),
+        codeFill(
+          "ef-ca3",
+          "Виправте ендпоінт: додайте перевірку власника та стабільний код помилки",
+          "Repair the endpoint: enforce owner check and return a stable error code",
+          "js",
+          "if (task.ownerId !== req.user.id) {\n  return res.status(___).json({ error: 'forbidden' });\n}",
+          ["403"],
+          true,
+          why("Чужий ресурс не можна змінювати — повертаємо 403 forbidden.", "Block cross-user mutation with 403 forbidden."),
+        ),
+      ],
+    ),
+    lesson(
+      "ef-pagination-contracts",
+      "Пагінація, фільтри та стабільні контракти помилок",
+      "Pagination, filtering & consistent API error contracts",
+      3,
+      false,
+      [
+        codeOutputMcq(
+          "ef-ca4",
+          "Передбачте результат: клієнт передав `?limit=500&offset=-10` у clamp-функцію. Що поверне вираз?",
+          "Predict what `clampPagination('500', '-10')` returns:",
+          "js",
+          "function clampPagination(rawLimit, rawOffset) {\n  const limit = Math.min(50, Math.max(1, Number(rawLimit) || 20));\n  const offset = Math.max(0, Number(rawOffset) || 0);\n  return { limit, offset };\n}\nconsole.log(JSON.stringify(clampPagination('500', '-10')));",
+          ['{"limit":50,"offset":0}', '{"limit":500,"offset":0}', '{"limit":20,"offset":-10}', '{"limit":50,"offset":-10}'],
+          0,
+          why(
+            "Обмеження максимуму (50) захищає БД від вичитування мільйона рядків за запит, а `Math.max(0, ...)` прибирає від'ємний offset.",
+            "Clamping `limit <= 50` protects memory/DB and `Math.max(0, offset)` prevents invalid negative offsets.",
+          ),
+        ),
+        mcq(
+          "ef-ca5",
+          "Чому для API контрактів використовують стабільні коди помилок `{ \"error\": \"invalid_input\" }` замість вільних речень англійською?",
+          "Why use stable `snake_case` error codes like `{ \"error\": \"invalid_input\" }` instead of prose strings as the contract?",
+          [
+            "Клієнт і тести можуть надійно розпізнавати помилку та показувати локалізоване (UK/EN) повідомлення, не ламаючись від зміни тексту",
+            "JSON забороняє пробіли у значеннях",
+            "Express автоматично перекладає snake_case на українську",
+            "Це потрібно лише для HTML-форм",
+          ],
+          0,
+          why(
+            "Машинозчитувані коди дозволяють безпечно локалізувати UI та писати стабільні тести.",
+            "Machine-readable codes keep client handling and automated tests decoupled from UI copy changes.",
+          ),
+        ),
+        codeProject(
+          "ef-ca6",
+          "Зберіть контракт списку задач з пагінацією, `sortOrder` та єдиним error envelope.",
+          "Implement paginated `/tasks` query validation and consistent error contract in Express.",
+          [
+            {
+              id: "js",
+              name: "tasks-route.js",
+              language: "javascript",
+              starter: `// TODO: validate limit/offset, check req.user, return { items, total, limit, offset }
+export function listTasksHandler(repo) {
+  return async (req, res, next) => {
+    try {
+      res.json({ items: [] });
+    } catch (err) {
+      next(err);
+    }
+  };
+}
+`,
+            },
+          ],
+          [
+            { fileId: "js", contains: ["req.user", "401", "Math.min", "offset", "next(err)"] },
+          ],
+          {
+            hintUk: "Перевірте `if (!req.user) return res.status(401).json({ error: 'unauthorized' })`, обмежте `limit` і передайте в `repo.list`.",
+            hintEn: "Guard `if (!req.user) return res.status(401).json({ error: 'unauthorized' })`, clamp `limit`, and query `repo.list`.",
+          },
+        ),
+      ],
+    ),
+    exam("ef-contracts-exam", "Контрольна: API контракти та доступ", "Exam: API contracts & authorization", 3, [
+      mcq(
+        "ef-cae1",
+        "Яка різниця між `401` та `403`?",
+        "What distinguishes `401` from `403`?",
+        [
+          "401 — не аутентифіковано; 403 — аутентифіковано, але заборонено доступ до ресурсу",
+          "401 — помилка БД; 403 — відсутній маршрут",
+          "Це повні синоніми",
+          "403 повертається лише при невалідному JSON",
+        ],
+        0,
+        why("Розрізнення auth vs authz запобігає незрозумілим редиректам на логін при чужому ресурсі.", "Separating 401 vs 403 lets clients prompt login vs show access denied."),
+      ),
+      codeFill(
+        "ef-cae2",
+        "Передача асинхронної помилки у централізований Express error handler",
+        "Forward async error to Express error handler",
+        "js",
+        "try { await save(); } catch (err) { ___(err); }",
+        ["next"],
+        true,
+        why("Без `next(err)` Express 4 не потрапить у error middleware.", "Express 4 requires `next(err)` for async errors."),
+      ),
+      codeRead(
+        "ef-cae3",
+        "Який ризик несе пагінація без стабільного tie-breaker у `ORDER BY created_at DESC`?",
+        "What bug occurs when paginating with `ORDER BY created_at DESC` without a unique tie-breaker?",
+        "sql",
+        "SELECT id, title FROM tasks ORDER BY created_at DESC LIMIT 10 OFFSET 10;",
+        [
+          "Рядки з однаковим `created_at` можуть дублюватися або пропускатися між сторінками",
+          "SQL видасть синтаксичну помилку",
+          "OFFSET 10 поверне перші 10 рядків",
+          "Поле `id` автоматично видалиться",
+        ],
+        0,
+        why("Завжди додавайте унікальну колонку як другий критерій (`ORDER BY created_at DESC, id DESC`).", "Always add a unique tie-breaker (`ORDER BY created_at DESC, id DESC`)."),
+      ),
+      codeOrderAuto(
+        "ef-cae4",
+        "Порядок перевірок у захищеному `PATCH /tasks/:id`",
+        "Check order inside a protected `PATCH /tasks/:id` route",
+        "text",
+        [
+          "1. Перевірити сесію користувача (401 якщо відсутня)",
+          "2. Провалідувати тіло запиту через Zod (400 якщо невалідне)",
+          "3. Знайти задачу в БД (404 якщо не існує)",
+          "4. Перевірити task.ownerId === req.user.id (403 якщо чужа)",
+          "5. Застосувати оновлення та повернути 200 JSON",
+        ],
+        why(
+          "Спочатку ідентичність і формат входу, потім пошук ресурсу та перевірка власника перед записом.",
+          "Verify identity and schema first, fetch resource, check owner, then persist update.",
+        ),
+      ),
+    ]),
   ],
 );
 
@@ -628,6 +822,51 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
       } as Exercise,
     ],
   ),
+  lesson(
+    "ef-forgeboard-api-lab",
+    "ForgeBoard M5: REST API з валідацією й ownership",
+    "ForgeBoard M5: Validated REST API with Ownership Checks",
+    4,
+    false,
+    [
+      mcq(
+        "ef-fb1",
+        "Перед початком локальної лаби ForgeBoard M5: який статус має повертати `PATCH /tasks/:id` при спробі редагувати чужу задачу?",
+        "Before starting ForgeBoard M5 locally: what status should `PATCH /tasks/:id` return when modifying another user's task?",
+        ["403 (`forbidden`)", "200 (`ok`)", "400 (`invalid_input`)", "302 Redirect"],
+        0,
+        why("Чужа задача доступна тільки власнику — іншим повертаємо 403.", "Cross-user modification must fail with 403 forbidden."),
+      ),
+      codeFill(
+        "ef-fb2",
+        "У локальному API ForgeBoard: поверніть 400 при помилці Zod-схеми",
+        "In the ForgeBoard API: return 400 with `invalid_input` when Zod validation fails",
+        "js",
+        "if (!parsed.success) return res.status(___).json({ error: 'invalid_input' });",
+        ["400"],
+        true,
+        why("Помилка вхідного контракту повертає 400 Bad Request.", "Malformed client payloads return 400 Bad Request."),
+      ),
+      codeRead(
+        "ef-fb3",
+        "Чому тести Express API краще запускати проти реального Express app instance (`supertest` / `fetch`), а не лише тестувати мок `res.json`?",
+        "Why test Express endpoints through real HTTP requests (`fetch` / `supertest`) instead of mocking `req`/`res` objects?",
+        "js",
+        "const res = await fetch(`${baseUrl}/tasks`, { method: 'POST', headers, body: '{}' });\nassert.equal(res.status, 400);",
+        [
+          "Реальний HTTP-шлях перевіряє порядок middleware (`express.json`, auth, validation, error handler) та серіалізацію заголовків/статусів",
+          "Мок req/res не працює в Node.js",
+          "fetch автоматично запускає PostgreSQL",
+          "supertest вимикає TypeScript",
+        ],
+        0,
+        why(
+          "Інтеграційні HTTP-тести ловлять помилки в порядку middleware та error-handler сигнатурах.",
+          "Real HTTP integration tests catch middleware ordering bugs and header/status serialization mismatches.",
+        ),
+      ),
+    ],
+  ),
   exam("ef-cap-exam", "Фінальна контрольна Express", "Final Express exam", 3, [
     mcq("ef-ce1", "Express is:", "Express is:", ["Node HTTP framework", "SQL DB", "browser only", "CSS lib"], 0),
     codeFill("ef-ce2", "express()", "express()", "js", "const app = ___();", ["express"], true),
@@ -643,10 +882,22 @@ export const expressFundamentalsContent: CourseContent = {
   titleUk: "Express: fundamentals",
   titleEn: "Express Fundamentals",
   descriptionUk:
-    "App, routes, middleware, REST, errors, Router — deep track + контрольні.",
+    "App, routes, middleware, REST, валідація, обробка збоїв, auth vs ownership, Router та ForgeBoard API — deep track + контрольні.",
   descriptionEn:
-    "App, routes, middleware, REST, errors, Router — deep track + unit exams.",
+    "App, routes, middleware, REST, validation resilience, auth vs ownership, Router, and ForgeBoard API — deep track + unit exams.",
   icon: "🚂",
   color: "#000000",
-  units: [intro, appBasics, routesU, middlewareU, restU, jsonBody, errorsU, routersU, capstone],
+  units: [
+    intro,
+    appBasics,
+    routesU,
+    middlewareU,
+    restU,
+    jsonBody,
+    errorsU,
+    routersU,
+    expressResilienceScenarios,
+    apiContractsAuthz,
+    capstone,
+  ],
 };

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ForgeBoard — Team Tasks</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="header">
+      <h1>ForgeBoard</h1>
+      <div class="links"><a href="#board">Board</a></div>
+    </div>
+
+    <div class="content" id="board">
+      <!-- TODO: Use semantic <main>, accessible <form> with <label for>, aria-describedby, status live region, and native <dialog> -->
+      <form id="task-form">
+        <input id="task-title" name="title" placeholder="Task title" />
+        <span id="title-error"></span>
+        <button type="submit">Add task</button>
+      </form>
+
+      <div id="board-status">0 tasks loaded</div>
+      <div class="modal" id="task-dialog">Task details</div>
+    </div>
+  </body>
+</html>

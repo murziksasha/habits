@@ -18,6 +18,13 @@ import {
   devopsContent,
   typingContent,
   typescriptContent,
+  softwareTestingContent,
+  postgresqlAppsContent,
+  gitWorkflowsContent,
+  webSecurityContent,
+  aiDevelopmentContent,
+  nextjsFullstackContent,
+  appliedAlgorithmsContent,
   type CourseContent,
   type Exercise,
 } from "./index.js";
@@ -69,6 +76,13 @@ const courses: CourseContent[] = [
   embeddedCppContent,
   sysadminContent,
   devopsContent,
+  softwareTestingContent,
+  postgresqlAppsContent,
+  gitWorkflowsContent,
+  webSecurityContent,
+  aiDevelopmentContent,
+  nextjsFullstackContent,
+  appliedAlgorithmsContent,
 ];
 
 const EXERCISE_TYPES = new Set([
@@ -100,15 +114,21 @@ describe("course content integrity", () => {
   it("includes all course slugs including deep tracks", () => {
     expect(courses.map((c) => c.slug).sort()).toEqual(
       [
+        "ai_development",
+        "applied_algorithms",
         "chess",
         "css_layout",
         "english",
+        "git_workflows",
         "html_semantics",
         "js_fundamentals",
         "logic",
+        "nextjs_fullstack",
         "programming",
+        "postgresql_apps",
         "qa_theory",
         "react_fundamentals",
+        "software_testing",
         "speed_reading",
         "node_fundamentals",
         "express_fundamentals",
@@ -118,6 +138,7 @@ describe("course content integrity", () => {
         "sql_fundamentals",
         "typing",
         "typescript",
+        "web_security",
       ].sort(),
     );
   });
@@ -234,16 +255,16 @@ describe("course content integrity", () => {
     });
 
     it("sysadmin volume", () => {
-      expect(sysadminContent.units.length).toBeGreaterThanOrEqual(12);
+      expect(sysadminContent.units.length).toBeGreaterThanOrEqual(13);
       const lessons = sysadminContent.units.flatMap((u) => u.lessons);
-      expect(lessons.length).toBeGreaterThanOrEqual(60);
+      expect(lessons.length).toBeGreaterThanOrEqual(64);
       const exams = lessons.filter((l) => l.isExam);
-      expect(exams.length).toBeGreaterThanOrEqual(12);
+      expect(exams.length).toBeGreaterThanOrEqual(13);
       for (const e of exams) {
         expect(e.exercises.length).toBeGreaterThanOrEqual(6);
       }
       expect(lessons.some((l) => l.isFree)).toBe(true);
-      expect(lessons).toHaveLength(60);
+      expect(lessons).toHaveLength(64);
       const bySlug = Object.fromEntries(lessons.map((l) => [l.slug, l]));
       expect(bySlug["sa-etc"]?.titleEn).toBe("Git for configs");
       expect(bySlug["sa-least"]?.titleEn).toBe("VPN instead of an open port");
@@ -289,7 +310,7 @@ describe("course content integrity", () => {
       };
       expect(devopsContent.units).toHaveLength(19);
       const lessons = devopsContent.units.flatMap((u) => u.lessons);
-      expect(lessons).toHaveLength(107);
+      expect(lessons).toHaveLength(108);
       const exams = lessons.filter((l) => l.isExam);
       expect(exams).toHaveLength(19);
       for (const e of exams) {
@@ -323,7 +344,8 @@ describe("course content integrity", () => {
       for (const u of devopsContent.units) {
         if (advanced.has(u.slug)) expect(u.lessons.map((l) => l.slug)).toEqual(advancedLessons[u.slug]);
         expect(u.lessons.some((l) => l.isExam)).toBe(true);
-        expect(u.lessons.filter((l) => !l.isExam)).toHaveLength(advanced.has(u.slug) ? 6 : 4);
+        const expectedNonExam = u.slug === "sre-capstone" ? 5 : advanced.has(u.slug) ? 6 : 4;
+        expect(u.lessons.filter((l) => !l.isExam)).toHaveLength(expectedNonExam);
         for (const l of u.lessons) {
           expect(l.slug.length).toBeLessThanOrEqual(64);
           if (!advanced.has(u.slug)) {
@@ -734,5 +756,46 @@ describe("course content integrity", () => {
       .map((l) => l.slug);
     expect(miniSlugs).toEqual(expect.arrayContaining([...PROGRAMMING_MINI_SLUGS]));
     expect(miniSlugs.length).toBeGreaterThanOrEqual(PROGRAMMING_MINI_SLUGS.length);
+  });
+
+  it("full-stack curriculum expansion: 7 new courses + unit counts + exams + free lessons + ForgeBoard milestones", () => {
+    const expectedNew: Array<[CourseContent, number, string]> = [
+      [softwareTestingContent, 6, "st-forgeboard-suite-lab"],
+      [postgresqlAppsContent, 6, "pg-forgeboard-db-lab"],
+      [gitWorkflowsContent, 5, "gw-forgeboard-conflict-lab"],
+      [webSecurityContent, 6, "ws-forgeboard-security-lab"],
+      [aiDevelopmentContent, 5, "ai-forgeboard-review-lab"],
+      [nextjsFullstackContent, 7, "nx-forgeboard-app-lab"],
+      [appliedAlgorithmsContent, 6, "aa-forgeboard-perf-lab"],
+    ];
+    for (const [course, unitCount, labSlug] of expectedNew) {
+      expect(course.units.length, course.slug).toBe(unitCount);
+      for (const u of course.units) {
+        expect(u.lessons.some((l) => l.isExam), `${course.slug}/${u.slug}`).toBe(true);
+      }
+      const allLessons = course.units.flatMap((u) => u.lessons);
+      expect(
+        allLessons.filter((l) => l.isFree && !l.isExam).length,
+        `${course.slug} free non-exam`,
+      ).toBeGreaterThanOrEqual(5);
+      expect(allLessons.some((l) => l.slug === labSlug && !l.isExam), `${course.slug}/${labSlug}`).toBe(
+        true,
+      );
+    }
+
+    const expectedExistingLabs: Array<[CourseContent, string]> = [
+      [htmlSemanticsContent, "hs-forgeboard-a11y-lab"],
+      [jsFundamentalsContent, "jsf-forgeboard-board-lab"],
+      [typescriptContent, "tsc-forgeboard-models-lab"],
+      [reactFundamentalsContent, "rf-forgeboard-client-lab"],
+      [expressFundamentalsContent, "ef-forgeboard-api-lab"],
+      [devopsContent, "do-forgeboard-delivery-lab"],
+    ];
+    for (const [course, labSlug] of expectedExistingLabs) {
+      const allLessons = course.units.flatMap((u) => u.lessons);
+      expect(allLessons.some((l) => l.slug === labSlug && !l.isExam), `${course.slug}/${labSlug}`).toBe(
+        true,
+      );
+    }
   });
 });

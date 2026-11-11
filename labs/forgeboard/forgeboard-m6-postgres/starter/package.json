@@ -1,0 +1,19 @@
+{
+  "name": "forgeboard-m6-postgres",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "migrate": "tsx src/migrate.ts",
+    "test": "tsx --test tests/*.test.ts"
+  },
+  "dependencies": {
+    "postgres": "3.4.9"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.1",
+    "tsx": "4.23.1",
+    "typescript": "5.9.3"
+  }
+}

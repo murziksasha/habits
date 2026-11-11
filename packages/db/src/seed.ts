@@ -20,13 +20,19 @@ import {
   devopsContent,
   typingContent,
   typescriptContent,
+  softwareTestingContent,
+  postgresqlAppsContent,
+  gitWorkflowsContent,
+  webSecurityContent,
+  aiDevelopmentContent,
+  nextjsFullstackContent,
+  appliedAlgorithmsContent,
   type CourseContent,
 } from "@eduforge/content";
 import bcrypt from "bcryptjs";
 import { createDb } from "./client.js";
 import { selectFlashcardInserts } from "./seed-flashcards.js";
-import { ACHIEVEMENT_CATALOG } from "@eduforge/shared";
-import { seedAllowed } from "@eduforge/shared";
+import { ACHIEVEMENT_CATALOG, resolveCourseGroup, seedAllowed } from "@eduforge/shared";
 import {
   achievements,
   characters,
@@ -58,6 +64,13 @@ const allCourses: CourseContent[] = [
   embeddedCppContent,
   sysadminContent,
   devopsContent,
+  softwareTestingContent,
+  postgresqlAppsContent,
+  gitWorkflowsContent,
+  webSecurityContent,
+  aiDevelopmentContent,
+  nextjsFullstackContent,
+  appliedAlgorithmsContent,
 ];
 
 async function seedCourse(
@@ -69,25 +82,7 @@ async function seedCourse(
     where: eq(courses.slug, content.slug),
   });
 
-  const category =
-    content.slug === "chess"
-      ? "chess"
-      : content.slug === "programming"
-        ? "code"
-        : [
-              "typescript",
-              "html_semantics",
-              "css_layout",
-              "qa_theory",
-              "js_fundamentals",
-              "react_fundamentals",
-              "sql_fundamentals",
-              "node_fundamentals",
-              "express_fundamentals",
-              "embedded_cpp",
-            ].includes(content.slug)
-          ? "deep"
-          : "skill";
+  const category = resolveCourseGroup(content.slug);
 
   if (!course) {
     const [created] = await db

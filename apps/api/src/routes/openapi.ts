@@ -282,10 +282,22 @@ const doc = {
     "/courses/{slug}": {
       get: {
         tags: ["courses"],
-        summary: "Course detail + units",
+        summary: "Course detail + units + local lab summary badges",
         security: [{ bearerAuth: [] }],
         parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
         responses: { "200": { description: "Course tree" } },
+      },
+    },
+    "/courses/{slug}/lessons/{lessonId}": {
+      get: {
+        tags: ["courses"],
+        summary: "Lesson detail + optional local ForgeBoard lab manifest (local_practice)",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: "slug", in: "path", required: true, schema: { type: "string" } },
+          { name: "lessonId", in: "path", required: true, schema: { type: "string" } },
+        ],
+        responses: { "200": { description: "Lesson payload + optional localLab manifest" } },
       },
     },
     "/courses/{slug}/lessons/{lessonId}/submit": {

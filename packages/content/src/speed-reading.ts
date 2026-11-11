@@ -897,6 +897,113 @@ export const speedReadingContent: CourseContent = {
           ],
         },
       ],
-    }
+    },
+    {
+      slug: "technical-docs-comprehension",
+      titleUk: "Читання документації та виділення обмежень",
+      titleEn: "Technical Documentation & Constraint Extraction",
+      lessons: [
+        {
+          slug: "scanning-api-constraints",
+          titleUk: "Виділення лімітів і preconditions в API-доках",
+          titleEn: "Extracting Rate Limits & Preconditions",
+          baseXp: 24,
+          difficulty: 3,
+          isFree: false,
+          exercises: [
+            {
+              id: "sr-tech-1",
+              type: "comprehension",
+              promptUk: "Прочитайте фрагмент технічної специфікації та виділіть жорстке обмеження",
+              promptEn: "Read this API specification excerpt and extract the strict constraint",
+              passage:
+                "POST /api/tasks вимагає заголовок Content-Type: application/json та автентифіковану cookie-сесію. Назва задачі обмежена 120 символами; порожній рядок після trim повертає HTTP 422 validation_error. Ліміт запитів: 60 запитів за хвилину на користувача, при перевищенні повертається 429 із заголовком Retry-After.",
+              questions: [
+                {
+                  q: "Що поверне API, якщо надіслати title із пробілів?",
+                  options: ["HTTP 422 validation_error", "HTTP 201 Created", "HTTP 429 Retry-After", "HTTP 301 Redirect"],
+                  correctIndex: 0,
+                },
+                {
+                  q: "Який заголовок допомагає клієнту знати, коли повторити запит після 429?",
+                  options: ["Retry-After", "Cache-Control", "ETag", "X-Powered-By"],
+                  correctIndex: 0,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          slug: "scanning-breaking-changes-rsvp",
+          titleUk: "Швидкий перегляд changelog та Breaking Changes",
+          titleEn: "Fast Scanning of Changelogs & Breaking Changes",
+          baseXp: 24,
+          difficulty: 3,
+          isFree: false,
+          exercises: [
+            {
+              id: "sr-tech-2",
+              type: "rsvp",
+              promptUk: "Зчитайте примітку про міграцію на темпі 240 WPM і зафіксуйте ключовий ризик",
+              promptEn: "Read the migration note at 240 WPM and catch the breaking detail",
+              text: "Release v5 removes automatic fallback from DATABASE_URL to localhost. Ensure DATABASE_URL is explicitly set before restarting API pods, and apply migration 0014 before deploying new workers.",
+              wpm: 240,
+            },
+            {
+              id: "sr-tech-3",
+              type: "comprehension",
+              promptUk: "Перевірка уважності до порядку дій із release notes",
+              promptEn: "Check order sensitivity from the release note",
+              passage:
+                "Реліз v5 прибирає автоматичний fallback DATABASE_URL на localhost. Перед рестартом API-подів обов'язково задайте DATABASE_URL явно і застосуйте міграцію 0014 до запуску нових воркерів.",
+              questions: [
+                {
+                  q: "Що станеться, якщо запустити нові воркери до міграції 0014?",
+                  options: [
+                    "Воркери звертатимуться до ще не існуючих колонок або таблиць і падатимуть",
+                    "Міграція застосується автоматично в браузері",
+                    "PostgreSQL сам відкотить попередній реліз",
+                    "Швидкість записів подвоїться",
+                  ],
+                  correctIndex: 0,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          slug: "sr-tech-checkpoint",
+          titleUk: "Контрольна: точне читання специфікацій",
+          titleEn: "Checkpoint: Spec & Docs Extraction",
+          baseXp: 30,
+          difficulty: 4,
+          isFree: false,
+          isExam: true,
+          passThreshold: 0.7,
+          exercises: [
+            {
+              id: "sr-tech-e1",
+              type: "comprehension",
+              promptUk: "Знайдіть дві обов'язкові вимоги безпеки у короткому RFC-фрагменті",
+              promptEn: "Extract the two security invariants from this short spec note",
+              passage:
+                "Токени скидання пароля дійсні рівно 15 хвилин і одноразові. У базі зберігається лише SHA-256 хеш токена; сирий токен ніколи не логується і надсилається лише через HTTPS.",
+              questions: [
+                {
+                  q: "Що саме зберігається в таблиці БД замість сирого токена?",
+                  options: ["SHA-256 хеш токена", "Токен у plain text", "Пароль користувача", "Публічний ключ клієнта"],
+                  correctIndex: 0,
+                },
+                {
+                  q: "Скільки разів можна використати один токен скидання пароля?",
+                  options: ["Один раз (single-use протягом 15 хв)", "Необмежено протягом доби", "Тричі", "Доки активна cookie-сесія"],
+                  correctIndex: 0,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
   ],
 };

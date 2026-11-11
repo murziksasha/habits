@@ -1,0 +1,12 @@
+{
+  "service": "forgeboard-api",
+  "image": "ghcr.io/eduforge/forgeboard-api:latest",
+  "env": {
+    "API_PORT": 4000,
+    "DATABASE_URL": "postgres://postgres:devpassword@localhost:5432/forgeboard"
+  },
+  "readinessProbe": {
+    "path": "/healthz-wrong",
+    "port": 3000
+  }
+}

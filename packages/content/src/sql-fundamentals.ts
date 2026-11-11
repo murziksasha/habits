@@ -2,12 +2,15 @@ import type { CourseContent } from "./types.js";
 import {
   codeFill,
   codeOrder,
+  codeOrderAuto,
+  codeOutputMcq,
   codeRead,
   exam,
   lesson,
   matchEx,
   mcq,
   unit,
+  why,
 } from "./builders.js";
 import {
   accessUnit,
@@ -416,12 +419,12 @@ const queryRepairScenarios = unit(
           "Logical SQL execution order in RDBMS",
           "sql",
           [
-            "1. FROM / JOIN (визначення джерел таблиць)",
-            "2. WHERE (рядкова фільтрація)",
             "3. GROUP BY (групування рядків)",
-            "4. HAVING (фільтрація агрегованих груп)",
+            "1. FROM / JOIN (визначення джерел таблиць)",
             "5. SELECT (проекція стовпців)",
+            "2. WHERE (рядкова фільтрація)",
             "6. ORDER BY (сортування фінального результату)",
+            "4. HAVING (фільтрація агрегованих груп)",
           ],
           [
             "1. FROM / JOIN (визначення джерел таблиць)",
@@ -431,6 +434,10 @@ const queryRepairScenarios = unit(
             "5. SELECT (проекція стовпців)",
             "6. ORDER BY (сортування фінального результату)",
           ],
+          why(
+            "WHERE виконується до GROUP BY, тому агрегати доступні лише починаючи з HAVING / SELECT.",
+            "WHERE executes before GROUP BY, so aggregates can only be filtered in HAVING.",
+          ),
         ),
       ],
     ),
@@ -550,15 +557,15 @@ const queryRepairScenarios = unit(
         ),
         codeOrder(
           "sql-rep-13",
-          "Порядок підготовки транзакції зі збереженням точок відкату",
-          "Transaction control statements order",
+          "Порядок підготовки транзакції зі збереженням точок відкату (Oracle vs PostgreSQL BEGIN)",
+          "Transaction control statements order (Oracle implicit vs PostgreSQL BEGIN)",
           "sql",
           [
-            "BEGIN TRANSACTION;",
-            "UPDATE accounts SET balance = balance - 100 WHERE id = 1;",
             "SAVEPOINT sp1;",
+            "BEGIN TRANSACTION;",
             "UPDATE accounts SET balance = balance + 100 WHERE id = 2;",
             "COMMIT;",
+            "UPDATE accounts SET balance = balance - 100 WHERE id = 1;",
           ],
           [
             "BEGIN TRANSACTION;",
@@ -567,6 +574,10 @@ const queryRepairScenarios = unit(
             "UPDATE accounts SET balance = balance + 100 WHERE id = 2;",
             "COMMIT;",
           ],
+          why(
+            "Діалект: у PostgreSQL транзакцію відкривають явно через BEGIN; в Oracle DML стартує транзакцію автоматично без BEGIN.",
+            "Dialect note: PostgreSQL starts explicit transactions with BEGIN; Oracle starts one implicitly on the first DML.",
+          ),
         ),
       ],
     ),
@@ -744,14 +755,134 @@ const windowsU = unit("windows", "NULL і віконні функції", "NULL 
   ]),
 ]);
 
+const datasetDiagnosisU = unit(
+  "dataset_diagnosis",
+  "Діагностика результатів і діалекти (Oracle vs PostgreSQL)",
+  "Dataset Result Diagnosis & Dialect Notes",
+  [
+    lesson(
+      "sqlf-dataset-predict",
+      "Передбачення результату на датасеті: JOIN + NULL + агрегація",
+      "Predict query output on a sample dataset (JOIN, NULL, COUNT)",
+      3,
+      false,
+      [
+        codeRead(
+          "sqlf-ds1",
+          "Дано: `users` = [(1, 'Ada'), (2, 'Bohdan')], `orders` = [(10, 1, 100), (11, 1, NULL)]. Що поверне цей запит?",
+          "Dataset: `users` = [(1, 'Ada'), (2, 'Bohdan')], `orders` = [(10, 1, 100), (11, 1, NULL)]. What does this return?",
+          "sql",
+          "SELECT u.name, COUNT(o.id) AS total_orders, COUNT(o.amount) AS priced_orders\nFROM users u\nLEFT JOIN orders o ON o.user_id = u.id\nGROUP BY u.id, u.name\nORDER BY u.id;",
+          [
+            "('Ada', 2, 1) та ('Bohdan', 0, 0) — COUNT(o.id) рахує 2 замовлення, COUNT(o.amount) пропускає NULL",
+            "('Ada', 2, 2) та ('Bohdan', 1, 1)",
+            "Лише ('Ada', 2, 1), бо Bohdan відсіюється LEFT JOIN",
+            "('Ada', 1, 1) та ('Bohdan', 0, 0)",
+          ],
+          0,
+          why(
+            "COUNT(column) ігнорує NULL (однак LEFT JOIN зберігає Bohdan із 0 замовлень, бо o.id є NULL).",
+            "COUNT(column) ignores NULLs; LEFT JOIN keeps Bohdan with o.id = NULL so both counts are 0.",
+          ),
+        ),
+        codeOutputMcq(
+          "sqlf-ds2",
+          "Діагностуйте хибне підсумовування: `users` має 1 рядок (Ada), `tasks` — 3 задачі, `comments` — 2 коментарі. Чому сума оцінок завищена вдвічі?",
+          "Diagnose inflated totals: 1 user, 3 tasks (10 pts each), 2 comments. Why does this return 60 instead of 30?",
+          "sql",
+          "SELECT u.id, SUM(t.points) AS pts\nFROM users u\nJOIN tasks t ON t.user_id = u.id\nJOIN comments c ON c.user_id = u.id\nGROUP BY u.id;",
+          [
+            "Кросможливе множення двох зв'язків 1:N (3 tasks × 2 comments = 6 рядків до SUM)",
+            "SUM() у SQL рахує кожен рядок двічі за замовчуванням",
+            "JOIN повернув NULL",
+            "GROUP BY u.id видалив дублікати неправильно",
+          ],
+          0,
+          why(
+            "Дві незалежні таблиці 1:N в одному JOIN породжують декартове розмноження; агрегуйте одну гілку в CTE або підзапиті.",
+            "Joining two independent 1:N tables multiplies rows before SUM; pre-aggregate one branch in a subquery or CTE.",
+          ),
+        ),
+        mcq(
+          "sqlf-ds3",
+          "Яка відповідність між Oracle SQL (1Z0-071) та PostgreSQL коректна?",
+          "Which Oracle SQL (1Z0-071) to PostgreSQL dialect mapping is accurate?",
+          [
+            "Oracle `NVL(a, b)` / `MINUS` / `FROM DUAL` ↔ PostgreSQL `COALESCE(a, b)` / `EXCEPT` / `SELECT ...` без DUAL",
+            "Oracle `VARCHAR2` швидший за PostgreSQL `TEXT`, бо Postgres не підтримує індекси",
+            "PostgreSQL не підтримує `LEFT JOIN` і `ROW_NUMBER()`",
+            "Oracle і PostgreSQL мають ідентичні `SYSDATE` і `LIMIT`",
+          ],
+          0,
+          why(
+            "Знання діалектів дозволяє перенести реляційну теорію з Oracle на продакшн-PostgreSQL.",
+            "Knowing exact dialect mappings transfers Oracle fundamentals cleanly to PostgreSQL apps.",
+          ),
+        ),
+      ],
+    ),
+    exam("sqlf-ds-exam", "Контрольна: діагностика запитів і діалекти", "Exam: dataset diagnosis & SQL dialects", 3, [
+      mcq(
+        "sqlf-dse1",
+        "У наборі рядків `[10, NULL, 20]` значення `COUNT(*)` та `COUNT(col)` дорівнюють:",
+        "For column values `[10, NULL, 20]`, `COUNT(*)` and `COUNT(col)` evaluate to:",
+        ["3 і 2", "3 і 3", "2 і 2", "2 і 1"],
+        0,
+        why("COUNT(*) рахує всі рядки; COUNT(col) пропускає NULL.", "COUNT(*) counts rows; COUNT(col) skips NULLs."),
+      ),
+      codeFill(
+        "sqlf-dse2",
+        "PostgreSQL-еквівалент Oracle `MINUS` (різниця множин)",
+        "Standard / PostgreSQL equivalent of Oracle `MINUS`",
+        "sql",
+        "SELECT id FROM a ___ SELECT id FROM b;",
+        ["EXCEPT", "except"],
+        false,
+        why("Oracle використовує MINUS, стандарт і PostgreSQL — EXCEPT.", "Oracle uses MINUS; ANSI SQL and PostgreSQL use EXCEPT."),
+      ),
+      codeRead(
+        "sqlf-dse3",
+        "Яка причина, що `WHERE col != 'done'` приховує рядки з `col IS NULL`?",
+        "Why does `WHERE col != 'done'` omit rows where `col` is `NULL`?",
+        "sql",
+        "SELECT * FROM tasks WHERE status != 'done';",
+        [
+          "Порівняння `NULL != 'done'` дає `UNKNOWN`, а `WHERE` пропускає лише `TRUE`",
+          "SQL приводить NULL до рядка 'done'",
+          "!= працює лише для чисел",
+          "Потрібно використати HAVING",
+        ],
+        0,
+        why("Для збереження NULL використовуйте `WHERE status IS DISTINCT FROM 'done'` (PostgreSQL) або `(status != 'done' OR status IS NULL)`.", "Use `IS DISTINCT FROM` (Postgres) or explicit `OR status IS NULL`."),
+      ),
+      codeOrderAuto(
+        "sqlf-dse4",
+        "Безпечний шаблон уникнення розмноження рядків при сумуванні двох гілок",
+        "Pattern to avoid fan-out row multiplication across two 1:N tables",
+        "sql",
+        [
+          "WITH task_totals AS (",
+          "  SELECT user_id, SUM(points) AS pts FROM tasks GROUP BY user_id",
+          ")",
+          "SELECT u.id, COALESCE(tt.pts, 0) FROM users u LEFT JOIN task_totals tt ON tt.user_id = u.id;",
+        ],
+        why(
+          "Попередня агрегація в CTE гарантує 1 рядок на користувача до об'єднання.",
+          "Pre-aggregating in a CTE guarantees one row per parent before joining.",
+        ),
+      ),
+    ]),
+  ],
+);
+
 export const sqlFundamentalsContent: CourseContent = {
   slug: "sql_fundamentals",
   titleUk: "SQL: fundamentals",
   titleEn: "SQL Fundamentals",
   descriptionUk:
-    "Oracle SQL за публічною програмою 1Z0-071: SELECT, функції, JOIN, підзапити, множини, DML/DDL, views, права. Оригінальні вправи, не конспект чужого відеокурсу.",
+    "Oracle SQL за публічною програмою 1Z0-071: SELECT, функції, JOIN, підзапити, множини, DML/DDL, views, права, виправлення запитів і діалектні примітки (Oracle ↔ PostgreSQL).",
   descriptionEn:
-    "Oracle SQL along the public 1Z0-071 checklist: SELECT, functions, joins, subqueries, set operators, DML/DDL, views, privileges. Original practice, not a copy of a video course.",
+    "Oracle SQL along the public 1Z0-071 checklist: SELECT, functions, joins, subqueries, set operators, DML/DDL, views, privileges, query repair, and explicit Oracle ↔ PostgreSQL dialect notes.",
   icon: "🗄️",
   color: "#336791",
   units: [
@@ -768,6 +899,8 @@ export const sqlFundamentalsContent: CourseContent = {
     schemaUnit,
     accessUnit,
     windowsU,
+    queryRepairScenarios,
+    datasetDiagnosisU,
     capstone,
   ],
 };

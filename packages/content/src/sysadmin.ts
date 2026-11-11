@@ -2,6 +2,7 @@ import type { CourseContent } from "./types.js";
 import {
   codeFill,
   codeOrder,
+  codeOrderAuto,
   codeOutputMcq,
   codeRead,
   exam,
@@ -4174,6 +4175,224 @@ const capstone = unit("capstone", "Чергові сценарії", "Runbooks",
   ]),
 ]);
 
+const localTroubleshooting = unit(
+  "local_troubleshooting",
+  "Локальна діагностика сервісу",
+  "Local Troubleshooting Labs",
+  [
+    lesson(
+      "sa-lt-ports-procs",
+      "Порти, процеси та EADDRINUSE",
+      "Ports, Processes & EADDRINUSE",
+      3, false, [
+        mcq(
+          "sa-lt1",
+          "Сервер не стартує з помилкою EADDRINUSE :4000. Яка перша команда покаже зайнятий сокет і PID на Linux?",
+          "A local server fails with EADDRINUSE :4000. Which command shows the listening socket and PID on Linux?",
+          ["ss -tulpn | grep 4000", "rm -rf /tmp/*", "chmod 777 /etc/hosts", "git reset --hard"],
+          0,
+          why(
+            "`ss -tulpn` показує слухаючі TCP/UDP сокети та PID процесу без перезавантаження.",
+            "`ss -tulpn` identifies listening TCP/UDP sockets and owning PIDs cleanly.",
+          ),
+        ),
+        codeRead(
+          "sa-lt2",
+          "Знайдіть причину збою запуску: Що робити безпечно?",
+          "Identify startup failure: What is the safe action?",
+          "bash",
+          "$ ss -tulpn | grep 4000\ntcp LISTEN 0 511 127.0.0.1:4000 users:((\"node\",pid=18422,fd=21))",
+          [
+            "Перевірити `ps -fp 18422`, коректно зупинити старий процес `kill 18422` або змінити порт в .env",
+            "Запустити `kill -9 1`",
+            "Вимкнути мережевий інтерфейс lo",
+            "Перевстановити PostgreSQL",
+          ],
+          0,
+          why(
+            "Спершу перевіряють, який саме сервіс зайняв порт (`ps -fp 18422`), перш ніж надсилати SIGTERM.",
+            "Inspect which process owns the port (`ps -fp 18422`) before gracefully stopping it.",
+          ),
+        ),
+        codeFill(
+          "sa-lt3",
+          "SIGTERM процес по PID",
+          "Send SIGTERM to PID",
+          "bash",
+          "___ 18422",
+          ["kill"],
+          true,
+          why(
+            "`kill <pid>` за замовчуванням надсилає SIGTERM для коректного завершення.",
+            "`kill <pid>` sends SIGTERM by default so the service shuts down cleanly.",
+          ),
+        ),
+      ], { baseXp: 22 },
+    ),
+    lesson(
+      "sa-lt-perms-logs",
+      "Права файлів, .env і журнали systemd",
+      "File Permissions, .env & Systemd Logs",
+      3, false, [
+        codeRead(
+          "sa-lt4",
+          "Сервіс падає при читанні конфігу: Чому Node-процес отримує EACCES?",
+          "Service fails reading config: Why does the Node process receive EACCES?",
+          "bash",
+          "$ ls -l /srv/forgeboard/.env\n-rw------- 1 root root 412 May 10 09:00 /srv/forgeboard/.env\nService user: forgeboard",
+          [
+            "Файл належить root із правами 0600, а процес запущено під користувачем forgeboard",
+            "Розмір 412 байтів перевищує ліміт .env",
+            "Node не підтримує Unix-права",
+            "Порт 4000 потребує UID 0",
+          ],
+          0,
+          why(
+            "Власник файлу — root з правами 0600; потрібно `chown forgeboard:forgeboard` і права 0600 (не 0777!).",
+            "The file is 0600 owned by root; give ownership to the service user with 0600 (never 0777).",
+          ),
+        ),
+        codeFill(
+          "sa-lt5",
+          "Перегляд останніх логів сервісу systemd",
+          "View recent systemd service logs",
+          "bash",
+          "___ -u forgeboard-api -n 50 --no-pager",
+          ["journalctl"],
+          true,
+          why(
+            "`journalctl -u <unit>` читає stdout/stderr та статус сервісу.",
+            "`journalctl -u <unit>` displays captured stdout/stderr and unit lifecycle events.",
+          ),
+        ),
+        mcq(
+          "sa-lt6",
+          "Застосунок не може підключитись до PostgreSQL з `ECONNREFUSED 127.0.0.1:5433`. Що НЕ є причиною?",
+          "The app fails connecting to PostgreSQL with `ECONNREFUSED 127.0.0.1:5433`. What is NOT the cause?",
+          [
+            "Неправильний пароль користувача (це дало б auth failed після TCP handshake)",
+            "Контейнер або служба PostgreSQL зупинена",
+            "PostgreSQL слухає інший порт (напр. 5432)",
+            "Порт не проброшено на localhost",
+          ],
+          0,
+          why(
+            "`ECONNREFUSED` означає, що TCP-з'єднання відхилено ще на рівні порту до обміну паролями.",
+            "`ECONNREFUSED` happens at TCP connect time before PostgreSQL authentication ever runs.",
+          ),
+        ),
+      ], { baseXp: 24 },
+    ),
+    lesson(
+      "sa-lt-backup-recovery",
+      "Перевірка бекапу та відновлення БД",
+      "Backup & Local Recovery Verification",
+      3, false, [
+        codeOrderAuto(
+          "sa-lt7",
+          "Кроки перевірки відновлення бази з дампа без ризику для prod",
+          "Verify a database backup safely without touching prod",
+          "bash",
+          [
+            "pg_dump --format=custom --file=forgeboard.dump \"$DATABASE_URL\"",
+            "createdb forgeboard_restore_check",
+            "pg_restore --dbname=forgeboard_restore_check forgeboard.dump",
+            "psql forgeboard_restore_check -c \"SELECT count(*) FROM tasks;\"",
+          ],
+          why(
+            "Бекап вважається робочим лише після тестового restore в ізольовану БД та перевірки таблиць.",
+            "A backup is only trusted after an isolated restore and row-count check.",
+          ),
+        ),
+        mcq(
+          "sa-lt8",
+          "Передача: під час відновлення не вистачає місця в `/var/lib/postgresql`. Що перевірити спершу?",
+          "Transfer: restore fails mid-way with disk full under `/var/lib/postgresql`. What do you check first?",
+          [
+            "`df -h` та `du -sh` для пошуку переповненого тому або старих логів",
+            "Запустити `chmod +x` на dump-файлі",
+            "Змінити порт Redis",
+            "Додати ще індексів у схему",
+          ],
+          0,
+          why(
+            "`df -h` одразу показує заповнення файлової системи, перш ніж повторювати restore.",
+            "`df -h` immediately reveals the full filesystem before retrying restore.",
+          ),
+        ),
+      ], { baseXp: 24 },
+    ),
+    exam("sa-lt-exam", "Контрольна: локальний траблшутинг", "Checkpoint: Local Troubleshooting", 3, [
+      mcq(
+        "sa-lt-e1",
+        "Які безпечні права варто поставити на файл секретів `.env`, що належить користувачу сервісу?",
+        "Which permission mode is appropriate for a service-owned `.env` secrets file?",
+        ["0600", "0777", "0666", "0444 для everyone"],
+        0,
+      ),
+      mcq(
+        "sa-lt-e2",
+        "Різниця між `EADDRINUSE` і `ECONNREFUSED`:",
+        "Difference between `EADDRINUSE` and `ECONNREFUSED`:",
+        [
+          "EADDRINUSE — порт уже слухається іншим процесом; ECONNREFUSED — на цільовому порту ніхто не слухає",
+          "Обидві означають невалідний SQL",
+          "Обидві виникають лише через DNS",
+          "ECONNREFUSED блокує Node назавжди",
+        ],
+        0,
+      ),
+      codeFill(
+        "sa-lt-e3",
+        "Перевірити вільне місце на дисках",
+        "Check free disk space",
+        "bash",
+        "___ -h",
+        ["df"],
+        true,
+      ),
+      codeRead(
+        "sa-lt-e4",
+        "Діагностуйте збій локального підключення до Postgres: Яка команда в Linux перевірить власника сокета і процесу postgres?",
+        "Diagnose PostgreSQL local startup failure: Which command inspects the owner and PID holding PostgreSQL sockets?",
+        "text",
+        "FATAL: lock file \"/var/run/postgresql/.s.PGSQL.5432.lock\" already exists\nLOG: permission denied for table tasks",
+        [
+          "ss -lxpn | grep 5432 && ps aux | grep postgres",
+          "chmod 777 /var/lib/postgresql -R",
+          "git gc --prune=now",
+          "killall -9 init",
+        ],
+        0,
+      ),
+      mcq(
+        "sa-lt-e5",
+        "Навіщо перевіряти резервну копію `pg_dump` за допомогою `pg_restore` у тимчасову тестову БД?",
+        "Why test a `pg_dump` archive via `pg_restore` into an isolated scratch database?",
+        [
+          "Дамп може виявитися порожнім, пошкодженим або потребувати відсутніх розширень — неперевірений бекап дорівнює відсутності бекапу",
+          "pg_restore автоматично прискорює прод-запити",
+          "pg_dump сам видаляє старі бекапи",
+          "Це потрібно лише для HTML-файлів",
+        ],
+        0,
+      ),
+      codeOrderAuto(
+        "sa-lt-e6",
+        "Послідовність діагностики локального API, який не запускається після оновлення",
+        "Order the local troubleshooting triage when API fails to boot",
+        "bash",
+        [
+          "Read service stderr or journalctl -u service logs first",
+          "Check port collision via ss -tulpn and .env permissions via ls -la",
+          "Verify DB/Redis reachability and applied migrations",
+          "Restart cleanly and verify /health endpoint responds 200",
+        ],
+      ),
+    ]),
+  ],
+);
+
 export const sysadminContent: CourseContent = {
   slug: "sysadmin",
   titleUk: "Сисадмін",
@@ -4196,6 +4415,7 @@ export const sysadminContent: CourseContent = {
     netCli,
     usersDisks,
     harden,
+    localTroubleshooting,
     capstone,
   ],
 };

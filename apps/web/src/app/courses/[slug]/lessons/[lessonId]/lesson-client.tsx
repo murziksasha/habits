@@ -8,6 +8,7 @@ import {
   exerciseTypeLabel,
 
   LESSON_RESULT_SHEET_MS,
+  type LocalLabManifest,
   UI,
 } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
@@ -20,6 +21,7 @@ import { ShareLinkButtons } from "@/components/share-link";
 import { Breadcrumbs, Skeleton, useToast } from "@/components/ui";
 import { isBrowserOffline } from "@/components/online-status";
 import { LessonShortcutsHelp } from "@/components/lesson-shortcuts-help";
+import { LocalLabPanel } from "@/components/local-lab-panel";
 import { recordGuestLessonProgress } from "@/lib/guest-progress";
 
 type ExerciseResult = {
@@ -48,6 +50,7 @@ export function LessonClient() {
     isExam?: boolean;
     passThreshold?: number | null;
   } | null>(null);
+  const [localLab, setLocalLab] = useState<LocalLabManifest | null>(null);
   const [hearts, setHearts] = useState(5);
   const [maxHearts, setMaxHearts] = useState(5);
   const [idx, setIdx] = useState(0);
@@ -195,11 +198,13 @@ export function LessonClient() {
         isExam?: boolean;
         passThreshold?: number | null;
       };
+      localLab?: LocalLabManifest | null;
       hearts?: number;
       maxHearts?: number;
     }>(`/courses/${slug}/lessons/${lessonId}`, token ? { token } : {})
       .then((d) => {
         setLesson(d.lesson);
+        setLocalLab(d.localLab ?? null);
         if (typeof d.hearts === "number") setHearts(d.hearts);
         if (typeof d.maxHearts === "number") setMaxHearts(d.maxHearts);
       })
@@ -842,6 +847,8 @@ export function LessonClient() {
           </p>
         )}
       </div>
+
+      {localLab && !lesson.isExam ? <LocalLabPanel lab={localLab} /> : null}
 
       {!focusMode && user && (
         <>

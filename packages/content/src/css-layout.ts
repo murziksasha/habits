@@ -2,12 +2,15 @@ import type { CourseContent, Exercise } from "./types.js";
 import {
   codeFill,
   codeOrder,
+  codeOrderAuto,
+  codeProject,
   codeRead,
   exam,
   lesson,
   matchEx,
   mcq,
   unit,
+  why,
 } from "./builders.js";
 
 const boxFlow = unit("box-flow", "Box & flow", "Box & flow", [
@@ -1002,6 +1005,171 @@ const appliedResponsiveTroubleshooting = unit(
   ],
 );
 
+const modernCssResilience = unit(
+  "modern_css_resilience",
+  "Каскадні шари, container queries, токени й захист від переповнення",
+  "Cascade Layers, Container Queries, Tokens & Overflow Resilience",
+  [
+    lesson(
+      "cl-layers-tokens",
+      "@layer, дизайн-токени та логічні властивості",
+      "@layer, design tokens & logical properties",
+      3,
+      false,
+      [
+        codeRead(
+          "cl-mod-1",
+          "Чому правило з шару `utilities` перемагає правило з `components`, навіть якщо селектор у `components` має вищу специфічність?",
+          "Predict: why does a rule in `@layer utilities` override `@layer components` even if the component selector has higher specificity?",
+          "css",
+          "@layer base, components, utilities;\n@layer components { .card .btn { background: blue; } }\n@layer utilities { .bg-accent { background: green; } }",
+          [
+            "У `@layer` порядок оголошення шарів важливіший за специфічність усередині шарів (для нормальних правил)",
+            "Специфічність завжди перемагає `@layer`",
+            "Правила поза `@layer` мають найнижчий пріоритет",
+            "Тому що green стоїть нижче за алфавітом",
+          ],
+          0,
+          why(
+            "Пізніший шар у `@layer` перемагає попередній без `!important`; незагорнуті (unlayered) стилі мають ще вищий пріоритет.",
+            "Later cascade layers beat earlier layers regardless of selector specificity; unlayered rules sit above all layers.",
+          ),
+        ),
+        codeFill(
+          "cl-mod-2",
+          "Замініть `padding-left` / `padding-right` однією логічною властивістю для підтримки різних напрямків письма",
+          "Replace left/right padding with a logical property",
+          "css",
+          ".btn { ___-inline: var(--space-md, 1rem); }",
+          ["padding"],
+          true,
+          why("Логічні властивості (`padding-inline`, `margin-block`) працюють і для LTR, і для RTL.", "Logical properties (`padding-inline`, `margin-block`) adapt across writing modes."),
+        ),
+      ],
+    ),
+    lesson(
+      "cl-container-overflow",
+      "@container queries, адаптивна типографіка, reduced motion та довгі тексти",
+      "@container queries, fluid typography, reduced motion & overflow",
+      3,
+      false,
+      [
+        codeFill(
+          "cl-mod-3",
+          "Оголосіть картку як контейнер розміру для запитів `@container`",
+          "Declare an element as an inline-size container for `@container` queries",
+          "css",
+          ".task-slot { container-___: inline-size; }",
+          ["type"],
+          true,
+          why("`container-type: inline-size` дозволяє дочірнім компонентам адаптуватися до ширини слота, а не лише вікна.", "`container-type: inline-size` lets components respond to parent slot width."),
+        ),
+        codeRead(
+          "cl-mod-4",
+          "Довгий URL або безпробіловий токен ламає grid-картку і викликає горизонтальний скрол на 320px. Яка причина і фікс?",
+          "A long unbroken token widens a grid card past 320px. What fixes both grid sizing and text wrapping?",
+          "css",
+          ".task-card { min-width: 0; overflow-wrap: anywhere; }",
+          [
+            "`min-width: 0` знімає дефолтний `min-width: auto` у grid/flex-дітей, а `overflow-wrap: anywhere` переносить довгі рядки",
+            "`overflow: hidden` робить текст читабельним",
+            "`font-size: clamp(2rem, 5vw, 4rem)` зменшує картку",
+            "`position: fixed` виправляє переповнення",
+          ],
+          0,
+          why(
+            "Без `min-width: 0` flex/grid елемент розтягується під нерозривний контент.",
+            "Flex/grid items default to `min-width: auto`; setting `min-width: 0` plus `overflow-wrap` prevents overflow.",
+          ),
+        ),
+        codeProject(
+          "cl-mod-5",
+          "Створіть стійку до 200%-зуму й довгого тексту картку задачі на `@layer`, `@container`, `clamp()` і `prefers-reduced-motion`.",
+          "Author a zoom- and overflow-resilient task card stylesheet with `@layer`, `@container`, `clamp()`, and `prefers-reduced-motion`.",
+          [
+            {
+              id: "css",
+              name: "tokens.css",
+              language: "css",
+              starter: `@layer tokens, components;
+@layer tokens {
+  :root {
+    --space-4: 1rem;
+  }
+}
+/* TODO: .board-slot container-type, .task-title clamp(), min-width:0, overflow-wrap, @container, prefers-reduced-motion */
+`,
+            },
+          ],
+          [
+            {
+              fileId: "css",
+              contains: ["@layer", "container-type", "@container", "clamp(", "overflow-wrap", "prefers-reduced-motion"],
+            },
+          ],
+          {
+            hintUk: "Додайте `@container (min-width: 28rem)`, `clamp(1rem, 2vw, 1.35rem)` та `@media (prefers-reduced-motion: reduce)`.",
+            hintEn: "Include `@container (min-width: 28rem)`, `clamp(1rem, 2vw, 1.35rem)`, and `@media (prefers-reduced-motion: reduce)`.",
+          },
+        ),
+      ],
+    ),
+    exam("cl-mod-exam", "Контрольна: сучасний стійкий CSS", "Exam: modern resilient CSS", 3, [
+      mcq(
+        "cl-me1",
+        "Чим `@container` краще за `@media (min-width: ...)` для перевикористовуваної картки задачі?",
+        "Why choose `@container` over `@media` for a reusable task card?",
+        [
+          "Картка підлаштовується під ширину свого контейнера (сайбар чи основна область), а не всього екрану",
+          "`@container` автоматично завантажує шрифти",
+          "`@media` більше не працює в браузерах",
+          "`@container` скасовує box model",
+        ],
+        0,
+        why("Container queries роблять компоненти по-справжньому портативними.", "Container queries decouple component layout from global viewport width."),
+      ),
+      codeFill(
+        "cl-me2",
+        "Плавне масштабування шрифту між мінімумом і максимумом",
+        "Fluid typography bounded by min and max sizes",
+        "css",
+        "font-size: ___(1rem, 2.5vw, 1.5rem);",
+        ["clamp"],
+        true,
+        why("`clamp(min, preferred, max)` не дає тексту стати замалим при 200% зумі або гігантським на десктопі.", "`clamp(min, preferred, max)` keeps headings readable across zoom levels."),
+      ),
+      codeRead(
+        "cl-me3",
+        "Який рядок не дасть flex-елементу з довгим заголовком витиснути кнопку «Видалити» за межі екрана?",
+        "Which property stops a long flex title from pushing the Delete button off-screen?",
+        "css",
+        ".title { flex: 1; ___: 0; overflow-wrap: anywhere; }",
+        [
+          "min-width: 0",
+          "z-index: 99",
+          "flex-grow: 10",
+          "display: inline",
+        ],
+        0,
+        why("`min-width: 0` дозволяє flex-дитячій області стискатися нижче ширини свого контенту.", "`min-width: 0` allows a flex item to shrink below its intrinsic content size."),
+      ),
+      codeOrderAuto(
+        "cl-me4",
+        "Порядок каскадних шарів від базових токенів до утиліт",
+        "Cascade layer order from lowest to highest priority",
+        "css",
+        [
+          "@layer reset;",
+          "@layer tokens;",
+          "@layer components;",
+          "@layer utilities;",
+        ],
+        why("Базовий скид і токени оголошуються першими, а точкові утиліти — останніми.", "Declare reset/tokens first and override utilities last."),
+      ),
+    ]),
+  ],
+);
+
 const capstone = unit("capstone", "Capstone", "Capstone", [
   lesson(
     "cl-capstone-dashboard",
@@ -1096,6 +1264,7 @@ export const cssLayoutContent: CourseContent = {
     gridResponsive,
     chooseTool,
     appliedResponsiveTroubleshooting,
+    modernCssResilience,
     capstone,
   ],
 };

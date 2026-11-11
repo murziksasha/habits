@@ -2,6 +2,7 @@ import type { CourseContent, Exercise } from "./types.js";
 import {
   codeFill,
   codeOrder,
+  codeOrderAuto,
   codeOutputMcq,
   codeRead,
   codeRun,
@@ -10,6 +11,7 @@ import {
   matchEx,
   mcq,
   unit,
+  why,
 } from "./builders.js";
 
 const miltechIntro = unit("miltech-intro", "MilTech intro · C++", "MilTech intro · C++", [
@@ -3520,6 +3522,165 @@ int main() {
       ),
   ]),
 ]);
+
+const debugAndSimulationBoundaries = unit(
+  "debug_simulation_boundaries",
+  "Діагностика та межі симуляції",
+  "Debugging & Simulation vs Hardware",
+  [
+    lesson(
+      "ec-host-sim-vs-mcu",
+      "Симуляція на хості та в браузері проти реального MCU",
+      "Host / Browser Simulation vs Target Hardware",
+      3,
+      false,
+      [
+        mcq(
+          "ec-dsb1",
+          "Тест логіки PID пройшов у симуляторі (наприклад, JSCPP / host C++), але на реальному STM32 таймер пропускає тики. Чому симуляція не гарантує реального часу?",
+          "A PID logic test passes in a host/browser simulator (e.g. JSCPP), yet misses timer ticks on STM32 hardware. Why doesn't simulation guarantee hardware timing?",
+          [
+            "Симулятор не моделює латентність переривань, шину DMA, тактову частоту MCU та блокування периферії",
+            "Тому що C++ компілюється в Python на MCU",
+            "Тому що MCU не має змінних типу int32_t",
+            "Бо в симуляторі відсутня операторна арифметика",
+          ],
+          0,
+          why(
+            "Хостовий або браузерний інтерпретатор перевіряє алгебраїчну логіку, але реальні апаратні таймери, ISR та шини перевіряються лише крос-компільованою прошивкою на таргеті або cycle-accurate тесті.",
+            "Host/browser interpreters validate algorithmic logic cleanly, while ISR latency, DMA contention, and clock timing belong strictly to cross-compiled hardware execution.",
+          ),
+        ),
+        codeRead(
+          "ec-dsb2",
+          "Виправте блокуючу операцію всередині ISR: що зламано і як полагодити?",
+          "Diagnose blocking work inside ISR: what is wrong and how should it be repaired?",
+          "cpp",
+          "void EXTI0_IRQHandler() {\n  printf(\"button pressed\\n\"); // UART TX busy-wait\n  flag = 1;\n}",
+          [
+            "printf усередині ISR блокує інші переривання; лишіть короткий volatile/atomic прапорець або xQueueSendFromISR і логуйте поза ISR",
+            "Замінити flag = 1 на std::map",
+            "Додати sleep(1) перед printf",
+            "Викликати malloc усередині переривання",
+          ],
+          0,
+          why(
+            "Переривання мають бути мінімальними: фіксують подію через atomic/FromISR примітив і передають роботу задачі або main loop.",
+            "ISRs must stay tiny and non-blocking: signal a flag/ISR queue primitive and defer UART/RTT logging to task context.",
+          ),
+        ),
+      ],
+      { baseXp: 24 },
+    ),
+    lesson(
+      "ec-sanitizers-gdb",
+      "Прапорці компілятора, ASan/UBSan та GDB/OpenOCD",
+      "Compiler Warnings, Sanitizers & GDB Workflows",
+      3,
+      false,
+      [
+        codeOrderAuto(
+          "ec-dsb3",
+          "Впорядкуйте діагностичний цикл пошуку memory bug на хості перед прошивкою плати",
+          "Order the host diagnostic loop before flashing target hardware",
+          "bash",
+          [
+            "Compile pure logic module on host with -Wall -Wextra -Werror",
+            "Run unit tests under -fsanitize=address,undefined",
+            "Reproduce target crash via GDB backtrace over SWD/OpenOCD",
+            "Add deterministic boundary regression test for the root cause",
+          ],
+          why(
+            "Sanitizers на хості знаходять UB та вихід за межі буфера за секунди; SWD/GDB локалізує апаратний стан.",
+            "Host sanitizers catch UB and out-of-bounds bugs immediately; SWD/GDB isolates target hardware faults.",
+          ),
+        ),
+        codeFill(
+          "ec-dsb4",
+          "Перетворити попередження на помилки компіляції",
+          "Turn warnings into compile errors",
+          "bash",
+          "g++ -Wall -Wextra -___ main.cpp",
+          ["Werror"],
+          true,
+          why(
+            "`-Werror` не дає пропустити потенційно небезпечні попередження в реліз.",
+            "`-Werror` prevents hazardous compiler warnings from slipping into builds.",
+          ),
+        ),
+      ],
+    ),
+    exam("ec-dsb-exam", "Контрольна: дебагінг і межі симуляції", "Checkpoint: Debugging & Simulation Boundaries", 3, [
+      mcq(
+        "ec-dsb-e1",
+        "Що можна впевнено валідувати у локальній хост-симуляції без апаратної плати?",
+        "What can be validated reliably in host simulation without hardware attached?",
+        [
+          "Парсери протоколів (CRC, MAVLink framing), скінченні автомати станів та pure math",
+          "Точний джитер PWM на реальному двигуні під навантаженням",
+          "Електромагнітні завади на SPI-шині",
+          "Струм витоку MOSFET",
+        ],
+        0,
+      ),
+      mcq(
+        "ec-dsb-e2",
+        "Яка комбінація допомагає виявити невизначену поведінку (signed overflow, null deref) у хост-тестах C++?",
+        "Which sanitizer flag catches undefined behavior such as signed overflow or null dereference in host C++ tests?",
+        ["-fsanitize=undefined", "-O0 -s", "--strip-all", "-DNO_DEBUG"],
+        0,
+      ),
+      codeFill(
+        "ec-dsb-e3",
+        "Увімкнути AddressSanitizer на хост-збірці C++ тестів",
+        "Enable AddressSanitizer in host C++ unit build",
+        "bash",
+        "g++ -g -O1 -fsanitize=___ test.cpp",
+        ["address"],
+        true,
+      ),
+      codeRead(
+        "ec-dsb-e4",
+        "Знайдіть причину, чому змінна, оновлювана в ISR, перестала бачитись у головному циклі при `-O2`: що виправить баг оптимізації?",
+        "Diagnose ISR variable cached in register under -O2: what preserves reload across main loop & ISR?",
+        "cpp",
+        "bool ready = false;\nvoid TIM2_IRQHandler() { ready = true; }\nint main() { while (!ready) {} }",
+        [
+          "Оголосити як `volatile bool ready` або `std::atomic<bool> ready`, щоб компілятор не кешував регістр нескінченно",
+          "Прибрати цикл while",
+          "Замінити bool на float",
+          "Викликати printf у кожній ітерації",
+        ],
+        0,
+      ),
+      mcq(
+        "ec-dsb-e5",
+        "Чому для відладки реального часу на MCU використовують SEGGER RTT / ITM SWO або GPIO + логічний аналізатор замість `printf` по 9600 UART?",
+        "Why prefer RTT/ITM or logic analyzer GPIO toggles over 9600-baud UART `printf` when timing MCU loops?",
+        [
+          "Повільний UART-друк спотворює часові вікна (Heisenbug), а RTT/GPIO вимірюють мікросекунди майже без накладних витрат",
+          "UART не передає літери ASCII",
+          "RTT шифрує батарею",
+          "GPIO вимикає RAM",
+        ],
+        0,
+      ),
+      codeOrderAuto(
+        "ec-dsb-e6",
+        "Впорядкуйте локалізацію HardFault на ARM Cortex-M",
+        "Order steps to localize a HardFault on ARM Cortex-M target hardware",
+        "bash",
+        [
+          "Halt MCU over SWD debugger and capture CFSR / HFSR + stacked PC/LR registers",
+          "Resolve faulting address using arm-none-eabi-addr2line against ELF symbols",
+          "Extract offending pure state/parser function into host sanitizer test",
+          "Flash fix on target and re-verify deterministic runtime behavior",
+        ],
+      ),
+    ]),
+  ],
+);
+
 export const embeddedCppContent: CourseContent = {
   slug: "embedded_cpp",
   titleUk: "Embedded C++ · MilTech",
@@ -3547,6 +3708,7 @@ export const embeddedCppContent: CourseContent = {
     datalinkOps,
     missionAutonomy,
     safetyCriticalScenarios,
+    debugAndSimulationBoundaries,
     systemsCapstone,
   ],
 };

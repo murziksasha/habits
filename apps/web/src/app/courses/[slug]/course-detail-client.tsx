@@ -3,7 +3,15 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Fragment, useEffect, useState } from "react";
-import { getCourseParts, pickLocale, UI } from "@eduforge/shared";
+import {
+  COURSE_HUB_HREF,
+  COURSE_META,
+  getCourseNextSteps,
+  getCourseParts,
+  getCoursePrerequisites,
+  pickLocale,
+  UI,
+} from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
@@ -25,6 +33,8 @@ type Lesson = {
   examLocked?: boolean;
   passThreshold?: number | null;
   baseXp?: number;
+  hasLocalLab?: boolean;
+  localLabId?: string | null;
 };
 
 type Unit = { id: string; slug: string; titleUk: string; titleEn?: string; lessons: Lesson[] };
@@ -136,6 +146,39 @@ export function CourseDetailClient() {
           <p className="text-ink-muted">
             {pickLocale(locale, data.course.descriptionUk, data.course.descriptionEn)}
           </p>
+          {(() => {
+            const prereqs = getCoursePrerequisites(slug);
+            const nextSteps = getCourseNextSteps(slug);
+            if (!prereqs.length && !nextSteps.length) return null;
+            return (
+              <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                {prereqs.map((pSlug) => {
+                  const meta = COURSE_META[pSlug];
+                  return (
+                    <Link
+                      key={`pre-${pSlug}`}
+                      href={COURSE_HUB_HREF[pSlug] ?? `/courses/${pSlug}`}
+                      className="rounded-lg bg-slate-100 px-2.5 py-1 font-bold text-ink-muted hover:underline dark:bg-slate-800"
+                    >
+                      ← {meta.icon} {pickLocale(locale, meta.titleUk, meta.titleEn)}
+                    </Link>
+                  );
+                })}
+                {nextSteps.map((nSlug) => {
+                  const meta = COURSE_META[nSlug];
+                  return (
+                    <Link
+                      key={`next-${nSlug}`}
+                      href={COURSE_HUB_HREF[nSlug] ?? `/courses/${nSlug}`}
+                      className="rounded-lg bg-indigo-50 px-2.5 py-1 font-bold text-indigo-700 hover:underline dark:bg-indigo-950/60 dark:text-indigo-300"
+                    >
+                      {meta.icon} {pickLocale(locale, meta.titleUk, meta.titleEn)} →
+                    </Link>
+                  );
+                })}
+              </div>
+            );
+          })()}
           {continueLesson ? (
             <Link
               href={`/courses/${slug}/lessons/${continueLesson.id}`}
@@ -251,6 +294,11 @@ export function CourseDetailClient() {
                           {lesson.isExam ? (
                             <span className="ml-2 rounded-full bg-grape/15 px-2 py-0.5 text-[10px] font-black text-grape">
                               {locale === "en" ? "Exam" : "Контрольна"}
+                            </span>
+                          ) : null}
+                          {lesson.hasLocalLab ? (
+                            <span className="ml-2 rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-black text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
+                              💻 {locale === "en" ? "Local Lab" : "Локальний лаб"}
                             </span>
                           ) : null}
                         </p>

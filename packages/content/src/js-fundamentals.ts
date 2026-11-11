@@ -2,12 +2,16 @@ import type { CourseContent, Exercise } from "./types.js";
 import {
   codeFill,
   codeOrder,
+  codeOrderAuto,
+  codeOutputMcq,
+  codeProject,
   codeRead,
   exam,
   lesson,
   matchEx,
   mcq,
   unit,
+  why,
 } from "./builders.js";
 
 const values = unit("values", "Values & types", "Values & types", [
@@ -1396,6 +1400,52 @@ export function createCounter() {
       } as Exercise,
     ],
   ),
+  lesson(
+    "jsf-forgeboard-board-lab",
+    "Лаб: інтерактивна дошка ForgeBoard (M2)",
+    "Lab: Interactive ForgeBoard Board (M2)",
+    4,
+    false,
+    [
+      mcq(
+        "jsf-fb1",
+        "На локальній дошці ForgeBoard фільтр пошуку робить fetch на кожен keystroke. Що відбудеться, якщо раніший повільний запит повернеться після новішого?",
+        "ForgeBoard search triggers fetch on every keystroke. What happens if an older slow response resolves after a newer query?",
+        [
+          "Стан UI перетреться застарілими результатами (race condition), якщо не скасовувати попередній запит через AbortController",
+          "Браузер автоматично скасує всі попередні Promise сам",
+          "JSON.parse сам пересортує старі дані за часом",
+          "Подія input більше не спрацює",
+        ],
+        0,
+        why(
+          "Кожен новий пошук має скасовувати попередній AbortController або ігнорувати відповіді неактуального сигналу.",
+          "Aborting stale requests with AbortController guarantees fast responses never overwrite newer results.",
+        ),
+      ),
+      codeProject(
+        "jsf-fb2",
+        "Змоделюйте фільтрацію й незмінне оновлення статусу задачі ForgeBoard; для повних поведінкових тестів завантажте локальний пакет M2 нижче.",
+        "Model ForgeBoard filtering and immutable task updates; download the M2 local lab pack below for full automated behavior tests.",
+        [
+          {
+            id: "js",
+            name: "board.js",
+            language: "javascript",
+            starter: `export function filterTasks(tasks, query, status) {\n  const q = query.trim().toLowerCase();\n  return tasks.filter((t) => (!status || t.status === status) && t.title.toLowerCase().includes(q));\n}\n\nexport function toggleTaskStatus(tasks, id) {\n  return tasks.map((t) => (t.id === id ? { ...t, status: t.status === "done" ? "todo" : "done" } : t));\n}\n`,
+          },
+        ],
+        [
+          { fileId: "js", contains: ["filterTasks", "filter", "toggleTaskStatus", "map"] },
+        ],
+        {
+          hintUk: "Використовуйте LocalLabPanel для запуску npm/pnpm-тестів у локальному середовищі M2.",
+          hintEn: "Use the LocalLabPanel below to run real Node/DOM test suites for Milestone 2.",
+        },
+      ),
+    ],
+    { baseXp: 40 },
+  ),
   exam("jsf-cap-exam", "Фінальна контрольна JS", "Final JS exam", 3, [
     mcq("jsf-ce1", "=== is:", "=== is:", ["strict equality", "assign", "OR", "await"], 0),
     codeFill("jsf-ce2", "map", "map", "js", "arr.___(f)", ["map"], true),
@@ -1556,6 +1606,167 @@ const errorsProto = unit("errors_proto", "Errors & prototypes", "Errors & protot
   ),
 ]);
 
+const eventLoopConcurrency = unit(
+  "event_loop_concurrency",
+  "Event Loop, скасування та межі модулів",
+  "Event Loop, Cancellation & Modules",
+  [
+    lesson(
+      "jsf-elc-microtasks",
+      "Порядок черг: Call Stack, Microtasks та Macrotasks",
+      "Event Loop: Microtasks vs Macrotasks",
+      3, false, [
+        codeOutputMcq(
+          "jsf-elc1",
+          "Передбачте порядок логів у консолі браузера",
+          "Predict the exact console.log order",
+          "js",
+          "console.log(\"A\");\nsetTimeout(() => console.log(\"B\"), 0);\nPromise.resolve().then(() => console.log(\"C\"));\nconsole.log(\"D\");",
+          ["A, D, C, B", "A, B, C, D", "A, C, D, B", "A, D, B, C"],
+          0,
+          why(
+            "Синхронний стек (A, D) виконується першим, потім спорожнюється вся черга мікрозадач Promise (C), і лише після цього наступна макрозадача setTimeout (B).",
+            "Synchronous stack logs first (A, D), then the microtask queue drains completely (C), before the next macrotask timer runs (B).",
+          ),
+        ),
+        codeRead(
+          "jsf-elc2",
+          "Діагностуйте блокування UI в циклі: Чому сторінка перестає реагувати на кліки попри використання Promise?",
+          "Diagnose UI freeze loop: Why does the page freeze on clicks even though Promise is asynchronous?",
+          "js",
+          "function freeze() {\n  return Promise.resolve().then(freeze);\n}",
+          [
+            "Нескінченне планування microtask не дає браузеру дійти до рендерингу кадру та macrotasks",
+            "Promise.resolve працює в окремому OS-потоці",
+            "Тому що setTimeout заблокував DOM",
+            "Через відсутність async/await",
+          ],
+          0,
+          why(
+            "Цикл виконує всі microtasks до повного спустошення черги, блокуючи отрисовку кадру та події користувача.",
+            "Microtasks drain to emptiness before frame paint or user input macrotasks can run.",
+          ),
+        ),
+      ], { baseXp: 24 },
+    ),
+    lesson(
+      "jsf-elc-abort-http",
+      "AbortController, Promise.allSettled і HTTP-помилки",
+      "Cancellation, Concurrent Requests & HTTP Errors",
+      3, false, [
+        codeRead(
+          "jsf-elc3",
+          "Чому fetch не кидає помилку при 404? Що станеться, якщо сервер поверне 500 Internal Server Error у текстовому вигляді?",
+          "Spot the silent HTTP 404 bug: What fails when the server returns HTTP 500 text/html?",
+          "js",
+          "async function getTasks() {\n  const res = await fetch(\"/api/tasks\");\n  return res.json();\n}",
+          [
+            "fetch не відхиляє Promise на 4xx/5xx; без перевірки `if (!res.ok)` код падає лише пізніше на `res.json()` або мовчки приймає error body",
+            "fetch сам робить 5 повторів",
+            "res.json() автоматично кидає Http404Error із текстом маршруту",
+            "Помилки 500 ігноруються в try/catch",
+          ],
+          0,
+          why(
+            "fetch відхиляється лише при мережевій аварії або AbortError; HTTP 4xx/5xx потрібно явно перевіряти через `res.ok`.",
+            "fetch only rejects on network faults or aborts; always check `if (!res.ok)` before parsing JSON.",
+          ),
+        ),
+        mcq(
+          "jsf-elc4",
+          "Потрібно паралельно завантажити профіль і сповіщення, але падіння сповіщень не має скасовувати профіль. Що обрати?",
+          "You want profile + notifications concurrently, where notification failure must not hide the profile. Which combinator?",
+          ["Promise.allSettled([p1, p2])", "Promise.all([p1, p2])", "Promise.race([p1, p2])", "Sequential while loop"],
+          0,
+          why(
+            "`Promise.allSettled` повертає індивідуальний статус (`fulfilled` / `rejected`) для кожного запиту.",
+            "`Promise.allSettled` preserves per-request outcomes instead of failing fast on the first rejection.",
+          ),
+        ),
+        codeFill(
+          "jsf-elc5",
+          "Передати сигнал скасування у fetch",
+          "Pass cancellation signal to fetch",
+          "js",
+          "const ac = new AbortController();\nawait fetch(url, { ___: ac.signal });",
+          ["signal"],
+          true,
+          why(
+            "Властивість `signal` пов'язує життєвий цикл fetch із контролером скасування.",
+            "Passing `signal: ac.signal` lets `ac.abort()` cancel in-flight requests.",
+          ),
+        ),
+      ], { baseXp: 25 },
+    ),
+    lesson(
+      "jsf-elc-immutability-devtools",
+      "Незмінні оновлення, модулі та DevTools",
+      "Immutable Updates, Module Boundaries & Debugging",
+      3, false, [
+        codeRead(
+          "jsf-elc6",
+          "Знайдіть приховану мутацію стану: Чому початковий масив `tasks` усе одно змінився?",
+          "Diagnose accidental state mutation: Why was `tasks[0]` in the original array mutated anyway?",
+          "js",
+          "function completeFirst(tasks) {\n  const next = tasks.slice();\n  next[0].done = true;\n  return next;\n}",
+          [
+            "`.slice()` робить поверхневу копію масиву, тому елементи-об'єкти лишаються тими ж посиланнями",
+            "`.slice()` не копіює навіть індекси",
+            "Будь-які масиви в JS глобальні",
+            "Оператор `=` копіює об'єкти глибоко",
+          ],
+          0,
+          why(
+            "Замінюйте змінений об'єкт новим через `map`: `tasks.map((t, i) => (i === 0 ? { ...t, done: true } : t))`.",
+            "`.slice()` is shallow; copy the modified item too (`{ ...t, done: true }`).",
+          ),
+        ),
+        mcq(
+          "jsf-elc7",
+          "Яка вкладка DevTools браузера найкраще показує затримку TTFB, статус відповіді та скасовані запити?",
+          "Which browser DevTools panel reveals TTFB timing, HTTP status codes, and aborted requests?",
+          ["Network (ініціатор + Waterfall)", "Elements -> Computed Styles", "Application -> Manifest", "Memory Heap only"],
+          0,
+          why(
+            "Network Waterfall одразу відділяє скасовані клієнтом запити від повільної або 5xx відповіді сервера.",
+            "The Network Waterfall separates aborted client calls from slow server responses or 5xx payloads.",
+          ),
+        ),
+      ], { baseXp: 24 },
+    ),
+    exam("jsf-elc-exam", "Контрольна: Event Loop та асинхронність", "Checkpoint: Event Loop & Concurrency", 3, [
+      mcq(
+        "jsf-elc-e1",
+        "Яка помилка летить із `fetch`, коли викликано `controller.abort()`?",
+        "Which error is raised by `fetch` when `controller.abort()` fires?",
+        ["AbortError (DOMException)", "SyntaxError", "TypeError 404", "RangeError"],
+        0,
+      ),
+      mcq(
+        "jsf-elc-e2",
+        "Навіщо виносити `apiClient.js` в окремий ES-модуль замість викликів `fetch` прямо в DOM-обробниках?",
+        "Why isolate `apiClient.js` as a module instead of scattering raw `fetch` inside DOM click listeners?",
+        [
+          "Єдине місце для перевірки `!res.ok`, заголовків і тестування бізнес-логіки без браузерного DOM",
+          "ES-модулі виконуються лише на Rust-серверах",
+          "Щоб приховати HTTP-статуси у Network tab",
+          "Бо `export` робить мережу швидшою в 10 разів",
+        ],
+        0,
+      ),
+      codeFill(
+        "jsf-elc-e3",
+        "Перевірити успішність HTTP-відповіді fetch",
+        "Check fetch HTTP success status",
+        "js",
+        "if (!res.___) throw new Error(`HTTP ${res.status}`);",
+        ["ok"],
+        true,
+      ),
+    ]),
+  ],
+);
+
 export const jsFundamentalsContent: CourseContent = {
   slug: "js_fundamentals",
   titleUk: "JavaScript: fundamentals",
@@ -1583,6 +1794,7 @@ export const jsFundamentalsContent: CourseContent = {
     pageWidgets,
     errorsProto,
     asyncDomDebugging,
+    eventLoopConcurrency,
     capstone,
   ],
 };

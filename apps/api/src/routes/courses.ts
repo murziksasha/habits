@@ -8,10 +8,28 @@ import {
   userLessonProgress,
 } from "@eduforge/db";
 import {
+  getLocalLabForLesson,
+  listLabsForCourse,
   maxHearts,
   regenerateHearts,
   type Plan,
 } from "@eduforge/shared";
+
+function attachLabMeta(
+  courseSlug: string,
+  lessonSlug: string,
+  contentSource?: string | null,
+) {
+  if (contentSource === "cms") {
+    return { localLab: null, hasLocalLab: false, localLabId: null };
+  }
+  const localLab = getLocalLabForLesson(courseSlug, lessonSlug);
+  return {
+    localLab,
+    hasLocalLab: Boolean(localLab),
+    localLabId: localLab?.labId ?? null,
+  };
+}
 import { authMiddleware, optionalAuth, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 import { clientIp, rateLimit } from "../rate-limit.js";
@@ -80,6 +98,7 @@ courseRoutes.get("/:slug", optionalAuth, async (c) => {
           );
           const isExam = Boolean(l.isExam);
           const examLocked = isExam && nonExam.length > 0;
+          const labMeta = attachLabMeta(course.slug, l.slug, course.contentSource);
           return {
             id: l.id,
             slug: l.slug,
@@ -93,6 +112,8 @@ courseRoutes.get("/:slug", optionalAuth, async (c) => {
             passThreshold: l.passThreshold ?? (isExam ? 0.7 : null),
             examLocked,
             locked: examLocked,
+            hasLocalLab: labMeta.hasLocalLab,
+            localLabId: labMeta.localLabId,
             status: "available",
             bestScore: 0,
             completedAt: null,
@@ -103,6 +124,7 @@ courseRoutes.get("/:slug", optionalAuth, async (c) => {
     return c.json({
       course,
       units: unitsPayload,
+      courseLabs: course.contentSource === "cms" ? [] : listLabsForCourse(course.slug),
       progress: {
         xp: 0,
         level: 1,
@@ -159,6 +181,7 @@ courseRoutes.get("/:slug", optionalAuth, async (c) => {
         );
         const isExam = Boolean(l.isExam);
         const examLocked = isExam && !nonExamDone && lp?.status !== "completed";
+        const labMeta = attachLabMeta(course.slug, l.slug, course.contentSource);
         return {
           id: l.id,
           slug: l.slug,
@@ -172,6 +195,8 @@ courseRoutes.get("/:slug", optionalAuth, async (c) => {
           passThreshold: l.passThreshold ?? (isExam ? 0.7 : null),
           examLocked,
           locked: examLocked,
+          hasLocalLab: labMeta.hasLocalLab,
+          localLabId: labMeta.localLabId,
           status: lp?.status ?? "available",
           bestScore: lp?.bestScore ?? 0,
           completedAt: lp?.completedAt ?? null,
@@ -184,6 +209,7 @@ courseRoutes.get("/:slug", optionalAuth, async (c) => {
   return c.json({
     course,
     units: unitsPayload,
+    courseLabs: course.contentSource === "cms" ? [] : listLabsForCourse(course.slug),
     progress: progress
       ? {
           xp: progress.xp,
@@ -233,6 +259,7 @@ courseRoutes.get("/:slug/lessons/:lessonId", optionalAuth, async (c) => {
   const idx = sorted.findIndex((l) => l.id === lesson.id);
 
   if (!user) {
+    const labMeta = attachLabMeta(course.slug, lesson.slug, course.contentSource);
     return c.json({
       lesson: {
         ...lesson,
@@ -240,6 +267,7 @@ courseRoutes.get("/:slug/lessons/:lessonId", optionalAuth, async (c) => {
         passThreshold: lesson.passThreshold ?? (lesson.isExam ? 0.7 : null),
       },
       course,
+      localLab: labMeta.localLab,
       indexInCourse: idx,
       hearts: maxHearts("free"),
       maxHearts: maxHearts("free"),
@@ -297,6 +325,7 @@ courseRoutes.get("/:slug/lessons/:lessonId", optionalAuth, async (c) => {
     }
   }
 
+  const labMeta = attachLabMeta(course.slug, lesson.slug, course.contentSource);
   return c.json({
     lesson: {
       ...lesson,
@@ -304,6 +333,7 @@ courseRoutes.get("/:slug/lessons/:lessonId", optionalAuth, async (c) => {
       passThreshold: lesson.passThreshold ?? (lesson.isExam ? 0.7 : null),
     },
     course,
+    localLab: labMeta.localLab,
     indexInCourse: idx,
     hearts: progress.hearts,
     maxHearts: maxHearts(plan),

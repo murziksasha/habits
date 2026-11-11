@@ -1,5 +1,5 @@
 import type { CourseContent, Exercise, LessonContent, UnitContent } from "./types.js";
-import { codeFill, codeRead, codeOrder, mcq } from "./builders.js";
+import { codeFill, codeRead, codeOrder, codeOrderAuto, codeProject, mcq, why } from "./builders.js";
 
 function lesson(
   slug: string,
@@ -1278,6 +1278,168 @@ const appliedErrorDiagnosis = unit(
   ],
 );
 
+const strictContractsUnions = unit(
+  "strict_contracts_unions",
+  "Strict-діагностика, unknown і discriminated unions",
+  "Strict Compiler Diagnostics, unknown & Discriminated Unions",
+  [
+    lesson(
+      "tsc-unknown-runtime",
+      "unknown vs any та runtime-валідація відповідей API",
+      "unknown vs any & runtime validation of untrusted API payloads",
+      3,
+      false,
+      [
+        mcq(
+          "tsc-sc1",
+          "Чому `const data: User = await res.json()` небезпечно навіть у strict TypeScript?",
+          "Why is `const data: User = await res.json()` unsafe even in strict TypeScript?",
+          [
+            "Типи TS стираються під час компіляції; `res.json()` повертає `any`, тому невалідний JSON сервера зламає UI у runtime",
+            "TypeScript забороняє виклик `await res.json()`",
+            "`interface User` автоматично валідує JSON у браузері",
+            "`any` безпечніший за `unknown`",
+          ],
+          0,
+          why(
+            "Зовнішні дані слід приймати як `unknown` і пропускати через type guard або схему (Zod).",
+            "Treat external payloads as `unknown` and validate with a type guard or Zod schema at runtime.",
+          ),
+        ),
+        codeFill(
+          "tsc-sc2",
+          "Замініть небезпечний `any` на безпечний тип для сирого входу до перевірки",
+          "Replace unsafe `any` with the safe top type requiring narrowing before use",
+          "ts",
+          "function parseTask(raw: ___): Task | null { return null; }",
+          ["unknown"],
+          true,
+          why("`unknown` примушує перевірити структуру значення перед доступом до полів.", "`unknown` forces narrowing before property access."),
+        ),
+        codeRead(
+          "tsc-sc3",
+          "Яку помилку покаже `tsc` з увімкненим прапорцем `noUncheckedIndexedAccess: true`?",
+          "What diagnostic does `tsc` emit when `noUncheckedIndexedAccess: true` is enabled?",
+          "ts",
+          "const items: string[] = [];\nconst first = items[0];\nconsole.log(first.toUpperCase());",
+          [
+            "`first` має тип `string | undefined` — можливий TypeError без перевірки `if (first !== undefined)`",
+            "Масив не може бути порожнім",
+            "`toUpperCase` не існує на string",
+            "Жодної помилки",
+          ],
+          0,
+          why(
+            "`noUncheckedIndexedAccess` захищає від падінь при виході за межі масиву чи відсутньому ключі словника.",
+            "`noUncheckedIndexedAccess` adds `undefined` to indexed reads so missing entries are checked explicitly.",
+          ),
+        ),
+      ],
+    ),
+    lesson(
+      "tsc-discriminated-generics",
+      "Discriminated unions, корисні generics та API-контракти",
+      "Discriminated unions, useful generics & typed API contracts",
+      3,
+      false,
+      [
+        codeRead(
+          "tsc-sc4",
+          "Чому модель `RequestState<T>` через discriminated union унеможливлює суперечливий UI-стан?",
+          "Why does a discriminated union `RequestState<T>` prevent contradictory UI states?",
+          "ts",
+          "type RequestState<T> =\n  | { status: 'idle' }\n  | { status: 'loading' }\n  | { status: 'error'; error: string }\n  | { status: 'success'; data: T };",
+          [
+            "Поле `status` однозначно визначає, які властивості (`data` чи `error`) існують у кожній гілці `switch`",
+            "Generic `<T>` забороняє статус `'loading'`",
+            "Воно автоматично робить HTTP-запит",
+            "Можна одночасно читати `state.data` і `state.error` у стані `'loading'`",
+          ],
+          0,
+          why(
+            "Discriminated union не дозволяє створити стан `{ status: 'loading', error: 'fail' }`.",
+            "Discriminated unions make `{ status: 'loading', error: 'fail' }` a compile-time error.",
+          ),
+        ),
+        codeFill(
+          "tsc-sc5",
+          "Перевірка вичерпності (exhaustiveness check) гілок union через `never`",
+          "Exhaustiveness guard in `switch` using `never`",
+          "ts",
+          "default: { const _exhaustive: ___ = state; return _exhaustive; }",
+          ["never"],
+          true,
+          why("Якщо з'явиться новий варіант `status`, `tsc` підсвітить необроблений випадок.", "Adding a new union member causes `tsc` to flag the unhandled `never` assignment."),
+        ),
+        codeOrderAuto(
+          "tsc-sc6",
+          "Порядок безпечної обробки відповіді API у клієнті",
+          "Order of safely typing and handling an API response",
+          "text",
+          [
+            "1. Отримати payload із `await res.json()` у змінну типу `unknown`",
+            "2. Пропустити `unknown` через type guard / Zod-валідатор",
+            "3. Повернути типізований `Result<T, ApiError>` або `RequestState<T>`",
+            "4. Рендерити UI через вичерпний `switch (state.status)`",
+          ],
+          why(
+            "Межа `unknown` + валідація гарантує, що компоненти працюють лише з перевіреними структурами.",
+            "Validating at the `unknown` boundary guarantees downstream components receive valid data.",
+          ),
+        ),
+      ],
+    ),
+    exam("tsc-sc-exam", "Контрольна: строгі контракти TypeScript", "Exam: strict TS contracts", 3, [
+      mcq(
+        "tsc-sce1",
+        "Який прапорець `tsconfig.json` додає `| undefined` до `arr[i]` та `record[key]`?",
+        "Which `tsconfig.json` flag adds `| undefined` to indexed lookups?",
+        ["`noUncheckedIndexedAccess`", "`allowJs`", "`skipLibCheck`", "`sourceMap`"],
+        0,
+        why("`noUncheckedIndexedAccess` ловить потенційні `Cannot read properties of undefined`.", "`noUncheckedIndexedAccess` catches unguarded out-of-bounds or missing-key reads."),
+      ),
+      codeFill(
+        "tsc-sce2",
+        "Безпечний тип вхідних неперевірених даних JSON",
+        "Safe type for unvalidated JSON input",
+        "ts",
+        "function isTask(v: ___): v is Task { return typeof v === 'object' && v !== null; }",
+        ["unknown"],
+        true,
+        why("Type predicate `(v: unknown): v is Task` звужує тип безпечно.", "Type predicates narrow `unknown` safely."),
+      ),
+      codeRead(
+        "tsc-sce3",
+        "Що повертає узагальнений контракт `ApiResponse<Task[]>`?",
+        "What does `ApiResponse<Task[]>` enforce when `ok: false`?",
+        "ts",
+        "type ApiResponse<T> = { ok: true; data: T } | { ok: false; error: string };",
+        [
+          "Вимагає наявності `error: string` і забороняє читати `data` до перевірки `if (res.ok)`",
+          "Дозволяє `res.data` без перевірок",
+          "Працює лише для рядків",
+          "Видаляє поле `ok` у JS",
+        ],
+        0,
+        why("Булевий дискримінант `ok` розділяє гілки успіху та помилки на рівні типів.", "The boolean discriminant `ok` separates success and error payloads."),
+      ),
+      mcq(
+        "tsc-sce4",
+        "Навіщо в type-level контракті вказувати `readonly` на вхідних масивах стану?",
+        "Why mark task list inputs `readonly Task[]` in state helpers?",
+        [
+          "Щоб компілятор заборонив випадкові мутації (`.push()`, `.sort()`) вхідного стану",
+          "Щоб зберегти масив у localStorage",
+          "Щоб пришвидшити JSON.parse у 10 разів",
+          "Тому що `readonly` шифрує дані",
+        ],
+        0,
+        why("`readonly` попереджає про мутацію ще в редакторі до запуску тестів.", "`readonly` catches accidental in-place mutations at compile time."),
+      ),
+    ]),
+  ],
+);
+
 const capstone = unit("capstone", "Capstone", "Capstone", [
   lesson(
     "tsc-capstone-util",
@@ -1326,6 +1488,38 @@ export {};
           { fileId: "md", contains: ["interface"] },
         ],
       },
+    ],
+  ),
+  lesson(
+    "tsc-forgeboard-models-lab",
+    "ForgeBoard M3: Строге моделювання та unknown-контракти",
+    "ForgeBoard M3: Strict Modeling & Untrusted Payload Validation",
+    4,
+    false,
+    [
+      mcq(
+        "tsc-fb1",
+        "У ForgeBoard M3: як повернути помилку валідації API без викидання нетипізованого винятку?",
+        "In ForgeBoard M3: how should `parseTaskPayload(raw: unknown)` report invalid payloads?",
+        [
+          "Повернути `{ ok: false, error: ... }` у discriminated union `Result<Task, ValidationError>`",
+          "Кастувати `raw as Task`",
+          "Повернути `raw as any`",
+          "Записати рядок у `window.alert`",
+        ],
+        0,
+        why("Явний `Result` змушує викликаючу сторону обробити помилку контракту.", "An explicit `Result` union enforces error handling at call sites."),
+      ),
+      codeFill(
+        "tsc-fb2",
+        "Обмеження generic-ідентифікатора для записів із полем `id`",
+        "Constrain generic helper to entities with an `id: string`",
+        "ts",
+        "function indexById<T ___ { id: string }>(items: readonly T[]): Map<string, T> { return new Map(); }",
+        ["extends"],
+        true,
+        why("`T extends { id: string }` дає доступ до `item.id` без втрати конкретного типу `T`.", "`T extends { id: string }` preserves the concrete type `T` while requiring `id`."),
+      ),
     ],
   ),
   exam("tsc-capstone-exam", "Фінальна контрольна", "Final exam", 3, [
@@ -1398,6 +1592,7 @@ export const typescriptContent: CourseContent = {
     utilities,
     modules,
     appliedErrorDiagnosis,
+    strictContractsUnions,
     capstone,
   ],
 };
