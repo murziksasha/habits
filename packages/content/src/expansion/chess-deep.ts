@@ -7335,6 +7335,5062 @@ const newUnits: UnitContent[] = [
         ]
       }
     ]
+  },
+  {
+    "slug": "ch-deep-planning",
+    "titleUk": "Оцінка і план",
+    "titleEn": "Evaluation and planning",
+    "lessons": [
+      {
+        "slug": "ch-d-eval",
+        "titleUk": "Оцінка позиції: не лише матеріал",
+        "titleEn": "Evaluating a position: not only material",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "ch-d-eval-l",
+            "type": "chess_lesson",
+            "promptUk": "Оцінка позиції: не лише матеріал",
+            "promptEn": "Evaluating a position: not only material",
+            "fen": "r1b2rk1/ppq2ppp/2n2n2/2p1p3/2BP4/P1P1PN2/4QPPP/R1B2RK1 w - - 0 12",
+            "notesUk": "Оцінка — це відповідь на запитання «що тут важливо?», а не підрахунок фігур. Класичні елементи (Штейніц і пізніші школи): матеріал; безпека королів; пішакова структура (острівці, слабкі поля, прохідні); активність фігур; простір; і час (хто перший створить загрозу). На діаграмі типова «німцо-індійська» структура після розміну слона на коня: у білих пара слонів і пішаки c3–d4–e3, у чорних тиск …c5 і …e5 по центру. Матеріал рівний, але оцінка вже не «нуль»: слони люблять відкритий центр, пішак c3 може стати слабким, чорні фігури зручно дивляться на d4.\n\nПрактичний порядок: спочатку королі (чи є атака?), потім структура (які слабкості довгострокові?), потім активність (які фігури «працюють», які ні?), і лише тоді вирішуйте, чи важливий зайвий пішак. Зайвий пішак при «мертвому» слоні й голому королі може бути ілюзією.\n\nТипові помилки: оцінювати лише матеріал; забувати, що оцінка змінюється після кожного розміну; ставити оцінку «краще», не називаючи конкретного плану. Хороша оцінка завжди закінчується словами «тому я граю туди-то».",
+            "notesEn": "Evaluation answers “what matters here?”, not a piece-count. The classical elements (Steinitz and later schools) are: material; king safety; pawn structure (islands, weak squares, passed pawns); piece activity; space; and time (who creates a threat first). The diagram is a typical Nimzo-Indian structure after the bishop-for-knight trade: White has the bishop pair and pawns on c3–d4–e3, Black pressures the centre with …c5 and …e5. Material is equal, but the evaluation is already not “zero”: bishops like an open centre, the c3-pawn can become weak, and Black’s pieces eye d4 comfortably.\n\nA practical order: kings first (is there an attack?), then structure (which weaknesses will last?), then activity (which pieces work, which do not?), and only then decide whether an extra pawn matters. An extra pawn with a “dead” bishop and a bare king can be an illusion.\n\nTypical mistakes: evaluating only material; forgetting that the evaluation changes after every exchange; saying “better” without naming a concrete plan. A good evaluation always ends with the words “therefore I play for this”.",
+            "quiz": {
+              "q": "З чого практично починати оцінку позиції?",
+              "qEn": "What should you start a practical evaluation with?",
+              "options": [
+                "безпека королів, потім структура і активність, і лише тоді матеріал як вирішальний аргумент",
+                "тільки підрахунок пішаків",
+                "тільки кількість ходів до мату",
+                "колір форми суперника"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "king safety, then structure and activity, and only then material as a deciding argument",
+                "only a pawn count",
+                "only the number of moves to mate",
+                "the colour of the opponent’s shirt"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-eval-m1",
+            "type": "mcq",
+            "promptUk": "На діаграмі головна довгострокова компенсація білих за структуру c3–d4 — це:",
+            "promptEn": "In the diagram, White’s main long-term compensation for the c3–d4 structure is:",
+            "options": [
+              "пара слонів у потенційно відкритому центрі",
+              "форсований мат у 3 ходи",
+              "зайва тура",
+              "пішак більше на a-лінії"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Після розміну слона на коня білі тримають двох слонів; якщо центр відкриється, вони стають дуже сильними.",
+            "explanationEn": "After the bishop-for-knight trade White keeps two bishops; if the centre opens they become very strong.",
+            "optionsEn": [
+              "the bishop pair in a potentially open centre",
+              "forced mate in three",
+              "an extra rook",
+              "an extra a-pawn"
+            ]
+          },
+          {
+            "id": "ch-d-eval-m2",
+            "type": "mcq",
+            "promptUk": "Чому «зайвий пішак» не завжди означає «кращу позицію»?",
+            "promptEn": "Why does “an extra pawn” not always mean “a better position”?",
+            "options": [
+              "якщо король слабкий або фігури пасивні, ініціатива суперника важить більше за пішака",
+              "пішаки ніколи не мають цінності",
+              "матеріал заборонено рахувати",
+              "зайвий пішак завжди гірший"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Оцінка — це баланс елементів, а не одна колонка в таблиці.",
+            "explanationEn": "Evaluation is a balance of elements, not a single column on a scoresheet.",
+            "optionsEn": [
+              "if the king is weak or the pieces are passive, the opponent’s initiative can outweigh a pawn",
+              "pawns never have value",
+              "you are forbidden to count material",
+              "an extra pawn is always worse"
+            ]
+          },
+          {
+            "id": "ch-d-eval-e",
+            "type": "explain",
+            "promptUk": "Назвіть головні елементи оцінки і в якому порядку їх дивитись.",
+            "promptEn": "Name the main evaluation elements and the order in which to look at them.",
+            "keyIdeas": [
+              {
+                "labelUk": "Елементи",
+                "labelEn": "Elements",
+                "anyOf": [
+                  "матеріал",
+                  "material",
+                  "корол",
+                  "king",
+                  "структур",
+                  "structure",
+                  "активн",
+                  "activ",
+                  "простір",
+                  "space"
+                ]
+              },
+              {
+                "labelUk": "Порядок",
+                "labelEn": "Order",
+                "anyOf": [
+                  "корол",
+                  "king",
+                  "спочат",
+                  "first",
+                  "потім",
+                  "then",
+                  "матеріал",
+                  "material"
+                ]
+              },
+              {
+                "labelUk": "План",
+                "labelEn": "Plan",
+                "anyOf": [
+                  "план",
+                  "plan",
+                  "тому",
+                  "therefore",
+                  "оцінк",
+                  "evaluat"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Елементи оцінки: безпека короля, структура, активність, простір і матеріал. Практично починаємо з королів і структури, а зайвий пішак враховуємо наприкінці. Хороша оцінка завжди веде до конкретного плану.",
+            "sampleAnswerEn": "The evaluation elements are king safety, structure, activity, space and material. In practice we start with the kings and the structure, and we weigh an extra pawn last. A good evaluation always leads to a concrete plan."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-prophylaxis",
+        "titleUk": "Профілактика: хід проти плану суперника",
+        "titleEn": "Prophylaxis: a move against the opponent’s plan",
+        "baseXp": 24,
+        "difficulty": 4,
+        "exercises": [
+          {
+            "id": "ch-d-prophylaxis-l",
+            "type": "chess_lesson",
+            "promptUk": "Профілактика: хід проти плану суперника",
+            "promptEn": "Prophylaxis: a move against the opponent’s plan",
+            "fen": "r1b1k2r/pp4pp/1qnbpn2/3p4/3P4/3B1N2/PP2NPPP/R1BQ1RK1 w kq - 2 12",
+            "notesUk": "Профілактика (термін Німцовича, «обличчя» цієї гри — Петросян) — це не пасивність і не «просто почекати». Це хід, який запитує: «що суперник хоче зробити, і як я це зупиню, одночасно покращуючи свою позицію?» На діаграмі французька структура: ферзь чорних на b6, коні на c6 і f6, слон на d6. Реальна ідея чорних — …Nb4, щоб зняти білого слона d3 (ключового захисника і атакуючу фігуру) або змусити його піти. Білі грають a3: скромний пішаковий хід, який забирає поле b4 і залишає слона на його діагоналі.\n\nІнші типові профілактичні ходи: h3 (не дати …Bg4 або …Ng4), Kh1 (зійти з діагоналі a7–g1), a4 (не дати …b5), Re1 перш ніж суперник відкриє лінію. Хороша профілактика часто виграє темп у «невидимому» сенсі: суперник втрачає свій план і мусить шукати інший.\n\nТипові помилки: плутати профілактику з пасивним стоянням; робити «дірки» ходами на кшталт g3 або a3 без потреби; і навпаки — не помічати загрози …Nb4, …Bxf3, …b4. Перед своїм планом завжди поставте запитання: «що він хоче?»",
+            "notesEn": "Prophylaxis (Nimzowitsch’s term; Petrosian is the “face” of this play) is not passivity and not “just waiting”. It is a move that asks: “what does the opponent want to do, and how do I stop it while also improving my own position?” The diagram is a French structure: Black’s queen on b6, knights on c6 and f6, bishop on d6. Black’s real idea is …Nb4, to remove White’s bishop on d3 (a key defender and an attacking piece) or to force it off the diagonal. White plays a3: a modest pawn move that takes b4 away and leaves the bishop on its diagonal.\n\nOther typical prophylactic moves: h3 (stopping …Bg4 or …Ng4), Kh1 (stepping off the a7–g1 diagonal), a4 (stopping …b5), Re1 before the opponent opens a file. Good prophylaxis often wins a tempo in an “invisible” sense: the opponent loses their plan and must look for another.\n\nTypical mistakes: confusing prophylaxis with standing still; creating “holes” with unneeded moves such as g3 or a3; and, the other way, failing to notice …Nb4, …Bxf3 or …b4. Before your own plan, always ask: “what do they want?”",
+            "quiz": {
+              "q": "Що таке профілактика в мітельшпілі?",
+              "qEn": "What is prophylaxis in the middlegame?",
+              "options": [
+                "хід, що зупиняє план суперника і водночас покращує вашу позицію",
+                "будь-яка здача фігури",
+                "обов'язкова довга рокіровка",
+                "відмова від всіх пішакових ходів"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "a move that stops the opponent’s plan and at the same time improves your position",
+                "any piece sacrifice",
+                "mandatory long castling",
+                "refusing all pawn moves"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-prophylaxis-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Чорні хочуть …Nb4 проти слона d3. Заберіть їм це поле.",
+            "promptEn": "Black wants …Nb4 against the d3-bishop. Take that square away.",
+            "fen": "r1b1k2r/pp4pp/1qnbpn2/3p4/3P4/3B1N2/PP2NPPP/R1BQ1RK1 w kq - 2 12",
+            "solutionSans": [
+              "a3"
+            ],
+            "difficulty": 2
+          },
+          {
+            "id": "ch-d-prophylaxis-m1",
+            "type": "mcq",
+            "promptUk": "Чим профілактика відрізняється від простої пасивності?",
+            "promptEn": "How does prophylaxis differ from mere passivity?",
+            "options": [
+              "вона зупиняє конкретний план і часто одночасно розвиває вашу гру, а не «просто чекає»",
+              "вона завжди жертвує якість",
+              "різниці немає",
+              "профілактика — це завжди шах"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Петросян рідко «стояв»: він забирав у суперника ідеї й покращував свої фігури.",
+            "explanationEn": "Petrosian rarely “stood still”: he took ideas away from the opponent and improved his own pieces.",
+            "optionsEn": [
+              "it stops a concrete plan and often develops your own play at the same time, rather than “just waiting”",
+              "it always sacrifices the exchange",
+              "there is no difference",
+              "prophylaxis is always a check"
+            ]
+          },
+          {
+            "id": "ch-d-prophylaxis-e",
+            "type": "explain",
+            "promptUk": "Що таке профілактика і наведіть типовий приклад ходу.",
+            "promptEn": "What is prophylaxis, and give a typical example of such a move.",
+            "keyIdeas": [
+              {
+                "labelUk": "Ідея",
+                "labelEn": "Idea",
+                "anyOf": [
+                  "профілакт",
+                  "prophyl",
+                  "план суперника",
+                  "opponent",
+                  "зупи",
+                  "stop",
+                  "запобіг",
+                  "prevent"
+                ]
+              },
+              {
+                "labelUk": "Приклади",
+                "labelEn": "Examples",
+                "anyOf": [
+                  "a3",
+                  "h3",
+                  "Kh1",
+                  "a4",
+                  "Nb4",
+                  "Bg4"
+                ]
+              },
+              {
+                "labelUk": "Не пасивність",
+                "labelEn": "Not passivity",
+                "anyOf": [
+                  "покращ",
+                  "improv",
+                  "не пасив",
+                  "not passiv",
+                  "Петросян",
+                  "Petrosian"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Профілактика — хід проти плану суперника, який водночас покращує вашу позицію: наприклад a3 проти …Nb4, h3 проти …Bg4, Kh1 зі діагоналі. Це не пасивне стояння, а «запитання» до ідеї суперника.",
+            "sampleAnswerEn": "Prophylaxis is a move against the opponent’s plan that also improves your position: for example a3 against …Nb4, h3 against …Bg4, Kh1 off a diagonal. It is not passive standing, but a “question” to the opponent’s idea."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-plan-steps",
+        "titleUk": "Як скласти план: від оцінки до ходу",
+        "titleEn": "How to make a plan: from evaluation to a move",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "ch-d-plan-steps-l",
+            "type": "chess_lesson",
+            "promptUk": "Як скласти план: від оцінки до ходу",
+            "promptEn": "How to make a plan: from evaluation to a move",
+            "fen": "r4rk1/1pqbbppp/p1nppn2/8/P2NPP2/2N1B3/1PP1B1PP/R2Q1R1K w - - 1 12",
+            "notesUk": "План — це не «атакувати якось». Це ланцюжок: оцініть позицію; назвіть план суперника (профілактика); знайдіть слабкості (відсталий пішак, слабке поле, незахищений король); оберіть одну ціль; знайдіть метод (натиск фігурами, підрив, розмін); порівняйте два-три кандидатські плани і виберіть один. На діаграмі схевенингенська структура: пішак чорних на d6 відсталий, білі мають простір (пішаки e4 і f4), кінь на d4 — форпост. Логічний план білих: тиск на d6 (ферзь, тури на d-лінії), інколи f5, щоб розкрити королівський фланг, і не дати чорним зручного …d5.\n\nКороткий рецепт із чотирьох кроків: 1) що є слабкого у нього? 2) що є слабкого в мене? 3) яка ціль реальна на найближчі 5–8 ходів? 4) яким першим ходом я цей план починаю? Якщо ви не можете назвати перший хід, плану ще немає — є лише побажання.\n\nТипові помилки: грати «скрізь» (і на ферзевому, і на королівському) без однієї цілі; міняти план щоходу; починати атаку, не закінчивши розвиток. Один ясний план кращий за три туманні.",
+            "notesEn": "A plan is not “attack somehow”. It is a chain: evaluate the position; name the opponent’s plan (prophylaxis); find the weaknesses (a backward pawn, a weak square, an exposed king); choose one target; find a method (piece pressure, a pawn break, an exchange); compare two or three candidate plans and pick one. The diagram is a Scheveningen structure: Black’s d6-pawn is backward, White has space (pawns on e4 and f4), and the knight on d4 is an outpost. White’s logical plan: pressure d6 (queen and rooks on the d-file), sometimes f5 to open the kingside, and prevent a comfortable …d5.\n\nA short four-step recipe: 1) what is weak in their camp? 2) what is weak in mine? 3) which target is realistic over the next 5–8 moves? 4) which first move starts that plan? If you cannot name the first move, you do not yet have a plan — only a wish.\n\nTypical mistakes: playing “everywhere” (queenside and kingside) without one target; changing plan every move; starting an attack before finishing development. One clear plan is better than three foggy ones.",
+            "quiz": {
+              "q": "Чого не вистачає «плану», якщо ви не можете назвати перший хід?",
+              "qEn": "What is missing from a “plan” if you cannot name the first move?",
+              "options": [
+                "це ще не план, а лише побажання: план починається з конкретного ходу",
+                "нічого, побажання достатньо",
+                "обов'язково потрібен комп'ютер",
+                "перший хід завжди рокіровка"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "it is not yet a plan, only a wish: a plan starts with a concrete move",
+                "nothing, a wish is enough",
+                "you must have a computer",
+                "the first move is always castling"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-plan-steps-m1",
+            "type": "mcq",
+            "promptUk": "У схевенингені на діаграмі природна довгострокова ціль білих — це:",
+            "promptEn": "In the Scheveningen on the diagram, White’s natural long-term target is:",
+            "options": [
+              "відсталий пішак d6 і контроль над полем d5",
+              "мат пішаком a4 у 2 ходи",
+              "здача якості на a1",
+              "розмін усіх фігур без ідеї"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Відсталий d6 і поле d5 — класична слабкість цієї структури; план крутиться навколо них.",
+            "explanationEn": "The backward d6-pawn and the d5-square are the classic weakness of this structure; the plan revolves around them.",
+            "optionsEn": [
+              "the backward d6-pawn and control of the d5-square",
+              "mate with the a4-pawn in two moves",
+              "giving up the exchange on a1",
+              "exchanging every piece with no idea"
+            ]
+          },
+          {
+            "id": "ch-d-plan-steps-m2",
+            "type": "mcq",
+            "promptUk": "Який порядок складання плану найздоровіший?",
+            "promptEn": "Which order of making a plan is the healthiest?",
+            "options": [
+              "оцінка → план суперника → слабкості → одна ціль → метод → перший хід",
+              "перший хід → потім подумати",
+              "тільки інтуїція без оцінки",
+              "завжди атакувати короля, незалежно від позиції"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Так план стає ланцюжком, який можна перевірити, а не настроєм.",
+            "explanationEn": "That way the plan becomes a chain you can check, not a mood.",
+            "optionsEn": [
+              "evaluation → opponent’s plan → weaknesses → one target → method → first move",
+              "the first move → then think",
+              "only intuition, no evaluation",
+              "always attack the king, whatever the position"
+            ]
+          },
+          {
+            "id": "ch-d-plan-steps-e",
+            "type": "explain",
+            "promptUk": "Опишіть кроки складання плану і назвіть ціль у структурі зі відсталим d6.",
+            "promptEn": "Describe the steps of making a plan and name the target in a structure with a backward d6-pawn.",
+            "keyIdeas": [
+              {
+                "labelUk": "Кроки",
+                "labelEn": "Steps",
+                "anyOf": [
+                  "оцінк",
+                  "evaluat",
+                  "слабк",
+                  "weak",
+                  "ціль",
+                  "target",
+                  "метод",
+                  "method",
+                  "хід",
+                  "move"
+                ]
+              },
+              {
+                "labelUk": "d6",
+                "labelEn": "d6",
+                "anyOf": [
+                  "d6",
+                  "відстал",
+                  "backward",
+                  "d5"
+                ]
+              },
+              {
+                "labelUk": "Один план",
+                "labelEn": "One plan",
+                "anyOf": [
+                  "одна ціль",
+                  "one target",
+                  "не скрізь",
+                  "not everywhere",
+                  "ясн",
+                  "clear"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "План: оцінка, план суперника, слабкості, одна ціль, метод і перший хід. У схевенингені ціль білих — відсталий пішак d6 і поле d5. Без першого ходу план ще не існує.",
+            "sampleAnswerEn": "A plan: evaluation, the opponent’s plan, weaknesses, one target, a method and the first move. In the Scheveningen White’s target is the backward d6-pawn and the d5-square. Without the first move the plan does not yet exist."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-activity-material",
+        "titleUk": "Активність проти матеріалу",
+        "titleEn": "Activity versus material",
+        "baseXp": 24,
+        "difficulty": 4,
+        "exercises": [
+          {
+            "id": "ch-d-activity-material-l",
+            "type": "chess_lesson",
+            "promptUk": "Активність проти матеріалу",
+            "promptEn": "Activity versus material",
+            "fen": "r4rk1/ppq3pp/4p3/3p1r2/3P4/2N2N2/PPQ2PPP/R4RK1 b - - 0 16",
+            "notesUk": "Іноді фігура «коштує» менше, ніж лінії, які вона відкриває, або слабкості, які створює. Позиційна жертва якості (не обов'язково виграшна комбінація) — типовий приклад: тура за коня або слона, якщо ви отримуєте зруйнованого короля, сильного прохідного чи вічне панування на полях одного кольору. На діаграмі тура чорних уже на f5: удар …Rxf3 руйнує прикриття білого короля (після gxf3 з’являються слабкі темні поля і відкрита g-лінія). Це не «підрахували 5 проти 3» — це ініціатива проти матеріалу.\n\nКоли активність важить більше: король суперника оголений; ваші фігури мають всі лінії, а його — заблоковані; ви виграєте кілька темпів атаки. Коли матеріал важить більше: ендшпіль без атаки, суперник може розміняти ваші активні фігури, прохідні пішаки підуть у ферзі. Класичний орієнтир: якщо після жертви у вас немає конкретної гри, ви просто залишились без якості.\n\nТипові помилки: брати «отруєного» пішака (b2, h4) і відставати в розвитку; жертвувати якість «за стиль», не бачачи продовження; і навпаки — ніколи не жертвувати, навіть коли король суперника падає.",
+            "notesEn": "Sometimes a piece “costs” less than the lines it opens or the weaknesses it creates. A positional exchange sacrifice (not necessarily a winning combination) is the typical example: a rook for a knight or bishop, if you get a wrecked king, a strong passed pawn, or lasting control of the squares of one colour. In the diagram Black’s rook is already on f5: the blow …Rxf3 wrecks the cover of the white king (after gxf3, weak dark squares and an open g-file appear). This is not “we counted 5 against 3” — it is initiative versus material.\n\nWhen activity is worth more: the opponent’s king is exposed; your pieces have all the lines and theirs are blocked; you gain several attacking tempi. When material is worth more: an ending without an attack, the opponent can exchange your active pieces, passed pawns will run to queen. A classical test: if after the sacrifice you have no concrete play, you are simply down an exchange.\n\nTypical mistakes: grabbing a “poisoned” pawn (b2, h4) and falling behind in development; sacrificing the exchange “for style” without a follow-up; and, the other way, never sacrificing even when the opponent’s king is falling.",
+            "quiz": {
+              "q": "Коли жертва якості найчастіше виправдана?",
+              "qEn": "When is an exchange sacrifice most often justified?",
+              "options": [
+                "коли вона дає конкретну гру: оголеного короля, слабкі поля або сильного прохідного",
+                "завжди, бо тура «для боягузів»",
+                "ніколи, якість священна",
+                "лише в дебюті на 3-му ході"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "when it gives concrete play: an exposed king, weak squares or a strong passed pawn",
+                "always, because a rook is “for cowards”",
+                "never, the exchange is sacred",
+                "only in the opening on move 3"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-activity-material-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Активність над матеріалом: зруйнуйте прикриття короля жертвою якості.",
+            "promptEn": "Activity over material: wreck the king’s cover with an exchange sacrifice.",
+            "fen": "r4rk1/ppq3pp/4p3/3p1r2/3P4/2N2N2/PPQ2PPP/R4RK1 b - - 0 16",
+            "solutionSans": [
+              "Rxf3"
+            ],
+            "difficulty": 3
+          },
+          {
+            "id": "ch-d-activity-material-m1",
+            "type": "mcq",
+            "promptUk": "Яке «правило перевірки» після жертви якості?",
+            "promptEn": "What is the “checking rule” after an exchange sacrifice?",
+            "options": [
+              "якщо немає конкретної гри (атаки, слабких полів, прохідного) — ви просто залишились без якості",
+              "жертва завжди виграє через 5 ходів",
+              "треба здатися",
+              "правила немає"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Стиль не замінює продовження. Рахуйте, що саме ви отримуєте.",
+            "explanationEn": "Style does not replace a follow-up. Count what you actually get.",
+            "optionsEn": [
+              "if there is no concrete play (an attack, weak squares, a passed pawn), you are simply down an exchange",
+              "the sacrifice always wins in five moves",
+              "you should resign",
+              "there is no rule"
+            ]
+          },
+          {
+            "id": "ch-d-activity-material-e",
+            "type": "explain",
+            "promptUk": "Коли активність важливіша за матеріал і як це перевірити?",
+            "promptEn": "When is activity more important than material, and how do you check that?",
+            "keyIdeas": [
+              {
+                "labelUk": "Коли",
+                "labelEn": "When",
+                "anyOf": [
+                  "корол",
+                  "king",
+                  "ініціатив",
+                  "initiativ",
+                  "слабк",
+                  "weak",
+                  "якіст",
+                  "exchange",
+                  "активн",
+                  "activ"
+                ]
+              },
+              {
+                "labelUk": "Жертва",
+                "labelEn": "Sacrifice",
+                "anyOf": [
+                  "Rxf3",
+                  "якіст",
+                  "exchange",
+                  "Rxe6",
+                  "жерть",
+                  "sacrific"
+                ]
+              },
+              {
+                "labelUk": "Перевірка",
+                "labelEn": "The test",
+                "anyOf": [
+                  "конкретн",
+                  "concrete",
+                  "продовж",
+                  "follow",
+                  "інакше",
+                  "otherwise",
+                  "без якості",
+                  "down"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Активність важливіша, коли жертва (наприклад …Rxf3) дає оголеного короля, слабкі поля або прохідного. Перевірка: якщо після жертви немає конкретної гри, ви просто без якості. Не беріть отруєних пішаків заради матеріалу.",
+            "sampleAnswerEn": "Activity is worth more when a sacrifice (for example …Rxf3) gives an exposed king, weak squares or a passed pawn. The test: if after the sacrifice there is no concrete play, you are simply down an exchange. Do not grab poisoned pawns for material alone."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-two-weaknesses",
+        "titleUk": "Принцип двох слабкостей",
+        "titleEn": "The principle of two weaknesses",
+        "baseXp": 24,
+        "difficulty": 4,
+        "exercises": [
+          {
+            "id": "ch-d-two-weaknesses-l",
+            "type": "chess_lesson",
+            "promptUk": "Принцип двох слабкостей",
+            "promptEn": "The principle of two weaknesses",
+            "fen": "r1bqr1k1/1p2bp1p/2p1nnp1/3p2B1/1P1P4/2NBPN2/2Q2PPP/1R3RK1 w - - 1 15",
+            "notesUk": "Одну слабкість хороший захисник утримує: фігури стають навколо неї «фортецею». Дві слабкості, розведені по різних флангах, захист розтягують: поки фігури тримають одну, ви б'єте по другій, потім знову перемикаєтесь. Це принцип Німцовича–Капабланки, основа технічної реалізації переваги. На діаграмі калсбадська структура (розмінний ферзевий гамбіт): білі вже мають меншість b4 проти пішаків c6–d5, і у чорних з’явилось …g6 (дірки на темних полях королівського флангу). Одна ціль — пішак c6 / поле c5; друга — королівський фланг. Хід b5 тиснуть на c6 і змушує чорних вирішувати, куди ставити фігури.\n\nЯк створити другу слабкість: підрив на іншому фланзі (h4–h5, f4–f5, a4–a5), розмін захисника, прохідний пішак «далеко від» першої слабкості. Як захищатись: розміняти атакуючі фігури, не створювати другу дірку (обережно з пішаковими ходами біля короля), іноді повернути матеріал, щоб спростить.\n\nТипові помилки: товкти одну слабкість 20 ходів, коли захист уже збудований; створювати собі другу слабкість пішаковими ходами; «перемикатись» без підготовки, втрачаючи першу ціль.",
+            "notesEn": "A good defender can hold one weakness: the pieces gather around it in a “fortress”. Two weaknesses, split across opposite wings, stretch the defence: while the pieces hold one, you strike at the other, then switch again. This is the Nimzowitsch–Capablanca principle, the foundation of technical conversion. The diagram is a Carlsbad structure (Queen’s Gambit Exchange): White already has the minority with b4 against the c6–d5 pawns, and Black has played …g6 (holes on the dark squares of the kingside). One target is the c6-pawn / c5-square; the second is the kingside. The move b5 presses c6 and forces Black to decide where to put the pieces.\n\nHow to create a second weakness: a break on the other wing (h4–h5, f4–f5, a4–a5), exchanging a defender, a passed pawn “far from” the first weakness. How to defend: exchange attacking pieces, do not create a second hole (be careful with pawn moves near the king), sometimes give material back to simplify.\n\nTypical mistakes: hammering one weakness for 20 moves when the defence is already built; creating a second weakness of your own with pawn moves; “switching” without preparation and losing the first target.",
+            "quiz": {
+              "q": "Чому дві слабкості небезпечніші за одну?",
+              "qEn": "Why are two weaknesses more dangerous than one?",
+              "options": [
+                "захист розтягується між флангами і не встигає тримати обидві цілі",
+                "так написано в правилах ФІДЕ",
+                "дві слабкості завжди дають мат у 1 хід",
+                "одна слабкість взагалі не існує"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "the defence is stretched between the wings and cannot hold both targets in time",
+                "it is written in the FIDE laws",
+                "two weaknesses always give mate in one",
+                "a single weakness does not exist at all"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-two-weaknesses-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Дві слабкості: натисніть меншістю на c6, створюючи другу проблему захиснику.",
+            "promptEn": "Two weaknesses: press the minority against c6, giving the defender a second problem.",
+            "fen": "r1bqr1k1/1p2bp1p/2p1nnp1/3p2B1/1P1P4/2NBPN2/2Q2PPP/1R3RK1 w - - 1 15",
+            "solutionSans": [
+              "b5"
+            ],
+            "difficulty": 3
+          },
+          {
+            "id": "ch-d-two-weaknesses-m1",
+            "type": "mcq",
+            "promptUk": "Як найчастіше створюють другу слабкість, коли перша вже зафіксована?",
+            "promptEn": "How is a second weakness most often created once the first is already fixed?",
+            "options": [
+              "підривом або прохідним на іншому фланзі, щоб розтягнути захист",
+              "здачею ферзя",
+              "рокіровкою вчетверте",
+              "ходом коня на край дошки без ідеї"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "h4–h5, f4–f5, a4–a5 або далекий прохідний — класичні «другі фронти».",
+            "explanationEn": "h4–h5, f4–f5, a4–a5 or a distant passed pawn are the classic “second fronts”.",
+            "optionsEn": [
+              "with a break or a passed pawn on the other wing, to stretch the defence",
+              "by giving up the queen",
+              "by castling a fourth time",
+              "by sending a knight to the edge with no idea"
+            ]
+          },
+          {
+            "id": "ch-d-two-weaknesses-e",
+            "type": "explain",
+            "promptUk": "Поясніть принцип двох слабкостей і як створити другу.",
+            "promptEn": "Explain the principle of two weaknesses and how to create a second one.",
+            "keyIdeas": [
+              {
+                "labelUk": "Ідея",
+                "labelEn": "Idea",
+                "anyOf": [
+                  "дві слабк",
+                  "two weak",
+                  "розтяг",
+                  "stretch",
+                  "фланг",
+                  "wing",
+                  "фортец",
+                  "fortress"
+                ]
+              },
+              {
+                "labelUk": "Друга",
+                "labelEn": "The second",
+                "anyOf": [
+                  "підрив",
+                  "break",
+                  "h4",
+                  "f5",
+                  "a4",
+                  "b5",
+                  "прохідн",
+                  "passed"
+                ]
+              },
+              {
+                "labelUk": "Захист",
+                "labelEn": "Defence",
+                "anyOf": [
+                  "не створювати",
+                  "do not create",
+                  "розміняти",
+                  "exchange",
+                  "спростити",
+                  "simplif"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Одну слабкість можна тримати фортецею; дві, на різних флангах, розтягують захист. Другу створюють підривом або прохідним на іншому боці (b5, h4–h5). Не товчіть одну точку, якщо захист уже збудований.",
+            "sampleAnswerEn": "One weakness can be held in a fortress; two, on opposite wings, stretch the defence. You create the second with a break or a passed pawn on the other side (b5, h4–h5). Do not hammer a single point if the defence is already built."
+          }
+        ]
+      },
+      {
+        "slug": "ch-deep-planning-exam",
+        "titleUk": "Іспит: оцінка і план",
+        "titleEn": "Exam: evaluation and planning",
+        "baseXp": 30,
+        "difficulty": 4,
+        "isExam": true,
+        "passThreshold": 0.7,
+        "exercises": [
+          {
+            "id": "ch-deep-planning-exam-q1",
+            "type": "mcq",
+            "promptUk": "Практичний порядок оцінки позиції — це:",
+            "promptEn": "The practical order of evaluating a position is:",
+            "options": [
+              "королі, структура й активність, і лише тоді матеріал як вирішальний аргумент",
+              "спочатку тільки матеріал",
+              "спочатку колір слонів, більше нічого",
+              "оцінка не потрібна"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Зайвий пішак з голим королем може бути ілюзією.",
+            "explanationEn": "An extra pawn with a bare king can be an illusion.",
+            "optionsEn": [
+              "kings, structure and activity, and only then material as a deciding argument",
+              "material only, first",
+              "the bishops’ colours first, and nothing else",
+              "evaluation is unnecessary"
+            ]
+          },
+          {
+            "id": "ch-deep-planning-exam-q2",
+            "type": "mcq",
+            "promptUk": "Профілактика — це:",
+            "promptEn": "Prophylaxis is:",
+            "options": [
+              "хід, що зупиняє план суперника і покращує вашу позицію",
+              "будь-яке пасивне стояння",
+              "обов'язкова жертва тури",
+              "відмова від рокіровки"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Типові ходи: a3 проти …Nb4, h3 проти …Bg4, Kh1 зі діагоналі.",
+            "explanationEn": "Typical moves: a3 against …Nb4, h3 against …Bg4, Kh1 off a diagonal.",
+            "optionsEn": [
+              "a move that stops the opponent’s plan and improves your position",
+              "any passive standing still",
+              "a mandatory rook sacrifice",
+              "refusing to castle"
+            ]
+          },
+          {
+            "id": "ch-deep-planning-exam-q3",
+            "type": "mcq",
+            "promptUk": "Принцип двох слабкостей полягає в тому, що:",
+            "promptEn": "The principle of two weaknesses is that:",
+            "options": [
+              "захист розтягується між двома цілями на різних флангах",
+              "завжди треба мати два ферзі",
+              "одна слабкість заборонена правилами",
+              "слабкостей не існує"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Одну слабкість можна тримати; дві змушують фігури бігати по всій дошці.",
+            "explanationEn": "One weakness can be held; two force the pieces to run across the whole board.",
+            "optionsEn": [
+              "the defence is stretched between two targets on opposite wings",
+              "you must always have two queens",
+              "a single weakness is forbidden by the laws",
+              "weaknesses do not exist"
+            ]
+          },
+          {
+            "id": "ch-deep-planning-exam-q4",
+            "type": "mcq",
+            "promptUk": "Жертва якості виправдана, якщо:",
+            "promptEn": "An exchange sacrifice is justified if:",
+            "options": [
+              "після неї є конкретна гра (атака, слабкі поля, прохідний), а не лише «стиль»",
+              "тура завжди гірша за коня",
+              "суперник попросив",
+              "це перший хід партії"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Якщо гри немає — ви просто залишились без якості.",
+            "explanationEn": "If there is no play, you are simply down an exchange.",
+            "optionsEn": [
+              "after it there is concrete play (an attack, weak squares, a passed pawn), not just “style”",
+              "a rook is always worse than a knight",
+              "the opponent asked for it",
+              "it is the first move of the game"
+            ]
+          },
+          {
+            "id": "ch-deep-planning-exam-p5",
+            "type": "chess_puzzle",
+            "promptUk": "Профілактика: не дайте чорним …Nb4.",
+            "promptEn": "Prophylaxis: do not let Black play …Nb4.",
+            "fen": "r1b1k2r/pp4pp/1qnbpn2/3p4/3P4/3B1N2/PP2NPPP/R1BQ1RK1 w kq - 2 12",
+            "solutionSans": [
+              "a3"
+            ],
+            "difficulty": 2
+          },
+          {
+            "id": "ch-deep-planning-exam-p6",
+            "type": "chess_puzzle",
+            "promptUk": "Активність над матеріалом: пожертвуйте якість на f3.",
+            "promptEn": "Activity over material: sacrifice the exchange on f3.",
+            "fen": "r4rk1/ppq3pp/4p3/3p1r2/3P4/2N2N2/PPQ2PPP/R4RK1 b - - 0 16",
+            "solutionSans": [
+              "Rxf3"
+            ],
+            "difficulty": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "ch-deep-minor-pieces",
+    "titleUk": "Слон проти коня",
+    "titleEn": "Bishop versus knight",
+    "lessons": [
+      {
+        "slug": "ch-d-good-bad-b",
+        "titleUk": "Хороший і поганий слон",
+        "titleEn": "The good bishop and the bad bishop",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "ch-d-good-bad-b-l",
+            "type": "chess_lesson",
+            "promptUk": "Хороший і поганий слон",
+            "promptEn": "The good bishop and the bad bishop",
+            "fen": "2r1kb1r/pp1b1ppp/1qn1p3/3pPn2/3P4/5N2/PPN1BPPP/R1BQ1RK1 w k - 7 11",
+            "notesUk": "Слон — фігура кольору своїх діагоналей. Якщо ваші пішаки зафіксовані на полях того ж кольору, що й слон, вони загороджують його: такий слон «поганий». Слон, який ходить по полях, вільних від власних пішаків, — «хороший»: він атакує слабкості суперника і не впирається у свою стіну. На діаграмі французька структура: пішаки чорних на e6 і d5 стоять на світлих полях, і світлопольний слон c8 (уже виведений на d7) все ще обмежений ланцюгом. Темнопольний слон f8 вільніший. У білих світлопольний слон e2 дивиться «назовні», але ланцюг e5–d4 теж задає йому роботу.\n\nЯк поліпшити поганого слона: поставте пішаків на протилежний колір; розмініть поганого слона на коня чи «хорошого» слона суперника; виведіть його за ланцюг (у французькій класичний маршрут …Bd7–e8–g6 або …h5 і …Bh7, або …b6 і …Ba6). Як погіршити слона суперника: зафіксуйте пішаки на його кольорі й атакуйте поля, які він не тримає.\n\nТипові помилки: ставити пішаків на колір свого слона «для надійності»; залишати поганого слона до ендшпілю, де він стає вічним захисником своїх же пішаків; плутати «поганий слон» із «слоном, який зараз стоїть на останній горизонталі» — поганий він через структуру, а не через один хід.",
+            "notesEn": "A bishop is a piece of the colour of its diagonals. If your pawns are fixed on squares of the same colour as the bishop, they block it: that bishop is “bad”. A bishop that runs on squares free of its own pawns is “good”: it attacks the opponent’s weaknesses and does not bump into its own wall. The diagram is a French structure: Black’s pawns on e6 and d5 stand on light squares, and the light-squared bishop from c8 (already developed to d7) is still restricted by the chain. The dark-squared bishop on f8 is freer. White’s light-squared bishop on e2 looks “outward”, but the e5–d4 chain also assigns it work.\n\nHow to improve a bad bishop: put the pawns on the opposite colour; trade the bad bishop for a knight or for the opponent’s “good” bishop; bring it outside the chain (in the French, the classic route is …Bd7–e8–g6, or …h5 and …Bh7, or …b6 and …Ba6). How to worsen the opponent’s bishop: fix the pawns on its colour and attack the squares it does not control.\n\nTypical mistakes: placing pawns on your bishop’s colour “for solidity”; leaving a bad bishop into the ending, where it becomes the eternal defender of its own pawns; confusing a “bad bishop” with “a bishop currently on the back rank” — it is bad because of the structure, not because of a single move.",
+            "quiz": {
+              "q": "Коли слона називають поганим?",
+              "qEn": "When is a bishop called bad?",
+              "options": [
+                "коли власні пішаки зафіксовані на полях його кольору і загороджують його",
+                "коли він стоїть на a1 хоча б один хід",
+                "коли він єдиний слон",
+                "слони ніколи не бувають поганими"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "when your own pawns are fixed on squares of its colour and get in its way",
+                "when it stands on a1 for even one move",
+                "when it is the only bishop",
+                "bishops are never bad"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-good-bad-b-m1",
+            "type": "mcq",
+            "promptUk": "Як у французькій структурі типово «вилікувати» світлопольного слона?",
+            "promptEn": "In a French structure, how do you typically “cure” the light-squared bishop?",
+            "options": [
+              "маршрутом …Bd7–e8–g6, або …b6 і …Ba6, або зміною кольору пішаків",
+              "здачею слона на першому ході",
+              "ніколи його не чіпати",
+              "перетворити на коня"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Слон має вийти за ланцюг або змінити роботу пішаків.",
+            "explanationEn": "The bishop must get outside the chain, or the pawns must change their job.",
+            "optionsEn": [
+              "with the route …Bd7–e8–g6, or …b6 and …Ba6, or by changing the colour of the pawns",
+              "by giving the bishop away on move one",
+              "by never touching it",
+              "by promoting it to a knight"
+            ]
+          },
+          {
+            "id": "ch-d-good-bad-b-m2",
+            "type": "mcq",
+            "promptUk": "Чому небезпечно залишати поганого слона до пішакового ендшпілю з фігурами?",
+            "promptEn": "Why is it dangerous to keep a bad bishop into a pawn ending with pieces?",
+            "options": [
+              "він стає вічним захисником своїх же зафіксованих пішаків і не атакує",
+              "він автоматично ставиться матом",
+              "правила забороняють такого слона",
+              "він стає ферзем"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "У технічних позиціях поганий слон часто «дивиться в стіну», а суперник грає на іншому кольорі.",
+            "explanationEn": "In technical positions a bad bishop often “stares at a wall”, and the opponent plays on the other colour.",
+            "optionsEn": [
+              "it becomes the eternal defender of its own fixed pawns and does not attack",
+              "it is automatically mated",
+              "the laws forbid such a bishop",
+              "it becomes a queen"
+            ]
+          },
+          {
+            "id": "ch-d-good-bad-b-e",
+            "type": "explain",
+            "promptUk": "Що таке поганий слон і як його поліпшити?",
+            "promptEn": "What is a bad bishop, and how do you improve it?",
+            "keyIdeas": [
+              {
+                "labelUk": "Поганий",
+                "labelEn": "Bad",
+                "anyOf": [
+                  "поган",
+                  "bad",
+                  "пішак",
+                  "pawn",
+                  "колір",
+                  "colour",
+                  "color",
+                  "загород",
+                  "block"
+                ]
+              },
+              {
+                "labelUk": "Поліпшити",
+                "labelEn": "Improve",
+                "anyOf": [
+                  "вивести",
+                  "outside",
+                  "Ba6",
+                  "Be8",
+                  "розміняти",
+                  "trade",
+                  "протилежн",
+                  "opposite"
+                ]
+              },
+              {
+                "labelUk": "Структура",
+                "labelEn": "Structure",
+                "anyOf": [
+                  "структур",
+                  "structure",
+                  "французьк",
+                  "French",
+                  "ланцюг",
+                  "chain"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Слон поганий, коли власні пішаки стоять на його кольорі і загороджують його, як світлопольний слон у французькій. Його лікують виходом за ланцюг (…Be8–g6, …Ba6) або розміном. Це поняття структури, не одного ходу.",
+            "sampleAnswerEn": "A bishop is bad when your own pawns stand on its colour and block it, like the light-squared bishop in the French. You cure it by coming outside the chain (…Be8–g6, …Ba6) or by a trade. It is a structural idea, not a single move."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-bn-open",
+        "titleUk": "Відкрита позиція: слон сильніший за коня",
+        "titleEn": "An open position: the bishop is stronger than the knight",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "ch-d-bn-open-l",
+            "type": "chess_lesson",
+            "promptUk": "Відкрита позиція: слон сильніший за коня",
+            "promptEn": "An open position: the bishop is stronger than the knight",
+            "fen": "2kr2nr/1pp1q1pp/p1pb1p2/4p3/3PP1b1/2P1BN2/PP1N1PPP/R2Q1RK1 w - - 5 10",
+            "notesUk": "У відкритій позиції (мало пішаків у центрі, відкриті діагоналі й лінії, гра на двох флангах) слон зазвичай сильніший за коня. Слон б'є на відстані: може одночасно тримати свій фланг і атакувати пішака на іншому краї дошки. Кінь потребує форпосту в центрі; якщо форпосту немає, він «скаче» кілька ходів, щоб дістатись цілі, яку слон уже атакує. На діаграмі розмінна іспанська: центр відносно відкритий (пішаки e4–e5, d4), у чорних слон на g4, у білих — на e3, і гра йде на обох флангах. Тут пара слонів або навіть один активний слон часто важить більше за коня.\n\nПрактичні наслідки: не розмінюйте свого слона на коня «просто так» у відкритій позиції; відкривайте діагоналі підривами (c4, e4, …c5, …f5); ставте слона на довгі діагоналі (b2, a3, h3, a6). Кінь у такій позиції шукає стабільне поле (d5, e5, d4, f5) або допомагає закрити позицію.\n\nТипові помилки: грати «конем у відкритій дошці» без форпосту; віддати слона за коня й залишитись без гри на двох флангах; забути, що при рокіровках у різні боки слон ще цінніший — він дістає до чужого короля з власного флангу.",
+            "notesEn": "In an open position (few pawns in the centre, open diagonals and files, play on both wings) a bishop is usually stronger than a knight. A bishop strikes at a distance: it can hold its own wing and at the same time attack a pawn on the other edge of the board. A knight needs an outpost in the centre; without one, it “hops” several moves to reach a target the bishop already attacks. The diagram is an Exchange Ruy: the centre is relatively open (pawns on e4–e5 and d4), Black has a bishop on g4, White one on e3, and play is on both wings. Here the bishop pair, or even one active bishop, often outweighs a knight.\n\nPractical consequences: do not trade your bishop for a knight “just because” in an open position; open diagonals with breaks (c4, e4, …c5, …f5); put the bishop on the long diagonals (b2, a3, h3, a6). A knight in such a position looks for a stable square (d5, e5, d4, f5) or helps to close the position.\n\nTypical mistakes: playing “with a knight on an open board” without an outpost; giving a bishop for a knight and being left with no play on both wings; forgetting that with opposite-side castling a bishop is even more valuable — it reaches the enemy king from its own wing.",
+            "quiz": {
+              "q": "Чому в відкритій позиції слон зазвичай сильніший за коня?",
+              "qEn": "Why is a bishop usually stronger than a knight in an open position?",
+              "options": [
+                "він діє на відстані й грає на двох флангах одночасно, а коневі потрібен форпост",
+                "слон завжди ставить мат у 1 хід",
+                "кінь не має права ходити у відкритій позиції",
+                "так вирішив суддя"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "it acts at a distance and plays on both wings at once, while a knight needs an outpost",
+                "a bishop always mates in one",
+                "a knight is not allowed to move in an open position",
+                "the arbiter decided so"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-bn-open-m1",
+            "type": "mcq",
+            "promptUk": "Що є типовим планом, якщо у вас слон, а в суперника кінь, і центр відкривається?",
+            "promptEn": "What is a typical plan if you have a bishop, the opponent a knight, and the centre is opening?",
+            "options": [
+              "відкривати діагоналі підривами й тримати гру на двох флангах",
+              "закрити центр будь-якою ціною",
+              "розміняти слона на коня негайно",
+              "сховати слона за своїми пішаками"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Чим довші діагоналі й чим далі одна від одної слабкості, тим слон щасливіший.",
+            "explanationEn": "The longer the diagonals and the farther apart the weaknesses, the happier the bishop.",
+            "optionsEn": [
+              "open diagonals with breaks and keep play on both wings",
+              "close the centre at any cost",
+              "trade the bishop for the knight at once",
+              "hide the bishop behind your own pawns"
+            ]
+          },
+          {
+            "id": "ch-d-bn-open-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Відкрита іспанська структура: розвиньте коня на природне центральне поле.",
+            "promptEn": "An open Spanish structure: develop the knight to its natural central square.",
+            "fen": "2kr2nr/1pp1q1pp/p1pb1p2/4p3/3PP1b1/2P1BN2/PP1N1PPP/R2Q1RK1 w - - 5 10",
+            "solutionSans": [
+              "Nc4"
+            ],
+            "difficulty": 2
+          },
+          {
+            "id": "ch-d-bn-open-e",
+            "type": "explain",
+            "promptUk": "У яких позиціях слон сильніший за коня і який це дає план?",
+            "promptEn": "In which positions is a bishop stronger than a knight, and what plan does that give?",
+            "keyIdeas": [
+              {
+                "labelUk": "Відкрита",
+                "labelEn": "Open",
+                "anyOf": [
+                  "відкрит",
+                  "open",
+                  "діагонал",
+                  "diagonal",
+                  "два фланг",
+                  "both wing",
+                  "відстан",
+                  "distance"
+                ]
+              },
+              {
+                "labelUk": "Кінь",
+                "labelEn": "Knight",
+                "anyOf": [
+                  "форпост",
+                  "outpost",
+                  "кінь",
+                  "knight"
+                ]
+              },
+              {
+                "labelUk": "План",
+                "labelEn": "Plan",
+                "anyOf": [
+                  "підрив",
+                  "break",
+                  "не розмінювати",
+                  "do not trade",
+                  "довг",
+                  "long"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "У відкритій позиції слон сильніший: він грає на двох флангах і б'є на відстані, а коневі потрібен форпост. План — відкривати діагоналі й не віддавати слона за коня без потреби.",
+            "sampleAnswerEn": "In an open position the bishop is stronger: it plays on both wings and strikes at a distance, while a knight needs an outpost. The plan is to open diagonals and not to give the bishop for a knight without a reason."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-bn-closed",
+        "titleUk": "Закрита позиція: кінь сильніший за слона",
+        "titleEn": "A closed position: the knight is stronger than the bishop",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "ch-d-bn-closed-l",
+            "type": "chess_lesson",
+            "promptUk": "Закрита позиція: кінь сильніший за слона",
+            "promptEn": "A closed position: the knight is stronger than the bishop",
+            "fen": "r1bq1rk1/pppnn1bp/3p4/3Pp1p1/2P1Pp2/2N2P2/PP2BBPP/R2QNRK1 w - - 0 13",
+            "notesUk": "У закритій позиції ланцюги пішаків перерізають діагоналі. Слон «гризе граніт», а кінь перестрибує бар'єри і стає на форпост (поле, яке не атакує пішак суперника). На діаграмі староіндійська з закритим центром: білі пішаки c4–d5–e4, чорні — d6–e5 і вже …f4, …g5. Слони білих на e2 і f2 обмежені власним ланцюгом; коні шукають поля c4, e4 (для чорних — c5, e5, f4 уже зайняте пішаком), а чорний кінь e7 іде на g6 або c8–b6. Тут кінь часто дорожчий за слона.\n\nПрактичні наслідки: не відкривайте позицію, якщо ваш «хороший» персонаж — кінь; тримайте ланцюг і зайнятий форпост; розмінюйте слона суперника на свого коня, якщо після цього діагоналі залишаються закритими. Якщо ви зі слоном у закритій позиції — готуйте підрив, що відкриє діагональ (…f5 уже зіграно як гачок; далі іноді …g4 або підрив c5 / b4).\n\nТипові помилки: оцінювати «слон завжди дорівнює коню»; ставити слона перед своїм ланцюгом, де він стає мішенню пішаків; віддавати форпост коня без бою. Форпост на d5 або e5 в закритому центрі — це «вічна» фігура.",
+            "notesEn": "In a closed position pawn chains cut the diagonals. A bishop “gnaws at granite”, while a knight jumps the barriers and sits on an outpost (a square not attacked by an enemy pawn). The diagram is a King’s Indian with a closed centre: White pawns on c4–d5–e4, Black on d6–e5 with …f4 and …g5 already played. White’s bishops on e2 and f2 are restricted by their own chain; the knights look for c4 and e4 (for Black: c5, e5, with f4 already occupied by a pawn), and Black’s knight on e7 goes to g6 or c8–b6. Here a knight is often worth more than a bishop.\n\nPractical consequences: do not open the position if your “hero” is the knight; keep the chain and the occupied outpost; trade the opponent’s bishop for your knight if the diagonals stay closed afterwards. If you have a bishop in a closed position — prepare a break that opens a diagonal (…f5 is already the hook; later sometimes …g4, or a c5 / b4 break).\n\nTypical mistakes: evaluating “a bishop always equals a knight”; putting a bishop in front of your own chain, where it becomes a target for pawns; giving up a knight outpost without a fight. An outpost on d5 or e5 in a closed centre is a “permanent” piece.",
+            "quiz": {
+              "q": "Чому в закритій позиції кінь часто сильніший за слона?",
+              "qEn": "Why is a knight often stronger than a bishop in a closed position?",
+              "options": [
+                "він перестрибує ланцюги й стоїть на форпості, а слон упирається в пішаків",
+                "кінь завжди ставить мат",
+                "слон не має права ходити",
+                "так написано на дошці"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "it jumps over chains and sits on an outpost, while the bishop bumps into pawns",
+                "a knight always mates",
+                "a bishop is not allowed to move",
+                "it is written on the board"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-bn-closed-m1",
+            "type": "mcq",
+            "promptUk": "Що є форпостом для коня?",
+            "promptEn": "What is an outpost for a knight?",
+            "options": [
+              "поле в таборі або в центрі, яке не атакує пішак суперника і яке можна утримувати",
+              "будь-яке поле на краю дошки",
+              "поле, з якого кінь одразу ставить мат",
+              "клітинка a1 завжди"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Класика: d5, e5, d4, e4, c5, f5 — якщо пішак суперника вже не може їх відігнати.",
+            "explanationEn": "The classics are d5, e5, d4, e4, c5, f5 — if an enemy pawn can no longer drive the knight off.",
+            "optionsEn": [
+              "a square in the opponent’s camp or in the centre that no enemy pawn attacks and that can be held",
+              "any square on the edge of the board",
+              "a square from which the knight mates at once",
+              "the a1-square, always"
+            ]
+          },
+          {
+            "id": "ch-d-bn-closed-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Закритий центр староіндійського: поставте коня на природний маршрут перебудови.",
+            "promptEn": "A closed King's Indian centre: put the knight on its natural regrouping route.",
+            "fen": "r1bq1rk1/pppnn1bp/3p4/3Pp1p1/2P1Pp2/2N2P2/PP2BBPP/R2QNRK1 w - - 0 13",
+            "solutionSans": [
+              "Nd3"
+            ],
+            "difficulty": 3
+          },
+          {
+            "id": "ch-d-bn-closed-e",
+            "type": "explain",
+            "promptUk": "У яких позиціях кінь сильніший за слона і що таке форпост?",
+            "promptEn": "In which positions is a knight stronger than a bishop, and what is an outpost?",
+            "keyIdeas": [
+              {
+                "labelUk": "Закрита",
+                "labelEn": "Closed",
+                "anyOf": [
+                  "закрит",
+                  "closed",
+                  "ланцюг",
+                  "chain",
+                  "кінь",
+                  "knight",
+                  "граніт",
+                  "granite"
+                ]
+              },
+              {
+                "labelUk": "Форпост",
+                "labelEn": "Outpost",
+                "anyOf": [
+                  "форпост",
+                  "outpost",
+                  "d5",
+                  "e5",
+                  "пішак не атакує",
+                  "pawn"
+                ]
+              },
+              {
+                "labelUk": "План",
+                "labelEn": "Plan",
+                "anyOf": [
+                  "не відкривати",
+                  "do not open",
+                  "тримати",
+                  "keep",
+                  "підрив",
+                  "break"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "У закритій позиції кінь сильніший: він стоїть на форпості (поле без атаки пішака) і перестрибує ланцюги, а слон гризе граніт. Не відкривайте позицію, якщо ваш герой — кінь; якщо ви зі слоном — готуйте підрив.",
+            "sampleAnswerEn": "In a closed position the knight is stronger: it sits on an outpost (a square no pawn attacks) and jumps the chains, while the bishop gnaws at granite. Do not open the position if your hero is the knight; if you have the bishop, prepare a break."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-opp-bishops-mid",
+        "titleUk": "Різноколірні слони в мітельшпілі: зброя атаки",
+        "titleEn": "Opposite-coloured bishops in the middlegame: an attacking weapon",
+        "baseXp": 24,
+        "difficulty": 4,
+        "exercises": [
+          {
+            "id": "ch-d-opp-bishops-mid-l",
+            "type": "chess_lesson",
+            "promptUk": "Різноколірні слони в мітельшпілі: зброя атаки",
+            "promptEn": "Opposite-coloured bishops in the middlegame: an attacking weapon",
+            "fen": "r2q1rk1/2p2ppp/p1n1b3/1p1pP3/8/2P2N2/PPBN1KPP/R1BQ4 b - - 0 13",
+            "notesUk": "У ендшпілі різноколірні слони часто тягнуть до нічиєї: кожен тримає свої поля, прохідного не провести. У мітельшпілі логіка протилежна. Атакуючий фактично грає «з фігурою більше» на полях кольору свого слона: захисник не може прикрити їх своїм слоном. Тому атака при різноколірних слонах дуже небезпечна, і нічия тут — рідкість, поки на дошці є ферзі. На діаграмі відкрита іспанська після тактики на f2: у чорних слон на e6 (світлий), у білих — слон c2 (світлий) і ще слон c1 (темний) — це ще не чисті «протилежні», але типова ідея вже видна: гра йде по світлих полях навколо короля f2, і сторона, що атакує ці поля, має ініціативу.\n\nПрактичне правило: при різноколірних слонах і ферзях шукайте атаку на короля, а не спрощення. Тримайте ферзя. Ставте фігури (ферзя, тури, пішаків) на колір свого слона. Жертва пішака, що відкриває діагональ, часто окупається. Захисник має розмінювати ферзів і не пускати ворожого слона на домінуючу діагональ.\n\nТипові помилки: «різноколірні — значить нічия», і грати на спрощення, коли ваш король під ударом; віддавати ферзя, залишаючи «нічийного» слона; захищатись тільки слоном на полях, яких він не тримає.",
+            "notesEn": "In the ending, opposite-coloured bishops often tend toward a draw: each side holds its own squares and a passed pawn cannot get through. In the middlegame the logic is the opposite. The attacker effectively plays “a piece up” on the squares of their bishop’s colour: the defender cannot cover those squares with their own bishop. That is why an attack with opposite-coloured bishops is very dangerous, and a draw is rare while queens are still on the board. The diagram is an Open Spanish after tactics on f2: Black has a bishop on e6 (light-squared), White a bishop on c2 (light) and still a bishop on c1 (dark) — it is not yet a pure opposite-coloured pair, but the typical idea is already visible: play runs on the light squares around the king on f2, and the side attacking those squares has the initiative.\n\nA practical rule: with opposite-coloured bishops and queens, look for an attack on the king, not for simplification. Keep the queen. Place pieces (queen, rooks, pawns) on the colour of your bishop. A pawn sacrifice that opens a diagonal often pays off. The defender should exchange queens and keep the enemy bishop off a dominating diagonal.\n\nTypical mistakes: “opposite-coloured means a draw”, and playing for simplifications while your king is under fire; giving up the queen and leaving a “drawn” bishop; defending only with a bishop on squares it does not control.",
+            "quiz": {
+              "q": "Чим різноколірні слони в мітельшпілі відрізняються від ендшпілю?",
+              "qEn": "How do opposite-coloured bishops in the middlegame differ from the ending?",
+              "options": [
+                "у мітельшпілі вони підсилюють атаку («фігура більше» на своєму кольорі), в ендшпілі тягнуть до нічиєї",
+                "різниці немає",
+                "у мітельшпілі вони завжди дають пат",
+                "у ендшпілі вони завжди ставлять мат"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "in the middlegame they strengthen an attack (“a piece up” on your colour); in the ending they tend toward a draw",
+                "there is no difference",
+                "in the middlegame they always give stalemate",
+                "in the ending they always mate"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-opp-bishops-mid-m1",
+            "type": "mcq",
+            "promptUk": "Який практичний план атакуючого при різноколірних слонах і ферзях?",
+            "promptEn": "What is the attacker’s practical plan with opposite-coloured bishops and queens?",
+            "options": [
+              "тримати ферзя, ставити фігури на колір свого слона й атакувати короля",
+              "терміново розміняти ферзів і грати на нічию",
+              "віддати слона за пішака",
+              "закрити всі діагоналі"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Захисник, навпаки, хоче ферзів розміняти.",
+            "explanationEn": "The defender, by contrast, wants the queens off.",
+            "optionsEn": [
+              "keep the queen, put pieces on your bishop’s colour and attack the king",
+              "exchange queens at once and play for a draw",
+              "give the bishop for a pawn",
+              "close every diagonal"
+            ]
+          },
+          {
+            "id": "ch-d-opp-bishops-mid-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Відкрита іспанська, король на f2: дайте шаха ферзем по діагоналі.",
+            "promptEn": "Open Spanish, king on f2: check with the queen along the diagonal.",
+            "fen": "r2q1rk1/2p2ppp/p1n1b3/1p1pP3/8/2P2N2/PPBN1KPP/R1BQ4 b - - 0 13",
+            "solutionSans": [
+              "Qh4+"
+            ],
+            "difficulty": 3
+          },
+          {
+            "id": "ch-d-opp-bishops-mid-e",
+            "type": "explain",
+            "promptUk": "Чому різноколірні слони в мітельшпілі — зброя атаки, а не гарантія нічиєї?",
+            "promptEn": "Why are opposite-coloured bishops in the middlegame an attacking weapon, not a draw guarantee?",
+            "keyIdeas": [
+              {
+                "labelUk": "Атака",
+                "labelEn": "Attack",
+                "anyOf": [
+                  "атак",
+                  "attack",
+                  "фігура більше",
+                  "piece up",
+                  "колір",
+                  "colour",
+                  "color",
+                  "ферз",
+                  "queen"
+                ]
+              },
+              {
+                "labelUk": "Ендшпіль",
+                "labelEn": "Ending",
+                "anyOf": [
+                  "ендшпіл",
+                  "ending",
+                  "нічи",
+                  "draw",
+                  "інша логік",
+                  "opposite"
+                ]
+              },
+              {
+                "labelUk": "План",
+                "labelEn": "Plan",
+                "anyOf": [
+                  "тримати ферзя",
+                  "keep the queen",
+                  "діагонал",
+                  "diagonal",
+                  "не спрощувати",
+                  "simplif"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "У мітельшпілі атакуючий грає «з фігурою більше» на полях свого слона, бо захисник їх не прикриє своїм слоном. Поки є ферзі — шукайте атаку, не нічию. У ендшпілі логіка протилежна.",
+            "sampleAnswerEn": "In the middlegame the attacker plays “a piece up” on their bishop’s squares, because the defender cannot cover them with their own bishop. While queens remain, look for an attack, not a draw. In the ending the logic is the opposite."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-piece-trade",
+        "titleUk": "Коли міняти слона на коня",
+        "titleEn": "When to trade a bishop for a knight",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "ch-d-piece-trade-l",
+            "type": "chess_lesson",
+            "promptUk": "Коли міняти слона на коня",
+            "promptEn": "When to trade a bishop for a knight",
+            "fen": "r1bq1rk1/p2nbppp/1p2pn2/2p3B1/2BP4/2N1PN2/PP3PPP/R2Q1RK1 w - - 0 10",
+            "notesUk": "Розмін слона на коня — це не «по таблиці 3=3». Питання: яка позиція залишиться після розміну? Міняйте слона на коня, коли: позиція закривається і коню з’явиться форпост; ви псуєте структуру суперника (подвоєні пішаки, ізольований пішак) і можете це використати; ви знімаєте ключового захисника короля або форпосту. Не міняйте, коли: позиція відкрита, у вас пара слонів, гра на двох флангах; ви «лікуєте» структуру суперника (приймаєте здвоєння, яке він сам не може розв’язати); після розміну залишаєтесь із поганим слоном проти хорошого коня.\n\nНа діаграмі ферзевий гамбіт / ізольований або висячий комплекс: слон білих на g5 дивиться на коня f6. Хід Bxf6 варто робити, якщо ви отримуєте або зруйновані пішаки (після …gxf6), або знімаєте захисника d5 / e4 і маєте наступний удар. Якщо чорні просто відповідають …Bxf6, оцініть, чи ваш інший слон і коні від цього стали сильнішими.\n\nТипові помилки: автоматичне Bxf6 «бо так грають»; віддати пару слонів, не отримавши ні структури, ні форпосту; відмовитись від розміну, який знімає єдиного захисника матової загрози.",
+            "notesEn": "A bishop-for-knight trade is not “3=3 on the chart”. The question is: what position will be left after the trade? Trade the bishop for the knight when: the position is closing and the knight will get an outpost; you damage the opponent’s structure (doubled pawns, an isolated pawn) and can use that; you remove a key defender of the king or of an outpost. Do not trade when: the position is open, you have the bishop pair, play is on both wings; you “cure” the opponent’s structure (you accept a doubling they cannot resolve themselves); after the trade you are left with a bad bishop against a good knight.\n\nThe diagram is a Queen’s Gambit / isolated or hanging-pawn complex: White’s bishop on g5 eyes the knight on f6. The move Bxf6 is worth playing if you get either wrecked pawns (after …gxf6) or you remove the defender of d5 / e4 and have a follow-up blow. If Black simply recaptures …Bxf6, judge whether your remaining bishop and knights have become stronger because of it.\n\nTypical mistakes: automatic Bxf6 “because that is what people play”; giving up the bishop pair without getting structure or an outpost; refusing a trade that removes the only defender of a mating threat.",
+            "quiz": {
+              "q": "Яке головне запитання перед розміном слона на коня?",
+              "qEn": "What is the main question before trading a bishop for a knight?",
+              "options": [
+                "яка позиція залишиться після розміну: структура, відкритість, форпости?",
+                "скільки коштує слон у таблиці?",
+                "чи слон старший за коня за правилами?",
+                "чи є сьогодні вівторок?"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "what position will be left after the trade: structure, openness, outposts?",
+                "how much is a bishop worth on the chart?",
+                "is a bishop senior to a knight in the laws?",
+                "is it Tuesday?"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-piece-trade-m1",
+            "type": "mcq",
+            "promptUk": "Коли розмін Bxf6 найчастіше виправданий?",
+            "promptEn": "When is the trade Bxf6 most often justified?",
+            "options": [
+              "коли ви псуєте структуру (…gxf6) або знімаєте ключового захисника й маєте продовження",
+              "завжди на 5-му ході",
+              "ніколи, слон священний",
+              "лише якщо суперник просить"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Автоматичне Bxf6 без продовження часто дарує суперникові пару слонів.",
+            "explanationEn": "Automatic Bxf6 without a follow-up often gifts the opponent the bishop pair.",
+            "optionsEn": [
+              "when you damage the structure (…gxf6) or remove a key defender and have a follow-up",
+              "always on move 5",
+              "never, the bishop is sacred",
+              "only if the opponent asks"
+            ]
+          },
+          {
+            "id": "ch-d-piece-trade-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Слон g5 дивиться на коня f6. Зробіть тематичний розмін.",
+            "promptEn": "The bishop on g5 eyes the knight on f6. Make the thematic trade.",
+            "fen": "r1bq1rk1/p2nbppp/1p2pn2/2p3B1/2BP4/2N1PN2/PP3PPP/R2Q1RK1 w - - 0 10",
+            "solutionSans": [
+              "Bxf6"
+            ],
+            "difficulty": 2
+          },
+          {
+            "id": "ch-d-piece-trade-e",
+            "type": "explain",
+            "promptUk": "Коли варто міняти слона на коня, а коли ні?",
+            "promptEn": "When should you trade a bishop for a knight, and when should you not?",
+            "keyIdeas": [
+              {
+                "labelUk": "Так",
+                "labelEn": "Yes",
+                "anyOf": [
+                  "закрит",
+                  "closed",
+                  "форпост",
+                  "outpost",
+                  "структур",
+                  "structure",
+                  "захисник",
+                  "defender",
+                  "Bxf6"
+                ]
+              },
+              {
+                "labelUk": "Ні",
+                "labelEn": "No",
+                "anyOf": [
+                  "відкрит",
+                  "open",
+                  "пара слонів",
+                  "bishop pair",
+                  "два фланг",
+                  "both wing"
+                ]
+              },
+              {
+                "labelUk": "Запитання",
+                "labelEn": "The question",
+                "anyOf": [
+                  "після розміну",
+                  "after the trade",
+                  "яка позиція",
+                  "what position"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Міняйте слона на коня, якщо позиція закривається, ви псуєте структуру або знімаєте захисника. Не міняйте у відкритій позиції з парою слонів. Головне запитання: яка позиція залишиться після розміну?",
+            "sampleAnswerEn": "Trade a bishop for a knight if the position is closing, you damage the structure or you remove a defender. Do not trade in an open position with the bishop pair. The main question: what position will be left after the trade?"
+          }
+        ]
+      },
+      {
+        "slug": "ch-deep-minor-pieces-exam",
+        "titleUk": "Іспит: слон проти коня",
+        "titleEn": "Exam: bishop versus knight",
+        "baseXp": 30,
+        "difficulty": 4,
+        "isExam": true,
+        "passThreshold": 0.7,
+        "exercises": [
+          {
+            "id": "ch-deep-minor-pieces-exam-q1",
+            "type": "mcq",
+            "promptUk": "Слона називають поганим, коли:",
+            "promptEn": "A bishop is called bad when:",
+            "options": [
+              "власні пішаки зафіксовані на його кольорі й загороджують його",
+              "він зробив один хід",
+              "він єдиний слон",
+              "він стоїть на b2"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Це структурне поняття: у французькій світлопольний слон часто поганий.",
+            "explanationEn": "It is a structural idea: in the French the light-squared bishop is often bad.",
+            "optionsEn": [
+              "your own pawns are fixed on its colour and get in its way",
+              "it has made one move",
+              "it is the only bishop",
+              "it stands on b2"
+            ]
+          },
+          {
+            "id": "ch-deep-minor-pieces-exam-q2",
+            "type": "mcq",
+            "promptUk": "У відкритій позиції з грою на двох флангах зазвичай сильніший:",
+            "promptEn": "In an open position with play on both wings, the stronger piece is usually:",
+            "options": [
+              "слон (б'є на відстані)",
+              "кінь без форпосту",
+              "король у центрі вже в мітельшпілі",
+              "пішак на a2"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Коневі в такій позиції потрібен форпост; інакше він відстає на темпи.",
+            "explanationEn": "In such a position a knight needs an outpost; otherwise it loses tempi.",
+            "optionsEn": [
+              "the bishop (it strikes at a distance)",
+              "a knight without an outpost",
+              "the king in the centre already in the middlegame",
+              "the pawn on a2"
+            ]
+          },
+          {
+            "id": "ch-deep-minor-pieces-exam-q3",
+            "type": "mcq",
+            "promptUk": "Різноколірні слони в мітельшпілі при ферзях — це:",
+            "promptEn": "Opposite-coloured bishops in the middlegame with queens are:",
+            "options": [
+              "зброя атаки: атакуючий грає «з фігурою більше» на своєму кольорі",
+              "гарантована нічия",
+              "заборонена ситуація",
+              "завжди пат"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Нічийна логіка з’являється переважно в ендшпілі без ферзів.",
+            "explanationEn": "The drawing logic appears mainly in a queenless ending.",
+            "optionsEn": [
+              "an attacking weapon: the attacker plays “a piece up” on their colour",
+              "a guaranteed draw",
+              "a forbidden situation",
+              "always stalemate"
+            ]
+          },
+          {
+            "id": "ch-deep-minor-pieces-exam-q4",
+            "type": "mcq",
+            "promptUk": "Розмін слона на коня виправданий, якщо:",
+            "promptEn": "A bishop-for-knight trade is justified if:",
+            "options": [
+              "після нього ви отримуєте кращу структуру, форпост або знімаєте захисника",
+              "завжди, бо 3=3",
+              "ніколи",
+              "лише в перші три ходи"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Питання не в таблиці, а в позиції, яка залишиться.",
+            "explanationEn": "The question is not the chart, but the position that will be left.",
+            "optionsEn": [
+              "after it you get a better structure, an outpost or you remove a defender",
+              "always, because 3=3",
+              "never",
+              "only in the first three moves"
+            ]
+          },
+          {
+            "id": "ch-deep-minor-pieces-exam-p5",
+            "type": "chess_puzzle",
+            "promptUk": "Тематичний розмін слона на коня f6.",
+            "promptEn": "The thematic trade of the bishop for the knight on f6.",
+            "fen": "r1bq1rk1/p2nbppp/1p2pn2/2p3B1/2BP4/2N1PN2/PP3PPP/R2Q1RK1 w - - 0 10",
+            "solutionSans": [
+              "Bxf6"
+            ],
+            "difficulty": 2
+          },
+          {
+            "id": "ch-deep-minor-pieces-exam-p6",
+            "type": "chess_puzzle",
+            "promptUk": "Король на f2: шах ферзем по діагоналі.",
+            "promptEn": "The king is on f2: check with the queen along the diagonal.",
+            "fen": "r2q1rk1/2p2ppp/p1n1b3/1p1pP3/8/2P2N2/PPBN1KPP/R1BQ4 b - - 0 13",
+            "solutionSans": [
+              "Qh4+"
+            ],
+            "difficulty": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "ch-deep-attack-king",
+    "titleUk": "Атака на короля",
+    "titleEn": "Attacking the king",
+    "lessons": [
+      {
+        "slug": "ch-d-same-side",
+        "titleUk": "Атака при рокіровках в один бік",
+        "titleEn": "Attacking when both sides castle short",
+        "baseXp": 24,
+        "difficulty": 4,
+        "exercises": [
+          {
+            "id": "ch-d-same-side-l",
+            "type": "chess_lesson",
+            "promptUk": "Атака при рокіровках в один бік",
+            "promptEn": "Attacking when both sides castle short",
+            "fen": "r3r1k1/1ppq1pp1/p1npbn1p/2b1p3/4P3/1BPP1NNP/PP3PP1/R1BQR1K1 w - - 8 13",
+            "notesUk": "Коли обидва королі рокіровані в короткий бік, пішакова буря небезпечна: ви відкриваєте й свого короля. Основна зброя тут — фігури: підйом тури (Re1–e3–g3 або Rh3), кінь на f5 або g5, слон на діагоналі b1–h7, ферзь на h5 або g4, жертва на h7, g7 або f7. Пішаки підключають обережно (h3 уже є як «гачок» або luft), і лише коли центр стабільний. На діаграмі італійська структура: обидві сторони рокіровані коротко, у білих кінь уже на g3, тура на e1. Типовий план — підйом тури Re3–g3 (або відразу Nf5), щоб натиснути на g7 і h6, не рухаючи пішаків перед власним королем.\n\nПравило центру: не починайте флангову атаку, якщо суперник може відкрити центр і вдарити у відповідь. Спочатку зміцніть або закрийте центр, потім піднімайте фігури.\n\nТипові помилки: g4 і h4 «як при різнобічних рокіровках», оголюючи свого короля; атака без достатньої кількості фігур; забути про продих (luft) і нарватись на мат останньої горизонталі у контргрі.",
+            "notesEn": "When both kings have castled short, a pawn storm is dangerous: you also open your own king. The main weapons here are pieces: a rook lift (Re1–e3–g3 or Rh3), a knight on f5 or g5, a bishop on the b1–h7 diagonal, the queen on h5 or g4, a sacrifice on h7, g7 or f7. Pawns join in carefully (h3 is already a “hook” or luft), and only when the centre is stable. The diagram is an Italian structure: both sides are castled short, White already has a knight on g3 and a rook on e1. A typical plan is the rook lift Re3–g3 (or an immediate Nf5), to press g7 and h6 without moving the pawns in front of your own king.\n\nThe centre rule: do not start a flank attack if the opponent can open the centre and strike back. First solidify or close the centre, then lift the pieces.\n\nTypical mistakes: g4 and h4 “as in opposite-side castling”, exposing your own king; attacking without enough pieces; forgetting luft and walking into a back-rank mate in the counterplay.",
+            "quiz": {
+              "q": "Чим атака при коротких рокіровках з обох боків відрізняється від атаки при різнобічних?",
+              "qEn": "How does an attack with both sides castled short differ from one with opposite-side castling?",
+              "options": [
+                "тут головна зброя — фігури (підйом тури, коні, жертви), а не пішакова буря, бо свій король поруч",
+                "різниці немає, завжди треба грати g4–h4",
+                "атака заборонена",
+                "можна атакувати лише пішаком a"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "the main weapons here are pieces (a rook lift, knights, sacrifices), not a pawn storm, because your own king is nearby",
+                "there is no difference, you should always play g4–h4",
+                "an attack is forbidden",
+                "you may only attack with the a-pawn"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-same-side-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Обидва королі коротко: почніть підйом тури на королівський фланг.",
+            "promptEn": "Both kings are short: start the rook lift toward the kingside.",
+            "fen": "r3r1k1/1ppq1pp1/p1npbn1p/2b1p3/4P3/1BPP1NNP/PP3PP1/R1BQR1K1 w - - 8 13",
+            "solutionSans": [
+              "Re3"
+            ],
+            "difficulty": 3
+          },
+          {
+            "id": "ch-d-same-side-m1",
+            "type": "mcq",
+            "promptUk": "Перед фланговою атакою при однакових рокіровках спочатку треба:",
+            "promptEn": "Before a flank attack with same-side castling you should first:",
+            "options": [
+              "переконатись, що центр стабільний або закритий, інакше прийде контрудар",
+              "обов'язково зіграти g4",
+              "здати ферзя",
+              "зняти рокіровку"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Відкритий центр дає супернику шлях до вашого короля швидше, ніж ви дістанетесь його.",
+            "explanationEn": "An open centre gives the opponent a path to your king faster than you can reach theirs.",
+            "optionsEn": [
+              "make sure the centre is stable or closed, otherwise a counterblow will come",
+              "play g4 as a must",
+              "give up the queen",
+              "un-castle"
+            ]
+          },
+          {
+            "id": "ch-d-same-side-e",
+            "type": "explain",
+            "promptUk": "Як атакувати, коли обидва королі рокіровані коротко?",
+            "promptEn": "How do you attack when both kings have castled short?",
+            "keyIdeas": [
+              {
+                "labelUk": "Фігури",
+                "labelEn": "Pieces",
+                "anyOf": [
+                  "фігур",
+                  "piece",
+                  "підйом",
+                  "lift",
+                  "Re3",
+                  "Nf5",
+                  "тура",
+                  "rook"
+                ]
+              },
+              {
+                "labelUk": "Не буря",
+                "labelEn": "No storm",
+                "anyOf": [
+                  "не буря",
+                  "not a storm",
+                  "король поруч",
+                  "own king",
+                  "g4",
+                  "обережно",
+                  "careful"
+                ]
+              },
+              {
+                "labelUk": "Центр",
+                "labelEn": "Centre",
+                "anyOf": [
+                  "центр",
+                  "centre",
+                  "center",
+                  "стабіль",
+                  "stable",
+                  "закрит",
+                  "closed"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "При коротких рокіровках з обох боків атакують фігурами: підйом тури Re3–g3, кінь на f5, жертви на h7. Пішакову бурю треба обережно — свій король поруч. Спочатку стабілізуйте центр.",
+            "sampleAnswerEn": "With both sides castled short you attack with pieces: a rook lift Re3–g3, a knight on f5, sacrifices on h7. A pawn storm must be careful — your own king is nearby. First stabilize the centre."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-opp-castle",
+        "titleUk": "Різнобічні рокіровки: гонка атак",
+        "titleEn": "Opposite-side castling: a race of attacks",
+        "baseXp": 24,
+        "difficulty": 4,
+        "exercises": [
+          {
+            "id": "ch-d-opp-castle-l",
+            "type": "chess_lesson",
+            "promptUk": "Різнобічні рокіровки: гонка атак",
+            "promptEn": "Opposite-side castling: a race of attacks",
+            "fen": "rnb2rk1/1pq1bppp/p2ppn2/8/3NP3/2N1BP2/PPPQ2PP/2KR1B1R w - - 5 10",
+            "notesUk": "Коли королі на різних флангах (білі O-O-O, чорні O-O, або навпаки), логіка змінюється: це гонка. Хто перший відкриє лінії до чужого короля, той зазвичай виграє. Пішакова буря тут природна — свій король на іншому боці, тож g4–g5 і h4–h5 (англійська атака проти сицилійської) не оголюють його так само. На діаграмі англійська атака: білі вже рокіровані довго, пішак на f3, слон e3, ферзь d2. Типовий план — g4, h4–h5, Bh6, зняти захисника g7, відкрити лінію g або h. Чорні відповідають …b5–b4, …a5, атакою на c2 і ферзевий фланг — та сама гонка в інший бік.\n\nПрактичні правила: не гайте темпів «тихими» ходами в гонці; відкривайте лінії жертвою пішака, якщо це пришвидшує атаку; не відкривайте свого короля «за компанію». Центр все одно важливий: прорив у центрі може перебити флангову атаку.\n\nТипові помилки: грати ніби рокіровки однакові (лише фігурами, без пішаків); згаяти темп на непотрібний профілактичний хід, поки суперник уже відкрив лінію; забути про власну безпеку після …b4 і …Qa5.",
+            "notesEn": "When the kings are on opposite wings (White O-O-O, Black O-O, or the reverse), the logic changes: it is a race. Whoever first opens lines toward the enemy king usually wins. A pawn storm is natural here — your own king is on the other side, so g4–g5 and h4–h5 (the English Attack against the Sicilian) do not expose it in the same way. The diagram is the English Attack: White is already castled long, with a pawn on f3, a bishop on e3 and the queen on d2. The typical plan is g4, h4–h5, Bh6, removing the g7-defender and opening the g- or h-file. Black answers with …b5–b4, …a5, an attack on c2 and the queenside — the same race the other way.\n\nPractical rules: do not waste tempi on “quiet” moves in a race; open lines with a pawn sacrifice if that speeds the attack up; do not open your own king “for company”. The centre still matters: a central break can cut across a flank attack.\n\nTypical mistakes: playing as if the castling were on the same side (pieces only, no pawns); wasting a tempo on an unneeded prophylactic move while the opponent has already opened a file; forgetting your own safety after …b4 and …Qa5.",
+            "quiz": {
+              "q": "Що є головним принципом гри при різнобічних рокіровках?",
+              "qEn": "What is the main principle of play with opposite-side castling?",
+              "options": [
+                "це гонка: хто перший відкриє лінії до короля суперника, той зазвичай виграє",
+                "пішаків рухати заборонено",
+                "завжди треба грати на нічию",
+                "королі мають помінятись місцями"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "it is a race: whoever first opens lines toward the opponent’s king usually wins",
+                "pawn moves are forbidden",
+                "you should always play for a draw",
+                "the kings have to swap places"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-opp-castle-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Англійська атака: почніть пішакову бурю на королівському фланзі.",
+            "promptEn": "English Attack: start the pawn storm on the kingside.",
+            "fen": "rnb2rk1/1pq1bppp/p2ppn2/8/3NP3/2N1BP2/PPPQ2PP/2KR1B1R w - - 5 10",
+            "solutionSans": [
+              "g4"
+            ],
+            "difficulty": 2
+          },
+          {
+            "id": "ch-d-opp-castle-m1",
+            "type": "mcq",
+            "promptUk": "Чому при різнобічних рокіровках пішакова буря природніша, ніж при однакових?",
+            "promptEn": "Why is a pawn storm more natural with opposite-side castling than with same-side?",
+            "options": [
+              "свій король на іншому фланзі, тож пішаки не відкривають його так само",
+              "пішаки в такому разі ставлять мат самі",
+              "бурю заборонено при однакових рокіровках правилами",
+              "різниці немає"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Ви відкриваєте лінії до чужого короля, а не до свого.",
+            "explanationEn": "You open lines toward the enemy king, not toward your own.",
+            "optionsEn": [
+              "your own king is on the other wing, so the pawns do not open it in the same way",
+              "the pawns then mate all by themselves",
+              "a storm is forbidden by the laws when castling is on the same side",
+              "there is no difference"
+            ]
+          },
+          {
+            "id": "ch-d-opp-castle-e",
+            "type": "explain",
+            "promptUk": "Як грати, коли королі рокіровані в різні боки?",
+            "promptEn": "How do you play when the kings have castled on opposite sides?",
+            "keyIdeas": [
+              {
+                "labelUk": "Гонка",
+                "labelEn": "Race",
+                "anyOf": [
+                  "гонк",
+                  "race",
+                  "темп",
+                  "tempo",
+                  "ліні",
+                  "line",
+                  "перший",
+                  "first"
+                ]
+              },
+              {
+                "labelUk": "Буря",
+                "labelEn": "Storm",
+                "anyOf": [
+                  "g4",
+                  "h4",
+                  "h5",
+                  "b5",
+                  "буря",
+                  "storm"
+                ]
+              },
+              {
+                "labelUk": "Центр",
+                "labelEn": "Centre",
+                "anyOf": [
+                  "центр",
+                  "centre",
+                  "center",
+                  "прорив",
+                  "break"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Різнобічні рокіровки — це гонка: хто перший відкриє лінії, той зазвичай виграє. Пішакова буря (g4, h4–h5 проти короткої рокіровки) природна, бо свій король на іншому фланзі. Не гайте темпів; центр може перебити атаку.",
+            "sampleAnswerEn": "Opposite-side castling is a race: whoever opens lines first usually wins. A pawn storm (g4, h4–h5 against a short castle) is natural, because your own king is on the other wing. Do not waste tempi; the centre can cut across the attack."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-pawn-storm",
+        "titleUk": "Як вести пішакову бурю",
+        "titleEn": "How to conduct a pawn storm",
+        "baseXp": 24,
+        "difficulty": 4,
+        "exercises": [
+          {
+            "id": "ch-d-pawn-storm-l",
+            "type": "chess_lesson",
+            "promptUk": "Як вести пішакову бурю",
+            "promptEn": "How to conduct a pawn storm",
+            "fen": "2rq1rk1/pp1bppbp/3p1np1/4n3/3NP1PP/2N1BP2/PPPQB3/2KR3R w - - 0 12",
+            "notesUk": "Пішакова буря — це не «всі пішаки вперед». Метод: 1) насуньте пішаків на прикриття чужого короля; 2) створіть «гачок» — зіткнення, яке відкриває лінію (h4–h5 проти g6, або g5–g6 проти f7–h7); 3) розміняйте, відкрийте лінію; 4) по лінії зайдіть важкими фігурами (тура, ферзь); 5) жертва на відкритій лінії часто завершує атаку. На діаграмі югославська атака проти дракона: пішаки вже на g4 і h4, чорні рокіровані коротко, фіанкето g7, пішак g6. Тематичний удар — h5: гачок до g6. Після …gxh5 або hxg6 відкривається лінія h, і тура з h1 одразу входить у гру.\n\nНе кваптесь так, щоб пішаки заблокувались (якщо суперник зіграє …h5 або …g5 і закриє гачок). Іноді потрібен підготовчий хід (Bh6, f4, Kb1). Якщо буря «зависла», шукайте жертву, що все ж відкриває лінію, або перемикайтесь у центр.\n\nТипові помилки: h5 без фігур позаду — лінія відкриється суперникові; штовхати пішаків, поки центр відкритий і прилітає контрудар; забути про власного короля (Kb1 часто корисний до початку гонки).",
+            "notesEn": "A pawn storm is not “every pawn forward”. The method: 1) advance the pawns onto the enemy king’s cover; 2) create a “hook” — a contact that opens a file (h4–h5 against g6, or g5–g6 against f7–h7); 3) exchange, open the file; 4) bring the heavy pieces (rook, queen) onto the file; 5) a sacrifice on the open file often finishes the attack. The diagram is a Yugoslav Attack against the Dragon: pawns already on g4 and h4, Black castled short with a fianchetto on g7 and a pawn on g6. The thematic blow is h5: a hook against g6. After …gxh5 or hxg6 the h-file opens, and the rook on h1 comes into the game at once.\n\nDo not rush so that the pawns become blocked (if the opponent plays …h5 or …g5 and closes the hook). Sometimes a preparatory move is needed (Bh6, f4, Kb1). If the storm “hangs”, look for a sacrifice that still opens a file, or switch to the centre.\n\nTypical mistakes: h5 with no pieces behind it — the file opens for the opponent; pushing pawns while the centre is open and a counterblow is coming; forgetting your own king (Kb1 is often useful before the race starts).",
+            "quiz": {
+              "q": "Що таке «гачок» у пішаковій бурі?",
+              "qEn": "What is a “hook” in a pawn storm?",
+              "options": [
+                "зіткнення пішаків (наприклад h5 проти g6), яке дозволяє відкрити лінію розміном",
+                "шах конем",
+                "рокіровка",
+                "хід королем у кут"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "a pawn contact (for example h5 against g6) that lets you open a file by exchanging",
+                "a knight check",
+                "castling",
+                "a king move into the corner"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-pawn-storm-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Югославська атака: зробіть тематичний «гачок» проти пішака g6.",
+            "promptEn": "Yugoslav Attack: play the thematic “hook” against the g6-pawn.",
+            "fen": "2rq1rk1/pp1bppbp/3p1np1/4n3/3NP1PP/2N1BP2/PPPQB3/2KR3R w - - 0 12",
+            "solutionSans": [
+              "h5"
+            ],
+            "difficulty": 3
+          },
+          {
+            "id": "ch-d-pawn-storm-m1",
+            "type": "mcq",
+            "promptUk": "Що робити після того, як гачок відкрив лінію?",
+            "promptEn": "What should you do after the hook has opened a file?",
+            "options": [
+              "поставити на неї тури й ферзя і лише тоді шукати жертву на відкритій лінії",
+              "відійти всіма фігурами назад",
+              "одразу здатися",
+              "закрити лінію власним пішаком знову"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Відкрита лінія без важких фігур — подарунок суперникові.",
+            "explanationEn": "An open file without heavy pieces is a gift to the opponent.",
+            "optionsEn": [
+              "put rooks and the queen on it, and only then look for a sacrifice on the open file",
+              "retreat every piece",
+              "resign at once",
+              "close the file again with your own pawn"
+            ]
+          },
+          {
+            "id": "ch-d-pawn-storm-e",
+            "type": "explain",
+            "promptUk": "Опишіть метод пішакової бурі і роль «гачка».",
+            "promptEn": "Describe the method of a pawn storm and the role of the “hook”.",
+            "keyIdeas": [
+              {
+                "labelUk": "Метод",
+                "labelEn": "Method",
+                "anyOf": [
+                  "насун",
+                  "advance",
+                  "гачок",
+                  "hook",
+                  "ліні",
+                  "file",
+                  "тури",
+                  "rook"
+                ]
+              },
+              {
+                "labelUk": "h5",
+                "labelEn": "h5",
+                "anyOf": [
+                  "h5",
+                  "g6",
+                  "hxg6",
+                  "gxh5",
+                  "югослав",
+                  "Yugoslav"
+                ]
+              },
+              {
+                "labelUk": "Обережно",
+                "labelEn": "Careful",
+                "anyOf": [
+                  "центр",
+                  "centre",
+                  "center",
+                  "Kb1",
+                  "не квап",
+                  "not rush",
+                  "фігури позаду",
+                  "pieces behind"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Буря: насунути пішаків, створити гачок (h5 проти g6), відкрити лінію розміном і ввести тури. Без фігур позаду відкрита лінія працює на суперника. Не штовхайте пішаків при відкритому центрі.",
+            "sampleAnswerEn": "The storm: advance the pawns, create a hook (h5 against g6), open a file by exchanging and bring the rooks in. Without pieces behind it, an open file works for the opponent. Do not push pawns with an open centre."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-bxh7",
+        "titleUk": "Класична жертва слона Bxh7+: повний метод",
+        "titleEn": "The classical bishop sacrifice Bxh7+: the full method",
+        "baseXp": 24,
+        "difficulty": 4,
+        "exercises": [
+          {
+            "id": "ch-d-bxh7-l",
+            "type": "chess_lesson",
+            "promptUk": "Класична жертва слона Bxh7+: повний метод",
+            "promptEn": "The classical bishop sacrifice Bxh7+: the full method",
+            "fen": "r1bq1rk1/pp1nbppp/4p3/3pP3/8/3B1N2/PPP2PPP/RNBQ1RK1 w - - 0 9",
+            "notesUk": "Цей урок — не друге вступне « Bx h7 існує», а метод після жертви. Класична жертва: 1.Bxh7+ Kxh7 2.Ng5+. Тепер у короля три відходи, і кожен має свою гілку. 1) …Kg8 2.Qh5 (загроза Qh7#). Захисти: …Nf6 (часто пізно, бо e5 б'є на f6), …Bxg5, …Re8 з утечею. Рахуйте, чи є Qh7+ і Qh8+. 2) …Kg6 — найсміливіший. Тоді Qg4 (або Qf3) і пішак h4–h5: короля женуть далі. 3) …Kh6 (рідко) — Qg4 або Qh5 з шахом, часто виграє одразу, бо король на краю. На діаграмі схема зібрана: слон d3, кінь f3, пішак e5 забирає поле f6, чорний кінь на d7 (не на f6), король рокірований, ферзь білих швидко йде на h5.\n\nКоли жертва здорова: немає коня на f6 (або він не встигає), слон б'є з d3, кінь іде на g5, ферзь — на h5, і чорні не мають …Bf5 чи …Be7–xg5, що гасять атаку. Коли ні: кінь f6 тримає h7 і g4, після …Bxg5 і …Qxg5 атака видихається, ви без слона.\n\nТипові помилки: жертвувати «за картинкою», не рахуючи всі три відходи короля; забути гілку …Kg6 з Qg4 і h4; не помітити захист …Nf6 або …Bf5.",
+            "notesEn": "This lesson is not a second introduction to “Bxh7 exists”, but the method after the sacrifice. The classical sacrifice is 1.Bxh7+ Kxh7 2.Ng5+. The king now has three retreats, and each has its own branch. 1) …Kg8 2.Qh5 (threat Qh7#). Defences: …Nf6 (often too late, because e5 takes on f6), …Bxg5, …Re8 and a flight. Calculate whether Qh7+ and Qh8# are there. 2) …Kg6 — the boldest. Then Qg4 (or Qf3) and the h4–h5 pawn: the king is driven further. 3) …Kh6 (rare) — Qg4 or Qh5 with check, often winning at once because the king is on the edge. The diagram gathers the pattern: bishop on d3, knight on f3, the e5-pawn taking f6 away, Black’s knight on d7 (not on f6), the king castled, White’s queen going quickly to h5.\n\nWhen the sacrifice is sound: there is no knight on f6 (or it cannot get there in time), the bishop strikes from d3, the knight goes to g5, the queen to h5, and Black has no …Bf5 or …Be7xg5 that kills the attack. When it is not: a knight on f6 holds h7 and g4, after …Bxg5 and …Qxg5 the attack peters out and you are a bishop down.\n\nTypical mistakes: sacrificing “from the picture” without calculating all three king retreats; forgetting the …Kg6 branch with Qg4 and h4; missing the defence …Nf6 or …Bf5.",
+            "quiz": {
+              "q": "Які три відходи чорного короля треба рахувати після Bxh7+ і Ng5+?",
+              "qEn": "Which three retreats of the black king must you calculate after Bxh7+ and Ng5+?",
+              "options": [
+                "…Kg8 (тоді Qh5), …Kg6 (тоді Qg4 і h4–h5) і рідше …Kh6",
+                "тільки …Kg8",
+                "тільки …Ka1",
+                "король не має відходів після шаха"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "…Kg8 (then Qh5), …Kg6 (then Qg4 and h4–h5) and, more rarely, …Kh6",
+                "only …Kg8",
+                "only …Ka1",
+                "the king has no retreats after the check"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-bxh7-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Класична жертва: почніть грецький дар із шаха слоном.",
+            "promptEn": "The classical sacrifice: start the Greek gift with a bishop check.",
+            "fen": "r1bq1rk1/pp1nbppp/4p3/3pP3/8/3B1N2/PPP2PPP/RNBQ1RK1 w - - 0 9",
+            "solutionSans": [
+              "Bxh7+",
+              "Kxh7",
+              "Ng5+"
+            ],
+            "difficulty": 3
+          },
+          {
+            "id": "ch-d-bxh7-m1",
+            "type": "mcq",
+            "promptUk": "Що є типовою відповіддю білих на …Kg6 після Ng5+?",
+            "promptEn": "What is White’s typical reply to …Kg6 after Ng5+?",
+            "options": [
+              "Qg4 або Qf3 і далі пішак h4–h5, женучи короля",
+              "здача",
+              "рокіровка ще раз",
+              "взяти короля нелегально"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Гілка …Kg6 не «скасовує» жертву — її треба було рахувати заздалегідь.",
+            "explanationEn": "The …Kg6 branch does not “cancel” the sacrifice — you had to calculate it in advance.",
+            "optionsEn": [
+              "Qg4 or Qf3 and then the h4–h5 pawn, driving the king",
+              "resigning",
+              "castling again",
+              "taking the king illegally"
+            ]
+          },
+          {
+            "id": "ch-d-bxh7-e",
+            "type": "explain",
+            "promptUk": "Опишіть повний метод після Bxh7+ і три відходи короля.",
+            "promptEn": "Describe the full method after Bxh7+ and the three king retreats.",
+            "keyIdeas": [
+              {
+                "labelUk": "Жертва",
+                "labelEn": "Sacrifice",
+                "anyOf": [
+                  "Bxh7",
+                  "Ng5",
+                  "Qh5",
+                  "грецьк",
+                  "Greek"
+                ]
+              },
+              {
+                "labelUk": "Відходи",
+                "labelEn": "Retreats",
+                "anyOf": [
+                  "Kg8",
+                  "Kg6",
+                  "Kh6",
+                  "Qg4",
+                  "h4",
+                  "h5"
+                ]
+              },
+              {
+                "labelUk": "Умови",
+                "labelEn": "Conditions",
+                "anyOf": [
+                  "немає Nf6",
+                  "no Nf6",
+                  "e5",
+                  "Bd3",
+                  "Bf5",
+                  "захист",
+                  "defen"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Після Bxh7+ Kxh7 Ng5+ є три відходи: Kg8 (Qh5 і загроза Qh7#), Kg6 (Qg4 і h4–h5) і рідко Kh6. Жертва здорова, коли немає коня на f6 і ферзь встигає на h5. Рахуйте всі три гілки, не лише картинку.",
+            "sampleAnswerEn": "After Bxh7+ Kxh7 Ng5+ there are three retreats: Kg8 (Qh5 and the threat Qh7#), Kg6 (Qg4 and h4–h5) and rarely Kh6. The sacrifice is sound when there is no knight on f6 and the queen reaches h5 in time. Calculate all three branches, not just the picture."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-defence",
+        "titleUk": "Захист короля: методи, не паніка",
+        "titleEn": "Defending the king: methods, not panic",
+        "baseXp": 24,
+        "difficulty": 4,
+        "exercises": [
+          {
+            "id": "ch-d-defence-l",
+            "type": "chess_lesson",
+            "promptUk": "Захист короля: методи, не паніка",
+            "promptEn": "Defending the king: methods, not panic",
+            "fen": "r1bq1rk1/pp1n1ppp/2pbp3/7Q/3P4/3B4/PPP2PPP/RNB2RK1 b - - 0 10",
+            "notesUk": "Захист короля — це теж метод, не «ходити чим попало біля короля». Основні прийоми: 1) розміняти атакуючі фігури (особливо ферзя і слона на діагоналі b1–h7); 2) тримати коня на f6 (або поставити його туди) — він закриває h7 і g4; 3) не відкривати лінії біля свого короля без потреби; 4) дати королю «продих» (luft, …h6 або …g6 — але g6 створює дірки); 5) утекти королем (…Kf8–e7), якщо лінія вже відкрита; 6) контрудар у центрі, щоб атакуючий не встиг. На діаграмі типова загроза: ферзь білих уже на h5, слон на d3 дивиться на h7. Чорні грають …Nf6: одночасно нападають на ферзя і закривають h7 — класичний захисний темп.\n\nКоли тримати, а коли віддавати матеріал: якщо атака «не матує», часто можна повернути матеріал і спростити. Не жадібніть пішака, якщо він тримає прикриття короля.\n\nТипові помилки: …g6 «автоматом», створюючи вічні дірки на f6 і h6; панічні ходи королем під шахи; забути про розмін атакуючого ферзя; захищатись пасивно, коли є контрудар …c5 або …d5.",
+            "notesEn": "Defending the king is also a method, not “moving anything that is near the king”. The main techniques: 1) exchange the attacking pieces (especially the queen and the bishop on the b1–h7 diagonal); 2) keep a knight on f6 (or put it there) — it covers h7 and g4; 3) do not open lines near your own king without need; 4) give the king luft (…h6 or …g6 — but g6 creates holes); 5) run with the king (…Kf8–e7) if a file is already open; 6) a counterblow in the centre, so that the attacker runs out of time. The diagram is a typical threat: White’s queen is already on h5, the bishop on d3 eyes h7. Black plays …Nf6: attacking the queen and covering h7 at the same time — a classic defensive tempo.\n\nWhen to hold and when to give material back: if the attack “does not mate”, you can often return material and simplify. Do not greedily keep a pawn if it is part of the king’s cover.\n\nTypical mistakes: automatic …g6, creating permanent holes on f6 and h6; panicky king moves into checks; forgetting to exchange the attacking queen; defending passively when there is a counterblow …c5 or …d5.",
+            "quiz": {
+              "q": "Який захисний хід на діаграмі одночасно закриває h7 і атакує ферзя h5?",
+              "qEn": "Which defensive move in the diagram both covers h7 and attacks the queen on h5?",
+              "options": [
+                "…Nf6",
+                "…Kh8",
+                "…a5",
+                "…Qxd4"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "…Nf6",
+                "…Kh8",
+                "…a5",
+                "…Qxd4"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-defence-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Ферзь на h5 і слон на d3 ціляться в h7. Захистіться конем: закрийте h7 і нападіть на ферзя.",
+            "promptEn": "The queen on h5 and the bishop on d3 eye h7. Defend with the knight: cover h7 and attack the queen.",
+            "fen": "r1bq1rk1/pp1n1ppp/2pbp3/7Q/3P4/3B4/PPP2PPP/RNB2RK1 b - - 0 10",
+            "solutionSans": [
+              "Nf6"
+            ],
+            "difficulty": 2
+          },
+          {
+            "id": "ch-d-defence-m1",
+            "type": "mcq",
+            "promptUk": "Чому автоматичне …g6 при атаці на короля часто небезпечне?",
+            "promptEn": "Why is automatic …g6 under an attack on the king often dangerous?",
+            "options": [
+              "воно створює вічні дірки на f6 і h6, якими користується слон і ферзь суперника",
+              "пішак g не має права ходити",
+              "це завжди мат собі",
+              "правила забороняють …g6"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Іноді …g6 необхідне, але воно має бути порахованим, не рефлексом.",
+            "explanationEn": "Sometimes …g6 is necessary, but it must be calculated, not a reflex.",
+            "optionsEn": [
+              "it creates permanent holes on f6 and h6, which the opponent’s bishop and queen will use",
+              "the g-pawn is not allowed to move",
+              "it is always self-mate",
+              "the laws forbid …g6"
+            ]
+          },
+          {
+            "id": "ch-d-defence-e",
+            "type": "explain",
+            "promptUk": "Назвіть методи захисту короля і типовий хід проти Qh5 і Bd3.",
+            "promptEn": "Name the methods of defending the king and the typical move against Qh5 and Bd3.",
+            "keyIdeas": [
+              {
+                "labelUk": "Методи",
+                "labelEn": "Methods",
+                "anyOf": [
+                  "розмін",
+                  "exchange",
+                  "Nf6",
+                  "luft",
+                  "продих",
+                  "утекти",
+                  "run",
+                  "контрудар",
+                  "counter"
+                ]
+              },
+              {
+                "labelUk": "Nf6",
+                "labelEn": "Nf6",
+                "anyOf": [
+                  "Nf6",
+                  "h7",
+                  "ферз",
+                  "queen",
+                  "захист",
+                  "defen"
+                ]
+              },
+              {
+                "labelUk": "Не паніка",
+                "labelEn": "No panic",
+                "anyOf": [
+                  "не g6 автомат",
+                  "not automatic g6",
+                  "дірк",
+                  "hole",
+                  "не панік",
+                  "panic"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Методи захисту: розмін атакуючих фігур, кінь на f6, продих, утеча короля, контрудар у центрі. Проти Qh5 і Bd3 типове …Nf6 закриває h7 і б'є ферзя. Не грайте …g6 рефлекторно — з’являються дірки на f6 і h6.",
+            "sampleAnswerEn": "Defensive methods: exchanging the attacking pieces, a knight on f6, luft, running with the king, a central counterblow. Against Qh5 and Bd3 the typical …Nf6 covers h7 and hits the queen. Do not play …g6 as a reflex — holes appear on f6 and h6."
+          }
+        ]
+      },
+      {
+        "slug": "ch-deep-attack-king-exam",
+        "titleUk": "Іспит: атака на короля",
+        "titleEn": "Exam: attacking the king",
+        "baseXp": 30,
+        "difficulty": 4,
+        "isExam": true,
+        "passThreshold": 0.7,
+        "exercises": [
+          {
+            "id": "ch-deep-attack-king-exam-q1",
+            "type": "mcq",
+            "promptUk": "При коротких рокіровках з обох боків головна зброя атаки — це:",
+            "promptEn": "With both sides castled short, the main attacking weapon is:",
+            "options": [
+              "фігури (підйом тури, коні, жертви), а не пішакова буря біля власного короля",
+              "обов'язкові g4 і h4 з першого ходу",
+              "тільки пішак a",
+              "здача якості на a1"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Буря біля свого короля відкриває його так само.",
+            "explanationEn": "A storm next to your own king opens it just as much.",
+            "optionsEn": [
+              "pieces (a rook lift, knights, sacrifices), not a pawn storm next to your own king",
+              "mandatory g4 and h4 from move one",
+              "only the a-pawn",
+              "giving up the exchange on a1"
+            ]
+          },
+          {
+            "id": "ch-deep-attack-king-exam-q2",
+            "type": "mcq",
+            "promptUk": "При різнобічних рокіровках гра — це:",
+            "promptEn": "With opposite-side castling the game is:",
+            "options": [
+              "гонка: хто перший відкриє лінії до чужого короля",
+              "завжди тиха технічна реалізація",
+              "заборона пішакових ходів",
+              "автоматична нічия"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Темп тут часто дорожчий за пішака.",
+            "explanationEn": "A tempo here is often worth more than a pawn.",
+            "optionsEn": [
+              "a race: whoever first opens lines toward the enemy king",
+              "always a quiet technical conversion",
+              "a ban on pawn moves",
+              "an automatic draw"
+            ]
+          },
+          {
+            "id": "ch-deep-attack-king-exam-q3",
+            "type": "mcq",
+            "promptUk": "Після Bxh7+ Kxh7 Ng5+ три відходи короля — це:",
+            "promptEn": "After Bxh7+ Kxh7 Ng5+ the three king retreats are:",
+            "options": [
+              "…Kg8 (Qh5), …Kg6 (Qg4 і h4–h5) і рідше …Kh6",
+              "тільки …Ka8",
+              "тільки …Ke2",
+              "відходів немає"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Кожну гілку треба рахувати до жертви, не після.",
+            "explanationEn": "Each branch must be calculated before the sacrifice, not after.",
+            "optionsEn": [
+              "…Kg8 (Qh5), …Kg6 (Qg4 and h4–h5) and, more rarely, …Kh6",
+              "only …Ka8",
+              "only …Ke2",
+              "there are no retreats"
+            ]
+          },
+          {
+            "id": "ch-deep-attack-king-exam-q4",
+            "type": "mcq",
+            "promptUk": "Типовий захист проти ферзя на h5 і слона на d3 — це:",
+            "promptEn": "The typical defence against a queen on h5 and a bishop on d3 is:",
+            "options": [
+              "…Nf6: закрити h7 і напасти на ферзя",
+              "…g6 завжди й автоматично",
+              "…Kh7 під удар",
+              "здача"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Кінь на f6 — головний сторож короткої рокіровки.",
+            "explanationEn": "A knight on f6 is the chief sentry of a short castle.",
+            "optionsEn": [
+              "…Nf6: cover h7 and attack the queen",
+              "…g6 always and automatically",
+              "…Kh7 into the attack",
+              "resigning"
+            ]
+          },
+          {
+            "id": "ch-deep-attack-king-exam-p5",
+            "type": "chess_puzzle",
+            "promptUk": "Підйом тури при однакових рокіровках.",
+            "promptEn": "A rook lift with same-side castling.",
+            "fen": "r3r1k1/1ppq1pp1/p1npbn1p/2b1p3/4P3/1BPP1NNP/PP3PP1/R1BQR1K1 w - - 8 13",
+            "solutionSans": [
+              "Re3"
+            ],
+            "difficulty": 3
+          },
+          {
+            "id": "ch-deep-attack-king-exam-p6",
+            "type": "chess_puzzle",
+            "promptUk": "Грецький дар: Bxh7+ і після взяття — кінь на g5.",
+            "promptEn": "The Greek gift: Bxh7+ and after the capture — the knight to g5.",
+            "fen": "r1bq1rk1/pp1nbppp/4p3/3pP3/8/3B1N2/PPP2PPP/RNBQ1RK1 w - - 0 9",
+            "solutionSans": [
+              "Bxh7+",
+              "Kxh7",
+              "Ng5+"
+            ],
+            "difficulty": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "ch-deep-pawn-play",
+    "titleUk": "Пішакова гра",
+    "titleEn": "Pawn play",
+    "lessons": [
+      {
+        "slug": "ch-d-breaks",
+        "titleUk": "Підрив: коли і як відкривати лінії",
+        "titleEn": "Pawn breaks: when and how to open lines",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "ch-d-breaks-l",
+            "type": "chess_lesson",
+            "promptUk": "Підрив: коли і як відкривати лінії",
+            "promptEn": "Pawn breaks: when and how to open lines",
+            "fen": "r1bq1rk1/pppnnpbp/3p2p1/3Pp3/2P1P3/2N1B3/PP2BPPP/R2QNRK1 b - - 2 10",
+            "notesUk": "Підрив — це пішаковий хід, що змінює структуру й відкриває лінії (…f5, …c5, …d5, e4, f4, b4). Він не самоціль: підрив готують, коли фігури готові зайняти відкриті лінії, і коли після розміну ваші фігури стають активнішими за суперникові. На діаграмі класичний староіндійський після 8.d5 Ne7: центр закритий, білі мають простір, чорні готують тематичний підрив …f5. Після …f5 розмін на e4 або просування …f4 змінює малюнок: або відкривається лінія f для тури, або ланцюг закривається й атака йде пішаками g і h.\n\nЯк готувати підрив: поставте фігури на поля, з яких вони підтримують удар (кінь e7, тура f8, іноді …Kh8 і …Rg8); порахуйте, скільки разів ударне поле захищене; не грайте підрив «у порожнечу», якщо після нього з’являється слабкість без компенсації. Іноді загроза підриву сильніша за сам хід — суперник ставить фігури пасивно, щоб його стримати.\n\nТипові помилки: підрив на хід раніше (фігури не готові, центр відкривається суперникові); підрив на хід пізніше (суперник уже затиснув); підрив не тим пішаком (бийте базу ланцюга або той пішак, що відкриває ваші фігури).",
+            "notesEn": "A break is a pawn move that changes the structure and opens lines (…f5, …c5, …d5, e4, f4, b4). It is not an end in itself: you prepare a break when the pieces are ready to occupy the open lines, and when after the exchange your pieces become more active than the opponent’s. The diagram is a Classical King’s Indian after 8.d5 Ne7: the centre is closed, White has space, Black prepares the thematic break …f5. After …f5, an exchange on e4 or the advance …f4 changes the picture: either the f-file opens for the rook, or the chain closes and the attack runs with the g- and h-pawns.\n\nHow to prepare a break: put the pieces on squares from which they support the blow (the knight on e7, the rook on f8, sometimes …Kh8 and …Rg8); count how many times the breakthrough square is defended; do not play a break “into a vacuum” if it creates a weakness without compensation. Sometimes the threat of a break is stronger than the move itself — the opponent places pieces passively to restrain it.\n\nTypical mistakes: a break one move too early (the pieces are not ready, the centre opens for the opponent); a break one move too late (the opponent has already squeezed you); a break with the wrong pawn (strike the base of the chain, or the pawn that opens your pieces).",
+            "quiz": {
+              "q": "Коли підрив зазвичай готовий?",
+              "qEn": "When is a break usually ready?",
+              "options": [
+                "коли фігури підтримують удар і після розміну ваші фігури стають активнішими",
+                "завжди на 5-му ході",
+                "ніколи в мітельшпілі",
+                "лише якщо суперник пропонує"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "when the pieces support the blow and after the exchange your pieces become more active",
+                "always on move 5",
+                "never in the middlegame",
+                "only if the opponent offers it"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-breaks-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Староіндійський, центр закритий ходом d5: зробіть тематичний підрив.",
+            "promptEn": "King's Indian, centre closed with d5: play the thematic break.",
+            "fen": "r1bq1rk1/pppnnpbp/3p2p1/3Pp3/2P1P3/2N1B3/PP2BPPP/R2QNRK1 b - - 2 10",
+            "solutionSans": [
+              "f5"
+            ],
+            "difficulty": 2
+          },
+          {
+            "id": "ch-d-breaks-m1",
+            "type": "mcq",
+            "promptUk": "Чому загроза підриву іноді сильніша за сам підрив?",
+            "promptEn": "Why is the threat of a break sometimes stronger than the break itself?",
+            "options": [
+              "суперник ставить фігури пасивно, щоб його стримати, і ви можете бити в іншому місці",
+              "загроза завжди дає мат",
+              "підрив заборонено правилами",
+              "пішаки не мають права розмінюватись"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Тримайте напруження, поки не вигідний момент реалізації.",
+            "explanationEn": "Keep the tension until the moment of realization is favourable.",
+            "optionsEn": [
+              "the opponent places pieces passively to restrain it, and you can strike elsewhere",
+              "the threat always mates",
+              "breaks are forbidden by the laws",
+              "pawns are not allowed to exchange"
+            ]
+          },
+          {
+            "id": "ch-d-breaks-e",
+            "type": "explain",
+            "promptUk": "Що таке підрив, коли він готовий і який тематичний підрив у закритому староіндійському?",
+            "promptEn": "What is a break, when is it ready, and what is the thematic break in a closed King's Indian?",
+            "keyIdeas": [
+              {
+                "labelUk": "Підрив",
+                "labelEn": "Break",
+                "anyOf": [
+                  "підрив",
+                  "break",
+                  "ліні",
+                  "line",
+                  "структур",
+                  "structure",
+                  "f5",
+                  "c5",
+                  "d5"
+                ]
+              },
+              {
+                "labelUk": "Готовність",
+                "labelEn": "Readiness",
+                "anyOf": [
+                  "фігури готов",
+                  "pieces ready",
+                  "активн",
+                  "activ",
+                  "підтрим",
+                  "support"
+                ]
+              },
+              {
+                "labelUk": "Староіндійський",
+                "labelEn": "King's Indian",
+                "anyOf": [
+                  "f5",
+                  "d5",
+                  "староіндій",
+                  "King's Indian",
+                  "Indian"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Підрив — пішаковий хід, що відкриває лінії й змінює структуру. Він готовий, коли фігури його підтримують і після нього ваші фігури активніші. У закритому староіндійському тематичний підрив чорних — …f5.",
+            "sampleAnswerEn": "A break is a pawn move that opens lines and changes the structure. It is ready when the pieces support it and after it your pieces are more active. In a closed King's Indian Black’s thematic break is …f5."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-minority",
+        "titleUk": "Атака меншості",
+        "titleEn": "The minority attack",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "ch-d-minority-l",
+            "type": "chess_lesson",
+            "promptUk": "Атака меншості",
+            "promptEn": "The minority attack",
+            "fen": "r2qrnk1/pp2bppp/2p1bn2/3p2B1/3P4/2NBPN1P/PPQ2PP1/1R3RK1 w - - 2 12",
+            "notesUk": "Атака меншості — це насування меншої кількості пішаків на більшу, щоб створити слабкість. Класика: калсбадська структура розмінного ферзевого гамбіту. У білих пішаки a2 і b2 (меншість) проти чорних a7, b7 і c6 (більшість на ферзевому фланзі); у центрі пішаки d4 проти d5. План білих: b4–b5. Після розміну на c6 у чорних залишається або відсталий пішак c6, або ізольований d5 — довгострокова слабкість, яку обстрілюють тури по лінії b і c. На діаграмі все готово: тура вже на b1, пішаки ще на a2 і b2, слон d3 і ферзь c2 дивляться в той бік. Перший хід плану — b4.\n\nЧорні захищаються: …a5 (зупинити b4, але дати поле b5), …b5 самим (зафіксувати, але слабке c6 і поле c5 для коня білих), або активна гра в центрі й на королівському фланзі (…Ne4, …f5), щоб не дати білим спокійно насувати меншість.\n\nТипові помилки: b5 занадто рано, без тури на b1 і без підтримки; плутати атаку меншості з «просто насунути пішаків»; забути, що після створення слабкості її треба обстрілювати фігурами, а не зупинятись.",
+            "notesEn": "A minority attack is the advance of a smaller number of pawns against a larger number, in order to create a weakness. The classic case is the Carlsbad structure of the Queen’s Gambit Exchange. White has pawns on a2 and b2 (a minority) against Black’s a7, b7 and c6 (a queenside majority); in the centre the pawns are d4 against d5. White’s plan is b4–b5. After the exchange on c6 Black is left with either a backward c6-pawn or an isolated d5-pawn — a long-term weakness that the rooks bombard on the b- and c-files. In the diagram everything is ready: a rook is already on b1, the pawns are still on a2 and b2, the bishop on d3 and the queen on c2 look that way. The first move of the plan is b4.\n\nBlack defends with …a5 (stopping b4, but giving up the b5-square), …b5 themselves (fixing, but a weak c6 and a c5-square for White’s knight), or active play in the centre and on the kingside (…Ne4, …f5), so that White is not allowed to roll the minority in peace.\n\nTypical mistakes: b5 too early, without a rook on b1 and without support; confusing the minority attack with “just pushing pawns”; forgetting that once the weakness is created it must be bombarded with pieces, not left alone.",
+            "quiz": {
+              "q": "Яка мета атаки меншості b4–b5 у калсбадській структурі?",
+              "qEn": "What is the goal of the b4–b5 minority attack in the Carlsbad structure?",
+              "options": [
+                "створити відсталий пішак c6 або ізольований d5 і потім обстрілювати цю слабкість",
+                "поставити мат пішаком b у 2 ходи",
+                "віддати всіх пішаків",
+                "закрити ферзевий фланг назавжди"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "to create a backward c6-pawn or an isolated d5-pawn and then bombard that weakness",
+                "to mate with the b-pawn in two moves",
+                "to give away every pawn",
+                "to close the queenside forever"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-minority-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Калсбад: почніть атаку меншості.",
+            "promptEn": "Carlsbad: start the minority attack.",
+            "fen": "r2qrnk1/pp2bppp/2p1bn2/3p2B1/3P4/2NBPN1P/PPQ2PP1/1R3RK1 w - - 2 12",
+            "solutionSans": [
+              "b4"
+            ],
+            "difficulty": 2
+          },
+          {
+            "id": "ch-d-minority-m1",
+            "type": "mcq",
+            "promptUk": "Як чорні типово реагують на загрозу b4–b5?",
+            "promptEn": "How does Black typically react to the threat of b4–b5?",
+            "options": [
+              "…a5, або …b5 самим, або контргра в центрі (…Ne4, …f5)",
+              "здача",
+              "довга рокіровка в цей момент",
+              "хід королем на a8"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Кожен захист має ціну: …a5 дає поле b5, …b5 слабшає c6.",
+            "explanationEn": "Each defence has a cost: …a5 gives up b5, …b5 weakens c6.",
+            "optionsEn": [
+              "…a5, or …b5 themselves, or counterplay in the centre (…Ne4, …f5)",
+              "resigning",
+              "long castling at this moment",
+              "a king move to a8"
+            ]
+          },
+          {
+            "id": "ch-d-minority-e",
+            "type": "explain",
+            "promptUk": "Що таке атака меншості і яка її мета в калсбаді?",
+            "promptEn": "What is a minority attack, and what is its goal in the Carlsbad?",
+            "keyIdeas": [
+              {
+                "labelUk": "Ідея",
+                "labelEn": "Idea",
+                "anyOf": [
+                  "меншіст",
+                  "minority",
+                  "b4",
+                  "b5",
+                  "більшіст",
+                  "majority"
+                ]
+              },
+              {
+                "labelUk": "Мета",
+                "labelEn": "Goal",
+                "anyOf": [
+                  "c6",
+                  "відстал",
+                  "backward",
+                  "ізольован",
+                  "isolated",
+                  "d5",
+                  "слабк",
+                  "weak"
+                ]
+              },
+              {
+                "labelUk": "Захист",
+                "labelEn": "Defence",
+                "anyOf": [
+                  "a5",
+                  "b5",
+                  "Ne4",
+                  "f5",
+                  "контргр",
+                  "counter"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Атака меншості — насування меншої кількості пішаків (b4–b5) на більшість, щоб створити відсталий c6 або ізольований d5. У калсбаді тура стоїть на b1, перший хід — b4. Далі слабкість треба обстрілювати фігурами.",
+            "sampleAnswerEn": "A minority attack is the advance of fewer pawns (b4–b5) against a majority, to create a backward c6 or an isolated d5. In the Carlsbad the rook stands on b1 and the first move is b4. Then the weakness must be bombarded with pieces."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-hanging",
+        "titleUk": "Висячі пішаки",
+        "titleEn": "Hanging pawns",
+        "baseXp": 24,
+        "difficulty": 4,
+        "exercises": [
+          {
+            "id": "ch-d-hanging-l",
+            "type": "chess_lesson",
+            "promptUk": "Висячі пішаки",
+            "promptEn": "Hanging pawns",
+            "fen": "r4rk1/p3qpp1/2n1b2p/2pp4/8/3BPN2/PP3PPP/2RQ1RK1 b - - 0 15",
+            "notesUk": "Висячі пішаки — це пара сусідніх пішаків (зазвичай c і d) без сусідів на b- і e-лініях, які тримають одне одного. Це не те саме, що ізольований ферзевий пішак (один пішак на d4 без c і e): висячі — двоє, і вони динамічніші. Сила: вони контролюють важливі поля (c5, d5, e5, b5), можуть рушити (…d4 або …c4), відкриваючи слонів і затискуючи суперника. Слабкість: якщо їх зупинити й обстріляти по напіввідкритих лініях c і d, вони стають мішенями і можуть «зависнути». На діаграмі у чорних висячі c5 і d5, фігури готові: ферзь e7, слон e6, кінь c6. Тематичний наступ — …d4: пішаки рухаються, лінії відкриваються, кінь і слон отримують поля.\n\nПлан володаря висячих: не дати їх заблокувати, тримати фігури активними, вчасно просунути одного з них. План проти висячих: блокувати (кінь на d4 або c4), тиснути турами по c і d, змусити до застигання, потім зібрати матеріал. Підрив e4 (якщо ви білими проти чорних c5–d5) — типовий спосіб зруйнувати пару.\n\nТипові помилки: плутати висячі з ІФП і грати той самий план; просунути пішака занадто рано й подарувати поле форпосту; стояти й чекати, поки висячі самі «впадуть», без блокади.",
+            "notesEn": "Hanging pawns are a pair of neighbouring pawns (usually c and d) with no neighbours on the b- and e-files, supporting each other. This is not the same as an isolated queen’s pawn (a single pawn on d4 without c and e): hanging pawns are two, and they are more dynamic. Their strength: they control important squares (c5, d5, e5, b5), they can advance (…d4 or …c4), opening bishops and cramping the opponent. Their weakness: if they are stopped and bombarded on the half-open c- and d-files, they become targets and can “hang”. In the diagram Black has hanging pawns on c5 and d5, and the pieces are ready: queen on e7, bishop on e6, knight on c6. The thematic advance is …d4: the pawns move, lines open, the knight and bishop get squares.\n\nThe hanging-pawn side’s plan: do not let them be blocked, keep the pieces active, advance one of them in time. The plan against hanging pawns: block them (a knight on d4 or c4), press with rooks on c and d, force them to freeze, then collect material. The e4-break (if you are White against Black’s c5–d5) is a typical way to smash the pair.\n\nTypical mistakes: confusing hanging pawns with an IQP and playing the same plan; advancing a pawn too early and gifting an outpost; standing and waiting for the hanging pawns to “fall” on their own, without a blockade.",
+            "quiz": {
+              "q": "Чим висячі пішаки відрізняються від ізольованого ферзевого пішака?",
+              "qEn": "How do hanging pawns differ from an isolated queen’s pawn?",
+              "options": [
+                "це пара (c і d) без сусідів на b і e, динамічніша за один ізольований пішак",
+                "це те саме під іншою назвою",
+                "висячі завжди на a-лінії",
+                "ІФП — це завжди два пішаки"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "they are a pair (c and d) with no neighbours on b and e, more dynamic than a single isolated pawn",
+                "they are the same thing under another name",
+                "hanging pawns are always on the a-file",
+                "an IQP is always two pawns"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-hanging-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Висячі пішаки c5 і d5: зробіть тематичне просування.",
+            "promptEn": "Hanging pawns on c5 and d5: play the thematic advance.",
+            "fen": "r4rk1/p3qpp1/2n1b2p/2pp4/8/3BPN2/PP3PPP/2RQ1RK1 b - - 0 15",
+            "solutionSans": [
+              "d4"
+            ],
+            "difficulty": 3
+          },
+          {
+            "id": "ch-d-hanging-m1",
+            "type": "mcq",
+            "promptUk": "Який план проти висячих пішаків суперника?",
+            "promptEn": "What is the plan against the opponent’s hanging pawns?",
+            "options": [
+              "блокувати їх конем, тиснути турами по лініях c і d, іноді зруйнувати підривом e4",
+              "негайно віддати ферзя",
+              "ніколи їх не чіпати",
+              "рокіруватись учетверте"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Спочатку блокада, потім тиск. Без блокади висячі можуть піти вперед і затиснути вас.",
+            "explanationEn": "First the blockade, then the pressure. Without a blockade the hanging pawns can roll forward and cramp you.",
+            "optionsEn": [
+              "block them with a knight, press with rooks on the c- and d-files, sometimes smash them with the e4-break",
+              "give the queen away at once",
+              "never touch them",
+              "castle a fourth time"
+            ]
+          },
+          {
+            "id": "ch-d-hanging-e",
+            "type": "explain",
+            "promptUk": "Що таке висячі пішаки, чим вони не є ІФП, і який тематичний хід володаря?",
+            "promptEn": "What are hanging pawns, how are they not an IQP, and what is the owner’s thematic move?",
+            "keyIdeas": [
+              {
+                "labelUk": "Пара",
+                "labelEn": "Pair",
+                "anyOf": [
+                  "висяч",
+                  "hanging",
+                  "пара",
+                  "pair",
+                  "c5",
+                  "d5",
+                  "не ІФП",
+                  "not IQP",
+                  "isolated"
+                ]
+              },
+              {
+                "labelUk": "Сила",
+                "labelEn": "Strength",
+                "anyOf": [
+                  "динаміч",
+                  "dynamic",
+                  "d4",
+                  "c4",
+                  "поля",
+                  "squares"
+                ]
+              },
+              {
+                "labelUk": "Проти",
+                "labelEn": "Against",
+                "anyOf": [
+                  "блокад",
+                  "block",
+                  "тури",
+                  "rook",
+                  "e4"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Висячі пішаки — пара c і d без сусідів на b і e, не те саме, що один ІФП. Їх сила — динаміка (хід …d4); слабкість — якщо їх заблокувати й обстріляти. Проти них: блокада конем і тиск турами.",
+            "sampleAnswerEn": "Hanging pawns are a c-and-d pair with no neighbours on b and e, not the same as a single IQP. Their strength is dynamism (the move …d4); their weakness is if they are blocked and bombarded. Against them: a knight blockade and rook pressure."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-chains",
+        "titleUk": "Пішакові ланцюги: бийте базу",
+        "titleEn": "Pawn chains: attack the base",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "ch-d-chains-l",
+            "type": "chess_lesson",
+            "promptUk": "Пішакові ланцюги: бийте базу",
+            "promptEn": "Pawn chains: attack the base",
+            "fen": "r1bqkb1r/pppnnppp/4p3/3pP3/3P4/2P2N2/PP3PPP/RNBQKB1R b KQkq - 0 5",
+            "notesUk": "Ланцюг — це пішаки, що захищають один одного по діагоналі (наприклад c3–d4–e5). Голова ланцюга (e5) забирає простір і поля; база (c3, або наступний пішак d4 як опора голови) тримає всю конструкцію. Правило Німцовича: атакуйте базу, не голову. Удар по голові (…f6 проти e5) теж існує, але частіше спочатку б'ють опору: у французькому просуванні — …c5 проти d4, яке тримає e5. На діаграмі саме ця структура: білі мають ланцюг c3–d4–e5, чорні — пішака e6 і d5. Тематичний підрив — …c5, удар по базі d4.\n\nДругий типовий ланцюг — староіндійський (білі c4–d5–e4, чорні d6–e5): чорні б'ють базу або голову ходом …f5, білі — насувають на ферзевому (c5, b4). Не плутайте з уроком про підрив взагалі: тут саме логіка ланцюга — де база, де голова, куди бити.\n\nТипові помилки: бити тільки голову й залишати базу цілою (ланцюг «відростає»); грати …c5 і не розвивати тиск на d4 фігурами (…Nc6, …Qb6); ставити фігури перед власним ланцюгом, де вони заважають підриву.",
+            "notesEn": "A chain is pawns that defend one another along a diagonal (for example c3–d4–e5). The head of the chain (e5) takes space and squares; the base (c3, or the next pawn d4 as the support of the head) holds the whole construction. Nimzowitsch’s rule: attack the base, not the head. A blow at the head (…f6 against e5) also exists, but more often you first strike the support: in the French Advance, …c5 against d4, which holds e5. The diagram is exactly this structure: White has the chain c3–d4–e5, Black has pawns on e6 and d5. The thematic break is …c5, a blow at the d4-base.\n\nA second typical chain is the King’s Indian (White c4–d5–e4, Black d6–e5): Black strikes the base or the head with …f5, White rolls on the queenside (c5, b4). Do not confuse this with the general lesson on breaks: here the logic is specifically that of a chain — where the base is, where the head is, and where to strike.\n\nTypical mistakes: striking only the head and leaving the base intact (the chain “grows back”); playing …c5 and not developing pressure on d4 with pieces (…Nc6, …Qb6); placing pieces in front of your own chain, where they get in the way of the break.",
+            "quiz": {
+              "q": "За правилом Німцовича, куди насамперед б'ють по пішаковому ланцюгу?",
+              "qEn": "By Nimzowitsch’s rule, where do you first strike a pawn chain?",
+              "options": [
+                "по базі (опорі), а не тільки по голові",
+                "тільки по голові, база недоторканна",
+                "по своїх пішаках",
+                "ланцюги не атакують"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "at the base (the support), not only at the head",
+                "only at the head, the base is untouchable",
+                "at your own pawns",
+                "chains are not attacked"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-chains-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Ланцюг c3–d4–e5: вдарте по базі d4 тематичним підривом.",
+            "promptEn": "The c3–d4–e5 chain: strike the d4-base with the thematic break.",
+            "fen": "r1bqkb1r/pppnnppp/4p3/3pP3/3P4/2P2N2/PP3PPP/RNBQKB1R b KQkq - 0 5",
+            "solutionSans": [
+              "c5"
+            ],
+            "difficulty": 2
+          },
+          {
+            "id": "ch-d-chains-m1",
+            "type": "mcq",
+            "promptUk": "У французькому просуванні …c5 б'є по якому елементу ланцюга?",
+            "promptEn": "In the French Advance, which part of the chain does …c5 strike?",
+            "options": [
+              "по базі / опорі d4, яка тримає голову e5",
+              "по голові e5 напряму",
+              "по пішаку a2",
+              "по королю білих"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Після тиску на d4 голова e5 стає менш стійкою, і з’являється підрив …f6.",
+            "explanationEn": "After pressure on d4 the e5-head becomes less stable, and the …f6 break appears.",
+            "optionsEn": [
+              "at the base / support d4, which holds the e5-head",
+              "at the e5-head directly",
+              "at the a2-pawn",
+              "at the white king"
+            ]
+          },
+          {
+            "id": "ch-d-chains-e",
+            "type": "explain",
+            "promptUk": "Що таке база і голова ланцюга і куди бити?",
+            "promptEn": "What are the base and the head of a chain, and where do you strike?",
+            "keyIdeas": [
+              {
+                "labelUk": "Ланцюг",
+                "labelEn": "Chain",
+                "anyOf": [
+                  "ланцюг",
+                  "chain",
+                  "база",
+                  "base",
+                  "голов",
+                  "head",
+                  "c3",
+                  "d4",
+                  "e5"
+                ]
+              },
+              {
+                "labelUk": "Правило",
+                "labelEn": "Rule",
+                "anyOf": [
+                  "базу",
+                  "base",
+                  "Німцович",
+                  "Nimzowitsch",
+                  "не тільки голову",
+                  "not only the head"
+                ]
+              },
+              {
+                "labelUk": "Французька",
+                "labelEn": "French",
+                "anyOf": [
+                  "c5",
+                  "d4",
+                  "e5",
+                  "французьк",
+                  "French"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "У ланцюгу c3–d4–e5 голова — e5 (простір), база — c3 і опора d4. Правило Німцовича: бийте базу, не тільки голову. У французькому просуванні тематичний удар — …c5 по d4.",
+            "sampleAnswerEn": "In the chain c3–d4–e5 the head is e5 (space) and the base is c3 with the support d4. Nimzowitsch’s rule: attack the base, not only the head. In the French Advance the thematic blow is …c5 against d4."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-space",
+        "titleUk": "Простір: як використовувати і як оскаржувати",
+        "titleEn": "Space: how to use it and how to challenge it",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "ch-d-space-l",
+            "type": "chess_lesson",
+            "promptUk": "Простір: як використовувати і як оскаржувати",
+            "promptEn": "Space: how to use it and how to challenge it",
+            "fen": "r1bq1rk1/pp2ppbp/2np1np1/8/2PNP3/2N1B3/PP2BPPP/R2Q1RK1 b - - 1 9",
+            "notesUk": "Просторова перевага — це коли ваші пішаки стоять далі в центрі й забирають поля у фігур суперника. Фігури «задихаються», їм важко змінити фланг. На діаграмі зв’язка Мароці: білі пішаки на c4 і e4 забирають поле d5, кінь на d4, чорні в «їжачку» на шести горизонталях. Білі мають більше місця. Як використовувати простір: не давати звільняючих підривів (тримати поле d5, не пускати …b5 і …d5), маневрувати фігурами за своїм пішаковим «щитом», грати на двох флангах (принцип двох слабкостей знову). Як оскаржувати простір: вчасний звільняючий підрив (тут …d5 або …b5), розміни (менше фігур — тісніше не так страшно), удар по базі ланцюга.\n\nНебезпека прострілу: надто висунуті пішаки залишають за собою слабкі поля й можуть стати мішенями. Простір без фігур, які його заповнюють, — порожня перевага.\n\nТипові помилки: затискати суперника й не створювати другу слабкість (він тримається); дозволяти …d5 «безкоштовно»; гнати пішаків так далеко, що вони падають самі; як захисник — сидіти без підриву, поки місця не залишиться зовсім.",
+            "notesEn": "A space advantage is when your pawns stand further in the centre and take squares away from the opponent’s pieces. The pieces “suffocate” and find it hard to switch wings. The diagram is a Maroczy Bind: White’s pawns on c4 and e4 take d5 away, a knight sits on d4, and Black is in a “hedgehog” on six ranks. White has more room. How to use space: do not allow freeing breaks (hold d5, do not permit …b5 and …d5), manoeuvre the pieces behind your pawn “shield”, play on both wings (the principle of two weaknesses again). How to challenge space: a timely freeing break (here …d5 or …b5), exchanges (fewer pieces — the squeeze is less frightening), a blow at the base of the chain.\n\nThe danger of overextension: pawns that have gone too far leave weak squares behind them and can become targets. Space without pieces to fill it is an empty advantage.\n\nTypical mistakes: squeezing the opponent and not creating a second weakness (they hold on); allowing …d5 “for free”; driving the pawns so far that they fall of their own accord; as the defender — sitting without a break until there is no room left at all.",
+            "quiz": {
+              "q": "Як сторона з меншим простором типово оскаржує затискання?",
+              "qEn": "How does the side with less space typically challenge the squeeze?",
+              "options": [
+                "звільняючим підривом (у Мароці — …d5 або …b5) і розмінами фігур",
+                "тільки здачею",
+                "ніколи не ходячи пішаками",
+                "ходом короля на четверту горизонталь"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "with a freeing break (in the Maroczy — …d5 or …b5) and piece exchanges",
+                "only by resigning",
+                "by never moving pawns",
+                "by walking the king to the fourth rank"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-space-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Зв’язка Мароці: зробіть класичний звільняючий підрив у центрі.",
+            "promptEn": "Maroczy Bind: play the classical freeing break in the centre.",
+            "fen": "r1bq1rk1/pp2ppbp/2np1np1/8/2PNP3/2N1B3/PP2BPPP/R2Q1RK1 b - - 1 9",
+            "solutionSans": [
+              "d5"
+            ],
+            "difficulty": 3
+          },
+          {
+            "id": "ch-d-space-m1",
+            "type": "mcq",
+            "promptUk": "Як сторона з просторовою перевагою має її використовувати?",
+            "promptEn": "How should the side with a space advantage use it?",
+            "options": [
+              "не давати звільняючих підривів, маневрувати за пішаковим щитом і грати на двох флангах",
+              "віддати всіх пішаків назад",
+              "одразу розміняти всі фігури",
+              "відкрити свого короля"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Простір — це час на маневр. Не подаруйте суперникові …d5 безкоштовно.",
+            "explanationEn": "Space is time to manoeuvre. Do not gift the opponent …d5 for free.",
+            "optionsEn": [
+              "do not allow freeing breaks, manoeuvre behind the pawn shield and play on both wings",
+              "give every pawn back",
+              "exchange every piece at once",
+              "open your own king"
+            ]
+          },
+          {
+            "id": "ch-d-space-e",
+            "type": "explain",
+            "promptUk": "Що таке простір, як його використовувати і як оскаржувати у зв’язці Мароці?",
+            "promptEn": "What is space, how do you use it, and how do you challenge it in the Maroczy Bind?",
+            "keyIdeas": [
+              {
+                "labelUk": "Простір",
+                "labelEn": "Space",
+                "anyOf": [
+                  "простір",
+                  "space",
+                  "поля",
+                  "squares",
+                  "затиск",
+                  "squeeze",
+                  "Мароці",
+                  "Maroczy"
+                ]
+              },
+              {
+                "labelUk": "Використовувати",
+                "labelEn": "Use",
+                "anyOf": [
+                  "не давати підрив",
+                  "not allow",
+                  "два фланг",
+                  "both wing",
+                  "маневр",
+                  "manoeuv"
+                ]
+              },
+              {
+                "labelUk": "Оскаржувати",
+                "labelEn": "Challenge",
+                "anyOf": [
+                  "d5",
+                  "b5",
+                  "звільня",
+                  "freeing",
+                  "розмін",
+                  "exchange"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Простір — коли пішаки забирають поля у фігур суперника, як c4 і e4 у Мароці. Використовуйте: не давати …d5 і грати на двох флангах. Оскаржуйте звільняючим підривом …d5 або …b5 і розмінами. Не висувайте пішаків так далеко, щоб вони самі впали.",
+            "sampleAnswerEn": "Space is when pawns take squares away from the opponent’s pieces, like c4 and e4 in the Maroczy. Use it: do not allow …d5, and play on both wings. Challenge it with a freeing break …d5 or …b5 and with exchanges. Do not push the pawns so far that they fall of their own accord."
+          }
+        ]
+      },
+      {
+        "slug": "ch-deep-pawn-play-exam",
+        "titleUk": "Іспит: пішакова гра",
+        "titleEn": "Exam: pawn play",
+        "baseXp": 30,
+        "difficulty": 4,
+        "isExam": true,
+        "passThreshold": 0.7,
+        "exercises": [
+          {
+            "id": "ch-deep-pawn-play-exam-q1",
+            "type": "mcq",
+            "promptUk": "Підрив готовий, коли:",
+            "promptEn": "A break is ready when:",
+            "options": [
+              "фігури його підтримують і після розміну ваші фігури активніші",
+              "завжди на 2-му ході",
+              "пішаки самі знають",
+              "підриви заборонені"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Підрив — інструмент плану, не рефлекс.",
+            "explanationEn": "A break is an instrument of the plan, not a reflex.",
+            "optionsEn": [
+              "the pieces support it and after the exchange your pieces are more active",
+              "always on move 2",
+              "the pawns know by themselves",
+              "breaks are forbidden"
+            ]
+          },
+          {
+            "id": "ch-deep-pawn-play-exam-q2",
+            "type": "mcq",
+            "promptUk": "Мета атаки меншості b4–b5 у калсбаді — це:",
+            "promptEn": "The goal of the b4–b5 minority attack in the Carlsbad is:",
+            "options": [
+              "створити відсталий c6 або ізольований d5",
+              "мат пішаком b у 1 хід",
+              "віддати ферзевий фланг",
+              "закрити лінію b назавжди"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Меншість псує структуру більшості, потім фігури обстрілюють слабкість.",
+            "explanationEn": "The minority damages the majority’s structure, then the pieces bombard the weakness.",
+            "optionsEn": [
+              "to create a backward c6 or an isolated d5",
+              "mate with the b-pawn in one move",
+              "to give the queenside away",
+              "to close the b-file forever"
+            ]
+          },
+          {
+            "id": "ch-deep-pawn-play-exam-q3",
+            "type": "mcq",
+            "promptUk": "Висячі пішаки — це:",
+            "promptEn": "Hanging pawns are:",
+            "options": [
+              "пара c і d без сусідів на b і e, динамічніша за один ІФП",
+              "те саме, що ІФП",
+              "три пішаки на a-лінії",
+              "пішаки, які не мають права ходити"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "ІФП — один пішак; висячі — двоє, і плани інші.",
+            "explanationEn": "An IQP is one pawn; hanging pawns are two, and the plans differ.",
+            "optionsEn": [
+              "a c-and-d pair with no neighbours on b and e, more dynamic than a single IQP",
+              "the same as an IQP",
+              "three pawns on the a-file",
+              "pawns that are not allowed to move"
+            ]
+          },
+          {
+            "id": "ch-deep-pawn-play-exam-q4",
+            "type": "mcq",
+            "promptUk": "За Німцовичем, пішаковий ланцюг б'ють насамперед:",
+            "promptEn": "By Nimzowitsch, a pawn chain is first struck:",
+            "options": [
+              "по базі (опорі), не тільки по голові",
+              "тільки по голові",
+              "по своєму королю",
+              "ланцюг не б'ють"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "У французькому просуванні …c5 б'є опору d4, яка тримає голову e5.",
+            "explanationEn": "In the French Advance …c5 strikes the d4-support, which holds the e5-head.",
+            "optionsEn": [
+              "at the base (the support), not only at the head",
+              "only at the head",
+              "at your own king",
+              "chains are not struck"
+            ]
+          },
+          {
+            "id": "ch-deep-pawn-play-exam-p5",
+            "type": "chess_puzzle",
+            "promptUk": "Калсбад: почніть атаку меншості.",
+            "promptEn": "Carlsbad: start the minority attack.",
+            "fen": "r2qrnk1/pp2bppp/2p1bn2/3p2B1/3P4/2NBPN1P/PPQ2PP1/1R3RK1 w - - 2 12",
+            "solutionSans": [
+              "b4"
+            ],
+            "difficulty": 2
+          },
+          {
+            "id": "ch-deep-pawn-play-exam-p6",
+            "type": "chess_puzzle",
+            "promptUk": "Ланцюг c3–d4–e5: вдарте по базі.",
+            "promptEn": "The c3–d4–e5 chain: strike the base.",
+            "fen": "r1bqkb1r/pppnnppp/4p3/3pP3/3P4/2P2N2/PP3PPP/RNBQKB1R b KQkq - 0 5",
+            "solutionSans": [
+              "c5"
+            ],
+            "difficulty": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "ch-deep-kp-theory",
+    "titleUk": "Король і пішак: теорія",
+    "titleEn": "King and pawn theory",
+    "lessons": [
+      {
+        "slug": "ch-d-key-squares",
+        "titleUk": "Ключові поля пішака",
+        "titleEn": "The key squares of a pawn",
+        "baseXp": 24,
+        "difficulty": 4,
+        "exercises": [
+          {
+            "id": "ch-d-key-squares-l",
+            "type": "chess_lesson",
+            "promptUk": "Ключові поля пішака",
+            "promptEn": "The key squares of a pawn",
+            "fen": "8/8/8/3k4/3P4/3K4/8/8 w - - 0 1",
+            "notesUk": "Ключові поля — це клітинки перед пішаком, зайняття яких королем гарантує проведення (проти правильного захисту), крім крайнього пішака. Правило: якщо білий пішак на 2-й, 3-й або 4-й горизонталі, ключові поля — три клітинки двома рядами попереду (для пішака d4 це c6, d6, e6). Якщо пішак уже на 5-й або 6-й, ключових полів стає шість (для e5 — d7, e7, f7 і d6, e6, f6). На діаграмі пішак на d4, королі на d3 і d5: ключові поля — c6, d6, e6. Хід білих — нічия при точному захисті (чорні тримають опозицію). Хід чорних — вони змушені відійти, і білий король заходить на ключове поле.\n\nМетод: король іде перед пішаком, займає ключове поле, і лише тоді пішак рухається. Пішак, висунутий зарано, сам забирає в короля поля й може зірвати виграш (пат або втрата опозиції).\n\nТипові помилки: плутати ключові поля з «правилом квадрата» (квадрат — чи встигне король зловити пішака, що біжить сам; ключові поля — чи проведете ви пішака за допомогою короля); штовхати пішака до зайняття ключового поля; застосовувати те саме правило до крайнього пішака (там воно не працює).",
+            "notesEn": "Key squares are the squares in front of a pawn whose occupation by the king guarantees promotion (against correct defence), except for a rook pawn. The rule: if a white pawn is on the 2nd, 3rd or 4th rank, the key squares are the three squares two ranks ahead (for a pawn on d4, they are c6, d6, e6). If the pawn is already on the 5th or 6th, there are six key squares (for e5 — d7, e7, f7 and d6, e6, f6). In the diagram the pawn is on d4, the kings on d3 and d5: the key squares are c6, d6, e6. White to move is a draw with accurate defence (Black keeps the opposition). Black to move must step aside, and the white king enters a key square.\n\nThe method: the king goes in front of the pawn, occupies a key square, and only then the pawn moves. A pawn pushed too early takes squares away from its own king and can throw the win away (stalemate or loss of the opposition).\n\nTypical mistakes: confusing key squares with the “square rule” (the square is whether the king can catch a pawn running alone; key squares are whether you will promote the pawn with the king’s help); pushing the pawn before occupying a key square; applying the same rule to a rook pawn (it does not work there).",
+            "quiz": {
+              "q": "Які ключові поля має білий пішак на d4?",
+              "qEn": "What are the key squares of a white pawn on d4?",
+              "options": [
+                "c6, d6 і e6 — три поля двома горизонталями попереду",
+                "тільки d5",
+                "a1, a2 і a3",
+                "усі поля останньої горизонталі"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "c6, d6 and e6 — the three squares two ranks ahead",
+                "only d5",
+                "a1, a2 and a3",
+                "every square on the back rank"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-key-squares-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Король чорних відійшов. Ідіть шляхом до ключового поля c6.",
+            "promptEn": "The black king has stepped aside. Go via the path to the key square c6.",
+            "fen": "8/8/4k3/8/3P4/3K4/8/8 w - - 0 1",
+            "solutionSans": [
+              "Kc4"
+            ],
+            "difficulty": 3
+          },
+          {
+            "id": "ch-d-key-squares-m1",
+            "type": "mcq",
+            "promptUk": "Чим ключові поля відрізняються від правила квадрата?",
+            "promptEn": "How do key squares differ from the square rule?",
+            "options": [
+              "квадрат — чи встигне король зловити самотнього пішака; ключові поля — чи проведете пішака разом із королем",
+              "це те саме",
+              "квадрат стосується лише тур",
+              "ключові поля є лише у крайнього пішака"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Два різні інструменти: один для гонки, другий для допомоги короля.",
+            "explanationEn": "Two different tools: one for a race, the other for the king’s help.",
+            "optionsEn": [
+              "the square is whether the king can catch a lone pawn; key squares are whether you will promote the pawn together with the king",
+              "they are the same",
+              "the square applies only to rooks",
+              "only a rook pawn has key squares"
+            ]
+          },
+          {
+            "id": "ch-d-key-squares-e",
+            "type": "explain",
+            "promptUk": "Що таке ключові поля і яке правило для пішака на 4-й та на 5-й горизонталі?",
+            "promptEn": "What are key squares, and what is the rule for a pawn on the 4th and on the 5th rank?",
+            "keyIdeas": [
+              {
+                "labelUk": "Визначення",
+                "labelEn": "Definition",
+                "anyOf": [
+                  "ключов",
+                  "key square",
+                  "перед пішаком",
+                  "in front",
+                  "проведен",
+                  "promot"
+                ]
+              },
+              {
+                "labelUk": "4-та",
+                "labelEn": "4th",
+                "anyOf": [
+                  "три поля",
+                  "three",
+                  "d4",
+                  "c6",
+                  "d6",
+                  "e6",
+                  "двома",
+                  "two ranks"
+                ]
+              },
+              {
+                "labelUk": "5-та",
+                "labelEn": "5th",
+                "anyOf": [
+                  "шість",
+                  "six",
+                  "e5",
+                  "d7",
+                  "e7",
+                  "f7"
+                ]
+              },
+              {
+                "labelUk": "Не квадрат",
+                "labelEn": "Not the square",
+                "anyOf": [
+                  "не квадрат",
+                  "not the square",
+                  "крайн",
+                  "rook pawn"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Ключові поля — клітинки, зайняття яких королем гарантує проведення пішака. Для пішака на 4-й їх три (для d4: c6, d6, e6), для пішака на 5-й — шість. Крайній пішак — виняток. Не плутайте з правилом квадрата і не штовхайте пішака до зайняття поля.",
+            "sampleAnswerEn": "Key squares are the squares whose occupation by the king guarantees promotion. For a pawn on the 4th there are three (for d4: c6, d6, e6), for a pawn on the 5th — six. A rook pawn is the exception. Do not confuse this with the square rule, and do not push the pawn before occupying a key square."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-opp-types",
+        "titleUk": "Види опозиції: близька, дальня, діагональна",
+        "titleEn": "Types of opposition: close, distant, diagonal",
+        "baseXp": 24,
+        "difficulty": 4,
+        "exercises": [
+          {
+            "id": "ch-d-opp-types-l",
+            "type": "chess_lesson",
+            "promptUk": "Види опозиції: близька, дальня, діагональна",
+            "promptEn": "Types of opposition: close, distant, diagonal",
+            "fen": "8/8/4k3/8/8/8/4K3/8 w - - 0 1",
+            "notesUk": "Опозиція — це коли королі стоять один навпроти одного через непарну кількість клітинок, і той, хто не має ходу, мусить відступити й пропустити іншого. Близька (пряма) вертикальна: одна клітинка між королями на одній вертикалі (Ke4 проти Ke6). Горизонтальна: те саме на горизонталі. Діагональна: королі через одну клітинку по діагоналі; вона часто переходить у пряму. Дальня опозиція: три або п’ять клітинок між королями на одній лінії. Той, хто її займає, може пізніше «перевести» її в близьку. На діаграмі королі на e2 і e6 (три клітинки e3–e4–e5 — дальня). Хід білих: опозицію тримають чорні. Якби був хід чорних, дальню опозицію мали б білі.\n\nПрактичне правило: якщо королі на одній лінії й між ними непарне число полів, сторона, яка не ходить, має опозицію. Щоб узяти дальню опозицію, станьте на ту саму вертикаль (або горизонталь) із потрібною відстанню.\n\nТипові помилки: вважати опозицією будь-яке стояння королів; забувати дальню й віддавати її даремно; плутати «хід опозиції» з ключовими полями — це інструменти, які працюють разом, але не є синонімами. Цей урок поглиблює вже відому вам близьку опозицію, а не повторює її вступ.",
+            "notesEn": "Opposition is when the kings stand opposite each other with an odd number of squares between them, and the side that is not to move must give way and let the other one through. Close (direct) vertical: one square between the kings on the same file (Ke4 against Ke6). Horizontal: the same on a rank. Diagonal: the kings a square apart on a diagonal; it often turns into direct opposition. Distant opposition: three or five squares between the kings on the same line. The side that holds it can later “convert” it into close opposition. In the diagram the kings are on e2 and e6 (three squares e3–e4–e5 — distant). White to move: Black holds the opposition. If it were Black to move, White would hold the distant opposition.\n\nA practical rule: if the kings are on the same line and the number of squares between them is odd, the side that is not to move has the opposition. To take the distant opposition, step onto the same file (or rank) at the right distance.\n\nTypical mistakes: calling any placement of the kings “opposition”; forgetting the distant kind and giving it away for nothing; confusing “the opposition move” with key squares — they are tools that work together, but they are not synonyms. This lesson deepens the close opposition you already know; it is not a second introduction.",
+            "quiz": {
+              "q": "Коли йдеться про дальню опозицію?",
+              "qEn": "When do we speak of distant opposition?",
+              "options": [
+                "коли між королями на одній лінії три або п’ять клітинок (непарне число)",
+                "коли королі стоять поруч",
+                "коли один король уже проведений у ферзі",
+                "опозиції без близької не буває"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "when there are three or five squares (an odd number) between the kings on the same line",
+                "when the kings stand next to each other",
+                "when one king has already been promoted to a queen",
+                "there is no opposition other than the close kind"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-opp-types-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Візьміть дальню опозицію: станьте на ту саму вертикаль на правильній відстані.",
+            "promptEn": "Take the distant opposition: step onto the same file at the right distance.",
+            "fen": "8/4k3/8/8/8/8/8/3K4 w - - 0 1",
+            "solutionSans": [
+              "Ke1"
+            ],
+            "difficulty": 3
+          },
+          {
+            "id": "ch-d-opp-types-m1",
+            "type": "mcq",
+            "promptUk": "Чому після взяття далекої опозиції вона «переходить» у близьку?",
+            "promptEn": "Why does distant opposition later “convert” into close opposition?",
+            "options": [
+              "королі зближуються, зберігаючи непарну відстань, і в критичний момент залишається одне поле між ними",
+              "далека опозиція сама ставить мат",
+              "вона ніколи не переходить",
+              "королі завжди розходяться"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Ви тримаєте «такт»: коли суперник відступає, ви повторюєте відстань.",
+            "explanationEn": "You keep the “beat”: when the opponent steps back, you repeat the distance.",
+            "optionsEn": [
+              "the kings approach, keeping the odd distance, and at the critical moment one square remains between them",
+              "distant opposition mates by itself",
+              "it never converts",
+              "the kings always move apart"
+            ]
+          },
+          {
+            "id": "ch-d-opp-types-e",
+            "type": "explain",
+            "promptUk": "Назвіть види опозиції і як узяти дальню.",
+            "promptEn": "Name the types of opposition and how to take the distant kind.",
+            "keyIdeas": [
+              {
+                "labelUk": "Види",
+                "labelEn": "Types",
+                "anyOf": [
+                  "близьк",
+                  "close",
+                  "дальн",
+                  "distant",
+                  "діагонал",
+                  "diagonal",
+                  "горизонтал",
+                  "horizontal",
+                  "вертикал",
+                  "vertical"
+                ]
+              },
+              {
+                "labelUk": "Правило",
+                "labelEn": "Rule",
+                "anyOf": [
+                  "непарн",
+                  "odd",
+                  "три",
+                  "three",
+                  "п'ять",
+                  "five",
+                  "п’ять"
+                ]
+              },
+              {
+                "labelUk": "Взяти",
+                "labelEn": "Take",
+                "anyOf": [
+                  "Ke1",
+                  "та сама вертикаль",
+                  "same file",
+                  "відстан",
+                  "distance"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Опозиція буває близька (одне поле), горизонтальна, діагональна і дальня (три або п’ять полів). Має її той, хто не ходить, якщо кількість полів непарна. Дальню беруть, стаючи на ту саму лінію на правильній відстані (наприклад Ke1 проти Ke7).",
+            "sampleAnswerEn": "Opposition can be close (one square), horizontal, diagonal and distant (three or five squares). The side that is not to move has it if the number of squares is odd. You take the distant kind by stepping onto the same line at the right distance (for example Ke1 against Ke7)."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-triangulate",
+        "titleUk": "Тріангуляція: віддати чергу ходу",
+        "titleEn": "Triangulation: losing a tempo",
+        "baseXp": 24,
+        "difficulty": 4,
+        "exercises": [
+          {
+            "id": "ch-d-triangulate-l",
+            "type": "chess_lesson",
+            "promptUk": "Тріангуляція: віддати чергу ходу",
+            "promptEn": "Triangulation: losing a tempo",
+            "fen": "8/3k4/8/p4p2/P2K1P2/8/8/8 w - - 0 1",
+            "notesUk": "Тріангуляція — це коли король іде по трикутнику з трьох полів і повертається на те саме поле, але вже з ходом суперника. Мета — поставити суперника в цугцванг: та сама позиція, але ходити мусить він. Це працює, бо король суперника має менше полів (часто два) і не може повторити трикутник. На діаграмі королі на d4 і d7, пішаки на a4/a5 і f4/f5 зафіксовані. Якщо б ходив чорний, він втратив би опозицію й пропустив білого короля. Білі «втрачають» темп: 1.Kc4 Kc6 2.Kd4 Kd7 3.Kd5 — і тепер хід чорних у тій позиції, яка щойно була з ходом білих.\n\nТріангуляція — родич відповідних полів: кожному полю вашого короля відповідає поле короля суперника. Коли ви зіходите з відповідності й повертаєтесь, відповідність уже на його боці як обов’язок ходити.\n\nТипові помилки: ходити трикутником «просто так», без цугцвангу наприкінці; переплутати порядок і віддати опозицію навпаки; забути, що в деяких позиціях трикутник не виходить, бо суперник має стільки ж полів. Тріангуляція — інструмент реалізації вже виграної пішакової структури, не «магія з нічого».",
+            "notesEn": "Triangulation is when the king walks a triangle of three squares and returns to the same square, but now it is the opponent’s turn. The goal is to put the opponent in zugzwang: the same position, but they must move. It works because the opponent’s king has fewer squares (often two) and cannot copy the triangle. In the diagram the kings are on d4 and d7, the pawns on a4/a5 and f4/f5 are fixed. If it were Black to move, they would lose the opposition and let the white king in. White “loses” a tempo: 1.Kc4 Kc6 2.Kd4 Kd7 3.Kd5 — and now it is Black’s move in the position that had just been White’s to move.\n\nTriangulation is a relative of corresponding squares: each square of your king corresponds to a square of the opponent’s king. When you leave the correspondence and come back, the correspondence is already their obligation to move.\n\nTypical mistakes: walking a triangle “just because”, with no zugzwang at the end; mixing up the order and giving the opposition away the other way; forgetting that in some positions the triangle does not work, because the opponent has just as many squares. Triangulation is a tool for converting an already winning pawn structure, not “magic from nothing”.",
+            "quiz": {
+              "q": "Яка мета тріангуляції короля?",
+              "qEn": "What is the goal of king triangulation?",
+              "options": [
+                "повернутись у ту саму позицію, але з ходом суперника (цугцванг)",
+                "поставити мат трикутником у 1 хід",
+                "віддати всіх пішаків",
+                "вийти за край дошки"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "to return to the same position, but with the opponent to move (zugzwang)",
+                "to mate with a triangle in one move",
+                "to give every pawn away",
+                "to walk off the edge of the board"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-triangulate-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Тріангуляція ферзевим флангом: пройдіть трикутник Kc4–Kd4–Kd5 (чорні відповідають Kc6 і Kd7).",
+            "promptEn": "Triangulation on the queenside: walk the triangle Kc4–Kd4–Kd5 (Black answers Kc6 and Kd7).",
+            "fen": "8/3k4/8/p4p2/P2K1P2/8/8/8 w - - 0 1",
+            "solutionSans": [
+              "Kc4",
+              "Kc6",
+              "Kd4",
+              "Kd7",
+              "Kd5"
+            ],
+            "difficulty": 4
+          },
+          {
+            "id": "ch-d-triangulate-m1",
+            "type": "mcq",
+            "promptUk": "Чому суперник часто не може «скопіювати» тріангуляцію?",
+            "promptEn": "Why can the opponent often not “copy” the triangulation?",
+            "options": [
+              "у його короля менше вільних полів, ніж три клітинки трикутника",
+              "йому заборонено ходити королем",
+              "тріангуляція завжди дає шах",
+              "пішаки ходять замість нього"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Тому інструмент працює саме в позиціях з обмеженим королем захисника.",
+            "explanationEn": "That is why the tool works precisely in positions where the defending king is short of squares.",
+            "optionsEn": [
+              "their king has fewer free squares than the three squares of the triangle",
+              "they are forbidden to move the king",
+              "triangulation always gives a check",
+              "the pawns move instead of them"
+            ]
+          },
+          {
+            "id": "ch-d-triangulate-e",
+            "type": "explain",
+            "promptUk": "Що таке тріангуляція і навіщо король іде по трикутнику?",
+            "promptEn": "What is triangulation, and why does the king walk a triangle?",
+            "keyIdeas": [
+              {
+                "labelUk": "Мета",
+                "labelEn": "Goal",
+                "anyOf": [
+                  "тріангул",
+                  "triangul",
+                  "цугцванг",
+                  "zugzwang",
+                  "темп",
+                  "tempo",
+                  "черг",
+                  "turn"
+                ]
+              },
+              {
+                "labelUk": "Як",
+                "labelEn": "How",
+                "anyOf": [
+                  "трикутн",
+                  "triangle",
+                  "Kc4",
+                  "Kd4",
+                  "Kd5",
+                  "повернутись",
+                  "return"
+                ]
+              },
+              {
+                "labelUk": "Чому працює",
+                "labelEn": "Why it works",
+                "anyOf": [
+                  "менше полів",
+                  "fewer squares",
+                  "не скопіювати",
+                  "cannot copy"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Тріангуляція: король іде по трьох полях і повертається в ту саму позицію, але з ходом суперника — цугцванг. На діаграмі шлях Kc4–Kd4–Kd5. Суперник не копіює трикутник, бо в нього менше полів.",
+            "sampleAnswerEn": "Triangulation: the king walks three squares and returns to the same position, but with the opponent to move — zugzwang. In the diagram the path is Kc4–Kd4–Kd5. The opponent cannot copy the triangle, because they have fewer squares."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-rook-pawn",
+        "titleUk": "Крайній пішак: винятки і пати",
+        "titleEn": "The rook pawn: exceptions and stalemates",
+        "baseXp": 24,
+        "difficulty": 4,
+        "exercises": [
+          {
+            "id": "ch-d-rook-pawn-l",
+            "type": "chess_lesson",
+            "promptUk": "Крайній пішак: винятки і пати",
+            "promptEn": "The rook pawn: exceptions and stalemates",
+            "fen": "k7/P7/1K6/8/8/8/8/8 w - - 0 1",
+            "notesUk": "Крайній (туровий) пішак — найбільший виняток пішакової теорії. Ключові поля й опозиція часто не працюють: якщо захисний король встигає в кут (a8 або h8 для білого a- або h-пішака), нічия майже завжди, навіть коли «за таблицею» пішак уже близький. Причина — пат: коли білий король стає на b6 (або g6) і пішак на a7 (h7), чорний король у куті a8 не має ходів і не під шахом, якщо білі необережно перекриють вихід. На діаграмі саме ця небезпечна картина: король білих на b6, пішак на a7, чорний король на a8. Білі не можуть «випхати» короля з кута без пата.\n\nІнший відомий випадок — «не той слон» з крайнім пішаком: якщо у вас слон не того кольору, що кут перетворення, і захисний король уже в куті, пішака не провести. Самого пішака без слона теж часто не вистачає, щойно король суперника сів у кут.\n\nМетод захисту: біжіть королем у кут, не в «правильну опозицію» перед пішаком. Метод атаки: не пустити короля в кут (відрізати завчасно). Типові помилки: грати «як із центральним пішаком» і штовхати a-пішака до пата; не встигати королем у кут, коли ви захищаєтесь.",
+            "notesEn": "A rook pawn is the biggest exception in pawn theory. Key squares and opposition often do not work: if the defending king reaches the corner (a8 or h8 for a white a- or h-pawn), it is almost always a draw, even when “by the chart” the pawn is already close. The reason is stalemate: when the white king stands on b6 (or g6) and the pawn on a7 (h7), the black king in the a8-corner has no moves and is not in check if White carelessly blocks the exit. The diagram is exactly this dangerous picture: White’s king on b6, the pawn on a7, the black king on a8. White cannot “push” the king out of the corner without stalemate.\n\nAnother well-known case is the “wrong bishop” with a rook pawn: if you have a bishop that is not the colour of the promotion corner, and the defending king is already in the corner, the pawn cannot be promoted. The pawn alone, without a bishop, is also often not enough once the opponent’s king has sat in the corner.\n\nThe defensive method: run the king into the corner, not into “correct opposition” in front of the pawn. The attacking method: do not let the king into the corner (cut it off in time). Typical mistakes: playing “as with a centre pawn” and pushing the a-pawn into stalemate; as the defender, failing to get the king to the corner in time.",
+            "quiz": {
+              "q": "Чому крайній пішак часто не виграє, навіть якщо король «близько»?",
+              "qEn": "Why does a rook pawn often fail to win, even if the king is “close”?",
+              "options": [
+                "захисний король у куті створює патові ідеї, і ключові поля не працюють як у центрального пішака",
+                "крайній пішак не має права перетворюватись",
+                "він завжди слабший за коня",
+                "правила забороняють проводити a-пішака"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "the defending king in the corner creates stalemate ideas, and key squares do not work as they do for a centre pawn",
+                "a rook pawn is not allowed to promote",
+                "it is always weaker than a knight",
+                "the laws forbid promoting an a-pawn"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-rook-pawn-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Захист проти крайнього пішака: ідіть королем у кут.",
+            "promptEn": "Defence against a rook pawn: go to the corner with the king.",
+            "fen": "8/8/8/8/8/7K/6P1/6k1 b - - 0 1",
+            "solutionSans": [
+              "Kh1"
+            ],
+            "difficulty": 2
+          },
+          {
+            "id": "ch-d-rook-pawn-m1",
+            "type": "mcq",
+            "promptUk": "Що таке «не той слон» із крайнім пішаком?",
+            "promptEn": "What is the “wrong bishop” with a rook pawn?",
+            "options": [
+              "слон не того кольору, що кут перетворення, і король суперника в куті — нічия",
+              "слон завжди неправильний на a-лінії",
+              "це слон, який не має права ходити",
+              "це пара слонів"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Якщо кут h8 темний, а слон світлопольний, король в куті не виганяється.",
+            "explanationEn": "If the h8-corner is dark and the bishop is light-squared, the king in the corner cannot be driven out.",
+            "optionsEn": [
+              "the bishop is not the colour of the promotion corner, and the opponent’s king is in the corner — a draw",
+              "a bishop is always wrong on the a-file",
+              "it is a bishop that is not allowed to move",
+              "it is a pair of bishops"
+            ]
+          },
+          {
+            "id": "ch-d-rook-pawn-e",
+            "type": "explain",
+            "promptUk": "Чому крайній пішак — виняток і як захищатись?",
+            "promptEn": "Why is a rook pawn the exception, and how do you defend?",
+            "keyIdeas": [
+              {
+                "labelUk": "Пат",
+                "labelEn": "Stalemate",
+                "anyOf": [
+                  "пат",
+                  "stalemate",
+                  "кут",
+                  "corner",
+                  "a8",
+                  "h8",
+                  "крайн",
+                  "rook pawn"
+                ]
+              },
+              {
+                "labelUk": "Ключові поля",
+                "labelEn": "Key squares",
+                "anyOf": [
+                  "не працюють",
+                  "do not work",
+                  "виняток",
+                  "exception"
+                ]
+              },
+              {
+                "labelUk": "Захист",
+                "labelEn": "Defence",
+                "anyOf": [
+                  "у кут",
+                  "corner",
+                  "Kh1",
+                  "не той слон",
+                  "wrong bishop"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Крайній пішак — виняток: ключові поля не працюють, і якщо захисний король встигає в кут, часто пат і нічия. Захист — бігти в кут (Kh1). «Не той слон» з крайнім пішаком теж нічия, якщо король уже в куті.",
+            "sampleAnswerEn": "A rook pawn is the exception: key squares do not work, and if the defending king reaches the corner, stalemate and a draw are common. The defence is to run to the corner (Kh1). The “wrong bishop” with a rook pawn is also a draw if the king is already in the corner."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-kp-practice",
+        "titleUk": "Практика: король і пішак разом",
+        "titleEn": "Practice: king and pawn together",
+        "baseXp": 24,
+        "difficulty": 4,
+        "exercises": [
+          {
+            "id": "ch-d-kp-practice-l",
+            "type": "chess_lesson",
+            "promptUk": "Практика: король і пішак разом",
+            "promptEn": "Practice: king and pawn together",
+            "fen": "8/8/3k4/8/3K4/3P4/8/8 w - - 0 1",
+            "notesUk": "Тепер зберемо інструменти: ключові поля, опозиція, тріангуляція, виняток крайнього пішака. Практичний порядок у закінченні «король і пішак проти короля»: 1) чи це крайній пішак? Якщо так — чи встигає захисний король у кут? 2) де ключові поля? Чи може мій король їх зайняти? 3) хто має опозицію? Чи треба тріангулювати, щоб її віддати суперникові? 4) не штовхати пішака, поки король не на місці. На діаграмі король білих уже перед пішаком d3, на d4, чорний король на d6. Ключові поля пішака d3 — c5, d5, e5. Хід 1.Kc4 (або Ke4) бере шлях до ключового поля й одночасно працює з опозицією.\n\nКороткий тренувальний ритуал: поставте позицію, назвіть ключові поля вголос, скажіть, хто має опозицію, і лише потім зробіть хід. Якщо виграш є — він майже завжди через короля, не через біг пішака.\n\nТипові помилки: у практиці «змішувати» правила (штовхати пішака, бо «квадрат дозволяє», хоча ключове поле ще не зайняте); у крайнього пішака шукати опозицію замість кута; поспішати в цейтноті й віддати нічию у виграшній позиції.",
+            "notesEn": "Now we put the tools together: key squares, opposition, triangulation, the rook-pawn exception. A practical order in a “king and pawn versus king” ending: 1) is it a rook pawn? If so — can the defending king reach the corner? 2) where are the key squares? Can my king occupy them? 3) who has the opposition? Do I need to triangulate to hand it to the opponent? 4) do not push the pawn until the king is in place. In the diagram the white king is already in front of the d3-pawn, on d4, the black king on d6. The key squares of a d3-pawn are c5, d5, e5. The move 1.Kc4 (or Ke4) takes the path to a key square and works with the opposition at the same time.\n\nA short training ritual: set the position up, name the key squares out loud, say who has the opposition, and only then make a move. If there is a win, it almost always goes through the king, not through a pawn sprint.\n\nTypical mistakes: in practice “mixing” the rules (pushing the pawn because “the square allows it”, though a key square is not yet occupied); with a rook pawn, looking for opposition instead of the corner; rushing in time trouble and giving up a draw in a winning position.",
+            "quiz": {
+              "q": "Який практичний порядок думок у закінченні король і пішак проти короля?",
+              "qEn": "What is the practical order of thoughts in a king-and-pawn versus king ending?",
+              "options": [
+                "спочатку чи крайній пішак, потім ключові поля, потім опозиція, і лише тоді хід пішаком",
+                "спочатку завжди штовхати пішака",
+                "тільки опозиція, більше нічого",
+                "порядок не потрібен"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "first whether it is a rook pawn, then key squares, then opposition, and only then a pawn move",
+                "always push the pawn first",
+                "only opposition, nothing else",
+                "no order is needed"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-kp-practice-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Король уже перед пішаком: ідіть до ключового поля ферзевим флангом.",
+            "promptEn": "The king is already in front of the pawn: go toward the key square on the queenside.",
+            "fen": "8/8/3k4/8/3K4/3P4/8/8 w - - 0 1",
+            "solutionSans": [
+              "Kc4"
+            ],
+            "difficulty": 3
+          },
+          {
+            "id": "ch-d-kp-practice-m1",
+            "type": "mcq",
+            "promptUk": "Якщо виграш у такій позиції є, через що він майже завжди йде?",
+            "promptEn": "If there is a win in such a position, what does it almost always go through?",
+            "options": [
+              "через короля (ключове поле, опозиція, тріангуляція), а не через ранній біг пішака",
+              "через жертву короля",
+              "через рокіровку в ендшпілі",
+              "через здачу суперника без ходів"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Пішак рухається, коли шлях уже відкритий королем.",
+            "explanationEn": "The pawn moves when the path has already been opened by the king.",
+            "optionsEn": [
+              "through the king (a key square, opposition, triangulation), not through an early pawn sprint",
+              "through sacrificing the king",
+              "through castling in the ending",
+              "through the opponent resigning without moves"
+            ]
+          },
+          {
+            "id": "ch-d-kp-practice-e",
+            "type": "explain",
+            "promptUk": "Опишіть практичний порядок у закінченні король і пішак і головний принцип реалізації.",
+            "promptEn": "Describe the practical order in a king-and-pawn ending and the main principle of conversion.",
+            "keyIdeas": [
+              {
+                "labelUk": "Порядок",
+                "labelEn": "Order",
+                "anyOf": [
+                  "крайн",
+                  "rook pawn",
+                  "ключов",
+                  "key",
+                  "опозиц",
+                  "oppos",
+                  "пішак наприкінці",
+                  "pawn last"
+                ]
+              },
+              {
+                "labelUk": "Король",
+                "labelEn": "King",
+                "anyOf": [
+                  "через короля",
+                  "through the king",
+                  "Kc4",
+                  "перед пішаком",
+                  "in front"
+                ]
+              },
+              {
+                "labelUk": "Практика",
+                "labelEn": "Practice",
+                "anyOf": [
+                  "вголос",
+                  "out loud",
+                  "не змішувати",
+                  "not mix",
+                  "не поспішати",
+                  "not rush"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Порядок: чи крайній пішак, де ключові поля, хто має опозицію, і лише тоді хід пішаком. Виграш іде через короля. На діаграмі 1.Kc4 — шлях до ключового поля. Називайте елементи вголос, не змішуйте правила.",
+            "sampleAnswerEn": "The order: whether it is a rook pawn, where the key squares are, who has the opposition, and only then a pawn move. The win goes through the king. In the diagram 1.Kc4 is the path to a key square. Name the elements out loud; do not mix the rules."
+          }
+        ]
+      },
+      {
+        "slug": "ch-deep-kp-theory-exam",
+        "titleUk": "Іспит: король і пішак",
+        "titleEn": "Exam: king and pawn",
+        "baseXp": 30,
+        "difficulty": 4,
+        "isExam": true,
+        "passThreshold": 0.7,
+        "exercises": [
+          {
+            "id": "ch-deep-kp-theory-exam-q1",
+            "type": "mcq",
+            "promptUk": "Ключові поля білого пішака на d4 — це:",
+            "promptEn": "The key squares of a white pawn on d4 are:",
+            "options": [
+              "c6, d6 і e6",
+              "тільки d8",
+              "a1 і h1",
+              "усі поля 2-ї горизонталі"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Три поля двома горизонталями попереду; на 5-й горизонталі їх уже шість.",
+            "explanationEn": "Three squares two ranks ahead; on the 5th rank there are already six.",
+            "optionsEn": [
+              "c6, d6 and e6",
+              "only d8",
+              "a1 and h1",
+              "every square on the 2nd rank"
+            ]
+          },
+          {
+            "id": "ch-deep-kp-theory-exam-q2",
+            "type": "mcq",
+            "promptUk": "Дальня опозиція — це коли між королями:",
+            "promptEn": "Distant opposition is when between the kings there are:",
+            "options": [
+              "три або п’ять клітинок на одній лінії (непарне число)",
+              "нуль клітинок (королі поруч)",
+              "парне число завжди",
+              "десять клітинок"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Має опозицію той, хто не ходить.",
+            "explanationEn": "The side that is not to move has the opposition.",
+            "optionsEn": [
+              "three or five squares on the same line (an odd number)",
+              "zero squares (the kings are adjacent)",
+              "an even number, always",
+              "ten squares"
+            ]
+          },
+          {
+            "id": "ch-deep-kp-theory-exam-q3",
+            "type": "mcq",
+            "promptUk": "Тріангуляція потрібна, щоб:",
+            "promptEn": "Triangulation is needed in order to:",
+            "options": [
+              "повернутись у ту саму позицію з ходом суперника (цугцванг)",
+              "поставити мат у 1 хід трикутником",
+              "віддати пішака",
+              "вийти з дошки"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Король іде по трьох полях і «втрачає» темп.",
+            "explanationEn": "The king walks three squares and “loses” a tempo.",
+            "optionsEn": [
+              "return to the same position with the opponent to move (zugzwang)",
+              "mate in one with a triangle",
+              "give the pawn away",
+              "leave the board"
+            ]
+          },
+          {
+            "id": "ch-deep-kp-theory-exam-q4",
+            "type": "mcq",
+            "promptUk": "Проти крайнього пішака захисний король має:",
+            "promptEn": "Against a rook pawn the defending king should:",
+            "options": [
+              "бігти в кут перетворення — там патові ідеї й часто нічия",
+              "стати в опозицію як проти центрального пішака й цього досить",
+              "зійти з дошки",
+              "ніколи не йти в кут"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Ключові поля крайнього пішака не працюють як у центрального.",
+            "explanationEn": "The key squares of a rook pawn do not work as they do for a centre pawn.",
+            "optionsEn": [
+              "run to the promotion corner — stalemate ideas and often a draw live there",
+              "take the opposition as against a centre pawn and that is enough",
+              "leave the board",
+              "never go to the corner"
+            ]
+          },
+          {
+            "id": "ch-deep-kp-theory-exam-p5",
+            "type": "chess_puzzle",
+            "promptUk": "Шлях до ключового поля: Kc4.",
+            "promptEn": "The path to a key square: Kc4.",
+            "fen": "8/8/4k3/8/3P4/3K4/8/8 w - - 0 1",
+            "solutionSans": [
+              "Kc4"
+            ],
+            "difficulty": 3
+          },
+          {
+            "id": "ch-deep-kp-theory-exam-p6",
+            "type": "chess_puzzle",
+            "promptUk": "Проти крайнього пішака: королем у кут.",
+            "promptEn": "Against a rook pawn: the king into the corner.",
+            "fen": "8/8/8/8/8/7K/6P1/6k1 b - - 0 1",
+            "solutionSans": [
+              "Kh1"
+            ],
+            "difficulty": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "ch-deep-rook-theory",
+    "titleUk": "Тури: Лусена, Філідор, Ванкура",
+    "titleEn": "Rook endings in full",
+    "lessons": [
+      {
+        "slug": "ch-d-lucena",
+        "titleUk": "Лусена: місток крок за кроком",
+        "titleEn": "The Lucena: building the bridge step by step",
+        "baseXp": 27,
+        "difficulty": 5,
+        "exercises": [
+          {
+            "id": "ch-d-lucena-l",
+            "type": "chess_lesson",
+            "promptUk": "Лусена: місток крок за кроком",
+            "promptEn": "The Lucena: building the bridge step by step",
+            "fen": "3K4/3P4/5k2/8/8/8/r7/4R3 w - - 0 1",
+            "notesUk": "Лусена — виграшна позиція тури, пішака на 7-й і короля перед ним (на 8-й) проти тури й короля. Цей урок — повний метод, не друге введення. Крок 1: шахом тури відігнати ворожого короля далі (1.Rf1+). Якщо король іде на e-файл (…Ke6), може спрацювати 2.Ke8 і проведення. Крок 2: поставити туру на 4-ту горизонталь (Rf4) — це майбутній місток. Крок 3: вивести короля з-під пішака (Ke7). Тура суперника почне шахи ззаду або з флангу. Крок 4: король іде назустріч шахам (Kd6, Ke6, Kd5), ховаючись так, щоб тура суперника вже не діставала, а ваша тура на 4-й могла стати між ними. Крок 5: перекриття — Rd4, «місток»: шах закрито, пішак іде в ферзі. На діаграмі класичний старт: король d8, пішак d7, тура e1; чорні — король f6, тура a2.\n\nВиняток — кінський пішак (b або g): місток усе ще працює, але королю тісніше, шахів більше, треба точніше ховатись. Крайній пішак часто взагалі не дає класичної Лусени: мало місця, і захист інший (Ванкура).\n\nТипові помилки: проводити пішака до побудови містка; ставити туру на 5-ту замість 4-ї (шах не закривається); виходити королем не в той бік і отримувати вічний шах.",
+            "notesEn": "The Lucena is a winning position with a rook, a pawn on the 7th and the king in front of it (on the 8th) against a rook and king. This lesson is the full method, not a second introduction. Step 1: drive the enemy king further away with a rook check (1.Rf1+). If the king goes to the e-file (…Ke6), 2.Ke8 and promotion can work. Step 2: put the rook on the 4th rank (Rf4) — this is the future bridge. Step 3: bring the king out from under the pawn (Ke7). The opponent’s rook will start checks from behind or from the side. Step 4: the king walks toward the checks (Kd6, Ke6, Kd5), hiding so that the enemy rook can no longer reach it and your rook on the 4th can step between them. Step 5: the interposition — Rd4, the “bridge”: the check is blocked and the pawn queens. The diagram is the classic start: king on d8, pawn on d7, rook on e1; Black — king on f6, rook on a2.\n\nThe exception is a knight pawn (b or g): the bridge still works, but the king has less room, there are more checks, and you must hide more precisely. A rook pawn often does not give a classical Lucena at all: there is little space, and the defence is different (Vancura).\n\nTypical mistakes: promoting the pawn before the bridge is built; putting the rook on the 5th instead of the 4th (the check is not blocked); coming out with the king the wrong way and walking into perpetual check.",
+            "quiz": {
+              "q": "На якій горизонталі будують «місток» Лусени і навіщо?",
+              "qEn": "On which rank is the Lucena “bridge” built, and why?",
+              "options": [
+                "на 4-й: тура перекриває шахи, коли король уже вийшов, і пішак іде в ферзі",
+                "на 8-й: тура стає поруч із королем",
+                "на 1-й завжди",
+                "місток не потрібен, пішак сам проходить"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "on the 4th: the rook blocks the checks once the king is out, and the pawn queens",
+                "on the 8th: the rook stands next to the king",
+                "always on the 1st",
+                "no bridge is needed, the pawn queens on its own"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-lucena-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Лусена: дайте шах (король іде на g6) і поставте туру на 4-ту — основу містка.",
+            "promptEn": "Lucena: check (the king goes to g6) and put the rook on the 4th — the foundation of the bridge.",
+            "fen": "3K4/3P4/5k2/8/8/8/r7/4R3 w - - 0 1",
+            "solutionSans": [
+              "Rf1+",
+              "Kg6",
+              "Rf4"
+            ],
+            "difficulty": 4
+          },
+          {
+            "id": "ch-d-lucena-m1",
+            "type": "mcq",
+            "promptUk": "Чим Лусена з кінським пішаком відрізняється від класичної?",
+            "promptEn": "How does a Lucena with a knight pawn differ from the classical one?",
+            "options": [
+              "місток працює, але королю тісніше й шахів більше — ховатись треба точніше",
+              "кінський пішак ніколи не проводиться",
+              "метод зовсім інший і містка немає",
+              "це завжди пат"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Крайній пішак — уже інша історія (часто Ванкура), кінський — обережна Лусена.",
+            "explanationEn": "A rook pawn is a different story (often Vancura); a knight pawn is a careful Lucena.",
+            "optionsEn": [
+              "the bridge works, but the king has less room and there are more checks — you must hide more precisely",
+              "a knight pawn never promotes",
+              "the method is completely different and there is no bridge",
+              "it is always stalemate"
+            ]
+          },
+          {
+            "id": "ch-d-lucena-e",
+            "type": "explain",
+            "promptUk": "Опишіть п’ять кроків методу Лусени і де будують місток.",
+            "promptEn": "Describe the five steps of the Lucena method and where the bridge is built.",
+            "keyIdeas": [
+              {
+                "labelUk": "Кроки",
+                "labelEn": "Steps",
+                "anyOf": [
+                  "шах",
+                  "check",
+                  "Rf1",
+                  "4-т",
+                  "4th",
+                  "Rf4",
+                  "король виходить",
+                  "king out",
+                  "місток",
+                  "bridge",
+                  "Rd4"
+                ]
+              },
+              {
+                "labelUk": "Мета",
+                "labelEn": "Goal",
+                "anyOf": [
+                  "перекрит",
+                  "interpos",
+                  "ферз",
+                  "queen",
+                  "проведен",
+                  "promot"
+                ]
+              },
+              {
+                "labelUk": "Виняток",
+                "labelEn": "Exception",
+                "anyOf": [
+                  "кінськ",
+                  "knight pawn",
+                  "крайн",
+                  "rook pawn",
+                  "тісн",
+                  "less room"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Лусена: 1) шах Rf1+, 2) тура на 4-ту (Rf4) — основа містка, 3) король виходить Ke7, 4) ховається від шахів, 5) перекриття Rd4, пішак іде в ферзі. Кінський пішак — той самий метод, але тісніше. Крайній — часто не Лусена.",
+            "sampleAnswerEn": "Lucena: 1) the check Rf1+, 2) the rook to the 4th (Rf4) — the foundation of the bridge, 3) the king comes out Ke7, 4) it hides from checks, 5) the interposition Rd4 and the pawn queens. A knight pawn is the same method, but tighter. A rook pawn is often not a Lucena."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-philidor-full",
+        "titleUk": "Філідор повністю: 6-та горизонталь і шах ззаду",
+        "titleEn": "Philidor in full: the 6th rank and checks from behind",
+        "baseXp": 27,
+        "difficulty": 5,
+        "exercises": [
+          {
+            "id": "ch-d-philidor-full-l",
+            "type": "chess_lesson",
+            "promptUk": "Філідор повністю: 6-та горизонталь і шах ззаду",
+            "promptEn": "Philidor in full: the 6th rank and checks from behind",
+            "fen": "4k3/8/r7/4P3/4K3/8/8/4R3 b - - 0 1",
+            "notesUk": "Повна Філідорова оборона, не коротке знайомство. Позиція: пішак суперника на 5-й, його король поруч, ваш король перед пішаком на 8-й (або 7-й), тура — на 6-й горизонталі. Поки пішак на 5-й, тура стоїть на 6-й і не пускає ворожого короля вперед (він не може стати на 6-ту). Це «глухий кут»: суперник не прогресує. Критичний момент — коли пішак іде на 6-ту (e6). Тоді 6-та горизонталь більше не тримає короля, і тура негайно йде назад, на 1-шу (…Ra1), щоб давати шахи ззаду. Король нападника не має схованки: пішак на 6-й забирає поле, і шахи тривають. На діаграмі класичний Філідор, хід чорних: тримайте туру на 6-й, а як тільки з’явиться e6 — ідіть назад.\n\nКоли Філідор уже зірваний (пішак уже на 6-й, а тура не встигла на 6-ту вчасно) — потрібен інший захист, короткосторонній. Виняток кінського пішака: Філідор усе ще працює, але коротка сторона дуже коротка (одна вертикаль), і помилка дорожча.\n\nТипові помилки: зняти туру з 6-ї занадто рано; після e6 залишити її на 6-й замість шахів ззаду; шахувати з флангу без дистанції (туру ловлять).",
+            "notesEn": "The full Philidor defence, not a brief acquaintance. The position: the opponent’s pawn on the 5th, their king next to it, your king in front of the pawn on the 8th (or 7th), the rook on the 6th rank. While the pawn is on the 5th, the rook stands on the 6th and does not let the enemy king forward (it cannot step onto the 6th). This is a “dead end”: the opponent makes no progress. The critical moment is when the pawn goes to the 6th (e6). Then the 6th rank no longer holds the king, and the rook immediately goes back, to the 1st (…Ra1), to give checks from behind. The attacker’s king has no shelter: the pawn on the 6th takes a square, and the checks continue. The diagram is a classical Philidor, Black to move: keep the rook on the 6th, and as soon as e6 appears — go back.\n\nWhen Philidor is already broken (the pawn is already on the 6th, and the rook did not reach the 6th in time) — a different defence is needed, the short-side one. The knight-pawn exception: Philidor still works, but the short side is very short (one file), and a mistake costs more.\n\nTypical mistakes: taking the rook off the 6th too early; after e6, leaving it on the 6th instead of checking from behind; checking from the side without checking distance (the rook is caught).",
+            "quiz": {
+              "q": "Що робить захисна тура, щойно пішак іде на 6-ту горизонталь?",
+              "qEn": "What does the defending rook do as soon as the pawn goes to the 6th rank?",
+              "options": [
+                "іде назад, на 1-шу горизонталь, і шахує короля ззаду",
+                "залишається на 6-й за будь-яку ціну",
+                "здається",
+                "б'є власного короля"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "it goes back, to the 1st rank, and checks the king from behind",
+                "it stays on the 6th at any cost",
+                "it resigns",
+                "it captures its own king"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-philidor-full-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Пішак уже пішов на e6. Відведіть туру назад для шахів ззаду.",
+            "promptEn": "The pawn has already gone to e6. Take the rook back for checks from behind.",
+            "fen": "4k3/8/r3P3/4K3/8/8/3R4/8 b - - 0 1",
+            "solutionSans": [
+              "Ra1"
+            ],
+            "difficulty": 3
+          },
+          {
+            "id": "ch-d-philidor-full-m1",
+            "type": "mcq",
+            "promptUk": "Навіщо тура стоїть на 6-й, поки пішак ще на 5-й?",
+            "promptEn": "Why does the rook stand on the 6th while the pawn is still on the 5th?",
+            "options": [
+              "вона не пускає ворожого короля вперед, на 6-ту, і прогресу немає",
+              "щоб одразу поставити мат",
+              "так зручніше провести свого пішака",
+              "це випадковість"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Це й є «глухий кут» Філідора: пішак і король не проходять.",
+            "explanationEn": "That is the Philidor “dead end”: the pawn and king do not get through.",
+            "optionsEn": [
+              "it does not let the enemy king forward, onto the 6th, and there is no progress",
+              "in order to mate at once",
+              "it is more convenient for promoting your own pawn",
+              "it is an accident"
+            ]
+          },
+          {
+            "id": "ch-d-philidor-full-e",
+            "type": "explain",
+            "promptUk": "Опишіть повний Філідор: що робить тура на 6-й і що після ходу пішака на 6-ту.",
+            "promptEn": "Describe the full Philidor: what the rook does on the 6th, and what it does after the pawn goes to the 6th.",
+            "keyIdeas": [
+              {
+                "labelUk": "6-та",
+                "labelEn": "6th",
+                "anyOf": [
+                  "6-т",
+                  "6th",
+                  "тура",
+                  "rook",
+                  "не пускає короля",
+                  "keep the king",
+                  "пішак на 5",
+                  "pawn on 5"
+                ]
+              },
+              {
+                "labelUk": "Після e6",
+                "labelEn": "After e6",
+                "anyOf": [
+                  "Ra1",
+                  "ззаду",
+                  "behind",
+                  "шах",
+                  "check",
+                  "1-ш",
+                  "1st"
+                ]
+              },
+              {
+                "labelUk": "Зірваний",
+                "labelEn": "Broken",
+                "anyOf": [
+                  "зірван",
+                  "broken",
+                  "коротка сторона",
+                  "short side",
+                  "кінськ",
+                  "knight pawn"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Поки пішак на 5-й, тура тримає 6-ту і не пускає короля. Щойно пішак іде на e6, тура йде на 1-шу (…Ra1) і шахує ззаду. Якщо Філідор зірваний — потрібен захист короткої сторони. Кінський пішак: метод той самий, але коротша сторона.",
+            "sampleAnswerEn": "While the pawn is on the 5th, the rook holds the 6th and keeps the king out. As soon as the pawn goes to e6, the rook goes to the 1st (…Ra1) and checks from behind. If Philidor is broken, the short-side defence is needed. A knight pawn: the same method, but a shorter side."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-short-side",
+        "titleUk": "Захист короткої сторони",
+        "titleEn": "The short-side defence",
+        "baseXp": 27,
+        "difficulty": 5,
+        "exercises": [
+          {
+            "id": "ch-d-short-side-l",
+            "type": "chess_lesson",
+            "promptUk": "Захист короткої сторони",
+            "promptEn": "The short-side defence",
+            "fen": "4k3/8/3KP3/8/8/8/r7/4R3 b - - 0 1",
+            "notesUk": "Коли Філідор зірваний — пішак уже на 6-й, король нападника проник на 6-ту, захисний король відрізаний на 8-й — лишається захист короткої сторони. Ідея Тарраша й пізнішої теорії: захисний король іде на коротку сторону пішака (де менше вертикалей), а тура шахує з довгої сторони, де є дистанція шаха (щонайменше три вертикалі між турою і королем). Тоді король не може наблизитись і зловити туру. На діаграмі пішак на e6, білий король на d6, чорний — на e8, тура чорних уже на a-лінії (довга сторона). Правильно: …Kf8, на коротку сторону (файли f–h для e-пішака — три вертикалі, «коротші» за a–d). Якщо король помилково піде на довгу (…Kd8), турі не буде місця шахувати, і позиція часто програна.\n\nДля c- або f-пішака коротка сторона ще коротша (дві вертикалі) — захист важчий. Для кінського пішака коротка сторона — одна вертикаль, і цей захист майже не працює: саме тому Філідор треба тримати точніше.\n\nТипові помилки: відправити короля на довгу сторону «назустріч турі»; шахувати турою без дистанції (її б’ють або проганяють); плутати коротку сторону з «ближчою до краю дошки» без рахунку вертикалей.",
+            "notesEn": "When Philidor is broken — the pawn is already on the 6th, the attacker’s king has penetrated to the 6th, the defending king is cut off on the 8th — the short-side defence remains. The idea, from Tarrasch and later theory: the defending king goes to the short side of the pawn (where there are fewer files), and the rook checks from the long side, where there is checking distance (at least three files between the rook and the king). Then the king cannot approach and catch the rook. In the diagram the pawn is on e6, the white king on d6, the black king on e8, Black’s rook already on the a-file (the long side). The right move is …Kf8, to the short side (the files f–h for an e-pawn are three files, “shorter” than a–d). If the king wrongly goes to the long side (…Kd8), the rook will have no room to check, and the position is often lost.\n\nFor a c- or f-pawn the short side is even shorter (two files) — the defence is harder. For a knight pawn the short side is one file, and this defence almost does not work: that is why Philidor must be held more precisely.\n\nTypical mistakes: sending the king to the long side “toward the rook”; checking with the rook without distance (it is captured or driven off); confusing the short side with “closer to the edge of the board” without counting files.",
+            "quiz": {
+              "q": "Куди має йти захисний король у захисті короткої сторони?",
+              "qEn": "Where should the defending king go in the short-side defence?",
+              "options": [
+                "на коротку сторону пішака, а тура шахує з довгої, де є дистанція",
+                "на довгу сторону разом із турою",
+                "у центр дошки",
+                "нікуди, треба здатися"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "to the short side of the pawn, while the rook checks from the long side, where there is distance",
+                "to the long side together with the rook",
+                "to the centre of the board",
+                "nowhere, you should resign"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-short-side-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Філідор зірваний. Відведіть короля на коротку сторону.",
+            "promptEn": "Philidor is broken. Take the king to the short side.",
+            "fen": "4k3/8/3KP3/8/8/8/r7/4R3 b - - 0 1",
+            "solutionSans": [
+              "Kf8"
+            ],
+            "difficulty": 4
+          },
+          {
+            "id": "ch-d-short-side-m1",
+            "type": "mcq",
+            "promptUk": "Чому для кінського пішака захист короткої сторони майже не працює?",
+            "promptEn": "Why does the short-side defence almost fail against a knight pawn?",
+            "options": [
+              "коротка сторона — лише одна вертикаль, турі ніде шахувати з дистанцією",
+              "кінський пішак не може йти на 6-ту",
+              "король не має права туди йти",
+              "це завжди виграш захисника"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Саме тому Філідора проти кінського пішака треба тримати особливо точно.",
+            "explanationEn": "That is why Philidor against a knight pawn must be held especially accurately.",
+            "optionsEn": [
+              "the short side is only one file, so the rook has no room to check from a distance",
+              "a knight pawn cannot go to the 6th",
+              "the king is not allowed to go there",
+              "it is always a win for the defender"
+            ]
+          },
+          {
+            "id": "ch-d-short-side-e",
+            "type": "explain",
+            "promptUk": "Коли потрібен захист короткої сторони і як його виконати?",
+            "promptEn": "When is the short-side defence needed, and how is it executed?",
+            "keyIdeas": [
+              {
+                "labelUk": "Коли",
+                "labelEn": "When",
+                "anyOf": [
+                  "зірван",
+                  "broken",
+                  "Філідор",
+                  "Philidor",
+                  "пішак на 6",
+                  "pawn on 6"
+                ]
+              },
+              {
+                "labelUk": "Як",
+                "labelEn": "How",
+                "anyOf": [
+                  "коротк",
+                  "short",
+                  "Kf8",
+                  "довг",
+                  "long",
+                  "тура",
+                  "rook",
+                  "дистанц",
+                  "distance"
+                ]
+              },
+              {
+                "labelUk": "Кінський",
+                "labelEn": "Knight pawn",
+                "anyOf": [
+                  "одна вертикаль",
+                  "one file",
+                  "кінськ",
+                  "knight pawn",
+                  "майже не",
+                  "almost"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Якщо Філідор зірваний (пішак на 6-й), король іде на коротку сторону (…Kf8 проти e-пішака), а тура шахує з довгої, де є дистанція. На довгу сторону короля не пускайте. Проти кінського пішака коротка сторона — одна вертикаль, захист майже не працює.",
+            "sampleAnswerEn": "If Philidor is broken (pawn on the 6th), the king goes to the short side (…Kf8 against an e-pawn), and the rook checks from the long side, where there is distance. Do not send the king to the long side. Against a knight pawn the short side is one file, and the defence almost fails."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-vancura",
+        "titleUk": "Позиція Ванкури: тура збоку проти крайнього пішака",
+        "titleEn": "The Vancura position: the rook from the side against a rook pawn",
+        "baseXp": 27,
+        "difficulty": 5,
+        "exercises": [
+          {
+            "id": "ch-d-vancura-l",
+            "type": "chess_lesson",
+            "promptUk": "Позиція Ванкури: тура збоку проти крайнього пішака",
+            "promptEn": "The Vancura position: the rook from the side against a rook pawn",
+            "fen": "R7/6k1/P7/K7/5r2/8/8/8 b - - 0 1",
+            "notesUk": "Ванкура — головний нічийний захист проти крайнього пішака, що вже дійшов до 6-ї (a6 або h6), коли класичний Філідор не застосовується. Ідея: захисна тура атакує пішака збоку по 6-й горизонталі (тут …Rf6), а не ззаду по лінії a. Пішак зв’язаний: якщо тура нападника зійде з a-лінії, пішака можна взяти; якщо пішак іде на a7, тура переходить на 7-му й знову атакує його, одночасно готуючи шахи королю з флангу. Король захисника стоїть відносно далеко (g7) і підходить ближче, лише коли безпечно. На діаграмі білі: король a5, пішак a6, тура a8; чорні: король g7, тура f4. Хід …Rf6 встановлює Ванкуру.\n\nЯкщо захисник поставив туру за пішаком (…Ra1) замість атаки збоку, король нападника ховається від шахів за пішаком, і позиція часто програна. Ванкура — саме бічна атака.\n\nТипові помилки: шахувати ззаду без дистанції проти крайнього пішака; зняти туру з 6-ї без потреби; підвести короля занадто рано під шахи тури a8.",
+            "notesEn": "Vancura is the main drawing defence against a rook pawn that has already reached the 6th (a6 or h6), when classical Philidor does not apply. The idea: the defending rook attacks the pawn from the side along the 6th rank (here …Rf6), not from behind on the a-file. The pawn is tied down: if the attacker’s rook leaves the a-file, the pawn can be taken; if the pawn goes to a7, the rook switches to the 7th and attacks it again, at the same time preparing flank checks against the king. The defender’s king stands relatively far away (g7) and comes closer only when it is safe. In the diagram White has the king on a5, the pawn on a6, the rook on a8; Black has the king on g7, the rook on f4. The move …Rf6 establishes Vancura.\n\nIf the defender puts the rook behind the pawn (…Ra1) instead of attacking from the side, the attacker’s king hides from checks behind the pawn, and the position is often lost. Vancura is specifically a side attack.\n\nTypical mistakes: checking from behind without distance against a rook pawn; taking the rook off the 6th without need; bringing the king closer too early, into checks from the rook on a8.",
+            "quiz": {
+              "q": "У чому суть захисту Ванкури проти пішака на a6?",
+              "qEn": "What is the essence of the Vancura defence against a pawn on a6?",
+              "options": [
+                "тура атакує пішака збоку по 6-й горизонталі, а не ззаду по лінії a",
+                "тура стає перед пішаком на a7",
+                "король іде на a1",
+                "пішака треба ігнорувати"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "the rook attacks the pawn from the side along the 6th rank, not from behind on the a-file",
+                "the rook stands in front of the pawn on a7",
+                "the king goes to a1",
+                "the pawn should be ignored"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-vancura-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Встановіть Ванкуру: атакуйте пішака a6 турою збоку по 6-й.",
+            "promptEn": "Establish Vancura: attack the a6-pawn with the rook from the side along the 6th.",
+            "fen": "R7/6k1/P7/K7/5r2/8/8/8 b - - 0 1",
+            "solutionSans": [
+              "Rf6"
+            ],
+            "difficulty": 4
+          },
+          {
+            "id": "ch-d-vancura-m1",
+            "type": "mcq",
+            "promptUk": "Чому проти крайнього пішака на 6-й шах ззаду (…Ra1) часто гірший за Ванкуру?",
+            "promptEn": "Why is a check from behind (…Ra1) against a rook pawn on the 6th often worse than Vancura?",
+            "options": [
+              "король нападника ховається за пішаком, і шахи закінчуються",
+              "тура ззаду завжди ставить мат",
+              "так заборонено правилами",
+              "різниці немає"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Саме бічна атака не дає королю надійної схованки.",
+            "explanationEn": "It is the side attack that gives the king no reliable shelter.",
+            "optionsEn": [
+              "the attacker’s king hides behind the pawn, and the checks run out",
+              "a rook from behind always mates",
+              "it is forbidden by the laws",
+              "there is no difference"
+            ]
+          },
+          {
+            "id": "ch-d-vancura-e",
+            "type": "explain",
+            "promptUk": "Що таке позиція Ванкури і як її поставити?",
+            "promptEn": "What is the Vancura position, and how do you set it up?",
+            "keyIdeas": [
+              {
+                "labelUk": "Ідея",
+                "labelEn": "Idea",
+                "anyOf": [
+                  "Ванкур",
+                  "Vancura",
+                  "збоку",
+                  "side",
+                  "6-т",
+                  "6th",
+                  "Rf6",
+                  "крайній",
+                  "rook pawn"
+                ]
+              },
+              {
+                "labelUk": "Пішак",
+                "labelEn": "Pawn",
+                "anyOf": [
+                  "a6",
+                  "a7",
+                  "зв'язан",
+                  "tied",
+                  "tied"
+                ]
+              },
+              {
+                "labelUk": "Не ззаду",
+                "labelEn": "Not from behind",
+                "anyOf": [
+                  "не ззаду",
+                  "not behind",
+                  "Ra1",
+                  "схованка",
+                  "shelter"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Ванкура — нічийний захист проти крайнього пішака на 6-й: тура атакує його збоку по 6-й (…Rf6), не ззаду. Пішак зв’язаний, а якщо він іде на a7, тура переходить на 7-му й шахує з флангу. Шах ззаду дозволяє королю сховатись за пішаком.",
+            "sampleAnswerEn": "Vancura is a drawing defence against a rook pawn on the 6th: the rook attacks it from the side along the 6th (…Rf6), not from behind. The pawn is tied down, and if it goes to a7 the rook switches to the 7th and checks from the flank. A check from behind lets the king hide behind the pawn."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-rook-vs-pawn",
+        "titleUk": "Тура проти пішака: плече і дистанція",
+        "titleEn": "Rook versus pawn: shouldering and distance",
+        "baseXp": 24,
+        "difficulty": 4,
+        "exercises": [
+          {
+            "id": "ch-d-rook-vs-pawn-l",
+            "type": "chess_lesson",
+            "promptUk": "Тура проти пішака: плече і дистанція",
+            "promptEn": "Rook versus pawn: shouldering and distance",
+            "fen": "8/8/8/8/8/3k4/3p4/R5K1 w - - 0 1",
+            "notesUk": "Тура проти пішака, що біжить у ферзі, — це гонка з технікою. Два головні прийоми. Плече (shouldering, «відбочення»): ваш король стає так, щоб закрити ворожому королю шлях до підтримки пішака або до вашої тури. На діаграмі 1.Kf2 — плече: білий король стає на шляху чорного й одночасно наближається до пішака d2. Другий прийом — дистанція шаха: тура шахує з такої відстані, щоб король не напав на неї, і зганяє його на лінію пішака (тоді пішак не може йти, бо відкриє короля) або забирає темп. Іноді тура жертвує себе за пішака, якщо король встигає в квадрат нового ферзя — це вже нічия або виграш залежно від позиції.\n\nПрактичне правило: спочатку запитайте, чи встигає пішак без допомоги короля (квадрат). Якщо встигає — потрібні шахи й плече, щоб забрати темп. Якщо не встигає — просто тримайте лінію проведення й підводьте короля.\n\nТипові помилки: шах «упритул», після якого туру б’ють або проганяють; король іде паралельно, не заступаючи шлях (без плеча); забути, що після перетворення тури може не бути шаха, і новий ферзь виграє.",
+            "notesEn": "Rook versus a pawn running to queen is a race with technique. There are two main tools. Shouldering (body-check): your king stands so as to block the enemy king’s path to supporting the pawn or to your rook. In the diagram 1.Kf2 is a shoulder: the white king steps into the black king’s path and at the same time approaches the d2-pawn. The second tool is checking distance: the rook checks from far enough that the king cannot attack it, and drives the king onto the pawn’s file (then the pawn cannot move, because it would expose the king) or wins a tempo. Sometimes the rook sacrifices itself for the pawn if the king is in the square of the new queen — that is already a draw or a win depending on the position.\n\nA practical rule: first ask whether the pawn makes it without the king’s help (the square). If it does — you need checks and a shoulder to win a tempo. If it does not — just hold the promotion file and bring the king up.\n\nTypical mistakes: a check “at close range”, after which the rook is captured or driven off; the king walking parallel, not stepping into the path (no shoulder); forgetting that after promotion the rook may not be checking, and the new queen wins.",
+            "quiz": {
+              "q": "Що таке «плече» короля в закінченні тура проти пішака?",
+              "qEn": "What is king “shouldering” in a rook-versus-pawn ending?",
+              "options": [
+                "король стає на шлях ворожого короля, закриваючи йому доступ до пішака або тури",
+                "король ставить мат плечем",
+                "король завжди стоїть на a1",
+                "це жертва короля"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "the king steps into the enemy king’s path, cutting it off from the pawn or the rook",
+                "the king mates with its shoulder",
+                "the king always stands on a1",
+                "it is a sacrifice of the king"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-rook-vs-pawn-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Плече: станьте королем на шлях суперника й ближче до пішака.",
+            "promptEn": "Shouldering: step the king into the opponent’s path and closer to the pawn.",
+            "fen": "8/8/8/8/8/3k4/3p4/R5K1 w - - 0 1",
+            "solutionSans": [
+              "Kf2"
+            ],
+            "difficulty": 3
+          },
+          {
+            "id": "ch-d-rook-vs-pawn-m1",
+            "type": "mcq",
+            "promptUk": "Навіщо турі тримати дистанцію шаха, а не шахувати «впритул»?",
+            "promptEn": "Why should the rook keep checking distance, rather than checking “at close range”?",
+            "options": [
+              "з дистанції король не нападає на туру, і шах зганяє його на невигідне поле",
+              "близький шах завжди сильніший",
+              "тура не має права шахувати здалеку",
+              "дистанція потрібна лише в дебюті"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Туру, що шахує поруч, король або б'є, або використовує як прикриття.",
+            "explanationEn": "A rook that checks from next door is captured by the king or used as cover.",
+            "optionsEn": [
+              "from a distance the king cannot attack the rook, and the check drives it onto an unfavourable square",
+              "a close-range check is always stronger",
+              "the rook is not allowed to check from far away",
+              "distance is needed only in the opening"
+            ]
+          },
+          {
+            "id": "ch-d-rook-vs-pawn-e",
+            "type": "explain",
+            "promptUk": "Назвіть два головні прийоми тури проти пішака.",
+            "promptEn": "Name the two main techniques of a rook against a pawn.",
+            "keyIdeas": [
+              {
+                "labelUk": "Плече",
+                "labelEn": "Shoulder",
+                "anyOf": [
+                  "плече",
+                  "shoulder",
+                  "Kf2",
+                  "шлях",
+                  "path",
+                  "закрити",
+                  "cut off"
+                ]
+              },
+              {
+                "labelUk": "Дистанція",
+                "labelEn": "Distance",
+                "anyOf": [
+                  "дистанц",
+                  "distance",
+                  "шах",
+                  "check",
+                  "не впритул",
+                  "not close"
+                ]
+              },
+              {
+                "labelUk": "Квадрат",
+                "labelEn": "Square",
+                "anyOf": [
+                  "квадрат",
+                  "square",
+                  "встигає",
+                  "make it",
+                  "темп",
+                  "tempo"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Два прийоми: плече (король заступає шлях, як 1.Kf2) і дистанція шаха (тура шахує здалеку, щоб її не зловили). Спочатку подивіться, чи пішак встигає за правилом квадрата. Не шахуйте впритул.",
+            "sampleAnswerEn": "Two techniques: shouldering (the king steps into the path, as with 1.Kf2) and checking distance (the rook checks from far away so that it is not caught). First look at whether the pawn makes it by the square rule. Do not check at close range."
+          }
+        ]
+      },
+      {
+        "slug": "ch-deep-rook-theory-exam",
+        "titleUk": "Іспит: тури, Лусена, Філідор, Ванкура",
+        "titleEn": "Exam: rooks, Lucena, Philidor, Vancura",
+        "baseXp": 30,
+        "difficulty": 5,
+        "isExam": true,
+        "passThreshold": 0.7,
+        "exercises": [
+          {
+            "id": "ch-deep-rook-theory-exam-q1",
+            "type": "mcq",
+            "promptUk": "Місток Лусени будують:",
+            "promptEn": "The Lucena bridge is built:",
+            "options": [
+              "турою на 4-й горизонталі, щоб перекрити шахи після виходу короля",
+              "турою на 8-й поруч із пішаком одразу",
+              "королем на 1-й",
+              "пішаком назад"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Спочатку шах і тура на 4-ту, потім вихід короля, потім перекриття.",
+            "explanationEn": "First a check and the rook to the 4th, then the king comes out, then the interposition.",
+            "optionsEn": [
+              "with the rook on the 4th rank, to block checks after the king comes out",
+              "with the rook on the 8th next to the pawn at once",
+              "with the king on the 1st",
+              "with the pawn backwards"
+            ]
+          },
+          {
+            "id": "ch-deep-rook-theory-exam-q2",
+            "type": "mcq",
+            "promptUk": "У повному Філідорі після ходу пішака на 6-ту тура:",
+            "promptEn": "In the full Philidor, after the pawn goes to the 6th the rook:",
+            "options": [
+              "іде на 1-шу й шахує ззаду",
+              "залишається на 6-й за будь-яку ціну",
+              "здається",
+              "б'є власного короля"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Поки пішак на 5-й, тура тримає 6-ту; після e6 — шахи ззаду.",
+            "explanationEn": "While the pawn is on the 5th the rook holds the 6th; after e6 — checks from behind.",
+            "optionsEn": [
+              "goes to the 1st and checks from behind",
+              "stays on the 6th at any cost",
+              "resigns",
+              "captures its own king"
+            ]
+          },
+          {
+            "id": "ch-deep-rook-theory-exam-q3",
+            "type": "mcq",
+            "promptUk": "У захисті короткої сторони король іде:",
+            "promptEn": "In the short-side defence the king goes:",
+            "options": [
+              "на коротку сторону, а тура шахує з довгої з дистанцією",
+              "на довгу сторону разом із турою",
+              "завжди на a1",
+              "нікуди"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Для e-пішака коротке — f, g, h; проти кінського пішака цей захист майже не працює.",
+            "explanationEn": "For an e-pawn the short side is f, g, h; against a knight pawn this defence almost fails.",
+            "optionsEn": [
+              "to the short side, while the rook checks from the long side with distance",
+              "to the long side together with the rook",
+              "always to a1",
+              "nowhere"
+            ]
+          },
+          {
+            "id": "ch-deep-rook-theory-exam-q4",
+            "type": "mcq",
+            "promptUk": "Позиція Ванкури проти пішака на a6 — це:",
+            "promptEn": "The Vancura position against a pawn on a6 is:",
+            "options": [
+              "бічна атака тури по 6-й горизонталі (…Rf6), а не шах ззаду",
+              "тура обов'язково на a1",
+              "король на a8 і здача",
+              "Філідор без змін"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Шах ззаду дозволяє королю сховатись за крайнім пішаком.",
+            "explanationEn": "A check from behind lets the king hide behind the rook pawn.",
+            "optionsEn": [
+              "a side attack by the rook along the 6th rank (…Rf6), not a check from behind",
+              "the rook must be on a1",
+              "the king on a8 and resignation",
+              "Philidor with no changes"
+            ]
+          },
+          {
+            "id": "ch-deep-rook-theory-exam-p5",
+            "type": "chess_puzzle",
+            "promptUk": "Лусена: шах і тура на 4-ту (король іде на g6).",
+            "promptEn": "Lucena: a check and the rook to the 4th (the king goes to g6).",
+            "fen": "3K4/3P4/5k2/8/8/8/r7/4R3 w - - 0 1",
+            "solutionSans": [
+              "Rf1+",
+              "Kg6",
+              "Rf4"
+            ],
+            "difficulty": 4
+          },
+          {
+            "id": "ch-deep-rook-theory-exam-p6",
+            "type": "chess_puzzle",
+            "promptUk": "Ванкура: тура збоку на 6-ту.",
+            "promptEn": "Vancura: the rook from the side to the 6th.",
+            "fen": "R7/6k1/P7/K7/5r2/8/8/8 b - - 0 1",
+            "solutionSans": [
+              "Rf6"
+            ],
+            "difficulty": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "ch-deep-minor-end",
+    "titleUk": "Легкофігурні та ферзеві закінчення",
+    "titleEn": "Minor-piece and queen endings",
+    "lessons": [
+      {
+        "slug": "ch-d-two-bishops",
+        "titleUk": "Два слони: відрізати короля",
+        "titleEn": "Two bishops: cutting the king off",
+        "baseXp": 24,
+        "difficulty": 4,
+        "exercises": [
+          {
+            "id": "ch-d-two-bishops-l",
+            "type": "chess_lesson",
+            "promptUk": "Два слони: відрізати короля",
+            "promptEn": "Two bishops: cutting the king off",
+            "fen": "4k3/8/4K3/8/8/8/4B3/4B3 w - - 0 1",
+            "notesUk": "Два слони виграють проти голого короля, і метод варто знати напам’ять. Слони працюють на сусідніх діагоналях і відрізають королю смугу дошки, як стіни. Король нападника йде в опозицію, слони звужують «коридор», поки ворожий король не притиснутий до краю, і тоді мат (часто слон віддає шах з діагоналі, другий забирає поля втечі). На діаграмі королі вже в центрі на e6 і e8, слони на e2 і e1: перший крок — зайняти діагоналі (1.Ba6 або Bb5+ / Bh5+), щоб відрізати 7-му й 8-му, і не дати королю вискочити.\n\nПроти коня або слона з пішаками два слони сильні в відкритому закінченні: вони грають на двох флангах, створюють другу слабкість і не дають коню форпосту. Розмін одного слона часто вбиває перевагу — тримайте пару, поки позиція відкрита.\n\nТипові помилки: поставити слонів на одну діагональ, де вони дублюють одне одного; дати королю вискочити з коридора; загнати ворожого короля в пат (особливо біля кута), забувши залишити йому поле, поки не готовий мат.",
+            "notesEn": "Two bishops win against a bare king, and the method is worth knowing by heart. The bishops work on adjacent diagonals and cut a strip of the board off from the king, like walls. The attacker’s king takes the opposition, the bishops narrow the “corridor” until the enemy king is on the edge, and then comes mate (often one bishop checks from a diagonal, the other takes the flight squares). In the diagram the kings are already in the centre on e6 and e8, the bishops on e2 and e1: the first step is to occupy the diagonals (1.Ba6, or Bb5+ / Bh5+), to cut off the 7th and 8th and not let the king slip out.\n\nAgainst a knight or a bishop with pawns, two bishops are strong in an open ending: they play on both wings, create a second weakness and deny the knight an outpost. Trading one bishop often kills the advantage — keep the pair while the position is open.\n\nTypical mistakes: putting the bishops on one diagonal, where they duplicate each other; letting the king slip out of the corridor; driving the enemy king into stalemate (especially near a corner), forgetting to leave it a square until mate is ready.",
+            "quiz": {
+              "q": "Як два слони відрізають короля?",
+              "qEn": "How do two bishops cut the king off?",
+              "options": [
+                "вони стоять на сусідніх діагоналях і звужують коридор, як стіни, поки король не на краю",
+                "вони завжди стоять на одній діагоналі",
+                "вони перетворюються на тур",
+                "короля відрізає тільки пішак"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "they stand on adjacent diagonals and narrow the corridor, like walls, until the king is on the edge",
+                "they always stand on one diagonal",
+                "they promote to rooks",
+                "only a pawn can cut a king off"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-two-bishops-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Два слони, король уже на краю: поставте мат.",
+            "promptEn": "Two bishops, the king already on the edge: give mate.",
+            "fen": "7k/5B2/6K1/8/8/8/8/4B3 w - - 0 1",
+            "solutionSans": [
+              "Bc3#"
+            ],
+            "difficulty": 2
+          },
+          {
+            "id": "ch-d-two-bishops-m1",
+            "type": "mcq",
+            "promptUk": "Чому не варто рано міняти одного з двох слонів у відкритому закінченні?",
+            "promptEn": "Why should you not trade one of the two bishops early in an open ending?",
+            "options": [
+              "пара грає на двох флангах і створює другу слабкість; один слон цього вже не робить",
+              "слон не має права розміну",
+              "пара завжди програє",
+              "розмін завжди дає пат"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Тримайте пару, поки дошка відкрита. Розмін — лише за конкретну вигоду.",
+            "explanationEn": "Keep the pair while the board is open. A trade is only for a concrete gain.",
+            "optionsEn": [
+              "the pair plays on both wings and creates a second weakness; one bishop no longer does that",
+              "a bishop is not allowed to be traded",
+              "the pair always loses",
+              "a trade always gives stalemate"
+            ]
+          },
+          {
+            "id": "ch-d-two-bishops-e",
+            "type": "explain",
+            "promptUk": "Як два слони ставлять мат і чому пару треба берегти?",
+            "promptEn": "How do two bishops mate, and why should you keep the pair?",
+            "keyIdeas": [
+              {
+                "labelUk": "Метод",
+                "labelEn": "Method",
+                "anyOf": [
+                  "сусідн",
+                  "adjacent",
+                  "діагонал",
+                  "diagonal",
+                  "коридор",
+                  "corridor",
+                  "край",
+                  "edge",
+                  "опозиц",
+                  "oppos",
+                  "Bc3"
+                ]
+              },
+              {
+                "labelUk": "Мат",
+                "labelEn": "Mate",
+                "anyOf": [
+                  "мат",
+                  "mate",
+                  "Bc3",
+                  "поля втечі",
+                  "flight"
+                ]
+              },
+              {
+                "labelUk": "Пара",
+                "labelEn": "The pair",
+                "anyOf": [
+                  "пара",
+                  "pair",
+                  "два фланг",
+                  "both wing",
+                  "не міняти",
+                  "not trade"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Два слони на сусідніх діагоналях відрізають короля, як стіни, і разом із власним королем заганяють його на край, де є мат (Bc3#). Пару бережіть: вона грає на двох флангах. Не ставте обох на одну діагональ і не робіть пат у куті.",
+            "sampleAnswerEn": "Two bishops on adjacent diagonals cut the king off like walls and, with their own king, drive it to the edge, where mate is possible (Bc3#). Keep the pair: it plays on both wings. Do not put both on one diagonal, and do not stalemate in the corner."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-kbn-mate",
+        "titleUk": "Мат слоном і конем: кут кольору слона",
+        "titleEn": "Bishop and knight mate: the corner of the bishop’s colour",
+        "baseXp": 27,
+        "difficulty": 5,
+        "exercises": [
+          {
+            "id": "ch-d-kbn-mate-l",
+            "type": "chess_lesson",
+            "promptUk": "Мат слоном і конем: кут кольору слона",
+            "promptEn": "Bishop and knight mate: the corner of the bishop’s colour",
+            "fen": "8/8/8/3k4/8/8/8/KBN5 w - - 0 1",
+            "notesUk": "Мат королем, слоном і конем проти голого короля — найдовший «елементарний» мат (до 33 ходів при точному захисті), і його треба розуміти, не зубріти всі ходи. Метод: 1) відтіснити короля на край дошки (всі три фігури разом, король у опозиції); 2) не ставити мат у «неправильному» куті — короля треба гнати в кут кольору слона (світлопольний слон матує в a8 або h1; темнопольний — у h8 або a1); 3) якщо король утік у «не той» кут, перегнати його вздовж краю. Кінь робить характерний W-маневр (чотири ходи конем малюють літеру W), щоб забирати поля кольору, якого слон не тримає. На діаграмі старт із кута: білий король a1, слон b1, кінь c1, чорний король ще в центрі на d5 — попереду довгий шлях відтіснення.\n\nФінальна картина: король у правильному куті, ваш король на відстані шаха конем, слон б’є кут, кінь забирає останнє поле втечі. На тренуванні поставте фінальну позицію й розберіть її назад.\n\nТипові помилки: гнати короля в кут не того кольору й «застрягти»; роз’єднати фігури, щоб король вискочив; пат у куті, коли кінь забрав останнє поле занадто рано.",
+            "notesEn": "Mate with king, bishop and knight against a bare king is the longest “elementary” mate (up to 33 moves against accurate defence), and it must be understood, not memorised move by move. The method: 1) drive the king to the edge (all three pieces together, the king in opposition); 2) do not mate in the “wrong” corner — the king must be driven to a corner of the bishop’s colour (a light-squared bishop mates in a8 or h1; a dark-squared bishop in h8 or a1); 3) if the king has escaped into the “wrong” corner, drive it along the edge. The knight makes a characteristic W-manoeuvre (four knight moves draw the letter W), to take the squares of the colour the bishop does not control. The diagram is a start from the corner: White’s king on a1, bishop on b1, knight on c1, Black’s king still in the centre on d5 — a long driving job lies ahead.\n\nThe final picture: the king in the right corner, your king a knight-check away, the bishop attacking the corner, the knight taking the last flight square. In training, set up the final position and work backwards.\n\nTypical mistakes: driving the king into a corner of the wrong colour and “getting stuck”; splitting the pieces so that the king slips out; stalemate in the corner when the knight took the last square too early.",
+            "quiz": {
+              "q": "У який кут треба гнати короля, щоб поставити мат слоном і конем?",
+              "qEn": "Into which corner must the king be driven to mate with bishop and knight?",
+              "options": [
+                "у кут кольору слона (світлопольний слон — a8 або h1; темнопольний — h8 або a1)",
+                "у будь-який кут, різниці немає",
+                "тільки в центр",
+                "матового кута не існує"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "into a corner of the bishop’s colour (a light-squared bishop — a8 or h1; a dark-squared bishop — h8 or a1)",
+                "into any corner, it makes no difference",
+                "only into the centre",
+                "there is no mating corner"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-kbn-mate-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Фінал KBN: шах конем і мат слоном у правильному куті (король іде на h8).",
+            "promptEn": "The KBN finale: a knight check and mate with the bishop in the right corner (the king goes to h8).",
+            "fen": "6k1/5N2/6K1/8/8/8/8/6B1 w - - 0 1",
+            "solutionSans": [
+              "Nh6+",
+              "Kh8",
+              "Bd4#"
+            ],
+            "difficulty": 3
+          },
+          {
+            "id": "ch-d-kbn-mate-m1",
+            "type": "mcq",
+            "promptUk": "Навіщо коневі W-маневр у цьому маті?",
+            "promptEn": "Why does the knight need the W-manoeuvre in this mate?",
+            "options": [
+              "щоб забирати поля того кольору, якого не тримає слон, і не дати королю втекти вздовж краю",
+              "щоб поставити другого слона",
+              "W-маневр не існує",
+              "щоб віддати коня"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Слон тримає один колір, кінь — «другий колір» рухом W.",
+            "explanationEn": "The bishop holds one colour; the knight holds the “other colour” with the W-path.",
+            "optionsEn": [
+              "to take the squares of the colour the bishop does not control, and not let the king escape along the edge",
+              "to produce a second bishop",
+              "the W-manoeuvre does not exist",
+              "to give the knight away"
+            ]
+          },
+          {
+            "id": "ch-d-kbn-mate-e",
+            "type": "explain",
+            "promptUk": "Опишіть метод мату слоном і конем і правильний кут.",
+            "promptEn": "Describe the method of bishop-and-knight mate and the right corner.",
+            "keyIdeas": [
+              {
+                "labelUk": "Метод",
+                "labelEn": "Method",
+                "anyOf": [
+                  "край",
+                  "edge",
+                  "кут кольору",
+                  "colour corner",
+                  "color",
+                  "світлопольн",
+                  "light",
+                  "a8",
+                  "h1",
+                  "h8"
+                ]
+              },
+              {
+                "labelUk": "W",
+                "labelEn": "W",
+                "anyOf": [
+                  "W-маневр",
+                  "W-manoeuv",
+                  "кінь",
+                  "knight",
+                  "поля",
+                  "squares"
+                ]
+              },
+              {
+                "labelUk": "Фінал",
+                "labelEn": "Finale",
+                "anyOf": [
+                  "Nh6",
+                  "Bd4",
+                  "мат",
+                  "mate"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Метод: відтіснити короля на край і гнати в кут кольору слона (світлий слон — a8/h1). Кінь робить W-маневр, забираючи поля іншого кольору. Фінал: Nh6+ Kh8 Bd4#. Не застрівайте в «не тому» куті й стежте за патом.",
+            "sampleAnswerEn": "The method: drive the king to the edge and into a corner of the bishop’s colour (a light-squared bishop — a8/h1). The knight makes a W-manoeuvre, taking the squares of the other colour. The finale: Nh6+ Kh8 Bd4#. Do not get stuck in the “wrong” corner, and watch for stalemate."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-bn-ending",
+        "titleUk": "Слон проти коня в закінченні",
+        "titleEn": "Bishop versus knight in the ending",
+        "baseXp": 24,
+        "difficulty": 4,
+        "exercises": [
+          {
+            "id": "ch-d-bn-ending-l",
+            "type": "chess_lesson",
+            "promptUk": "Слон проти коня в закінченні",
+            "promptEn": "Bishop versus knight in the ending",
+            "fen": "8/3k2p1/3p4/3P1n2/8/4B3/4K1P1/8 w - - 0 1",
+            "notesUk": "У закінченні слон знову любить відкриту дошку й пішаків на обох флангах: він встигає тримати одного й атакувати другого. Кінь любить замкнену структуру й форпост біля пішаків на одному фланзі; його слабкість — дальній «зайвий» пішак, до якого треба скакати. На діаграмі типова боротьба: слон e3, кінь f5, пішаки d5/d6 і g2/g7. План слона: поставити його на довгу діагональ (Bd4), тримати коня без стабільного форпосту, створити гру на двох боках (d і g). План коня: форпост, блокада пішака d5, напади на нерухомі пішаки короткою «вилкою».\n\nПрактичні орієнтири: якщо пішаки на одному фланзі — кінь часто тримає нічию; якщо на обох — слон сильніший. Не ставте пішаків на колір свого слона (поганий слон в ендшпілі — майже вічна слабкість). Розмін останніх пішаків часто веде до нічиєї (слона або коня самого по собі для мату не вистачає, окрім двох слонів чи KBN).\n\nТипові помилки: грати слоном так, ніби це мітельшпіль без урахування кольору пішаків; пустити коня на вічний форпост; віддати останнього пішака, залишившись із «голим» слоном.",
+            "notesEn": "In the ending a bishop again likes an open board and pawns on both wings: it has time to hold one and attack the other. A knight likes a locked structure and an outpost near pawns on one wing; its weakness is a distant “extra” pawn that it must hop toward. The diagram is a typical struggle: bishop on e3, knight on f5, pawns on d5/d6 and g2/g7. The bishop’s plan: put it on the long diagonal (Bd4), keep the knight without a stable outpost, create play on both sides (d and g). The knight’s plan: an outpost, a blockade of the d5-pawn, short “forks” against fixed pawns.\n\nPractical guides: if the pawns are on one wing — the knight often holds the draw; if they are on both — the bishop is stronger. Do not put pawns on the colour of your own bishop (a bad bishop in the ending is an almost permanent weakness). Trading the last pawns often leads to a draw (a bishop or a knight alone is not enough to mate, except for two bishops or KBN).\n\nTypical mistakes: playing the bishop as if this were a middlegame, without regard to the colour of the pawns; letting the knight sit on a permanent outpost; giving up the last pawn and being left with a “bare” bishop.",
+            "quiz": {
+              "q": "У яких пішакових структурах слон у закінченні сильніший за коня?",
+              "qEn": "In which pawn structures is a bishop stronger than a knight in the ending?",
+              "options": [
+                "коли пішаки на обох флангах і дошка відкрита",
+                "коли всі пішаки замкнені на одному фланзі",
+                "слон завжди слабший",
+                "лише якщо немає пішаків"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "when the pawns are on both wings and the board is open",
+                "when every pawn is locked on one wing",
+                "a bishop is always weaker",
+                "only if there are no pawns"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-bn-ending-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Слон проти коня: поставте слона на довгу центральну діагональ.",
+            "promptEn": "Bishop versus knight: put the bishop on the long central diagonal.",
+            "fen": "8/3k2p1/3p4/3P1n2/8/4B3/4K1P1/8 w - - 0 1",
+            "solutionSans": [
+              "Bd4"
+            ],
+            "difficulty": 3
+          },
+          {
+            "id": "ch-d-bn-ending-m1",
+            "type": "mcq",
+            "promptUk": "Чому в такому закінченні небезпечно ставити пішаків на колір свого слона?",
+            "promptEn": "Why is it dangerous in such an ending to put pawns on the colour of your own bishop?",
+            "options": [
+              "слон стає поганим: він впирається у власних пішаків і не атакує слабкості",
+              "пішаки тоді не мають права ходити",
+              "це завжди мат собі",
+              "коню заборонено бити такі пішаки"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Поганий слон в ендшпілі — довга слабкість, часто вже на все життя позиції.",
+            "explanationEn": "A bad bishop in the ending is a long weakness, often for the rest of the position’s life.",
+            "optionsEn": [
+              "the bishop becomes bad: it bumps into its own pawns and does not attack weaknesses",
+              "the pawns are then not allowed to move",
+              "it is always self-mate",
+              "the knight is forbidden to capture such pawns"
+            ]
+          },
+          {
+            "id": "ch-d-bn-ending-e",
+            "type": "explain",
+            "promptUk": "Коли слон сильніший за коня в закінченні і який план слона?",
+            "promptEn": "When is a bishop stronger than a knight in the ending, and what is the bishop’s plan?",
+            "keyIdeas": [
+              {
+                "labelUk": "Коли",
+                "labelEn": "When",
+                "anyOf": [
+                  "два фланг",
+                  "both wing",
+                  "відкрит",
+                  "open",
+                  "слон",
+                  "bishop"
+                ]
+              },
+              {
+                "labelUk": "Кінь",
+                "labelEn": "Knight",
+                "anyOf": [
+                  "один фланг",
+                  "one wing",
+                  "форпост",
+                  "outpost",
+                  "замкнен",
+                  "locked"
+                ]
+              },
+              {
+                "labelUk": "План",
+                "labelEn": "Plan",
+                "anyOf": [
+                  "Bd4",
+                  "діагонал",
+                  "diagonal",
+                  "не на свій колір",
+                  "not on its colour"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Слон сильніший, коли пішаки на обох флангах і дошка відкрита; кінь — коли все замкнено на одному фланзі. План слона: довга діагональ (Bd4), не дати форпосту, не ставити пішаків на свій колір. Голий слон мату не ставить.",
+            "sampleAnswerEn": "A bishop is stronger when the pawns are on both wings and the board is open; a knight, when everything is locked on one wing. The bishop’s plan: the long diagonal (Bd4), no outpost for the knight, no pawns on its own colour. A bare bishop does not mate."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-same-opp-b",
+        "titleUk": "Одноколірні й різноколірні слони в закінченні",
+        "titleEn": "Same-coloured and opposite-coloured bishops in the ending",
+        "baseXp": 24,
+        "difficulty": 4,
+        "exercises": [
+          {
+            "id": "ch-d-same-opp-b-l",
+            "type": "chess_lesson",
+            "promptUk": "Одноколірні й різноколірні слони в закінченні",
+            "promptEn": "Same-coloured and opposite-coloured bishops in the ending",
+            "fen": "8/8/3k4/5p2/5P2/3BK3/8/4b3 w - - 0 1",
+            "notesUk": "Тут логіка протилежна мітельшпілю. Одноколірні слони: можна атакувати ті самі слабкості, зганяти короля з полів, проводити пішака. Виграш реальний, якщо є слабкий пішак на кольорі слонів або прохідний. На діаграмі обидва слони світлопольні (d3 і e1), пішаки f4/f5 зафіксовані на темних — світлопольний слон їх не б’є напряму, але може обійти (Bc4) і тіснити короля. Різноколірні слони в закінченні — класична нічийна тенденція: кожен тримає свої поля, прохідного часто не провести, навіть із пішаком більше. Винятки: далеко просунуті роз’єднані прохідні, або король уже в патовій / матовій сітці.\n\nПрактично: якщо ви хочете виграти, уникайте розміну в різноколірні, коли у вас лише невелика перевага; якщо хочете нічию — навпаки, пропонуйте такий розмін. Не плутайте з уроком про різноколірних у мітельшпілі: там ферзі роблять їх зброєю атаки, тут без ферзів вони «гасять» гру.\n\nТипові помилки: «різноколірні завжди нічия» при двох роз’єднаних прохідних; грати одноколірні так, ніби слабкості не існує; віддати останнього пішака у різноколірних, коли ще була технічна спроба.",
+            "notesEn": "Here the logic is the opposite of the middlegame. Same-coloured bishops: you can attack the same weaknesses, drive the king off squares, promote a pawn. A win is realistic if there is a weak pawn on the bishops’ colour or a passed pawn. In the diagram both bishops are light-squared (d3 and e1), the pawns on f4/f5 are fixed on dark squares — the light-squared bishop does not hit them directly, but it can go around (Bc4) and squeeze the king. Opposite-coloured bishops in the ending are a classic drawing tendency: each side holds its own squares, a passed pawn often cannot get through, even a pawn up. Exceptions: widely separated passed pawns, or a king already in a stalemate or mating net.\n\nIn practice: if you want to win, avoid a trade into opposite-coloured bishops when you have only a small advantage; if you want a draw — on the contrary, offer that trade. Do not confuse this with the lesson on opposite-coloured bishops in the middlegame: there the queens make them an attacking weapon, here without queens they “dampen” the play.\n\nTypical mistakes: “opposite-coloured is always a draw” with two widely separated passed pawns; playing same-coloured bishops as if the weakness did not exist; giving up the last pawn in an opposite-coloured ending when a technical try was still available.",
+            "quiz": {
+              "q": "Чим різноколірні слони в закінченні відрізняються від мітельшпілю?",
+              "qEn": "How do opposite-coloured bishops in the ending differ from the middlegame?",
+              "options": [
+                "у закінченні вони тягнуть до нічиєї; у мітельшпілі з ферзями — це зброя атаки",
+                "різниці немає",
+                "у закінченні вони завжди ставлять мат",
+                "у мітельшпілі вони завжди дають пат"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "in the ending they tend toward a draw; in the middlegame with queens they are an attacking weapon",
+                "there is no difference",
+                "in the ending they always mate",
+                "in the middlegame they always give stalemate"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-same-opp-b-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Одноколірні слони: зайдіть слоном на активну діагональ (Bc4).",
+            "promptEn": "Same-coloured bishops: bring the bishop to the active diagonal (Bc4).",
+            "fen": "8/8/3k4/5p2/5P2/3BK3/8/4b3 w - - 0 1",
+            "solutionSans": [
+              "Bc4"
+            ],
+            "difficulty": 3
+          },
+          {
+            "id": "ch-d-same-opp-b-m1",
+            "type": "mcq",
+            "promptUk": "Коли різноколірні слони в закінченні все ж можуть виграти?",
+            "promptEn": "When can opposite-coloured bishops in the ending still win?",
+            "options": [
+              "коли є далеко роз’єднані прохідні або король суперника вже в сітці",
+              "ніколи, це абсолютна нічия",
+              "завжди, з будь-яким пішаком",
+              "лише якщо немає пішаків"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Один прохідний часто тримається; два далекі змушують слона бути в двох місцях.",
+            "explanationEn": "A single passed pawn is often held; two distant ones force the bishop to be in two places.",
+            "optionsEn": [
+              "when there are widely separated passed pawns, or the opponent’s king is already in a net",
+              "never, it is an absolute draw",
+              "always, with any pawn",
+              "only if there are no pawns"
+            ]
+          },
+          {
+            "id": "ch-d-same-opp-b-e",
+            "type": "explain",
+            "promptUk": "Порівняйте одноколірні й різноколірні слони в закінченні з мітельшпілем.",
+            "promptEn": "Compare same-coloured and opposite-coloured bishops in the ending with the middlegame.",
+            "keyIdeas": [
+              {
+                "labelUk": "Одноколірні",
+                "labelEn": "Same-coloured",
+                "anyOf": [
+                  "одноколірн",
+                  "same-col",
+                  "слабк",
+                  "weak",
+                  "виграш",
+                  "win",
+                  "Bc4"
+                ]
+              },
+              {
+                "labelUk": "Різноколірні",
+                "labelEn": "Opposite",
+                "anyOf": [
+                  "різноколірн",
+                  "opposite",
+                  "нічи",
+                  "draw",
+                  "свої поля",
+                  "own squares"
+                ]
+              },
+              {
+                "labelUk": "Виняток",
+                "labelEn": "Exception",
+                "anyOf": [
+                  "роз.єднані",
+                  "separated",
+                  "прохідн",
+                  "passed",
+                  "сітк",
+                  "net"
+                ]
+              },
+              {
+                "labelUk": "Мітельшпіль",
+                "labelEn": "Middlegame",
+                "anyOf": [
+                  "мітельшпіл",
+                  "middlegame",
+                  "ферз",
+                  "queen",
+                  "атака",
+                  "attack"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Одноколірні слони в ендшпілі дають реальний виграш (атака тих самих слабкостей, Bc4). Різноколірні тягнуть до нічиєї — на відміну від мітельшпілю з ферзями, де вони зброя атаки. Виняток: два далекі прохідні.",
+            "sampleAnswerEn": "Same-coloured bishops in the ending give a realistic win (attacking the same weaknesses, Bc4). Opposite-coloured ones tend toward a draw — unlike the middlegame with queens, where they are an attacking weapon. The exception: two distant passed pawns."
+          }
+        ]
+      },
+      {
+        "slug": "ch-d-queen-pawn7",
+        "titleUk": "Ферзь проти пішака на 7-й: патові трюки",
+        "titleEn": "Queen versus a pawn on the 7th: stalemate tricks",
+        "baseXp": 27,
+        "difficulty": 5,
+        "exercises": [
+          {
+            "id": "ch-d-queen-pawn7-l",
+            "type": "chess_lesson",
+            "promptUk": "Ферзь проти пішака на 7-й: патові трюки",
+            "promptEn": "Queen versus a pawn on the 7th: stalemate tricks",
+            "fen": "8/8/8/8/5Q2/8/4p3/4k2K w - - 0 1",
+            "notesUk": "Ферзь проти пішака, що вже на 7-й і якого підтримує король, — теорія, яку треба знати точно. Проти центрального (d, e) і кінського (b, g) пішака ферзь виграє: серією шахів його заганяють на поле перед пішаком (пішак не може йти, бо зв’язаний або король загороджує), і в цей темп ваш король наближається. Повторюйте, поки король не буде досить близько, щоб забрати пішака або поставити мат. На діаграмі e-пішак на e2, король e1, ферзь f4: 1.Qc1+ змушує …Kf2, далі шахи наближають ферзя.\n\nПроти крайнього (a, h) і слонового (c, f) пішака часто нічия, якщо ваш король далеко: виникають патові трюки. Типова картина слонового пішака: король на c1, пішак на c2, після неточного Qxc2 — пат. Крайній: король a1, пішак a2, Qxa2 — знову пат, або після перетворення на ферзя вічний шах / пат. Метод захисту — загрожувати перетворенням і ховатись у куті. Метод атаки, коли король уже близько: не брати пішака в пат, а ставити мат (Qh1# або Qf1# при королі на c3).\n\nТипові помилки: брати пішака «безкоштовно» й отримувати пат; проти центрального пішака не наближати короля, лише шахувати на місці; забути, що кінський пішак виграється, а слоновий — часто ні.",
+            "notesEn": "Queen versus a pawn already on the 7th and supported by its king is theory you must know exactly. Against a centre (d, e) or knight (b, g) pawn the queen wins: a series of checks drives the king in front of the pawn (the pawn cannot move, because it is pinned or the king is in the way), and in that tempo your king approaches. Repeat until the king is close enough to take the pawn or give mate. In the diagram an e-pawn is on e2, the king on e1, the queen on f4: 1.Qc1+ forces …Kf2, then further checks bring the queen closer.\n\nAgainst a rook (a, h) or bishop (c, f) pawn it is often a draw if your king is far away: stalemate tricks appear. The typical bishop-pawn picture: king on c1, pawn on c2, after a careless Qxc2 — stalemate. Rook pawn: king on a1, pawn on a2, Qxa2 — stalemate again, or after promotion a perpetual / stalemate. The defensive method is to threaten promotion and hide in the corner. The attacking method, when the king is already close: do not take the pawn into stalemate, but give mate (Qh1# or Qf1# with the king on c3).\n\nTypical mistakes: taking the pawn “for free” and getting stalemate; against a centre pawn, not bringing the king closer and only checking on the spot; forgetting that a knight pawn is a win and a bishop pawn is often a draw.",
+            "quiz": {
+              "q": "Проти яких пішаків на 7-й ферзь виграє, якщо король захисника їх підтримує, а ваш ще далеко?",
+              "qEn": "Against which pawns on the 7th does the queen win, if the defending king supports them and yours is still far?",
+              "options": [
+                "проти центральних (d, e) і кінських (b, g); проти крайніх і слонових часто нічия через пат",
+                "проти всіх пішаків завжди",
+                "проти жодного",
+                "тільки проти крайнього"
+              ],
+              "correctIndex": 0,
+              "optionsEn": [
+                "against centre (d, e) and knight (b, g) pawns; against rook and bishop pawns often a draw by stalemate",
+                "against every pawn, always",
+                "against none of them",
+                "only against a rook pawn"
+              ]
+            }
+          },
+          {
+            "id": "ch-d-queen-pawn7-p1",
+            "type": "chess_puzzle",
+            "promptUk": "Центральний пішак на 7-й: шах, що змушує короля стати перед пішаком (…Kf2).",
+            "promptEn": "A centre pawn on the 7th: a check that forces the king in front of the pawn (…Kf2).",
+            "fen": "8/8/8/8/5Q2/8/4p3/4k2K w - - 0 1",
+            "solutionSans": [
+              "Qc1+"
+            ],
+            "difficulty": 3
+          },
+          {
+            "id": "ch-d-queen-pawn7-p2",
+            "type": "chess_puzzle",
+            "promptUk": "Крайній пішак, ваш король уже близько: не беріть пішака в пат, поставте мат.",
+            "promptEn": "A rook pawn, your king already close: do not take the pawn into stalemate — give mate.",
+            "fen": "8/8/8/8/8/2K4Q/p7/k7 w - - 0 1",
+            "solutionSans": [
+              "Qh1#"
+            ],
+            "difficulty": 2
+          },
+          {
+            "id": "ch-d-queen-pawn7-m1",
+            "type": "mcq",
+            "promptUk": "Чому Qxc2 проти короля на c1 і пішака на c2 часто пат?",
+            "promptEn": "Why is Qxc2 against a king on c1 and a pawn on c2 often stalemate?",
+            "options": [
+              "після взяття король не під шахом і не має ходів — типовий трюк слонового пішака",
+              "ферзь не має права брати на c2",
+              "це завжди мат",
+              "пішак перетворюється раніше"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Не беріть такий пішак автоматично. Якщо король уже близько — шукайте мат.",
+            "explanationEn": "Do not take such a pawn automatically. If the king is already close, look for mate.",
+            "optionsEn": [
+              "after the capture the king is not in check and has no moves — the typical bishop-pawn trick",
+              "the queen is not allowed to take on c2",
+              "it is always mate",
+              "the pawn promotes first"
+            ]
+          },
+          {
+            "id": "ch-d-queen-pawn7-e",
+            "type": "explain",
+            "promptUk": "Проти яких пішаків на 7-й ферзь виграє, і де ховається пат?",
+            "promptEn": "Against which pawns on the 7th does the queen win, and where does the stalemate hide?",
+            "keyIdeas": [
+              {
+                "labelUk": "Виграш",
+                "labelEn": "Win",
+                "anyOf": [
+                  "центральн",
+                  "centre",
+                  "center",
+                  "кінськ",
+                  "knight",
+                  "d",
+                  "e",
+                  "b",
+                  "g",
+                  "Qc1"
+                ]
+              },
+              {
+                "labelUk": "Нічия",
+                "labelEn": "Draw",
+                "anyOf": [
+                  "крайн",
+                  "rook pawn",
+                  "слонов",
+                  "bishop pawn",
+                  "пат",
+                  "stalemate",
+                  "c2",
+                  "a2"
+                ]
+              },
+              {
+                "labelUk": "Близько",
+                "labelEn": "Close",
+                "anyOf": [
+                  "не брати",
+                  "do not take",
+                  "мат",
+                  "mate",
+                  "Qh1"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Проти центрального й кінського пішака на 7-й ферзь виграє: шахи заганяють короля перед пішаком (Qc1+), і ваш король встигає. Проти крайнього й слонового часто пат (Qxc2, Qxa2). Якщо король уже близько — ставте мат (Qh1#), не беріть у пат.",
+            "sampleAnswerEn": "Against a centre or knight pawn on the 7th the queen wins: checks drive the king in front of the pawn (Qc1+), and your king arrives in time. Against a rook or bishop pawn stalemate is common (Qxc2, Qxa2). If the king is already close, give mate (Qh1#); do not take into stalemate."
+          }
+        ]
+      },
+      {
+        "slug": "ch-deep-minor-end-exam",
+        "titleUk": "Іспит: легкофігурні та ферзеві закінчення",
+        "titleEn": "Exam: minor-piece and queen endings",
+        "baseXp": 30,
+        "difficulty": 5,
+        "isExam": true,
+        "passThreshold": 0.7,
+        "exercises": [
+          {
+            "id": "ch-deep-minor-end-exam-q1",
+            "type": "mcq",
+            "promptUk": "Два слони відрізають короля, стоячи:",
+            "promptEn": "Two bishops cut the king off by standing:",
+            "options": [
+              "на сусідніх діагоналях, звужуючи коридор до краю",
+              "завжди на одній діагоналі",
+              "на одній вертикалі, як тури",
+              "за своїм королем без діагоналей"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Сусідні діагоналі — стіни. Одна діагональ — дублювання.",
+            "explanationEn": "Adjacent diagonals are walls. One diagonal is duplication.",
+            "optionsEn": [
+              "on adjacent diagonals, narrowing the corridor to the edge",
+              "always on one diagonal",
+              "on one file, like rooks",
+              "behind their king with no diagonals"
+            ]
+          },
+          {
+            "id": "ch-deep-minor-end-exam-q2",
+            "type": "mcq",
+            "promptUk": "Мат слоном і конем ставлять у куті:",
+            "promptEn": "Bishop-and-knight mate is given in a corner:",
+            "options": [
+              "кольору слона (світлий слон — a8 або h1)",
+              "будь-якому, різниці немає",
+              "тільки в центрі",
+              "тільки на e4"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "У «не тому» куті слон не б'є поле кута.",
+            "explanationEn": "In the “wrong” corner the bishop does not attack the corner square.",
+            "optionsEn": [
+              "of the bishop’s colour (a light-squared bishop — a8 or h1)",
+              "any corner, it makes no difference",
+              "only in the centre",
+              "only on e4"
+            ]
+          },
+          {
+            "id": "ch-deep-minor-end-exam-q3",
+            "type": "mcq",
+            "promptUk": "Різноколірні слони в закінченні (без ферзів) зазвичай:",
+            "promptEn": "Opposite-coloured bishops in the ending (without queens) usually:",
+            "options": [
+              "тягнуть до нічиєї, на відміну від мітельшпілю з ферзями",
+              "завжди виграють",
+              "ставлять мат у 2 ходи",
+              "заборонені"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Виняток — далеко роз’єднані прохідні.",
+            "explanationEn": "The exception is widely separated passed pawns.",
+            "optionsEn": [
+              "tend toward a draw, unlike the middlegame with queens",
+              "always win",
+              "mate in two",
+              "are forbidden"
+            ]
+          },
+          {
+            "id": "ch-deep-minor-end-exam-q4",
+            "type": "mcq",
+            "promptUk": "Ферзь проти пішака на 7-й виграє, якщо пішак:",
+            "promptEn": "A queen versus a pawn on the 7th wins if the pawn is:",
+            "options": [
+              "центральний або кінський; проти крайнього й слонового часто пат",
+              "будь-який завжди",
+              "тільки крайній",
+              "тільки слоновий"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Qxc2 і Qxa2 — типові патові трюки. Центральний пішак дає поле втечі.",
+            "explanationEn": "Qxc2 and Qxa2 are typical stalemate tricks. A centre pawn gives a flight square.",
+            "optionsEn": [
+              "a centre or knight pawn; against a rook or bishop pawn, stalemate is common",
+              "any pawn, always",
+              "only a rook pawn",
+              "only a bishop pawn"
+            ]
+          },
+          {
+            "id": "ch-deep-minor-end-exam-p5",
+            "type": "chess_puzzle",
+            "promptUk": "Два слони: мат у правильному куті.",
+            "promptEn": "Two bishops: mate in the right corner.",
+            "fen": "7k/5B2/6K1/8/8/8/8/4B3 w - - 0 1",
+            "solutionSans": [
+              "Bc3#"
+            ],
+            "difficulty": 2
+          },
+          {
+            "id": "ch-deep-minor-end-exam-p6",
+            "type": "chess_puzzle",
+            "promptUk": "KBN: шах конем і мат слоном (король іде на h8).",
+            "promptEn": "KBN: a knight check and mate with the bishop (the king goes to h8).",
+            "fen": "6k1/5N2/6K1/8/8/8/8/6B1 w - - 0 1",
+            "solutionSans": [
+              "Nh6+",
+              "Kh8",
+              "Bd4#"
+            ],
+            "difficulty": 3
+          }
+        ]
+      }
+    ]
   }
 ];
 
