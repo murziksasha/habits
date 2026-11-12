@@ -11265,6 +11265,4511 @@ const newUnits: UnitContent[] = [
         ]
       }
     ]
+  },
+  {
+    "slug": "en-deep-collocations",
+    "titleUk": "Колокації та «фальшиві друзі»",
+    "titleEn": "Collocations and false friends",
+    "lessons": [
+      {
+        "slug": "en-d-make-do",
+        "titleUk": "make і do: колокації",
+        "titleEn": "make and do: collocations",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-make-do-c",
+            "type": "concept",
+            "promptUk": "make a decision, do homework — не навпаки",
+            "promptEn": "make a decision, do homework — not the other way around",
+            "bodyUk": "make і do українською часто обидва «робити», але колокації фіксовані. do — робота, обов'язки, діяльність загалом: do homework, do the dishes, do a job, do business, do research, do someone a favour, do your best, do harm. make — створення, результат, щось нове: make a decision, make a mistake, make a plan, make an appointment, make money, make progress, make a phone call, make an effort, make sense, make a difference.\n\nТипові помилки: *do a decision, *do a mistake, *make homework, *make research. Запам'ятовуйте цілі фрази, не окремі дієслова. make the bed (застелити) — виняток із «створення», просто колокація. do sport у брит. англійській поруч із play football (конкретний вид) і go swimming (go + -ing).\n\nКороткий тест: якщо є «виріб / результат / рішення» — швидше make; якщо «виконати роботу / зайнятися діяльністю» — швидше do. Але винятки треба вчити списком.",
+            "bodyEn": "make and do are both often “robyty” in Ukrainian, but the collocations are fixed. do is work, duties, activity in general: do homework, do the dishes, do a job, do business, do research, do someone a favour, do your best, do harm. make is creating, a result, something new: make a decision, make a mistake, make a plan, make an appointment, make money, make progress, make a phone call, make an effort, make sense, make a difference.\n\nTypical mistakes: *do a decision, *do a mistake, *make homework, *make research. Memorise whole phrases, not isolated verbs. make the bed is an exception to “creation” — it is simply a collocation. do sport in British English sits next to play football (a specific game) and go swimming (go + -ing).\n\nA short test: if there is a “product / result / decision”, make is more likely; if there is “carry out work / be busy with an activity”, do is more likely. But the exceptions have to be learned as a list.",
+            "keyPointsUk": [
+              "do homework / research / business / your best",
+              "make a decision / mistake / plan / appointment / progress",
+              "Не *do a mistake і не *make homework",
+              "Вчіть фразу цілком"
+            ],
+            "keyPointsEn": [
+              "do homework / research / business / your best",
+              "make a decision / mistake / plan / appointment / progress",
+              "Not *do a mistake and not *make homework",
+              "Learn the whole phrase"
+            ]
+          },
+          {
+            "id": "en-d-make-do-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "We need to make a decision.",
+              "We need to do a decision.",
+              "We need to make homework first, as a collocation.",
+              "We need to do a mistake."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "make a decision — фіксована колокація.",
+            "explanationEn": "make a decision is a fixed collocation."
+          },
+          {
+            "id": "en-d-make-do-r2",
+            "type": "fill_blank",
+            "promptUk": "Вставте make або do (домашнє завдання).",
+            "promptEn": "Insert make or do (school work at home).",
+            "sentence": "I have to ___ my homework.",
+            "accepted": [
+              "do",
+              "Do"
+            ]
+          },
+          {
+            "id": "en-d-make-do-r3",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "She made a mistake in the query.",
+              "She did a mistake in the query.",
+              "She made research last year as the usual collocation.",
+              "She did an appointment."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "make a mistake; do research — різні дієслова.",
+            "explanationEn": "make a mistake; do research — different verbs."
+          },
+          {
+            "id": "en-d-make-do-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть колокацією make.",
+            "promptEn": "Translate with a make collocation.",
+            "source": "Нам треба записатися на зустріч.",
+            "accepted": [
+              "We need to make an appointment",
+              "We have to make an appointment",
+              "We need to make an appointment."
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-make-do-e",
+            "type": "explain",
+            "promptUk": "Коли обирають make, а коли do? Наведіть по дві колокації і типові помилки.",
+            "promptEn": "When do you choose make, and when do? Give two collocations for each and typical mistakes.",
+            "keyIdeas": [
+              {
+                "labelUk": "make",
+                "labelEn": "make",
+                "anyOf": [
+                  "make a decision",
+                  "mistake",
+                  "appointment",
+                  "progress"
+                ]
+              },
+              {
+                "labelUk": "do",
+                "labelEn": "do",
+                "anyOf": [
+                  "do homework",
+                  "research",
+                  "business",
+                  "your best"
+                ]
+              },
+              {
+                "labelUk": "помилки",
+                "labelEn": "mistakes",
+                "anyOf": [
+                  "do a decision",
+                  "make homework",
+                  "помилк"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Make беруть для результату і створення, наприклад make a decision і make a mistake. Do — для роботи і діяльності: do homework і do research. Типові помилки — do a decision і make homework; фрази треба вчити цілком.",
+            "sampleAnswerEn": "We use make for a result and for creating, for example make a decision and make a mistake. Do is for work and activity: do homework and do research. Typical mistakes are do a decision and make homework; the phrases must be learned as wholes."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-say-tell",
+        "titleUk": "say, tell, speak, talk",
+        "titleEn": "say, tell, speak, talk",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-say-tell-c",
+            "type": "concept",
+            "promptUk": "tell someone, say something",
+            "promptEn": "tell someone, say something",
+            "bodyUk": "say — вимовляти слова; після нього часто йде сама цитата або that, а слухач з to: She said hello. He said that the test had failed. He said to me that… (можна, трохи важче). Не *He said me. tell — потребує адресата без to: She told me the news. Tell a story / the truth / a lie / the time / the difference. Не *She told that… без об'єкта (окрім рідкісних формальних випадків).\n\nspeak — уміння або офіційніший акт: She speaks English. He spoke at the conference. speak to / with someone. talk — розмова, менш формальна: We talked about the bug. talk to someone. say і tell більше про зміст слів; speak і talk — про сам акт розмови або мову.\n\nТипові помилки: *tell to me; *say me; *tell that the test failed без me; *speak English language краще speak English. Please tell me (не say me) when you're ready.",
+            "bodyEn": "say is producing the words; after it you often get the wording itself or that, and the listener with to: She said hello. He said that the test had failed. He said to me that… (possible, a little heavier). Not *He said me. tell needs an addressee without to: She told me the news. Tell a story / the truth / a lie / the time / the difference. Not *She told that… without an object (except in rare formal cases).\n\nspeak is an ability or a more formal act: She speaks English. He spoke at the conference. speak to / with someone. talk is conversation, less formal: We talked about the bug. talk to someone. say and tell are more about the content of the words; speak and talk are about the act of talking or the language itself.\n\nTypical mistakes: *tell to me; *say me; *tell that the test failed with no me; *speak English language — prefer speak English. Please tell me (not say me) when you're ready.",
+            "keyPointsUk": [
+              "say something (to someone); не *say me",
+              "tell someone something: told me the news",
+              "speak English; speak at a conference",
+              "talk about / talk to — розмовніше"
+            ],
+            "keyPointsEn": [
+              "say something (to someone); not *say me",
+              "tell someone something: told me the news",
+              "speak English; speak at a conference",
+              "talk about / talk to is more conversational"
+            ]
+          },
+          {
+            "id": "en-d-say-tell-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "She told me the news.",
+              "She said me the news.",
+              "She told to me the news.",
+              "She told that the news, with no object."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "tell + адресат: told me.",
+            "explanationEn": "tell + an addressee: told me."
+          },
+          {
+            "id": "en-d-say-tell-r2",
+            "type": "fill_blank",
+            "promptUk": "Вставте said або told.",
+            "promptEn": "Insert said or told.",
+            "sentence": "He ___ that the test had failed.",
+            "accepted": [
+              "said",
+              "Said"
+            ]
+          },
+          {
+            "id": "en-d-say-tell-r3",
+            "type": "mcq",
+            "promptUk": "Оберіть природне.",
+            "promptEn": "Choose the natural option.",
+            "options": [
+              "She speaks English.",
+              "She speaks English language.",
+              "She tells English.",
+              "She says English."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "speak English — уміння мови.",
+            "explanationEn": "speak English is the language skill."
+          },
+          {
+            "id": "en-d-say-tell-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть із tell.",
+            "promptEn": "Translate with tell.",
+            "source": "Скажи мені, коли будеш готовий.",
+            "accepted": [
+              "Tell me when you're ready",
+              "Tell me when you are ready",
+              "Please tell me when you're ready",
+              "Please tell me when you are ready"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-say-tell-e",
+            "type": "explain",
+            "promptUk": "Чим tell відрізняється від say? Коли брати speak, а коли talk? Які типові помилки?",
+            "promptEn": "How is tell different from say? When do you use speak, and when talk? What are the typical mistakes?",
+            "keyIdeas": [
+              {
+                "labelUk": "tell me",
+                "labelEn": "tell me",
+                "anyOf": [
+                  "tell",
+                  "told me",
+                  "addressee",
+                  "адресат"
+                ]
+              },
+              {
+                "labelUk": "say that",
+                "labelEn": "say that",
+                "anyOf": [
+                  "said",
+                  "say",
+                  "that",
+                  "to me"
+                ]
+              },
+              {
+                "labelUk": "speak/talk",
+                "labelEn": "speak/talk",
+                "anyOf": [
+                  "speak",
+                  "talk",
+                  "english",
+                  "about"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Tell потребує адресата: she told me the news, не said me. Say часто йде з that: he said that the test had failed. Speak — уміння або більш офіційний виступ, talk — розмова. Типові помилки — say me і tell to me.",
+            "sampleAnswerEn": "Tell needs an addressee: she told me the news, not said me. Say often takes that: he said that the test had failed. Speak is an ability or a more formal talk; talk is conversation. Typical mistakes are say me and tell to me."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-borrow-lend",
+        "titleUk": "borrow, lend, raise, rise, affect, effect",
+        "titleEn": "borrow, lend, raise, rise, affect, effect",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-borrow-lend-c",
+            "type": "concept",
+            "promptUk": "Напрямок і частина мови",
+            "promptEn": "Direction and part of speech",
+            "bodyUk": "borrow — брати в борг / позичати СОБІ: Can I borrow your charger? lend — давати в борг: I'll lend you my charger. Українське «позичити» покриває обидва напрямки — звідси *Can I lend your charger? Перевірка: lend = give temporarily; borrow = take temporarily.\n\nrise (rise–rose–risen) — підніматися самому, без додатка: Prices rose. The sun rises. raise (raise–raised–raised) — піднімати щось: They raised the prices. Raise your hand. Не *prices raised без підмета-агенса в активному значенні «самі виросли» — тоді rose.\n\naffect — дієслово «впливати»: This bug affects login. effect — зазвичай іменник «наслідок»: the effect of the change. (effect як дієслово «здійснити» рідкісне: effect a change.) Інші пари: lie / lay, lose / loose, advise / advice. Вчіть їх як міні-набори, не по одному.",
+            "bodyEn": "borrow is taking temporarily for yourself: Can I borrow your charger? lend is giving temporarily: I'll lend you my charger. Ukrainian “pozychyty” covers both directions — hence *Can I lend your charger? A check: lend = give temporarily; borrow = take temporarily.\n\nrise (rise–rose–risen) is going up by itself, with no object: Prices rose. The sun rises. raise (raise–raised–raised) is lifting something: They raised the prices. Raise your hand. Not *prices raised in the active meaning “went up by themselves” — that is rose.\n\naffect is the verb “to influence”: This bug affects login. effect is usually the noun “result”: the effect of the change. (effect as a verb meaning “to bring about” is rare: effect a change.) Other pairs: lie / lay, lose / loose, advise / advice. Learn them as mini-sets, not one by one.",
+            "keyPointsUk": [
+              "borrow = брати; lend = давати (тимчасово)",
+              "rise — без додатка (prices rose); raise — з додатком",
+              "affect — дієслово; effect — здебільшого іменник",
+              "Українське «позичити» не розрізняє напрямку — будьте уважні"
+            ],
+            "keyPointsEn": [
+              "borrow is taking; lend is giving (temporarily)",
+              "rise has no object (prices rose); raise takes an object",
+              "affect is a verb; effect is usually a noun",
+              "Ukrainian “pozychyty” does not mark direction — be careful"
+            ]
+          },
+          {
+            "id": "en-d-borrow-lend-r1",
+            "type": "mcq",
+            "promptUk": "Ви хочете тимчасово взяти зарядку колеги. Що сказати?",
+            "promptEn": "You want to take a colleague's charger for a while. What do you say?",
+            "options": [
+              "Can I borrow your charger?",
+              "Can I lend your charger?",
+              "Can I borrow you my charger?",
+              "Can I raise your charger in this meaning?"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Брати собі — borrow.",
+            "explanationEn": "Taking for yourself is borrow."
+          },
+          {
+            "id": "en-d-borrow-lend-r2",
+            "type": "fill_blank",
+            "promptUk": "Вставте rose або raised (ціни виросли самі).",
+            "promptEn": "Insert rose or raised (the prices went up by themselves).",
+            "sentence": "Prices ___ last month.",
+            "accepted": [
+              "rose",
+              "Rose"
+            ]
+          },
+          {
+            "id": "en-d-borrow-lend-r3",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "This bug affects login.",
+              "This bug effects login, as the usual verb.",
+              "This bug has a strong affect on login, as the usual noun.",
+              "This bug rise login."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "affect — дієслово «впливати»; effect — іменник.",
+            "explanationEn": "affect is the verb “influence”; effect is the noun."
+          },
+          {
+            "id": "en-d-borrow-lend-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть із lend.",
+            "promptEn": "Translate with lend.",
+            "source": "Я позичу тобі зарядку.",
+            "accepted": [
+              "I'll lend you my charger",
+              "I will lend you my charger",
+              "I'll lend you the charger",
+              "I will lend you the charger",
+              "I can lend you my charger"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-borrow-lend-e",
+            "type": "explain",
+            "promptUk": "Чим borrow відрізняється від lend? Чим rise відрізняється від raise, а affect — від effect?",
+            "promptEn": "How is borrow different from lend? How is rise different from raise, and affect from effect?",
+            "keyIdeas": [
+              {
+                "labelUk": "borrow/lend",
+                "labelEn": "borrow/lend",
+                "anyOf": [
+                  "borrow",
+                  "lend",
+                  "charger",
+                  "take",
+                  "give"
+                ]
+              },
+              {
+                "labelUk": "rise/raise",
+                "labelEn": "rise/raise",
+                "anyOf": [
+                  "rose",
+                  "raise",
+                  "prices",
+                  "object",
+                  "додаток"
+                ]
+              },
+              {
+                "labelUk": "affect/effect",
+                "labelEn": "affect/effect",
+                "anyOf": [
+                  "affect",
+                  "effect",
+                  "verb",
+                  "дієслов",
+                  "noun",
+                  "іменник"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Borrow означає брати тимчасово, lend — давати, наприклад Can I borrow your charger і I'll lend you my charger. Rise — підніматися самому: prices rose; raise — піднімати щось. Affect — дієслово «впливати», effect — зазвичай іменник «наслідок».",
+            "sampleAnswerEn": "Borrow means taking temporarily, and lend means giving, for example Can I borrow your charger and I'll lend you my charger. Rise is going up by itself: prices rose; raise is lifting something. Affect is the verb “influence”, and effect is usually the noun “result”."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-get-col",
+        "titleUk": "Колокації з get",
+        "titleEn": "get collocations",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-get-col-c",
+            "type": "concept",
+            "promptUk": "get + прикметник, get + іменник, get to",
+            "promptEn": "get + adjective, get + noun, get to",
+            "bodyUk": "get надзвичайно частотне. get + прикметник = ставати: get ready, get angry, get better, get worse, get tired, get lost, get used to (вже знайоме). get + іменник: get a job, get a ticket, get a message, get permission, get the impression. get to + місце: get to work, get home (без to: get home, get there). get + V3 — пасив/каузатив, уже в уроці causative (get something done; get stolen).\n\nІнші стійкі: get on (with) — ладнати / просуватися; get over — оговтатися; get along with — ладнати; get by — справлятися; get across — донести думку. Не всі треба вчити зараз як фразові наступного блоку — тут саме колокаційний каркас.\n\nТипові помилки: *get to home; *I become ready в повсякденні (become більш формальне; get ready природніше); *get a work замість get a job / get work (незлічуване). get it — «зрозумів»: Yeah, I get it.",
+            "bodyEn": "get is extremely frequent. get + adjective means “become”: get ready, get angry, get better, get worse, get tired, get lost, get used to (already familiar). get + noun: get a job, get a ticket, get a message, get permission, get the impression. get to + a place: get to work, get home (no to: get home, get there). get + V3 is a passive/causative, already in the causative lesson (get something done; get stolen).\n\nOther fixed uses: get on (with) — have a good relationship / make progress; get over — recover; get along with — get on; get by — manage; get across — communicate an idea. You do not need to treat all of these as the next phrasal-verb block yet — here the point is the collocation frame.\n\nTypical mistakes: *get to home; *I become ready in everyday speech (become is more formal; get ready is more natural); *get a work instead of get a job / get work (uncountable). get it means “I understand”: Yeah, I get it.",
+            "keyPointsUk": [
+              "get ready / better / tired — ставати",
+              "get a job / a ticket; get to work; get home без to",
+              "get it = зрозумів",
+              "Не *get to home і не *get a work"
+            ],
+            "keyPointsEn": [
+              "get ready / better / tired means “become”",
+              "get a job / a ticket; get to work; get home with no to",
+              "get it means “I understand”",
+              "Not *get to home and not *get a work"
+            ]
+          },
+          {
+            "id": "en-d-get-col-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть природне.",
+            "promptEn": "Choose the natural option.",
+            "options": [
+              "Get ready — the meeting starts in five minutes.",
+              "Become ready, as the most everyday choice.",
+              "Get to home now.",
+              "Get a work in this office, with a."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "get ready — повсякденне «приготуйся».",
+            "explanationEn": "get ready is the everyday “prepare yourself”."
+          },
+          {
+            "id": "en-d-get-col-r2",
+            "type": "fill_blank",
+            "promptUk": "Вставте to, якщо потрібно, або home як? Напишіть home (без to).",
+            "promptEn": "Type home (no to).",
+            "sentence": "I usually get ___ at seven.",
+            "accepted": [
+              "home",
+              "Home"
+            ]
+          },
+          {
+            "id": "en-d-get-col-r3",
+            "type": "mcq",
+            "promptUk": "Yeah, I get it означає:",
+            "promptEn": "Yeah, I get it means:",
+            "options": [
+              "Я зрозумів.",
+              "Я отримав посилку.",
+              "Я стаю цим.",
+              "Я добираюсь туди."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "get it — «зрозумів».",
+            "explanationEn": "get it means “I understand”.",
+            "optionsEn": [
+              "I understand.",
+              "I received a parcel.",
+              "I am becoming this.",
+              "I am arriving there."
+            ]
+          },
+          {
+            "id": "en-d-get-col-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть із get a job.",
+            "promptEn": "Translate with get a job.",
+            "source": "Вона хоче знайти роботу в Львові.",
+            "accepted": [
+              "She wants to get a job in Lviv",
+              "She wants to get a job in Lviv.",
+              "She wants to get a job in Lviv, Ukraine"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-get-col-e",
+            "type": "explain",
+            "promptUk": "Що означає get + прикметник? Чим get home відрізняється від get to work? Що таке I get it?",
+            "promptEn": "What does get + an adjective mean? How is get home different from get to work? What is I get it?",
+            "keyIdeas": [
+              {
+                "labelUk": "get ready",
+                "labelEn": "get ready",
+                "anyOf": [
+                  "get ready",
+                  "better",
+                  "tired",
+                  "become",
+                  "ставати"
+                ]
+              },
+              {
+                "labelUk": "get home",
+                "labelEn": "get home",
+                "anyOf": [
+                  "get home",
+                  "get to",
+                  "work",
+                  "to"
+                ]
+              },
+              {
+                "labelUk": "get it",
+                "labelEn": "get it",
+                "anyOf": [
+                  "get it",
+                  "understand",
+                  "зрозумів"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Get з прикметником означає «ставати», наприклад get ready і get better. Кажемо get home без to, але get to work з to. I get it означає «я зрозумів».",
+            "sampleAnswerEn": "Get plus an adjective means “become”, for example get ready and get better. We say get home without to, but get to work with to. I get it means “I understand”."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-false-friends",
+        "titleUk": "Фальшиві друзі українською та англійською",
+        "titleEn": "False friends in Ukrainian and English",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-false-friends-c",
+            "type": "concept",
+            "promptUk": "magazine — не магазин, actual — не актуальний",
+            "promptEn": "magazine is not a shop, actual is not “current”",
+            "bodyUk": "Фальшиві друзі — слова, що виглядають знайомо, а значать інше. magazine — журнал, не магазин (shop, store). actual / actually — справжній / насправді, не «актуальний» (current, topical, relevant). accurate — точний, не «акуратний» (neat, tidy, careful). prospect — перспектива / потенційний клієнт, не проспект (avenue). list — список, не лист (letter). fabric — тканина, не фабрика (factory).\n\nintelligent — розумний, не обов'язково «інтелігентний» (cultured, well-educated у соціальному сенсі). sympathetic — співчутливий, не «симпатичний» (nice, likeable, attractive). eventually — зрештою, не «евентуально / можливо» (possibly). artist — художник / артист у ширшому сенсі, українське «артист» частіше performer. cabinet — шафа / уряд, не кабінет (office). receipt — чек, не рецепт (recipe, або prescription для ліків).\n\nСтратегія: не довіряйте схожості кореня. Перевіряйте приклад у словнику. Ці пари варто тримати як флешкарти.",
+            "bodyEn": "False friends look familiar but mean something else. magazine is a periodical, not a shop (shop, store). actual / actually means real / in fact, not “current” (current, topical, relevant). accurate means exact, not “neat” (neat, tidy, careful). prospect is a possibility or a potential client, not an avenue (avenue). list is a series of items, not a letter (letter). fabric is cloth, not a factory (factory).\n\nintelligent means clever, not necessarily “intelligentsia-cultured” (cultured, well-educated in a social sense). sympathetic means compassionate, not “nice-looking” (nice, likeable, attractive). eventually means in the end, not “possibly” (possibly). artist is a painter or artist in a wide sense; Ukrainian “artyst” is often a performer. cabinet is a cupboard or a government, not an office (office). receipt is a till slip, not a recipe (recipe, or a prescription for medicine).\n\nA strategy: do not trust a similar root. Check an example in a dictionary. These pairs are worth keeping as flashcards.",
+            "keyPointsUk": [
+              "magazine = журнал; shop = магазин",
+              "actual = справжній; current / relevant = актуальний",
+              "accurate = точний; eventually = зрештою, не «можливо»",
+              "receipt = чек; recipe = рецепт страви"
+            ],
+            "keyPointsEn": [
+              "magazine is a periodical; shop is a store",
+              "actual is real; current / relevant is “topical”",
+              "accurate is exact; eventually is in the end, not “possibly”",
+              "receipt is a till slip; recipe is cooking instructions"
+            ]
+          },
+          {
+            "id": "en-d-false-friends-r1",
+            "type": "mcq",
+            "promptUk": "Я хочу купити хліб. Куди йду?",
+            "promptEn": "I want to buy bread. Where do I go?",
+            "options": [
+              "to the shop / store",
+              "to the magazine",
+              "to the fabric",
+              "to the receipt"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "магазин — shop/store; magazine — журнал.",
+            "explanationEn": "A shop is shop/store; a magazine is a periodical."
+          },
+          {
+            "id": "en-d-false-friends-r2",
+            "type": "fill_blank",
+            "promptUk": "Вставте current або actual («актуальна тема»).",
+            "promptEn": "Insert current or actual (“a topical subject”).",
+            "sentence": "This is a ___ topic in our team.",
+            "accepted": [
+              "current",
+              "Current",
+              "relevant",
+              "Relevant",
+              "topical",
+              "Topical"
+            ]
+          },
+          {
+            "id": "en-d-false-friends-r3",
+            "type": "mcq",
+            "promptUk": "eventually означає:",
+            "promptEn": "eventually means:",
+            "options": [
+              "зрештою / in the end",
+              "можливо / possibly, as the first meaning",
+              "охайно / neatly",
+              "точно / accurately"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "eventually — «зрештою», не «можливо».",
+            "explanationEn": "eventually is “in the end”, not “possibly”.",
+            "optionsEn": [
+              "in the end",
+              "possibly, as the first meaning",
+              "neatly",
+              "accurately"
+            ]
+          },
+          {
+            "id": "en-d-false-friends-r4",
+            "type": "match",
+            "promptUk": "Зіставте англійське слово з правильним значенням.",
+            "promptEn": "Match each English word with the right meaning.",
+            "pairs": [
+              {
+                "left": "magazine",
+                "right": "журнал / a periodical"
+              },
+              {
+                "left": "accurate",
+                "right": "точний / exact"
+              },
+              {
+                "left": "sympathetic",
+                "right": "співчутливий / compassionate"
+              },
+              {
+                "left": "receipt",
+                "right": "чек / a till slip"
+              }
+            ]
+          },
+          {
+            "id": "en-d-false-friends-e",
+            "type": "explain",
+            "promptUk": "Наведіть чотири фальшиві друзі (magazine, actual, accurate, eventually або receipt) і правильні українські відповідники «магазин», «актуальний», «акуратний».",
+            "promptEn": "Give four false friends (magazine, actual, accurate, eventually or receipt) and the right English for “mahazyn”, “aktualnyi”, “akuratnyi”.",
+            "keyIdeas": [
+              {
+                "labelUk": "magazine/shop",
+                "labelEn": "magazine/shop",
+                "anyOf": [
+                  "magazine",
+                  "shop",
+                  "store",
+                  "журнал",
+                  "магазин"
+                ]
+              },
+              {
+                "labelUk": "actual/current",
+                "labelEn": "actual/current",
+                "anyOf": [
+                  "actual",
+                  "current",
+                  "relevant",
+                  "актуальн"
+                ]
+              },
+              {
+                "labelUk": "eventually/accurate",
+                "labelEn": "eventually/accurate",
+                "anyOf": [
+                  "eventually",
+                  "accurate",
+                  "receipt",
+                  "recipe",
+                  "зрештою",
+                  "точн"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Magazine — це журнал, а магазин — shop. Actual означає справжній, а «актуальний» — current або relevant. Accurate — точний, не акуратний. Eventually — зрештою, не «можливо». Receipt — чек, а рецепт страви — recipe.",
+            "sampleAnswerEn": "A magazine is a periodical, and a shop is a shop. Actual means real, and “topical” is current or relevant. Accurate means exact, not neat. Eventually means in the end, not “possibly”. A receipt is a till slip, and a cooking recipe is a recipe."
+          }
+        ]
+      },
+      {
+        "slug": "en-deep-collocations-exam",
+        "titleUk": "Контрольна: колокації та фальшиві друзі",
+        "titleEn": "Exam: collocations and false friends",
+        "baseXp": 30,
+        "difficulty": 3,
+        "isExam": true,
+        "passThreshold": 0.7,
+        "exercises": [
+          {
+            "id": "en-deep-collocations-exam-q1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "make a decision",
+              "do a decision",
+              "make homework",
+              "do a mistake"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "make a decision.",
+            "explanationEn": "make a decision."
+          },
+          {
+            "id": "en-deep-collocations-exam-q2",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "She told me the news.",
+              "She said me the news.",
+              "She told to me the news.",
+              "She speaks English language."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "told me.",
+            "explanationEn": "told me."
+          },
+          {
+            "id": "en-deep-collocations-exam-q3",
+            "type": "mcq",
+            "promptUk": "Тимчасово взяти зарядку:",
+            "promptEn": "Take a charger for a while:",
+            "options": [
+              "Can I borrow your charger?",
+              "Can I lend your charger?",
+              "Prices raised by themselves, with raise.",
+              "This bug effects login as the usual verb."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "borrow — брати.",
+            "explanationEn": "borrow is taking."
+          },
+          {
+            "id": "en-deep-collocations-exam-q4",
+            "type": "mcq",
+            "promptUk": "магазин =",
+            "promptEn": "a shop =",
+            "options": [
+              "shop / store",
+              "magazine",
+              "fabric",
+              "receipt"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "shop/store, не magazine.",
+            "explanationEn": "shop/store, not magazine."
+          },
+          {
+            "id": "en-deep-collocations-exam-q5",
+            "type": "fill_blank",
+            "promptUk": "Вставте do або make (homework).",
+            "promptEn": "Insert do or make (homework).",
+            "sentence": "I have to ___ my homework.",
+            "accepted": [
+              "do",
+              "Do"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "en-deep-word-formation",
+    "titleUk": "Словотвір",
+    "titleEn": "Word formation",
+    "lessons": [
+      {
+        "slug": "en-d-prefixes",
+        "titleUk": "Префікси: заперечення і зміна значення",
+        "titleEn": "Prefixes: negation and meaning change",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-prefixes-c",
+            "type": "concept",
+            "promptUk": "un-, in-/im-/il-/ir-, dis-, mis-, re-, over-, under-",
+            "promptEn": "un-, in-/im-/il-/ir-, dis-, mis-, re-, over-, under-",
+            "bodyUk": "Заперечні префікси: un- (unhappy, unfair, unexpected, unlock); in- (incorrect, informal, invisible) з варіантами im- перед p, b, m (impossible, impatient), il- перед l (illegal, illogical), ir- перед r (irregular, irresponsible). dis- (disagree, disappear, dishonest). Не всі антоніми утворюються префіксом: *unpossible немає, є impossible; *insecure і unsecure — insecure правильне для «невпевнений / незахищений».\n\nІнші корисні: mis- — неправильно (misunderstand, misspell, mislead); re- — знову (rewrite, rebuild, retry); over- — надмір (overwork, overestimate, overflow); under- — недостатньо (underestimate, underpaid, understaffed); pre- / post- (preheat, preview, postgraduate); co- (co-founder, cooperate). Префікс рідко змінює наголос у цих випадках, але змінює значення різко.\n\nТипові помилки: плутати un- і in- (немає універсального правила, треба словник); *unpossible; написання cooperate / co-operate — обидва трапляються, co-founder часто з дефісом. Для іспитів корисно знати найчастотніші сім'ї.",
+            "bodyEn": "Negative prefixes: un- (unhappy, unfair, unexpected, unlock); in- (incorrect, informal, invisible) with variants im- before p, b, m (impossible, impatient), il- before l (illegal, illogical), ir- before r (irregular, irresponsible). dis- (disagree, disappear, dishonest). Not every antonym is formed with a prefix: *unpossible does not exist — it is impossible; insecure is the right form for “not confident / not protected”, not *unsecure.\n\nOther useful ones: mis- means wrongly (misunderstand, misspell, mislead); re- means again (rewrite, rebuild, retry); over- means too much (overwork, overestimate, overflow); under- means too little (underestimate, underpaid, understaffed); pre- / post- (preheat, preview, postgraduate); co- (co-founder, cooperate). A prefix rarely moves the stress in these cases, but it changes the meaning sharply.\n\nTypical mistakes: mixing up un- and in- (there is no universal rule — use a dictionary); *unpossible; spelling cooperate / co-operate — both occur, and co-founder often has a hyphen. For exams it is useful to know the most frequent families.",
+            "keyPointsUk": [
+              "un- / dis-; in- з im-/il-/ir- за наступною літерою",
+              "mis- неправильно; re- знову; over-/under- надмір / брак",
+              "Не *unpossible — impossible",
+              "Коли сумніваєтесь — перевірте словник"
+            ],
+            "keyPointsEn": [
+              "un- / dis-; in- with im-/il-/ir- according to the next letter",
+              "mis- wrongly; re- again; over-/under- too much / too little",
+              "Not *unpossible — impossible",
+              "When in doubt, check a dictionary"
+            ]
+          },
+          {
+            "id": "en-d-prefixes-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "This is impossible.",
+              "This is unpossible.",
+              "This is inpossible.",
+              "This is dispossible."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "impossible — im- перед p.",
+            "explanationEn": "impossible — im- before p."
+          },
+          {
+            "id": "en-d-prefixes-r2",
+            "type": "fill_blank",
+            "promptUk": "Додайте префікс «неправильно зрозуміти».",
+            "promptEn": "Add the prefix for “understand wrongly”.",
+            "sentence": "I think I ___understood the task.",
+            "accepted": [
+              "mis",
+              "Mis"
+            ]
+          },
+          {
+            "id": "en-d-prefixes-r3",
+            "type": "mcq",
+            "promptUk": "underpaid означає:",
+            "promptEn": "underpaid means:",
+            "options": [
+              "занадто мало платять",
+              "занадто багато платять",
+              "платять знову",
+              "взагалі не платять як єдине значення"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "under- — недостатньо.",
+            "explanationEn": "under- means too little.",
+            "optionsEn": [
+              "paid too little",
+              "paid too much",
+              "paid again",
+              "not paid at all, as the only meaning"
+            ]
+          },
+          {
+            "id": "en-d-prefixes-r4",
+            "type": "match",
+            "promptUk": "Зіставте префікс із значенням.",
+            "promptEn": "Match each prefix with its meaning.",
+            "pairs": [
+              {
+                "left": "re-",
+                "right": "знову / again"
+              },
+              {
+                "left": "mis-",
+                "right": "неправильно / wrongly"
+              },
+              {
+                "left": "over-",
+                "right": "надмір / too much"
+              },
+              {
+                "left": "pre-",
+                "right": "перед / before"
+              }
+            ]
+          },
+          {
+            "id": "en-d-prefixes-e",
+            "type": "explain",
+            "promptUk": "Назвіть заперечні префікси і правило im-/il-/ir-. Що означають mis-, re-, over- і under-? Чому немає *unpossible?",
+            "promptEn": "Name the negative prefixes and the im-/il-/ir- rule. What do mis-, re-, over- and under- mean? Why is there no *unpossible?",
+            "keyIdeas": [
+              {
+                "labelUk": "in/im/il/ir",
+                "labelEn": "in/im/il/ir",
+                "anyOf": [
+                  "impossible",
+                  "illegal",
+                  "irregular",
+                  "in-"
+                ]
+              },
+              {
+                "labelUk": "mis/re/over",
+                "labelEn": "mis/re/over",
+                "anyOf": [
+                  "mis",
+                  "re",
+                  "over",
+                  "under",
+                  "wrongly",
+                  "again"
+                ]
+              },
+              {
+                "labelUk": "unpossible",
+                "labelEn": "unpossible",
+                "anyOf": [
+                  "unpossible",
+                  "impossible",
+                  "словник",
+                  "dictionary"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Заперечні префікси — un-, in- з варіантами im-, il-, ir- за наступною літерою, і dis-. Mis- означає неправильно, re- — знову, over- — надмір, under- — брак. *Unpossible немає, правильне слово — impossible; префікс треба перевіряти в словнику.",
+            "sampleAnswerEn": "The negative prefixes are un-, in- with the variants im-, il- and ir- according to the next letter, and dis-. Mis- means wrongly, re- means again, over- means too much, and under- means too little. *Unpossible does not exist; the right word is impossible, and you should check the prefix in a dictionary."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-suffix-noun",
+        "titleUk": "Суфікси іменників",
+        "titleEn": "Noun suffixes",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-suffix-noun-c",
+            "type": "concept",
+            "promptUk": "-tion, -ment, -ness, -ity, -er/-or, -ist",
+            "promptEn": "-tion, -ment, -ness, -ity, -er/-or, -ist",
+            "bodyUk": "Часті іменникові суфікси: -tion / -sion (information, decision, discussion — часто від дієслів); -ment (development, agreement, improvement); -ness від прикметників (happiness, kindness, awareness); -ity / -ty (possibility, responsibility, safety); -ance / -ence (performance, difference, independence). Люди: -er / -or (developer, actor, visitor), -ist (scientist, specialist, journalist), -ian (musician, technician), -ee (employee, interviewee — той, на кого спрямована дія).\n\nПравопис змінюється: decide → decision (не *decidation); responsible → responsibility (з -ility); happy → happiness (y→i). Наголос часто падає на склад перед -tion / -ity: informá-tion, possi-bí-lity (тобто на наголошений склад родини).\n\nТипові помилки: *informations у значенні «відомості» (information незлічуване); *advices; плутати employee і employer; *developement (одне e: development). Для іспитів (FCE word formation) треба бачити частину мови в пропуску.",
+            "bodyEn": "Frequent noun suffixes: -tion / -sion (information, decision, discussion — often from verbs); -ment (development, agreement, improvement); -ness from adjectives (happiness, kindness, awareness); -ity / -ty (possibility, responsibility, safety); -ance / -ence (performance, difference, independence). People: -er / -or (developer, actor, visitor), -ist (scientist, specialist, journalist), -ian (musician, technician), -ee (employee, interviewee — the person who receives the action).\n\nSpelling changes: decide → decision (not *decidation); responsible → responsibility (with -ility); happy → happiness (y→i). Stress often falls on the syllable before -tion / -ity: inforMAtion, possiBIlity.\n\nTypical mistakes: *informations in the sense of “facts” (information is uncountable); *advices; mixing up employee and employer; *developement (one e: development). For exams (FCE word formation) you have to see the part of speech in the gap.",
+            "keyPointsUk": [
+              "-tion/-sion, -ment, -ness, -ity, -ance/-ence",
+              "Люди: -er/-or, -ist, -ian, -ee (employee ≠ employer)",
+              "information — незлічуване; development без зайвого e",
+              "Дивіться частину мови в пропуску"
+            ],
+            "keyPointsEn": [
+              "-tion/-sion, -ment, -ness, -ity, -ance/-ence",
+              "People: -er/-or, -ist, -ian, -ee (employee is not employer)",
+              "information is uncountable; development has no extra e",
+              "Look at the part of speech in the gap"
+            ]
+          },
+          {
+            "id": "en-d-suffix-noun-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "The team reached an agreement.",
+              "The team reached an agree.",
+              "We have many informations.",
+              "The developement took a year, with extra e."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "agreement — іменник на -ment.",
+            "explanationEn": "agreement is the -ment noun."
+          },
+          {
+            "id": "en-d-suffix-noun-r2",
+            "type": "fill_blank",
+            "promptUk": "Утворіть іменник від possible.",
+            "promptEn": "Form the noun from possible.",
+            "sentence": "Is there a ___ of a delay? (possibility)",
+            "accepted": [
+              "possibility",
+              "Possibility"
+            ]
+          },
+          {
+            "id": "en-d-suffix-noun-r3",
+            "type": "mcq",
+            "promptUk": "Той, кого найняли:",
+            "promptEn": "The person who was hired:",
+            "options": [
+              "employee",
+              "employer",
+              "employist",
+              "employment as a person"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "-ee — той, на кого спрямована дія.",
+            "explanationEn": "-ee is the person who receives the action."
+          },
+          {
+            "id": "en-d-suffix-noun-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть, утворивши іменник від decide.",
+            "promptEn": "Translate, forming the noun from decide.",
+            "source": "Ми прийняли рішення.",
+            "accepted": [
+              "We made a decision",
+              "We made a decision.",
+              "We took a decision",
+              "We have made a decision"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-suffix-noun-e",
+            "type": "explain",
+            "promptUk": "Назвіть чотири іменникові суфікси і приклад. Чим employee відрізняється від employer? Чому *informations помилка?",
+            "promptEn": "Name four noun suffixes and an example. How is employee different from employer? Why is *informations wrong?",
+            "keyIdeas": [
+              {
+                "labelUk": "tion/ment/ness",
+                "labelEn": "tion/ment/ness",
+                "anyOf": [
+                  "tion",
+                  "ment",
+                  "ness",
+                  "ity",
+                  "decision",
+                  "agreement"
+                ]
+              },
+              {
+                "labelUk": "employee",
+                "labelEn": "employee",
+                "anyOf": [
+                  "employee",
+                  "employer",
+                  "-ee"
+                ]
+              },
+              {
+                "labelUk": "information",
+                "labelEn": "information",
+                "anyOf": [
+                  "information",
+                  "informations",
+                  "uncountable",
+                  "незлічув"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Часті суфікси — -tion, -ment, -ness і -ity, наприклад decision і agreement. Employee — той, кого найняли, employer — той, хто наймає. Information незлічуване, тому *informations у значенні «відомості» — помилка.",
+            "sampleAnswerEn": "Frequent suffixes are -tion, -ment, -ness and -ity, for example decision and agreement. An employee is the person who was hired, and an employer is the one who hires. Information is uncountable, so *informations in the sense of “facts” is wrong."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-suffix-adj",
+        "titleUk": "Суфікси прикметників і прислівників",
+        "titleEn": "Adjective and adverb suffixes",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-suffix-adj-c",
+            "type": "concept",
+            "promptUk": "-ful, -less, -ous, -ive, -able, -al, -ly",
+            "promptEn": "-ful, -less, -ous, -ive, -able, -al, -ly",
+            "bodyUk": "Прикметники: -ful (корисний / повний якості: useful, careful, successful — одна l); -less (без: useless, careless, hopeless); -ous (dangerous, famous, ambitious); -ive (effective, creative, expensive); -able / -ible (reliable, flexible, responsible, possible); -al (practical, professional, personal); -ic (economic, scientific — див. наступний урок про economic / economical); -y (healthy, sunny).\n\nПрислівники часто -ly: carefully, successfully, practically. Але daily, early, friendly — можуть бути прикметниками; hardly ≠ hard (hardly — «майже не», hard — «важко / старанно»). late / lately: lately — «останнім часом». high / highly: highly — «високою мірою» (highly recommended).\n\nТипові помилки: *usefull (дві l); *beautifull; *interesting-ly від already -ing без потреби; дружній — friendly (прикметник), «по-дружньому» часто in a friendly way, бо *friendlily рідкісне. successful → successfully.",
+            "bodyEn": "Adjectives: -ful (full of a quality: useful, careful, successful — one l); -less (without: useless, careless, hopeless); -ous (dangerous, famous, ambitious); -ive (effective, creative, expensive); -able / -ible (reliable, flexible, responsible, possible); -al (practical, professional, personal); -ic (economic, scientific — see the next lesson on economic / economical); -y (healthy, sunny).\n\nAdverbs often take -ly: carefully, successfully, practically. But daily, early, friendly can be adjectives; hardly is not hard (hardly means “almost not”, hard means “with effort / difficult”). late / lately: lately means “recently”. high / highly: highly means “to a high degree” (highly recommended).\n\nTypical mistakes: *usefull (two l's); *beautifull; adding -ly when it is not needed; friendly is an adjective, and “in a friendly way” is often better than the rare *friendlily. successful → successfully.",
+            "keyPointsUk": [
+              "-ful (одна l) і -less — протилежності",
+              "-ous, -ive, -able/-ible, -al, -ic, -y",
+              "hardly ≠ hard; lately = останнім часом",
+              "Не *usefull"
+            ],
+            "keyPointsEn": [
+              "-ful (one l) and -less are opposites",
+              "-ous, -ive, -able/-ible, -al, -ic, -y",
+              "hardly is not hard; lately means recently",
+              "Not *usefull"
+            ]
+          },
+          {
+            "id": "en-d-suffix-adj-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне написання.",
+            "promptEn": "Choose the correct spelling.",
+            "options": [
+              "useful",
+              "usefull",
+              "usful",
+              "use-full"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "-ful з однією l.",
+            "explanationEn": "-ful has one l."
+          },
+          {
+            "id": "en-d-suffix-adj-r2",
+            "type": "fill_blank",
+            "promptUk": "Утворіть прислівник від careful.",
+            "promptEn": "Form the adverb from careful.",
+            "sentence": "Read the contract ___.",
+            "accepted": [
+              "carefully",
+              "Carefully"
+            ]
+          },
+          {
+            "id": "en-d-suffix-adj-r3",
+            "type": "mcq",
+            "promptUk": "I hardly slept означає:",
+            "promptEn": "I hardly slept means:",
+            "options": [
+              "Я майже не спав.",
+              "Я спав важко / старанно.",
+              "Я спав пізно.",
+              "Я спав високо."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "hardly — «майже не», не hard.",
+            "explanationEn": "hardly means “almost not”, not hard.",
+            "optionsEn": [
+              "I almost didn't sleep.",
+              "I slept with great effort.",
+              "I slept late.",
+              "I slept high."
+            ]
+          },
+          {
+            "id": "en-d-suffix-adj-r4",
+            "type": "match",
+            "promptUk": "Зіставте форму зі значенням.",
+            "promptEn": "Match each form with its meaning.",
+            "pairs": [
+              {
+                "left": "careful",
+                "right": "обережний / cautious"
+              },
+              {
+                "left": "careless",
+                "right": "необережний / not careful"
+              },
+              {
+                "left": "hardly",
+                "right": "майже не / almost not"
+              },
+              {
+                "left": "lately",
+                "right": "останнім часом / recently"
+              }
+            ]
+          },
+          {
+            "id": "en-d-suffix-adj-e",
+            "type": "explain",
+            "promptUk": "Назвіть кілька прикметникових суфіксів. Чим hardly відрізняється від hard, а lately — від late? Як пишеться useful?",
+            "promptEn": "Name several adjective suffixes. How is hardly different from hard, and lately from late? How is useful spelled?",
+            "keyIdeas": [
+              {
+                "labelUk": "-ful/-less",
+                "labelEn": "-ful/-less",
+                "anyOf": [
+                  "useful",
+                  "careful",
+                  "careless",
+                  "-ful",
+                  "-less"
+                ]
+              },
+              {
+                "labelUk": "hardly",
+                "labelEn": "hardly",
+                "anyOf": [
+                  "hardly",
+                  "hard",
+                  "майже",
+                  "almost"
+                ]
+              },
+              {
+                "labelUk": "lately",
+                "labelEn": "lately",
+                "anyOf": [
+                  "lately",
+                  "late",
+                  "recently",
+                  "останнім"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Часті суфікси — -ful, -less, -ous, -ive і -able, наприклад useful і careless. Hardly означає «майже не», а hard — «важко» або «старанно». Lately — «останнім часом». Useful пишеться з однією l.",
+            "sampleAnswerEn": "Frequent suffixes are -ful, -less, -ous, -ive and -able, for example useful and careless. Hardly means “almost not”, and hard means “with effort” or “difficult”. Lately means “recently”. Useful is spelled with one l."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-word-families",
+        "titleUk": "Словотвірні сім'ї та economic / economical",
+        "titleEn": "Word families and economic / economical",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-word-families-c",
+            "type": "concept",
+            "promptUk": "succeed — success — successful — successfully",
+            "promptEn": "succeed — success — successful — successfully",
+            "bodyUk": "Словотвірна сім'я — один корінь у різних частинах мови. succeed (дієслово) — success (іменник) — successful (прикметник) — successfully (прислівник). decide — decision — decisive. differ — difference — different — differently. employ — employer / employee — employment — unemployed. Для FCE Use of English 3 треба з одного слова утворити потрібну форму.\n\nТонкі пари: economic — пов'язаний з економікою (economic growth, economic policy); economical — ощадливий (an economical car). historic — історично важливий (a historic day); historical — історичний як галузь (historical novel). classic / classical; politic (рідко як прикм.) / political / politics. sensitive (чутливий) / sensible (розсудливий) — уже близькі до фальшивих друзів за значенням, хоч і не з українською.\n\nТипові помилки: *a very economic car замість economical; *successfull; *they success (потрібен дієслово succeed). Тренуйте повний ланцюжок, не лише іменник.",
+            "bodyEn": "A word family is one root in different parts of speech. succeed (verb) — success (noun) — successful (adjective) — successfully (adverb). decide — decision — decisive. differ — difference — different — differently. employ — employer / employee — employment — unemployed. For FCE Use of English 3 you have to form the right part of speech from one given word.\n\nSubtle pairs: economic means related to the economy (economic growth, economic policy); economical means thrifty (an economical car). historic means historically important (a historic day); historical means about history as a field (a historical novel). classic / classical; politic (rare as an adjective) / political / politics. sensitive (easily affected) / sensible (reasonable) are close to false friends in meaning, though not with Ukrainian.\n\nTypical mistakes: *a very economic car instead of economical; *successfull; *they success (you need the verb succeed). Practise the whole chain, not just the noun.",
+            "keyPointsUk": [
+              "succeed — success — successful — successfully",
+              "economic = економіки; economical = ощадливий",
+              "historic = важливий в історії; historical = про історію",
+              "sensitive ≠ sensible"
+            ],
+            "keyPointsEn": [
+              "succeed — success — successful — successfully",
+              "economic is about the economy; economical is thrifty",
+              "historic is important in history; historical is about history",
+              "sensitive is not sensible"
+            ]
+          },
+          {
+            "id": "en-d-word-families-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне про машину, що мало витрачає пальне.",
+            "promptEn": "Choose the correct option for a car that uses little fuel.",
+            "options": [
+              "an economical car",
+              "an economic car",
+              "a historic car in this meaning",
+              "a success car"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "economical — ощадливий.",
+            "explanationEn": "economical means thrifty."
+          },
+          {
+            "id": "en-d-word-families-r2",
+            "type": "fill_blank",
+            "promptUk": "Утворіть дієслово від success.",
+            "promptEn": "Form the verb from success.",
+            "sentence": "I hope we will ___.",
+            "accepted": [
+              "succeed",
+              "Succeed"
+            ]
+          },
+          {
+            "id": "en-d-word-families-r3",
+            "type": "mcq",
+            "promptUk": "sensible означає:",
+            "promptEn": "sensible means:",
+            "options": [
+              "розсудливий / reasonable",
+              "чутливий / easily affected, as the first meaning",
+              "економічний як політика",
+              "успішний"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "sensible — розсудливий; sensitive — чутливий.",
+            "explanationEn": "sensible is reasonable; sensitive is easily affected.",
+            "optionsEn": [
+              "reasonable",
+              "easily affected, as the first meaning",
+              "about economic policy",
+              "successful"
+            ]
+          },
+          {
+            "id": "en-d-word-families-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть, використавши successful.",
+            "promptEn": "Translate, using successful.",
+            "source": "Це був успішний запуск.",
+            "accepted": [
+              "It was a successful launch",
+              "It was a successful launch.",
+              "That was a successful launch",
+              "This was a successful launch"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-word-families-e",
+            "type": "explain",
+            "promptUk": "Наведіть сім'ю succeed. Чим economic відрізняється від economical, а sensitive — від sensible?",
+            "promptEn": "Give the succeed family. How is economic different from economical, and sensitive from sensible?",
+            "keyIdeas": [
+              {
+                "labelUk": "succeed family",
+                "labelEn": "succeed family",
+                "anyOf": [
+                  "succeed",
+                  "success",
+                  "successful",
+                  "successfully"
+                ]
+              },
+              {
+                "labelUk": "economic",
+                "labelEn": "economic",
+                "anyOf": [
+                  "economic",
+                  "economical",
+                  "thrifty",
+                  "ощадлив",
+                  "economy"
+                ]
+              },
+              {
+                "labelUk": "sensible",
+                "labelEn": "sensible",
+                "anyOf": [
+                  "sensible",
+                  "sensitive",
+                  "reasonable",
+                  "розсудлив"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Сім'я: succeed, success, successful і successfully. Economic стосується економіки, economical — ощадливий, наприклад an economical car. Sensible означає розсудливий, а sensitive — чутливий.",
+            "sampleAnswerEn": "The family is succeed, success, successful and successfully. Economic is about the economy, and economical means thrifty, for example an economical car. Sensible means reasonable, and sensitive means easily affected."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-compounds",
+        "titleUk": "Складні слова: іменники та прикметники",
+        "titleEn": "Compounds: nouns and adjectives",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-compounds-c",
+            "type": "concept",
+            "promptUk": "database, well-known, a ten-minute break",
+            "promptEn": "database, well-known, a ten-minute break",
+            "bodyUk": "Складні іменники можуть писатися разом (database, website, software, keyboard), через дефіс (check-in, sister-in-law) або окремо (credit card, user interface, coffee shop). Правило не завжди логічне — перевіряйте словник; тренд сучасний — частіше разом або окремо, ніж дефіс. Наголос у складному іменнику зазвичай на першому елементі: a CREdit card, a WEBsite.\n\nСкладні прикметники перед іменником часто з дефісом: a well-known library, a well-written email, a full-time job, a user-friendly API, a ten-minute break, a two-year-old project. Після дієслова дефіс інколи зникає: The library is well known. У вимірах: a ten-minute break (не *a ten minutes break; однина + дефіс).\n\nТипові помилки: *a ten minutes break; *wellknown разом як прикметник перед іменником без дефіса; плутати наголос (не credit CARD як складний іменник). У технічній англійській багато складних іменників: pull request, merge conflict, fallback, workaround.",
+            "bodyEn": "Compound nouns may be written as one word (database, website, software, keyboard), hyphenated (check-in, sister-in-law) or as two words (credit card, user interface, coffee shop). The rule is not always logical — check a dictionary; the modern trend is more often one word or two words than a hyphen. Stress in a compound noun is usually on the first element: a CREdit card, a WEBsite.\n\nCompound adjectives before a noun often take a hyphen: a well-known library, a well-written email, a full-time job, a user-friendly API, a ten-minute break, a two-year-old project. After a verb the hyphen sometimes disappears: The library is well known. With measurements: a ten-minute break (not *a ten minutes break; singular + hyphen).\n\nTypical mistakes: *a ten minutes break; *wellknown as one word when it is an adjective before a noun; putting the stress on the wrong part (not credit CARD as a compound noun). Technical English has many compound nouns: pull request, merge conflict, fallback, workaround.",
+            "keyPointsUk": [
+              "Разом, через дефіс або окремо — перевіряйте словник",
+              "Наголос складного іменника — на першому елементі",
+              "a ten-minute break, не *a ten minutes break",
+              "well-known перед іменником — з дефісом"
+            ],
+            "keyPointsEn": [
+              "One word, hyphen, or two words — check a dictionary",
+              "Stress in a compound noun falls on the first element",
+              "a ten-minute break, not *a ten minutes break",
+              "well-known before a noun takes a hyphen"
+            ]
+          },
+          {
+            "id": "en-d-compounds-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "Let's take a ten-minute break.",
+              "Let's take a ten minutes break.",
+              "Let's take a ten-minutes break.",
+              "Let's take ten-minute a break."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "вимір як прикметник: ten-minute + іменник.",
+            "explanationEn": "a measurement as an adjective: ten-minute + noun."
+          },
+          {
+            "id": "en-d-compounds-r2",
+            "type": "fill_blank",
+            "promptUk": "Вставте дефіс у звичному місці: well known перед library. Напишіть well-known.",
+            "promptEn": "Type well-known.",
+            "sentence": "This is a ___ library.",
+            "accepted": [
+              "well-known",
+              "Well-known"
+            ]
+          },
+          {
+            "id": "en-d-compounds-r3",
+            "type": "mcq",
+            "promptUk": "У складному іменнику credit card наголос зазвичай на:",
+            "promptEn": "In the compound noun credit card the stress is usually on:",
+            "options": [
+              "credit",
+              "card",
+              "однаково на обох як єдине правило",
+              "артикулі"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "На першому елементі: CREdit card.",
+            "explanationEn": "On the first element: CREdit card.",
+            "optionsEn": [
+              "credit",
+              "card",
+              "equally on both, as a strict rule",
+              "the article"
+            ]
+          },
+          {
+            "id": "en-d-compounds-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть із full-time.",
+            "promptEn": "Translate with full-time.",
+            "source": "Вона шукає роботу на повний день.",
+            "accepted": [
+              "She is looking for a full-time job",
+              "She's looking for a full-time job",
+              "She is looking for a full-time job.",
+              "She's looking for a full-time job."
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-compounds-e",
+            "type": "explain",
+            "promptUk": "Як пишуться складні іменники? Де наголос? Як правильно сказати про перерву на десять хвилин? Коли well-known має дефіс?",
+            "promptEn": "How are compound nouns written? Where is the stress? How do you say a break of ten minutes? When does well-known take a hyphen?",
+            "keyIdeas": [
+              {
+                "labelUk": "spelling",
+                "labelEn": "spelling",
+                "anyOf": [
+                  "database",
+                  "credit card",
+                  "check-in",
+                  "словник",
+                  "dictionary"
+                ]
+              },
+              {
+                "labelUk": "stress",
+                "labelEn": "stress",
+                "anyOf": [
+                  "credit",
+                  "first",
+                  "перш",
+                  "CREdit"
+                ]
+              },
+              {
+                "labelUk": "ten-minute",
+                "labelEn": "ten-minute",
+                "anyOf": [
+                  "ten-minute",
+                  "hyphen",
+                  "дефіс",
+                  "well-known"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Складні іменники пишуться разом, через дефіс або окремо, і це треба перевіряти в словнику. Наголос зазвичай на першому елементі, наприклад CREdit card. Кажемо a ten-minute break, не ten minutes break. Well-known має дефіс перед іменником.",
+            "sampleAnswerEn": "Compound nouns are written as one word, with a hyphen, or as two words, and you should check a dictionary. Stress is usually on the first element, for example CREdit card. We say a ten-minute break, not a ten minutes break. Well-known takes a hyphen before a noun."
+          }
+        ]
+      },
+      {
+        "slug": "en-deep-word-formation-exam",
+        "titleUk": "Контрольна: словотвір",
+        "titleEn": "Exam: word formation",
+        "baseXp": 30,
+        "difficulty": 3,
+        "isExam": true,
+        "passThreshold": 0.7,
+        "exercises": [
+          {
+            "id": "en-deep-word-formation-exam-q1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "This is impossible.",
+              "This is unpossible.",
+              "This is usefull.",
+              "We have many informations."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "impossible.",
+            "explanationEn": "impossible."
+          },
+          {
+            "id": "en-deep-word-formation-exam-q2",
+            "type": "mcq",
+            "promptUk": "Той, кого найняли:",
+            "promptEn": "The person who was hired:",
+            "options": [
+              "employee",
+              "employer",
+              "an economical person in this meaning only",
+              "success as a verb"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "employee.",
+            "explanationEn": "employee."
+          },
+          {
+            "id": "en-deep-word-formation-exam-q3",
+            "type": "mcq",
+            "promptUk": "Машина, що мало витрачає пальне:",
+            "promptEn": "A car that uses little fuel:",
+            "options": [
+              "an economical car",
+              "an economic car",
+              "a ten minutes break as a parallel",
+              "hardly as “with effort”"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "economical — ощадливий.",
+            "explanationEn": "economical is thrifty."
+          },
+          {
+            "id": "en-deep-word-formation-exam-q4",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "a ten-minute break",
+              "a ten minutes break",
+              "a ten-minutes break",
+              "usefull advice"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "ten-minute як прикметник.",
+            "explanationEn": "ten-minute as an adjective."
+          },
+          {
+            "id": "en-deep-word-formation-exam-q5",
+            "type": "fill_blank",
+            "promptUk": "Утворіть іменник від possible.",
+            "promptEn": "Form the noun from possible.",
+            "sentence": "Is there a ___?",
+            "accepted": [
+              "possibility",
+              "Possibility"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "en-deep-phrasals",
+    "titleUk": "Фразові дієслова: побут, робота, спілкування",
+    "titleEn": "Phrasal verbs: life, work, communication",
+    "lessons": [
+      {
+        "slug": "en-d-phrasal-form",
+        "titleUk": "Фразові дієслова: форма і відокремлюваність",
+        "titleEn": "Phrasal verbs: form and separability",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-phrasal-form-c",
+            "type": "concept",
+            "promptUk": "turn off the light / turn the light off; look after the cat",
+            "promptEn": "turn off the light / turn the light off; look after the cat",
+            "bodyUk": "Фразове дієслово — дієслово + частка (прислівник або прийменник), значення якого часто не сума частин: give up — здатися, не «дати вгору». Типи: неперехідні без додатка (the plane took off; she grew up); перехідні відокремлювані (turn off the light / turn the light off; якщо додаток — займенник, частка після нього: turn it off, не *turn off it); перехідні невідокремлювані, зазвичай з прийменником (look after the cat, не *look the cat after; look after it).\n\nТричастинні: look forward to, get on with, run out of — невідокремлювані, після to / with / of іде іменник або -ing: I look forward to meeting you (не *to meet у цій конструкції — to тут прийменник). Реєстр: у розмові фразові дуже природні; у формальному письмі інколи краще однослівний відповідник (postpone замість put off, cancel — call off, investigate — look into).\n\nТипові помилки: *turn off it; *look the children after; *look forward to meet; дослівний переклад кожної частки. Вчіть фразове з прикладом і типом (відокремлюване чи ні).",
+            "bodyEn": "A phrasal verb is a verb plus a particle (an adverb or a preposition) whose meaning is often not the sum of the parts: give up means quit, not “give upwards”. Types: intransitive, with no object (the plane took off; she grew up); transitive separable (turn off the light / turn the light off; if the object is a pronoun, the particle follows it: turn it off, not *turn off it); transitive inseparable, usually with a preposition (look after the cat, not *look the cat after; look after it).\n\nThree-part verbs: look forward to, get on with, run out of — inseparable, and after to / with / of you use a noun or -ing: I look forward to meeting you (not *to meet in this structure — to is a preposition here). Register: in speech phrasal verbs are very natural; in formal writing a one-word equivalent is sometimes better (postpone for put off, cancel for call off, investigate for look into).\n\nTypical mistakes: *turn off it; *look the children after; *look forward to meet; translating each particle literally. Learn each phrasal verb with an example and its type (separable or not).",
+            "keyPointsUk": [
+              "Значення часто не сума частин: give up",
+              "Відокремлювані: turn it off, не *turn off it",
+              "Невідокремлювані: look after the cat",
+              "look forward to + -ing (to — прийменник)"
+            ],
+            "keyPointsEn": [
+              "The meaning is often not the sum of the parts: give up",
+              "Separable: turn it off, not *turn off it",
+              "Inseparable: look after the cat",
+              "look forward to + -ing (to is a preposition)"
+            ]
+          },
+          {
+            "id": "en-d-phrasal-form-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне з займенником.",
+            "promptEn": "Choose the correct option with a pronoun.",
+            "options": [
+              "Turn it off.",
+              "Turn off it.",
+              "Look the cat after.",
+              "Look forward to meet you, with the verb meet."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "У відокремлюваних займенник стоїть перед часткою.",
+            "explanationEn": "In separable verbs the pronoun comes before the particle."
+          },
+          {
+            "id": "en-d-phrasal-form-r2",
+            "type": "fill_blank",
+            "promptUk": "Закінчіть: I look forward to ___ you (meet як -ing).",
+            "promptEn": "Finish: I look forward to ___ you (meet as -ing).",
+            "sentence": "I look forward to ___ you.",
+            "accepted": [
+              "meeting",
+              "Meeting"
+            ]
+          },
+          {
+            "id": "en-d-phrasal-form-r3",
+            "type": "mcq",
+            "promptUk": "look after the cat — можна сказати *look the cat after?",
+            "promptEn": "look after the cat — can you say *look the cat after?",
+            "options": [
+              "Ні, це невідокремлюване.",
+              "Так, завжди.",
+              "Лише з займенником у такому порядку.",
+              "Лише в формальному стилі."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "look after невідокремлюване.",
+            "explanationEn": "look after is inseparable.",
+            "optionsEn": [
+              "No, it is inseparable.",
+              "Yes, always.",
+              "Only with a pronoun in that order.",
+              "Only in formal style."
+            ]
+          },
+          {
+            "id": "en-d-phrasal-form-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть із give up.",
+            "promptEn": "Translate with give up.",
+            "source": "Не здавайся.",
+            "accepted": [
+              "Don't give up",
+              "Don't give up.",
+              "Do not give up",
+              "Do not give up."
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-phrasal-form-e",
+            "type": "explain",
+            "promptUk": "Чим відокремлюване фразове відрізняється від невідокремлюваного? Де стоїть займенник? Чому look forward to meeting, а не to meet?",
+            "promptEn": "How is a separable phrasal verb different from an inseparable one? Where does a pronoun go? Why look forward to meeting, not to meet?",
+            "keyIdeas": [
+              {
+                "labelUk": "separable",
+                "labelEn": "separable",
+                "anyOf": [
+                  "turn it off",
+                  "turn off",
+                  "pronoun",
+                  "займенник"
+                ]
+              },
+              {
+                "labelUk": "look after",
+                "labelEn": "look after",
+                "anyOf": [
+                  "look after",
+                  "inseparable",
+                  "невідокрем"
+                ]
+              },
+              {
+                "labelUk": "look forward",
+                "labelEn": "look forward",
+                "anyOf": [
+                  "look forward to",
+                  "meeting",
+                  "preposition",
+                  "прийменник"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "У відокремлюваних можна сказати turn off the light або turn the light off, а з займенником лише turn it off. Look after невідокремлюване: look after the cat. У look forward to прийменник to, тому далі -ing: look forward to meeting you.",
+            "sampleAnswerEn": "With separable verbs you can say turn off the light or turn the light off, and with a pronoun only turn it off. Look after is inseparable: look after the cat. In look forward to, to is a preposition, so you continue with -ing: look forward to meeting you."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-phrasal-life",
+        "titleUk": "Фразові дієслова повсякдення",
+        "titleEn": "Everyday phrasal verbs",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-phrasal-life-c",
+            "type": "concept",
+            "promptUk": "wake up, grow up, look after, pick up, come back",
+            "promptEn": "wake up, grow up, look after, pick up, come back",
+            "bodyUk": "Побут: wake up — прокинутися; get up — встати з ліжка (можна прокинутися і ще полежати). go out — вийти / піти розважатися; come back / get back — повернутися; come in — увійти; sit down / stand up. grow up — вирости (про людину); bring up a child — виховувати. look after / take care of — доглядати. pick up — підняти / заїхати за кимось / набрати (мову, звичку); drop off — висадити / залишити.\n\nІнші часті: find out — дізнатися; figure out / work out — зрозуміти, розв'язати; put on / take off — одягнути / зняти одяг (take off також «злетіти»); hang out — проводити час; show up — з'явитися; look for — шукати (невідокремлюване); look up — шукати в довіднику (відокремлюване: look it up).\n\nТипові помилки: *I grown up in Kyiv (потрібен Past Simple grew up); *look the word (потрібен look up the word / look the word up); плутати get up і wake up; pick up «заїхати» потребує контексту. Складіть свій день із 8–10 цих фразових.",
+            "bodyEn": "Everyday life: wake up is becoming awake; get up is leaving the bed (you can wake up and stay in bed). go out is leaving the house / going out socially; come back / get back is returning; come in is entering; sit down / stand up. grow up is becoming an adult; bring up a child is raising one. look after / take care of is caring for someone. pick up is lifting / collecting someone / acquiring (a language, a habit); drop off is letting someone out / leaving something.\n\nOther frequent ones: find out is discovering a fact; figure out / work out is solving or understanding; put on / take off is dressing / undressing (take off is also “leave the ground” for a plane); hang out is spending time; show up is appearing; look for is seeking (inseparable); look up is checking in a reference (separable: look it up).\n\nTypical mistakes: *I grown up in Kyiv (you need Past Simple grew up); *look the word (you need look up the word / look the word up); mixing up get up and wake up; pick up in the “collect someone” sense needs context. Build your own day with eight to ten of these phrasal verbs.",
+            "keyPointsUk": [
+              "wake up ≠ get up",
+              "grow up / bring up; look after; pick up / drop off",
+              "find out, look for, look it up",
+              "grew up, не *grown up як Past Simple"
+            ],
+            "keyPointsEn": [
+              "wake up is not get up",
+              "grow up / bring up; look after; pick up / drop off",
+              "find out, look for, look it up",
+              "grew up, not *grown up as Past Simple"
+            ]
+          },
+          {
+            "id": "en-d-phrasal-life-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне про дитинство.",
+            "promptEn": "Choose the correct option about childhood.",
+            "options": [
+              "I grew up in Kyiv.",
+              "I grown up in Kyiv.",
+              "I growed up in Kyiv.",
+              "I looked the word in the dictionary, with no up."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Past Simple grow — grew up.",
+            "explanationEn": "The Past Simple of grow is grew up."
+          },
+          {
+            "id": "en-d-phrasal-life-r2",
+            "type": "fill_blank",
+            "promptUk": "Вставте частку (шукати слово в словнику, займенник it).",
+            "promptEn": "Insert the particle (looking a word up, pronoun it).",
+            "sentence": "I don't know this word — I'll look it ___.",
+            "accepted": [
+              "up",
+              "Up"
+            ]
+          },
+          {
+            "id": "en-d-phrasal-life-r3",
+            "type": "mcq",
+            "promptUk": "Заїхати за дитиною зі школи — природно:",
+            "promptEn": "Collecting a child from school is naturally:",
+            "options": [
+              "pick her up",
+              "drop her up",
+              "wake her off",
+              "grow her up in this meaning"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "pick up — заїхати за кимось.",
+            "explanationEn": "pick up is collecting someone."
+          },
+          {
+            "id": "en-d-phrasal-life-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть із look after.",
+            "promptEn": "Translate with look after.",
+            "source": "Хто догляне кота?",
+            "accepted": [
+              "Who will look after the cat?",
+              "Who'll look after the cat?",
+              "Who is going to look after the cat?",
+              "Who will look after the cat"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-phrasal-life-e",
+            "type": "explain",
+            "promptUk": "Чим wake up відрізняється від get up? Що означають grow up, look after, pick up і look it up?",
+            "promptEn": "How is wake up different from get up? What do grow up, look after, pick up and look it up mean?",
+            "keyIdeas": [
+              {
+                "labelUk": "wake/get up",
+                "labelEn": "wake/get up",
+                "anyOf": [
+                  "wake up",
+                  "get up"
+                ]
+              },
+              {
+                "labelUk": "grow/look after",
+                "labelEn": "grow/look after",
+                "anyOf": [
+                  "grew up",
+                  "look after",
+                  "bring up"
+                ]
+              },
+              {
+                "labelUk": "pick up / look up",
+                "labelEn": "pick up / look up",
+                "anyOf": [
+                  "pick up",
+                  "look it up",
+                  "find out"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Wake up означає прокинутися, get up — встати з ліжка. Grow up — вирости, look after — доглядати. Pick up може означати заїхати за кимось, а look it up — пошукати в довіднику.",
+            "sampleAnswerEn": "Wake up means becoming awake, and get up means leaving the bed. Grow up means becoming an adult, and look after means caring for someone. Pick up can mean collecting someone, and look it up means checking a reference."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-phrasal-work",
+        "titleUk": "Фразові дієслова роботи",
+        "titleEn": "Work phrasal verbs",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-phrasal-work-c",
+            "type": "concept",
+            "promptUk": "put off, call off, set up, carry out, hand in",
+            "promptEn": "put off, call off, set up, carry out, hand in",
+            "bodyUk": "На роботі й у навчанні: put off — відкласти (postpone); call off — скасувати (cancel); set up — заснувати / налаштувати; carry out — виконати (дослідження, план); hand in — здати роботу; fill in / fill out (AmE) — заповнити форму; take on — взяти на себе (обов'язок) / найняти; take over — перейняти (посаду, компанію); go on / keep on — продовжувати; shut down — вимкнути / закрити; roll out — випустити (фічу).\n\nfollow up — перевірити продовження; sign off — затвердити / завершити; step down — піти з посади; lay off — скоротити штат. У формальному листі можна замінити: We postponed the meeting (замість put off); The event was cancelled (call off). У мовленні стендапу put off і call off звучать природно.\n\nТипові помилки: плутати put off і call off (відкласти ≠ скасувати); *hand in it краще hand it in; *fill the form без in/out. I'll get back to you — «я повернуся з відповіддю», це вже комунікація наступного уроку, але часто живе в роботі.",
+            "bodyEn": "At work and in study: put off is postponing; call off is cancelling; set up is founding / configuring; carry out is performing (research, a plan); hand in is submitting work; fill in / fill out (AmE) is completing a form; take on is accepting (a duty) / hiring; take over is assuming (a role, a company); go on / keep on is continuing; shut down is switching off / closing; roll out is releasing (a feature).\n\nfollow up is checking what happens next; sign off is approving / finishing; step down is leaving a post; lay off is making staff redundant. In a formal email you can replace them: We postponed the meeting (for put off); The event was cancelled (for call off). In stand-up speech put off and call off sound natural.\n\nTypical mistakes: mixing up put off and call off (postpone is not cancel); *hand in it is better as hand it in; *fill the form with no in/out. I'll get back to you means “I will reply later” — that belongs more to the next lesson, but it lives at work too.",
+            "keyPointsUk": [
+              "put off = відкласти; call off = скасувати",
+              "set up, carry out, hand it in, fill in a form",
+              "take on / take over; roll out a feature",
+              "У формальному стилі — postpone, cancel, submit"
+            ],
+            "keyPointsEn": [
+              "put off is postpone; call off is cancel",
+              "set up, carry out, hand it in, fill in a form",
+              "take on / take over; roll out a feature",
+              "In formal style use postpone, cancel, submit"
+            ]
+          },
+          {
+            "id": "en-d-phrasal-work-r1",
+            "type": "mcq",
+            "promptUk": "Зустріч перенесли на п'ятницю. Це:",
+            "promptEn": "The meeting was moved to Friday. That is:",
+            "options": [
+              "They put it off until Friday.",
+              "They called it off until Friday.",
+              "They handed it off until Friday, in this meaning.",
+              "They filled it off until Friday."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "put off — відкласти; call off — скасувати.",
+            "explanationEn": "put off is postponing; call off is cancelling."
+          },
+          {
+            "id": "en-d-phrasal-work-r2",
+            "type": "fill_blank",
+            "promptUk": "Вставте частку (здати домашнє, займенник it).",
+            "promptEn": "Insert the particle (submit homework, pronoun it).",
+            "sentence": "Please hand it ___ by Friday.",
+            "accepted": [
+              "in",
+              "In"
+            ]
+          },
+          {
+            "id": "en-d-phrasal-work-r3",
+            "type": "mcq",
+            "promptUk": "Випустити нову фічу — природно:",
+            "promptEn": "Releasing a new feature is naturally:",
+            "options": [
+              "roll out a feature",
+              "call off a feature in this meaning",
+              "put off a feature as “release”",
+              "lay off a feature"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "roll out — випустити.",
+            "explanationEn": "roll out is releasing."
+          },
+          {
+            "id": "en-d-phrasal-work-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть із call off.",
+            "promptEn": "Translate with call off.",
+            "source": "Довелося скасувати зустріч.",
+            "accepted": [
+              "We had to call off the meeting",
+              "We had to call the meeting off",
+              "We had to call off the meeting.",
+              "They had to call off the meeting"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-phrasal-work-e",
+            "type": "explain",
+            "promptUk": "Чим put off відрізняється від call off? Що означають set up, carry out, hand in і roll out? Які формальні відповідники?",
+            "promptEn": "How is put off different from call off? What do set up, carry out, hand in and roll out mean? What are the formal equivalents?",
+            "keyIdeas": [
+              {
+                "labelUk": "put/call off",
+                "labelEn": "put/call off",
+                "anyOf": [
+                  "put off",
+                  "call off",
+                  "postpone",
+                  "cancel"
+                ]
+              },
+              {
+                "labelUk": "hand in",
+                "labelEn": "hand in",
+                "anyOf": [
+                  "hand it in",
+                  "fill in",
+                  "set up",
+                  "carry out"
+                ]
+              },
+              {
+                "labelUk": "roll out",
+                "labelEn": "roll out",
+                "anyOf": [
+                  "roll out",
+                  "take over",
+                  "formal",
+                  "submit"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Put off означає відкласти, call off — скасувати. Set up — заснувати або налаштувати, carry out — виконати, hand in — здати, roll out — випустити фічу. У формальному стилі можна сказати postpone, cancel і submit.",
+            "sampleAnswerEn": "Put off means postponing, and call off means cancelling. Set up is founding or configuring, carry out is performing, hand in is submitting, and roll out is releasing a feature. In formal style you can say postpone, cancel and submit."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-phrasal-talk",
+        "titleUk": "Фразові дієслова спілкування",
+        "titleEn": "Communication phrasal verbs",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-phrasal-talk-c",
+            "type": "concept",
+            "promptUk": "point out, bring up, come up with, get back to, hang up",
+            "promptEn": "point out, bring up, come up with, get back to, hang up",
+            "bodyUk": "Спілкування: point out — вказати на факт; bring up — підняти тему (також «виховати дитину»); come up with — вигадати (ідею); get across — донести думку; talk over / talk through — обговорити; speak up — говорити гучніше / висловитися; sum up — підсумувати. По телефону: hang up — покласти трубку; call back — передзвонити; get back to someone — відповісти пізніше; fill someone in — ввести в курс; catch up — надолужити новини (Let's catch up).\n\ncome up — виникнути (A problem came up); bring it up at the meeting — підніміть це. cut off — роз'єднало (We got cut off). hold on — зачекайте на лінії.\n\nТипові помилки: *come up with it up; *point it (потрібен point it out); *I'll get back you (потрібен to); плутати bring up «тему» і bring up «дитину» — контекст рятує. У листі: Just to follow up / Just to point out, що already трохи формальніше.",
+            "bodyEn": "Communication: point out is indicating a fact; bring up is raising a topic (and also “raising a child”); come up with is inventing (an idea); get across is making a point understood; talk over / talk through is discussing; speak up is talking louder / saying your view; sum up is summarising. On the phone: hang up is ending the call; call back is returning a call; get back to someone is replying later; fill someone in is briefing them; catch up is exchanging news (Let's catch up).\n\ncome up is arising (A problem came up); bring it up at the meeting is raising it. cut off is being disconnected (We got cut off). hold on is waiting on the line.\n\nTypical mistakes: *come up with it up; *point it (you need point it out); *I'll get back you (you need to); mixing up bring up “a topic” and bring up “a child” — context helps. In email: Just to follow up / Just to point out, which is already a little more formal.",
+            "keyPointsUk": [
+              "point out, bring up a topic, come up with an idea",
+              "get back to you; fill someone in; catch up",
+              "hang up, call back, hold on, get cut off",
+              "Не *get back you — потрібен to"
+            ],
+            "keyPointsEn": [
+              "point out, bring up a topic, come up with an idea",
+              "get back to you; fill someone in; catch up",
+              "hang up, call back, hold on, get cut off",
+              "Not *get back you — you need to"
+            ]
+          },
+          {
+            "id": "en-d-phrasal-talk-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "I'll get back to you tomorrow.",
+              "I'll get back you tomorrow.",
+              "A problem came up with, with no idea object, as “invented”.",
+              "Please point it, with no particle."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "get back to someone.",
+            "explanationEn": "get back to someone."
+          },
+          {
+            "id": "en-d-phrasal-talk-r2",
+            "type": "fill_blank",
+            "promptUk": "Вставте частки come ___ ___ (вигадати ідею) — напишіть up with.",
+            "promptEn": "Type up with.",
+            "sentence": "She came ___ a better name.",
+            "accepted": [
+              "up with",
+              "Up with"
+            ]
+          },
+          {
+            "id": "en-d-phrasal-talk-r3",
+            "type": "mcq",
+            "promptUk": "Підняти тему на зустрічі:",
+            "promptEn": "Raising a topic at a meeting:",
+            "options": [
+              "bring it up",
+              "hang it up in this meaning",
+              "call it back as “raise a topic”",
+              "cut it off as “raise”"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "bring up — підняти тему.",
+            "explanationEn": "bring up is raising a topic."
+          },
+          {
+            "id": "en-d-phrasal-talk-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть із point out.",
+            "promptEn": "Translate with point out.",
+            "source": "Хочу вказати на одну помилку.",
+            "accepted": [
+              "I'd like to point out one mistake",
+              "I would like to point out one mistake",
+              "I want to point out one mistake",
+              "I'd like to point out a mistake",
+              "I want to point out a mistake"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-phrasal-talk-e",
+            "type": "explain",
+            "promptUk": "Що означають point out, bring up, come up with і get back to? Які фразові потрібні по телефону?",
+            "promptEn": "What do point out, bring up, come up with and get back to mean? Which phrasal verbs do you need on the phone?",
+            "keyIdeas": [
+              {
+                "labelUk": "point/bring",
+                "labelEn": "point/bring",
+                "anyOf": [
+                  "point out",
+                  "bring up"
+                ]
+              },
+              {
+                "labelUk": "come up with",
+                "labelEn": "come up with",
+                "anyOf": [
+                  "come up with",
+                  "get back to"
+                ]
+              },
+              {
+                "labelUk": "phone",
+                "labelEn": "phone",
+                "anyOf": [
+                  "hang up",
+                  "call back",
+                  "hold on",
+                  "cut off"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Point out означає вказати на факт, bring up — підняти тему, come up with — вигадати ідею, get back to — відповісти пізніше. По телефону кажемо hang up, call back, hold on і we got cut off.",
+            "sampleAnswerEn": "Point out means indicating a fact, bring up means raising a topic, come up with means inventing an idea, and get back to means replying later. On the phone we say hang up, call back, hold on and we got cut off."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-phrasal-problems",
+        "titleUk": "Фразові дієслова проблем і рішень",
+        "titleEn": "Phrasal verbs for problems and solutions",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-phrasal-problems-c",
+            "type": "concept",
+            "promptUk": "deal with, sort out, run out of, break down, get over",
+            "promptEn": "deal with, sort out, run out of, break down, get over",
+            "bodyUk": "Проблеми: run into — натрапити (на проблему / знайомого); run out of — вичерпати (We ran out of time); deal with — мати справу, вирішувати; sort out / work out — розібрати, знайти рішення; go through — пройти (важкий період) / переглянути документ; get over — оговтатися (після хвороби, невдачі); give up — здатися; break down — зламатися (машина, розмова) / розплакатися; fall through — зірватися (план); mess up — зіпсувати; back up — зробити резервну копію / підтримати.\n\nbreak something down — розкласти на частини (також корисне в аналітиці). look into — розслідувати. make up for — компенсувати. bounce back — відновитися.\n\nТипові помилки: *run out time без of; *deal it (потрібен deal with it); *get over with it плутають із get it over with («покінчити нарешті»). У ретроспективі: What went wrong і How can we sort this out? звучать природніше за канцелярит.",
+            "bodyEn": "Problems: run into is meeting (a problem / an acquaintance); run out of is having none left (We ran out of time); deal with is handling; sort out / work out is finding a solution; go through is living through (a hard period) / going over a document; get over is recovering (from illness, a setback); give up is quitting; break down is failing (a car, a conversation) / bursting into tears; fall through is collapsing (a plan); mess up is spoiling; back up is making a copy / supporting someone.\n\nbreak something down is splitting it into parts (also useful in analysis). look into is investigating. make up for is compensating. bounce back is recovering.\n\nTypical mistakes: *run out time with no of; *deal it (you need deal with it); *get over with it mixed up with get it over with (“finish it at last”). In a retrospective, What went wrong and How can we sort this out? sound more natural than officialese.",
+            "keyPointsUk": [
+              "run into a problem; run out of time (з of)",
+              "deal with, sort out, work out, look into",
+              "get over, give up, break down, fall through",
+              "back up — копія або підтримка"
+            ],
+            "keyPointsEn": [
+              "run into a problem; run out of time (with of)",
+              "deal with, sort out, work out, look into",
+              "get over, give up, break down, fall through",
+              "back up is a copy or support"
+            ]
+          },
+          {
+            "id": "en-d-phrasal-problems-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "We ran out of time.",
+              "We ran out time.",
+              "We dealt the bug, with no with.",
+              "The plan fell up."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "run out of + ресурс.",
+            "explanationEn": "run out of + a resource."
+          },
+          {
+            "id": "en-d-phrasal-problems-r2",
+            "type": "fill_blank",
+            "promptUk": "Вставте частку (оговтатися після невдачі).",
+            "promptEn": "Insert the particle (recover from a setback).",
+            "sentence": "It took her a month to get ___ the failure.",
+            "accepted": [
+              "over",
+              "Over"
+            ]
+          },
+          {
+            "id": "en-d-phrasal-problems-r3",
+            "type": "mcq",
+            "promptUk": "План зірвався:",
+            "promptEn": "The plan collapsed:",
+            "options": [
+              "The plan fell through.",
+              "The plan fell over, as the usual idiom here.",
+              "The plan gave up.",
+              "The plan ran into of time."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "fall through — зірватися (про план).",
+            "explanationEn": "fall through is a plan collapsing."
+          },
+          {
+            "id": "en-d-phrasal-problems-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть із deal with.",
+            "promptEn": "Translate with deal with.",
+            "source": "Нам треба вирішити цю проблему.",
+            "accepted": [
+              "We need to deal with this problem",
+              "We need to deal with this problem.",
+              "We have to deal with this problem",
+              "We have to deal with this problem."
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-phrasal-problems-e",
+            "type": "explain",
+            "promptUk": "Що означають run out of, deal with, sort out, get over і fall through? Яка типова помилка з of?",
+            "promptEn": "What do run out of, deal with, sort out, get over and fall through mean? What is the typical mistake with of?",
+            "keyIdeas": [
+              {
+                "labelUk": "run out of",
+                "labelEn": "run out of",
+                "anyOf": [
+                  "run out of",
+                  "of",
+                  "time"
+                ]
+              },
+              {
+                "labelUk": "deal/sort",
+                "labelEn": "deal/sort",
+                "anyOf": [
+                  "deal with",
+                  "sort out",
+                  "work out"
+                ]
+              },
+              {
+                "labelUk": "get over / fall",
+                "labelEn": "get over / fall",
+                "anyOf": [
+                  "get over",
+                  "fall through",
+                  "break down",
+                  "give up"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Run out of означає вичерпати, і of пропускати не можна. Deal with і sort out — вирішувати проблему. Get over — оговтатися, fall through — зірватися (про план). Типова помилка — *run out time без of.",
+            "sampleAnswerEn": "Run out of means having none left, and you cannot drop of. Deal with and sort out mean handling a problem. Get over means recovering, and fall through means a plan collapsing. A typical mistake is *run out time with no of."
+          }
+        ]
+      },
+      {
+        "slug": "en-deep-phrasals-exam",
+        "titleUk": "Контрольна: фразові дієслова",
+        "titleEn": "Exam: phrasal verbs",
+        "baseXp": 30,
+        "difficulty": 3,
+        "isExam": true,
+        "passThreshold": 0.7,
+        "exercises": [
+          {
+            "id": "en-deep-phrasals-exam-q1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "Turn it off.",
+              "Turn off it.",
+              "Look the cat after.",
+              "Look forward to meet you."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Займенник перед часткою у відокремлюваних.",
+            "explanationEn": "The pronoun comes before the particle in separable verbs."
+          },
+          {
+            "id": "en-deep-phrasals-exam-q2",
+            "type": "mcq",
+            "promptUk": "Відкласти зустріч:",
+            "promptEn": "Postpone a meeting:",
+            "options": [
+              "put it off",
+              "call it off, as “postpone”",
+              "hand it off as “postpone”",
+              "roll it off"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "put off — відкласти.",
+            "explanationEn": "put off is postponing."
+          },
+          {
+            "id": "en-deep-phrasals-exam-q3",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "I'll get back to you.",
+              "I'll get back you.",
+              "We ran out time.",
+              "We dealt the bug."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "get back to.",
+            "explanationEn": "get back to."
+          },
+          {
+            "id": "en-deep-phrasals-exam-q4",
+            "type": "mcq",
+            "promptUk": "План зірвався:",
+            "promptEn": "The plan collapsed:",
+            "options": [
+              "The plan fell through.",
+              "The plan fell over, as the usual idiom here.",
+              "I grown up in Kyiv.",
+              "Fill the form, with no particle."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "fall through.",
+            "explanationEn": "fall through."
+          },
+          {
+            "id": "en-deep-phrasals-exam-q5",
+            "type": "fill_blank",
+            "promptUk": "I look forward to ___ you.",
+            "promptEn": "I look forward to ___ you.",
+            "sentence": "I look forward to ___ you.",
+            "accepted": [
+              "meeting",
+              "Meeting"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "en-deep-idioms",
+    "titleUk": "Ідіоми: тіло, час, емоції, робота",
+    "titleEn": "Idioms: body, time, feelings, work",
+    "lessons": [
+      {
+        "slug": "en-d-idioms-body",
+        "titleUk": "Ідіоми з частинами тіла",
+        "titleEn": "Idioms with parts of the body",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-idioms-body-c",
+            "type": "concept",
+            "promptUk": "give a hand, keep an eye, cold feet, cost an arm and a leg",
+            "promptEn": "give a hand, keep an eye, cold feet, cost an arm and a leg",
+            "bodyUk": "Багато англійських ідіом будуються на тілі, і їх не можна перекладати дослівно. give someone a hand — допомогти (не «дати руку» як жест). keep an eye on — стежити. learn by heart — вивчити напам'ять (українською «назубок», не «серцем»). get cold feet — злякатися перед рішенням, «дати задню». cost an arm and a leg — коштувати дуже дорого. a pain in the neck — хтось / щось дратівливе. keep your head — зберігати спокій. lose your head — розгубитися.\n\nface the facts — визнати факти. see eye to eye — бути однієї думки. get something off your chest — виговоритися. by heart уже згадували. can't make head or tail of it — нічого не зрозуміти.\n\nТипові помилки: дослівний переклад (*give a hand як лише фізичний жест, коли йдеться про допомогу); overuse в формальному есе (в IELTS Academic ідіоми обережно, по 1–2 доречних); змішані метафори. Ідіома — це фіксована фраза: *cost a hand and a foot немає.",
+            "bodyEn": "Many English idioms are built on the body, and you cannot translate them word for word. give someone a hand is helping (not “offer a hand” as a gesture only). keep an eye on is watching. learn by heart is memorising (in Ukrainian “nazubok”, not “with the heart”). get cold feet is backing out before a decision. cost an arm and a leg is being very expensive. a pain in the neck is someone or something annoying. keep your head is staying calm. lose your head is panicking.\n\nface the facts is accepting the facts. see eye to eye is agreeing. get something off your chest is saying what has been bothering you. can't make head or tail of it is understanding nothing.\n\nTypical mistakes: a literal translation (*give a hand only as a physical gesture when the meaning is help); overuse in a formal essay (in IELTS Academic, idioms need care — one or two fitting ones); mixed metaphors. An idiom is a fixed phrase: *cost a hand and a foot does not exist.",
+            "keyPointsUk": [
+              "give a hand = допомогти; keep an eye on = стежити",
+              "learn by heart; get cold feet; cost an arm and a leg",
+              "see eye to eye; a pain in the neck",
+              "Не перекладайте дослівно і не перевантажуйте есе"
+            ],
+            "keyPointsEn": [
+              "give a hand is helping; keep an eye on is watching",
+              "learn by heart; get cold feet; cost an arm and a leg",
+              "see eye to eye; a pain in the neck",
+              "Do not translate literally, and do not overload an essay"
+            ]
+          },
+          {
+            "id": "en-d-idioms-body-r1",
+            "type": "mcq",
+            "promptUk": "Could you give me a hand? означає:",
+            "promptEn": "Could you give me a hand? means:",
+            "options": [
+              "Можеш допомогти?",
+              "Можеш подати руку для рукостискання, як єдине значення?",
+              "Можеш навчити напам'ять?",
+              "Це коштує дуже дорого?"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "give a hand — допомогти.",
+            "explanationEn": "give a hand is helping.",
+            "optionsEn": [
+              "Can you help me?",
+              "Can you offer a handshake, as the only meaning?",
+              "Can you teach it by heart?",
+              "Is it very expensive?"
+            ]
+          },
+          {
+            "id": "en-d-idioms-body-r2",
+            "type": "fill_blank",
+            "promptUk": "Вставте слово (вивчити напам'ять): learn by ___.",
+            "promptEn": "Insert the word (memorise): learn by ___.",
+            "sentence": "I learned the irregular verbs by ___.",
+            "accepted": [
+              "heart",
+              "Heart"
+            ]
+          },
+          {
+            "id": "en-d-idioms-body-r3",
+            "type": "mcq",
+            "promptUk": "The ticket cost an arm and a leg означає:",
+            "promptEn": "The ticket cost an arm and a leg means:",
+            "options": [
+              "Квиток був дуже дорогий.",
+              "Квиток був шкідливий для здоров'я.",
+              "Квиток довелося вчити напам'ять.",
+              "Ми злякалися перед поїздкою, як єдине значення."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "cost an arm and a leg — дуже дорого.",
+            "explanationEn": "cost an arm and a leg is being very expensive.",
+            "optionsEn": [
+              "The ticket was very expensive.",
+              "The ticket was bad for your health.",
+              "The ticket had to be learned by heart.",
+              "We got cold feet about the trip, as the only meaning."
+            ]
+          },
+          {
+            "id": "en-d-idioms-body-r4",
+            "type": "match",
+            "promptUk": "Зіставте ідіому зі значенням.",
+            "promptEn": "Match each idiom with its meaning.",
+            "pairs": [
+              {
+                "left": "get cold feet",
+                "right": "злякатися перед рішенням / back out"
+              },
+              {
+                "left": "keep an eye on",
+                "right": "стежити / watch"
+              },
+              {
+                "left": "see eye to eye",
+                "right": "бути однієї думки / agree"
+              },
+              {
+                "left": "a pain in the neck",
+                "right": "щось дратівливе / a nuisance"
+              }
+            ]
+          },
+          {
+            "id": "en-d-idioms-body-e",
+            "type": "explain",
+            "promptUk": "Що означають give a hand, learn by heart, get cold feet і cost an arm and a leg? Чому їх не перекладають дослівно?",
+            "promptEn": "What do give a hand, learn by heart, get cold feet and cost an arm and a leg mean? Why aren't they translated word for word?",
+            "keyIdeas": [
+              {
+                "labelUk": "give a hand",
+                "labelEn": "give a hand",
+                "anyOf": [
+                  "give a hand",
+                  "help",
+                  "допомог"
+                ]
+              },
+              {
+                "labelUk": "heart / feet",
+                "labelEn": "heart / feet",
+                "anyOf": [
+                  "by heart",
+                  "cold feet"
+                ]
+              },
+              {
+                "labelUk": "arm and a leg",
+                "labelEn": "arm and a leg",
+                "anyOf": [
+                  "arm and a leg",
+                  "expensive",
+                  "дорог"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Give a hand означає допомогти, learn by heart — вивчити напам'ять, get cold feet — злякатися перед рішенням, cost an arm and a leg — коштувати дуже дорого. Дослівний переклад ламає значення, бо ідіома — фіксована фраза.",
+            "sampleAnswerEn": "Give a hand means helping, learn by heart means memorising, get cold feet means backing out before a decision, and cost an arm and a leg means being very expensive. A word-for-word translation breaks the meaning, because an idiom is a fixed phrase."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-idioms-time",
+        "titleUk": "Ідіоми часу, роботи та планування",
+        "titleEn": "Idioms of time, work and planning",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-idioms-time-c",
+            "type": "concept",
+            "promptUk": "in the long run, call it a day, on the same page, against the clock",
+            "promptEn": "in the long run, call it a day, on the same page, against the clock",
+            "bodyUk": "Час і робота: in the long run — у довгій перспективі. in the short run — у короткій. against the clock — у гонитві за часом. at the last minute / at the eleventh hour — в останній момент. call it a day — закінчити роботу на сьогодні. hit the ground running — одразу активно почати. on the same page — однаково розуміти задачу. behind schedule / ahead of schedule — відстаємо / випереджаємо графік. better late than never — краще пізно, ніж ніколи (обережно з тоном).\n\nfrom scratch — з нуля. a long shot — малоймовірний варіант. once in a blue moon — дуже рідко. take your time — не поспішай (не «візьми свій час» дослівно в календарі). it's a matter of time — це питання часу.\n\nТипові помилки: *in the long term run (змішали in the long term і in the long run — обидві правильні окремо); *on the same page як лише фізична сторінка; call it a day не означає «назвати день». У діловому листі on the same page і behind schedule цілком доречні.",
+            "bodyEn": "Time and work: in the long run is over a long period. in the short run is over a short one. against the clock is racing against time. at the last minute / at the eleventh hour is at the latest possible moment. call it a day is stopping work for today. hit the ground running is starting at full speed. on the same page is sharing the same understanding. behind schedule / ahead of schedule is late / early relative to the plan. better late than never is obvious — be careful with the tone.\n\nfrom scratch is from nothing. a long shot is an unlikely option. once in a blue moon is very rarely. take your time is “don't rush” (not “take your time” as a diary slot). it's a matter of time means it will happen sooner or later.\n\nTypical mistakes: *in the long term run (a mix of in the long term and in the long run — both are fine separately); *on the same page only as a physical page; call it a day does not mean “give the day a name”. In a work email on the same page and behind schedule are perfectly appropriate.",
+            "keyPointsUk": [
+              "in the long run; against the clock; at the last minute",
+              "call it a day; hit the ground running; from scratch",
+              "on the same page; behind / ahead of schedule",
+              "take your time = не поспішай"
+            ],
+            "keyPointsEn": [
+              "in the long run; against the clock; at the last minute",
+              "call it a day; hit the ground running; from scratch",
+              "on the same page; behind / ahead of schedule",
+              "take your time means don't rush"
+            ]
+          },
+          {
+            "id": "en-d-idioms-time-r1",
+            "type": "mcq",
+            "promptUk": "Let's call it a day означає:",
+            "promptEn": "Let's call it a day means:",
+            "options": [
+              "Закінчимо на сьогодні.",
+              "Назвімо цей день.",
+              "Ми на одній сторінці документа.",
+              "Почнемо з нуля."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "call it a day — закінчити роботу сьогодні.",
+            "explanationEn": "call it a day is stopping work for today.",
+            "optionsEn": [
+              "Let's stop for today.",
+              "Let's give this day a name.",
+              "We are on the same document page.",
+              "Let's start from scratch."
+            ]
+          },
+          {
+            "id": "en-d-idioms-time-r2",
+            "type": "fill_blank",
+            "promptUk": "Вставте слово: in the long ___.",
+            "promptEn": "Insert the word: in the long ___.",
+            "sentence": "In the long ___ this will save us time.",
+            "accepted": [
+              "run",
+              "Run",
+              "term",
+              "Term"
+            ]
+          },
+          {
+            "id": "en-d-idioms-time-r3",
+            "type": "mcq",
+            "promptUk": "Ми однаково розуміємо задачу:",
+            "promptEn": "We share the same understanding:",
+            "options": [
+              "We're on the same page.",
+              "We're against the clock, as the only meaning of agreement.",
+              "We're a long shot.",
+              "We're from scratch."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "on the same page — спільне розуміння.",
+            "explanationEn": "on the same page is a shared understanding."
+          },
+          {
+            "id": "en-d-idioms-time-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть із from scratch.",
+            "promptEn": "Translate with from scratch.",
+            "source": "Ми написали модуль з нуля.",
+            "accepted": [
+              "We wrote the module from scratch",
+              "We wrote the module from scratch.",
+              "We built the module from scratch",
+              "We built the module from scratch."
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-idioms-time-e",
+            "type": "explain",
+            "promptUk": "Що означають call it a day, in the long run, on the same page і from scratch?",
+            "promptEn": "What do call it a day, in the long run, on the same page and from scratch mean?",
+            "keyIdeas": [
+              {
+                "labelUk": "call it a day",
+                "labelEn": "call it a day",
+                "anyOf": [
+                  "call it a day",
+                  "stop",
+                  "закінч"
+                ]
+              },
+              {
+                "labelUk": "long run",
+                "labelEn": "long run",
+                "anyOf": [
+                  "long run",
+                  "long term"
+                ]
+              },
+              {
+                "labelUk": "same page / scratch",
+                "labelEn": "same page / scratch",
+                "anyOf": [
+                  "same page",
+                  "from scratch",
+                  "schedule"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Call it a day означає закінчити роботу на сьогодні. In the long run — у довгій перспективі. On the same page — однаково розуміти задачу. From scratch — з нуля.",
+            "sampleAnswerEn": "Call it a day means stopping work for today. In the long run means over a long period. On the same page means sharing the same understanding. From scratch means from nothing."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-idioms-feel",
+        "titleUk": "Ідіоми емоцій і ставлення",
+        "titleEn": "Idioms of feelings and attitude",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-idioms-feel-c",
+            "type": "concept",
+            "promptUk": "over the moon, a blessing in disguise, lose your temper, on edge",
+            "promptEn": "over the moon, a blessing in disguise, lose your temper, on edge",
+            "bodyUk": "Емоції: over the moon — дуже щасливий. down in the dumps — пригнічений. on edge — напружений, нервовий. lose your temper — зірватися, розізлится. keep your temper — стриматися. a blessing in disguise — щастя в нещасті, приховане благо. get on someone's nerves — діяти на нерви. under the weather — злегка нездоровий. in high spirits — у піднесеному настрої. feel like a fish out of water — почуватися не в своїй тарілці.\n\nmy cup of tea / not my cup of tea — (не) в моєму смаку. over the top — занадто, з перебором. take something to heart — брати близько до серця. break the ice — розрядити атмосферу. a shoulder to cry on — плече, на яке можна спертися.\n\nТипові помилки: *on the moon замість over the moon; *blessing in dress; у формальному академічному есе over the moon може бути занадто розмовним — краще delighted / extremely pleased. Реєстр важливий так само, як значення.",
+            "bodyEn": "Feelings: over the moon is extremely happy. down in the dumps is depressed. on edge is tense and nervous. lose your temper is exploding in anger. keep your temper is staying calm. a blessing in disguise is something good that first looked bad. get on someone's nerves is irritating someone. under the weather is slightly unwell. in high spirits is cheerful. feel like a fish out of water is feeling out of place.\n\nmy cup of tea / not my cup of tea is (not) to my taste. over the top is excessive. take something to heart is being hurt by it. break the ice is easing the atmosphere. a shoulder to cry on is someone who will listen.\n\nTypical mistakes: *on the moon instead of over the moon; *blessing in dress; in a formal academic essay over the moon can be too informal — delighted / extremely pleased is safer. Register matters as much as meaning.",
+            "keyPointsUk": [
+              "over the moon / down in the dumps / on edge",
+              "lose / keep your temper; a blessing in disguise",
+              "under the weather; not my cup of tea; break the ice",
+              "У формальному есе обирайте нейтральні синоніми"
+            ],
+            "keyPointsEn": [
+              "over the moon / down in the dumps / on edge",
+              "lose / keep your temper; a blessing in disguise",
+              "under the weather; not my cup of tea; break the ice",
+              "In a formal essay choose neutral synonyms"
+            ]
+          },
+          {
+            "id": "en-d-idioms-feel-r1",
+            "type": "mcq",
+            "promptUk": "She was over the moon означає:",
+            "promptEn": "She was over the moon means:",
+            "options": [
+              "Вона була дуже щаслива.",
+              "Вона була на Місяці.",
+              "Вона була трохи нездорова.",
+              "Вона зірвалася злістю."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "over the moon — дуже щасливий.",
+            "explanationEn": "over the moon is extremely happy.",
+            "optionsEn": [
+              "She was extremely happy.",
+              "She was on the Moon.",
+              "She was slightly unwell.",
+              "She lost her temper."
+            ]
+          },
+          {
+            "id": "en-d-idioms-feel-r2",
+            "type": "fill_blank",
+            "promptUk": "Вставте слово: a blessing in ___.",
+            "promptEn": "Insert the word: a blessing in ___.",
+            "sentence": "Losing that job was a blessing in ___.",
+            "accepted": [
+              "disguise",
+              "Disguise"
+            ]
+          },
+          {
+            "id": "en-d-idioms-feel-r3",
+            "type": "mcq",
+            "promptUk": "I'm a bit under the weather означає:",
+            "promptEn": "I'm a bit under the weather means:",
+            "options": [
+              "Я трохи погано себе почуваю.",
+              "Я під дощем.",
+              "Я дуже щасливий.",
+              "Це не в моєму смаку."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "under the weather — злегка нездоровий.",
+            "explanationEn": "under the weather is slightly unwell.",
+            "optionsEn": [
+              "I feel a bit unwell.",
+              "I am standing in the rain.",
+              "I am extremely happy.",
+              "It is not my cup of tea."
+            ]
+          },
+          {
+            "id": "en-d-idioms-feel-r4",
+            "type": "match",
+            "promptUk": "Зіставте ідіому зі значенням.",
+            "promptEn": "Match each idiom with its meaning.",
+            "pairs": [
+              {
+                "left": "lose your temper",
+                "right": "зірватися / explode in anger"
+              },
+              {
+                "left": "on edge",
+                "right": "напружений / tense"
+              },
+              {
+                "left": "break the ice",
+                "right": "розрядити атмосферу / ease the atmosphere"
+              },
+              {
+                "left": "not my cup of tea",
+                "right": "не в моєму смаку / not to my taste"
+              }
+            ]
+          },
+          {
+            "id": "en-d-idioms-feel-e",
+            "type": "explain",
+            "promptUk": "Що означають over the moon, a blessing in disguise, under the weather і lose your temper? Коли ідіоми занадто розмовні?",
+            "promptEn": "What do over the moon, a blessing in disguise, under the weather and lose your temper mean? When are idioms too informal?",
+            "keyIdeas": [
+              {
+                "labelUk": "over the moon",
+                "labelEn": "over the moon",
+                "anyOf": [
+                  "over the moon",
+                  "happy",
+                  "щаслив"
+                ]
+              },
+              {
+                "labelUk": "blessing",
+                "labelEn": "blessing",
+                "anyOf": [
+                  "blessing in disguise",
+                  "under the weather"
+                ]
+              },
+              {
+                "labelUk": "temper / register",
+                "labelEn": "temper / register",
+                "anyOf": [
+                  "lose your temper",
+                  "formal",
+                  "delighted",
+                  "реєстр"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Over the moon означає дуже щасливий, a blessing in disguise — приховане благо, under the weather — злегка нездоровий, lose your temper — зірватися. У формальному есе краще нейтральні слова, наприклад delighted замість over the moon.",
+            "sampleAnswerEn": "Over the moon means extremely happy, a blessing in disguise is something good that first looked bad, under the weather means slightly unwell, and lose your temper means exploding in anger. In a formal essay, neutral words are safer, for example delighted instead of over the moon."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-idioms-work",
+        "titleUk": "Ідіоми роботи, ІТ та рішень",
+        "titleEn": "Work, IT and decision idioms",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-idioms-work-c",
+            "type": "concept",
+            "promptUk": "think outside the box, the ball is in your court, back to square one, cut corners",
+            "promptEn": "think outside the box, the ball is in your court, back to square one, cut corners",
+            "bodyUk": "Робота й рішення: think outside the box — мислити нестандартно. back to square one — повернутися на початок. the ball is in your court — тепер ваша черга відповідати / вирішувати. cut corners — робити абияк, економлячи час або якість (негативне). on the same wavelength — на одній хвилі. start from scratch уже мали як from scratch. a win-win situation — виграш для обох. move the goalposts — змінювати правила посеред гри. get the ball rolling — зрушити справу.\n\nІТ-тон: a quick win; low-hanging fruit — легкі перші результати (уже кліше, обережно); in the pipeline — у планах; out of the box — «з коробки», без налаштувань (не плутати з outside the box). at the end of the day — у кінцевому підсумку (часто слово-паразит).\n\nТипові помилки: *think out of the box і think outside the box — обидві чути, outside частотніша; *the ball is on your court (потрібен in); cut corners не означає «скоротити шлях» у позитиві. Не ставте три кліше в один абзац.",
+            "bodyEn": "Work and decisions: think outside the box is thinking in an original way. back to square one is returning to the start. the ball is in your court means it is your turn to respond or decide. cut corners is doing a job cheaply or sloppily (negative). on the same wavelength is thinking alike. start from scratch we already had as from scratch. a win-win situation is a gain for both sides. move the goalposts is changing the rules mid-game. get the ball rolling is getting something started.\n\nIT tone: a quick win; low-hanging fruit is easy first results (already a cliché — be careful); in the pipeline is planned; out of the box is “as shipped”, with no setup (do not confuse it with outside the box). at the end of the day is “when all is considered” (often a filler).\n\nTypical mistakes: *think out of the box and think outside the box are both heard, and outside is more frequent; *the ball is on your court (you need in); cut corners does not mean “shorten the path” in a positive sense. Do not put three clichés in one paragraph.",
+            "keyPointsUk": [
+              "think outside the box; back to square one",
+              "the ball is in your court (in, не on)",
+              "cut corners — негативне «абияк»",
+              "out of the box ≠ outside the box"
+            ],
+            "keyPointsEn": [
+              "think outside the box; back to square one",
+              "the ball is in your court (in, not on)",
+              "cut corners is a negative “do it sloppily”",
+              "out of the box is not outside the box"
+            ]
+          },
+          {
+            "id": "en-d-idioms-work-r1",
+            "type": "mcq",
+            "promptUk": "The ball is in your court означає:",
+            "promptEn": "The ball is in your court means:",
+            "options": [
+              "Тепер ваша черга вирішувати.",
+              "М'яч на вашому полі для гри, як єдине значення.",
+              "Ми повернулися на початок.",
+              "Ви зробили роботу абияк."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Черга відповідати / вирішувати за вами.",
+            "explanationEn": "It is your turn to respond or decide.",
+            "optionsEn": [
+              "It is your turn to decide.",
+              "The ball is on your sports field, as the only meaning.",
+              "We are back to square one.",
+              "You cut corners."
+            ]
+          },
+          {
+            "id": "en-d-idioms-work-r2",
+            "type": "fill_blank",
+            "promptUk": "Вставте прийменник: the ball is ___ your court.",
+            "promptEn": "Insert the preposition: the ball is ___ your court.",
+            "sentence": "The ball is ___ your court.",
+            "accepted": [
+              "in",
+              "In"
+            ]
+          },
+          {
+            "id": "en-d-idioms-work-r3",
+            "type": "mcq",
+            "promptUk": "cut corners означає:",
+            "promptEn": "cut corners means:",
+            "options": [
+              "робити абияк, жертвуючи якістю",
+              "мислити нестандартно",
+              "зрушити справу",
+              "функція «з коробки»"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "cut corners — негативне спрощення.",
+            "explanationEn": "cut corners is a negative shortcut.",
+            "optionsEn": [
+              "doing it sloppily and sacrificing quality",
+              "thinking in an original way",
+              "getting something started",
+              "a feature out of the box"
+            ]
+          },
+          {
+            "id": "en-d-idioms-work-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть із back to square one.",
+            "promptEn": "Translate with back to square one.",
+            "source": "Після відмови ми повернулися на початок.",
+            "accepted": [
+              "After the rejection we were back to square one",
+              "After the rejection we were back to square one.",
+              "After they said no we were back to square one",
+              "We were back to square one after the rejection"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-idioms-work-e",
+            "type": "explain",
+            "promptUk": "Що означають think outside the box, the ball is in your court, back to square one і cut corners? Чим out of the box відрізняється від outside the box?",
+            "promptEn": "What do think outside the box, the ball is in your court, back to square one and cut corners mean? How is out of the box different from outside the box?",
+            "keyIdeas": [
+              {
+                "labelUk": "outside the box",
+                "labelEn": "outside the box",
+                "anyOf": [
+                  "outside the box",
+                  "original",
+                  "нестандарт"
+                ]
+              },
+              {
+                "labelUk": "ball / square",
+                "labelEn": "ball / square",
+                "anyOf": [
+                  "in your court",
+                  "square one"
+                ]
+              },
+              {
+                "labelUk": "cut corners / out of",
+                "labelEn": "cut corners / out of",
+                "anyOf": [
+                  "cut corners",
+                  "out of the box",
+                  "pipeline"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Think outside the box означає мислити нестандартно. The ball is in your court — тепер ваша черга вирішувати. Back to square one — повернутися на початок. Cut corners — робити абияк. Out of the box — «з коробки», без налаштувань, і це не те саме, що outside the box.",
+            "sampleAnswerEn": "Think outside the box means thinking in an original way. The ball is in your court means it is your turn to decide. Back to square one means returning to the start. Cut corners means doing a job sloppily. Out of the box means “as shipped”, with no setup, and that is not the same as outside the box."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-idioms-use",
+        "titleUk": "Як користуватися ідіомами: реєстр і міра",
+        "titleEn": "How to use idioms: register and measure",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-idioms-use-c",
+            "type": "concept",
+            "promptUk": "Одна-дві доречні ідіоми краще за п'ять кліше",
+            "promptEn": "One or two fitting idioms are better than five clichés",
+            "bodyUk": "Ідіома працює, коли вона точна, природна для ситуації і зрозуміла співрозмовнику. У розмові та неформальному листі вони оживляють мову. У IELTS Academic Writing і формальному звіті краще менше: examiner цінує точність, а не колекцію фраз із списку «100 ідіом». Одна доречна (on the same page, in the long run) краща за over the moon плюс low-hanging fruit плюс at the end of the day в одному абзаці.\n\nПрозорі ідіоми (at the last minute) легші для розуміння, ніж непрозорі (kick the bucket — померти, зазвичай недоречно в діловому контексті). Слідкуйте за граматикою навколо: the ball is in your court зберігає is і in. Не змішуйте дві метафори (*the ball is over the moon). Якщо сумніваєтеся — скажіть прямими словами: I'm very pleased замість over the moon.\n\nСтратегія навчання: вчіть ідіому з короткою історією-прикладом, синонімом і позначкою реєстру (informal / neutral / careful). Повторюйте у флешкартах разом із колокаціями, не окремим «зоопарком фраз».",
+            "bodyEn": "An idiom works when it is exact, natural for the situation and clear to the listener. In speech and informal email they bring language to life. In IELTS Academic Writing and a formal report, less is better: an examiner values precision, not a collection from a list of “100 idioms”. One fitting phrase (on the same page, in the long run) is better than over the moon plus low-hanging fruit plus at the end of the day in one paragraph.\n\nTransparent idioms (at the last minute) are easier to understand than opaque ones (kick the bucket — “die”, usually inappropriate at work). Watch the grammar around the phrase: the ball is in your court keeps is and in. Do not mix two metaphors (*the ball is over the moon). If you are unsure, say it in plain words: I'm very pleased instead of over the moon.\n\nA learning strategy: learn each idiom with a short example story, a synonym and a register label (informal / neutral / careful). Review them on flashcards together with collocations, not as a separate “zoo of phrases”.",
+            "keyPointsUk": [
+              "Доречність і реєстр важливіші за кількість",
+              "В академічному письмі — одна-дві точні ідіоми",
+              "Не змішуйте метафори і не ламайте фіксовану форму",
+              "Якщо сумніваєтесь — кажіть прямими словами"
+            ],
+            "keyPointsEn": [
+              "Fit and register matter more than quantity",
+              "In academic writing, one or two exact idioms",
+              "Do not mix metaphors or break the fixed form",
+              "If you are unsure, say it in plain words"
+            ]
+          },
+          {
+            "id": "en-d-idioms-use-r1",
+            "type": "mcq",
+            "promptUk": "Для IELTS Academic Writing краще:",
+            "promptEn": "For IELTS Academic Writing it is better to:",
+            "options": [
+              "Використати одну точну ідіому або нейтральну лексику.",
+              "Вставити якомога більше ідіом зі списку.",
+              "Написати kick the bucket у звіті про проект як нейтральне «завершити».",
+              "Змішати the ball is over the moon."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Точність важливіша за колекцію кліше.",
+            "explanationEn": "Precision matters more than a collection of clichés.",
+            "optionsEn": [
+              "Use one exact idiom or neutral vocabulary.",
+              "Insert as many idioms from a list as you can.",
+              "Write kick the bucket in a project report as a neutral “finish”.",
+              "Mix the ball is over the moon."
+            ]
+          },
+          {
+            "id": "en-d-idioms-use-r2",
+            "type": "fill_blank",
+            "promptUk": "Якщо сумніваєтесь в ідіомі, краще сказати прямими ___ (словами). Напишіть words.",
+            "promptEn": "Type words.",
+            "sentence": "If you are unsure, say it in plain ___.",
+            "accepted": [
+              "words",
+              "Words"
+            ]
+          },
+          {
+            "id": "en-d-idioms-use-r3",
+            "type": "mcq",
+            "promptUk": "at the last minute порівняно з kick the bucket:",
+            "promptEn": "at the last minute compared with kick the bucket:",
+            "options": [
+              "Перша прозоріша і ширше доречна.",
+              "Друга нейтральніша в діловому звіті.",
+              "Обидві завжди підходять для Academic Writing.",
+              "Ідіоми взагалі не мають реєстру."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Прозорі ідіоми безпечніші; kick the bucket — «померти».",
+            "explanationEn": "Transparent idioms are safer; kick the bucket means “die”.",
+            "optionsEn": [
+              "The first is more transparent and more widely appropriate.",
+              "The second is more neutral in a work report.",
+              "Both always fit Academic Writing.",
+              "Idioms have no register at all."
+            ]
+          },
+          {
+            "id": "en-d-idioms-use-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть нейтрально (без over the moon).",
+            "promptEn": "Translate in a neutral way (without over the moon).",
+            "source": "Я дуже задоволений результатом.",
+            "accepted": [
+              "I'm very pleased with the result",
+              "I am very pleased with the result",
+              "I'm extremely pleased with the result",
+              "I am extremely pleased with the result",
+              "I'm very pleased with the result.",
+              "I was very pleased with the result"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-idioms-use-e",
+            "type": "explain",
+            "promptUk": "Коли ідіоми доречні, а коли краще нейтральна лексика? Чому не варто звалювати кілька кліше в один абзац?",
+            "promptEn": "When are idioms appropriate, and when is neutral vocabulary better? Why shouldn't you pile several clichés into one paragraph?",
+            "keyIdeas": [
+              {
+                "labelUk": "register",
+                "labelEn": "register",
+                "anyOf": [
+                  "register",
+                  "formal",
+                  "academic",
+                  "реєстр"
+                ]
+              },
+              {
+                "labelUk": "one or two",
+                "labelEn": "one or two",
+                "anyOf": [
+                  "one",
+                  "two",
+                  "cliché",
+                  "кліше"
+                ]
+              },
+              {
+                "labelUk": "plain words",
+                "labelEn": "plain words",
+                "anyOf": [
+                  "plain",
+                  "unsure",
+                  "сумнів",
+                  "words"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Ідіоми доречні в розмові та неформальному листі, а в академічному письмі краще одна точна фраза або нейтральні слова. Кілька кліше в одному абзаці виглядають неприродно і можуть знизити оцінку за стиль. Якщо сумніваєтесь, кажіть прямими словами.",
+            "sampleAnswerEn": "Idioms are appropriate in speech and informal email, and in academic writing one exact phrase or neutral words is safer. Several clichés in one paragraph sound unnatural and can lower a style score. If you are unsure, say it in plain words."
+          }
+        ]
+      },
+      {
+        "slug": "en-deep-idioms-exam",
+        "titleUk": "Контрольна: ідіоми",
+        "titleEn": "Exam: idioms",
+        "baseXp": 30,
+        "difficulty": 3,
+        "isExam": true,
+        "passThreshold": 0.7,
+        "exercises": [
+          {
+            "id": "en-deep-idioms-exam-q1",
+            "type": "mcq",
+            "promptUk": "give me a hand означає:",
+            "promptEn": "give me a hand means:",
+            "options": [
+              "допоможи мені",
+              "подай руку як єдине значення",
+              "вивчи напам'ять",
+              "це дуже дорого"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Допомогти.",
+            "explanationEn": "Help me.",
+            "optionsEn": [
+              "help me",
+              "offer a handshake as the only meaning",
+              "learn by heart",
+              "it is very expensive"
+            ]
+          },
+          {
+            "id": "en-deep-idioms-exam-q2",
+            "type": "mcq",
+            "promptUk": "Let's call it a day означає:",
+            "promptEn": "Let's call it a day means:",
+            "options": [
+              "Закінчимо на сьогодні.",
+              "Назвімо день.",
+              "Ми на одній хвилі як єдине значення.",
+              "Це коштує руку і ногу."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Закінчити роботу сьогодні.",
+            "explanationEn": "Stop work for today.",
+            "optionsEn": [
+              "Let's stop for today.",
+              "Let's name the day.",
+              "We are on the same wavelength as the only meaning.",
+              "It costs an arm and a leg."
+            ]
+          },
+          {
+            "id": "en-deep-idioms-exam-q3",
+            "type": "mcq",
+            "promptUk": "over the moon означає:",
+            "promptEn": "over the moon means:",
+            "options": [
+              "дуже щасливий",
+              "трохи нездоровий",
+              "напружений",
+              "не в моєму смаку"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Дуже щасливий.",
+            "explanationEn": "Extremely happy.",
+            "optionsEn": [
+              "extremely happy",
+              "slightly unwell",
+              "tense",
+              "not to my taste"
+            ]
+          },
+          {
+            "id": "en-deep-idioms-exam-q4",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "The ball is in your court.",
+              "The ball is on your court.",
+              "Think out the box, with no side.",
+              "Cut corners as a compliment for quality."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "in your court.",
+            "explanationEn": "in your court."
+          },
+          {
+            "id": "en-deep-idioms-exam-q5",
+            "type": "fill_blank",
+            "promptUk": "learn by ___ (напам'ять).",
+            "promptEn": "learn by ___ (memorise).",
+            "sentence": "Learn the list by ___.",
+            "accepted": [
+              "heart",
+              "Heart"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "en-deep-themes-a",
+    "titleUk": "Тематична лексика A: робота, освіта, подорожі, здоров'я, їжа",
+    "titleEn": "Thematic vocabulary A: work, education, travel, health, food",
+    "lessons": [
+      {
+        "slug": "en-d-theme-work",
+        "titleUk": "Тема: робота та кар'єра",
+        "titleEn": "Theme: work and career",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-theme-work-c",
+            "type": "concept",
+            "promptUk": "apply for, deadline, shift, resign, promote",
+            "promptEn": "apply for, deadline, shift, resign, promote",
+            "bodyUk": "Робота: apply for a job — подати заявку (не *apply a job: потрібен for). CV (брит.) / résumé (амер.); cover letter — супровідний лист. hire / employ; recruit; interview; offer; accept / turn down an offer. deadline — кінцевий термін; meet a deadline / miss a deadline. a shift — зміна (night shift); full-time / part-time / freelance / remote / hybrid. resign — звільнитися самому; be fired / be sacked (брит., розмовно) / be laid off — скорочення. get promoted; a pay rise (брит.) / a raise (амер.); a bonus; overtime.\n\nКолокації: heavy workload; work-life balance; a steep learning curve; report to someone (бути підлеглим); in charge of; a team lead; stakeholders; deliverable. I'm between jobs — м'якше, ніж unemployed, у розмові.\n\nТипові помилки: *apply a job; *I have a work (a job / work без a); *salary як будь-яка плата (salary — місячний/річний оклад; wage — погодинна/тижнева, часто фізична робота; fee — гонорар). career ≠ job: career — шлях, job — конкретна посада.",
+            "bodyEn": "Work: apply for a job is sending an application (not *apply a job: you need for). CV (BrE) / résumé (AmE); a cover letter. hire / employ; recruit; interview; offer; accept / turn down an offer. a deadline is a final date; meet a deadline / miss a deadline. a shift is a block of working time (night shift); full-time / part-time / freelance / remote / hybrid. resign is leaving yourself; be fired / be sacked (BrE, informal) / be laid off is redundancy. get promoted; a pay rise (BrE) / a raise (AmE); a bonus; overtime.\n\nCollocations: a heavy workload; work-life balance; a steep learning curve; report to someone (be their report); in charge of; a team lead; stakeholders; a deliverable. I'm between jobs is softer than unemployed in conversation.\n\nTypical mistakes: *apply a job; *I have a work (a job / work with no a); *salary for every kind of pay (salary is a monthly or yearly wage; a wage is often hourly or weekly, often manual work; a fee is a professional charge). career is not job: a career is a path, a job is a concrete post.",
+            "keyPointsUk": [
+              "apply for a job — з for; CV / cover letter",
+              "meet / miss a deadline; full-time, remote, a shift",
+              "resign ≠ be laid off; a pay rise / a raise",
+              "job — посада; career — шлях; work зазвичай без a"
+            ],
+            "keyPointsEn": [
+              "apply for a job — with for; CV / cover letter",
+              "meet / miss a deadline; full-time, remote, a shift",
+              "resign is not be laid off; a pay rise / a raise",
+              "a job is a post; a career is a path; work usually has no a"
+            ]
+          },
+          {
+            "id": "en-d-theme-work-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "She applied for the job.",
+              "She applied the job.",
+              "I have a work in Lviv.",
+              "He resigned from the staff as “was laid off”, as the only meaning."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "apply for + job.",
+            "explanationEn": "apply for + a job."
+          },
+          {
+            "id": "en-d-theme-work-r2",
+            "type": "fill_blank",
+            "promptUk": "Вставте слово (кінцевий термін): meet the ___.",
+            "promptEn": "Insert the word (final date): meet the ___.",
+            "sentence": "We have to meet the ___.",
+            "accepted": [
+              "deadline",
+              "Deadline"
+            ]
+          },
+          {
+            "id": "en-d-theme-work-r3",
+            "type": "mcq",
+            "promptUk": "resign означає:",
+            "promptEn": "resign means:",
+            "options": [
+              "звільнитися самому",
+              "бути скороченим, як єдине значення",
+              "отримати підвищення",
+              "працювати в нічну зміну"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "resign — піти за власним рішенням.",
+            "explanationEn": "resign is leaving of your own accord.",
+            "optionsEn": [
+              "leave the job yourself",
+              "be laid off, as the only meaning",
+              "get promoted",
+              "work a night shift"
+            ]
+          },
+          {
+            "id": "en-d-theme-work-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть із full-time і remote.",
+            "promptEn": "Translate with full-time and remote.",
+            "source": "Вона шукає повну віддалену роботу.",
+            "accepted": [
+              "She is looking for a full-time remote job",
+              "She's looking for a full-time remote job",
+              "She is looking for a full-time remote job.",
+              "She's looking for a full-time remote job."
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-theme-work-e",
+            "type": "explain",
+            "promptUk": "Як сказати «подати заявку на роботу»? Чим resign відрізняється від be laid off, а job — від career? Що таке deadline?",
+            "promptEn": "How do you say you are sending a job application? How is resign different from be laid off, and job from career? What is a deadline?",
+            "keyIdeas": [
+              {
+                "labelUk": "apply for",
+                "labelEn": "apply for",
+                "anyOf": [
+                  "apply for",
+                  "CV",
+                  "cover letter"
+                ]
+              },
+              {
+                "labelUk": "resign / laid off",
+                "labelEn": "resign / laid off",
+                "anyOf": [
+                  "resign",
+                  "laid off",
+                  "fired"
+                ]
+              },
+              {
+                "labelUk": "deadline / career",
+                "labelEn": "deadline / career",
+                "anyOf": [
+                  "deadline",
+                  "career",
+                  "job",
+                  "work"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Кажемо apply for a job, з прийменником for. Resign означає піти самому, be laid off — бути скороченим. Job — конкретна посада, career — професійний шлях. Deadline — кінцевий термін, який можна meet або miss.",
+            "sampleAnswerEn": "We say apply for a job, with the preposition for. Resign means leaving yourself, and be laid off means being made redundant. A job is a concrete post, and a career is a professional path. A deadline is a final date that you can meet or miss."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-theme-edu",
+        "titleUk": "Тема: освіта та навчання",
+        "titleEn": "Theme: education and learning",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-theme-edu-c",
+            "type": "concept",
+            "promptUk": "degree, assignment, tuition, undergraduate, pass a exam? pass an exam",
+            "promptEn": "degree, assignment, tuition, undergraduate, pass an exam",
+            "bodyUk": "Освіта: a school subject; a degree (bachelor's, master's, a PhD); undergraduate / graduate (амер. graduate student ≈ брит. postgraduate). a course, a module, a lecture, a seminar, a tutorial. an assignment — завдання; an essay; a dissertation / a thesis; coursework. take / sit an exam (брит. sit); pass / fail; revise (брит.) / review (амер.) — повторювати до іспиту; cram — зубрити в останню ніч. tuition (fees) — плата за навчання; a scholarship; a student loan; a campus; a hall of residence (брит.) / a dorm (амер.).\n\nКолокації: enrol on a course (брит.) / enroll in (амер.); drop out; skip a class; hand in an essay; fall behind; catch up; a tight deadline already from work. literate / numerate; vocational training.\n\nТипові помилки: *pass an exam як «скласти» плутають із take an exam (взяти участь); *I finished school як єдиний спосіб сказати про університет (graduate from university); faculty в амер. часто «викладачі», не завжди «факультет» (department / school / faculty брит.). homework незлічуване в загальному сенсі.",
+            "bodyEn": "Education: a school subject; a degree (bachelor's, master's, a PhD); undergraduate / graduate (AmE graduate student ≈ BrE postgraduate). a course, a module, a lecture, a seminar, a tutorial. an assignment is a task; an essay; a dissertation / a thesis; coursework. take / sit an exam (BrE sit); pass / fail; revise (BrE) / review (AmE) is preparing for an exam; cram is last-night memorising. tuition (fees) is what you pay to study; a scholarship; a student loan; a campus; a hall of residence (BrE) / a dorm (AmE).\n\nCollocations: enrol on a course (BrE) / enroll in (AmE); drop out; skip a class; hand in an essay; fall behind; catch up; a tight deadline already from work. literate / numerate; vocational training.\n\nTypical mistakes: mixing up pass an exam (“succeed”) with take an exam (“sit it”); *I finished school as the only way to talk about university (graduate from university); faculty in AmE is often “the teaching staff”, not always “a faculty” (department / school / faculty in BrE). homework is uncountable in the general sense.",
+            "keyPointsUk": [
+              "degree, undergraduate, postgraduate / graduate student",
+              "take / sit an exam ≠ pass an exam",
+              "revise (BrE) / review (AmE); tuition fees; a scholarship",
+              "enrol on (BrE) / enroll in (AmE); hand in an essay"
+            ],
+            "keyPointsEn": [
+              "degree, undergraduate, postgraduate / graduate student",
+              "take / sit an exam is not pass an exam",
+              "revise (BrE) / review (AmE); tuition fees; a scholarship",
+              "enrol on (BrE) / enroll in (AmE); hand in an essay"
+            ]
+          },
+          {
+            "id": "en-d-theme-edu-r1",
+            "type": "mcq",
+            "promptUk": "pass an exam означає:",
+            "promptEn": "pass an exam means:",
+            "options": [
+              "скласти іспит успішно",
+              "просто прийти на іспит, як єдине значення",
+              "провалити іспит",
+              "зубрити всю ніч"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "pass — успішно скласти; take/sit — взяти участь.",
+            "explanationEn": "pass is succeeding; take/sit is sitting the exam.",
+            "optionsEn": [
+              "succeed in the exam",
+              "just attend the exam, as the only meaning",
+              "fail the exam",
+              "cram all night"
+            ]
+          },
+          {
+            "id": "en-d-theme-edu-r2",
+            "type": "fill_blank",
+            "promptUk": "Британською «повторяти до іспиту» — дієслово на r. Напишіть revise.",
+            "promptEn": "Type revise.",
+            "sentence": "I need to ___ for tomorrow's exam.",
+            "accepted": [
+              "revise",
+              "Revise",
+              "review",
+              "Review"
+            ]
+          },
+          {
+            "id": "en-d-theme-edu-r3",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "She enrolled on the course. (BrE)",
+              "She passed the exam as “attended only”, as the usual meaning.",
+              "He handed the essay, with no in.",
+              "I have many homeworks, in the general sense."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "enrol on a course — брит. колокація.",
+            "explanationEn": "enrol on a course is the BrE collocation."
+          },
+          {
+            "id": "en-d-theme-edu-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть із scholarship.",
+            "promptEn": "Translate with scholarship.",
+            "source": "Вона отримала стипендію.",
+            "accepted": [
+              "She got a scholarship",
+              "She got a scholarship.",
+              "She received a scholarship",
+              "She received a scholarship.",
+              "She was awarded a scholarship",
+              "She was awarded a scholarship."
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-theme-edu-e",
+            "type": "explain",
+            "promptUk": "Чим take an exam відрізняється від pass an exam? Що таке revise, tuition і scholarship? Яка різниця між enrol on і enroll in?",
+            "promptEn": "How is take an exam different from pass an exam? What are revise, tuition and a scholarship? What is the difference between enrol on and enroll in?",
+            "keyIdeas": [
+              {
+                "labelUk": "take/pass",
+                "labelEn": "take/pass",
+                "anyOf": [
+                  "take",
+                  "sit",
+                  "pass",
+                  "fail"
+                ]
+              },
+              {
+                "labelUk": "revise/tuition",
+                "labelEn": "revise/tuition",
+                "anyOf": [
+                  "revise",
+                  "review",
+                  "tuition",
+                  "scholarship"
+                ]
+              },
+              {
+                "labelUk": "enrol",
+                "labelEn": "enrol",
+                "anyOf": [
+                  "enrol on",
+                  "enroll in"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Take або sit an exam означає прийти на іспит, pass — успішно скласти. Revise (брит.) — повторювати матеріал, tuition — плата за навчання, scholarship — стипендія. Enrol on — британська колокація, enroll in — американська.",
+            "sampleAnswerEn": "Take or sit an exam means attending it, and pass means succeeding. Revise (BrE) is preparing the material, tuition is the fee, and a scholarship is funding for study. Enrol on is the British collocation, and enroll in is the American one."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-theme-travel",
+        "titleUk": "Тема: подорожі та місто",
+        "titleEn": "Theme: travel and the city",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-theme-travel-c",
+            "type": "concept",
+            "promptUk": "book a ticket, commute, a return, delayed, landmark",
+            "promptEn": "book a ticket, commute, a return, delayed, landmark",
+            "bodyUk": "Подорожі: book a ticket / a seat / a room; a one-way (амер.) / a single (брит.) і a return / a round trip. a commute, a commuter — щоденна дорога на роботу; a delay / delayed / cancelled; a connection; a platform; a gate; luggage (брит., незліч.) / baggage; a suitcase; hand luggage / carry-on. go through security; a boarding pass; passport control; customs. a landmark — визначна пам'ятка; downtown (амер.) / the city centre (брит.); a suburb; public transport (брит.) / public transportation (амер.).\n\nКолокації: miss a train / catch a train; get stuck in traffic; a rush hour; a fare; a season ticket; a short-cut; ask for directions; a roundabout (брит.) / a traffic circle. stay in a hotel / an Airbnb; check in / check out.\n\nТипові помилки: *a travel як злічуваний іменник про одну поїздку (a trip / a journey / a flight); travel часто незлічуване як заняття. *luggages; *in the bus краще on the bus; *arrive to the station — arrive at (місце малого розміру) / in (місто).",
+            "bodyEn": "Travel: book a ticket / a seat / a room; a one-way (AmE) / a single (BrE) and a return / a round trip. a commute, a commuter is the daily journey to work; a delay / delayed / cancelled; a connection; a platform; a gate; luggage (BrE, uncountable) / baggage; a suitcase; hand luggage / carry-on. go through security; a boarding pass; passport control; customs. a landmark is a famous sight; downtown (AmE) / the city centre (BrE); a suburb; public transport (BrE) / public transportation (AmE).\n\nCollocations: miss a train / catch a train; get stuck in traffic; rush hour; a fare; a season ticket; a short cut; ask for directions; a roundabout (BrE) / a traffic circle. stay in a hotel / an Airbnb; check in / check out.\n\nTypical mistakes: *a travel as a countable noun for one journey (a trip / a journey / a flight); travel is often uncountable as an activity. *luggages; *in the bus — prefer on the bus; *arrive to the station — arrive at (a small place) / in (a city).",
+            "keyPointsUk": [
+              "book a ticket; a single / a return; a commute",
+              "delayed, cancelled; luggage незлічуване",
+              "on the bus; arrive at the station / in Lviv",
+              "trip / journey, не *a travel про одну поїздку"
+            ],
+            "keyPointsEn": [
+              "book a ticket; a single / a return; a commute",
+              "delayed, cancelled; luggage is uncountable",
+              "on the bus; arrive at the station / in Lviv",
+              "a trip / a journey, not *a travel for one journey"
+            ]
+          },
+          {
+            "id": "en-d-theme-travel-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "We arrived at the station.",
+              "We arrived to the station.",
+              "I packed two luggages.",
+              "It was a nice travel, as a countable trip."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "arrive at + станція.",
+            "explanationEn": "arrive at + a station."
+          },
+          {
+            "id": "en-d-theme-travel-r2",
+            "type": "fill_blank",
+            "promptUk": "Вставте прийменник: on або in (автобус).",
+            "promptEn": "Insert the preposition: on or in (a bus).",
+            "sentence": "I usually read ___ the bus.",
+            "accepted": [
+              "on",
+              "On"
+            ]
+          },
+          {
+            "id": "en-d-theme-travel-r3",
+            "type": "mcq",
+            "promptUk": "Щоденна дорога на роботу — це:",
+            "promptEn": "The daily journey to work is:",
+            "options": [
+              "a commute",
+              "a landmark",
+              "a return as the only word for this",
+              "customs"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "commute — щоденна дорога.",
+            "explanationEn": "a commute is the daily journey."
+          },
+          {
+            "id": "en-d-theme-travel-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть із delayed.",
+            "promptEn": "Translate with delayed.",
+            "source": "Наш рейс затримали.",
+            "accepted": [
+              "Our flight was delayed",
+              "Our flight was delayed.",
+              "Our flight has been delayed",
+              "Our flight has been delayed."
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-theme-travel-e",
+            "type": "explain",
+            "promptUk": "Чим trip відрізняється від *a travel? Який прийменник з arrive і з bus? Що таке commute і luggage?",
+            "promptEn": "How is a trip different from *a travel? Which preposition goes with arrive and with bus? What are a commute and luggage?",
+            "keyIdeas": [
+              {
+                "labelUk": "trip/travel",
+                "labelEn": "trip/travel",
+                "anyOf": [
+                  "trip",
+                  "journey",
+                  "travel",
+                  "countable"
+                ]
+              },
+              {
+                "labelUk": "arrive at / on",
+                "labelEn": "arrive at / on",
+                "anyOf": [
+                  "arrive at",
+                  "on the bus",
+                  "in Lviv"
+                ]
+              },
+              {
+                "labelUk": "commute/luggage",
+                "labelEn": "commute/luggage",
+                "anyOf": [
+                  "commute",
+                  "luggage",
+                  "delayed"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Про одну поїздку кажемо a trip або a journey, а travel часто незлічуване. Arrive at the station, arrive in a city, on the bus. A commute — щоденна дорога на роботу, luggage — незлічуване «багаж».",
+            "sampleAnswerEn": "For one journey we say a trip or a journey, and travel is often uncountable. Arrive at the station, arrive in a city, on the bus. A commute is the daily journey to work, and luggage is uncountable baggage."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-theme-health",
+        "titleUk": "Тема: здоров'я та спосіб життя",
+        "titleEn": "Theme: health and lifestyle",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-theme-health-c",
+            "type": "concept",
+            "promptUk": "have a cold, make an appointment, a prescription, work out",
+            "promptEn": "have a cold, make an appointment, a prescription, work out",
+            "bodyUk": "Здоров'я: have a cold / have the flu (часто the flu); catch a cold; a sore throat; a headache (a, бо злічуваний біль з -ache); feel sick (брит. часто «нудить»; амер. також «погано себе почуваю»); be ill (брит.) / be sick (амер.). see a doctor / a GP; make an appointment; a prescription (рецепт на ліки, не receipt); a pharmacy / a chemist's (брит.). a check-up; a vaccine / get vaccinated; symptoms; recover from.\n\nСпосіб життя: work out — тренуватися; a balanced diet; junk food; cut down on sugar; give up smoking; stay in shape; get enough sleep; mental health; burnt out / burnout. take medicine / take a pill (take, не *drink a pill).\n\nТипові помилки: *I have flu без артикля частіше the flu; *I have headache без a; *recipe для ліків (recipe — страва; prescription — ліки); *make sport — do sport / do exercise / work out / play football. injured / wounded / hurt — injured частіше нещасний випадок, wounded — поранення.",
+            "bodyEn": "Health: have a cold / have the flu (often the flu); catch a cold; a sore throat; a headache (a, because -ache pains are countable); feel sick (in BrE often “nauseous”; in AmE also “unwell”); be ill (BrE) / be sick (AmE). see a doctor / a GP; make an appointment; a prescription (for medicine, not a receipt); a pharmacy / a chemist's (BrE). a check-up; a vaccine / get vaccinated; symptoms; recover from.\n\nLifestyle: work out is training; a balanced diet; junk food; cut down on sugar; give up smoking; stay in shape; get enough sleep; mental health; burnt out / burnout. take medicine / take a pill (take, not *drink a pill).\n\nTypical mistakes: *I have flu with no article — more often the flu; *I have headache with no a; *recipe for medicine (a recipe is food; a prescription is medicine); *make sport — do sport / do exercise / work out / play football. injured / wounded / hurt — injured is more often an accident, wounded is a wound.",
+            "keyPointsUk": [
+              "a cold / the flu; a headache з a",
+              "make an appointment; a prescription ≠ a receipt / a recipe",
+              "take a pill; work out; do exercise, не *make sport",
+              "be ill (BrE) / be sick (AmE)"
+            ],
+            "keyPointsEn": [
+              "a cold / the flu; a headache with a",
+              "make an appointment; a prescription is not a receipt or a recipe",
+              "take a pill; work out; do exercise, not *make sport",
+              "be ill (BrE) / be sick (AmE)"
+            ]
+          },
+          {
+            "id": "en-d-theme-health-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "I've got a headache.",
+              "I've got headache.",
+              "The doctor wrote me a recipe for antibiotics, as the usual word.",
+              "I make sport every day."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "a headache — з артиклем a.",
+            "explanationEn": "a headache takes the article a."
+          },
+          {
+            "id": "en-d-theme-health-r2",
+            "type": "fill_blank",
+            "promptUk": "Рецепт на ліки англійською (не recipe). Напишіть prescription.",
+            "promptEn": "Type prescription.",
+            "sentence": "The doctor gave me a ___.",
+            "accepted": [
+              "prescription",
+              "Prescription"
+            ]
+          },
+          {
+            "id": "en-d-theme-health-r3",
+            "type": "mcq",
+            "promptUk": "Тренуватися в залі — природно:",
+            "promptEn": "Training in a gym is naturally:",
+            "options": [
+              "work out",
+              "make sport",
+              "take a pill as the usual meaning",
+              "catch a cold as “get fit”"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "work out — тренуватися.",
+            "explanationEn": "work out is training."
+          },
+          {
+            "id": "en-d-theme-health-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть із appointment.",
+            "promptEn": "Translate with appointment.",
+            "source": "Мені треба записатися до лікаря.",
+            "accepted": [
+              "I need to make an appointment with the doctor",
+              "I need to make a doctor's appointment",
+              "I have to make an appointment with the doctor",
+              "I need to make an appointment to see the doctor"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-theme-health-e",
+            "type": "explain",
+            "promptUk": "Чому кажуть a headache і the flu? Чим prescription відрізняється від recipe? Як сказати «тренуватися» і «записатися до лікаря»?",
+            "promptEn": "Why do we say a headache and the flu? How is a prescription different from a recipe? How do you say “train” and “book a time with a doctor”?",
+            "keyIdeas": [
+              {
+                "labelUk": "headache/flu",
+                "labelEn": "headache/flu",
+                "anyOf": [
+                  "a headache",
+                  "the flu",
+                  "a cold"
+                ]
+              },
+              {
+                "labelUk": "prescription",
+                "labelEn": "prescription",
+                "anyOf": [
+                  "prescription",
+                  "recipe",
+                  "receipt"
+                ]
+              },
+              {
+                "labelUk": "work out",
+                "labelEn": "work out",
+                "anyOf": [
+                  "work out",
+                  "appointment",
+                  "make sport"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Кажемо a headache з артиклем і часто the flu. Prescription — рецепт на ліки, recipe — рецепт страви. Тренуватися — work out або do exercise, не make sport. Записатися до лікаря — make an appointment.",
+            "sampleAnswerEn": "We say a headache with an article and often the flu. A prescription is for medicine, and a recipe is for food. Training is work out or do exercise, not make sport. Booking a time with a doctor is make an appointment."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-theme-food",
+        "titleUk": "Тема: їжа, кількість і ресторан",
+        "titleEn": "Theme: food, quantity and restaurants",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-theme-food-c",
+            "type": "concept",
+            "promptUk": "a piece of cake? food countability, a bill, a tip, dietary",
+            "promptEn": "food countability, a bill, a tip, dietary words",
+            "bodyUk": "Їжа добре тренує злічуваність. Незлічувані: bread, cheese, meat, fish (як їжа), rice, pasta, water, coffee, milk, fruit (часто), advice уже знали. Порції: a slice of bread / pizza; a piece of cake (і ідіома “легко”); a loaf of bread; a bar of chocolate; a glass of water; a cup of coffee; a bowl of soup. Деякі мають обидва сенси: a coffee (чашка); a chicken (птах) / chicken (м'ясо); a hair / hair.\n\nУ ресторані: a menu; a starter (брит.) / an appetizer (амер.); a main course; a dessert; a bill (брит.) / a check (амер.) — не the bill як закон у цьому сенсі; a tip; a reservation / book a table; it's on me — я пригощаю; split the bill. dietary: vegetarian, vegan, gluten-free, dairy-free, spicy, mild; I'm allergic to…; I don't eat…\n\nТипові помилки: *two breads як «дві скибки» (two slices); *a money; *I would like a soup без уточнення a bowl of, хоча a soup інколи чути як страву з меню; *account замість bill у ресторані (калька з українського «рахунок»). rare / medium / well-done — про стейк.",
+            "bodyEn": "Food is good practice for countability. Uncountable: bread, cheese, meat, fish (as food), rice, pasta, water, coffee, milk, fruit (often), and advice, which you already know. Portions: a slice of bread / pizza; a piece of cake (and the idiom “easy”); a loaf of bread; a bar of chocolate; a glass of water; a cup of coffee; a bowl of soup. Some words have both senses: a coffee (a cup); a chicken (the animal) / chicken (the meat); a hair / hair.\n\nIn a restaurant: a menu; a starter (BrE) / an appetizer (AmE); a main course; a dessert; a bill (BrE) / a check (AmE) — not the bill as a law in this sense; a tip; a reservation / book a table; it's on me means I am paying; split the bill. dietary: vegetarian, vegan, gluten-free, dairy-free, spicy, mild; I'm allergic to…; I don't eat…\n\nTypical mistakes: *two breads for “two slices” (two slices); *a money; *I would like a soup with no portion word, though a soup is sometimes heard as a menu item; *account instead of bill in a restaurant (a calque from Ukrainian “rakhunok”). rare / medium / well-done is about steak.",
+            "keyPointsUk": [
+              "bread, rice, water — незлічувані; a slice / a loaf / a glass",
+              "a bill (BrE) / a check (AmE); a tip; it's on me",
+              "book a table; starter / main / dessert",
+              "Не *two breads і не *account у ресторані"
+            ],
+            "keyPointsEn": [
+              "bread, rice, water are uncountable; a slice / a loaf / a glass",
+              "a bill (BrE) / a check (AmE); a tip; it's on me",
+              "book a table; starter / main / dessert",
+              "Not *two breads and not *account in a restaurant"
+            ]
+          },
+          {
+            "id": "en-d-theme-food-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "I'd like two slices of bread.",
+              "I'd like two breads, as the usual portion.",
+              "Can we have the account, as the usual restaurant word in English?",
+              "A money is on the table."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "two slices of bread — bread незлічуване.",
+            "explanationEn": "two slices of bread — bread is uncountable."
+          },
+          {
+            "id": "en-d-theme-food-r2",
+            "type": "fill_blank",
+            "promptUk": "Британською «рахунок у ресторані». Напишіть bill.",
+            "promptEn": "Type bill.",
+            "sentence": "Could we have the ___, please?",
+            "accepted": [
+              "bill",
+              "Bill",
+              "check",
+              "Check"
+            ]
+          },
+          {
+            "id": "en-d-theme-food-r3",
+            "type": "mcq",
+            "promptUk": "It's on me означає:",
+            "promptEn": "It's on me means:",
+            "options": [
+              "Я пригощаю / я плачу.",
+              "Це на мені фізично.",
+              "Рахунок спільний як єдине значення.",
+              "Страва гостра."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "it's on me — я плачу.",
+            "explanationEn": "it's on me means I am paying.",
+            "optionsEn": [
+              "I am paying.",
+              "It is physically on me.",
+              "We are splitting the bill, as the only meaning.",
+              "The dish is spicy."
+            ]
+          },
+          {
+            "id": "en-d-theme-food-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть із book a table.",
+            "promptEn": "Translate with book a table.",
+            "source": "Нам треба замовити столик на двох.",
+            "accepted": [
+              "We need to book a table for two",
+              "We need to book a table for two.",
+              "We'd like to book a table for two",
+              "We would like to book a table for two"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-theme-food-e",
+            "type": "explain",
+            "promptUk": "Як говорити про порції незлічуваної їжі? Як попросити рахунок у Британії? Що означає it's on me? Чому *account у ресторані — калька?",
+            "promptEn": "How do you talk about portions of uncountable food? How do you ask for the bill in Britain? What does it's on me mean? Why is *account in a restaurant a calque?",
+            "keyIdeas": [
+              {
+                "labelUk": "slices",
+                "labelEn": "slices",
+                "anyOf": [
+                  "slice",
+                  "loaf",
+                  "glass",
+                  "uncountable",
+                  "незлічув"
+                ]
+              },
+              {
+                "labelUk": "bill",
+                "labelEn": "bill",
+                "anyOf": [
+                  "bill",
+                  "check",
+                  "tip"
+                ]
+              },
+              {
+                "labelUk": "on me",
+                "labelEn": "on me",
+                "anyOf": [
+                  "on me",
+                  "account",
+                  "калька",
+                  "calque"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Для незлічуваного кажемо a slice of bread, a loaf, a glass of water. У Британії рахунок — the bill, у США часто the check. It's on me означає «я плачу». Account у ресторані — калька з українського «рахунок».",
+            "sampleAnswerEn": "For uncountable food we say a slice of bread, a loaf, a glass of water. In Britain the bill is the bill, and in the US it is often the check. It's on me means I am paying. Account in a restaurant is a calque from Ukrainian “rakhunok”."
+          }
+        ]
+      },
+      {
+        "slug": "en-deep-themes-a-exam",
+        "titleUk": "Контрольна: теми A (робота, освіта, подорожі, здоров'я, їжа)",
+        "titleEn": "Exam: themes A (work, education, travel, health, food)",
+        "baseXp": 30,
+        "difficulty": 3,
+        "isExam": true,
+        "passThreshold": 0.7,
+        "exercises": [
+          {
+            "id": "en-deep-themes-a-exam-q1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "She applied for the job.",
+              "She applied the job.",
+              "I have a work.",
+              "We arrived to the station."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "apply for.",
+            "explanationEn": "apply for."
+          },
+          {
+            "id": "en-deep-themes-a-exam-q2",
+            "type": "mcq",
+            "promptUk": "pass an exam означає:",
+            "promptEn": "pass an exam means:",
+            "options": [
+              "скласти успішно",
+              "просто прийти, як єдине значення",
+              "провалити",
+              "записатися до лікаря"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Успішно скласти.",
+            "explanationEn": "Succeed in it.",
+            "optionsEn": [
+              "succeed",
+              "just attend, as the only meaning",
+              "fail",
+              "make a doctor's appointment"
+            ]
+          },
+          {
+            "id": "en-deep-themes-a-exam-q3",
+            "type": "mcq",
+            "promptUk": "Рецепт на ліки:",
+            "promptEn": "A doctor's order for medicine:",
+            "options": [
+              "a prescription",
+              "a recipe",
+              "a receipt",
+              "a bill as the only medical word"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "prescription.",
+            "explanationEn": "prescription."
+          },
+          {
+            "id": "en-deep-themes-a-exam-q4",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "I've got a headache.",
+              "I've got headache.",
+              "two breads as two slices",
+              "I make sport every day."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "a headache.",
+            "explanationEn": "a headache."
+          },
+          {
+            "id": "en-deep-themes-a-exam-q5",
+            "type": "fill_blank",
+            "promptUk": "Could we have the ___? (рахунок, BrE)",
+            "promptEn": "Could we have the ___? (BrE restaurant)",
+            "sentence": "Could we have the ___, please?",
+            "accepted": [
+              "bill",
+              "Bill"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "en-deep-themes-b",
+    "titleUk": "Тематична лексика B: технології, довкілля, медіа, суспільство, гроші",
+    "titleEn": "Thematic vocabulary B: technology, environment, media, society, money",
+    "lessons": [
+      {
+        "slug": "en-d-theme-tech",
+        "titleUk": "Тема: технології та інтернет",
+        "titleEn": "Theme: technology and the internet",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-theme-tech-c",
+            "type": "concept",
+            "promptUk": "device, charge, a bug, sign in, browse, cloud",
+            "promptEn": "device, charge, a bug, sign in, browse, cloud",
+            "bodyUk": "Техніка: a device; a gadget; hardware / software; an app; a browser; a charger; charge a phone (не *load a phone — калька з «завантажити» інколи плутають із download). turn on / off; plug in; run out of battery; wireless / Wi-Fi; a password; a username; sign in / log in; sign out / log out; sign up — зареєструватися (не *sign in для реєстрації). download / upload; a file, a folder, a backup; the cloud; a link; a feed; a pop-up; a cookie (у браузері).\n\nПроблеми: a bug; a crash; freeze; it won't start; restore; update / upgrade (update — оновлення, upgrade — перехід на вищий рівень). browse the web; scroll; click / tap; swipe. privacy; personal data; two-factor authentication.\n\nТипові помилки: *enter in the site — go to / visit / open; *in the internet — on the internet; *download як «заряджати»; *save in desktop без the (save it to the desktop). install / uninstall. У наступному блоці skills буде ділова IT-англійська глибше.",
+            "bodyEn": "Technology: a device; a gadget; hardware / software; an app; a browser; a charger; charge a phone (not *load a phone — a calque from “zavantazhyty” sometimes mixed up with download). turn on / off; plug in; run out of battery; wireless / Wi-Fi; a password; a username; sign in / log in; sign out / log out; sign up is registering (not *sign in for registration). download / upload; a file, a folder, a backup; the cloud; a link; a feed; a pop-up; a cookie (in a browser).\n\nProblems: a bug; a crash; freeze; it won't start; restore; update / upgrade (update is a patch, upgrade is moving to a higher tier). browse the web; scroll; click / tap; swipe. privacy; personal data; two-factor authentication.\n\nTypical mistakes: *enter in the site — go to / visit / open; *in the internet — on the internet; *download for “charge”; *save in desktop with no the (save it to the desktop). install / uninstall. In the later skills block, workplace IT English goes deeper.",
+            "keyPointsUk": [
+              "charge a phone, не *load / *download у цьому сенсі",
+              "sign up = реєстрація; sign in = вхід",
+              "on the internet; a bug, a crash, a backup, the cloud",
+              "update ≠ upgrade"
+            ],
+            "keyPointsEn": [
+              "charge a phone, not *load / *download in this sense",
+              "sign up is registration; sign in is logging in",
+              "on the internet; a bug, a crash, a backup, the cloud",
+              "update is not upgrade"
+            ]
+          },
+          {
+            "id": "en-d-theme-tech-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне про реєстрацію.",
+            "promptEn": "Choose the correct option about registration.",
+            "options": [
+              "I signed up for an account.",
+              "I signed in for an account, as the usual “register”.",
+              "I charged the file from the site, as “download”.",
+              "I found it in the internet."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "sign up — зареєструватися; sign in — увійти.",
+            "explanationEn": "sign up is registering; sign in is logging in."
+          },
+          {
+            "id": "en-d-theme-tech-r2",
+            "type": "fill_blank",
+            "promptUk": "Прийменник: on або in (інтернет).",
+            "promptEn": "The preposition: on or in (the internet).",
+            "sentence": "I read about it ___ the internet.",
+            "accepted": [
+              "on",
+              "On"
+            ]
+          },
+          {
+            "id": "en-d-theme-tech-r3",
+            "type": "mcq",
+            "promptUk": "Зарядити телефон:",
+            "promptEn": "Give a phone battery power:",
+            "options": [
+              "charge the phone",
+              "download the phone",
+              "upload the phone",
+              "sign the phone up in this meaning"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "charge — заряджати.",
+            "explanationEn": "charge is giving battery power."
+          },
+          {
+            "id": "en-d-theme-tech-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть із bug.",
+            "promptEn": "Translate with bug.",
+            "source": "Ми знайшли помилку в коді.",
+            "accepted": [
+              "We found a bug in the code",
+              "We found a bug in the code.",
+              "We have found a bug in the code",
+              "We've found a bug in the code"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-theme-tech-e",
+            "type": "explain",
+            "promptUk": "Чим sign up відрізняється від sign in? Як сказати «зарядити» і «в інтернеті»? Чим update відрізняється від upgrade?",
+            "promptEn": "How is sign up different from sign in? How do you say “give a phone power” and “on the web”? How is update different from upgrade?",
+            "keyIdeas": [
+              {
+                "labelUk": "sign up/in",
+                "labelEn": "sign up/in",
+                "anyOf": [
+                  "sign up",
+                  "sign in",
+                  "log in"
+                ]
+              },
+              {
+                "labelUk": "charge / on",
+                "labelEn": "charge / on",
+                "anyOf": [
+                  "charge",
+                  "on the internet",
+                  "download"
+                ]
+              },
+              {
+                "labelUk": "update/upgrade",
+                "labelEn": "update/upgrade",
+                "anyOf": [
+                  "update",
+                  "upgrade",
+                  "bug",
+                  "cloud"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Sign up — зареєструватися, sign in — увійти. Зарядити телефон — charge, не download. Кажемо on the internet. Update — оновлення, upgrade — перехід на вищий рівень.",
+            "sampleAnswerEn": "Sign up is registering, and sign in is logging in. Giving a phone power is charge, not download. We say on the internet. An update is a patch, and an upgrade is moving to a higher tier."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-theme-env",
+        "titleUk": "Тема: довкілля та клімат",
+        "titleEn": "Theme: the environment and climate",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-theme-env-c",
+            "type": "concept",
+            "promptUk": "climate change, renewable, recycle, carbon footprint, waste",
+            "promptEn": "climate change, renewable, recycle, carbon footprint, waste",
+            "bodyUk": "Довкілля: the environment (з the); climate change (звичайно без the); global warming; greenhouse gases; carbon dioxide; a carbon footprint; emissions; fossil fuels (oil, coal, gas); renewable energy (solar, wind, hydro); a heatwave; a flood, a drought; biodiversity; an endangered species; deforestation; pollution (air / water / noise pollution); waste; recycle, reuse, reduce; a landfill; sustainable; eco-friendly.\n\nКолокації: cut emissions; raise awareness; take action; ban single-use plastic; sort rubbish (брит.) / trash (амер.); go green. climate crisis уже політично забарвлене — знайте, що слово вибирають свідомо.\n\nТипові помилки: *the climate change з the; *environment без the, коли про довкілля загалом (protect the environment); *nature як «довкілля» в політичному сенсі (nature — природа; environment — середовище, включно з людським); ecology — наука, не завжди синонім environment у публіцистиці. waste незлічуване в «відходи» загалом; a waste of time — інше значення.",
+            "bodyEn": "The environment (with the); climate change (usually no the); global warming; greenhouse gases; carbon dioxide; a carbon footprint; emissions; fossil fuels (oil, coal, gas); renewable energy (solar, wind, hydro); a heatwave; a flood, a drought; biodiversity; an endangered species; deforestation; pollution (air / water / noise pollution); waste; recycle, reuse, reduce; a landfill; sustainable; eco-friendly.\n\nCollocations: cut emissions; raise awareness; take action; ban single-use plastic; sort rubbish (BrE) / trash (AmE); go green. climate crisis is already politically coloured — know that the word is a conscious choice.\n\nTypical mistakes: *the climate change with the; *environment with no the when it means the natural world in general (protect the environment); *nature as “the environment” in a policy sense (nature is the natural world; the environment includes the human setting); ecology is the science, not always a synonym of environment in journalism. waste is uncountable in the “rubbish” sense; a waste of time is a different meaning.",
+            "keyPointsUk": [
+              "the environment; climate change без the",
+              "renewable energy; a carbon footprint; cut emissions",
+              "recycle, reuse, reduce; pollution; waste",
+              "ecology ≠ environment як синоніми завжди"
+            ],
+            "keyPointsEn": [
+              "the environment; climate change with no the",
+              "renewable energy; a carbon footprint; cut emissions",
+              "recycle, reuse, reduce; pollution; waste",
+              "ecology is not always a synonym of environment"
+            ]
+          },
+          {
+            "id": "en-d-theme-env-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "Climate change is a serious issue.",
+              "The climate change is a serious issue, as the usual article pattern.",
+              "We must protect environment, with no the.",
+              "Ecology always means “rubbish collection”."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "climate change зазвичай без the; the environment — з the.",
+            "explanationEn": "climate change usually has no the; the environment has the."
+          },
+          {
+            "id": "en-d-theme-env-r2",
+            "type": "fill_blank",
+            "promptUk": "Вставте слово: carbon ___ (слід).",
+            "promptEn": "Insert the word: carbon ___ (print).",
+            "sentence": "We want to reduce our carbon ___.",
+            "accepted": [
+              "footprint",
+              "Footprint"
+            ]
+          },
+          {
+            "id": "en-d-theme-env-r3",
+            "type": "mcq",
+            "promptUk": "solar і wind — це:",
+            "promptEn": "solar and wind are:",
+            "options": [
+              "renewable energy",
+              "fossil fuels",
+              "a landfill",
+              "a heatwave as the energy type"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "renewable — відновлювана енергія.",
+            "explanationEn": "renewable is energy that can be replenished."
+          },
+          {
+            "id": "en-d-theme-env-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть із recycle.",
+            "promptEn": "Translate with recycle.",
+            "source": "Ми сортуємо й переробляємо пластик.",
+            "accepted": [
+              "We sort and recycle plastic",
+              "We sort and recycle plastic.",
+              "We recycle plastic",
+              "We recycle plastic."
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-theme-env-e",
+            "type": "explain",
+            "promptUk": "Чому climate change зазвичай без the, а environment — з the? Що таке carbon footprint і renewable energy? Чим ecology відрізняється від environment?",
+            "promptEn": "Why does climate change usually have no the, while environment has the? What are a carbon footprint and renewable energy? How is ecology different from environment?",
+            "keyIdeas": [
+              {
+                "labelUk": "articles",
+                "labelEn": "articles",
+                "anyOf": [
+                  "climate change",
+                  "the environment",
+                  "the"
+                ]
+              },
+              {
+                "labelUk": "footprint",
+                "labelEn": "footprint",
+                "anyOf": [
+                  "carbon footprint",
+                  "renewable",
+                  "emissions"
+                ]
+              },
+              {
+                "labelUk": "ecology",
+                "labelEn": "ecology",
+                "anyOf": [
+                  "ecology",
+                  "science",
+                  "environment"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Climate change зазвичай без артикля, а про довкілля кажемо the environment. Carbon footprint — вуглецевий слід, renewable energy — відновлювана енергія. Ecology — наука, і це не завжди синонім environment.",
+            "sampleAnswerEn": "Climate change usually has no article, and we say the environment for the natural world. A carbon footprint is the carbon we are responsible for, and renewable energy can be replenished. Ecology is the science, and it is not always a synonym of environment."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-theme-media",
+        "titleUk": "Тема: медіа та новини",
+        "titleEn": "Theme: media and the news",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-theme-media-c",
+            "type": "concept",
+            "promptUk": "headline, source, biased, fake news, streaming",
+            "promptEn": "headline, source, biased, fake news, streaming",
+            "bodyUk": "Медіа: the news (незлічуване, з the: I watched the news; *a news немає — a news story / a piece of news). a headline; an article; a journalist; a source; a witness; an eyewitness report; breaking news; a press conference; a broadcast; a podcast; streaming; social media (часто як множина за змістом: social media are…, хоча is теж чути). a follower; a post; share; go viral; clickbait; a paywall.\n\nКритичне читання: reliable / unreliable; biased / unbiased; a rumour; fake news; a fact-check; freedom of the press; privacy; an interview already from work. according to…; it is claimed that… — хеджування з уроку C1.\n\nТипові помилки: *a news; *informations; *I saw in internet; *media is завжди в однині (the media are часто в брит. формальному стилі). tabloid / broadsheet — типи преси у Британії. cover a story — висвітлювати.",
+            "bodyEn": "Media: the news (uncountable, with the: I watched the news; there is no *a news — a news story / a piece of news). a headline; an article; a journalist; a source; a witness; an eyewitness report; breaking news; a press conference; a broadcast; a podcast; streaming; social media (often plural in agreement: social media are…, though is is also heard). a follower; a post; share; go viral; clickbait; a paywall.\n\nCritical reading: reliable / unreliable; biased / unbiased; a rumour; fake news; a fact-check; freedom of the press; privacy; an interview already from work. according to…; it is claimed that… — hedging from the C1 lesson.\n\nTypical mistakes: *a news; *informations; *I saw in internet; *media is always singular (the media are is common in formal BrE). tabloid / broadsheet are types of press in Britain. cover a story is reporting it.",
+            "keyPointsUk": [
+              "the news — незлічуване, з the; a piece of news",
+              "headline, source, breaking news, go viral, clickbait",
+              "reliable / biased; a fact-check; according to",
+              "Не *a news"
+            ],
+            "keyPointsEn": [
+              "the news is uncountable, with the; a piece of news",
+              "headline, source, breaking news, go viral, clickbait",
+              "reliable / biased; a fact-check; according to",
+              "Not *a news"
+            ]
+          },
+          {
+            "id": "en-d-theme-media-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "I watched the news.",
+              "I watched a news.",
+              "I saw it in internet.",
+              "This is an important information, with a, as usual."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "the news — незлічуване, з the.",
+            "explanationEn": "the news is uncountable, with the."
+          },
+          {
+            "id": "en-d-theme-media-r2",
+            "type": "fill_blank",
+            "promptUk": "Заголовок статті — headline. Напишіть headline.",
+            "promptEn": "Type headline.",
+            "sentence": "The ___ was misleading.",
+            "accepted": [
+              "headline",
+              "Headline"
+            ]
+          },
+          {
+            "id": "en-d-theme-media-r3",
+            "type": "mcq",
+            "promptUk": "biased означає:",
+            "promptEn": "biased means:",
+            "options": [
+              "упереджений",
+              "надійний, як синонім reliable",
+              "вірусний",
+              "платний доступ"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "biased — упереджений.",
+            "explanationEn": "biased means leaning to one side.",
+            "optionsEn": [
+              "leaning to one side",
+              "reliable, as a synonym of reliable",
+              "viral",
+              "behind a paywall"
+            ]
+          },
+          {
+            "id": "en-d-theme-media-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть із according to і source.",
+            "promptEn": "Translate with according to and source.",
+            "source": "За даними цього джерела, сайт упав.",
+            "accepted": [
+              "According to this source, the site went down",
+              "According to this source, the site went down.",
+              "According to this source the site went down",
+              "According to the source, the site went down"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-theme-media-e",
+            "type": "explain",
+            "promptUk": "Чому не кажуть *a news? Що таке headline, biased і fact-check? Як хеджувати джерело?",
+            "promptEn": "Why don't we say *a news? What are a headline, biased and a fact-check? How do you hedge a source?",
+            "keyIdeas": [
+              {
+                "labelUk": "the news",
+                "labelEn": "the news",
+                "anyOf": [
+                  "the news",
+                  "piece of news",
+                  "uncountable"
+                ]
+              },
+              {
+                "labelUk": "biased",
+                "labelEn": "biased",
+                "anyOf": [
+                  "biased",
+                  "reliable",
+                  "headline",
+                  "fact-check"
+                ]
+              },
+              {
+                "labelUk": "according to",
+                "labelEn": "according to",
+                "anyOf": [
+                  "according to",
+                  "source",
+                  "claimed"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "News незлічуване, тому кажемо the news або a piece of news, не *a news. Headline — заголовок, biased — упереджений, a fact-check — перевірка фактів. Джерело хеджуємо через according to або it is claimed that.",
+            "sampleAnswerEn": "News is uncountable, so we say the news or a piece of news, not *a news. A headline is the title, biased means leaning to one side, and a fact-check is verifying facts. We hedge a source with according to or it is claimed that."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-theme-society",
+        "titleUk": "Тема: суспільство, право і громадянин",
+        "titleEn": "Theme: society, law and citizenship",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-theme-society-c",
+            "type": "concept",
+            "promptUk": "rights, a law, vote, a fine, volunteer, equality",
+            "promptEn": "rights, a law, vote, a fine, volunteer, equality",
+            "bodyUk": "Суспільство: society (часто без the, коли про суспільство загалом); a community; a citizen; citizenship; rights and duties; equality; diversity; inclusion; discrimination; poverty; a welfare state; a protest; a campaign; raise awareness уже з довкілля; volunteer (іменник і дієслово); a charity; donate.\n\nПраво: a law; break the law; pass a law; a rule ≠ a law (rule — правило організації); a crime; a criminal; steal, robbery, fraud, burglary — різні склади, не синоніми. the police (з the, множина: the police are). a fine — штраф; a court; a trial; a lawyer (брит. solicitor / barrister — різні ролі); innocent / guilty; evidence (незлічуване). vote; an election; a government (часто a / the); a mayor.\n\nТипові помилки: *the society про суспільство загалом; *police is (The police are investigating); *evidences; *a crime як будь-яке «порушення» (порушити правило — break a rule). human rights — множина.",
+            "bodyEn": "Society (often no the when it means society in general); a community; a citizen; citizenship; rights and duties; equality; diversity; inclusion; discrimination; poverty; a welfare state; a protest; a campaign; raise awareness already from the environment lesson; volunteer (noun and verb); a charity; donate.\n\nLaw: a law; break the law; pass a law; a rule is not a law (a rule is an organisation's rule); a crime; a criminal; steal, robbery, fraud, burglary are different offences, not synonyms. the police (with the, plural: the police are). a fine is a money penalty; a court; a trial; a lawyer (in BrE solicitor / barrister are different roles); innocent / guilty; evidence (uncountable). vote; an election; a government (often a / the); a mayor.\n\nTypical mistakes: *the society for society in general; *police is (The police are investigating); *evidences; *a crime for any “breach” (breaking a rule is break a rule). human rights is plural.",
+            "keyPointsUk": [
+              "society часто без the; the police are",
+              "a law / a rule; a fine; evidence незлічуване",
+              "rights, equality, volunteer, a charity",
+              "vote, an election; innocent / guilty"
+            ],
+            "keyPointsEn": [
+              "society often has no the; the police are",
+              "a law / a rule; a fine; evidence is uncountable",
+              "rights, equality, volunteer, a charity",
+              "vote, an election; innocent / guilty"
+            ]
+          },
+          {
+            "id": "en-d-theme-society-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "The police are investigating.",
+              "The police is investigating, as the usual formal BrE agreement.",
+              "The society is unfair, as the usual article for society in general.",
+              "We have many evidences."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "the police — множина; evidence незлічуване.",
+            "explanationEn": "the police is plural; evidence is uncountable."
+          },
+          {
+            "id": "en-d-theme-society-r2",
+            "type": "fill_blank",
+            "promptUk": "Штраф англійською. Напишіть fine.",
+            "promptEn": "Type fine.",
+            "sentence": "He had to pay a ___.",
+            "accepted": [
+              "fine",
+              "Fine"
+            ]
+          },
+          {
+            "id": "en-d-theme-society-r3",
+            "type": "mcq",
+            "promptUk": "volunteer як дієслово означає:",
+            "promptEn": "volunteer as a verb means:",
+            "options": [
+              "працювати добровольцем",
+              "сплатити штраф",
+              "порушити закон",
+              "проголосувати як єдине значення"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "volunteer — бути добровольцем.",
+            "explanationEn": "volunteer is offering your time.",
+            "optionsEn": [
+              "offer your time unpaid",
+              "pay a fine",
+              "break the law",
+              "vote, as the only meaning"
+            ]
+          },
+          {
+            "id": "en-d-theme-society-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть із human rights.",
+            "promptEn": "Translate with human rights.",
+            "source": "Вони захищають права людини.",
+            "accepted": [
+              "They defend human rights",
+              "They defend human rights.",
+              "They protect human rights",
+              "They protect human rights."
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-theme-society-e",
+            "type": "explain",
+            "promptUk": "Як узгоджується the police? Чим a law відрізняється від a rule? Чому *evidences помилка? Що таке a fine і volunteer?",
+            "promptEn": "How does the police agree? How is a law different from a rule? Why is *evidences wrong? What are a fine and volunteer?",
+            "keyIdeas": [
+              {
+                "labelUk": "police",
+                "labelEn": "police",
+                "anyOf": [
+                  "the police are",
+                  "police"
+                ]
+              },
+              {
+                "labelUk": "law/rule",
+                "labelEn": "law/rule",
+                "anyOf": [
+                  "law",
+                  "rule",
+                  "fine",
+                  "evidence"
+                ]
+              },
+              {
+                "labelUk": "volunteer",
+                "labelEn": "volunteer",
+                "anyOf": [
+                  "volunteer",
+                  "rights",
+                  "society"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "The police узгоджується як множина: the police are. A law — закон держави, a rule — правило організації. Evidence незлічуване, тому *evidences помилка. A fine — штраф, volunteer — працювати добровольцем.",
+            "sampleAnswerEn": "The police takes plural agreement: the police are. A law is a state law, and a rule is an organisation's rule. Evidence is uncountable, so *evidences is wrong. A fine is a money penalty, and volunteer is offering your time."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-theme-money",
+        "titleUk": "Тема: гроші, покупки та банк",
+        "titleEn": "Theme: money, shopping and the bank",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-theme-money-c",
+            "type": "concept",
+            "promptUk": "afford, a discount, in debt, a refund, a current account",
+            "promptEn": "afford, a discount, in debt, a refund, a current account",
+            "bodyUk": "Гроші: earn, spend, save, waste, invest; afford — мати змогу купити (I can't afford it). cost, charge, a fee, a price, a bargain, a discount (10% off); be worth. pay in cash / by card / by contactless; a receipt уже як фальшивий друг (чек). a refund — повернення грошей; exchange; a receipt ≠ a bill у магазині (bill частіше ресторан або рахунок до сплати).\n\nБанк: a current account (брит.) / a checking account (амер.); a savings account; a debit / credit card; a PIN; withdraw money; a cash machine / an ATM; a transfer; interest (відсотки, незлічуване в цьому сенсі); in debt / get into debt / pay off a debt; a mortgage; a loan; a budget; overdraft. cheap / inexpensive / reasonable / pricey / expensive — градація, не лише cheap/expensive.\n\nТипові помилки: *a money; *the price is expensive (the thing is expensive / the price is high); *pay the shop (pay the shop assistant / pay at the till / pay for the goods); *credit як будь-яка картка (debit знімає свої, credit — кредит). change — решта.",
+            "bodyEn": "Money: earn, spend, save, waste, invest; afford is having enough to buy (I can't afford it). cost, charge, a fee, a price, a bargain, a discount (10% off); be worth. pay in cash / by card / by contactless; a receipt already as a false friend (the till slip). a refund is getting your money back; exchange; a receipt is not a bill in a shop (a bill is more often a restaurant or an amount to pay).\n\nThe bank: a current account (BrE) / a checking account (AmE); a savings account; a debit / credit card; a PIN; withdraw money; a cash machine / an ATM; a transfer; interest (the percentage, uncountable in this sense); in debt / get into debt / pay off a debt; a mortgage; a loan; a budget; an overdraft. cheap / inexpensive / reasonable / pricey / expensive is a scale, not only cheap/expensive.\n\nTypical mistakes: *a money; *the price is expensive (the thing is expensive / the price is high); *pay the shop (pay the shop assistant / pay at the till / pay for the goods); *credit for every card (debit spends your money, credit is borrowed). change is the money you get back.",
+            "keyPointsUk": [
+              "afford; a discount; a refund; a receipt",
+              "the price is high, не *the price is expensive",
+              "current / savings account; in debt; interest",
+              "debit ≠ credit; change = решта"
+            ],
+            "keyPointsEn": [
+              "afford; a discount; a refund; a receipt",
+              "the price is high, not *the price is expensive",
+              "current / savings account; in debt; interest",
+              "debit is not credit; change is money back"
+            ]
+          },
+          {
+            "id": "en-d-theme-money-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "The price is too high.",
+              "The price is too expensive.",
+              "I have a money.",
+              "I paid the shop, as the usual pattern."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "price — high/low; товар — expensive.",
+            "explanationEn": "A price is high or low; a thing is expensive."
+          },
+          {
+            "id": "en-d-theme-money-r2",
+            "type": "fill_blank",
+            "promptUk": "«Не можу собі дозволити» — дієслово. Напишіть afford.",
+            "promptEn": "Type afford.",
+            "sentence": "I can't ___ a new laptop right now.",
+            "accepted": [
+              "afford",
+              "Afford"
+            ]
+          },
+          {
+            "id": "en-d-theme-money-r3",
+            "type": "mcq",
+            "promptUk": "refund означає:",
+            "promptEn": "a refund means:",
+            "options": [
+              "повернення грошей",
+              "знижка як синонім discount",
+              "решта",
+              "іпотека"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "refund — повернути гроші.",
+            "explanationEn": "a refund is getting your money back.",
+            "optionsEn": [
+              "getting your money back",
+              "a discount, as a synonym of discount",
+              "change",
+              "a mortgage"
+            ]
+          },
+          {
+            "id": "en-d-theme-money-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть із discount.",
+            "promptEn": "Translate with discount.",
+            "source": "На цей товар є знижка десять відсотків.",
+            "accepted": [
+              "There is a ten percent discount on this item",
+              "There's a ten percent discount on this item",
+              "There is a 10% discount on this item",
+              "This item has a ten percent discount",
+              "This item is ten percent off"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-theme-money-e",
+            "type": "explain",
+            "promptUk": "Чому *the price is expensive помилка? Що означають afford, refund і in debt? Чим debit відрізняється від credit?",
+            "promptEn": "Why is *the price is expensive wrong? What do afford, a refund and in debt mean? How is debit different from credit?",
+            "keyIdeas": [
+              {
+                "labelUk": "price high",
+                "labelEn": "price high",
+                "anyOf": [
+                  "price is high",
+                  "expensive",
+                  "afford"
+                ]
+              },
+              {
+                "labelUk": "refund/debt",
+                "labelEn": "refund/debt",
+                "anyOf": [
+                  "refund",
+                  "in debt",
+                  "discount"
+                ]
+              },
+              {
+                "labelUk": "debit/credit",
+                "labelEn": "debit/credit",
+                "anyOf": [
+                  "debit",
+                  "credit",
+                  "change"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Кажемо the price is high або the laptop is expensive, не *the price is expensive. Afford — мати змогу купити, a refund — повернення грошей, in debt — у боргах. Debit знімає ваші гроші, credit — позичені.",
+            "sampleAnswerEn": "We say the price is high or the laptop is expensive, not *the price is expensive. Afford is having enough to buy, a refund is getting your money back, and in debt means owing money. Debit spends your own money, and credit is borrowed."
+          }
+        ]
+      },
+      {
+        "slug": "en-deep-themes-b-exam",
+        "titleUk": "Контрольна: теми B (технології, довкілля, медіа, суспільство, гроші)",
+        "titleEn": "Exam: themes B (technology, environment, media, society, money)",
+        "baseXp": 30,
+        "difficulty": 3,
+        "isExam": true,
+        "passThreshold": 0.7,
+        "exercises": [
+          {
+            "id": "en-deep-themes-b-exam-q1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "I signed up for an account.",
+              "I signed in for an account, as “register”.",
+              "I found it in the internet.",
+              "I watched a news."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "sign up — реєстрація.",
+            "explanationEn": "sign up is registration."
+          },
+          {
+            "id": "en-deep-themes-b-exam-q2",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "Climate change is a serious issue.",
+              "The climate change is a serious issue, as the usual pattern.",
+              "We must protect environment, with no the.",
+              "The police is investigating, as usual formal BrE."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "climate change без the.",
+            "explanationEn": "climate change with no the."
+          },
+          {
+            "id": "en-deep-themes-b-exam-q3",
+            "type": "mcq",
+            "promptUk": "biased означає:",
+            "promptEn": "biased means:",
+            "options": [
+              "упереджений",
+              "надійний",
+              "відновлюваний",
+              "дешевий"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Упереджений.",
+            "explanationEn": "Leaning to one side.",
+            "optionsEn": [
+              "leaning to one side",
+              "reliable",
+              "renewable",
+              "cheap"
+            ]
+          },
+          {
+            "id": "en-deep-themes-b-exam-q4",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "The price is too high.",
+              "The price is too expensive.",
+              "I have a money.",
+              "We have many evidences."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "the price is high.",
+            "explanationEn": "the price is high."
+          },
+          {
+            "id": "en-deep-themes-b-exam-q5",
+            "type": "fill_blank",
+            "promptUk": "I can't ___ it. (дозволити собі)",
+            "promptEn": "I can't ___ it. (have enough money)",
+            "sentence": "I can't ___ it.",
+            "accepted": [
+              "afford",
+              "Afford"
+            ]
+          }
+        ]
+      }
+    ]
   }
 ];
 
