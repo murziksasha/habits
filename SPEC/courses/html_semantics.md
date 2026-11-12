@@ -91,9 +91,9 @@ Semantic markup: landmarks, outline, accessible forms & validation, focus manage
 
 ## Depth now
 
-- Units: 11
-- Lessons: 39
-- Exams: 11
+- Units: 14
+- Lessons: 51
+- Exams: 14
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, match, mcq
 
@@ -101,3 +101,12 @@ Semantic markup: landmarks, outline, accessible forms & validation, focus manage
 
 - MDN HTML Accessibility & Forms: https://developer.mozilla.org/
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+New units:
+
+- `responsive_media` — Responsive images and media (4 lessons including exam)
+- `web_components_html` — Web Components in HTML: template, slots, shadow (4 lessons including exam)
+- `metadata_social` — Metadata, canonical URLs, and social previews (4 lessons including exam)

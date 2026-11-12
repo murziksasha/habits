@@ -90,9 +90,9 @@ Full TypeScript course: primitives to generics, narrowing, and utility types. Un
 
 ## Depth now
 
-- Units: 11
-- Lessons: 38
-- Exams: 11
+- Units: 19
+- Lessons: 70
+- Exams: 19
 - Free non-exam lessons: 6
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, mcq
 
@@ -100,3 +100,16 @@ Full TypeScript course: primitives to generics, narrowing, and utility types. Un
 
 - TypeScript Handbook: https://www.typescriptlang.org/docs/
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+New units:
+
+- `branded_types` — Branded types and opaque ids (4 lessons including exam)
+- `satisfies_const` — satisfies, const assertions and as const (4 lessons including exam)
+- `template_literal_types` — Template literal types (4 lessons including exam)
+- `assertion_functions` — Predicates and asserts (4 lessons including exam)
+- `module_augmentation` — Module augmentation and merging (4 lessons including exam)
+- `recursive_types` — Recursive types (4 lessons including exam)
+- `this_parameters` — The this parameter (4 lessons including exam)

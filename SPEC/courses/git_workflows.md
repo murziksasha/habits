@@ -47,9 +47,18 @@ Commit history and bisect, branching and rebase safety, conflict resolution with
 
 ## Depth now
 
-- Units: 5
-- Lessons: 13
-- Exams: 5
+- Units: 8
+- Lessons: 25
+- Exams: 8
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_project, code_read, match, mcq
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+New units:
+
+- `gw_worktrees_bisect` — Multiple worktrees, bisect, and rerere (4 lessons including exam)
+- `gw_signing_verify` — Commit signatures and server-side checks (4 lessons including exam)
+- `gw_large_repos` — Large repositories: sparse checkout, LFS, and submodules (4 lessons including exam)

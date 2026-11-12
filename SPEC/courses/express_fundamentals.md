@@ -86,9 +86,19 @@ App, routes, middleware, REST, validation resilience, auth vs ownership, Router,
 
 ## Depth now
 
-- Units: 11
-- Lessons: 34
-- Exams: 11
+- Units: 15
+- Lessons: 50
+- Exams: 15
 - Free non-exam lessons: 7
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, match, mcq
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+New units:
+
+- `cookies_sessions` — Cookies, flags, and sessions (4 lessons including exam)
+- `uploads_limits` — File uploads and body limits (4 lessons including exam)
+- `security_headers` — Security headers, CORS, and rate limits (4 lessons including exam)
+- `testing_express` — Testing Express: the app, routes, and middleware (4 lessons including exam)

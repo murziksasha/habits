@@ -51,8 +51,18 @@ Defensive agent security: tool trust boundaries, indirect prompt injection separ
 
 ## Depth now
 
-- Units: 6
-- Lessons: 18
-- Exams: 6
+- Units: 9
+- Lessons: 27
+- Exams: 9
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_read, match, mcq
+
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+New units:
+
+- `as_data_residency` — Data residency and what goes to the provider (3 lessons including exam)
+- `as_jailbreak_evals` — Refusal evaluation: jailbreaks as a regression set (3 lessons including exam)
+- `as_log_redaction` — Logs, traces, and the right to be forgotten in AI systems (3 lessons including exam)

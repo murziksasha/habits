@@ -55,9 +55,9 @@ App Router, explicit Server/Client boundaries, isolated server data access, vali
 
 ## Depth now
 
-- Units: 7
-- Lessons: 15
-- Exams: 7
+- Units: 10
+- Lessons: 27
+- Exams: 10
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_project, code_read, match, mcq
 
@@ -65,3 +65,12 @@ App Router, explicit Server/Client boundaries, isolated server data access, vali
 
 - Next.js Server and Client Components: https://nextjs.org/docs/app/getting-started/server-and-client-components
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+New units:
+
+- `nx_streaming_ppr` — Streaming, Suspense, and partial prerendering (4 lessons including exam)
+- `nx_metadata_assets` — Metadata, images, and fonts (4 lessons including exam)
+- `nx_middleware_edges` — Middleware, parallel routes, and edges (4 lessons including exam)

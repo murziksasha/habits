@@ -122,9 +122,18 @@ Deep testing theory: principles, levels, types, black/white-box, STLC, defects, 
 
 ## Depth now
 
-- Units: 16
-- Lessons: 59
-- Exams: 16
+- Units: 19
+- Lessons: 71
+- Exams: 19
 - Free non-exam lessons: 6
 - Exercise types in seed: code_order, match, mcq
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+New units:
+
+- `test_data_mgmt` — Test data: synthetics, PII, and refresh (4 lessons including exam)
+- `contract_testing` — API contracts, schemas, and compatibility (4 lessons including exam)
+- `exploratory_charters` — Exploratory testing: charters, oracles, and tours (4 lessons including exam)

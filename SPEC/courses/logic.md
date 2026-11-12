@@ -84,9 +84,19 @@ Sequences, patterns, and critical thinking puzzles.
 
 ## Depth now
 
-- Units: 8
-- Lessons: 47
+- Units: 14
+- Lessons: 77
 - Exams: 3
 - Free non-exam lessons: 6
 - Exercise types in seed: logic_puzzle
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) units in `packages/content/src/expansion/logic-exp.ts`.
+
+- `propositional` — Propositional logic
+- `fallacies` — Logical fallacies
+- `probability` — Probability and counting
+- `graphs-invariants` — Graphs and invariants
+- `quantifiers` — Quantifiers
+- `necessary-sufficient` — Necessary and sufficient conditions

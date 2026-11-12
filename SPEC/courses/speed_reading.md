@@ -50,9 +50,18 @@ RSVP, chunking, and reading comprehension.
 
 ## Depth now
 
-- Units: 3
-- Lessons: 28
+- Units: 8
+- Lessons: 53
 - Exams: 3
 - Free non-exam lessons: 6
 - Exercise types in seed: comprehension, mcq, rsvp
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) units in `packages/content/src/expansion/speed-reading-exp.ts`.
+
+- `argument-structure` — Argument structure
+- `research-abstracts` — Abstracts and methods
+- `operational-text` — Operational texts
+- `flexible-speed` — Flexible speed
+- `recall-notes` — Recall and notes

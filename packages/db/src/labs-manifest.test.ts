@@ -9,6 +9,9 @@ import {
   aiSecurityContent,
   agenticSystemsContent,
   appliedAlgorithmsContent,
+  goFundamentalsContent,
+  webAccessibilityContent,
+  restApiDesignContent,
   chessContent,
   cssLayoutContent,
   devopsContent,
@@ -72,6 +75,9 @@ const ALL_CONTENT: CourseContent[] = [
   aiProductContent,
   nextjsFullstackContent,
   appliedAlgorithmsContent,
+  goFundamentalsContent,
+  webAccessibilityContent,
+  restApiDesignContent,
 ];
 
 function readZipEntryNames(buf: Buffer): string[] {

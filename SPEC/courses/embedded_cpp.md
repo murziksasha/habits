@@ -139,9 +139,18 @@ C++ for constrained systems and miltech stack: memory, CMake, networking, FreeRT
 
 ## Depth now
 
-- Units: 18
-- Lessons: 72
-- Exams: 18
+- Units: 21
+- Lessons: 84
+- Exams: 21
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, code_run, match, mcq
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+New units:
+
+- `isr_concurrency` — Interrupts: ISRs, volatile, and deferred work (4 lessons including exam)
+- `power_management` — Power: sleep, wake sources, and peripherals (4 lessons including exam)
+- `bootloader_ota` — Bootloader, OTA, and rollback (4 lessons including exam)

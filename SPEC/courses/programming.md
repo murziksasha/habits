@@ -119,7 +119,7 @@ Mimo-style path: HTML → CSS → JS → TypeScript → React → Git → Node �
 ## Depth now
 
 - Units: 10
-- Lessons: 74
+- Lessons: 84
 - Exams: 10
 - Free non-exam lessons: 17
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, match, mcq
@@ -128,3 +128,19 @@ Mimo-style path: HTML → CSS → JS → TypeScript → React → Git → Node �
 
 - MDN Employability Curriculum: https://developer.mozilla.org/en-US/curriculum/about-curriculum/
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+Lessons inserted into existing units (before the unit exam):
+
+- `html` ← `html-datalist-autocomplete` — datalist: suggestions that do not replace typing
+- `css` ← `css-custom-props` — CSS custom properties: theme tokens and a fallback
+- `js` ← `js-optional-chaining-prog` — Optional chaining and a default value
+- `typescript` ← `ts-narrowing-in` — Narrowing: in, typeof, and a discriminant
+- `react` ← `react-lists-stable-keys` — Stable list keys, not the index
+- `git` ← `git-stash-wip` — stash: temporarily put unfinished work aside
+- `node` ← `node-url-path` — path and fileURLToPath: paths without ESM surprises
+- `express` ← `express-query-validation` — Validating query and params before business logic
+- `sql` ← `sql-three-valued` — Three-valued logic: NULL and WHERE
+- `qa` ← `qa-exploratory-note` — An exploratory session note as an artefact

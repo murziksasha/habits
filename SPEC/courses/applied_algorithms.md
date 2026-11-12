@@ -50,9 +50,18 @@ Complexity profiling in web apps, Map/Set indexing vs O(N²), undo stacks and bo
 
 ## Depth now
 
-- Units: 6
-- Lessons: 13
-- Exams: 6
+- Units: 9
+- Lessons: 25
+- Exams: 9
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, match, mcq
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+New units:
+
+- `aa_hashing_bloom` — Hashing, Bloom filters, and when an error is acceptable (4 lessons including exam)
+- `aa_heaps_graphs` — Heaps, priority queues, and graphs (4 lessons including exam)
+- `aa_lru_ratelimit` — An LRU cache and rate limiting (4 lessons including exam)

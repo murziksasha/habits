@@ -53,9 +53,9 @@ Clear specifications, safe context curation, reviewing saved AI diffs, catching 
 
 ## Depth now
 
-- Units: 6
-- Lessons: 16
-- Exams: 6
+- Units: 9
+- Lessons: 28
+- Exams: 9
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_project, code_read, match, mcq
 
@@ -63,3 +63,12 @@ Clear specifications, safe context curation, reviewing saved AI diffs, catching 
 
 - GitHub Guidance for Reviewing AI-Generated Code: https://github.com/github/docs/blob/main/content/copilot/tutorials/review-ai-generated-code.md
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+New units:
+
+- `ai_structured_output` — Structured output: a schema, not free text (4 lessons including exam)
+- `ai_rag_eval` — Evaluating RAG: whether you found the right thing and did not invent (4 lessons including exam)
+- `ai_prompt_cache` — Prompt-prefix cache and control of a coder's context (4 lessons including exam)

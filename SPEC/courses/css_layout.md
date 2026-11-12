@@ -89,9 +89,9 @@ Deep layout track: box model, Flexbox, CSS Grid, responsive, flex vs grid. Unit 
 
 ## Depth now
 
-- Units: 11
-- Lessons: 41
-- Exams: 11
+- Units: 15
+- Lessons: 57
+- Exams: 15
 - Free non-exam lessons: 6
 - Exercise types in seed: code_fill, code_order, code_project, code_read, match, mcq
 
@@ -99,3 +99,13 @@ Deep layout track: box model, Flexbox, CSS Grid, responsive, flex vs grid. Unit 
 
 - MDN CSS Cascade, Layout & Container Queries: https://developer.mozilla.org/
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+New units:
+
+- `css_animations` — Transitions, keyframes, and reduced motion (4 lessons including exam)
+- `logical_properties` — Logical properties and writing modes (4 lessons including exam)
+- `color_modern` — Modern color: oklch, mixing, light and dark (4 lessons including exam)
+- `subgrid_has_snap` — subgrid, :has, and scroll-snap (4 lessons including exam)

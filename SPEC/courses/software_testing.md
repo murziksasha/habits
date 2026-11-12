@@ -55,9 +55,18 @@ Testable requirements, high-signal unit tests, boundary fixtures, React componen
 
 ## Depth now
 
-- Units: 6
-- Lessons: 18
-- Exams: 6
+- Units: 9
+- Lessons: 30
+- Exams: 9
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, match, mcq
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+New units:
+
+- `st_mutation_testing` — Mutation testing: whether the tests actually catch faults (4 lessons including exam)
+- `st_property_flaky` — Properties, randomness, and flaky tests (4 lessons including exam)
+- `st_perf_impact` — Load, change impact, and visual regressions (4 lessons including exam)

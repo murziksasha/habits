@@ -84,9 +84,21 @@ Learn English through short interactive lessons.
 
 ## Depth now
 
-- Units: 9
-- Lessons: 44
+- Units: 18
+- Lessons: 86
 - Exams: 3
 - Free non-exam lessons: 11
 - Exercise types in seed: fill_blank, match, mcq, order_words, translate
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) units in `packages/content/src/expansion/english-exp.ts`.
+
+- `articles-determiners` — Articles and determiners
+- `conditionals` — Conditionals
+- `phrasal-work` — Phrasal verbs: work and study
+- `reported-speech` — Reported speech
+- `prepositions-place-time` — Prepositions of place and time
+- `relative-clauses` — Relative clauses
+- `modal-verbs` — Modal verbs
+- `tech-english` — Technical English

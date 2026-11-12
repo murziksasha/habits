@@ -128,9 +128,9 @@ Oracle SQL along the public 1Z0-071 checklist: SELECT, functions, joins, subquer
 
 ## Depth now
 
-- Units: 16
-- Lessons: 65
-- Exams: 16
+- Units: 44
+- Lessons: 177
+- Exams: 44
 - Free non-exam lessons: 6
 - Exercise types in seed: code_fill, code_order, code_output, code_read, match, mcq
 
@@ -138,3 +138,13 @@ Oracle SQL along the public 1Z0-071 checklist: SELECT, functions, joins, subquer
 
 - Oracle 1Z0-071 / PostgreSQL comparison dialect notes
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+New units:
+
+- `hierarchical_queries` — Hierarchies: CONNECT BY and recursive WITH (4 lessons including exam)
+- `materialized_views` — Materialized views and query rewrite (4 lessons including exam)
+- `table_partitioning` — Table partitioning and partition pruning (4 lessons including exam)
+- `sql_profiling` — SQL profiling: the monitor, ASH, and bind peeking (4 lessons including exam)

@@ -184,9 +184,18 @@ One service, forge-status: a Git-to-Kubernetes survey, then Stay up and On call.
 
 ## Depth now
 
-- Units: 19
-- Lessons: 108
-- Exams: 19
+- Units: 22
+- Lessons: 123
+- Exams: 22
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_output, code_read, comprehension, match, mcq
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+New units:
+
+- `finops_cost` — Cloud FinOps: tags, idle resources, and budgets (5 lessons including exam)
+- `supply_chain_builds` — Build supply chain: SBOMs, pins, and provenance (5 lessons including exam)
+- `policy_as_code` — Policy as code: OPA, admission, and break-glass (5 lessons including exam)

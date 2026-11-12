@@ -66,9 +66,19 @@ Theory, puzzles, and live games with other players.
 
 ## Depth now
 
-- Units: 7
-- Lessons: 32
+- Units: 13
+- Lessons: 62
 - Exams: 3
 - Free non-exam lessons: 7
 - Exercise types in seed: chess_lesson, chess_puzzle, mcq
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) units in `packages/content/src/expansion/chess-exp.ts`.
+
+- `opening-principles-plus` — Opening principles in more depth
+- `pawn-structures` — Pawn structures
+- `middlegame-plans` — Middlegame plans
+- `rook-endgames-plus` — Rook endgames
+- `calculation-hygiene` — Calculation hygiene
+- `practical-study` — Practical play and study

@@ -132,9 +132,9 @@ Deep JS: types, operators, functions, arrays, objects, async/await, DOM, modules
 
 ## Depth now
 
-- Units: 18
-- Lessons: 59
-- Exams: 18
+- Units: 25
+- Lessons: 103
+- Exams: 25
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, match, mcq
 
@@ -142,3 +142,34 @@ Deep JS: types, operators, functions, arrays, objects, async/await, DOM, modules
 
 - MDN JavaScript & Fetch/AbortController Guides: https://developer.mozilla.org/
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+New units:
+
+- `classes_oop` — Classes, inheritance and private fields (4 lessons including exam)
+- `collections_maps` — Map, Set and weak collections (4 lessons including exam)
+- `iterators_generators` — Iterators and generators (4 lessons including exam)
+- `regexp_text` — Regular expressions and Unicode (4 lessons including exam)
+- `dates_intl` — Date, time and Intl (4 lessons including exam)
+- `proxy_meta` — Proxy, Symbol and Reflect (4 lessons including exam)
+
+Lessons inserted into existing units (before the unit exam):
+
+- `values` ← `jsf-bigint` — BigInt and safe integers
+- `values` ← `jsf-object-is` — Object.is and SameValueZero
+- `operators` ← `jsf-nullish-assign` — ??, ??= and logical assignment
+- `operators` ← `jsf-optional-chain` — Optional chaining and safe calls
+- `functions` ← `jsf-rest-spread-fn` — Rest parameters and call-site spread
+- `functions` ← `jsf-defaults-tdz` — Default parameters and the TDZ
+- `arrays` ← `jsf-reduce-patterns` — reduce: accumulators and patterns
+- `arrays` ← `jsf-flatmap-at` — flatMap, at and with
+- `objects` ← `jsf-freeze-seal` — freeze, seal and preventExtensions
+- `objects` ← `jsf-groupby-fromentries` — Object.groupBy and fromEntries
+- `async` ← `jsf-promise-combinators` — Promise.all, allSettled, race and any
+- `async` ← `jsf-abort-controller` — AbortController and cancelling fetch
+- `dom` ← `jsf-event-delegation` — Event delegation
+- `dom` ← `jsf-dom-tokens-data` — classList and data-* attributes
+- `modules` ← `jsf-dynamic-import` — Dynamic import() and code splitting
+- `errors_proto` ← `jsf-error-cause` — Error cause and custom errors
