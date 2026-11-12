@@ -38,4 +38,6 @@ Update in the same change as `packages/content`. See `SPEC/CONTENT-DX.md`.
 | [`applied_algorithms`](./applied_algorithms.md) | deep | 9 | 25 | 9 | M12 (`forgeboard-m12-algorithms`) | Complexity profiling in web apps, Map/Set indexing vs O(N²), undo stacks and bounded queues, determini... |
 | [`go_fundamentals`](./go_fundamentals.md) | deep | 6 | 24 | 6 | — | Packages, types, slices, interfaces, goroutines, and testing — a practical start in Go. |
 | [`web_accessibility`](./web_accessibility.md) | deep | 6 | 24 | 6 | — | POUR principles, keyboard, ARIA, contrast, and accessibility testing against WCAG 2.2. |
-| [`rest_api_design`](./rest_api_design.md) | deep | 3 | 12 | 3 | — | Resource URLs, HTTP methods and status codes, idempotency, and REST API contracts. |
+| [`rest_api_design`](./rest_api_design.md) | deep | 6 | 24 | 6 | — | Resource URLs, HTTP methods, status codes, idempotency, versioning, pagination, errors, auth, and OpenAPI. |
+| [`frontend_performance`](./frontend_performance.md) | deep | 6 | 24 | 6 | — | Critical path, rendering, bundles, images, caching, and Core Web Vitals (LCP, INP, CLS). |
+| [`browser_web_apis`](./browser_web_apis.md) | deep | 6 | 24 | 6 | — | DOM and events, fetch and streams, storage, observers, workers, history, clipboard, and permissions. |

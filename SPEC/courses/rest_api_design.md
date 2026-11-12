@@ -9,7 +9,7 @@ Recommended next: `web_security`, `nextjs_fullstack`
 
 ## What this course is
 
-Resource URLs, HTTP methods and status codes, idempotency, and practical REST API contracts.
+Resource URLs, HTTP methods and status codes, idempotency, versioning, pagination and problem+json errors, auth, rate limits, and OpenAPI as a contract — 24 bilingual lessons.
 
 ## Program
 
@@ -34,3 +34,23 @@ Resource URLs, HTTP methods and status codes, idempotency, and practical REST AP
 - `rest-safe-retry` — A retry on 408/429/503: with backoff, only when the operation allows it
 - `idempotency_safety-exam` — Exam: idempotency [exam]
 
+### `rest_versioning` — Versioning and compatibility
+
+- `rest-uri-vs-header` — You version on purpose: /v1 in the path or a profile in a header
+- `rest-compat-additive` — A compatible change is adding a field; removing or renaming is a break
+- `rest-deprecation` — You retire a stale version on a schedule: Deprecation, Sunset, and documentation
+- `rest_versioning-exam` — Exam: API versioning [exam]
+
+### `rest_lists_errors` — Lists, filters, and errors
+
+- `rest-cursor-offset` — Pagination: offset is simpler, a cursor is more stable under inserts
+- `rest-filter-sort` — Filtering and sorting are explicit parameters, not hidden magic in a GET body
+- `rest-problem-json` — An error for a machine and a human: application/problem+json, not arbitrary text
+- `rest_lists_errors-exam` — Exam: lists and errors [exam]
+
+### `rest_auth_docs` — Auth, rate limits, and the contract
+
+- `rest-auth-schemes` — The secret goes in Authorization, not in the URL: a Bearer, a key, or a session
+- `rest-rate-limit` — A request limit: 429, Retry-After, and visible counters
+- `rest-openapi` — OpenAPI is a contract, not only a pretty docs page
+- `rest_auth_docs-exam` — Exam: auth and the contract [exam]

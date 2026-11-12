@@ -70,3 +70,26 @@ Program details: [SPEC/courses](./courses/). How to extend further:
 DevOps new units (`finops_cost`, `supply_chain_builds`, `policy_as_code`)
 are grouped as the **Platform discipline** part and sit before
 `sre-capstone`, so the capstone stays last.
+
+## Follow-up on `feat/learning-improvements`
+
+Adds **12** lessons to REST API Design (now **24**) and two new deep tracks
+of **24** lessons each, all bilingual (uk+en). Combined with the 572 from
+PR #13 this is **+632** lessons versus `origin/dev` before that PR.
+
+| | Courses | Lessons |
+|---|---:|---:|
+| After PR #13 | 33 | 1805 |
+| After this follow-up | **35** | **1865** |
+| **Delta** | **+2** | **+60** |
+
+| Course | Before this follow-up | After | New |
+|--------|------:|------:|----:|
+| `rest_api_design` | 12 | 24 | +12 |
+| `frontend_performance` *(new)* | — | 24 | +24 |
+| `browser_web_apis` *(new)* | — | 24 | +24 |
+
+Program details: [SPEC/courses](./courses/). Two pre-existing missing
+`explanationEn` values (`english` `en-6-1`, `speed_reading` `sr-1-1`) are
+filled in this branch.
+

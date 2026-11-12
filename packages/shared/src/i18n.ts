@@ -39,6 +39,8 @@ const uk = {
     go_fundamentals: "Go: основи",
     web_accessibility: "Веб-доступність",
     rest_api_design: "Дизайн REST API",
+    frontend_performance: "Продуктивність фронтенду",
+    browser_web_apis: "Веб-API браузера",
   },
   nav: {
     home: "Головна",
@@ -996,6 +998,8 @@ const en: UiDict = {
     go_fundamentals: "Go Fundamentals",
     web_accessibility: "Web Accessibility",
     rest_api_design: "REST API Design",
+    frontend_performance: "Frontend Performance",
+    browser_web_apis: "Browser Web APIs",
   },
   nav: {
     home: "Home",

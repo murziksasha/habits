@@ -31,6 +31,8 @@ import { appliedAlgorithmsContent as appliedAlgorithmsRaw } from "./applied-algo
 import { goFundamentalsContent as goFundamentalsRaw } from "./go-fundamentals.js";
 import { webAccessibilityContent as webAccessibilityRaw } from "./web-accessibility.js";
 import { restApiDesignContent as restApiDesignRaw } from "./rest-api-design.js";
+import { frontendPerformanceContent as frontendPerformanceRaw } from "./frontend-performance.js";
+import { browserWebApisContent as browserWebApisRaw } from "./browser-web-apis.js";
 import { normalizeCourseLocales } from "./locale-normalize.js";
 import { expandEnglish } from "./expansion/english-exp.js";
 import { expandChess } from "./expansion/chess-exp.js";
@@ -97,6 +99,8 @@ export const appliedAlgorithmsContent = normalizeCourseLocales(expandAppliedAlgo
 export const goFundamentalsContent = normalizeCourseLocales(goFundamentalsRaw);
 export const webAccessibilityContent = normalizeCourseLocales(webAccessibilityRaw);
 export const restApiDesignContent = normalizeCourseLocales(restApiDesignRaw);
+export const frontendPerformanceContent = normalizeCourseLocales(frontendPerformanceRaw);
+export const browserWebApisContent = normalizeCourseLocales(browserWebApisRaw);
 
 export { FLASHCARD_DECKS } from "./flashcards.js";
 export type { CourseContent, UnitContent, LessonContent, Exercise } from "./types.js";
