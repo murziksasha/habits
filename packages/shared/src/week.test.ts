@@ -5,7 +5,7 @@ import {
   weeklyMinisRaceSlugs,
   weeklyMinisRaceXpBonus,
 } from "./courses.js";
-import { isoWeekBounds, isoWeekKey } from "./week.js";
+import { isoWeekBounds, isoWeekKey, previousWeekElapsedWindow } from "./week.js";
 
 describe("iso week", () => {
   it("formats week key", () => {
@@ -13,11 +13,24 @@ describe("iso week", () => {
     expect(key).toMatch(/^2026-W\d{2}$/);
   });
 
-  it("bounds cover Monday–Sunday UTC", () => {
-    const { startsAt, endsAt, weekKey } = isoWeekBounds(new Date("2026-07-18T12:00:00Z"));
-    expect(startsAt.getUTCDay()).toBe(1); // Monday
-    expect(endsAt.getTime()).toBeGreaterThan(startsAt.getTime());
-    expect(weekKey).toBe(isoWeekKey(new Date("2026-07-18T12:00:00Z")));
+  it("bounds cover Monday–Sunday UTC regardless of UTC midnight boundary", () => {
+    // 2026-11-09 is Monday 00:05 UTC; in UTC-5 this is Sunday evening local time,
+    // and 2026-11-15T23:30Z is Sunday night UTC (Monday morning in UTC+2).
+    const monEarly = isoWeekBounds(new Date("2026-11-09T00:05:00Z"));
+    const sunLate = isoWeekBounds(new Date("2026-11-15T23:30:00Z"));
+    expect(monEarly.weekKey).toBe(sunLate.weekKey);
+    expect(monEarly.startsAt.toISOString()).toBe("2026-11-09T00:00:00.000Z");
+    expect(monEarly.endsAt.toISOString()).toBe("2026-11-15T23:59:59.999Z");
+    expect(monEarly.startsAt.getUTCDay()).toBe(1);
+    expect(sunLate.endsAt.getUTCDay()).toBe(0);
+  });
+
+  it("computes identical elapsed window for previous week", () => {
+    const now = new Date("2026-11-12T06:15:00.000Z");
+    const win = previousWeekElapsedWindow(now);
+    expect(win.current.startsAt.toISOString()).toBe("2026-11-09T00:00:00.000Z");
+    expect(win.previous.startsAt.toISOString()).toBe("2026-11-02T00:00:00.000Z");
+    expect(win.previous.endsAt.toISOString()).toBe("2026-11-05T06:15:00.000Z");
   });
 });
 

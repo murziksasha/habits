@@ -37,13 +37,16 @@ Machine-readable: `GET /openapi.json` (v1.8) · human: `GET /docs`.
 | GET | `/courses/progress/me` | Yes | Per-course progress |
 | GET | `/courses/:slug` | Yes | Units, lessons, locks, hearts |
 | GET | `/courses/:slug/lessons/:id` | Yes | Lesson payload |
-| POST | `/courses/:slug/lessons/:id/submit` | Yes | Grade + XP; exams need ≥70%; returns `isExam` / `passed` / `examFailed` |
+| POST | `/courses/:slug/lessons/:id/submit` | Yes | Grade + XP; exams need ≥70%; returns `isExam` / `passed` / `examFailed`, `levelUp` (course), `courseLevelBefore/After`, `characterXpGain`, `characterLevelBefore/After`, `characterLevelUp`, `levelChangeTrigger`, `grantedRewards` |
 
 ## Learning OS (`/learning`)
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| GET | `/learning/calendar` | Yes | Heatmap days |
+| GET | `/learning/calendar` | Yes | UTC study heatmap days from submitted lessons (`days=14..120`, default 84) |
+| GET | `/learning/progress` | Yes | Overview (`days=7\|30\|90`, `course?`), daily series, course breakdown, character progression, weekly recap (Mon–Sun UTC), personal bests, goal state |
+| GET | `/learning/history` | Yes | Cursor-paginated attempt history (`days=7\|30\|90\|all`, `course?`, `limit=1..50` default 20, `cursor?`) |
+| PUT | `/learning/goal` | Yes | Save/update/remove recurring weekly target `{ weeklyTarget: 1..1000 \| null }` |
 | GET | `/learning/next` | Yes | Smart next (exams ready, minis, deep tracks) |
 | GET | `/learning/exams/me` | Yes | Unit exam board locked/ready/passed |
 | GET | `/learning/export` | Yes | Progress JSON export |

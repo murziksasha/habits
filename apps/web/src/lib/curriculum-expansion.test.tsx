@@ -17,13 +17,18 @@ vi.mock("@/lib/locale-context", () => ({
 }));
 
 describe("curriculum expansion routing and LocalLabPanel", () => {
-  it("registers all 7 new deep track routes as RSC shells", () => {
+  it("registers all 7 new deep track routes + 5 AI skills track routes as RSC shells", () => {
     for (const route of [
       "/software-testing",
       "/postgresql-apps",
       "/git-workflows",
       "/web-security",
       "/ai-development",
+      "/python-for-ai",
+      "/agentic-systems",
+      "/llmops",
+      "/ai-security",
+      "/ai-product",
       "/nextjs-fullstack",
       "/applied-algorithms",
     ]) {

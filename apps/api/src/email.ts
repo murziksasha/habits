@@ -8,7 +8,7 @@ export type MailPayload = {
 };
 
 function smtpConfigured() {
-  return Boolean(process.env.SMTP_HOST && process.env.SMTP_FROM);
+  return Boolean(process.env.SMTP_HOST?.trim() && process.env.SMTP_FROM?.trim());
 }
 
 export function webOrigin(): string {

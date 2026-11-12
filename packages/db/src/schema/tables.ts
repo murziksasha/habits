@@ -127,6 +127,8 @@ export const characters = pgTable("characters", {
   dailyXp: integer("daily_xp").notNull().default(0),
   dailyXpDate: varchar("daily_xp_date", { length: 10 }),
   dailyGoalXp: integer("daily_goal_xp").notNull().default(50),
+  /** Optional recurring weekly target of successful lesson/exam attempts (1..1000, null = automatic) */
+  weeklyTarget: integer("weekly_target"),
   onboarding: jsonb("onboarding")
     .$type<{
       dismissed?: boolean;
@@ -316,6 +318,7 @@ export const skillAttempts = pgTable(
   (t) => [
     index("skill_attempts_user_course_idx").on(t.userId, t.courseSlug),
     index("skill_attempts_user_created_idx").on(t.userId, t.createdAt),
+    index("skill_attempts_user_created_id_idx").on(t.userId, t.createdAt, t.id),
   ],
 );
 

@@ -7,6 +7,7 @@ import {
 } from "@eduforge/db";
 import { db } from "../db.js";
 import { buildExamBoard } from "./exam-board.js";
+import { getRecordedStudyDates } from "./learning-progress.js";
 import { buildMinisRace } from "./minis-race.js";
 import { buildNextRecommendations } from "./next-steps.js";
 
@@ -46,12 +47,14 @@ export type HomePayload = {
       lessonId: string | null;
     }[];
   } | null;
+  studyDates: string[];
   meta: {
     progressOk: boolean;
     activityOk: boolean;
     nextOk: boolean;
     examsOk: boolean;
     raceOk: boolean;
+    studyDatesOk: boolean;
   };
 };
 
@@ -100,6 +103,7 @@ export async function buildHomePayload(userId: string): Promise<HomePayload> {
     nextOk: true,
     examsOk: true,
     raceOk: true,
+    studyDatesOk: true,
   };
 
   // Shared foundation: courses list + full lesson progress (used by next + exams)
@@ -142,13 +146,14 @@ export async function buildHomePayload(userId: string): Promise<HomePayload> {
     })),
   };
 
-  const [nextR, examsR, raceR] = await Promise.allSettled([
+  const [nextR, examsR, raceR, studyDatesR] = await Promise.allSettled([
     buildNextRecommendations(userId, 5, prefetch),
     buildExamBoard(userId, null, {
       courses: allCourses,
       lessonProgress,
     }),
     buildMinisRace(userId),
+    getRecordedStudyDates(userId, 14),
   ]);
 
   let recommendations: HomePayload["recommendations"] = [];
@@ -191,12 +196,21 @@ export async function buildHomePayload(userId: string): Promise<HomePayload> {
     console.error("[home] race", raceR.reason);
   }
 
+  let studyDates: string[] = [];
+  if (studyDatesR.status === "fulfilled") {
+    studyDates = studyDatesR.value;
+  } else {
+    meta.studyDatesOk = false;
+    console.error("[home] studyDates", studyDatesR.reason);
+  }
+
   return {
     progress,
     activity,
     recommendations,
     examBoard,
     minisRace,
+    studyDates,
     meta,
   };
 }

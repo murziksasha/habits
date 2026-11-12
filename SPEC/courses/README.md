@@ -28,6 +28,11 @@ Update in the same change as `packages/content`. See `SPEC/CONTENT-DX.md`.
 | [`postgresql_apps`](./postgresql_apps.md) | deep | 6 | 18 | 6 | M6 (`forgeboard-m6-postgres`) | Relational modeling, constraints and migrations, parameterized CRUD, joins and keyset pagination, ACID... |
 | [`git_workflows`](./git_workflows.md) | deep | 5 | 13 | 5 | M8 (`forgeboard-m8-git`) | Commit history and bisect, branching and rebase safety, conflict resolution without dropped fixes, cod... |
 | [`web_security`](./web_security.md) | deep | 6 | 18 | 6 | M9 (`forgeboard-m9-security`) | OWASP Top 10:2025 in practice: trust boundaries, validation and XSS/SQLi defenses, hashed sessions and... |
-| [`ai_development`](./ai_development.md) | deep | 5 | 13 | 5 | M10 (`forgeboard-m10-ai`) | Clear specifications, safe context curation, reviewing saved AI diffs, catching hallucinated APIs, tes... |
+| [`ai_development`](./ai_development.md) | deep | 6 | 16 | 6 | M10 (`forgeboard-m10-ai`) | Clear specifications, safe context curation, reviewing saved AI diffs, catching hallucinated APIs, test-backed verification, ForgeBoard review lab, and controlling AI coders. |
+| [`python_for_ai`](./python_for_ai.md) | deep | 6 | 18 | 6 | — | Read and repair agent-style Python: values, collections, typed functions, JSON/HTTP shapes, async/await, and AI snippet review. |
+| [`agentic_systems`](./agentic_systems.md) | deep | 6 | 18 | 6 | — | Script vs model vs agent, tool schemas, planning & reflection against checks, multi-agent tradeoffs, hybrid RAG, and vector stores. |
+| [`llmops`](./llmops.md) | deep | 6 | 18 | 6 | — | Tracing and token cost, fixture evals in CI, HTTP vs GraphQL/gRPC/events, Kafka vs RabbitMQ, cloud consoles, and token budgets. |
+| [`ai_security`](./ai_security.md) | deep | 6 | 18 | 6 | — | Defensive agent security: tool trust boundaries, indirect injection separation, allowlists/HITL, output guardrails, secrets, and local models. |
+| [`ai_product`](./ai_product.md) | deep | 5 | 15 | 5 | — | Routing between strong, local, and plain Python, product briefs, approve/edit/undo HITL, failure modes, and support-agent design review. |
 | [`nextjs_fullstack`](./nextjs_fullstack.md) | deep | 7 | 15 | 7 | M11 (`forgeboard-m11-nextjs`) | App Router, explicit Server/Client boundaries, isolated server data access, validated mutations, authz... |
 | [`applied_algorithms`](./applied_algorithms.md) | deep | 6 | 13 | 6 | M12 (`forgeboard-m12-algorithms`) | Complexity profiling in web apps, Map/Set indexing vs O(N²), undo stacks and bounded queues, determini... |

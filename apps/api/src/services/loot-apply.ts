@@ -65,14 +65,18 @@ export async function applyLootDrop(
     .returning();
 
   if (opts?.notify !== false) {
-    await notifyUser(db, userId, {
-      type: "loot",
-      titleUk: `${drop.icon} Здобич!`,
-      titleEn: `${drop.icon} Loot!`,
-      bodyUk: drop.labelUk,
-      bodyEn: drop.labelEn,
-      href: "/profile",
-    });
+    try {
+      await notifyUser(db, userId, {
+        type: "loot",
+        titleUk: `${drop.icon} Здобич!`,
+        titleEn: `${drop.icon} Loot!`,
+        bodyUk: drop.labelUk,
+        bodyEn: drop.labelEn,
+        href: "/profile",
+      });
+    } catch {
+      /* notification best-effort after loot persisted */
+    }
   }
 
   return { character: updated, drop };

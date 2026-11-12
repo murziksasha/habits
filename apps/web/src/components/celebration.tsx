@@ -7,9 +7,11 @@ import { useLocale } from "@/lib/locale-context";
 export function Celebration({
   kind,
   show,
+  detail,
 }: {
   kind: "level" | "streak" | "cert" | "complete";
   show: boolean;
+  detail?: string;
 }) {
   const { t, locale } = useLocale();
   const [visible, setVisible] = useState(false);
@@ -22,7 +24,7 @@ export function Celebration({
     setVisible(true);
     const id = window.setTimeout(() => setVisible(false), 2800);
     return () => window.clearTimeout(id);
-  }, [show, kind]);
+  }, [show, kind, detail]);
 
   if (!visible) return null;
 
@@ -45,8 +47,13 @@ export function Celebration({
       role="status"
       aria-live="polite"
     >
-      <div className="ef-celebrate rounded-2xl border-2 border-brand bg-brand-soft px-6 py-3 text-center text-lg font-black text-brand-dark shadow-lg">
-        🎉 {label}
+      <div className="ef-celebrate motion-reduce:animate-none motion-reduce:transition-none rounded-2xl border-2 border-brand bg-brand-soft px-6 py-3 text-center text-lg font-black text-brand-dark shadow-lg">
+        <span>🎉 {label}</span>
+        {detail ? (
+          <p className="mt-0.5 text-xs font-extrabold text-brand-dark/90">
+            {detail}
+          </p>
+        ) : null}
       </div>
     </div>
   );

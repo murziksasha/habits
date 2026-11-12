@@ -25,7 +25,7 @@
 | `/dashboard` | Character, next steps, exams, programming/race teaser |
 | `/learn` | Learning map: recommended, exams, groups, toolkit |
 | `/courses`, `/courses/[slug]` | Catalog + path map |
-| `/courses/[slug]/lessons/[lessonId]` | Lesson player (soft-grade, skip, solution) |
+| `/courses/[slug]/lessons/[lessonId]` | Lesson player (soft-grade, skip, solution, course/character level-up & rewards summary) |
 | `/programming`, `/programming/[stack]` | Programming hub + stack filter |
 | `/typescript` | TypeScript course hub |
 | `/html-semantics` | HTML Semantics deep hub |
@@ -44,7 +44,7 @@
 | `/homework`, `/schools/*` | Classroom |
 | `/parents`, `/parents/child/[studentId]` | Parent portal + digest |
 | `/flashcards`, `/tutor`, `/review`, `/quests`, `/shop` | Learning tools |
-| `/calendar`, `/export`, `/reports`, `/focus`, `/notes` | Learning OS |
+| `/calendar`, `/export`, `/reports`, `/focus`, `/notes` | Learning OS (`/calendar` = My progress, linked from Dashboard, Learn, Profile) |
 | `/bookmarks`, `/search`, `/referrals` | Extra UX |
 | `/achievements`, `/u/[userId]` | Social profile |
 | `/pricing` | Freemium / Premium |
@@ -74,7 +74,7 @@
 | `MonacoEditor` | Code editor |
 | `HeartsBar` | Lives display |
 | `XpBar` | Level progress bar |
-| `Celebration` / `StreakCalendar` | Delight + retention |
+| `Celebration` / `StreakCalendar` | Reduced-motion delight + recorded study-date calendar |
 | `GuestTrial` | Landing no-auth MCQ |
 | `StickyContinueShell` | Sticky next-step on secondary routes |
 | `HeartsChrome` | Nav hearts + regen countdown |

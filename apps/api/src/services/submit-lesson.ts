@@ -9,10 +9,11 @@ import {
 } from "@eduforge/db";
 import {
   COURSE_GLOBAL_WEIGHT,
+  DAILY_XP_CAP,
+  FRAME_CATALOG,
+  TITLE_CATALOG,
   applyStreakOnActivity,
-  canStartLesson,
   chessPuzzleXpAward,
-  clampDailyXpGain,
   globalXpFromCourseGain,
   lessonCompleteThreshold,
   lessonXpAward,
@@ -22,16 +23,21 @@ import {
   normalizeProgression,
   readingXpAward,
   regenerateHearts,
+  rollLevelUpLoot,
   typingXpAward,
+  utcDateKey,
+  type GrantedRewardItem,
+  type LevelChangeTrigger,
+  type LootDrop,
   type Plan,
 } from "@eduforge/shared";
 import type { AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 import { logActivity, notifyUser } from "../engagement.js";
 import { gradeExercise } from "../grade.js";
+import { log } from "../logger.js";
 import { buildXpPatch } from "./character-progression.js";
 import { applyLootDrop } from "./loot-apply.js";
-import { rollLevelUpLoot } from "@eduforge/shared";
 import { runSubmitSideEffects } from "./submit-side-effects.js";
 
 export type SubmitAnswer = { exerciseId: string; answer: unknown };
@@ -61,6 +67,65 @@ export type NextLessonSummary = {
   titleEn: string | null;
   href: string;
 };
+
+function lootDropToRewardItem(drop: LootDrop): GrantedRewardItem {
+  switch (drop.kind) {
+    case "xp":
+      return {
+        kind: "bonus_xp",
+        amount: drop.amount ?? 0,
+        labelUk: drop.labelUk,
+        labelEn: drop.labelEn,
+        icon: drop.icon,
+        source: "loot",
+      };
+    case "freeze":
+      return {
+        kind: "freeze",
+        amount: drop.amount ?? 1,
+        labelUk: drop.labelUk,
+        labelEn: drop.labelEn,
+        icon: drop.icon,
+        source: "loot",
+      };
+    case "avatar":
+      return {
+        kind: "avatar",
+        key: drop.key,
+        labelUk: drop.labelUk,
+        labelEn: drop.labelEn,
+        icon: drop.icon,
+        source: "loot",
+      };
+    case "title":
+      return {
+        kind: "title",
+        key: drop.key,
+        labelUk: drop.labelUk,
+        labelEn: drop.labelEn,
+        icon: drop.icon,
+        source: "loot",
+      };
+    case "frame":
+      return {
+        kind: "frame",
+        key: drop.key,
+        labelUk: drop.labelUk,
+        labelEn: drop.labelEn,
+        icon: drop.icon,
+        source: "loot",
+      };
+    case "skill_point":
+      return {
+        kind: "skill_points",
+        amount: drop.amount ?? 1,
+        labelUk: drop.labelUk,
+        labelEn: drop.labelEn,
+        icon: drop.icon,
+        source: "loot",
+      };
+  }
+}
 
 export function gradeLessonAttempt(
   exercises: { id: string; type: string; [k: string]: unknown }[],
@@ -206,6 +271,7 @@ export async function submitLesson(
     lesson.passThreshold,
   );
   const { results, correctCount, accuracy, isExam, passThreshold: completeBar, passed } = grading;
+  const outcome: "passed" | "failed" = passed ? "passed" : "failed";
 
   let xpGain = 0;
   if (course.slug === "typing") {
@@ -324,8 +390,10 @@ export async function submitLesson(
   const hearts = cp.hearts;
   const heartLost = false;
 
+  const courseLevelBefore = cp.level ?? 1;
   const newCourseXp = cp.xp + xpGain;
   const newCourseLevel = levelFromXp(newCourseXp);
+  const courseLevelUp = newCourseLevel > courseLevelBefore;
   const completedLessons =
     firstClear && passed ? cp.completedLessons + 1 : cp.completedLessons;
 
@@ -343,11 +411,18 @@ export async function submitLesson(
 
   const character = characterEarly;
   const weight = COURSE_GLOBAL_WEIGHT[course.slug] ?? 1;
-  const globalGain = globalXpFromCourseGain(xpGain, weight);
-  const today = new Date().toISOString().slice(0, 10);
+  const globalGain = xpGain > 0 ? globalXpFromCourseGain(xpGain, weight) : 0;
+  const today = utcDateKey();
   let streak = character?.streakDays ?? 0;
   let freezesLeft = character?.streakFreezes ?? 0;
   let streakProtected = false;
+  let characterXpGain = 0;
+  let characterLevelBefore: number | null = character ? character.globalLevel : null;
+  let characterLevelAfter: number | null = character ? character.globalLevel : null;
+  let characterLevelUp = false;
+  let dailyCapReached = false;
+  const grantedRewards: GrantedRewardItem[] = [];
+
   if (character) {
     const streakResult = applyStreakOnActivity({
       lastActiveDate: character.lastActiveDate,
@@ -372,22 +447,23 @@ export async function submitLesson(
         freezesLeft,
       });
     }
+
     const prevLevel = character.globalLevel;
-    let xpPatch = buildXpPatch(character, globalGain, {
+    const prevProgression = normalizeProgression(character.progression);
+    const alreadyToday = character.dailyXpDate === today ? (character.dailyXp ?? 0) : 0;
+    const dailyXpRemaining = Math.max(0, DAILY_XP_CAP - Math.max(0, alreadyToday));
+
+    // Apply daily XP cap BEFORE level rewards so progression/loot uses final capped level
+    const xpPatch = buildXpPatch(character, globalGain, {
       applyIntellect: true,
       applySpark: true,
+      dailyXpRemaining,
     });
-    const alreadyToday = character.dailyXpDate === today ? (character.dailyXp ?? 0) : 0;
-    const cappedGain = clampDailyXpGain(alreadyToday, xpPatch.effectiveGain);
-    if (cappedGain !== xpPatch.effectiveGain) {
-      xpPatch = {
-        ...xpPatch,
-        effectiveGain: cappedGain,
-        globalXp: character.globalXp + cappedGain,
-        globalLevel: levelFromXp(character.globalXp + cappedGain),
-      };
-    }
+    characterXpGain = xpPatch.effectiveGain;
+    dailyCapReached =
+      xpPatch.dailyCapApplied || (globalGain > 0 && dailyXpRemaining === 0);
     const dailyXp = alreadyToday + xpPatch.effectiveGain;
+
     await db
       .update(characters)
       .set({
@@ -402,27 +478,97 @@ export async function submitLesson(
       })
       .where(eq(characters.id, character.id));
 
-    // Level-up loot drop (cosmetics / shields / bonus SP)
+    characterLevelBefore = prevLevel;
+    characterLevelAfter = xpPatch.globalLevel;
+
     if (xpPatch.globalLevel > prevLevel) {
+      const spGained = Math.max(
+        0,
+        xpPatch.progression.skillPoints - prevProgression.skillPoints,
+      );
+      if (spGained > 0) {
+        grantedRewards.push({
+          kind: "skill_points",
+          amount: spGained,
+          labelUk: `+${spGained} оч. навичок`,
+          labelEn: `+${spGained} skill point${spGained === 1 ? "" : "s"}`,
+          icon: "⭐",
+          source: "level_up",
+        });
+      }
+      const prevTitles = new Set(prevProgression.unlockedTitles);
+      for (const titleId of xpPatch.progression.unlockedTitles) {
+        if (prevTitles.has(titleId)) continue;
+        const def = TITLE_CATALOG.find((t) => t.id === titleId);
+        grantedRewards.push({
+          kind: "title",
+          key: titleId,
+          labelUk: def?.titleUk ?? titleId,
+          labelEn: def?.titleEn ?? titleId,
+          icon: "🏷️",
+          source: "level_up",
+        });
+      }
+      const prevFrames = new Set(prevProgression.unlockedFrames);
+      for (const frameId of xpPatch.progression.unlockedFrames) {
+        if (prevFrames.has(frameId)) continue;
+        const def = FRAME_CATALOG.find((f) => f.id === frameId);
+        grantedRewards.push({
+          kind: "frame",
+          key: frameId,
+          labelUk: def?.titleUk ?? frameId,
+          labelEn: def?.titleEn ?? frameId,
+          icon: "🖼️",
+          source: "level_up",
+        });
+      }
+
+      // Level-up loot drop (cosmetics / shields / bonus SP / bonus XP)
       try {
         const drop = rollLevelUpLoot(xpPatch.globalLevel);
-        await applyLootDrop(user.id, drop, { notify: true });
-        await logActivity(db, user.id, "level_up_loot", {
+        const lootRes = await applyLootDrop(user.id, drop, { notify: true });
+        if (lootRes) {
+          grantedRewards.push(lootDropToRewardItem(lootRes.drop));
+          if (lootRes.character && lootRes.character.globalLevel > xpPatch.globalLevel) {
+            characterLevelAfter = lootRes.character.globalLevel;
+            if (lootRes.drop.kind === "xp") {
+              const postLootProg = normalizeProgression(lootRes.character.progression);
+              const extraSp = Math.max(
+                0,
+                postLootProg.skillPoints - xpPatch.progression.skillPoints,
+              );
+              if (extraSp > 0) {
+                grantedRewards.push({
+                  kind: "skill_points",
+                  amount: extraSp,
+                  labelUk: `+${extraSp} оч. навичок`,
+                  labelEn: `+${extraSp} skill point${extraSp === 1 ? "" : "s"}`,
+                  icon: "⭐",
+                  source: "level_up",
+                });
+              }
+            }
+          }
+          await logActivity(db, user.id, "level_up_loot", {
+            level: characterLevelAfter,
+            drop: lootRes.drop,
+            trigger: "lesson",
+          });
+        }
+      } catch (err) {
+        log.warn("level_up_loot_failed", {
+          userId: user.id,
           level: xpPatch.globalLevel,
-          drop,
+          err: err instanceof Error ? err.message : String(err),
         });
-      } catch {
-        /* loot optional */
       }
     }
-  }
 
-  await db.insert(skillAttempts).values({
-    userId: user.id,
-    courseSlug: course.slug,
-    metrics: { accuracy, results, lessonId: lesson.id },
-    xpGained: xpGain,
-  });
+    characterLevelUp =
+      characterLevelBefore !== null &&
+      characterLevelAfter !== null &&
+      characterLevelAfter > characterLevelBefore;
+  }
 
   if (character) {
     const o = { ...(character.onboarding ?? {}) };
@@ -472,7 +618,76 @@ export async function submitLesson(
     globalLevel: chAfter?.globalLevel,
     dailyGoalMet,
   });
-  const { homeworkCompleted, newAchievements, certificate } = side;
+  const { homeworkCompleted, newAchievements, certificate, newPathBadges } = side;
+
+  if (certificate) {
+    grantedRewards.push({
+      kind: "certificate",
+      key: certificate.code,
+      labelUk: certificate.titleUk,
+      labelEn: certificate.titleEn ?? certificate.titleUk,
+      icon: "📜",
+      source: "lesson",
+    });
+  }
+  for (const pb of newPathBadges) {
+    grantedRewards.push({
+      kind: "path_badge",
+      key: pb.id,
+      amount: pb.rewardSkillPoints,
+      labelUk: pb.titleUk,
+      labelEn: pb.titleEn,
+      icon: pb.icon,
+      source: "lesson",
+    });
+  }
+  for (const ach of newAchievements) {
+    grantedRewards.push({
+      kind: "achievement",
+      key: ach.code,
+      labelUk: ach.titleUk,
+      labelEn: ach.titleEn,
+      icon: ach.icon,
+      source: "lesson",
+    });
+  }
+
+  const levelChangeTrigger: LevelChangeTrigger =
+    courseLevelUp || characterLevelUp ? "lesson" : null;
+
+  if (levelChangeTrigger === "lesson") {
+    await logActivity(db, user.id, "level_up_lesson", {
+      trigger: "lesson",
+      courseSlug: course.slug,
+      lessonId: lesson.id,
+      courseLevelBefore,
+      courseLevelAfter: newCourseLevel,
+      characterLevelBefore,
+      characterLevelAfter,
+    }).catch(() => undefined);
+  }
+
+  await db.insert(skillAttempts).values({
+    userId: user.id,
+    courseSlug: course.slug,
+    metrics: {
+      accuracy,
+      results,
+      lessonId: lesson.id,
+      outcome,
+      isExam,
+      passThreshold: completeBar,
+      firstClear,
+      characterXpGained: characterXpGain,
+      courseLevelBefore,
+      courseLevelAfter: newCourseLevel,
+      characterLevelBefore,
+      characterLevelAfter,
+      levelChangeTrigger,
+      grantedRewards,
+    },
+    xpGained: xpGain,
+  });
 
   const updatedCharacter = await db.query.characters.findFirst({
     where: eq(characters.userId, user.id),
@@ -494,7 +709,18 @@ export async function submitLesson(
       globalGain,
       courseXp: newCourseXp,
       courseLevel: newCourseLevel,
-      levelUp: newCourseLevel > (cp.level ?? 1),
+      courseLevelBefore,
+      courseLevelAfter: newCourseLevel,
+      courseLevelUp,
+      levelUp: courseLevelUp,
+      characterXpGain,
+      characterLevelBefore,
+      characterLevelAfter,
+      characterLevelUp,
+      levelChangeTrigger,
+      dailyCapReached,
+      grantedRewards,
+      outcome,
       firstClear,
       results,
       character: updatedCharacter,

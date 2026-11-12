@@ -123,13 +123,23 @@ export function LearnClient() {
           <h1 className="text-3xl font-black">🗺️ {t.learn.title}</h1>
           <p className="text-sm font-bold text-ink-muted">{t.learn.mapTitle}</p>
         </div>
-        {user && skillPoints > 0 ? (
-          <Link
-            href="/profile#build"
-            className="btn-secondary shrink-0 !py-2 text-sm ring-1 ring-grape/40"
-          >
-            ⭐ {locale === "en" ? "Build" : "Прокачка"} ({skillPoints})
-          </Link>
+        {user ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href="/calendar"
+              className="btn-secondary shrink-0 !py-2 text-sm"
+            >
+              📊 {t.learning.myProgress}
+            </Link>
+            {skillPoints > 0 ? (
+              <Link
+                href="/profile#build"
+                className="btn-secondary shrink-0 !py-2 text-sm ring-1 ring-grape/40"
+              >
+                ⭐ {locale === "en" ? "Build" : "Прокачка"} ({skillPoints})
+              </Link>
+            ) : null}
+          </div>
         ) : null}
       </div>
 

@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
   courseSlugSchema,
+  learningHistoryQuerySchema,
+  learningProgressQuerySchema,
   loginSchema,
   registerSchema,
   seekGameSchema,
   submitLessonSchema,
+  updateLearningGoalSchema,
 } from "./schemas.js";
 
 describe("registerSchema", () => {
@@ -75,5 +78,36 @@ describe("courseSlugSchema", () => {
   it("accepts known slugs", () => {
     expect(courseSlugSchema.safeParse("english").success).toBe(true);
     expect(courseSlugSchema.safeParse("nope").success).toBe(false);
+  });
+});
+
+describe("learning progress & goal schemas", () => {
+  it("validates progress query filters with 30-day default", () => {
+    expect(learningProgressQuerySchema.parse({})).toEqual({ days: 30, course: null });
+    expect(learningProgressQuerySchema.parse({ days: "7", course: "all" })).toEqual({
+      days: 7,
+      course: null,
+    });
+    expect(learningProgressQuerySchema.safeParse({ days: "14" }).success).toBe(false);
+  });
+
+  it("validates history query filters with limit 20 default and max 50", () => {
+    expect(learningHistoryQuerySchema.parse({})).toEqual({
+      days: "all",
+      course: null,
+      limit: 20,
+    });
+    expect(learningHistoryQuerySchema.parse({ days: "90", limit: "50" }).limit).toBe(50);
+    expect(learningHistoryQuerySchema.safeParse({ limit: "51" }).success).toBe(false);
+    expect(learningHistoryQuerySchema.safeParse({ limit: "0" }).success).toBe(false);
+  });
+
+  it("validates weekly goal target 1..1000 or null", () => {
+    expect(updateLearningGoalSchema.parse({ weeklyTarget: 10 })).toEqual({ weeklyTarget: 10 });
+    expect(updateLearningGoalSchema.parse({ weeklyTarget: null })).toEqual({ weeklyTarget: null });
+    expect(updateLearningGoalSchema.safeParse({ weeklyTarget: 0 }).success).toBe(false);
+    expect(updateLearningGoalSchema.safeParse({ weeklyTarget: 1001 }).success).toBe(false);
+    expect(updateLearningGoalSchema.safeParse({ weeklyTarget: 5.5 }).success).toBe(false);
+    expect(updateLearningGoalSchema.safeParse({}).success).toBe(false);
   });
 });

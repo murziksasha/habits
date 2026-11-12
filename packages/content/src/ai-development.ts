@@ -383,14 +383,166 @@ const privacyDepsCapstone = unit(
   ],
 );
 
+const coderControl = unit(
+  "ai_coder_control",
+  "Контроль AI-кодера",
+  "Controlling the AI coder",
+  [
+    lesson(
+      "ai-cc-packet",
+      "Контекстний пакет: мета, файли, інваріанти й перевірка (Cursor, Copilot Workspace, Windsurf)",
+      "The Context Packet: Goal, Files, Invariants, and How You Will Check",
+      3,
+      false,
+      [
+        mcq(
+          "ai-cc1",
+          "Cursor, GitHub Copilot Workspace і Windsurf мають різні кнопки та панелі, але всі три підкоряються одному робочому циклу керування. Що перетворює сесію з «рулетки» на керовану зміну?",
+          "Cursor, GitHub Copilot Workspace, and Windsurf differ in UI chrome, yet share the exact same control loop. What turns a session from guesswork into controlled engineering?",
+          [
+            "Повторний запуск тим самим коротким промптом «зроби красиво», доки не пощастить",
+            "Компактний контекстний пакет: точна мета, конкретні файли в області дії, інваріанти (що не ламати) та точна команда перевірки",
+            "Відкриття всього монорепо на 500 файлів без переліку обмежень",
+            "Вимкнення TypeScript і тестів, щоб агент швидше завершив",
+          ],
+          1,
+          why(
+            "Інструменти змінюються щокварталу, а дисципліна контекстного пакета (мета + файли + інваріанти + перевірка) працює однаково в Cursor, Copilot Workspace і Windsurf.",
+            "Editor UIs change quickly, while the context-packet loop (goal + target files + invariants + verification command) works identically across Cursor, Copilot Workspace, and Windsurf.",
+          ),
+        ),
+        codeOrderAuto(
+          "ai-cc2",
+          "Впорядкуйте 4 частини контекстного пакета перед запуском Cursor, Copilot Workspace або Windsurf",
+          "Order the 4 parts of a context packet before launching an AI coding tool",
+          "text",
+          [
+            "Goal: single scoped behavior change and exact acceptance rule",
+            "Files: explicit target paths to inspect and modify",
+            "Invariants: public API shape, auth rules, and untouched modules",
+            "Check: exact typecheck and test commands that prove done",
+          ],
+        ),
+        matchEx(
+          "ai-cc3",
+          "Зіставте розділ контекстного пакета з прикладом для AI-кодера",
+          "Match each context-packet section to a concrete example",
+          [
+            { left: "Goal", right: "Додати курсорну пагінацію в GET /api/tasks без зміни формату помилок" },
+            { left: "Files", right: "apps/api/src/routes/tasks.ts і tasks.test.ts" },
+            { left: "Invariants", right: "Зберегти authMiddleware існуючим і не чіпати схему БД" },
+            { left: "How you will check", right: "pnpm --filter @eduforge/api typecheck && vitest run tasks.test.ts" },
+          ],
+        ),
+      ],
+      { baseXp: 24 },
+    ),
+    lesson(
+      "ai-cc-diff-test",
+      "Читай згенерований диф, відхиляй побічний рефакторинг і фіксуй тестом",
+      "Read the Generated Diff, Reject Drive-By Refactors, Fix With a Test",
+      3,
+      false,
+      [
+        codeRead(
+          "ai-cc4",
+          "AI-кодер отримав задачу виправити сортування таймстемпів, але додав зміни нижче. Яку частину дифу потрібно негайно відхилити?",
+          "An AI coder was asked to fix a timestamp tie-breaker and produced this diff. What must you reject immediately?",
+          "typescript",
+          "- export function sortItems(items: Item[]) {\n-   return [...items].sort((a, b) => a.ts - b.ts);\n+ // Cleaned up entire module formatting & renamed export\n+ export function orderItemsClean(list: Item[]) {\n+   return [...list].sort((a, b) => a.ts - b.ts || a.id.localeCompare(b.id));\n  }",
+          [
+            "Побічний рефакторинг і перейменування публічного експорту `sortItems` -> `orderItemsClean`, яке ламає виклики по всьому проєкту та засмічує diff",
+            "Тільки перевірку `a.id.localeCompare(b.id)`",
+            "Тільки використання квадратних дужок `[...list]`",
+            "Нічого, перейменування чужих експортів без запиту завжди корисне",
+          ],
+          0,
+          why(
+            "Читайте весь диф до запуску чи мерджу: відхиляйте побічні перейменування, переформатування сусідніх блоків і «чистки», яких не просили в пакеті.",
+            "Read the full diff line by line: revert drive-by renames and unrequested cleanups so the patch stays minimal and safe.",
+          ),
+        ),
+        mcq(
+          "ai-cc5",
+          "Ви знайшли граничний баг у згенерованому патчі AI-кодера. Яка правильна реакція замість просити «перегенеруй ще раз наосліп»?",
+          "You spot a boundary bug in an AI coder's patch. What is the right move instead of blindly regenerating?",
+          [
+            "Видалити зайві побічні правки, зафіксувати точний вхід тестом, який спершу падає, і точково виправити логіку під цей тест",
+            "Замінити весь файл пустим шаблоном і запустити автоформатер",
+            "Залишити баг, але додати коментар `// AI generated`",
+            "Перемкнутися з Cursor на Windsurf і повторити той самий розмитий запит",
+          ],
+          0,
+        ),
+        codeFill(
+          "ai-cc6",
+          "Зафіксуйте виправлення tie-breaker у регресійному тесті Vitest, порівнюючи порядок масиву об'єктів",
+          "Lock the tie-breaker fix with a Vitest deep-equality assertion",
+          "typescript",
+          "expect(sortItems([b, a])).___([a, b]);",
+          ["toEqual"],
+          true,
+        ),
+      ],
+      { baseXp: 25 },
+    ),
+    exam(
+      "ai-cc-exam",
+      "Контрольна: контроль AI-кодера",
+      "Checkpoint: Controlling the AI coder",
+      3,
+      [
+        mcq(
+          "ai-cc-e1",
+          "Що є спільним робочим циклом для Cursor, GitHub Copilot Workspace і Windsurf?",
+          "What is the shared operational loop across Cursor, GitHub Copilot Workspace, and Windsurf?",
+          [
+            "Видати сфокусований контекстний пакет -> перевірити кожен рядок дифу -> відкинути побічні зміни -> підтвердити перевіркою/тестом",
+            "Завантажити `.env` із ключами в чат і натиснути Accept All без запуску тестів",
+            "Дозволити агенту перейменовувати будь-які модулі за власним смаком",
+            "Писати промпти без вказання цільових файлів чи критерію перевірки",
+          ],
+          0,
+        ),
+        codeRead(
+          "ai-cc-e2",
+          "Яке порушення інваріантів ви бачите у цьому згенерованому дифі?",
+          "Which invariant violation appears in this AI-generated diff?",
+          "typescript",
+          "  app.get(\"/api/notes\", authMiddleware, async (req, res) => {\n-   const rows = await listNotesForUser(req.user.id);\n+   // Refactor: also allow public read when ?all=1\n+   const rows = req.query.all ? await listAllNotes() : await listNotesForUser(req.user.id);\n    return res.json({ items: rows });\n  });",
+          [
+            "Вставлено несанкціоноване розширення прав (`?all=1`), що ламає інваріант ізоляції користувача, замасковане під «рефакторинг»",
+            "Назву `rows` треба замінити на `data`",
+            "Маршрут повинен повертати XML",
+            "`req.user.id` не працює в Express",
+          ],
+          0,
+        ),
+        mcq(
+          "ai-cc-e3",
+          "AI-кодер вирішив 8-рядкову задачу, але попутно переформатував 90 рядків і змінив назви двох допоміжних функцій у сусідньому файлі. Що зробити?",
+          "An AI coder solved an 8-line task while also reformatting 90 unrelated lines and renaming two helpers in a neighbor file. What should you do?",
+          [
+            "Відкотити побічний рефакторинг (залишити лише сфокусовані 8 рядків + тест на фікс), щоб рев'ю і `git bisect` лишалися чистими",
+            "Закомітити все разом під назвою `wip`",
+            "Видалити старий тест, який скаржився на перейменування",
+            "Вимкнути перевірку типів",
+          ],
+          0,
+        ),
+      ],
+    ),
+  ],
+);
+
 export const aiDevelopmentContent: CourseContent = {
   slug: "ai_development",
   titleUk: "AI-асистована розробка",
   titleEn: "AI-Assisted Development",
   descriptionUk:
-    "Постановка чітких специфікацій, безпечний відбір контексту, рев'ю збережених AI-диффів, виявлення галюцинацій, тестування й аудит ForgeBoard без платних ключів.",
+    "Постановка чітких специфікацій, безпечний відбір контексту, рев'ю збережених AI-диффів, виявлення галюцинацій, тестування, аудит ForgeBoard і контроль AI-кодера.",
   descriptionEn:
-    "Clear specifications, safe context curation, reviewing saved AI diffs, catching hallucinated APIs, test-backed verification, and ForgeBoard review lab.",
+    "Clear specifications, safe context curation, reviewing saved AI diffs, catching hallucinated APIs, test-backed verification, ForgeBoard review lab, and controlling AI coders.",
   icon: "🤖",
   color: "#7C3AED",
   units: [
@@ -399,5 +551,6 @@ export const aiDevelopmentContent: CourseContent = {
     smallDiffsReview,
     verificationDebugging,
     privacyDepsCapstone,
+    coderControl,
   ],
 };

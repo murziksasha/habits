@@ -5,6 +5,7 @@
 import { Secret, TOTP } from "otpauth";
 import { describe, expect, it, beforeAll } from "vitest";
 import { createApp } from "./app.js";
+import { registerLearningProgressIntegrationTests } from "./learning-progress.integration.js";
 
 const skip = process.env.SKIP_INTEGRATION === "1";
 const describeIntegration = skip ? describe.skip : describe;
@@ -217,6 +218,7 @@ describeIntegration("API integration", () => {
       body: { email, password: newPass },
     });
     expect(login.status).toBe(200);
+    if (login.data.token) token = login.data.token as string;
   });
 
   it("admin login and stats", async () => {
@@ -391,3 +393,5 @@ describeIntegration("API integration", () => {
     ).toBe(true);
   });
 });
+
+registerLearningProgressIntegrationTests(describeIntegration, json);

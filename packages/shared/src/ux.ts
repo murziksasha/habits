@@ -422,7 +422,42 @@ export function discoveryTools(): {
       href: "/ai-development",
       titleUk: "AI-асистована розробка",
       titleEn: "AI-Assisted Development",
-      keywords: "ai review diff verification prompt",
+      keywords: "ai review diff verification prompt cursor copilot windsurf",
+      group: "core",
+    },
+    {
+      href: "/python-for-ai",
+      titleUk: "Python для AI",
+      titleEn: "Python for AI",
+      keywords: "python ai async dict list json typing",
+      group: "core",
+    },
+    {
+      href: "/agentic-systems",
+      titleUk: "Агентні системи та RAG",
+      titleEn: "Agentic Systems & RAG",
+      keywords: "agents rag vector langgraph crewai autogen pinecone qdrant",
+      group: "core",
+    },
+    {
+      href: "/llmops",
+      titleUk: "LLMOps: трейси, evals і бюджет",
+      titleEn: "LLMOps: Traces, Evals & Budget",
+      keywords: "llmops traces evals kafka rabbitmq graphql grpc bedrock vertex azure",
+      group: "core",
+    },
+    {
+      href: "/ai-security",
+      titleUk: "Безпека AI-агентів",
+      titleEn: "AI Security",
+      keywords: "ai security injection guardrails nemo llama guard ollama vllm",
+      group: "core",
+    },
+    {
+      href: "/ai-product",
+      titleUk: "AI-продукт і Human-in-the-Loop",
+      titleEn: "AI Product & Human-in-the-Loop",
+      keywords: "ai product hitl routing failure modes support agent",
       group: "core",
     },
     {
@@ -458,30 +493,26 @@ export function filterDiscoveryTools(
   });
 }
 
-/** Streak calendar: last N days activity flags from ISO date list. */
+/** Streak calendar: last N UTC days activity flags from ISO date list. */
 export function streakCalendarDays(
   activeDates: string[],
   days = 14,
   now = new Date(),
 ): { date: string; active: boolean; isToday: boolean }[] {
   const set = new Set(
-    activeDates.map((d) => {
-      const x = d.slice(0, 10);
-      return x;
-    }),
+    activeDates.map((d) => d.slice(0, 10)),
   );
+  const todayIso = now.toISOString().slice(0, 10);
+  const base = new Date(`${todayIso}T12:00:00.000Z`);
   const out: { date: string; active: boolean; isToday: boolean }[] = [];
   for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(now);
-    d.setHours(12, 0, 0, 0);
-    d.setDate(d.getDate() - i);
+    const d = new Date(base);
+    d.setUTCDate(base.getUTCDate() - i);
     const iso = d.toISOString().slice(0, 10);
-    const today = new Date(now);
-    today.setHours(12, 0, 0, 0);
     out.push({
       date: iso,
       active: set.has(iso),
-      isToday: iso === today.toISOString().slice(0, 10),
+      isToday: iso === todayIso,
     });
   }
   return out;

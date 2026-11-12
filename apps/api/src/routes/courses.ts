@@ -300,15 +300,20 @@ courseRoutes.get("/:slug/lessons/:lessonId", optionalAuth, async (c) => {
     ),
   });
   if (!progress) {
-    const [created] = await db
+    await db
       .insert(userCourseProgress)
       .values({
         userId: user.id,
         courseId: course.id,
         hearts: maxHearts(plan),
       })
-      .returning();
-    progress = created;
+      .onConflictDoNothing();
+    progress = await db.query.userCourseProgress.findFirst({
+      where: and(
+        eq(userCourseProgress.userId, user.id),
+        eq(userCourseProgress.courseId, course.id),
+      ),
+    });
   } else {
     const regen = regenerateHearts({
       plan,
@@ -335,7 +340,7 @@ courseRoutes.get("/:slug/lessons/:lessonId", optionalAuth, async (c) => {
     course,
     localLab: labMeta.localLab,
     indexInCourse: idx,
-    hearts: progress.hearts,
+    hearts: progress?.hearts ?? maxHearts(plan),
     maxHearts: maxHearts(plan),
   });
 });

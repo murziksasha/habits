@@ -315,7 +315,8 @@ const doc = {
         ],
         responses: {
           "200": {
-            description: "Graded result + XP; replay sets idempotentReplay=true",
+            description:
+              "Graded result + explicit courseXp/characterXpGain, courseLevelBefore/After, characterLevelBefore/After, levelUp (course), characterLevelUp, levelChangeTrigger, grantedRewards; replay sets idempotentReplay=true",
           },
         },
       },
@@ -443,9 +444,73 @@ const doc = {
     "/learning/calendar": {
       get: {
         tags: ["learning"],
-        summary: "Activity heatmap",
+        summary: "UTC study heatmap from submitted lessons (days=14..120, default 84)",
         security: [{ bearerAuth: [] }],
-        responses: { "200": { description: "Day series" } },
+        parameters: [
+          { name: "days", in: "query", required: false, schema: { type: "integer", minimum: 14, maximum: 120, default: 84 } },
+        ],
+        responses: { "200": { description: "UTC day series + activeDays + maxStreakInWindow" } },
+      },
+    },
+    "/learning/progress": {
+      get: {
+        tags: ["learning"],
+        summary: "My progress: overview, daily series, course breakdown, character progression, weekly recap, personal bests, and goal state",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: "days", in: "query", required: false, schema: { type: "integer", enum: [7, 30, 90], default: 30 } },
+          { name: "course", in: "query", required: false, schema: { type: "string" } },
+        ],
+        responses: {
+          "200": { description: "LearningProgressResponse" },
+          "400": { description: "invalid_input" },
+          "401": { description: "unauthorized" },
+        },
+      },
+    },
+    "/learning/history": {
+      get: {
+        tags: ["learning"],
+        summary: "Newest-first paginated lesson & exam attempt history with reconstructed older outcomes",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: "days", in: "query", required: false, schema: { type: "string", enum: ["7", "30", "90", "all"], default: "all" } },
+          { name: "course", in: "query", required: false, schema: { type: "string" } },
+          { name: "limit", in: "query", required: false, schema: { type: "integer", minimum: 1, maximum: 50, default: 20 } },
+          { name: "cursor", in: "query", required: false, schema: { type: "string" } },
+        ],
+        responses: {
+          "200": { description: "LearningHistoryResponse" },
+          "400": { description: "invalid_input | invalid_cursor" },
+          "401": { description: "unauthorized" },
+        },
+      },
+    },
+    "/learning/goal": {
+      put: {
+        tags: ["learning"],
+        summary: "Save, update, or remove recurring weekly target of successful attempts (1..1000 or null)",
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["weeklyTarget"],
+                properties: {
+                  weeklyTarget: { type: "integer", minimum: 1, maximum: 1000, nullable: true },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "Updated weeklyTarget + goal state" },
+          "400": { description: "invalid_input" },
+          "401": { description: "unauthorized" },
+          "404": { description: "no_character" },
+        },
       },
     },
     "/learning/next": {

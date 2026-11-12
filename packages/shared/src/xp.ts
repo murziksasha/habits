@@ -72,6 +72,11 @@ export const COURSE_GLOBAL_WEIGHT: Record<string, number> = {
   git_workflows: 1,
   web_security: 1.1,
   ai_development: 1.05,
+  python_for_ai: 1.05,
+  agentic_systems: 1.05,
+  llmops: 1.05,
+  ai_security: 1.1,
+  ai_product: 1.05,
   nextjs_fullstack: 1.1,
   applied_algorithms: 1.1,
 };

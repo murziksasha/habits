@@ -279,6 +279,11 @@ export async function evaluateAchievements(
     git_workflows: "git_workflows_start",
     web_security: "web_security_start",
     ai_development: "ai_development_start",
+    python_for_ai: "python_for_ai_start",
+    agentic_systems: "agentic_systems_start",
+    llmops: "llmops_start",
+    ai_security: "ai_security_start",
+    ai_product: "ai_product_start",
     nextjs_fullstack: "nextjs_fullstack_start",
     applied_algorithms: "applied_algorithms_start",
   };

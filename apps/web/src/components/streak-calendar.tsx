@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { streakCalendarDays } from "@eduforge/shared";
 import clsx from "clsx";
 import { useLocale } from "@/lib/locale-context";
@@ -8,23 +9,35 @@ export function StreakCalendar({
   activeDates,
   days = 14,
   streakDays = 0,
+  progressHref,
 }: {
   activeDates: string[];
   days?: number;
   streakDays?: number;
+  progressHref?: string;
 }) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const cells = streakCalendarDays(activeDates, days);
 
   return (
     <section className="card space-y-3" aria-label="Streak calendar">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-black">
           🔥 {locale === "en" ? "Streak" : "Серія"} · {streakDays}
         </h2>
-        <span className="text-xs font-bold text-ink-muted">
-          {locale === "en" ? "Last days" : "Останні дні"}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-bold text-ink-muted">
+            {locale === "en" ? `Last ${days}d (UTC)` : `Останні ${days} дн. (UTC)`}
+          </span>
+          {progressHref ? (
+            <Link
+              href={progressHref}
+              className="text-xs font-black text-sky hover:underline"
+            >
+              📊 {t.learning.myProgress} →
+            </Link>
+          ) : null}
+        </div>
       </div>
       <div className="flex flex-wrap gap-1.5" role="list">
         {cells.map((c) => (

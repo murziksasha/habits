@@ -1,4 +1,4 @@
-import { and, eq, gte, inArray, sql } from "drizzle-orm";
+import { and, eq, gte, inArray, lte, sql } from "drizzle-orm";
 import {
   characters,
   courses,
@@ -115,7 +115,7 @@ export async function buildMinisRace(userId: string): Promise<MinisRacePayload> 
         eq(userLessonProgress.status, "completed"),
         inArray(userLessonProgress.lessonId, raceIds),
         gte(userLessonProgress.completedAt, startsAt),
-        sql`${userLessonProgress.completedAt} <= ${endsAt}`,
+        lte(userLessonProgress.completedAt, endsAt),
       ),
     )
     .groupBy(userLessonProgress.userId, characters.displayName)
@@ -143,7 +143,7 @@ export async function buildMinisRace(userId: string): Promise<MinisRacePayload> 
           eq(userLessonProgress.status, "completed"),
           inArray(userLessonProgress.lessonId, raceIds),
           gte(userLessonProgress.completedAt, startsAt),
-          sql`${userLessonProgress.completedAt} <= ${endsAt}`,
+          lte(userLessonProgress.completedAt, endsAt),
         ),
       );
     meScore = own?.n ?? 0;

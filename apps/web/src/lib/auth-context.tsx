@@ -34,6 +34,7 @@ export type Character = {
   dailyXp?: number;
   dailyXpDate?: string | null;
   dailyGoalXp?: number;
+  weeklyTarget?: number | null;
   streakFreezes?: number;
   unlockedAvatars?: string[];
   onboarding?: Record<string, boolean>;

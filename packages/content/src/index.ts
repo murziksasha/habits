@@ -21,6 +21,11 @@ import { postgresqlAppsContent as postgresqlAppsRaw } from "./postgresql-apps.js
 import { gitWorkflowsContent as gitWorkflowsRaw } from "./git-workflows.js";
 import { webSecurityContent as webSecurityRaw } from "./web-security.js";
 import { aiDevelopmentContent as aiDevelopmentRaw } from "./ai-development.js";
+import { pythonForAiContent as pythonForAiRaw } from "./python-for-ai.js";
+import { agenticSystemsContent as agenticSystemsRaw } from "./agentic-systems.js";
+import { llmopsContent as llmopsRaw } from "./llmops.js";
+import { aiSecurityContent as aiSecurityRaw } from "./ai-security.js";
+import { aiProductContent as aiProductRaw } from "./ai-product.js";
 import { nextjsFullstackContent as nextjsFullstackRaw } from "./nextjs-fullstack.js";
 import { appliedAlgorithmsContent as appliedAlgorithmsRaw } from "./applied-algorithms.js";
 import { normalizeCourseLocales } from "./locale-normalize.js";
@@ -49,6 +54,11 @@ export const postgresqlAppsContent = normalizeCourseLocales(postgresqlAppsRaw);
 export const gitWorkflowsContent = normalizeCourseLocales(gitWorkflowsRaw);
 export const webSecurityContent = normalizeCourseLocales(webSecurityRaw);
 export const aiDevelopmentContent = normalizeCourseLocales(aiDevelopmentRaw);
+export const pythonForAiContent = normalizeCourseLocales(pythonForAiRaw);
+export const agenticSystemsContent = normalizeCourseLocales(agenticSystemsRaw);
+export const llmopsContent = normalizeCourseLocales(llmopsRaw);
+export const aiSecurityContent = normalizeCourseLocales(aiSecurityRaw);
+export const aiProductContent = normalizeCourseLocales(aiProductRaw);
 export const nextjsFullstackContent = normalizeCourseLocales(nextjsFullstackRaw);
 export const appliedAlgorithmsContent = normalizeCourseLocales(appliedAlgorithmsRaw);
 

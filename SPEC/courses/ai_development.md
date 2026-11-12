@@ -5,11 +5,11 @@ Group: deep
 Hub: `/ai-development`
 Freemium: first 5 non-exam lesson(s) open without Pro.
 Prerequisites: `typescript`, `git_workflows`, `software_testing`
-Recommended next: `nextjs_fullstack`, `applied_algorithms`
+Recommended next: `python_for_ai`, `nextjs_fullstack`, `applied_algorithms`
 
 ## What this course is
 
-Clear specifications, safe context curation, reviewing saved AI diffs, catching hallucinated APIs, test-backed verification, and ForgeBoard review lab.
+Clear specifications, safe context curation, reviewing saved AI diffs, catching hallucinated APIs, test-backed verification, ForgeBoard review lab, and controlling AI coders.
 
 ## Local ForgeBoard Labs
 
@@ -45,11 +45,17 @@ Clear specifications, safe context curation, reviewing saved AI diffs, catching 
 - `ai-forgeboard-review-lab` — Lab: ForgeBoard Saved AI Diff Review, Fix & Verification (M10) (2 exercises)
 - `ai-pd-exam` — Checkpoint: Privacy & Review Accountability [exam] (2 exercises)
 
+### `ai_coder_control` — Controlling the AI coder
+
+- `ai-cc-packet` — The Context Packet: Goal, Files, Invariants, and How You Will Check (3 exercises)
+- `ai-cc-diff-test` — Read the Generated Diff, Reject Drive-By Refactors, Fix With a Test (3 exercises)
+- `ai-cc-exam` — Checkpoint: Controlling the AI coder [exam] (3 exercises)
+
 ## Depth now
 
-- Units: 5
-- Lessons: 13
-- Exams: 5
+- Units: 6
+- Lessons: 16
+- Exams: 6
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_project, code_read, match, mcq
 

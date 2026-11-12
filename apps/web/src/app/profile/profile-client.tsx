@@ -499,6 +499,7 @@ export function ProfileClient() {
   const [msg, setMsg] = useState("");
   const [certs, setCerts] = useState<Cert[]>([]);
   const [minis, setMinis] = useState<Minis | null>(null);
+  const [studyDates, setStudyDates] = useState<string[]>([]);
   const [wizardOpen, setWizardOpen] = useState(false);
   const AVATARS = character?.unlockedAvatars?.length
     ? character.unlockedAvatars
@@ -526,6 +527,16 @@ export function ProfileClient() {
     )
       .then((d) => setMinis(d.profile?.programmingMinis ?? null))
       .catch(() => setMinis(null));
+    void api<{ series?: { date: string; count: number }[] }>(
+      "/learning/calendar?days=14",
+      { token },
+    )
+      .then((d) =>
+        setStudyDates(
+          (d.series ?? []).filter((x) => x.count > 0).map((x) => x.date),
+        ),
+      )
+      .catch(() => setStudyDates([]));
   }, [token, user]);
 
   async function save(e: React.FormEvent) {
@@ -560,14 +571,6 @@ export function ProfileClient() {
 
   const ratio = minis && minis.total > 0 ? Math.min(1, minis.completed / minis.total) : 0;
   const avatarEmoji = avatarEmojiOf(avatar);
-  const streakDates =
-    (character?.streakDays ?? 0) > 0
-      ? Array.from({ length: Math.min(14, character!.streakDays) }, (_, i) => {
-          const d = new Date();
-          d.setDate(d.getDate() - i);
-          return d.toISOString().slice(0, 10);
-        })
-      : [];
 
   return (
     <div className="mx-auto max-w-lg space-y-4">
@@ -592,8 +595,9 @@ export function ProfileClient() {
         />
       )}
       <StreakCalendar
-        activeDates={streakDates}
+        activeDates={studyDates}
         streakDays={character?.streakDays ?? 0}
+        progressHref="/calendar"
       />
       {(character?.progression?.skillPoints ?? 0) > 0 ? (
         <a
@@ -609,6 +613,11 @@ export function ProfileClient() {
       ) : null}
       <CharacterProgressionPanel />
       <div className="flex flex-wrap gap-2">
+        <Link href="/calendar">
+          <Button size="sm" variant="secondary">
+            📊 {t.learning.myProgress} →
+          </Button>
+        </Link>
         <Link href={`/u/${user.id}`}>
           <Button size="sm" variant="secondary">
             {locale === "en" ? "Public profile" : "Публічний профіль"} →

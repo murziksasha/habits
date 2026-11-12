@@ -44,6 +44,7 @@ type HomePayload = {
   examBoard: {
     summary: { totalExams: number; passed: number; ready: number; locked: number };
   } | null;
+  studyDates?: string[];
 };
 
 /**
@@ -115,14 +116,7 @@ export function DashboardClient() {
     );
   }
 
-  const activity = home?.activity ?? [];
-  const activeDates = activity
-    .map((a) => a.createdAt?.slice(0, 10))
-    .filter(Boolean) as string[];
-  // Include today if streak > 0
-  if ((character?.streakDays ?? 0) > 0) {
-    activeDates.push(new Date().toISOString().slice(0, 10));
-  }
+  const activeDates = home?.studyDates ?? [];
 
   const chips =
     persona === "parent"
@@ -257,6 +251,7 @@ export function DashboardClient() {
       <StreakCalendar
         activeDates={activeDates}
         streakDays={character?.streakDays ?? 0}
+        progressHref="/calendar"
       />
 
       <div className="grid gap-3 sm:grid-cols-3">

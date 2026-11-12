@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import { and, asc, desc, eq, gte, inArray, sql } from "drizzle-orm";
 import {
-  activityEvents,
   certificates,
   characters,
   courses,
@@ -19,6 +18,8 @@ import {
   ENGLISH_PLACEMENT,
   isoWeekBounds,
   isoWeekKey,
+  learningHistoryQuerySchema,
+  learningProgressQuerySchema,
   levelFromXp,
   parsePagination,
   PROGRAMMING_MINI_LESSON_SLUGS,
@@ -26,6 +27,7 @@ import {
   PROGRAMMING_UNIT_ORDER,
   scorePlacement,
   scoreProgrammingPlacement,
+  updateLearningGoalSchema,
   weeklyMinisRaceSlugs,
   weeklyMinisRaceXpBonus,
 } from "@eduforge/shared";
@@ -34,6 +36,12 @@ import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 import { logActivity, notifyUser } from "../engagement.js";
 import { buildExamBoard } from "../services/exam-board.js";
+import {
+  getLearningHistory,
+  getLearningProgress,
+  getStudyCalendar,
+  updateLearningGoal,
+} from "../services/learning-progress.js";
 import { buildMinisRace } from "../services/minis-race.js";
 import { buildNextRecommendations } from "../services/next-steps.js";
 
@@ -41,47 +49,64 @@ type Vars = { user: AuthedUser };
 
 export const learningRoutes = new Hono<{ Variables: Vars }>();
 
-/** Activity heatmap for last N days (default 84 = 12 weeks) */
+/** Study heatmap for last N UTC days (default 84 = 12 weeks), backed by submitted lessons. */
 learningRoutes.get("/calendar", authMiddleware, async (c) => {
   const user = c.get("user");
-  const days = Math.min(120, Math.max(14, Number(c.req.query("days") ?? 84)));
-  const since = new Date(Date.now() - days * 86400000);
+  const rawDays = c.req.query("days");
+  const parsedDays = rawDays === undefined ? 84 : Number(rawDays);
+  const days = Number.isFinite(parsedDays)
+    ? Math.min(120, Math.max(14, Math.floor(parsedDays)))
+    : 84;
+  const cal = await getStudyCalendar(user.id, { days });
+  return c.json(cal);
+});
 
-  const events = await db
-    .select({
-      day: sql<string>`to_char(${activityEvents.createdAt} at time zone 'UTC', 'YYYY-MM-DD')`,
-      count: sql<number>`count(*)::int`,
-    })
-    .from(activityEvents)
-    .where(
-      and(eq(activityEvents.userId, user.id), gte(activityEvents.createdAt, since)),
-    )
-    .groupBy(sql`to_char(${activityEvents.createdAt} at time zone 'UTC', 'YYYY-MM-DD')`);
-
-  const map = new Map(events.map((e) => [e.day, e.count]));
-  const series: { date: string; count: number; level: number }[] = [];
-  for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(Date.now() - i * 86400000);
-    const key = d.toISOString().slice(0, 10);
-    const count = map.get(key) ?? 0;
-    const level = count === 0 ? 0 : count < 2 ? 1 : count < 5 ? 2 : count < 10 ? 3 : 4;
-    series.push({ date: key, count, level });
+/** Learner statistics, charts, weekly recap, personal bests, progression, and weekly goal. */
+learningRoutes.get("/progress", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const parsed = learningProgressQuerySchema.safeParse({
+    days: c.req.query("days"),
+    course: c.req.query("course"),
+  });
+  if (!parsed.success) {
+    return c.json({ error: "invalid_input" }, 400);
   }
+  const progress = await getLearningProgress(user.id, parsed.data);
+  return c.json(progress);
+});
 
-  const activeDays = series.filter((s) => s.count > 0).length;
-  const maxStreak = (() => {
-    let best = 0;
-    let cur = 0;
-    for (const s of series) {
-      if (s.count > 0) {
-        cur += 1;
-        best = Math.max(best, cur);
-      } else cur = 0;
-    }
-    return best;
-  })();
+/** Paginated attempt history (newest first, cursor-paginated, default 20, max 50). */
+learningRoutes.get("/history", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const parsed = learningHistoryQuerySchema.safeParse({
+    days: c.req.query("days"),
+    course: c.req.query("course"),
+    limit: c.req.query("limit"),
+    cursor: c.req.query("cursor"),
+  });
+  if (!parsed.success) {
+    return c.json({ error: "invalid_input" }, 400);
+  }
+  const result = await getLearningHistory(user.id, parsed.data);
+  if (!result.ok) {
+    return c.json({ error: result.error }, 400);
+  }
+  return c.json(result.data);
+});
 
-  return c.json({ days, series, activeDays, maxStreakInWindow: maxStreak });
+/** Save, update, or remove (null) recurring weekly target of successful attempts (1..1000). */
+learningRoutes.put("/goal", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const body = await c.req.json().catch(() => null);
+  const parsed = updateLearningGoalSchema.safeParse(body);
+  if (!parsed.success) {
+    return c.json({ error: "invalid_input" }, 400);
+  }
+  const updated = await updateLearningGoal(user.id, parsed.data.weeklyTarget);
+  if (!updated) {
+    return c.json({ error: "no_character" }, 404);
+  }
+  return c.json(updated);
 });
 
 /** Smart next steps: unfinished lessons, due cards, weak review, placement */

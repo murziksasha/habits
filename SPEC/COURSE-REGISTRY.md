@@ -21,7 +21,12 @@ App-level map of course slug → hub → freemium. DB stores `varchar` slugs; re
 | `postgresql_apps` | deep | `/postgresql-apps` | same | PostgreSQL modeling, migrations, CRUD, ACID transactions, EXPLAIN + ForgeBoard M6 |
 | `git_workflows` | deep | `/git-workflows` | same | Team Git workflows, rebase rules, conflict resolution, bisect, reflog + ForgeBoard M8 |
 | `web_security` | deep | `/web-security` | same | OWASP Top 10:2025, trust boundaries, XSS, IDOR, CSRF, sessions + ForgeBoard M9 |
-| `ai_development` | deep | `/ai-development` | same | Task specs, saved AI diff review, hallucination/supply-chain verification + ForgeBoard M10 |
+| `ai_development` | deep | `/ai-development` | same | Task specs, saved AI diff review, hallucination/supply-chain verification, controlling AI coders + ForgeBoard M10 |
+| `python_for_ai` | deep | `/python-for-ai` | same | Read and repair agent-style Python (values, collections, contracts, JSON/HTTP, async, snippet review). Not primary nav |
+| `agentic_systems` | deep | `/agentic-systems` | same | Script vs model vs agent, tool schemas, reflection against checks, multi-agent tradeoffs, RAG & vector stores. Not primary nav |
+| `llmops` | deep | `/llmops` | same | Traces, offline CI fixture evals, HTTP vs GraphQL/gRPC/events, Kafka/RabbitMQ, cloud model IDs & token budgets. Not primary nav |
+| `ai_security` | deep | `/ai-security` | same | Defensive agent security: trust boundaries, data/instruction separation, allowlists/HITL, guardrails, secrets, local models. Not primary nav |
+| `ai_product` | deep | `/ai-product` | same | Model/Python routing, product boundaries, approve/edit/undo HITL, empty/abstain UX, support-agent review. Not primary nav |
 | `nextjs_fullstack` | deep | `/nextjs-fullstack` | same | App Router, Server/Client boundaries, DAL, Server Actions + ForgeBoard M11 |
 | `applied_algorithms` | deep | `/applied-algorithms` | same | Web complexity, Maps/Sets, stacks/queues, cycle-safe trees + ForgeBoard M12 |
 | `english` | skill | `/courses/english` | same | Core skill + engineering issues/PRs/tradeoffs |

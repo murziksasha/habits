@@ -2,6 +2,7 @@
  * Best-effort post-submit side effects. Failures are logged, never fail the lesson grade.
  */
 
+import type { PathBadgeDef } from "@eduforge/shared";
 import type { AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 import { evaluateAchievements, logActivity, notifyUser } from "../engagement.js";
@@ -36,7 +37,8 @@ export type SubmitSideEffectCtx = {
 export type SideEffectExtras = {
   homeworkCompleted: number;
   newAchievements: Awaited<ReturnType<typeof evaluateAchievements>>;
-  certificate: { code: string; titleUk: string } | null;
+  certificate: { code: string; titleUk: string; titleEn?: string } | null;
+  newPathBadges: PathBadgeDef[];
 };
 
 async function safe(
@@ -62,6 +64,7 @@ export async function runSubmitSideEffects(
   let homeworkCompleted = 0;
   let newAchievements: SideEffectExtras["newAchievements"] = [];
   let certificate: SideEffectExtras["certificate"] = null;
+  let newPathBadges: PathBadgeDef[] = [];
   const { user } = ctx;
 
   if (ctx.passed) {
@@ -125,7 +128,8 @@ export async function runSubmitSideEffects(
           .where(eq(characters.id, ch2.id));
       }
       const { syncPathBadges } = await import("./path-badges.js");
-      await syncPathBadges(user.id);
+      const badgeRes = await syncPathBadges(user.id);
+      newPathBadges = badgeRes.newlyUnlocked;
     });
 
     await safe("learning_milestones", user.id, async () => {
@@ -143,7 +147,11 @@ export async function runSubmitSideEffects(
         ctx.courseTitleEn,
       );
       if (cert) {
-        certificate = { code: cert.code, titleUk: cert.titleUk };
+        certificate = {
+          code: cert.code,
+          titleUk: cert.titleUk,
+          titleEn: cert.titleEn ?? cert.titleUk,
+        };
       }
     });
   } else if (ctx.isExam) {
@@ -202,5 +210,5 @@ export async function runSubmitSideEffects(
     });
   });
 
-  return { homeworkCompleted, newAchievements, certificate };
+  return { homeworkCompleted, newAchievements, certificate, newPathBadges };
 }

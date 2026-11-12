@@ -23,6 +23,11 @@ import {
   gitWorkflowsContent,
   webSecurityContent,
   aiDevelopmentContent,
+  pythonForAiContent,
+  agenticSystemsContent,
+  llmopsContent,
+  aiSecurityContent,
+  aiProductContent,
   nextjsFullstackContent,
   appliedAlgorithmsContent,
   type CourseContent,
@@ -81,6 +86,11 @@ const courses: CourseContent[] = [
   gitWorkflowsContent,
   webSecurityContent,
   aiDevelopmentContent,
+  pythonForAiContent,
+  agenticSystemsContent,
+  llmopsContent,
+  aiSecurityContent,
+  aiProductContent,
   nextjsFullstackContent,
   appliedAlgorithmsContent,
 ];
@@ -115,6 +125,9 @@ describe("course content integrity", () => {
     expect(courses.map((c) => c.slug).sort()).toEqual(
       [
         "ai_development",
+        "ai_product",
+        "ai_security",
+        "agentic_systems",
         "applied_algorithms",
         "chess",
         "css_layout",
@@ -122,10 +135,12 @@ describe("course content integrity", () => {
         "git_workflows",
         "html_semantics",
         "js_fundamentals",
+        "llmops",
         "logic",
         "nextjs_fullstack",
         "programming",
         "postgresql_apps",
+        "python_for_ai",
         "qa_theory",
         "react_fundamentals",
         "software_testing",
@@ -764,7 +779,7 @@ describe("course content integrity", () => {
       [postgresqlAppsContent, 6, "pg-forgeboard-db-lab"],
       [gitWorkflowsContent, 5, "gw-forgeboard-conflict-lab"],
       [webSecurityContent, 6, "ws-forgeboard-security-lab"],
-      [aiDevelopmentContent, 5, "ai-forgeboard-review-lab"],
+      [aiDevelopmentContent, 6, "ai-forgeboard-review-lab"],
       [nextjsFullstackContent, 7, "nx-forgeboard-app-lab"],
       [appliedAlgorithmsContent, 6, "aa-forgeboard-perf-lab"],
     ];
@@ -797,5 +812,46 @@ describe("course content integrity", () => {
         true,
       );
     }
+  });
+
+  it("AI skills stack: 5 deep tracks + ai_coder_control unit integrity", () => {
+    const expectedAiTracks: Array<[CourseContent, number]> = [
+      [pythonForAiContent, 6],
+      [agenticSystemsContent, 6],
+      [llmopsContent, 6],
+      [aiSecurityContent, 6],
+      [aiProductContent, 5],
+    ];
+    for (const [course, unitCount] of expectedAiTracks) {
+      expect(course.units.length, course.slug).toBe(unitCount);
+      for (const u of course.units) {
+        expect(u.lessons.filter((l) => !l.isExam).length, `${course.slug}/${u.slug} non-exam`).toBe(2);
+        expect(u.lessons.filter((l) => l.isExam).length, `${course.slug}/${u.slug} exam`).toBe(1);
+      }
+      const allLessons = course.units.flatMap((u) => u.lessons);
+      expect(
+        allLessons.filter((l) => l.isFree && !l.isExam).length,
+        `${course.slug} free non-exam`,
+      ).toBeGreaterThanOrEqual(5);
+      for (const ex of collectExercises(course)) {
+        if (ex.type === "code_order") {
+          expect(ex.lines.length, `${course.slug}/${ex.id}`).toBe(ex.correct.length);
+          expect([...ex.lines].sort(), `${course.slug}/${ex.id}`).toEqual([...ex.correct].sort());
+        }
+        if (ex.type === "match") {
+          const rights = ex.pairs.map((p) => p.right);
+          expect(new Set(rights).size, `${course.slug}/${ex.id}`).toBe(rights.length);
+        }
+        if (ex.type === "code_fill") {
+          expect(ex.accepted.length, `${course.slug}/${ex.id}`).toBeGreaterThan(0);
+          expect(ex.code.includes("___"), `${course.slug}/${ex.id}`).toBe(true);
+        }
+      }
+    }
+
+    const coderControlUnit = aiDevelopmentContent.units.find((u) => u.slug === "ai_coder_control");
+    expect(coderControlUnit).toBeTruthy();
+    expect(coderControlUnit!.lessons.filter((l) => !l.isExam)).toHaveLength(2);
+    expect(coderControlUnit!.lessons.filter((l) => l.isExam)).toHaveLength(1);
   });
 });

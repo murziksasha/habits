@@ -8,6 +8,7 @@ import {
   exerciseTypeLabel,
 
   LESSON_RESULT_SHEET_MS,
+  type GrantedRewardItem,
   type LocalLabManifest,
   UI,
 } from "@eduforge/shared";
@@ -66,7 +67,16 @@ export function LessonClient() {
     xpGain: number;
     accuracy: number;
     courseLevel: number;
+    courseLevelBefore?: number;
+    courseLevelAfter?: number;
+    courseLevelUp?: boolean;
     levelUp: boolean;
+    characterXpGain?: number;
+    characterLevelBefore?: number | null;
+    characterLevelAfter?: number | null;
+    characterLevelUp?: boolean;
+    dailyCapReached?: boolean;
+    grantedRewards?: GrantedRewardItem[];
     hearts: number;
     heartLost: boolean;
     streakProtected?: boolean;
@@ -324,7 +334,16 @@ export function LessonClient() {
         xpGain: number;
         accuracy: number;
         courseLevel?: number;
+        courseLevelBefore?: number;
+        courseLevelAfter?: number;
+        courseLevelUp?: boolean;
         levelUp?: boolean;
+        characterXpGain?: number;
+        characterLevelBefore?: number | null;
+        characterLevelAfter?: number | null;
+        characterLevelUp?: boolean;
+        dailyCapReached?: boolean;
+        grantedRewards?: GrantedRewardItem[];
         character?: Parameters<typeof setCharacter>[0];
         hearts?: number;
         heartLost?: boolean;
@@ -361,7 +380,16 @@ export function LessonClient() {
         xpGain: result.xpGain ?? 0,
         accuracy: result.accuracy,
         courseLevel: result.courseLevel ?? 1,
+        courseLevelBefore: result.courseLevelBefore,
+        courseLevelAfter: result.courseLevelAfter,
+        courseLevelUp: Boolean(result.courseLevelUp ?? result.levelUp),
         levelUp: Boolean(result.levelUp),
+        characterXpGain: result.characterXpGain,
+        characterLevelBefore: result.characterLevelBefore ?? null,
+        characterLevelAfter: result.characterLevelAfter ?? null,
+        characterLevelUp: Boolean(result.characterLevelUp),
+        dailyCapReached: Boolean(result.dailyCapReached),
+        grantedRewards: Array.isArray(result.grantedRewards) ? result.grantedRewards : [],
         hearts: result.hearts ?? hearts,
         heartLost: Boolean(result.heartLost),
         streakProtected: Boolean(result.streakProtected),
@@ -492,18 +520,36 @@ export function LessonClient() {
     const sharePath = summary.certificate?.code
       ? `/certificates/${summary.certificate.code}`
       : `/courses/${slug}`;
+    const courseLeveled = Boolean(summary.courseLevelUp ?? summary.levelUp);
+    const charLeveled = Boolean(summary.characterLevelUp);
+    const anyLevelUp = courseLeveled || charLeveled;
+    const levelDetailParts: string[] = [];
+    if (courseLeveled) {
+      levelDetailParts.push(
+        `${t.lesson.courseLevelLabel} ${summary.courseLevelAfter ?? summary.courseLevel}`,
+      );
+    }
+    if (charLeveled && summary.characterLevelAfter != null) {
+      levelDetailParts.push(
+        `${t.lesson.characterLevelLabel} ${summary.characterLevelAfter}`,
+      );
+    }
+    const levelDetail = levelDetailParts.length ? levelDetailParts.join(" · ") : undefined;
+    const rewards = summary.grantedRewards ?? [];
+
     return (
       <div className="card mx-auto max-w-lg space-y-4 text-center">
         <Celebration
           kind={
             summary.certificate
               ? "cert"
-              : summary.levelUp
+              : anyLevelUp
                 ? "level"
                 : summary.streakProtected
                   ? "streak"
                   : "complete"
           }
+          detail={levelDetail}
           show={!examFail}
         />
         <h1 className="text-3xl font-black">
@@ -511,13 +557,28 @@ export function LessonClient() {
             ? t.lesson.examFailed
             : summary.isExam
               ? t.lesson.examPassed
-              : UI.lesson.completed}
+              : t.lesson.completed}
         </h1>
         {!examFail && (
           user ? (
-            <p className="text-lg font-bold text-brand-dark" role="status" aria-live="polite">
-              +{summary.xpGain} {UI.lesson.xpGained}
-            </p>
+            <div className="space-y-1" role="status" aria-live="polite">
+              <p className="text-lg font-bold text-brand-dark">
+                +{summary.xpGain} {t.lesson.xpGained}{" "}
+                <span className="text-xs font-bold text-ink-muted">
+                  ({t.lesson.courseXpGained})
+                </span>
+              </p>
+              {typeof summary.characterXpGain === "number" && (
+                <p className="text-sm font-bold text-sky">
+                  +{summary.characterXpGain} {t.lesson.characterXpGained}
+                  {summary.dailyCapReached ? (
+                    <span className="ml-1.5 text-xs text-ink-muted">
+                      · {t.lesson.dailyCapReached}
+                    </span>
+                  ) : null}
+                </p>
+              )}
+            </div>
           ) : (
             <div className="rounded-2xl border-2 border-brand/30 bg-brand-soft/30 p-3 text-sm space-y-2">
               <p className="font-bold text-ink">
@@ -548,8 +609,41 @@ export function LessonClient() {
           {summary.isExam && summary.passThreshold != null
             ? ` · ≥${Math.round(summary.passThreshold * 100)}%`
             : ""}
-          {user ? ` · ${UI.dashboard.level}: ${summary.courseLevel}` : ""}
         </p>
+        {user ? (
+          <div className="grid gap-2 text-left sm:grid-cols-2">
+            <div
+              className={`rounded-2xl border p-3 text-sm ${
+                courseLeveled
+                  ? "border-brand/50 bg-brand-soft/40"
+                  : "border-slate-100 bg-slate-50 dark:border-slate-800 dark:bg-slate-900"
+              }`}
+            >
+              <p className="text-xs font-bold text-ink-muted">{t.lesson.courseLevelLabel}</p>
+              <p className="font-black">
+                {courseLeveled && summary.courseLevelBefore != null
+                  ? `${summary.courseLevelBefore} → ${summary.courseLevelAfter ?? summary.courseLevel} 🎉`
+                  : summary.courseLevel}
+              </p>
+            </div>
+            {summary.characterLevelAfter != null ? (
+              <div
+                className={`rounded-2xl border p-3 text-sm ${
+                  charLeveled
+                    ? "border-grape/50 bg-grape/10"
+                    : "border-slate-100 bg-slate-50 dark:border-slate-800 dark:bg-slate-900"
+                }`}
+              >
+                <p className="text-xs font-bold text-ink-muted">{t.lesson.characterLevelLabel}</p>
+                <p className="font-black">
+                  {charLeveled && summary.characterLevelBefore != null
+                    ? `${summary.characterLevelBefore} → ${summary.characterLevelAfter} ⭐`
+                    : summary.characterLevelAfter}
+                </p>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
         {wrong.length > 0 && (
           <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3 text-left dark:border-slate-800 dark:bg-slate-900">
             <p className="mb-2 text-xs font-black uppercase text-ink-muted">
@@ -585,8 +679,32 @@ export function LessonClient() {
         {summary.heartLost && (
           <p className="text-sm font-bold text-red-500">{UI.hearts.lost}</p>
         )}
-        {summary.levelUp && (
-          <p className="text-xl font-black text-grape">{UI.lesson.levelUp}</p>
+        {anyLevelUp && (
+          <p className="text-xl font-black text-grape">
+            {courseLeveled && charLeveled
+              ? t.lesson.bothLevelUp
+              : charLeveled
+                ? `${t.lesson.characterLevelLabel} ${summary.characterLevelAfter}!`
+                : t.lesson.levelUp}
+          </p>
+        )}
+        {rewards.length > 0 && (
+          <div className="rounded-2xl border border-sun/30 bg-sun/10 p-3 text-left space-y-2">
+            <p className="text-xs font-black uppercase text-ink-muted">
+              {t.lesson.rewardsGranted}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {rewards.map((rw, i) => (
+                <span
+                  key={`${rw.kind}-${rw.key ?? i}`}
+                  className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-black shadow-sm dark:bg-slate-900"
+                >
+                  <span aria-hidden>{rw.icon}</span>
+                  <span>{locale === "en" ? rw.labelEn : rw.labelUk}</span>
+                </span>
+              ))}
+            </div>
+          </div>
         )}
         {summary.streakProtected && (
           <p className="text-sm font-black text-sky">🛡️ {t.streak.protected}</p>
@@ -656,7 +774,7 @@ export function LessonClient() {
               {" →"}
             </Link>
           ) : null}
-          {(summary.skillPoints ?? 0) > 0 || summary.levelUp ? (
+          {(summary.skillPoints ?? 0) > 0 || anyLevelUp ? (
             <Link
               href="/profile#build"
               className="btn-secondary min-h-11 ring-1 ring-grape/40"
