@@ -100,7 +100,7 @@ UNITS = [
           [I("гонитва", "a race", ["гонит", "race", "синхрон", "synchron"]),
            I("wait і notify", "wait and notify", ["wait", "notify", "compareexchange"]),
            I("лише байти", "bytes only", ["байт", "byte", "typedarray", "об'єкт", "object"])],
-          "Спільна видимість байтів не означає атомарності: без Atomics два воркери гоняються за одним індексом, і в буфер не кладуть об'єкти JavaScript, лише TypedArray.",
+          "Спільна видимість байтів не означає атомарності: без Atomics два воркери створюють гонитву за одним індексом, тому потрібні Atomics.wait і Atomics.notify, і в буфер не кладуть об'єкти JavaScript, лише TypedArray.",
           "Shared visibility of bytes is not atomicity: without Atomics two workers race on one index, and you do not put JavaScript objects in the buffer, only a TypedArray.",
           code="const sab = new SharedArrayBuffer(4);\nconst view = new Int32Array(sab);\nAtomics.store(view, 0, 1);\nAtomics.notify(view, 0, 1);",
           language="javascript"),

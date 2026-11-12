@@ -9677,7 +9677,7 @@
                 ]
               }
             ],
-            "sampleUk": "Спільна видимість байтів не означає атомарності: без Atomics два воркери гоняються за одним індексом, і в буфер не кладуть об'єкти JavaScript, лише TypedArray.",
+            "sampleUk": "Спільна видимість байтів не означає атомарності: без Atomics два воркери створюють гонитву за одним індексом, тому потрібні Atomics.wait і Atomics.notify, і в буфер не кладуть об'єкти JavaScript, лише TypedArray.",
             "sampleEn": "Shared visibility of bytes is not atomicity: without Atomics two workers race on one index, and you do not put JavaScript objects in the buffer, only a TypedArray.",
             "code": "const sab = new SharedArrayBuffer(4);\nconst view = new Int32Array(sab);\nAtomics.store(view, 0, 1);\nAtomics.notify(view, 0, 1);",
             "language": "javascript"
@@ -17150,6 +17150,32 @@
               "correctIndex": 0,
               "explanationUk": "Контракт периферії.",
               "explanationEn": "The peripheral contract."
+            },
+            {
+              "promptUk": "printf або запис у флеш у ISR…",
+              "promptEn": "printf or a flash write in an ISR is…",
+              "options": [
+                "заборонені: невизначений час, роботу відкладають",
+                "рекомендовані для логів",
+                "швидші за чергу",
+                "скидають прапорець самі"
+              ],
+              "correctIndex": 0,
+              "explanationUk": "Важку роботу — у задачу.",
+              "explanationEn": "Heavy work belongs in a task."
+            },
+            {
+              "promptUk": "Вкладені критичні секції мають бути…",
+              "promptEn": "Nested critical sections must be…",
+              "options": [
+                "парними, з лічильником вкладеності",
+                "залишені відкритими",
+                "завжди глобальним вимкненням на секунди",
+                "заміною FromISR"
+              ],
+              "correctIndex": 0,
+              "explanationUk": "Enter і Exit парні.",
+              "explanationEn": "Enter and Exit are paired."
             }
           ]
         }
@@ -17526,6 +17552,32 @@
               "correctIndex": 0,
               "explanationUk": "Тактова деревина скинута.",
               "explanationEn": "The clock tree was reset."
+            },
+            {
+              "promptUk": "Підтяжка до живлення, яке LDO вимикає в сон…",
+              "promptEn": "A pull-up to a rail the LDO turns off in sleep is…",
+              "options": [
+                "шлях витоку; підтягуйте до живого домену",
+                "найкращий спосіб економії",
+                "обов'язкова для RTC",
+                "вимикає watchdog"
+              ],
+              "correctIndex": 0,
+              "explanationUk": "Живі домени для підтяжок.",
+              "explanationEn": "Live domains for pull-ups."
+            },
+            {
+              "promptUk": "Watchdog як єдиний планувальник телеметрії…",
+              "promptEn": "A watchdog as the only telemetry scheduler is…",
+              "options": [
+                "погана практика: для періоду — RTC wakeup",
+                "точніший за будь-який RTC",
+                "єдиний дозволений таймер",
+                "замінює GPIO пробудження"
+              ],
+              "correctIndex": 0,
+              "explanationUk": "Різні ролі джерел.",
+              "explanationEn": "Different roles for sources."
             }
           ]
         }
@@ -17901,6 +17953,32 @@
               "correctIndex": 0,
               "explanationUk": "Відомі вразливі збірки не повертають.",
               "explanationEn": "Known-vulnerable builds are not restored."
+            },
+            {
+              "promptUk": "Непідписаний образ лише в лабораторії…",
+              "promptEn": "An unsigned image only in the lab is…",
+              "options": [
+                "небезпечний шлях, який лишиться в полі — відхиляйте завжди",
+                "рекомендований для відладки назавжди",
+                "замінює CRC",
+                "потрібний для A/B"
+              ],
+              "correctIndex": 0,
+              "explanationUk": "Той самий бутлоадер, що і в полі.",
+              "explanationEn": "The same bootloader as in the field."
+            },
+            {
+              "promptUk": "Метадані слота після повної перевірки оновлюють…",
+              "promptEn": "Slot metadata after a full verify is updated…",
+              "options": [
+                "атомарно (подвійний запис або журнал)",
+                "на першому пакеті мережі",
+                "під час erase образу",
+                "лише в RAM без флеш"
+              ],
+              "correctIndex": 0,
+              "explanationUk": "Інакше обрив живлення лишає невизначений прапорець.",
+              "explanationEn": "Otherwise a power drop leaves an undefined flag."
             }
           ]
         }

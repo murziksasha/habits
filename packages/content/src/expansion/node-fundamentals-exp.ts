@@ -232,7 +232,7 @@ export const newUnits: UnitContent[] = [
         whyUk: "Навіщо Atomics, якщо SharedArrayBuffer уже «спільний»?",
         whyEn: "Why do you still need Atomics if SharedArrayBuffer is already shared?",
         ideas: [{ labelUk: "гонитва", labelEn: "a race", anyOf: ["гонит", "race", "синхрон", "synchron"] }, { labelUk: "wait і notify", labelEn: "wait and notify", anyOf: ["wait", "notify", "compareexchange"] }, { labelUk: "лише байти", labelEn: "bytes only", anyOf: ["байт", "byte", "typedarray", "об'єкт", "object"] }],
-        sampleUk: "Спільна видимість байтів не означає атомарності: без Atomics два воркери гоняються за одним індексом, і в буфер не кладуть об'єкти JavaScript, лише TypedArray.",
+        sampleUk: "Спільна видимість байтів не означає атомарності: без Atomics два воркери створюють гонитву за одним індексом, тому потрібні Atomics.wait і Atomics.notify, і в буфер не кладуть об'єкти JavaScript, лише TypedArray.",
         sampleEn: "Shared visibility of bytes is not atomicity: without Atomics two workers race on one index, and you do not put JavaScript objects in the buffer, only a TypedArray.",
       }
     ],
