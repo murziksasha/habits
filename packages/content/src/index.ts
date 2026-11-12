@@ -28,6 +28,9 @@ import { aiSecurityContent as aiSecurityRaw } from "./ai-security.js";
 import { aiProductContent as aiProductRaw } from "./ai-product.js";
 import { nextjsFullstackContent as nextjsFullstackRaw } from "./nextjs-fullstack.js";
 import { appliedAlgorithmsContent as appliedAlgorithmsRaw } from "./applied-algorithms.js";
+import { goFundamentalsContent as goFundamentalsRaw } from "./go-fundamentals.js";
+import { webAccessibilityContent as webAccessibilityRaw } from "./web-accessibility.js";
+import { restApiDesignContent as restApiDesignRaw } from "./rest-api-design.js";
 import { normalizeCourseLocales } from "./locale-normalize.js";
 import { expandEnglish } from "./expansion/english-exp.js";
 import { expandChess } from "./expansion/chess-exp.js";
@@ -91,6 +94,9 @@ export const aiSecurityContent = normalizeCourseLocales(expandAiSecurity(aiSecur
 export const aiProductContent = normalizeCourseLocales(expandAiProduct(aiProductRaw));
 export const nextjsFullstackContent = normalizeCourseLocales(expandNextjsFullstack(nextjsFullstackRaw));
 export const appliedAlgorithmsContent = normalizeCourseLocales(expandAppliedAlgorithms(appliedAlgorithmsRaw));
+export const goFundamentalsContent = normalizeCourseLocales(goFundamentalsRaw);
+export const webAccessibilityContent = normalizeCourseLocales(webAccessibilityRaw);
+export const restApiDesignContent = normalizeCourseLocales(restApiDesignRaw);
 
 export { FLASHCARD_DECKS } from "./flashcards.js";
 export type { CourseContent, UnitContent, LessonContent, Exercise } from "./types.js";

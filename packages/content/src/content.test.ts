@@ -30,6 +30,9 @@ import {
   aiProductContent,
   nextjsFullstackContent,
   appliedAlgorithmsContent,
+  goFundamentalsContent,
+  webAccessibilityContent,
+  restApiDesignContent,
   type CourseContent,
   type Exercise,
 } from "./index.js";
@@ -93,6 +96,9 @@ const courses: CourseContent[] = [
   aiProductContent,
   nextjsFullstackContent,
   appliedAlgorithmsContent,
+  goFundamentalsContent,
+  webAccessibilityContent,
+  restApiDesignContent,
 ];
 
 const EXERCISE_TYPES = new Set([
@@ -156,6 +162,9 @@ describe("course content integrity", () => {
         "typing",
         "typescript",
         "web_security",
+        "go_fundamentals",
+        "web_accessibility",
+        "rest_api_design",
       ].sort(),
     );
   });

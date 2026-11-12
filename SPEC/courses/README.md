@@ -36,3 +36,6 @@ Update in the same change as `packages/content`. See `SPEC/CONTENT-DX.md`.
 | [`ai_product`](./ai_product.md) | deep | 5 | 15 | 5 | — | Routing between strong, local, and plain Python, product briefs, approve/edit/undo HITL, failure modes, and support-agent design review. |
 | [`nextjs_fullstack`](./nextjs_fullstack.md) | deep | 7 | 15 | 7 | M11 (`forgeboard-m11-nextjs`) | App Router, explicit Server/Client boundaries, isolated server data access, validated mutations, authz... |
 | [`applied_algorithms`](./applied_algorithms.md) | deep | 6 | 13 | 6 | M12 (`forgeboard-m12-algorithms`) | Complexity profiling in web apps, Map/Set indexing vs O(N²), undo stacks and bounded queues, determini... |
+| [`go_fundamentals`](./go_fundamentals.md) | deep | 6 | 24 | 6 | — | Packages, types, slices, interfaces, goroutines, and testing — a practical start in Go. |
+| [`web_accessibility`](./web_accessibility.md) | deep | 6 | 24 | 6 | — | POUR principles, keyboard, ARIA, contrast, and accessibility testing against WCAG 2.2. |
+| [`rest_api_design`](./rest_api_design.md) | deep | 3 | 12 | 3 | — | Resource URLs, HTTP methods and status codes, idempotency, and REST API contracts. |

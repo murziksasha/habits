@@ -29,6 +29,9 @@ App-level map of course slug → hub → freemium. DB stores `varchar` slugs; re
 | `ai_product` | deep | `/ai-product` | same | Model/Python routing, product boundaries, approve/edit/undo HITL, empty/abstain UX, support-agent review. Not primary nav |
 | `nextjs_fullstack` | deep | `/nextjs-fullstack` | same | App Router, Server/Client boundaries, DAL, Server Actions + ForgeBoard M11 |
 | `applied_algorithms` | deep | `/applied-algorithms` | same | Web complexity, Maps/Sets, stacks/queues, cycle-safe trees + ForgeBoard M12 |
+| `go_fundamentals` | deep | `/go-fundamentals` | same | Packages, types, slices, interfaces, goroutines and testing. Not primary nav |
+| `web_accessibility` | deep | `/web-accessibility` | same | POUR, keyboard, ARIA, contrast and WCAG 2.2 testing. Not primary nav |
+| `rest_api_design` | deep | `/rest-api-design` | same | Resource URLs, HTTP methods, status codes, idempotency and API errors. Not primary nav |
 | `english` | skill | `/courses/english` | same | Core skill + engineering issues/PRs/tradeoffs |
 | `typing` | skill | `/courses/typing` | same | Accuracy-first touch typing + code/docs symbol drills |
 | `speed_reading` | skill | `/courses/speed_reading` | same | RSVP, chunking + technical spec comprehension |

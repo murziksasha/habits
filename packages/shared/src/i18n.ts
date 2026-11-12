@@ -36,6 +36,9 @@ const uk = {
     ai_product: "AI-продукт і Human-in-the-Loop",
     nextjs_fullstack: "Full-Stack на Next.js",
     applied_algorithms: "Прикладні алгоритми",
+    go_fundamentals: "Go: основи",
+    web_accessibility: "Веб-доступність",
+    rest_api_design: "Дизайн REST API",
   },
   nav: {
     home: "Головна",
@@ -990,6 +993,9 @@ const en: UiDict = {
     ai_product: "AI Product & Human-in-the-Loop",
     nextjs_fullstack: "Full-Stack Next.js",
     applied_algorithms: "Applied Algorithms",
+    go_fundamentals: "Go Fundamentals",
+    web_accessibility: "Web Accessibility",
+    rest_api_design: "REST API Design",
   },
   nav: {
     home: "Home",
