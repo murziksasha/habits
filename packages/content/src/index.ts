@@ -38,6 +38,7 @@ import { normalizeCourseLocales } from "./locale-normalize.js";
 import { expandEnglish } from "./expansion/english-exp.js";
 import { expandEnglishDeep } from "./expansion/english-deep.js";
 import { expandChess } from "./expansion/chess-exp.js";
+import { expandChessDeep } from "./expansion/chess-deep.js";
 import { expandTyping } from "./expansion/typing-exp.js";
 import { expandSpeedReading } from "./expansion/speed-reading-exp.js";
 import { expandLogic } from "./expansion/logic-exp.js";
@@ -69,7 +70,7 @@ import { expandAppliedAlgorithms } from "./expansion/applied-algorithms-exp.js";
 
 /** Skill tracks: promptEn filled via skill-prompt-en map when missing in source. */
 export const englishContent = normalizeCourseLocales(expandEnglishDeep(expandEnglish(englishRaw)));
-export const chessContent = normalizeCourseLocales(expandChess(chessRaw));
+export const chessContent = normalizeCourseLocales(expandChessDeep(expandChess(chessRaw)));
 export const typingContent = normalizeCourseLocales(expandTyping(typingRaw));
 export const speedReadingContent = normalizeCourseLocales(expandSpeedReading(speedReadingRaw));
 export const logicContent = normalizeCourseLocales(expandLogic(logicRaw));
