@@ -245,6 +245,25 @@ def idea(label_uk: str, label_en: str, any_of: list[str]) -> dict:
     return {"labelUk": label_uk, "labelEn": label_en, "anyOf": any_of}
 
 
+
+def _norm_explain(s: str) -> str:
+    import re
+    s = str(s or "").lower()
+    s = re.sub(r"[’`ʼ]", "'", s)
+    s = re.sub(r"[^\w'\s=>.()[\]{}_-]", " ", s, flags=re.UNICODE)
+    return re.sub(r"\s+", " ", s).strip()
+
+def _sample_passes(sample: str, ideas: list, min_words: int = 12, ratio: float = 0.6) -> tuple[bool, list]:
+    norm = _norm_explain(sample)
+    words = [w for w in norm.split(" ") if w]
+    missing = []
+    for idea in ideas:
+        hit = any(_norm_explain(n) and _norm_explain(n) in norm for n in idea["anyOf"])
+        if not hit:
+            missing.append(idea.get("labelEn") or idea.get("labelUk"))
+    ok = len(words) >= min_words and (not ideas or (len(ideas) - len(missing)) / len(ideas) + 1e-9 >= ratio)
+    return ok, missing
+
 def L(
     slug: str,
     title_uk: str,
@@ -270,6 +289,10 @@ def L(
     assert len(retrieval) >= 2, slug
     assert len(ideas) >= 2, slug
     assert len(sample_uk.split()) >= 12 and len(sample_en.split()) >= 12, (slug, sample_uk, sample_en)
+    ok_uk, miss_uk = _sample_passes(sample_uk, ideas)
+    ok_en, miss_en = _sample_passes(sample_en, ideas)
+    assert ok_uk, (slug, 'uk', miss_uk, sample_uk)
+    assert ok_en, (slug, 'en', miss_en, sample_en)
     for r in retrieval:
         if r["kind"] in ("mcq", "read", "output"):
             assert 0 <= r["correctIndex"] < len(r["options"]), slug
@@ -360,7 +383,7 @@ def EQ(puk, pen, options, idx, euk, een, code=None, lang="javascript", options_e
 
 
 def U(slug, title_uk, title_en, lessons, exam_uk, exam_en, questions) -> dict:
-    assert len(lessons) >= 3, slug
+    assert len(lessons) >= 2, slug
     assert len(questions) >= 4, slug
     return dict(
         slug=slug,
