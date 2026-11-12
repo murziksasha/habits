@@ -8,6 +8,7 @@ export {
   skillAttempts,
   certificates,
   placementResults,
+  userUnitPlacements,
   lessonComments,
   learningMilestones,
   exerciseAttempts,

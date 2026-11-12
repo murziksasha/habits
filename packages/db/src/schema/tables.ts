@@ -957,13 +957,39 @@ export const placementResults = pgTable("placement_results", {
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  courseSlug: varchar("course_slug", { length: 32 }).notNull(),
+  courseSlug: varchar("course_slug", { length: 64 }).notNull(),
   score: real("score").notNull().default(0),
   levelLabel: varchar("level_label", { length: 32 }).notNull().default("A1"),
   answers: jsonb("answers").$type<Record<string, unknown>>().notNull().default({}),
   recommendedUnitSlug: varchar("recommended_unit_slug", { length: 64 }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const userUnitPlacements = pgTable(
+  "user_unit_placements",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    courseId: uuid("course_id")
+      .notNull()
+      .references(() => courses.id, { onDelete: "cascade" }),
+    unitId: uuid("unit_id")
+      .notNull()
+      .references(() => units.id, { onDelete: "cascade" }),
+    /** "known" = placed out of this unit (0 XP); "start" = recommended entry unit */
+    decision: varchar("decision", { length: 16 }).notNull(),
+    placementResultId: uuid("placement_result_id").references(() => placementResults.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("uup_user_unit").on(t.userId, t.unitId),
+    index("uup_user_course_idx").on(t.userId, t.courseId),
+  ],
+);
 
 export const lessonComments = pgTable("lesson_comments", {
   id: uuid("id").defaultRandom().primaryKey(),

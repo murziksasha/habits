@@ -1,6 +1,6 @@
-import { ProgrammingPlacementClient } from "./programming-placement-client";
+import { CoursePlacementClient } from "../course-placement-client";
 
-/** RSC shell — placement/programming/ */
+/** RSC shell — programming placement. */
 export default function ProgrammingPlacementPage() {
-  return <ProgrammingPlacementClient />;
+  return <CoursePlacementClient courseSlug="programming" />;
 }

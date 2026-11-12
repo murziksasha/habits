@@ -37,3 +37,5 @@ export * from "./secrets.js";
 export * from "./pagination.js";
 export * from "./labs.js";
 export * from "./learning-progress.js";
+export * from "./learning-paths.js";
+export * from "./course-placement.js";

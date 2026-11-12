@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import {
   COURSE_HUB_HREF,
   COURSE_META,
+  isCourseSlug,
+  pathsForCourse,
   type CourseSlug,
   firstAvailableLessonHref,
   getCourseNextSteps,
@@ -247,6 +249,35 @@ export function DeepCourseHub({
           })()}
         </div>
       </section>
+
+      {(() => {
+        const paths = isCourseSlug(courseSlug) ? pathsForCourse(courseSlug) : [];
+        return (
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href={`/placement/${courseSlug}`}
+              className="btn-secondary !py-2 text-sm min-h-11"
+            >
+              🧭 {t.placementQuiz.takeTest}
+            </Link>
+            {paths.length > 0 ? (
+              <p className="flex flex-wrap items-center gap-1.5 text-xs font-bold text-ink-muted">
+                <span>{t.paths.partOf}:</span>
+                {paths.map((path) => (
+                  <Link
+                    key={path.slug}
+                    href={`/paths#${path.slug}`}
+                    className="rounded-md px-2 py-0.5 font-semibold hover:underline"
+                    style={{ backgroundColor: `${path.color}22` }}
+                  >
+                    {path.icon} {pickLocale(locale, path.titleUk, path.titleEn)}
+                  </Link>
+                ))}
+              </p>
+            ) : null}
+          </div>
+        );
+      })()}
 
       {oracle ? <OracleSectionBar units={units} value={section} onChange={setSection} /> : null}
 

@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { and, asc, desc, eq, inArray, lt, lte, or, sql } from "drizzle-orm";
-import { activityEvents, courses, exerciseReviews, lessons, userLessonProgress } from "@eduforge/db";
+import { activityEvents, courses, exerciseReviews, flashcardStates, lessons, userLessonProgress } from "@eduforge/db";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 import {
@@ -26,6 +26,27 @@ import { buildReviewReasons } from "../services/review-queue.js";
 type Vars = { user: AuthedUser };
 
 export const reviewRoutes = new Hono<{ Variables: Vars }>();
+
+
+/** Due review count for nav badge: mistake-notebook exercises + scheduled flashcards. */
+reviewRoutes.get("/due-count", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const now = new Date();
+  const [[exercise], [flashcard]] = await Promise.all([
+    db
+      .select({ n: sql<number>`count(*)::int` })
+      .from(exerciseReviews)
+      .where(and(eq(exerciseReviews.userId, user.id), lte(exerciseReviews.dueAt, now))),
+    db
+      .select({ n: sql<number>`count(*)::int` })
+      .from(flashcardStates)
+      .where(and(eq(flashcardStates.userId, user.id), lte(flashcardStates.nextReviewAt, now))),
+  ]);
+  const exerciseDue = exercise?.n ?? 0;
+  const flashcardDue = flashcard?.n ?? 0;
+  return c.json({ exerciseDue, flashcardDue, due: exerciseDue + flashcardDue });
+});
+
 
 /**
  * Lessons worth reviewing: completed with low score, or many attempts without high mastery.
