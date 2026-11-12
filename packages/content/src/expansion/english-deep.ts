@@ -15770,6 +15770,4682 @@ const newUnits: UnitContent[] = [
         ]
       }
     ]
+  },
+  {
+    "slug": "en-deep-reading",
+    "titleUk": "Читання з розумінням",
+    "titleEn": "Reading skills",
+    "lessons": [
+      {
+        "slug": "en-d-rd-skim",
+        "titleUk": "Перегляд і пошук: skim і scan",
+        "titleEn": "Skimming and scanning",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-rd-skim-c",
+            "type": "concept",
+            "promptUk": "Спочатку загальна ідея, потім конкретний факт",
+            "promptEn": "First the main idea, then a concrete fact",
+            "bodyUk": "Два швидкі режими читання економлять час на іспитах і в роботі. Skim (перегляд) — швидко пройти текст за заголовком, першим реченням абзаців і висновком, щоб зрозуміти тему і тон. Scan (пошук) — очі шукають конкретне: дату, ім'я, число, ключове слово. Не треба читати кожне слово, коли питання про факт.\n\nНа іспитах (IELTS Reading, FCE) спочатку продивіться питання, потім scan на ключові слова, і лише потрібний фрагмент читайте уважно. У роботі той самий прийом: скімніть довгий RFC чи PR, потім скануйте на breaking change.\n\nТипові помилки: читати все підряд і не встигати; плутати skim і scan; хапатися за перше збіг слова (синоніми в тексті часто інші: purchase замість buy). Перед scan виділіть 2–3 синоніми до слова з питання.",
+            "bodyEn": "Two fast reading modes save time in exams and at work. Skimming is moving quickly through the title, the first sentence of each paragraph and the conclusion, to get the topic and the tone. Scanning is the eyes hunting for a concrete thing: a date, a name, a number, a keyword. You do not need every word when the question is about a fact.\n\nIn exams (IELTS Reading, FCE) look at the questions first, then scan for keywords, and only then read the relevant fragment carefully. At work the same trick applies: skim a long RFC or PR, then scan for a breaking change.\n\nTypical mistakes: reading every word and running out of time; mixing up skim and scan; grabbing the first word match (the text often uses a synonym: purchase for buy). Before you scan, list two or three synonyms for the word in the question.",
+            "keyPointsUk": [
+              "Skim — загальна ідея (заголовок, перші речення, висновок)",
+              "Scan — пошук дати, імені, числа, ключового слова",
+              "Спочатку питання, потім пошук, потім уважне читання фрагмента",
+              "Шукайте синоніми, не лише те саме слово"
+            ],
+            "keyPointsEn": [
+              "Skim is the main idea (title, first sentences, conclusion)",
+              "Scan is hunting for a date, a name, a number, a keyword",
+              "Questions first, then a search, then a careful read of the fragment",
+              "Look for synonyms, not only the same word"
+            ]
+          },
+          {
+            "id": "en-d-rd-skim-r1",
+            "type": "mcq",
+            "promptUk": "Щоб швидко зрозуміти тему статті, ви:",
+            "promptEn": "To get the topic of an article quickly, you:",
+            "options": [
+              "skimming: заголовок і перші речення абзаців",
+              "читаєте кожне слово з словником",
+              "шукаєте лише одну дату, ігноруючи тему",
+              "пропускаєте висновок завжди"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Skim дає загальну ідею.",
+            "explanationEn": "Skimming gives you the main idea.",
+            "optionsEn": [
+              "skimming: the title and the first sentences of paragraphs",
+              "read every word with a dictionary",
+              "look only for one date and ignore the topic",
+              "always skip the conclusion"
+            ]
+          },
+          {
+            "id": "en-d-rd-skim-r2",
+            "type": "fill_blank",
+            "promptUk": "Пошук конкретного факту — це ___ (scan).",
+            "promptEn": "Hunting for a concrete fact is ___ (scan).",
+            "sentence": "Use ___ to find the year in the text.",
+            "accepted": [
+              "scan",
+              "Scan",
+              "scanning",
+              "Scanning"
+            ]
+          },
+          {
+            "id": "en-d-rd-skim-r3",
+            "type": "mcq",
+            "promptUk": "У тексті може не бути слова buy, якщо питання про покупку. Що робити?",
+            "promptEn": "The text may not use the word buy if the question is about a purchase. What do you do?",
+            "options": [
+              "Шукати синоніми на кшталт purchase чи order.",
+              "Здатися, якщо немає buy.",
+              "Читати лише заголовок.",
+              "Завжди перекладати кожне слово."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Перед scan підготуйте синоніми.",
+            "explanationEn": "Prepare synonyms before you scan.",
+            "optionsEn": [
+              "Look for synonyms such as purchase or order.",
+              "Give up if buy is missing.",
+              "Read only the title.",
+              "Always translate every word."
+            ]
+          },
+          {
+            "id": "en-d-rd-skim-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть.",
+            "promptEn": "Translate.",
+            "source": "Спочатку продивіться питання, потім шукайте ключові слова.",
+            "accepted": [
+              "Look at the questions first, then scan for keywords",
+              "Look at the questions first, then scan for key words",
+              "First look at the questions, then scan for keywords",
+              "First look at the questions, then scan for key words"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-rd-skim-e",
+            "type": "explain",
+            "promptUk": "Чим skim відрізняється від scan? У якому порядку діяти на іспиті з читання? Чому важливі синоніми?",
+            "promptEn": "How is skimming different from scanning? In what order should you work in a reading exam? Why do synonyms matter?",
+            "keyIdeas": [
+              {
+                "labelUk": "skim",
+                "labelEn": "skim",
+                "anyOf": [
+                  "skim",
+                  "main idea",
+                  "заголов",
+                  "title"
+                ]
+              },
+              {
+                "labelUk": "scan",
+                "labelEn": "scan",
+                "anyOf": [
+                  "scan",
+                  "date",
+                  "keyword",
+                  "число"
+                ]
+              },
+              {
+                "labelUk": "synonyms",
+                "labelEn": "synonyms",
+                "anyOf": [
+                  "synonym",
+                  "purchase",
+                  "questions first",
+                  "спочатку"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Skim дає загальну ідею через заголовок і перші речення, scan шукає конкретний факт. На іспиті спочатку дивляться питання, потім сканують ключові слова і лише тоді уважно читають фрагмент. Синоніми важливі, бо в тексті може не бути того самого слова.",
+            "sampleAnswerEn": "Skimming gives the main idea through the title and first sentences, and scanning hunts for a concrete fact. In an exam you look at the questions first, then scan for keywords, and only then read the fragment carefully. Synonyms matter because the text may not use the same word."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-rd-infer",
+        "titleUk": "Висновок із контексту: inference",
+        "titleEn": "Inference from context",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-rd-infer-c",
+            "type": "concept",
+            "promptUk": "Текст не завжди каже прямо — ви робіть обґрунтований висновок",
+            "promptEn": "The text does not always say it directly — you draw a justified conclusion",
+            "bodyUk": "Inference — висновок, який випливає з тексту, але не написаний тими самими словами. Якщо «She put the letter in a drawer and never mentioned it again», можна зробити висновок, що тема для неї важка або вона хоче це забути — але не що «вона знищила лист». Правильний висновок тримається на підказках: тон, контраст, прикметники, що саме пропущено.\n\nНа іспитах питання True / False / Not Given і “What can be inferred?” карають за надмір. Якщо в тексті немає достатньо підказок — відповідь Not Given, не ваша здогадка зі світу. Відрізняйте inference (обґрунтовано з тексту) від assumption (мій досвід).\n\nСтратегія: знайдіть рядок-опору, перефразуйте його своїми словами, відкиньте варіанти, що додають факти, яких немає. Типові помилки: обрати «гучний» варіант, який звучить розумно, але не з цього абзацу; сплутати author's opinion з fact.",
+            "bodyEn": "Inference is a conclusion that follows from the text but is not written in the same words. If “She put the letter in a drawer and never mentioned it again”, you may infer that the topic is hard for her or that she wants to forget it — but not that “she destroyed the letter”. A good inference rests on clues: tone, contrast, adjectives, what is left unsaid.\n\nIn exams, True / False / Not Given and “What can be inferred?” punish going too far. If the text has too few clues, the answer is Not Given, not your guess from the world. Distinguish inference (justified by the text) from assumption (my experience).\n\nA strategy: find the supporting line, rephrase it in your own words, and reject options that add facts the text does not have. Typical mistakes: choosing a “loud” option that sounds reasonable but is not from this paragraph; mixing up the author's opinion with a fact.",
+            "keyPointsUk": [
+              "Inference випливає з підказок, не з досвіду читача",
+              "Не додавайте фактів, яких немає в тексті",
+              "Not Given ≠ False: цього просто не сказано",
+              "Знайдіть рядок-опору і перефразуйте"
+            ],
+            "keyPointsEn": [
+              "An inference follows from clues, not from the reader's experience",
+              "Do not add facts that are not in the text",
+              "Not Given is not False: it simply is not said",
+              "Find the supporting line and rephrase it"
+            ]
+          },
+          {
+            "id": "en-d-rd-infer-r1",
+            "type": "mcq",
+            "promptUk": "«She put the letter in a drawer and never mentioned it again.» Що можна обґрунтовано припустити?",
+            "promptEn": "“She put the letter in a drawer and never mentioned it again.” What can you reasonably infer?",
+            "options": [
+              "Вона, ймовірно, не хоче до цього повертатися.",
+              "Вона знищила лист.",
+              "Лист був офіційним контрактом — як факт із речення.",
+              "Вона показала листа всім колегам."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Висновок має триматися на «never mentioned it again», без нових фактів.",
+            "explanationEn": "The inference must rest on “never mentioned it again”, without new facts.",
+            "optionsEn": [
+              "She probably does not want to come back to it.",
+              "She destroyed the letter.",
+              "The letter was an official contract — as a fact from the sentence.",
+              "She showed the letter to every colleague."
+            ]
+          },
+          {
+            "id": "en-d-rd-infer-r2",
+            "type": "fill_blank",
+            "promptUk": "Якщо в тексті цього не сказано, в IELTS часто відповідь ___ Given.",
+            "promptEn": "If the text does not say it, in IELTS the answer is often ___ Given.",
+            "sentence": "The answer may be Not ___.",
+            "accepted": [
+              "Given",
+              "given"
+            ]
+          },
+          {
+            "id": "en-d-rd-infer-r3",
+            "type": "mcq",
+            "promptUk": "Assumption на відміну від inference — це:",
+            "promptEn": "An assumption, unlike an inference, is:",
+            "options": [
+              "Думка з вашого досвіду, не обов'язково з тексту.",
+              "Висновок, який чітко випливає з рядка тексту.",
+              "Синонім True.",
+              "Завжди правильна відповідь на іспиті."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Assumption — ваше припущення; inference — з тексту.",
+            "explanationEn": "An assumption is your guess; an inference comes from the text.",
+            "optionsEn": [
+              "An idea from your experience, not necessarily from the text.",
+              "A conclusion that clearly follows from a line in the text.",
+              "A synonym of True.",
+              "Always the right exam answer."
+            ]
+          },
+          {
+            "id": "en-d-rd-infer-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть.",
+            "promptEn": "Translate.",
+            "source": "Не додавайте фактів, яких немає в тексті.",
+            "accepted": [
+              "Don't add facts that are not in the text",
+              "Do not add facts that are not in the text",
+              "Don't add facts that aren't in the text",
+              "Do not add facts which are not in the text"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-rd-infer-e",
+            "type": "explain",
+            "promptUk": "Що таке inference? Чим вона відрізняється від assumption і від Not Given? Як перевірити варіант відповіді?",
+            "promptEn": "What is an inference? How is it different from an assumption and from Not Given? How do you check an answer option?",
+            "keyIdeas": [
+              {
+                "labelUk": "inference",
+                "labelEn": "inference",
+                "anyOf": [
+                  "inference",
+                  "clue",
+                  "підказ",
+                  "text"
+                ]
+              },
+              {
+                "labelUk": "not given",
+                "labelEn": "not given",
+                "anyOf": [
+                  "Not Given",
+                  "False",
+                  "assumption"
+                ]
+              },
+              {
+                "labelUk": "support",
+                "labelEn": "support",
+                "anyOf": [
+                  "supporting",
+                  "rephrase",
+                  "перефраз"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Inference — обґрунтований висновок із підказок тексту, без нових фактів. Assumption — ваше припущення з досвіду. Not Given означає, що цього не сказано, і це не те саме, що False. Варіант перевіряють рядком-опорою і перефразом.",
+            "sampleAnswerEn": "An inference is a justified conclusion from clues in the text, without new facts. An assumption is your guess from experience. Not Given means it is not said, and that is not the same as False. You check an option against a supporting line and a paraphrase."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-rd-ref",
+        "titleUk": "До чого відноситься this, which, it",
+        "titleEn": "What this, which and it refer to",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-rd-ref-c",
+            "type": "concept",
+            "promptUk": "Займенник майже завжди вказує на щось щойно сказане",
+            "promptEn": "A pronoun almost always points to something just said",
+            "bodyUk": "Питання “What does this refer to?” часті в IELTS і FCE. This, that, these, those, it, they, which, such часто замінюють цілий іменник, фразу або навіть попереднє речення. Шукайте найближчий змістовно підхожий антецедент: узгодження числа (this vs these), роду не потрібне англійською, але логіка потрібна.\n\nПриклад: “The library released a new API. This allowed teams to test retries in isolation.” This = the release of the new API (ціла подія), не обов'язково лише the library. Which у non-defining clause: “We rolled out retries, which reduced timeouts” — which = the rollout of retries.\n\nТипові помилки: обрати найближче слово, навіть якщо число не збігається; подумати, що this завжди = останній іменник; пропустити, що which може відноситися до цілого речення. Підкресліть займенник і стрілкою з'єднайте з опорою.",
+            "bodyEn": "“What does this refer to?” is a frequent question in IELTS and FCE. This, that, these, those, it, they, which, such often replace a whole noun, a phrase or even the previous sentence. Look for the nearest antecedent that fits the meaning: number agreement (this vs these) matters; grammatical gender does not, in English, but logic does.\n\nExample: “The library released a new API. This allowed teams to test retries in isolation.” This = the release of the new API (the whole event), not necessarily only the library. Which in a non-defining clause: “We rolled out retries, which reduced timeouts” — which = the rollout of retries.\n\nTypical mistakes: choosing the nearest word even when the number does not match; thinking this is always the last noun; missing that which can refer to a whole sentence. Underline the pronoun and draw an arrow to its support.",
+            "keyPointsUk": [
+              "This / which / it часто замінюють фразу або ціле речення",
+              "Перевіряйте число: this ≠ these",
+              "Найближче слово не завжди правильний антецедент",
+              "Підкресліть займенник і знайдіть опору"
+            ],
+            "keyPointsEn": [
+              "This / which / it often replace a phrase or a whole sentence",
+              "Check number: this is not these",
+              "The nearest word is not always the right antecedent",
+              "Underline the pronoun and find its support"
+            ]
+          },
+          {
+            "id": "en-d-rd-ref-r1",
+            "type": "mcq",
+            "promptUk": "“The library released a new API. This allowed teams to test retries.” This найімовірніше =",
+            "promptEn": "“The library released a new API. This allowed teams to test retries.” This is most likely =",
+            "options": [
+              "те, що бібліотека випустила нове API",
+              "саме слово library як єдиний можливий антецедент",
+              "teams",
+              "retries як підмет попереднього речення"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "This часто вказує на цілу подію попереднього речення.",
+            "explanationEn": "This often points to the whole event in the previous sentence.",
+            "optionsEn": [
+              "the fact that the library released a new API",
+              "the word library as the only possible antecedent",
+              "teams",
+              "retries as the subject of the previous sentence"
+            ]
+          },
+          {
+            "id": "en-d-rd-ref-r2",
+            "type": "fill_blank",
+            "promptUk": "Слово, на яке вказує займенник, називається antecedent. Напишіть antecedent.",
+            "promptEn": "Type antecedent.",
+            "sentence": "The pronoun refers to its ___.",
+            "accepted": [
+              "antecedent",
+              "Antecedent"
+            ]
+          },
+          {
+            "id": "en-d-rd-ref-r3",
+            "type": "mcq",
+            "promptUk": "“We rolled out retries, which reduced timeouts.” which =",
+            "promptEn": "“We rolled out retries, which reduced timeouts.” which =",
+            "options": [
+              "те, що ми впровадили retries (ця дія)",
+              "timeouts",
+              "we як підмет, і лише він",
+              "завжди лише останній іменник retries без дії"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "which може відноситися до цілої дії / речення.",
+            "explanationEn": "which can refer to the whole action or clause.",
+            "optionsEn": [
+              "the fact that we rolled out retries (that action)",
+              "timeouts",
+              "we as the subject, and only that",
+              "always only the last noun retries, with no action"
+            ]
+          },
+          {
+            "id": "en-d-rd-ref-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть.",
+            "promptEn": "Translate.",
+            "source": "До чого в цьому реченні відноситься this?",
+            "accepted": [
+              "What does this refer to in this sentence?",
+              "What does this refer to in this sentence",
+              "What is this referring to in this sentence?",
+              "What does this refer to in the sentence?"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-rd-ref-e",
+            "type": "explain",
+            "promptUk": "На що можуть вказувати this і which? Чому найближчий іменник не завжди правильний? Як перевірити відповідь?",
+            "promptEn": "What can this and which refer to? Why is the nearest noun not always right? How do you check the answer?",
+            "keyIdeas": [
+              {
+                "labelUk": "this",
+                "labelEn": "this",
+                "anyOf": [
+                  "this",
+                  "event",
+                  "sentence",
+                  "подія"
+                ]
+              },
+              {
+                "labelUk": "which",
+                "labelEn": "which",
+                "anyOf": [
+                  "which",
+                  "clause",
+                  "retries"
+                ]
+              },
+              {
+                "labelUk": "antecedent",
+                "labelEn": "antecedent",
+                "anyOf": [
+                  "antecedent",
+                  "number",
+                  "these"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "This і which часто вказують на цілу фразу або попереднє речення, не лише на найближчий іменник. Треба перевірити зміст і число, наприклад this проти these. Займенник підкреслюють і з'єднують з антецедентом.",
+            "sampleAnswerEn": "This and which often point to a whole phrase or the previous sentence, not only to the nearest noun. You have to check the meaning and the number, for example this versus these. You underline the pronoun and link it to its antecedent."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-rd-fact-opinion",
+        "titleUk": "Факт і думка; тон автора",
+        "titleEn": "Fact versus opinion, and the author's tone",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-rd-fact-opinion-c",
+            "type": "concept",
+            "promptUk": "Факт можна перевірити; думка містить оцінку",
+            "promptEn": "A fact can be checked; an opinion contains a judgement",
+            "bodyUk": "Факт: “The team released the feature on 12 May.” Це можна перевірити. Думка: “The release was careless.” Тут оцінка. Підказки думки: I think, it seems, should, surprisingly, poor, excellent, clearly (як оцінка), allegedly (хтось стверджує). Тон автора може бути neutral, critical, enthusiastic, cautious, ironic — його тримають прикметники й модальні дієслова.\n\nНа іспитах вас можуть спитати: “Which statement is an opinion?” або “The writer's attitude is…”. Не плутайте цитату експерта (це все одно чиясь думка в тексті) з фактом дослідження, якщо немає даних. “Experts say it is unsafe” — репортаж про думку, не доведений факт у статті, якщо немає доказів.\n\nТипові помилки: прийняти впевнений тон за факт; не помітити хеджування (might, it is claimed). Поверніться до уроку C1 про hedging — ті самі маркери допомагають читати.",
+            "bodyEn": "A fact: “The team released the feature on 12 May.” That can be checked. An opinion: “The release was careless.” That is a judgement. Clues to opinion: I think, it seems, should, surprisingly, poor, excellent, clearly (as a judgement), allegedly (someone claims). The author's tone may be neutral, critical, enthusiastic, cautious, ironic — adjectives and modal verbs carry it.\n\nIn exams you may be asked: “Which statement is an opinion?” or “The writer's attitude is…”. Do not confuse an expert's quote (still someone's opinion in the text) with a research fact if there is no data. “Experts say it is unsafe” is a report of an opinion, not a proven fact in the article, if no evidence is given.\n\nTypical mistakes: taking a confident tone for a fact; missing hedging (might, it is claimed). Go back to the C1 lesson on hedging — the same markers help you read.",
+            "keyPointsUk": [
+              "Факт перевіряється; думка містить оцінку (careless, should)",
+              "Тон: neutral, critical, cautious, enthusiastic",
+              "Цитата експерта без даних — усе одно думка в тексті",
+              "Хеджування (might, allegedly) сигналить невпевненість"
+            ],
+            "keyPointsEn": [
+              "A fact can be checked; an opinion contains a judgement (careless, should)",
+              "Tone: neutral, critical, cautious, enthusiastic",
+              "An expert quote without data is still an opinion in the text",
+              "Hedging (might, allegedly) signals uncertainty"
+            ]
+          },
+          {
+            "id": "en-d-rd-fact-opinion-r1",
+            "type": "mcq",
+            "promptUk": "Що є думкою?",
+            "promptEn": "Which is an opinion?",
+            "options": [
+              "The release was careless.",
+              "The team released the feature on 12 May.",
+              "The file has 200 lines.",
+              "The meeting started at nine."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "careless — оцінка, не перевірюваний факт.",
+            "explanationEn": "careless is a judgement, not a checkable fact."
+          },
+          {
+            "id": "en-d-rd-fact-opinion-r2",
+            "type": "fill_blank",
+            "promptUk": "Слово allegedly сигналізує, що це чиєсь ___. Напишіть claim або assertion.",
+            "promptEn": "Type claim.",
+            "sentence": "Allegedly marks a ___, not a proven fact.",
+            "accepted": [
+              "claim",
+              "Claim",
+              "assertion",
+              "Assertion"
+            ]
+          },
+          {
+            "id": "en-d-rd-fact-opinion-r3",
+            "type": "mcq",
+            "promptUk": "“Experts say it is unsafe,” без даних у статті, — це:",
+            "promptEn": "“Experts say it is unsafe,” with no data in the article, is:",
+            "options": [
+              "репортаж про думку, не доведений факт статті",
+              "беззаперечний науковий факт",
+              "завжди False",
+              "те саме, що дата релізу"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Без доказів це думка, яку автор повідомляє.",
+            "explanationEn": "Without evidence it is an opinion the writer is reporting.",
+            "optionsEn": [
+              "a report of an opinion, not a proven fact of the article",
+              "an unquestionable scientific fact",
+              "always False",
+              "the same as a release date"
+            ]
+          },
+          {
+            "id": "en-d-rd-fact-opinion-r4",
+            "type": "match",
+            "promptUk": "Зіставте маркер із тим, що він сигналізує.",
+            "promptEn": "Match each marker with what it signals.",
+            "pairs": [
+              {
+                "left": "on 12 May",
+                "right": "перевірюваний факт / a checkable fact"
+              },
+              {
+                "left": "careless",
+                "right": "оцінка / a judgement"
+              },
+              {
+                "left": "allegedly",
+                "right": "чиєсь твердження / someone's claim"
+              },
+              {
+                "left": "might",
+                "right": "хеджування / hedging"
+              }
+            ]
+          },
+          {
+            "id": "en-d-rd-fact-opinion-e",
+            "type": "explain",
+            "promptUk": "Як відрізнити факт від думки? Які маркери тону і хеджування шукати? Чому цитата експерта не завжди факт?",
+            "promptEn": "How do you tell a fact from an opinion? Which tone and hedging markers should you look for? Why is an expert quote not always a fact?",
+            "keyIdeas": [
+              {
+                "labelUk": "fact",
+                "labelEn": "fact",
+                "anyOf": [
+                  "fact",
+                  "checked",
+                  "May",
+                  "дата"
+                ]
+              },
+              {
+                "labelUk": "opinion",
+                "labelEn": "opinion",
+                "anyOf": [
+                  "opinion",
+                  "careless",
+                  "should",
+                  "оцінк"
+                ]
+              },
+              {
+                "labelUk": "hedge",
+                "labelEn": "hedge",
+                "anyOf": [
+                  "allegedly",
+                  "might",
+                  "claim",
+                  "тон",
+                  "tone"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Факт можна перевірити, наприклад дату релізу. Думка містить оцінку, як careless або should. Маркери хеджування — might і allegedly. Цитата експерта без даних у статті — це все одно думка, яку автор повідомляє.",
+            "sampleAnswerEn": "A fact can be checked, for example a release date. An opinion contains a judgement, such as careless or should. Hedging markers include might and allegedly. An expert quote without data in the article is still an opinion the writer is reporting."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-rd-passage",
+        "titleUk": "Повний текст: практика розуміння",
+        "titleEn": "A full passage: comprehension practice",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-rd-passage-c",
+            "type": "concept",
+            "promptUk": "Спочатку skim, потім питання, потім точні рядки",
+            "promptEn": "Skim first, then the questions, then the exact lines",
+            "bodyUk": "Нижче — короткий текст у стилі іспитового абзацу на тему навчання на роботі. Спочатку продивіться його на загальну ідею (1–2 речення своїми словами). Потім читайте питання і повертайтеся до рядків. Не відповідайте з пам'яті після одного швидкого читання — так легко сплутати similar і same.\n\nPassage: “Many engineering teams now run weekly ‘learning hours’, short sessions where one person explains a tool or a post-mortem. Supporters argue that this is cheaper than external training and that knowledge stays in the team. Critics point out that the same five people tend to speak, and that junior staff may feel too shy to ask questions. A trial in one Lviv company found that attendance stayed high only when sessions were limited to thirty minutes and had a published agenda. The company did not measure whether the sessions improved product quality, which leaves the main claim unproven.”\n\nЗверніть увагу: останнє речення — ключ до fact vs Not Given / unproven. which відноситься до того, що якість не вимірювали.",
+            "bodyEn": "Below is a short text in the style of an exam paragraph, on workplace learning. First skim it for the main idea (one or two sentences in your own words). Then read the questions and go back to the lines. Do not answer from memory after one fast read — it is easy to confuse similar with same.\n\nPassage: “Many engineering teams now run weekly ‘learning hours’, short sessions where one person explains a tool or a post-mortem. Supporters argue that this is cheaper than external training and that knowledge stays in the team. Critics point out that the same five people tend to speak, and that junior staff may feel too shy to ask questions. A trial in one Lviv company found that attendance stayed high only when sessions were limited to thirty minutes and had a published agenda. The company did not measure whether the sessions improved product quality, which leaves the main claim unproven.”\n\nNotice: the last sentence is the key to fact vs Not Given / unproven. which refers to the fact that quality was not measured.",
+            "keyPointsUk": [
+              "Спочатку своя фраза про головну ідею",
+              "Питання → рядок у тексті, не пам'ять",
+              "Останнє речення: якість не виміряли — твердження недоведене",
+              "which вказує на відсутність вимірювання"
+            ],
+            "keyPointsEn": [
+              "First, your own sentence about the main idea",
+              "Question → a line in the text, not memory",
+              "Last sentence: quality was not measured — the claim is unproven",
+              "which points to the lack of measurement"
+            ]
+          },
+          {
+            "id": "en-d-rd-passage-r1",
+            "type": "comprehension",
+            "promptUk": "Прочитайте текст і дайте відповіді.",
+            "promptEn": "Read the passage and answer.",
+            "passage": "Many engineering teams now run weekly “learning hours”, short sessions where one person explains a tool or a post-mortem. Supporters argue that this is cheaper than external training and that knowledge stays in the team. Critics point out that the same five people tend to speak, and that junior staff may feel too shy to ask questions. A trial in one Lviv company found that attendance stayed high only when sessions were limited to thirty minutes and had a published agenda. The company did not measure whether the sessions improved product quality, which leaves the main claim unproven.",
+            "questions": [
+              {
+                "q": "Що, за прихильниками, є перевагою learning hours?",
+                "qEn": "According to supporters, what is an advantage of learning hours?",
+                "options": [
+                  "They are cheaper than external training, and knowledge stays in the team.",
+                  "They always improve product quality.",
+                  "Only junior staff speak at them.",
+                  "They must last two hours."
+                ],
+                "correctIndex": 0
+              },
+              {
+                "q": "Що показало випробування у львівській компанії?",
+                "qEn": "What did the trial in the Lviv company find?",
+                "options": [
+                  "Attendance stayed high only with a 30-minute limit and a published agenda.",
+                  "Product quality clearly improved.",
+                  "Nobody came to the sessions.",
+                  "External training was cancelled forever."
+                ],
+                "correctIndex": 0
+              },
+              {
+                "q": "Чому головне твердження залишається недоведеним?",
+                "qEn": "Why is the main claim left unproven?",
+                "options": [
+                  "The company did not measure an effect on product quality.",
+                  "The sessions had no agenda.",
+                  "Supporters refused to speak.",
+                  "The text says the sessions lasted two hours."
+                ],
+                "correctIndex": 0
+              }
+            ],
+            "explanationUk": "Відповіді тримаються на реченнях тексту, а не на вашому ставленні до навчання в команді.",
+            "explanationEn": "The answers rest on sentences in the text, not on your attitude to team learning."
+          },
+          {
+            "id": "en-d-rd-passage-r2",
+            "type": "mcq",
+            "promptUk": "У останньому реченні which відноситься до:",
+            "promptEn": "In the last sentence, which refers to:",
+            "options": [
+              "того, що компанія не виміряла вплив на якість продукту",
+              "львівської компанії як єдиного іменника",
+              "thirty minutes",
+              "junior staff"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "which тут вказує на факт відсутності вимірювання.",
+            "explanationEn": "which here points to the fact that there was no measurement.",
+            "optionsEn": [
+              "the fact that the company did not measure the effect on product quality",
+              "the Lviv company as the only noun",
+              "thirty minutes",
+              "junior staff"
+            ]
+          },
+          {
+            "id": "en-d-rd-passage-r3",
+            "type": "fill_blank",
+            "promptUk": "Головне твердження залишається ___ (unproven).",
+            "promptEn": "The main claim is left ___ (unproven).",
+            "sentence": "The main claim is left ___.",
+            "accepted": [
+              "unproven",
+              "Unproven"
+            ]
+          },
+          {
+            "id": "en-d-rd-passage-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть висновок тексту.",
+            "promptEn": "Translate the conclusion of the text.",
+            "source": "Компанія не виміряла, чи сесії покращили якість продукту.",
+            "accepted": [
+              "The company did not measure whether the sessions improved product quality",
+              "The company did not measure whether the sessions improved product quality.",
+              "The company didn't measure whether the sessions improved product quality"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-rd-passage-e",
+            "type": "explain",
+            "promptUk": "Яка головна ідея тексту про learning hours? Що саме доведено, а що залишилось unproven? До чого відноситься which?",
+            "promptEn": "What is the main idea of the learning-hours text? What exactly is proven, and what is left unproven? What does which refer to?",
+            "keyIdeas": [
+              {
+                "labelUk": "idea",
+                "labelEn": "idea",
+                "anyOf": [
+                  "learning hours",
+                  "cheaper",
+                  "critics",
+                  "attendance"
+                ]
+              },
+              {
+                "labelUk": "unproven",
+                "labelEn": "unproven",
+                "anyOf": [
+                  "unproven",
+                  "quality",
+                  "measure"
+                ]
+              },
+              {
+                "labelUk": "which",
+                "labelEn": "which",
+                "anyOf": [
+                  "which",
+                  "measure",
+                  "claim"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Текст порівнює аргументи за і проти learning hours і наводить випробування, де відвідуваність трималася за короткої сесії з порядком денним. Вплив на якість продукту не вимірювали, тому головне твердження недоведене. Which вказує саме на цю відсутність вимірювання.",
+            "sampleAnswerEn": "The text compares arguments for and against learning hours and reports a trial where attendance stayed high with a short session and an agenda. The effect on product quality was not measured, so the main claim is unproven. Which points to that lack of measurement."
+          }
+        ]
+      },
+      {
+        "slug": "en-deep-reading-exam",
+        "titleUk": "Контрольна: читання",
+        "titleEn": "Exam: reading skills",
+        "baseXp": 30,
+        "difficulty": 3,
+        "isExam": true,
+        "passThreshold": 0.7,
+        "exercises": [
+          {
+            "id": "en-deep-reading-exam-q1",
+            "type": "mcq",
+            "promptUk": "Scan — це:",
+            "promptEn": "Scanning is:",
+            "options": [
+              "пошук конкретного факту",
+              "повільне читання кожного слова як єдиний метод",
+              "написання есе",
+              "усний монолог"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Scan шукає факт.",
+            "explanationEn": "Scanning hunts for a fact.",
+            "optionsEn": [
+              "hunting for a concrete fact",
+              "reading every word slowly as the only method",
+              "writing an essay",
+              "a spoken monologue"
+            ]
+          },
+          {
+            "id": "en-deep-reading-exam-q2",
+            "type": "mcq",
+            "promptUk": "Not Given означає:",
+            "promptEn": "Not Given means:",
+            "options": [
+              "цього не сказано в тексті",
+              "твердження хибне",
+              "твердження істинне",
+              "автор точно згоден"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Не сказано — не те саме, що False.",
+            "explanationEn": "It is not said — that is not the same as False.",
+            "optionsEn": [
+              "it is not said in the text",
+              "the statement is false",
+              "the statement is true",
+              "the author definitely agrees"
+            ]
+          },
+          {
+            "id": "en-deep-reading-exam-q3",
+            "type": "mcq",
+            "promptUk": "“The release was careless.” — це:",
+            "promptEn": "“The release was careless.” is:",
+            "options": [
+              "думка",
+              "перевірюваний факт, як дата",
+              "Not Given завжди",
+              "заголовок"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "careless — оцінка.",
+            "explanationEn": "careless is a judgement.",
+            "optionsEn": [
+              "an opinion",
+              "a checkable fact, like a date",
+              "always Not Given",
+              "a headline"
+            ]
+          },
+          {
+            "id": "en-deep-reading-exam-q4",
+            "type": "mcq",
+            "promptUk": "This у “The library released a new API. This allowed teams to test retries” найімовірніше вказує на:",
+            "promptEn": "This in “The library released a new API. This allowed teams to test retries” most likely refers to:",
+            "options": [
+              "випуск нового API",
+              "слово teams",
+              "retries як підмет першого речення",
+              "бібліотеку як єдиний можливий антецедент"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "This часто = ціла попередня подія.",
+            "explanationEn": "This is often the whole previous event.",
+            "optionsEn": [
+              "the release of a new API",
+              "the word teams",
+              "retries as the subject of the first sentence",
+              "the library as the only possible antecedent"
+            ]
+          },
+          {
+            "id": "en-deep-reading-exam-q5",
+            "type": "fill_blank",
+            "promptUk": "Швидкий перегляд загальної ідеї називається ___ (skim).",
+            "promptEn": "A fast overview of the main idea is called ___ (skim).",
+            "sentence": "___ the text for the main idea.",
+            "accepted": [
+              "Skim",
+              "skim"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "en-deep-writing-email",
+    "titleUk": "Письмо: листи",
+    "titleEn": "Writing: emails and messages",
+    "lessons": [
+      {
+        "slug": "en-d-wr-register",
+        "titleUk": "Реєстр листа: formal і informal",
+        "titleEn": "Email register: formal and informal",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-wr-register-c",
+            "type": "concept",
+            "promptUk": "Dear Mr Koval / Hi Olena — і відповідні закінчення",
+            "promptEn": "Dear Mr Koval / Hi Olena — and matching closings",
+            "bodyUk": "Реєстр — це рівень офіційності. Formal: Dear Mr Koval, Dear Ms Shevchenko, Dear Sir or Madam (якщо імені немає), I am writing to…, I would be grateful if you could…, Please find attached…, Yours sincerely (ім'я відоме) / Yours faithfully (Dear Sir or Madam). Semi-formal колезі: Dear Olena, Kind regards, Best regards. Informal: Hi Olena, Thanks for…, See you tomorrow, Cheers / Best.\n\nКонтраст: Could you please send… vs Can you send… vs Send me… Контракції (I'm, don't) природні в неформальному листі, у формальному їх часто уникають (I am, do not). Don't jump from Dear Sir or Madam до Cheers. Тема листа (Subject) має бути конкретною: Invoice 184 — payment delay, не Hello.\n\nТипові помилки українських мовців: *Dear friend; *Good day як привітання в листі; *I want that you (I would like you to); *Waiting for your answer як єдине закінчення (I look forward to hearing from you — формальніше). Ім'я в підписі має збігатися з тоном.",
+            "bodyEn": "Register is the level of formality. Formal: Dear Mr Koval, Dear Ms Shevchenko, Dear Sir or Madam (if you have no name), I am writing to…, I would be grateful if you could…, Please find attached…, Yours sincerely (you know the name) / Yours faithfully (Dear Sir or Madam). Semi-formal to a colleague: Dear Olena, Kind regards, Best regards. Informal: Hi Olena, Thanks for…, See you tomorrow, Cheers / Best.\n\nA contrast: Could you please send… vs Can you send… vs Send me… Contractions (I'm, don't) are natural in an informal email; in a formal one they are often avoided (I am, do not). Do not jump from Dear Sir or Madam to Cheers. The subject line should be specific: Invoice 184 — payment delay, not Hello.\n\nTypical mistakes for Ukrainian speakers: *Dear friend; *Good day as an email greeting; *I want that you (I would like you to); *Waiting for your answer as the only closing (I look forward to hearing from you is more formal). The name in the sign-off should match the tone.",
+            "keyPointsUk": [
+              "Dear Mr Koval + Yours sincerely; Dear Sir or Madam + Yours faithfully",
+              "Hi Olena + Best / Cheers — неформально",
+              "Конкретний Subject; без стрибків реєстру",
+              "I would like you to, не *I want that you"
+            ],
+            "keyPointsEn": [
+              "Dear Mr Koval + Yours sincerely; Dear Sir or Madam + Yours faithfully",
+              "Hi Olena + Best / Cheers is informal",
+              "A specific Subject; no jumps in register",
+              "I would like you to, not *I want that you"
+            ]
+          },
+          {
+            "id": "en-d-wr-register-r1",
+            "type": "mcq",
+            "promptUk": "Лист почато Dear Sir or Madam. Яке закінчення правильне?",
+            "promptEn": "The email starts Dear Sir or Madam. Which closing is right?",
+            "options": [
+              "Yours faithfully",
+              "Yours sincerely, as the usual pair with Sir or Madam",
+              "Cheers",
+              "Dear friend"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Dear Sir or Madam → Yours faithfully.",
+            "explanationEn": "Dear Sir or Madam takes Yours faithfully."
+          },
+          {
+            "id": "en-d-wr-register-r2",
+            "type": "fill_blank",
+            "promptUk": "Ім'я адресата відоме. Formal closing: Yours ___.",
+            "promptEn": "The addressee's name is known. Formal closing: Yours ___.",
+            "sentence": "Yours ___,",
+            "accepted": [
+              "sincerely",
+              "Sincerely"
+            ]
+          },
+          {
+            "id": "en-d-wr-register-r3",
+            "type": "mcq",
+            "promptUk": "Оберіть природне формальне прохання.",
+            "promptEn": "Choose a natural formal request.",
+            "options": [
+              "I would be grateful if you could send the invoice.",
+              "I want that you send the invoice.",
+              "Send me the invoice now, after Dear Sir or Madam, as a good match.",
+              "Good day, waiting answer."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "I would be grateful if you could… — ввічливо й формально.",
+            "explanationEn": "I would be grateful if you could… is polite and formal."
+          },
+          {
+            "id": "en-d-wr-register-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть формально.",
+            "promptEn": "Translate formally.",
+            "source": "Пишу, щоб уточнити строки поставки.",
+            "accepted": [
+              "I am writing to confirm the delivery dates",
+              "I am writing to clarify the delivery dates",
+              "I am writing to enquire about the delivery dates",
+              "I am writing to ask about the delivery dates"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-wr-register-e",
+            "type": "explain",
+            "promptUk": "Коли Yours sincerely, а коли Yours faithfully? Яких привітань уникати? Чим формальне прохання відрізняється від *I want that you?",
+            "promptEn": "When do you use Yours sincerely, and when Yours faithfully? Which greetings should you avoid? How is a formal request different from *I want that you?",
+            "keyIdeas": [
+              {
+                "labelUk": "sincerely/faithfully",
+                "labelEn": "sincerely/faithfully",
+                "anyOf": [
+                  "sincerely",
+                  "faithfully",
+                  "Sir or Madam"
+                ]
+              },
+              {
+                "labelUk": "greetings",
+                "labelEn": "greetings",
+                "anyOf": [
+                  "Dear friend",
+                  "Good day",
+                  "Hi",
+                  "Subject"
+                ]
+              },
+              {
+                "labelUk": "grateful",
+                "labelEn": "grateful",
+                "anyOf": [
+                  "grateful",
+                  "would like you to",
+                  "want that"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Yours sincerely — коли ім'я відоме, Yours faithfully — після Dear Sir or Madam. Уникайте Dear friend і Good day як привітання в листі. Формальне прохання — I would be grateful if you could або I would like you to, не I want that you.",
+            "sampleAnswerEn": "Yours sincerely is for when you know the name, and Yours faithfully follows Dear Sir or Madam. Avoid Dear friend and Good day as email greetings. A formal request is I would be grateful if you could or I would like you to, not I want that you."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-wr-request",
+        "titleUk": "Лист-прохання",
+        "titleEn": "A request email",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-wr-request-c",
+            "type": "concept",
+            "promptUk": "Контекст, чітке прохання, строк, вдячність",
+            "promptEn": "Context, a clear request, a deadline, thanks",
+            "bodyUk": "Структура прохання: (1) короткий контекст — чому пишете; (2) саме прохання одним ясним реченням; (3) потрібний строк або формат; (4) подяка і готовність уточнити. Could you please send the signed contract by Friday? If you need any extra details, I would be happy to help.\n\nВвічливість без розмитості: ASAP у формальному листі краще замінити на by 15:00 EET on Tuesday. Please could you… і I was wondering if you could… — м'якші. Please send — пряміше, доречне з колегою, з ким уже є робочі стосунки.\n\nТипові помилки: прохання поховане в довгому абзаці; два різні прохання без маркерів (також / second, could you…); *I ask you to (краще Could you / I would like to ask you to); пасивна агресія (As I already mentioned three times…). Один лист — одна головна дія, друге прохання — окремим реченням.",
+            "bodyEn": "The structure of a request: (1) a short context — why you are writing; (2) the request itself in one clear sentence; (3) the deadline or the format you need; (4) thanks and a willingness to clarify. Could you please send the signed contract by Friday? If you need any extra details, I would be happy to help.\n\nPoliteness without vagueness: in a formal email, ASAP is better replaced by by 15:00 EET on Tuesday. Please could you… and I was wondering if you could… are softer. Please send is more direct, and it is fine with a colleague you already work with.\n\nTypical mistakes: burying the request in a long paragraph; two different requests with no markers (also / second, could you…); *I ask you to (prefer Could you / I would like to ask you to); passive aggression (As I already mentioned three times…). One email — one main action; a second request goes in a separate sentence.",
+            "keyPointsUk": [
+              "Контекст → чітке прохання → строк → подяка",
+              "Замість ASAP — конкретна дата й час",
+              "Could you please / I was wondering if you could",
+              "Один лист — одна головна дія"
+            ],
+            "keyPointsEn": [
+              "Context → a clear request → a deadline → thanks",
+              "Instead of ASAP, a concrete date and time",
+              "Could you please / I was wondering if you could",
+              "One email — one main action"
+            ]
+          },
+          {
+            "id": "en-d-wr-request-r1",
+            "type": "mcq",
+            "promptUk": "У формальному листі замість ASAP краще:",
+            "promptEn": "In a formal email, instead of ASAP it is better to use:",
+            "options": [
+              "by 15:00 EET on Tuesday",
+              "immediately!!!!!!!!!!!!",
+              "whenever",
+              "As I already mentioned three times"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Конкретний строк ввічливіший і зрозуміліший.",
+            "explanationEn": "A concrete deadline is both politer and clearer."
+          },
+          {
+            "id": "en-d-wr-request-r2",
+            "type": "fill_blank",
+            "promptUk": "Почніть ввічливе прохання: Could you ___ send… (please).",
+            "promptEn": "Start a polite request: Could you ___ send… (please).",
+            "sentence": "Could you ___ send the contract by Friday?",
+            "accepted": [
+              "please",
+              "Please"
+            ]
+          },
+          {
+            "id": "en-d-wr-request-r3",
+            "type": "mcq",
+            "promptUk": "Оберіть краще формулювання.",
+            "promptEn": "Choose the better wording.",
+            "options": [
+              "Could you please send the signed contract by Friday?",
+              "I ask you to send contract.",
+              "Send. Thanks.",
+              "I want that you send the contract."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Could you please + чіткий об'єкт і строк.",
+            "explanationEn": "Could you please plus a clear object and deadline."
+          },
+          {
+            "id": "en-d-wr-request-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть ввічливо.",
+            "promptEn": "Translate politely.",
+            "source": "Будь ласка, надішліть підписаний договір до п'ятниці.",
+            "accepted": [
+              "Could you please send the signed contract by Friday?",
+              "Could you please send the signed contract by Friday",
+              "Please could you send the signed contract by Friday?",
+              "I would be grateful if you could send the signed contract by Friday"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-wr-request-e",
+            "type": "explain",
+            "promptUk": "Яка структура листа-прохання? Чому ASAP гірше за конкретну дату? Як ввічливо почати прохання?",
+            "promptEn": "What is the structure of a request email? Why is ASAP worse than a concrete date? How do you start a request politely?",
+            "keyIdeas": [
+              {
+                "labelUk": "structure",
+                "labelEn": "structure",
+                "anyOf": [
+                  "context",
+                  "deadline",
+                  "thanks",
+                  "контекст",
+                  "строк"
+                ]
+              },
+              {
+                "labelUk": "ASAP",
+                "labelEn": "ASAP",
+                "anyOf": [
+                  "ASAP",
+                  "Tuesday",
+                  "15:00"
+                ]
+              },
+              {
+                "labelUk": "could you",
+                "labelEn": "could you",
+                "anyOf": [
+                  "Could you please",
+                  "wondering"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Спочатку контекст, потім одне чітке прохання, строк і подяка. ASAP розмите, краще by 15:00 EET on Tuesday. Ввічливий початок — Could you please або I was wondering if you could.",
+            "sampleAnswerEn": "First the context, then one clear request, a deadline and thanks. ASAP is vague; by 15:00 EET on Tuesday is better. A polite opening is Could you please or I was wondering if you could."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-wr-complaint",
+        "titleUk": "Лист-скарга",
+        "titleEn": "A complaint email",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-wr-complaint-c",
+            "type": "concept",
+            "promptUk": "Факт, вплив, очікувана дія — без образи",
+            "promptEn": "The fact, the impact, the action you want — without insult",
+            "bodyUk": "Скарга в діловій англійській спокійна і конкретна. Структура: (1) що замовили і коли (I placed order 184 on 2 May); (2) що пішло не так (The package arrived on 10 May with a cracked screen); (3) вплив (I cannot start work without a laptop); (4) що ви хочете (I would like a replacement or a full refund within five working days); (5) спокійний закриваючий тон (I look forward to your reply).\n\nКорисні фрази: I am writing to complain about…; I am sorry to say that…; There appears to be a mistake. Under the warranty…; I expect this to be resolved. Уникайте You never…, This is a disaster, You must… як ультиматум без правової підстави.\n\nТипові помилки: тільки емоції без номера замовлення; немає чіткої вимоги; погрози в першому ж реченні. Факт можна перевірити, тональність — ваша відповідальність. Якщо потрібен повторний лист, посилайтеся на попередній і дату, не підвищуйте тон одразу.",
+            "bodyEn": "A complaint in workplace English is calm and concrete. The structure: (1) what you ordered and when (I placed order 184 on 2 May); (2) what went wrong (The package arrived on 10 May with a cracked screen); (3) the impact (I cannot start work without a laptop); (4) what you want (I would like a replacement or a full refund within five working days); (5) a calm closing (I look forward to your reply).\n\nUseful phrases: I am writing to complain about…; I am sorry to say that…; There appears to be a mistake. Under the warranty…; I expect this to be resolved. Avoid You never…, This is a disaster, You must… as an ultimatum with no legal basis.\n\nTypical mistakes: only emotion and no order number; no clear request; threats in the first sentence. The fact can be checked; the tone is your responsibility. If you need a second email, refer to the previous one and the date; do not raise the tone at once.",
+            "keyPointsUk": [
+              "Замовлення і дата → проблема → вплив → конкретна вимога",
+              "I am writing to complain about…; There appears to be a mistake",
+              "Без образ, ультиматумів і «disaster» у першому реченні",
+              "Завжди вказуйте номер замовлення і бажану дію"
+            ],
+            "keyPointsEn": [
+              "Order and date → the problem → the impact → a concrete request",
+              "I am writing to complain about…; There appears to be a mistake",
+              "No insults, ultimatums or “disaster” in the first sentence",
+              "Always give the order number and the action you want"
+            ]
+          },
+          {
+            "id": "en-d-wr-complaint-r1",
+            "type": "mcq",
+            "promptUk": "Чого бракує скарзі «This is a disaster!!! Fix it!!!»?",
+            "promptEn": "What is missing from the complaint “This is a disaster!!! Fix it!!!”?",
+            "options": [
+              "Фактів, номера замовлення і конкретної вимоги спокійним тоном",
+              "Ще більшої кількості знаків оклику",
+              "Слова Cheers після Dear Sir or Madam",
+              "Ідіоми over the moon"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Скарга тримається на фактах і ясній вимозі.",
+            "explanationEn": "A complaint rests on facts and a clear request.",
+            "optionsEn": [
+              "Facts, an order number and a concrete request in a calm tone",
+              "Even more exclamation marks",
+              "The word Cheers after Dear Sir or Madam",
+              "The idiom over the moon"
+            ]
+          },
+          {
+            "id": "en-d-wr-complaint-r2",
+            "type": "fill_blank",
+            "promptUk": "Почніть: I am writing to ___ about… (complain).",
+            "promptEn": "Start: I am writing to ___ about… (complain).",
+            "sentence": "I am writing to ___ about order 184.",
+            "accepted": [
+              "complain",
+              "Complain"
+            ]
+          },
+          {
+            "id": "en-d-wr-complaint-r3",
+            "type": "mcq",
+            "promptUk": "Оберіть кращий тон.",
+            "promptEn": "Choose the better tone.",
+            "options": [
+              "I would like a replacement or a full refund within five working days.",
+              "You never do anything right.",
+              "This is a disaster, you must pay now as a first sentence with no facts.",
+              "Fix!!!!!!!!!!!!!!!"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Конкретна вимога і строк, спокійний тон.",
+            "explanationEn": "A concrete request and a deadline, in a calm tone."
+          },
+          {
+            "id": "en-d-wr-complaint-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть спокійно.",
+            "promptEn": "Translate calmly.",
+            "source": "Пишу, щоб поскаржитися на замовлення 184.",
+            "accepted": [
+              "I am writing to complain about order 184",
+              "I am writing to complain about order 184.",
+              "I'm writing to complain about order 184",
+              "I am writing to complain about Order 184"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-wr-complaint-e",
+            "type": "explain",
+            "promptUk": "Яка структура листа-скарги? Які фрази корисні, а яких уникати? Чому потрібні номер замовлення і конкретна вимога?",
+            "promptEn": "What is the structure of a complaint email? Which phrases are useful, and which should you avoid? Why do you need an order number and a concrete request?",
+            "keyIdeas": [
+              {
+                "labelUk": "structure",
+                "labelEn": "structure",
+                "anyOf": [
+                  "order",
+                  "impact",
+                  "refund",
+                  "replacement"
+                ]
+              },
+              {
+                "labelUk": "phrases",
+                "labelEn": "phrases",
+                "anyOf": [
+                  "complain about",
+                  "appears to be",
+                  "disaster"
+                ]
+              },
+              {
+                "labelUk": "calm",
+                "labelEn": "calm",
+                "anyOf": [
+                  "calm",
+                  "facts",
+                  "deadline"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Скарга починається з фактів і дати, далі проблема, вплив і конкретна вимога, наприклад replacement або refund. Корисні фрази — I am writing to complain about і There appears to be a mistake. Образи й «disaster» без номера замовлення не допомагають вирішити справу.",
+            "sampleAnswerEn": "A complaint starts with the facts and the date, then the problem, the impact and a concrete request, for example a replacement or a refund. Useful phrases are I am writing to complain about and There appears to be a mistake. Insults and “disaster” with no order number do not help to resolve the matter."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-wr-apology",
+        "titleUk": "Лист-вибачення",
+        "titleEn": "An apology email",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-wr-apology-c",
+            "type": "concept",
+            "promptUk": "Вибачтеся, визнайте факт, скажіть, що робите, і як уникнете повтору",
+            "promptEn": "Apologise, own the fact, say what you are doing, and how you will prevent a repeat",
+            "bodyUk": "Сильне вибачення має чотири частини: (1) I'm sorry / I apologise for the delay — саме вибачення, без одразу «але»; (2) коротке визнання факту (We sent the wrong file yesterday); (3) що ви вже робите (I have just uploaded the correct version); (4) як це не повториться або що далі (We have added a second reviewer; you should have it by 17:00). Thank you for your patience — доречно, якщо клієнт чекав.\n\nУникайте: I'm sorry you feel that way (це не визнання); Sorry, but it was your fault; We regret any inconvenience caused як єдине речення без дії — звучить як шаблон. Sorry for the late reply прийнятно, якщо далі є суть.\n\nТипові помилки: вибачатися десять разів і не виправляти; перекладати провину; гумор у серйозному збої. У формальному стилі I apologise; у командному чаті Sorry about that — і одразу фікс.",
+            "bodyEn": "A strong apology has four parts: (1) I'm sorry / I apologise for the delay — the apology itself, without an immediate “but”; (2) a short owning of the fact (We sent the wrong file yesterday); (3) what you are already doing (I have just uploaded the correct version); (4) how it will not happen again, or what comes next (We have added a second reviewer; you should have it by 17:00). Thank you for your patience is appropriate if the client has been waiting.\n\nAvoid: I'm sorry you feel that way (that is not owning it); Sorry, but it was your fault; We regret any inconvenience caused as the only sentence with no action — it sounds like a template. Sorry for the late reply is fine if the substance follows.\n\nTypical mistakes: apologising ten times and not fixing anything; shifting the blame; humour in a serious incident. In a formal style, I apologise; in a team chat, Sorry about that — and then the fix at once.",
+            "keyPointsUk": [
+              "Вибачення → факт → дія зараз → запобігання / наступний крок",
+              "Без «sorry, but» і без I'm sorry you feel that way",
+              "Шаблон regret any inconvenience недостатній без дії",
+              "I apologise (formal) / Sorry about that + фікс (чат)"
+            ],
+            "keyPointsEn": [
+              "Apology → the fact → action now → prevention / the next step",
+              "No “sorry, but” and no I'm sorry you feel that way",
+              "The template regret any inconvenience is not enough without action",
+              "I apologise (formal) / Sorry about that + a fix (chat)"
+            ]
+          },
+          {
+            "id": "en-d-wr-apology-r1",
+            "type": "mcq",
+            "promptUk": "Що слабке в «I'm sorry you feel that way»?",
+            "promptEn": "What is weak about “I'm sorry you feel that way”?",
+            "options": [
+              "Це не визнає помилку, лише почуття іншої людини.",
+              "Занадто багато фактів.",
+              "Немає контракції.",
+              "Це найкраще формальне вибачення."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Треба визнати факт і назвати дію.",
+            "explanationEn": "You need to own the fact and name an action.",
+            "optionsEn": [
+              "It does not own the mistake, only the other person's feelings.",
+              "It has too many facts.",
+              "It has no contraction.",
+              "It is the best formal apology."
+            ]
+          },
+          {
+            "id": "en-d-wr-apology-r2",
+            "type": "fill_blank",
+            "promptUk": "Формальне дієслово «вибачатися». Напишіть apologise (або apologize).",
+            "promptEn": "Type apologise.",
+            "sentence": "I ___ for the delay.",
+            "accepted": [
+              "apologise",
+              "Apologise",
+              "apologize",
+              "Apologize"
+            ]
+          },
+          {
+            "id": "en-d-wr-apology-r3",
+            "type": "mcq",
+            "promptUk": "Оберіть сильніше вибачення.",
+            "promptEn": "Choose the stronger apology.",
+            "options": [
+              "I apologise for the delay. I have uploaded the correct file, and you should have it by 17:00.",
+              "We regret any inconvenience caused.",
+              "Sorry, but it was your fault.",
+              "I'm sorry you feel that way."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Вибачення + факт + конкретна дія і строк.",
+            "explanationEn": "An apology plus the fact plus a concrete action and a time."
+          },
+          {
+            "id": "en-d-wr-apology-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть.",
+            "promptEn": "Translate.",
+            "source": "Перепрошую за затримку. Я щойно завантажив правильну версію.",
+            "accepted": [
+              "I apologise for the delay. I have just uploaded the correct version",
+              "I apologise for the delay. I have just uploaded the correct version.",
+              "I apologize for the delay. I have just uploaded the correct version",
+              "I'm sorry for the delay. I have just uploaded the correct version",
+              "I'm sorry for the delay. I've just uploaded the correct version"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-wr-apology-e",
+            "type": "explain",
+            "promptUk": "Які чотири частини сильного вибачення? Чому «I'm sorry you feel that way» і «regret any inconvenience» без дії слабкі?",
+            "promptEn": "What are the four parts of a strong apology? Why are “I'm sorry you feel that way” and “regret any inconvenience” without action weak?",
+            "keyIdeas": [
+              {
+                "labelUk": "four parts",
+                "labelEn": "four parts",
+                "anyOf": [
+                  "apologise",
+                  "fact",
+                  "uploaded",
+                  "prevent"
+                ]
+              },
+              {
+                "labelUk": "feel that way",
+                "labelEn": "feel that way",
+                "anyOf": [
+                  "feel that way",
+                  "fault",
+                  "but"
+                ]
+              },
+              {
+                "labelUk": "inconvenience",
+                "labelEn": "inconvenience",
+                "anyOf": [
+                  "inconvenience",
+                  "template",
+                  "action"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Сильне вибачення складається з вибачення, визнання факту, дії зараз і наступного кроку. I'm sorry you feel that way не визнає помилку, а We regret any inconvenience caused без дії звучить як шаблон.",
+            "sampleAnswerEn": "A strong apology is the apology itself, owning the fact, the action you are taking now, and the next step. I'm sorry you feel that way does not own the mistake, and We regret any inconvenience caused with no action sounds like a template."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-wr-followup",
+        "titleUk": "Follow-up: ввічливий нагадувальний лист",
+        "titleEn": "A follow-up: a polite reminder email",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-wr-followup-c",
+            "type": "concept",
+            "promptUk": "Посилання на попередній лист, короткий повтор прохання, новий строк",
+            "promptEn": "A reference to the previous email, a short repeat of the request, a new deadline",
+            "bodyUk": "Follow-up — не докір, а допомога зрушити справу. Структура: (1) Just following up on my email of 4 May about invoice 184; (2) короткий повтор, що потрібно (We still need the signed copy to close the month); (3) зручний шлях відповісти (If it is easier, a scanned photo is fine); (4) м'який строк (Could you let me know by Wednesday?). Gentle reminder / Just circling back — прийнятно, якщо не щогодини.\n\nТон: припускайте добрі наміри (you may have missed this in a busy inbox). Другий follow-up може скопіювати керівника лише за домовленістю або політикою команди, і тоді прозоро: I am copying Inna so we can close this before Friday. Не пишіть As I said FIVE times.\n\nТипові помилки: follow-up через годину; довгий лист, довший за перший; сарказм. Якщо вже відповіли — подякуйте і закрийте цикл (Thanks, received, I will send the receipt today).",
+            "bodyEn": "A follow-up is not a rebuke, it is help to move the matter on. The structure: (1) Just following up on my email of 4 May about invoice 184; (2) a short repeat of what you need (We still need the signed copy to close the month); (3) an easy way to reply (If it is easier, a scanned photo is fine); (4) a gentle deadline (Could you let me know by Wednesday?). Gentle reminder / Just circling back is fine, if not every hour.\n\nTone: assume good intent (you may have missed this in a busy inbox). A second follow-up may copy a manager only if your team agrees, and then openly: I am copying Inna so we can close this before Friday. Do not write As I said FIVE times.\n\nTypical mistakes: a follow-up after one hour; a letter longer than the first; sarcasm. If they have already replied — say thanks and close the loop (Thanks, received, I will send the receipt today).",
+            "keyPointsUk": [
+              "Following up on my email of [date] about [topic]",
+              "Короткий повтор + легкий спосіб відповісти + м'який строк",
+              "Припускайте добрі наміри; без сарказму і «FIVE times»",
+              "Після відповіді — подяка і закриття циклу"
+            ],
+            "keyPointsEn": [
+              "Following up on my email of [date] about [topic]",
+              "A short repeat + an easy way to reply + a gentle deadline",
+              "Assume good intent; no sarcasm and no “FIVE times”",
+              "After a reply — thanks and closing the loop"
+            ]
+          },
+          {
+            "id": "en-d-wr-followup-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть кращий початок follow-up.",
+            "promptEn": "Choose the better follow-up opening.",
+            "options": [
+              "Just following up on my email of 4 May about invoice 184.",
+              "As I said FIVE times, send it NOW.",
+              "Hello???",
+              "I am angry you ignored me."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Дата, тема і спокійний тон.",
+            "explanationEn": "A date, a topic and a calm tone."
+          },
+          {
+            "id": "en-d-wr-followup-r2",
+            "type": "fill_blank",
+            "promptUk": "Just ___ up on my email… Напишіть following.",
+            "promptEn": "Type following.",
+            "sentence": "Just ___ up on my email of 4 May.",
+            "accepted": [
+              "following",
+              "Following"
+            ]
+          },
+          {
+            "id": "en-d-wr-followup-r3",
+            "type": "mcq",
+            "promptUk": "Коли копіювати керівника?",
+            "promptEn": "When do you copy a manager?",
+            "options": [
+              "За домовленістю чи політикою, і прозоро пояснити навіщо.",
+              "Завжди в першому ж листі.",
+              "Ніколи, навіть через місяць мовчання за політикою команди.",
+              "Тільки великими літерами в темі."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Копія — свідомий крок, не сюрприз і не зброя.",
+            "explanationEn": "Copying someone is a deliberate step, not a surprise and not a weapon.",
+            "optionsEn": [
+              "By agreement or policy, and openly saying why.",
+              "Always in the very first email.",
+              "Never, even after a month of silence under team policy.",
+              "Only in capital letters in the subject."
+            ]
+          },
+          {
+            "id": "en-d-wr-followup-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть.",
+            "promptEn": "Translate.",
+            "source": "Пишу ще раз щодо мого листа від 4 травня про рахунок 184.",
+            "accepted": [
+              "Just following up on my email of 4 May about invoice 184",
+              "Just following up on my email of 4 May about invoice 184.",
+              "I am following up on my email of 4 May about invoice 184",
+              "I'm following up on my email of 4 May about invoice 184"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-wr-followup-e",
+            "type": "explain",
+            "promptUk": "Яка структура follow-up? Як тримати тон? Коли копіювати керівника?",
+            "promptEn": "What is the structure of a follow-up? How do you keep the tone? When do you copy a manager?",
+            "keyIdeas": [
+              {
+                "labelUk": "following up",
+                "labelEn": "following up",
+                "anyOf": [
+                  "follow-up",
+                  "following up",
+                  "дату",
+                  "date",
+                  "тему",
+                  "topic"
+                ]
+              },
+              {
+                "labelUk": "tone",
+                "labelEn": "tone",
+                "anyOf": [
+                  "тон",
+                  "tone",
+                  "сарказму",
+                  "sarcasm",
+                  "наміри",
+                  "intent"
+                ]
+              },
+              {
+                "labelUk": "copy",
+                "labelEn": "copy",
+                "anyOf": [
+                  "копіюють",
+                  "copy",
+                  "політик",
+                  "policy",
+                  "керівника",
+                  "manager"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Follow-up починається з посилання на дату і тему, далі короткий повтор прохання, легкий спосіб відповісти і м'який строк. Тон припускає добрі наміри, без сарказму. Керівника копіюють за політикою команди і прозоро пояснюють навіщо.",
+            "sampleAnswerEn": "A follow-up starts with a reference to the date and the topic, then a short repeat of the request, an easy way to reply and a gentle deadline. The tone assumes good intent, without sarcasm. You copy a manager by team policy and you say openly why."
+          }
+        ]
+      },
+      {
+        "slug": "en-deep-writing-email-exam",
+        "titleUk": "Контрольна: листи",
+        "titleEn": "Exam: emails",
+        "baseXp": 30,
+        "difficulty": 3,
+        "isExam": true,
+        "passThreshold": 0.7,
+        "exercises": [
+          {
+            "id": "en-deep-writing-email-exam-q1",
+            "type": "mcq",
+            "promptUk": "Dear Sir or Madam потребує:",
+            "promptEn": "Dear Sir or Madam takes:",
+            "options": [
+              "Yours faithfully",
+              "Yours sincerely, as the usual pair",
+              "Cheers",
+              "Dear friend"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Yours faithfully.",
+            "explanationEn": "Yours faithfully."
+          },
+          {
+            "id": "en-deep-writing-email-exam-q2",
+            "type": "mcq",
+            "promptUk": "Замість ASAP у формальному листі краще:",
+            "promptEn": "Instead of ASAP in a formal email, it is better to use:",
+            "options": [
+              "by 15:00 EET on Tuesday",
+              "NOW!!!",
+              "whenever you like, with no date, always",
+              "Good day"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Конкретний строк.",
+            "explanationEn": "A concrete deadline."
+          },
+          {
+            "id": "en-deep-writing-email-exam-q3",
+            "type": "mcq",
+            "promptUk": "Сильне вибачення містить:",
+            "promptEn": "A strong apology contains:",
+            "options": [
+              "вибачення, факт, дію і наступний крок",
+              "лише We regret any inconvenience caused",
+              "I'm sorry you feel that way як достатнє визнання",
+              "Sorry, but it was your fault"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Чотири частини, включно з дією.",
+            "explanationEn": "Four parts, including an action.",
+            "optionsEn": [
+              "an apology, the fact, an action and a next step",
+              "only We regret any inconvenience caused",
+              "I'm sorry you feel that way as enough ownership",
+              "Sorry, but it was your fault"
+            ]
+          },
+          {
+            "id": "en-deep-writing-email-exam-q4",
+            "type": "mcq",
+            "promptUk": "Оберіть кращий follow-up.",
+            "promptEn": "Choose the better follow-up.",
+            "options": [
+              "Just following up on my email of 4 May about invoice 184.",
+              "As I said FIVE times.",
+              "I am writing to complain without facts, as a reminder.",
+              "Yours faithfully after Hi Olena."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Дата, тема, спокійний тон.",
+            "explanationEn": "A date, a topic, a calm tone."
+          },
+          {
+            "id": "en-deep-writing-email-exam-q5",
+            "type": "fill_blank",
+            "promptUk": "I am writing to ___ about order 184. (скарга)",
+            "promptEn": "I am writing to ___ about order 184. (complaint)",
+            "sentence": "I am writing to ___ about order 184.",
+            "accepted": [
+              "complain",
+              "Complain"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "en-deep-writing-essay",
+    "titleUk": "Есе, CV і супровідний лист",
+    "titleEn": "Essays, CV and cover letter",
+    "lessons": [
+      {
+        "slug": "en-d-wr-paragraph",
+        "titleUk": "Абзац PEEL",
+        "titleEn": "The PEEL paragraph",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-wr-paragraph-c",
+            "type": "concept",
+            "promptUk": "Point, Evidence, Explain, Link",
+            "promptEn": "Point, Evidence, Explain, Link",
+            "bodyUk": "PEEL — зручна рамка абзацу в есе. Point — одне твердження в першому реченні (Remote work can improve deep-focus time). Evidence — факт, приклад, коротке дослідження (A 2023 survey in our team found fewer interruptions after noon). Explain — чому це важливо, не повторюючи point тими самими словами (Fewer interruptions mean longer stretches of concentration). Link — місток до питання або наступного абзацу (However, this benefit depends on clear meeting rules).\n\nОдин абзац — одна ідея. 4–6 речень зазвичай досить для B2–C1. Не починайте всі абзаци з I think. Цифра чи короткий приклад сильніші за «багато людей кажуть».\n\nТипові помилки: тільки Point без Evidence; Evidence без Explain (читач сам здогадуйся); три ідеї в одному абзаці; переказ прикладу замість пояснення. У висновку не додавайте нову ідею — стисніть уже сказане.",
+            "bodyEn": "PEEL is a handy paragraph frame for an essay. Point is one claim in the first sentence (Remote work can improve deep-focus time). Evidence is a fact, an example, a short study (A 2023 survey in our team found fewer interruptions after noon). Explain is why that matters, without repeating the point in the same words (Fewer interruptions mean longer stretches of concentration). Link is a bridge to the question or the next paragraph (However, this benefit depends on clear meeting rules).\n\nOne paragraph — one idea. Four to six sentences are usually enough at B2–C1. Do not start every paragraph with I think. A figure or a short example is stronger than “many people say”.\n\nTypical mistakes: only a Point with no Evidence; Evidence with no Explain (the reader has to guess); three ideas in one paragraph; retelling the example instead of explaining it. In the conclusion, do not add a new idea — compress what you have already said.",
+            "keyPointsUk": [
+              "Point — одна ідея; Evidence — приклад або факт",
+              "Explain — навіщо це важливо; Link — місток далі",
+              "Один абзац — одна ідея, 4–6 речень",
+              "У висновку немає нової ідеї"
+            ],
+            "keyPointsEn": [
+              "Point is one idea; Evidence is an example or a fact",
+              "Explain is why it matters; Link is a bridge onward",
+              "One paragraph is one idea, four to six sentences",
+              "The conclusion has no new idea"
+            ]
+          },
+          {
+            "id": "en-d-wr-paragraph-r1",
+            "type": "mcq",
+            "promptUk": "У PEEL літера E (Explain) означає:",
+            "promptEn": "In PEEL, the E (Explain) means:",
+            "options": [
+              "пояснити, чому факт важливий для тези",
+              "повторити Point тими самими словами",
+              "додати три нові теми",
+              "закінчити есе новою ідеєю"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Explain розкриває значення Evidence.",
+            "explanationEn": "Explain unpacks what the Evidence means.",
+            "optionsEn": [
+              "explain why the fact matters for the claim",
+              "repeat the Point in the same words",
+              "add three new topics",
+              "end the essay with a new idea"
+            ]
+          },
+          {
+            "id": "en-d-wr-paragraph-r2",
+            "type": "fill_blank",
+            "promptUk": "Перша літера PEEL — Point. Друга — ___. Напишіть Evidence.",
+            "promptEn": "Type Evidence.",
+            "sentence": "P-E-E-L: Point, ___, Explain, Link.",
+            "accepted": [
+              "Evidence",
+              "evidence"
+            ]
+          },
+          {
+            "id": "en-d-wr-paragraph-r3",
+            "type": "mcq",
+            "promptUk": "Один абзац тіла есе має містити:",
+            "promptEn": "One body paragraph of an essay should contain:",
+            "options": [
+              "одну головну ідею",
+              "усі аргументи за і проти одразу",
+              "тільки I think без прикладу",
+              "нову ідею у висновку цього ж абзацу як правило"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Один абзац — одна ідея.",
+            "explanationEn": "One paragraph is one idea.",
+            "optionsEn": [
+              "one main idea",
+              "every argument for and against at once",
+              "only I think with no example",
+              "a new idea in that paragraph's conclusion, as a rule"
+            ]
+          },
+          {
+            "id": "en-d-wr-paragraph-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть.",
+            "promptEn": "Translate.",
+            "source": "Один абзац має одну головну ідею.",
+            "accepted": [
+              "One paragraph has one main idea",
+              "One paragraph has one main idea.",
+              "A paragraph should have one main idea",
+              "A paragraph should have one main idea."
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-wr-paragraph-e",
+            "type": "explain",
+            "promptUk": "Що означають літери PEEL? Скільки ідей в одному абзаці? Чого не робити у висновку?",
+            "promptEn": "What do the letters PEEL mean? How many ideas go in one paragraph? What should you not do in the conclusion?",
+            "keyIdeas": [
+              {
+                "labelUk": "PEEL",
+                "labelEn": "PEEL",
+                "anyOf": [
+                  "Point",
+                  "Evidence",
+                  "Explain",
+                  "Link"
+                ]
+              },
+              {
+                "labelUk": "one idea",
+                "labelEn": "one idea",
+                "anyOf": [
+                  "one",
+                  "paragraph",
+                  "абзац"
+                ]
+              },
+              {
+                "labelUk": "conclusion",
+                "labelEn": "conclusion",
+                "anyOf": [
+                  "conclusion",
+                  "new idea",
+                  "виснов"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "PEEL — це Point, Evidence, Explain і Link. В одному абзаці одна головна ідея, підкріплена фактом і поясненням. У висновку не додають нової ідеї, а стискають уже сказане.",
+            "sampleAnswerEn": "PEEL is Point, Evidence, Explain and Link. One paragraph has one main idea, supported by a fact and an explanation. In the conclusion you do not add a new idea; you compress what you have already said."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-wr-opinion",
+        "titleUk": "Есе-думка (IELTS Task 2 opinion)",
+        "titleEn": "An opinion essay (IELTS Task 2 opinion)",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-wr-opinion-c",
+            "type": "concept",
+            "promptUk": "Чітка позиція вступ — два аргументи — короткий висновок",
+            "promptEn": "A clear position in the introduction — two arguments — a short conclusion",
+            "bodyUk": "В opinion essay питання часто: To what extent do you agree? Або Do you agree or disagree? Відповідь має бути видно вже у вступі: I largely agree that… / I disagree with the idea that… Не ховайте позицію до останнього рядка. План: вступ (перефраз питання + теза), два абзаци PEEL, висновок (теза іншими словами, без нової ідеї). 250+ слів для IELTS Task 2.\n\nКорисні рамки: One important reason is…; A further argument is…; This does not mean that… (поступка); On balance, I would argue that…. Хеджування (it is often, in many cases) виглядає зріліше за always / never, якщо у вас немає абсолютного доказу.\n\nТипові помилки: перефраз питання тими самими словами (штраф за memorised openings); немає прикладу; обидві сторони «згодні і не згодні» без позиції, коли питають вашу думку. Якщо питання discussion (discuss both views) — це наступний урок, інша структура.",
+            "bodyEn": "In an opinion essay the question is often: To what extent do you agree? Or Do you agree or disagree? The answer should already be visible in the introduction: I largely agree that… / I disagree with the idea that… Do not hide your position until the last line. A plan: introduction (paraphrase the question + a thesis), two PEEL paragraphs, a conclusion (the thesis in other words, no new idea). 250+ words for IELTS Task 2.\n\nUseful frames: One important reason is…; A further argument is…; This does not mean that… (a concession); On balance, I would argue that…. Hedging (it is often, in many cases) looks more mature than always / never, if you have no absolute proof.\n\nTypical mistakes: paraphrasing the question in the same words (a penalty for memorised openings); no example; both sides “agree and disagree” with no position when they asked for your view. If the question is a discussion (discuss both views), that is the next lesson — a different structure.",
+            "keyPointsUk": [
+              "Позиція вже у вступі: I largely agree / I disagree",
+              "Перефраз питання + теза; два PEEL; висновок без нової ідеї",
+              "IELTS Task 2: щонайменше 250 слів",
+              "Не плутати з discuss both views"
+            ],
+            "keyPointsEn": [
+              "The position is already in the introduction: I largely agree / I disagree",
+              "A paraphrase + a thesis; two PEEL paragraphs; a conclusion with no new idea",
+              "IELTS Task 2: at least 250 words",
+              "Do not confuse this with discuss both views"
+            ]
+          },
+          {
+            "id": "en-d-wr-opinion-r1",
+            "type": "mcq",
+            "promptUk": "У To what extent do you agree? позицію треба:",
+            "promptEn": "In To what extent do you agree? your position should be:",
+            "options": [
+              "показати вже у вступі",
+              "сховати до останнього речення завжди",
+              "не мати взагалі, лише переказати питання",
+              "замінити списком ідіом"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Екзаменатор шукає чітку позицію з першого абзацу.",
+            "explanationEn": "The examiner looks for a clear position from the first paragraph.",
+            "optionsEn": [
+              "shown already in the introduction",
+              "always hidden until the last sentence",
+              "absent; only retell the question",
+              "replaced by a list of idioms"
+            ]
+          },
+          {
+            "id": "en-d-wr-opinion-r2",
+            "type": "fill_blank",
+            "promptUk": "Мінімум слів IELTS Task 2 — число. Напишіть 250.",
+            "promptEn": "Type 250.",
+            "sentence": "Write at least ___ words.",
+            "accepted": [
+              "250"
+            ]
+          },
+          {
+            "id": "en-d-wr-opinion-r3",
+            "type": "mcq",
+            "promptUk": "On balance, I would argue that — це:",
+            "promptEn": "On balance, I would argue that is:",
+            "options": [
+              "зріле підсумування позиції",
+              "memorised opening, яке треба копіювати дослівно в кожне есе як вступ",
+              "відмова від тези",
+              "нове питання Task 1"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Корисна рамка висновку або тези, якщо вона щира.",
+            "explanationEn": "A useful frame for a conclusion or a thesis, if it is genuine.",
+            "optionsEn": [
+              "a mature summing-up of a position",
+              "a memorised opening to copy word for word into every essay as an introduction",
+              "giving up the thesis",
+              "a new Task 1 question"
+            ]
+          },
+          {
+            "id": "en-d-wr-opinion-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть тезу.",
+            "promptEn": "Translate the thesis.",
+            "source": "Я загалом погоджуюся, що віддалена робота покращує концентрацію.",
+            "accepted": [
+              "I largely agree that remote work improves concentration",
+              "I largely agree that remote work improves concentration.",
+              "I largely agree that remote work can improve concentration",
+              "I largely agree that remote work can improve concentration."
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-wr-opinion-e",
+            "type": "explain",
+            "promptUk": "Де має бути позиція в opinion essay? Який план і ліміт слів? Чим це відрізняється від discuss both views?",
+            "promptEn": "Where should the position be in an opinion essay? What is the plan and the word limit? How is this different from discuss both views?",
+            "keyIdeas": [
+              {
+                "labelUk": "position",
+                "labelEn": "position",
+                "anyOf": [
+                  "introduction",
+                  "agree",
+                  "disagree",
+                  "вступ"
+                ]
+              },
+              {
+                "labelUk": "plan",
+                "labelEn": "plan",
+                "anyOf": [
+                  "PEEL",
+                  "250",
+                  "conclusion"
+                ]
+              },
+              {
+                "labelUk": "discussion",
+                "labelEn": "discussion",
+                "anyOf": [
+                  "both views",
+                  "discussion",
+                  "інша"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Позицію треба показати вже у вступі, після перефразу питання. Далі два абзаци PEEL і висновок без нової ідеї, щонайменше 250 слів. Discuss both views — інша структура, її не можна підміняти лише своєю думкою без обох сторін.",
+            "sampleAnswerEn": "You should show your position already in the introduction, after paraphrasing the question. Then come two PEEL paragraphs and a conclusion with no new idea, at least 250 words. Discuss both views is a different structure; you cannot replace it with only your opinion and no both sides."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-wr-for-against",
+        "titleUk": "Есе «за і проти» (discussion)",
+        "titleEn": "A for-and-against essay (discussion)",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-wr-for-against-c",
+            "type": "concept",
+            "promptUk": "Обидві сторони справедливо, потім ваша вага",
+            "promptEn": "Both sides fairly, then your own weighting",
+            "bodyUk": "Коли завдання Discuss both views and give your own opinion, треба чесно показати два погляди і лише потім (або коротко у вступі і знову у висновку) свою вагу. Структура: вступ (обидві ідеї + ваша позиція), абзац «за» з сильним аргументом іншої сторони, абзац «проти» або ваша сторона з сильнішим аргументом, висновок. Не перетворюйте чужий погляд на карикатуру — examiner оцінює баланс.\n\nРамки: On the one hand…; Advocates of this view argue that…; On the other hand…; Critics point out that…; While I understand this argument, I would still argue that…. Поступка (While X is true, Y…) підвищує бал за coherence.\n\nТипові помилки: лише своя сторона; «одні кажуть / інші кажуть» без прикладів; неясна власна думка; дзеркальні абзаци однакових порожніх фраз. Сила — у конкретному прикладі для кожної сторони.",
+            "bodyEn": "When the task is Discuss both views and give your own opinion, you have to show two views fairly and only then (or briefly in the introduction and again in the conclusion) your own weighting. The structure: introduction (both ideas + your position), a “for” paragraph with a strong argument for the other side, a “against” or your-side paragraph with a stronger argument, a conclusion. Do not turn the other view into a cartoon — the examiner marks you for balance.\n\nFrames: On the one hand…; Advocates of this view argue that…; On the other hand…; Critics point out that…; While I understand this argument, I would still argue that…. A concession (While X is true, Y…) raises your coherence score.\n\nTypical mistakes: only your own side; “some say / others say” with no examples; an unclear own view; mirror paragraphs of empty phrases. The strength is in a concrete example for each side.",
+            "keyPointsUk": [
+              "Discuss both views — обидві сторони + своя думка",
+              "On the one hand / On the other hand; While I understand…",
+              "Не робіть карикатуру з протилежного погляду",
+              "Поступка While X is true, Y… покращує зв'язність"
+            ],
+            "keyPointsEn": [
+              "Discuss both views means both sides plus your own opinion",
+              "On the one hand / On the other hand; While I understand…",
+              "Do not turn the opposite view into a cartoon",
+              "A concession While X is true, Y… improves coherence"
+            ]
+          },
+          {
+            "id": "en-d-wr-for-against-r1",
+            "type": "mcq",
+            "promptUk": "У Discuss both views and give your own opinion треба:",
+            "promptEn": "In Discuss both views and give your own opinion you must:",
+            "options": [
+              "чесно показати обидві сторони і свою вагу",
+              "написати лише свою думку, як в opinion без змін",
+              "не мати висновку",
+              "використати лише ідіоми"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Баланс і явна власна позиція.",
+            "explanationEn": "Balance and a clear own position.",
+            "optionsEn": [
+              "show both sides fairly and your own weighting",
+              "write only your own view, as in an opinion essay with no change",
+              "have no conclusion",
+              "use only idioms"
+            ]
+          },
+          {
+            "id": "en-d-wr-for-against-r2",
+            "type": "fill_blank",
+            "promptUk": "On the one hand… On the other ___.",
+            "promptEn": "On the one hand… On the other ___.",
+            "sentence": "On the other ___, critics point out the cost.",
+            "accepted": [
+              "hand",
+              "Hand"
+            ]
+          },
+          {
+            "id": "en-d-wr-for-against-r3",
+            "type": "mcq",
+            "promptUk": "While I understand this argument, I would still argue that — це:",
+            "promptEn": "While I understand this argument, I would still argue that is:",
+            "options": [
+              "поступка, після якої йде ваша позиція",
+              "відмова від власної думки",
+              "вступ Task 1",
+              "скарга в листі"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Concession + власна вага.",
+            "explanationEn": "A concession plus your own weighting.",
+            "optionsEn": [
+              "a concession, after which your position follows",
+              "giving up your own opinion",
+              "a Task 1 introduction",
+              "a complaint in an email"
+            ]
+          },
+          {
+            "id": "en-d-wr-for-against-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть.",
+            "promptEn": "Translate.",
+            "source": "З одного боку, це дешевше. З іншого боку, якість може впасти.",
+            "accepted": [
+              "On the one hand, it is cheaper. On the other hand, quality may fall",
+              "On the one hand, it is cheaper. On the other hand, quality may fall.",
+              "On the one hand it is cheaper. On the other hand, quality may fall",
+              "On the one hand, it's cheaper. On the other hand, quality may fall"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-wr-for-against-e",
+            "type": "explain",
+            "promptUk": "Чим discussion essay відрізняється від opinion? Яка структура і які корисні рамки? Навіщо поступка?",
+            "promptEn": "How is a discussion essay different from an opinion essay? What is the structure, and which frames help? Why use a concession?",
+            "keyIdeas": [
+              {
+                "labelUk": "both views",
+                "labelEn": "both views",
+                "anyOf": [
+                  "both views",
+                  "opinion",
+                  "баланс",
+                  "balance"
+                ]
+              },
+              {
+                "labelUk": "on the one hand",
+                "labelEn": "on the one hand",
+                "anyOf": [
+                  "one hand",
+                  "other hand",
+                  "advocates",
+                  "critics"
+                ]
+              },
+              {
+                "labelUk": "concession",
+                "labelEn": "concession",
+                "anyOf": [
+                  "While I understand",
+                  "still argue",
+                  "поступк"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "У discussion треба чесно показати обидві сторони і свою думку, а не лише одну позицію. Структура — вступ, абзац за, абзац проти, висновок. Рамки On the one hand і While I understand… I would still argue that допомагають зробити поступку і зберегти свою вагу.",
+            "sampleAnswerEn": "In a discussion you have to show both sides fairly and your own view, not only one position. The structure is an introduction, a for paragraph, an against paragraph and a conclusion. Frames such as On the one hand and While I understand… I would still argue that help you make a concession and keep your weighting."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-wr-cv",
+        "titleUk": "CV: дієслова дії та структура",
+        "titleEn": "A CV: action verbs and structure",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-wr-cv-c",
+            "type": "concept",
+            "promptUk": "Reduced a query from 4 s to 400 ms, не Responsible for queries",
+            "promptEn": "Reduced a query from 4 s to 400 ms, not Responsible for queries",
+            "bodyUk": "CV (брит.) / résumé (амер.) читають швидко. Структура: ім'я і контакти; короткий profile (3–4 рядки під ціль вакансії, не життєпис); досвід від новішого до старішого; освіта; skills / tools; за потреби languages, projects. Кожен пункт досвіду — дієслово дії в минулому (або теперішньому, якщо це поточна роль) + що зробили + результат, бажано вимірюваний: Reduced API latency from 4 s to 400 ms by adding a cache. Не: Responsible for the API. Не: Helped with various tasks.\n\nКорисні дієслова: built, shipped, designed, led, mentored, automated, reduced, improved, negotiated, documented, migrated. Підганяйте CV під вакансію: ті самі ключові слова, чесно. Обсяг часто 1–2 сторінки.\n\nТипові помилки: фото і дата народження там, де це не прийнято (у багатьох англомовних країнах цього не просять); I, my в кожному рядку (краще без займенника: Led a team of four); брехня про стек; стіна тексту без куль. Cover letter — окремий наступний урок, не копія CV.",
+            "bodyEn": "A CV (BrE) / résumé (AmE) is read fast. The structure: name and contacts; a short profile (three or four lines aimed at the vacancy, not a life story); experience from newest to oldest; education; skills / tools; and if useful, languages and projects. Each experience bullet is an action verb in the past (or the present, if this is the current role) + what you did + a result, preferably measurable: Reduced API latency from 4 s to 400 ms by adding a cache. Not: Responsible for the API. Not: Helped with various tasks.\n\nUseful verbs: built, shipped, designed, led, mentored, automated, reduced, improved, negotiated, documented, migrated. Tailor the CV to the vacancy: the same keywords, honestly. The length is often one or two pages.\n\nTypical mistakes: a photo and a date of birth where that is not expected (in many English-speaking countries they are not asked for); I and my in every line (better with no pronoun: Led a team of four); lying about the stack; a wall of text with no bullets. The cover letter is the next lesson, not a copy of the CV.",
+            "keyPointsUk": [
+              "Дієслово дії + що зробили + вимірний результат",
+              "Не Responsible for… і не Helped with various tasks",
+              "Досвід від новішого; профіль під вакансію; 1–2 сторінки",
+              "Без зайвого I/my; чесні ключові слова вакансії"
+            ],
+            "keyPointsEn": [
+              "An action verb + what you did + a measurable result",
+              "Not Responsible for… and not Helped with various tasks",
+              "Experience from newest; a profile aimed at the vacancy; one or two pages",
+              "No extra I/my; honest keywords from the vacancy"
+            ]
+          },
+          {
+            "id": "en-d-wr-cv-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть сильніший рядок CV.",
+            "promptEn": "Choose the stronger CV bullet.",
+            "options": [
+              "Reduced API latency from 4 s to 400 ms by adding a cache.",
+              "Responsible for the API.",
+              "Helped with various tasks.",
+              "I was doing some work on things."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Дія + метод + вимірний результат.",
+            "explanationEn": "An action plus a method plus a measurable result."
+          },
+          {
+            "id": "en-d-wr-cv-r2",
+            "type": "fill_blank",
+            "promptUk": "Дієслово «скоротив». Напишіть Reduced (з великої, як на початку рядка).",
+            "promptEn": "Type Reduced.",
+            "sentence": "___ query time from 4 s to 400 ms.",
+            "accepted": [
+              "Reduced",
+              "reduced"
+            ]
+          },
+          {
+            "id": "en-d-wr-cv-r3",
+            "type": "mcq",
+            "promptUk": "Порядок досвіду в CV зазвичай:",
+            "promptEn": "The order of experience on a CV is usually:",
+            "options": [
+              "від новішого до старішого",
+              "від першої роботи в 15 років завжди",
+              "лише освіта, без досвіду як правило",
+              "випадковий"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Reverse chronological — спочатку останнє.",
+            "explanationEn": "Reverse chronological — the latest first.",
+            "optionsEn": [
+              "from newest to oldest",
+              "always from a first job at 15",
+              "education only, with no experience, as a rule",
+              "random"
+            ]
+          },
+          {
+            "id": "en-d-wr-cv-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть рядок CV.",
+            "promptEn": "Translate the CV bullet.",
+            "source": "Скоротив затримку API з 4 с до 400 мс, додавши кеш.",
+            "accepted": [
+              "Reduced API latency from 4 s to 400 ms by adding a cache",
+              "Reduced API latency from 4 s to 400 ms by adding a cache.",
+              "Reduced API latency from 4s to 400ms by adding a cache",
+              "Reduced API latency from 4 seconds to 400 ms by adding a cache"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-wr-cv-e",
+            "type": "explain",
+            "promptUk": "Як будувати рядок досвіду? Яких формулювань уникати? Як підганяти CV під вакансію?",
+            "promptEn": "How do you build an experience bullet? Which wordings should you avoid? How do you tailor a CV to a vacancy?",
+            "keyIdeas": [
+              {
+                "labelUk": "action verb",
+                "labelEn": "action verb",
+                "anyOf": [
+                  "Reduced",
+                  "built",
+                  "led",
+                  "result"
+                ]
+              },
+              {
+                "labelUk": "avoid",
+                "labelEn": "avoid",
+                "anyOf": [
+                  "Responsible",
+                  "Helped with various",
+                  "I my"
+                ]
+              },
+              {
+                "labelUk": "tailor",
+                "labelEn": "tailor",
+                "anyOf": [
+                  "keywords",
+                  "vacancy",
+                  "profile"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Рядок CV починається з дієслова дії і містить результат, бажано вимірюваний, наприклад Reduced API latency from 4 s to 400 ms. Уникайте Responsible for і Helped with various tasks. Підганяйте профіль і ключові слова під вакансію, чесно.",
+            "sampleAnswerEn": "A CV bullet starts with an action verb and includes a result, preferably measurable, for example Reduced API latency from 4 s to 400 ms. Avoid Responsible for and Helped with various tasks. Tailor the profile and the keywords to the vacancy, honestly."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-wr-cover",
+        "titleUk": "Супровідний лист",
+        "titleEn": "A cover letter",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-wr-cover-c",
+            "type": "concept",
+            "promptUk": "Чому ця роль, чому ви, конкретний доказ, заклик до розмови",
+            "promptEn": "Why this role, why you, a concrete proof, a call to a conversation",
+            "bodyUk": "Cover letter не переказує CV. Три короткі абзаци часто досить: (1) на яку роль і звідки ви про неї дізнались, одна фраза-гачок; (2) два конкретні докази, що ви підходите (проект, результат, спільна цінність компанії — не «я командний гравець» без прикладу); (3) готовність поговорити і подяка. I am writing to apply for the Junior Backend role advertised on your site. In my last role I reduced… I would welcome the chance to discuss this.\n\nТон semi-formal: Dear Hiring Manager, якщо імені немає; Kind regards. 3/4 сторінки максимум. Підганяйте кожен лист: згадайте продукт чи принцип компанії, не як лестощі, а як зв'язок із вашим досвідом.\n\nТипові помилки: «Я хочу розвиватися в вашій компанії» як єдина мотивація (що ви даєте їм?); копія CV; *Dear friend; стіна з 800 слів; вклали CV і в листі нічого конкретного. Closing: I look forward to hearing from you — прийнятно, якщо не єдине змістовне речення.",
+            "bodyEn": "A cover letter does not retell the CV. Three short paragraphs are often enough: (1) which role and how you heard about it, plus one hook sentence; (2) two concrete proofs that you fit (a project, a result, a value you share with the company — not “I am a team player” with no example); (3) a willingness to talk and a thank-you. I am writing to apply for the Junior Backend role advertised on your site. In my last role I reduced… I would welcome the chance to discuss this.\n\nThe tone is semi-formal: Dear Hiring Manager, if you have no name; Kind regards. Three-quarters of a page at most. Tailor every letter: mention a product or a principle of the company, not as flattery, but as a link to your experience.\n\nTypical mistakes: “I want to grow in your company” as the only motivation (what do you give them?); a copy of the CV; *Dear friend; a wall of 800 words; attaching a CV and saying nothing concrete in the letter. A closing: I look forward to hearing from you is fine, if it is not the only sentence with content.",
+            "keyPointsUk": [
+              "Не переказ CV: роль, два докази, заклик до розмови",
+              "I am writing to apply for…; I would welcome the chance to discuss",
+              "Dear Hiring Manager, якщо імені немає; Kind regards",
+              "Конкретний зв'язок із компанією, не загальне «хочу розвиватися»"
+            ],
+            "keyPointsEn": [
+              "Not a retelling of the CV: the role, two proofs, a call to talk",
+              "I am writing to apply for…; I would welcome the chance to discuss",
+              "Dear Hiring Manager if you have no name; Kind regards",
+              "A concrete link to the company, not a vague “I want to grow”"
+            ]
+          },
+          {
+            "id": "en-d-wr-cover-r1",
+            "type": "mcq",
+            "promptUk": "Супровідний лист має:",
+            "promptEn": "A cover letter should:",
+            "options": [
+              "додати два конкретні докази під цю роль, не копіювати CV",
+              "повністю повторити CV",
+              "початися з Dear friend",
+              "мати 800 слів без абзаців"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Лист доповнює CV конкретним «чому ви і чому вони».",
+            "explanationEn": "The letter complements the CV with a concrete “why you and why them”.",
+            "optionsEn": [
+              "add two concrete proofs for this role, not copy the CV",
+              "repeat the CV in full",
+              "start with Dear friend",
+              "be 800 words with no paragraphs"
+            ]
+          },
+          {
+            "id": "en-d-wr-cover-r2",
+            "type": "fill_blank",
+            "promptUk": "I am writing to ___ for the Junior Backend role. Напишіть apply.",
+            "promptEn": "Type apply.",
+            "sentence": "I am writing to ___ for the Junior Backend role.",
+            "accepted": [
+              "apply",
+              "Apply"
+            ]
+          },
+          {
+            "id": "en-d-wr-cover-r3",
+            "type": "mcq",
+            "promptUk": "Слабка мотивація як єдиний аргумент:",
+            "promptEn": "A weak motivation as the only argument:",
+            "options": [
+              "«Я хочу розвиватися у вашій компанії» без того, що ви даєте їм",
+              "конкретний результат, пов'язаний із їхнім продуктом",
+              "два вимірювані докази",
+              "згадка про принцип компанії, зв'язаний із досвідом"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Роботодавець шукає цінність для команди, не лише ваш розвиток.",
+            "explanationEn": "The employer is looking for value for the team, not only your growth.",
+            "optionsEn": [
+              "“I want to grow in your company” with no sense of what you give them",
+              "a concrete result linked to their product",
+              "two measurable proofs",
+              "a mention of a company principle linked to your experience"
+            ]
+          },
+          {
+            "id": "en-d-wr-cover-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть.",
+            "promptEn": "Translate.",
+            "source": "Пишу, щоб подати заявку на посаду Junior Backend.",
+            "accepted": [
+              "I am writing to apply for the Junior Backend role",
+              "I am writing to apply for the Junior Backend role.",
+              "I am writing to apply for the Junior Backend position",
+              "I am writing to apply for the Junior Backend position."
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-wr-cover-e",
+            "type": "explain",
+            "promptUk": "Чим cover letter відрізняється від CV? Яка структура з трьох абзаців? Якої мотивації уникати як єдиного аргументу?",
+            "promptEn": "How is a cover letter different from a CV? What is the three-paragraph structure? Which motivation should you avoid as the only argument?",
+            "keyIdeas": [
+              {
+                "labelUk": "not a CV",
+                "labelEn": "not a CV",
+                "anyOf": [
+                  "not",
+                  "retell",
+                  "proofs",
+                  "доказ",
+                  "переказує",
+                  "CV"
+                ]
+              },
+              {
+                "labelUk": "apply for",
+                "labelEn": "apply for",
+                "anyOf": [
+                  "apply for",
+                  "welcome the chance",
+                  "Hiring Manager",
+                  "роль",
+                  "гачок",
+                  "розмови"
+                ]
+              },
+              {
+                "labelUk": "grow",
+                "labelEn": "grow",
+                "anyOf": [
+                  "grow",
+                  "motivation",
+                  "value",
+                  "цінність",
+                  "розвива",
+                  "слабке",
+                  "команді"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Cover letter не переказує CV, а пояснює, чому саме ця роль і ви, з двома конкретними доказами. Структура: роль і гачок, докази, запрошення до розмови. Єдине «хочу розвиватися» слабке, бо не каже, що ви даєте команді.",
+            "sampleAnswerEn": "A cover letter does not retell the CV; it explains why this role and why you, with two concrete proofs. The structure is the role and a hook, the proofs, and an invitation to talk. “I want to grow” alone is weak, because it does not say what you give the team."
+          }
+        ]
+      },
+      {
+        "slug": "en-deep-writing-essay-exam",
+        "titleUk": "Контрольна: есе, CV і супровідний лист",
+        "titleEn": "Exam: essays, CV and cover letter",
+        "baseXp": 30,
+        "difficulty": 3,
+        "isExam": true,
+        "passThreshold": 0.7,
+        "exercises": [
+          {
+            "id": "en-deep-writing-essay-exam-q1",
+            "type": "mcq",
+            "promptUk": "PEEL — це:",
+            "promptEn": "PEEL is:",
+            "options": [
+              "Point, Evidence, Explain, Link",
+              "Please, Email, Essay, List",
+              "Pass, Exam, English, Level",
+              "Proof, Error, Edit, Leave"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Point, Evidence, Explain, Link.",
+            "explanationEn": "Point, Evidence, Explain, Link."
+          },
+          {
+            "id": "en-deep-writing-essay-exam-q2",
+            "type": "mcq",
+            "promptUk": "В opinion essay позицію показують:",
+            "promptEn": "In an opinion essay the position is shown:",
+            "options": [
+              "вже у вступі",
+              "лише в останньому реченні завжди",
+              "ніяк, лише discuss both як єдиний тип",
+              "списком ідіом"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Позиція з першого абзацу.",
+            "explanationEn": "The position from the first paragraph.",
+            "optionsEn": [
+              "already in the introduction",
+              "only in the last sentence, always",
+              "not at all; only discuss both as the only type",
+              "in a list of idioms"
+            ]
+          },
+          {
+            "id": "en-deep-writing-essay-exam-q3",
+            "type": "mcq",
+            "promptUk": "Сильніший рядок CV:",
+            "promptEn": "The stronger CV bullet:",
+            "options": [
+              "Reduced API latency from 4 s to 400 ms by adding a cache.",
+              "Responsible for the API.",
+              "Helped with various tasks.",
+              "I did things."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Дія і вимірний результат.",
+            "explanationEn": "An action and a measurable result."
+          },
+          {
+            "id": "en-deep-writing-essay-exam-q4",
+            "type": "mcq",
+            "promptUk": "Cover letter має:",
+            "promptEn": "A cover letter should:",
+            "options": [
+              "додати докази під роль, не копіювати CV",
+              "повністю повторити CV",
+              "початися з Dear friend",
+              "мати 800 слів як норму"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Доповнює CV, не дублює.",
+            "explanationEn": "It complements the CV, it does not duplicate it.",
+            "optionsEn": [
+              "add proofs for the role, not copy the CV",
+              "repeat the CV in full",
+              "start with Dear friend",
+              "be 800 words as a norm"
+            ]
+          },
+          {
+            "id": "en-deep-writing-essay-exam-q5",
+            "type": "fill_blank",
+            "promptUk": "IELTS Task 2: at least ___ words.",
+            "promptEn": "IELTS Task 2: at least ___ words.",
+            "sentence": "Write at least ___ words.",
+            "accepted": [
+              "250"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "en-deep-speaking",
+    "titleUk": "Усне мовлення",
+    "titleEn": "Speaking and functional language",
+    "lessons": [
+      {
+        "slug": "en-d-sp-story",
+        "titleUk": "Розповідь історії: рамка",
+        "titleEn": "Storytelling: a frame",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-sp-story-c",
+            "type": "concept",
+            "promptUk": "Situation, problem, action, result, reflection",
+            "promptEn": "Situation, problem, action, result, reflection",
+            "bodyUk": "Коротка історія на іспиті (IELTS Speaking Part 2) і на співбесіді тримається на рамці: Situation — де і коли; Problem / Task — що треба було зробити; Action — що зробили ви (не «ми якось»); Result — чим закінчилося, бажано вимірювано; Reflection — чому ви навчилися. Це близький родич STAR (Situation, Task, Action, Result).\n\nКорисні маркери часу: At first, Then, After that, In the end, Looking back. Тривалість 1–2 хвилини: не роман, не одне речення. Практикуйте вголос із таймером: хвилина на підготовку, дві на мовлення, як у Part 2.\n\nТипові помилки: загубитися в деталях інтер'єру; забути результат; говорити лише we, коли питають про ваш внесок; зупинитися через 15 секунд. Якщо забули слово — поясніть іншими (paraphrase), не мовчіть. SpeakButton у вправах допоможе почути модельну вимову підказок.",
+            "bodyEn": "A short story in an exam (IELTS Speaking Part 2) and in a job interview rests on a frame: Situation — where and when; Problem / Task — what had to be done; Action — what you did (not a vague “we somehow”); Result — how it ended, preferably measurable; Reflection — what you learned. This is a close relative of STAR (Situation, Task, Action, Result).\n\nUseful time markers: At first, Then, After that, In the end, Looking back. The length is one to two minutes: not a novel, not one sentence. Practise out loud with a timer: one minute to prepare, two to speak, as in Part 2.\n\nTypical mistakes: getting lost in interior details; forgetting the result; saying only we when they asked about your contribution; stopping after fifteen seconds. If you forget a word — explain it in other words (paraphrase), do not go silent. The SpeakButton in the exercises will help you hear model pronunciation of the prompts.",
+            "keyPointsUk": [
+              "Situation → Task → Action → Result → Reflection (STAR+)",
+              "At first, Then, In the end, Looking back",
+              "1–2 хвилини; ваш внесок, не лише we",
+              "Забули слово — paraphrase, не пауза"
+            ],
+            "keyPointsEn": [
+              "Situation → Task → Action → Result → Reflection (STAR+)",
+              "At first, Then, In the end, Looking back",
+              "One to two minutes; your contribution, not only we",
+              "If you forget a word — paraphrase, do not pause in silence"
+            ]
+          },
+          {
+            "id": "en-d-sp-story-r1",
+            "type": "mcq",
+            "promptUk": "Рамка STAR — це:",
+            "promptEn": "The STAR frame is:",
+            "options": [
+              "Situation, Task, Action, Result",
+              "Start, Talk, Argue, Run",
+              "Subject, Tense, Article, Register",
+              "Skim, Translate, Answer, Repeat"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Situation, Task, Action, Result.",
+            "explanationEn": "Situation, Task, Action, Result."
+          },
+          {
+            "id": "en-d-sp-story-r2",
+            "type": "fill_blank",
+            "promptUk": "Останній крок після Result у розширеній рамці — ___. Напишіть Reflection.",
+            "promptEn": "Type Reflection.",
+            "sentence": "Situation, Task, Action, Result, ___.",
+            "accepted": [
+              "Reflection",
+              "reflection"
+            ]
+          },
+          {
+            "id": "en-d-sp-story-r3",
+            "type": "mcq",
+            "promptUk": "Якщо забули слово під час розповіді:",
+            "promptEn": "If you forget a word while telling the story:",
+            "options": [
+              "поясніть іншими словами (paraphrase)",
+              "замовкніть на хвилину",
+              "скажіть лише we і закінчіть",
+              "перейдіть українською без потреби"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Paraphrase оцінюють позитивно.",
+            "explanationEn": "Paraphrase is marked positively.",
+            "optionsEn": [
+              "explain it in other words (paraphrase)",
+              "go silent for a minute",
+              "say only we and stop",
+              "switch to Ukrainian with no need"
+            ]
+          },
+          {
+            "id": "en-d-sp-story-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть маркер.",
+            "promptEn": "Translate the marker.",
+            "source": "Згодом, озираючись назад, я зрозумів, чого навчився.",
+            "accepted": [
+              "Looking back, I understood what I had learned",
+              "Looking back, I understood what I had learned.",
+              "Looking back, I realised what I had learned",
+              "Looking back, I realized what I had learned"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-sp-story-e",
+            "type": "explain",
+            "promptUk": "Яка рамка короткої історії? Скільки вона триває? Що робити, якщо забули слово?",
+            "promptEn": "What is the frame of a short story? How long does it last? What do you do if you forget a word?",
+            "keyIdeas": [
+              {
+                "labelUk": "STAR",
+                "labelEn": "STAR",
+                "anyOf": [
+                  "Situation",
+                  "Task",
+                  "Action",
+                  "Result",
+                  "Reflection"
+                ]
+              },
+              {
+                "labelUk": "time",
+                "labelEn": "time",
+                "anyOf": [
+                  "minute",
+                  "two",
+                  "At first",
+                  "Looking back"
+                ]
+              },
+              {
+                "labelUk": "paraphrase",
+                "labelEn": "paraphrase",
+                "anyOf": [
+                  "paraphrase",
+                  "forget",
+                  "silent"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Коротка історія тримається на Situation, Task, Action, Result і Reflection і триває одну-дві хвилини. Маркери At first і Looking back допомагають структурі. Якщо слово забули, його пояснюють іншими словами, а не мовчать.",
+            "sampleAnswerEn": "A short story rests on Situation, Task, Action, Result and Reflection and lasts one to two minutes. Markers such as At first and Looking back help the structure. If you forget a word, you explain it in other words, rather than going silent."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-sp-present",
+        "titleUk": "Коротка презентація на 60 секунд",
+        "titleEn": "A 60-second presentation",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-sp-present-c",
+            "type": "concept",
+            "promptUk": "Гачок, три пункти, закриття, пауза",
+            "promptEn": "A hook, three points, a close, a pause",
+            "bodyUk": "Шістдесят секунд — це не «прочитати слайд». План: гачок (одне речення, чому це важливо зараз); три пункти, кожен по одному реченню + приклад; закриття з закликом або питанням. Today I want to share how we cut our build time in half. First… Second… Finally… If you want the details, I can walk you through the pipeline after this.\n\nГолос: трохи повільніше, ніж у розмові; пауза після гачка і між пунктами; наголос на ключових словах (урок про sentence stress). Не вибачайтеся за англійську на старті (Sorry for my English) — це краде час і впевненість. Якщо є слайд, не читайте його дослівно.\n\nТипові помилки: хвилина вступу «отже, е-е»; десять пунктів; закінчити «ну ось»; говорити в підлогу. Запишіть себе на телефон: чи чути first / second / finally? Чи є одна ясна ідея?",
+            "bodyEn": "Sixty seconds is not “reading a slide”. The plan: a hook (one sentence on why this matters now); three points, each one sentence plus an example; a close with a call or a question. Today I want to share how we cut our build time in half. First… Second… Finally… If you want the details, I can walk you through the pipeline after this.\n\nVoice: a little slower than in conversation; a pause after the hook and between points; stress on the key words (the lesson on sentence stress). Do not apologise for your English at the start (Sorry for my English) — that steals time and confidence. If there is a slide, do not read it word for word.\n\nTypical mistakes: a minute of “so, uh” as an introduction; ten points; ending with “well, that’s it”; talking into the floor. Record yourself on your phone: can you hear first / second / finally? Is there one clear idea?",
+            "keyPointsUk": [
+              "Гачок → First / Second / Finally → закриття з питанням",
+              "Трохи повільніше, паузи, наголос на ключових словах",
+              "Не Sorry for my English на старті",
+              "Одна ідея, три пункти, не десять"
+            ],
+            "keyPointsEn": [
+              "A hook → First / Second / Finally → a close with a question",
+              "A little slower, pauses, stress on the key words",
+              "No Sorry for my English at the start",
+              "One idea, three points, not ten"
+            ]
+          },
+          {
+            "id": "en-d-sp-present-r1",
+            "type": "mcq",
+            "promptUk": "Шістдесят секунд краще будувати як:",
+            "promptEn": "Sixty seconds is better built as:",
+            "options": [
+              "гачок, три пункти і закриття",
+              "десять пунктів без пауз",
+              "хвилина «е-е» і вибачення за англійську",
+              "дослівне читання всього слайда"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Проста рамка чується чіткіше.",
+            "explanationEn": "A simple frame is easier to hear.",
+            "optionsEn": [
+              "a hook, three points and a close",
+              "ten points with no pauses",
+              "a minute of “uh” and an apology for your English",
+              "reading the whole slide word for word"
+            ]
+          },
+          {
+            "id": "en-d-sp-present-r2",
+            "type": "fill_blank",
+            "promptUk": "Second… ___. Напишіть Finally (третій маркер).",
+            "promptEn": "Type Finally.",
+            "sentence": "First… Second… ___.",
+            "accepted": [
+              "Finally",
+              "finally"
+            ]
+          },
+          {
+            "id": "en-d-sp-present-r3",
+            "type": "mcq",
+            "promptUk": "Sorry for my English на початку презентації:",
+            "promptEn": "Sorry for my English at the start of a presentation:",
+            "options": [
+              "краде час і впевненість, краще почати з ідеї",
+              "обов'язкове в усіх англомовних зустрічах",
+              "підвищує бал IELTS завжди",
+              "замінює гачок"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Почніть із змісту, не з вибачення.",
+            "explanationEn": "Start with the content, not with an apology.",
+            "optionsEn": [
+              "steals time and confidence; it is better to start with the idea",
+              "is required in every English-language meeting",
+              "always raises an IELTS score",
+              "replaces the hook"
+            ]
+          },
+          {
+            "id": "en-d-sp-present-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть гачок.",
+            "promptEn": "Translate the hook.",
+            "source": "Сьогодні хочу розповісти, як ми скоротили час збірки вдвічі.",
+            "accepted": [
+              "Today I want to share how we cut our build time in half",
+              "Today I want to share how we cut our build time in half.",
+              "Today I'd like to share how we cut our build time in half",
+              "Today I would like to share how we cut our build time in half"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-sp-present-e",
+            "type": "explain",
+            "promptUk": "Який план 60-секундної презентації? Як говорити голосом? Чому не варто починати з Sorry for my English?",
+            "promptEn": "What is the plan of a 60-second presentation? How should you use your voice? Why shouldn't you start with Sorry for my English?",
+            "keyIdeas": [
+              {
+                "labelUk": "hook",
+                "labelEn": "hook",
+                "anyOf": [
+                  "hook",
+                  "First",
+                  "Finally",
+                  "close",
+                  "гачок",
+                  "закриття"
+                ]
+              },
+              {
+                "labelUk": "voice",
+                "labelEn": "voice",
+                "anyOf": [
+                  "pause",
+                  "slower",
+                  "stress",
+                  "пауз",
+                  "повільніш",
+                  "наголос"
+                ]
+              },
+              {
+                "labelUk": "sorry",
+                "labelEn": "sorry",
+                "anyOf": [
+                  "Sorry for my English",
+                  "confidence",
+                  "впевнен",
+                  "Вибачення",
+                  "англійськ"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "План — гачок, три пункти First, Second, Finally і закриття з питанням. Говоріть трохи повільніше, з паузами і наголосом на ключових словах. Вибачення за англійську на старті краде час і впевненість, тому починають з ідеї.",
+            "sampleAnswerEn": "The plan is a hook, three points First, Second, Finally, and a close with a question. Speak a little slower, with pauses and stress on the key words. An apology for your English at the start steals time and confidence, so you start with the idea."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-sp-hedge",
+        "titleUk": "Незгода і хеджування на B2–C1",
+        "titleEn": "Disagreement and hedging at B2–C1",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-sp-hedge-c",
+            "type": "concept",
+            "promptUk": "I see your point, but…; I'm not sure I agree; That may be true for X",
+            "promptEn": "I see your point, but…; I'm not sure I agree; That may be true for X",
+            "bodyUk": "Пряме I disagree звучить жорстко в багатьох командах. М'якші формули: I see your point, but I look at it differently. I'm not sure I agree with that, because…. That may be true for the old API, but the new one behaves differently. Wouldn't it be better if we…? I might be wrong, but…. Хеджування (perhaps, it seems, a little, in some cases) зберігає обличчя співрозмовника.\n\nСильна незгода теж потрібна, коли ставка висока: I have to disagree here — this would break the SLA. Тоді підстава йде одразу. Не посміхайтеся і кажіть yes, якщо маєте на увазі no: англійське That's interesting не завжди = згода.\n\nТипові помилки українських мовців: занадто різке No; або навпаки повна згода з ввічливості, а потім тихий саботаж. Підсумок зустрічі: So, just to check, we are agreeing to… — щоб м'яка незгода не загубилася.",
+            "bodyEn": "A bare I disagree sounds harsh in many teams. Softer formulas: I see your point, but I look at it differently. I'm not sure I agree with that, because…. That may be true for the old API, but the new one behaves differently. Wouldn't it be better if we…? I might be wrong, but…. Hedging (perhaps, it seems, a little, in some cases) protects the other person's face.\n\nStrong disagreement is still needed when the stakes are high: I have to disagree here — this would break the SLA. Then the reason follows at once. Do not smile and say yes if you mean no: English That's interesting does not always mean agreement.\n\nTypical mistakes for Ukrainian speakers: a too sharp No; or, the opposite, full agreement out of politeness and then quiet sabotage. A meeting summary: So, just to check, we are agreeing to… — so that a soft disagreement is not lost.",
+            "keyPointsUk": [
+              "I see your point, but…; I'm not sure I agree, because…",
+              "That may be true for X, but Y; Wouldn't it be better if…",
+              "Коли ставка висока — I have to disagree + підстава",
+              "That's interesting ≠ автоматична згода"
+            ],
+            "keyPointsEn": [
+              "I see your point, but…; I'm not sure I agree, because…",
+              "That may be true for X, but Y; Wouldn't it be better if…",
+              "When the stakes are high — I have to disagree + a reason",
+              "That's interesting is not automatic agreement"
+            ]
+          },
+          {
+            "id": "en-d-sp-hedge-r1",
+            "type": "mcq",
+            "promptUk": "М'якша незгода:",
+            "promptEn": "A softer disagreement:",
+            "options": [
+              "I see your point, but I look at it differently.",
+              "No. You're wrong.",
+              "Yes (коли маєте на увазі no).",
+              "That's interesting як повна згода завжди."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Визнати точку зору і додати свою з but.",
+            "explanationEn": "Acknowledge the point and add yours with but."
+          },
+          {
+            "id": "en-d-sp-hedge-r2",
+            "type": "fill_blank",
+            "promptUk": "I'm not sure I ___ with that. Напишіть agree.",
+            "promptEn": "Type agree.",
+            "sentence": "I'm not sure I ___ with that, because the SLA would break.",
+            "accepted": [
+              "agree",
+              "Agree"
+            ]
+          },
+          {
+            "id": "en-d-sp-hedge-r3",
+            "type": "mcq",
+            "promptUk": "That's interesting завжди означає згоду?",
+            "promptEn": "Does That's interesting always mean agreement?",
+            "options": [
+              "Ні, іноді це лише ввічлива пауза.",
+              "Так, завжди.",
+              "Так, і це юридичний підпис.",
+              "Це завжди різка незгода."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Уточніть: So, are we agreeing to…?",
+            "explanationEn": "Check: So, are we agreeing to…?",
+            "optionsEn": [
+              "No, sometimes it is only a polite pause.",
+              "Yes, always.",
+              "Yes, and it is a legal signature.",
+              "It is always sharp disagreement."
+            ]
+          },
+          {
+            "id": "en-d-sp-hedge-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть м'яко.",
+            "promptEn": "Translate softly.",
+            "source": "Я розумію вашу думку, але дивлюся на це інакше.",
+            "accepted": [
+              "I see your point, but I look at it differently",
+              "I see your point, but I look at it differently.",
+              "I see your point but I look at it differently",
+              "I see your point, but I see it differently"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-sp-hedge-e",
+            "type": "explain",
+            "promptUk": "Які формули м'якої незгоди? Коли потрібна сильна? Чому That's interesting не завжди згода?",
+            "promptEn": "What are the formulas for soft disagreement? When is a strong one needed? Why is That's interesting not always agreement?",
+            "keyIdeas": [
+              {
+                "labelUk": "soft",
+                "labelEn": "soft",
+                "anyOf": [
+                  "I see your point",
+                  "not sure I agree",
+                  "may be true"
+                ]
+              },
+              {
+                "labelUk": "strong",
+                "labelEn": "strong",
+                "anyOf": [
+                  "have to disagree",
+                  "SLA",
+                  "because"
+                ]
+              },
+              {
+                "labelUk": "interesting",
+                "labelEn": "interesting",
+                "anyOf": [
+                  "That's interesting",
+                  "check",
+                  "agreeing"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "М'яка незгода — I see your point, but і I'm not sure I agree, because. Коли ставка висока, кажуть I have to disagree і одразу підставу. That's interesting не завжди означає згоду, тому варто уточнити So, are we agreeing to…",
+            "sampleAnswerEn": "Soft disagreement is I see your point, but and I'm not sure I agree, because. When the stakes are high, you say I have to disagree and give a reason at once. That's interesting does not always mean agreement, so it is worth checking So, are we agreeing to…"
+          }
+        ]
+      },
+      {
+        "slug": "en-d-sp-interview",
+        "titleUk": "Відповіді на співбесіді",
+        "titleEn": "Job-interview answers",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-sp-interview-c",
+            "type": "concept",
+            "promptUk": "Tell me about yourself — не біографія з дитсадка",
+            "promptEn": "Tell me about yourself is not a biography from kindergarten",
+            "bodyUk": "Tell me about yourself — 60–90 секунд: теперішня роль, релевантний результат, чому ця вакансія. Tell me about a conflict — STAR, без пліток: проблема, що зробили ви, чим закінчилося, чого навчилися. What's your weakness? — справжня робоча слабкість + що ви вже робите (I used to over-explain in PRs; I now write a three-line summary first), не «я перфекціоніст» як прихована похвала.\n\nWhy should we hire you? — два докази з CV + зв'язок із їхнім продуктом, як у cover letter. Do you have questions for us? — завжди так: про команду, про успіх на випробувальному, про наступний крок. Зарплата: I am looking for a range of X–Y, depending on the total package — після того, як зрозуміли роль, якщо можете.\n\nТипові помилки: говорити 8 хвилин без паузи; погано про попереднього роботодавця; немає питань у кінці; зубріння тексту, який звучить як робот. Практикуйте вголос, не лише письмово.",
+            "bodyEn": "Tell me about yourself is 60–90 seconds: your current role, a relevant result, why this vacancy. Tell me about a conflict is STAR, with no gossip: the problem, what you did, how it ended, what you learned. What's your weakness? is a real work weakness plus what you are already doing (I used to over-explain in PRs; I now write a three-line summary first), not “I am a perfectionist” as hidden praise.\n\nWhy should we hire you? is two proofs from the CV plus a link to their product, as in a cover letter. Do you have questions for us? is always yes: about the team, about success in the trial period, about the next step. Salary: I am looking for a range of X–Y, depending on the total package — after you understand the role, if you can.\n\nTypical mistakes: talking for eight minutes with no pause; speaking badly of a previous employer; no questions at the end; memorising a text that sounds like a robot. Practise out loud, not only in writing.",
+            "keyPointsUk": [
+              "Tell me about yourself: роль, результат, чому ця вакансія",
+              "Conflict — STAR без пліток; weakness — справжня + що вже робите",
+              "Завжди майте питання до них",
+              "Не ганьбити попереднього роботодавця"
+            ],
+            "keyPointsEn": [
+              "Tell me about yourself: the role, a result, why this vacancy",
+              "Conflict is STAR with no gossip; a weakness is real + what you already do",
+              "Always have questions for them",
+              "Do not speak badly of a previous employer"
+            ]
+          },
+          {
+            "id": "en-d-sp-interview-r1",
+            "type": "mcq",
+            "promptUk": "Tell me about yourself краще як:",
+            "promptEn": "Tell me about yourself is better as:",
+            "options": [
+              "60–90 секунд: роль, результат, чому ця вакансія",
+              "біографія з дитсадка",
+              "вісім хвилин без паузи",
+              "критика попереднього роботодавця"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Коротко і під вакансію.",
+            "explanationEn": "Short and aimed at the vacancy.",
+            "optionsEn": [
+              "60–90 seconds: the role, a result, why this vacancy",
+              "a biography from kindergarten",
+              "eight minutes with no pause",
+              "criticism of a previous employer"
+            ]
+          },
+          {
+            "id": "en-d-sp-interview-r2",
+            "type": "fill_blank",
+            "promptUk": "Конфлікт розповідають за рамкою ___. Напишіть STAR.",
+            "promptEn": "Type STAR.",
+            "sentence": "Tell a conflict story with the ___ frame.",
+            "accepted": [
+              "STAR",
+              "Star",
+              "star"
+            ]
+          },
+          {
+            "id": "en-d-sp-interview-r3",
+            "type": "mcq",
+            "promptUk": "Краща відповідь на weakness:",
+            "promptEn": "A better weakness answer:",
+            "options": [
+              "реальна слабкість і конкретна дія, яку ви вже робите",
+              "«Я перфекціоніст» як прихована похвала",
+              "«Немає слабкостей»",
+              "плітки про колегу"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Чесність плюс вже видимий фікс.",
+            "explanationEn": "Honesty plus a fix that is already visible.",
+            "optionsEn": [
+              "a real weakness and a concrete action you are already taking",
+              "“I am a perfectionist” as hidden praise",
+              "“I have no weaknesses”",
+              "gossip about a colleague"
+            ]
+          },
+          {
+            "id": "en-d-sp-interview-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть.",
+            "promptEn": "Translate.",
+            "source": "У мене є кілька питань про команду і наступний крок.",
+            "accepted": [
+              "I have a few questions about the team and the next step",
+              "I have a few questions about the team and the next step.",
+              "I have some questions about the team and the next step",
+              "I'd like to ask a few questions about the team and the next step"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-sp-interview-e",
+            "type": "explain",
+            "promptUk": "Як відповісти на Tell me about yourself і на weakness? Як говорити про конфлікт? Чому потрібні питання до них?",
+            "promptEn": "How do you answer Tell me about yourself and a weakness question? How do you talk about a conflict? Why do you need questions for them?",
+            "keyIdeas": [
+              {
+                "labelUk": "about yourself",
+                "labelEn": "about yourself",
+                "anyOf": [
+                  "60",
+                  "role",
+                  "result",
+                  "vacancy"
+                ]
+              },
+              {
+                "labelUk": "STAR weakness",
+                "labelEn": "STAR weakness",
+                "anyOf": [
+                  "STAR",
+                  "weakness",
+                  "perfectionist"
+                ]
+              },
+              {
+                "labelUk": "questions",
+                "labelEn": "questions",
+                "anyOf": [
+                  "questions",
+                  "team",
+                  "next step"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Tell me about yourself — це 60–90 секунд про роль, результат і цю вакансію. Конфлікт розповідають за STAR без пліток, а weakness — справжня слабкість і вже зроблена дія, не «я перфекціоніст». Питання до них показують інтерес і допомагають оцінити команду.",
+            "sampleAnswerEn": "Tell me about yourself is 60–90 seconds about the role, a result and this vacancy. A conflict is told with STAR and no gossip, and a weakness is a real weakness plus an action already taken, not “I am a perfectionist”. Questions for them show interest and help you judge the team."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-sp-speculate",
+        "titleUk": "Припущення: might have, looks as if, probably",
+        "titleEn": "Speculating: might have, looks as if, probably",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-sp-speculate-c",
+            "type": "concept",
+            "promptUk": "Він, можливо, забув; схоже, сервер упав",
+            "promptEn": "He might have forgotten; it looks as if the server is down",
+            "bodyUk": "На іспиті (IELTS Speaking Part 3, FCE photos) і в роботі часто треба припустити, не стверджувати. Теперішнє: It looks as if the server is down. She might be working from home. He's probably on leave. Минуле: He might have missed the email. They must have left already (сильна впевненість — див. модальні перфект). Майбутнє: It could take a bit longer. I wouldn't be surprised if we slipped the date.\n\nКорисні рамки: I'd say…; If I had to guess…; It depends, but…. Чесне It depends + два фактори звучить зріліше за випадкове yes. Для фото: They might be colleagues; It looks as if they're celebrating.\n\nТипові помилки: He must forgot (потрібен have + V3: must have forgotten); It looks as the server (потрібен as if / like); абсолютне He is angry з фото, де це лише припущення. Хеджуйте: He looks angry, або He might be angry.",
+            "bodyEn": "In an exam (IELTS Speaking Part 3, FCE photos) and at work you often have to speculate, not assert. Present: It looks as if the server is down. She might be working from home. He's probably on leave. Past: He might have missed the email. They must have left already (strong confidence — see perfect modals). Future: It could take a bit longer. I wouldn't be surprised if we slipped the date.\n\nUseful frames: I'd say…; If I had to guess…; It depends, but…. An honest It depends plus two factors sounds more mature than a random yes. For a photo: They might be colleagues; It looks as if they're celebrating.\n\nTypical mistakes: He must forgot (you need have + V3: must have forgotten); It looks as the server (you need as if / like); an absolute He is angry from a photo where it is only a guess. Hedge: He looks angry, or He might be angry.",
+            "keyPointsUk": [
+              "It looks as if…; She might be…; He's probably…",
+              "Минуле: might have + V3 (might have missed)",
+              "I'd say; If I had to guess; It depends, but…",
+              "Не He must forgot і не абсолют з фото"
+            ],
+            "keyPointsEn": [
+              "It looks as if…; She might be…; He's probably…",
+              "Past: might have + V3 (might have missed)",
+              "I'd say; If I had to guess; It depends, but…",
+              "Not He must forgot and not an absolute from a photo"
+            ]
+          },
+          {
+            "id": "en-d-sp-speculate-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "He might have missed the email.",
+              "He must forgot the email.",
+              "It looks as the server is down, with no if or like.",
+              "He is angry, as a certainty from a vague photo."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "might have + V3.",
+            "explanationEn": "might have + V3."
+          },
+          {
+            "id": "en-d-sp-speculate-r2",
+            "type": "fill_blank",
+            "promptUk": "It looks ___ if the server is down. Напишіть as.",
+            "promptEn": "Type as.",
+            "sentence": "It looks ___ if the server is down.",
+            "accepted": [
+              "as",
+              "As"
+            ]
+          },
+          {
+            "id": "en-d-sp-speculate-r3",
+            "type": "mcq",
+            "promptUk": "Зріліша відповідь на складне питання Part 3:",
+            "promptEn": "A more mature answer to a difficult Part 3 question:",
+            "options": [
+              "It depends, but two factors are X and Y.",
+              "Yes. (і тиша)",
+              "I don't know. (і тиша)",
+              "He must forgot."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "It depends + фактори — природний хід.",
+            "explanationEn": "It depends plus factors is a natural move."
+          },
+          {
+            "id": "en-d-sp-speculate-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть.",
+            "promptEn": "Translate.",
+            "source": "Схоже, сервер упав.",
+            "accepted": [
+              "It looks as if the server is down",
+              "It looks as if the server is down.",
+              "It looks like the server is down",
+              "It looks like the server is down."
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-sp-speculate-e",
+            "type": "explain",
+            "promptUk": "Які рамки припущення в теперішньому і минулому? Яка типова помилка з must? Як відповідати на складне питання?",
+            "promptEn": "What are the speculation frames in the present and the past? What is the typical mistake with must? How do you answer a difficult question?",
+            "keyIdeas": [
+              {
+                "labelUk": "looks as if",
+                "labelEn": "looks as if",
+                "anyOf": [
+                  "looks as if",
+                  "might be",
+                  "probably"
+                ]
+              },
+              {
+                "labelUk": "might have",
+                "labelEn": "might have",
+                "anyOf": [
+                  "might have",
+                  "must have",
+                  "forgotten",
+                  "V3"
+                ]
+              },
+              {
+                "labelUk": "depends",
+                "labelEn": "depends",
+                "anyOf": [
+                  "depends",
+                  "guess",
+                  "I'd say"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "У теперішньому кажемо It looks as if і She might be, у минулому — might have plus V3, наприклад might have missed. Типова помилка — He must forgot без have. На складне питання природно відповісти It depends і назвати два фактори.",
+            "sampleAnswerEn": "In the present we say It looks as if and She might be, and in the past might have plus V3, for example might have missed. A typical mistake is He must forgot with no have. For a difficult question it is natural to say It depends and name two factors."
+          }
+        ]
+      },
+      {
+        "slug": "en-deep-speaking-exam",
+        "titleUk": "Контрольна: усне мовлення",
+        "titleEn": "Exam: speaking",
+        "baseXp": 30,
+        "difficulty": 3,
+        "isExam": true,
+        "passThreshold": 0.7,
+        "exercises": [
+          {
+            "id": "en-deep-speaking-exam-q1",
+            "type": "mcq",
+            "promptUk": "STAR — це:",
+            "promptEn": "STAR is:",
+            "options": [
+              "Situation, Task, Action, Result",
+              "Speak, Translate, Argue, Repeat",
+              "Start talking at random",
+              "Sorry for my English, Then argue, Run"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Situation, Task, Action, Result.",
+            "explanationEn": "Situation, Task, Action, Result."
+          },
+          {
+            "id": "en-deep-speaking-exam-q2",
+            "type": "mcq",
+            "promptUk": "60-секундну презентацію краще почати з:",
+            "promptEn": "A 60-second presentation is better started with:",
+            "options": [
+              "гачка і ідеї, не з Sorry for my English",
+              "вибачення за мову",
+              "десяти пунктів одразу",
+              "читання слайда дослівно як єдиний метод"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Спочатку зміст.",
+            "explanationEn": "Content first.",
+            "optionsEn": [
+              "a hook and the idea, not Sorry for my English",
+              "an apology for your language",
+              "ten points at once",
+              "reading the slide word for word as the only method"
+            ]
+          },
+          {
+            "id": "en-deep-speaking-exam-q3",
+            "type": "mcq",
+            "promptUk": "М'якша незгода:",
+            "promptEn": "A softer disagreement:",
+            "options": [
+              "I see your point, but I look at it differently.",
+              "No. You're wrong.",
+              "That's interesting як повна згода завжди.",
+              "Yes, коли маєте на увазі no."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "I see your point, but…",
+            "explanationEn": "I see your point, but…"
+          },
+          {
+            "id": "en-deep-speaking-exam-q4",
+            "type": "mcq",
+            "promptUk": "Оберіть правильне.",
+            "promptEn": "Choose the correct option.",
+            "options": [
+              "He might have missed the email.",
+              "He must forgot the email.",
+              "It looks as the server is down, with no if.",
+              "Tell me about yourself — eight minutes on kindergarten."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "might have + V3.",
+            "explanationEn": "might have + V3."
+          },
+          {
+            "id": "en-deep-speaking-exam-q5",
+            "type": "fill_blank",
+            "promptUk": "It looks ___ if the server is down.",
+            "promptEn": "It looks ___ if the server is down.",
+            "sentence": "It looks ___ if the server is down.",
+            "accepted": [
+              "as",
+              "As"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "en-deep-business-it",
+    "titleUk": "Ділова та IT-англійська+",
+    "titleEn": "Business and IT English plus",
+    "lessons": [
+      {
+        "slug": "en-d-biz-negotiate",
+        "titleUk": "Переговори про обсяг",
+        "titleEn": "Negotiating scope",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-biz-negotiate-c",
+            "type": "concept",
+            "promptUk": "If we add X, we need to drop Y or move the date",
+            "promptEn": "If we add X, we need to drop Y or move the date",
+            "bodyUk": "Переговори про scope — це не «так усім». Рамка: повторіть запит (So you would like a CSV export in this sprint); назвіть обмеження (We have three days and two engineers); запропонуйте варіанти (We can ship a basic export now and filters in the next sprint; or we move the deadline). If we add X, we'll need to drop Y or move the date — класичний trade-off.\n\nКорисні фрази: What's the must-have versus the nice-to-have? Can we descope…? That's doable if…; I can't commit to that date without looking at the backlog. Let's take this offline — коли зустріч застрягла. Підсумок письмово: As agreed, we will…\n\nТипові помилки: мовчазне «так» і зрив через тиждень; ні без варіанта; жаргон без пояснення для нетехнічного стейкхолдера. Не обіцяйте best effort як дату. Цей урок поглиблює tech-english, не повторює базові stand-up фрази.",
+            "bodyEn": "Negotiating scope is not “yes to everyone”. The frame: restate the request (So you would like a CSV export in this sprint); name the constraint (We have three days and two engineers); offer options (We can ship a basic export now and filters in the next sprint; or we move the deadline). If we add X, we'll need to drop Y or move the date is the classic trade-off.\n\nUseful phrases: What's the must-have versus the nice-to-have? Can we descope…? That's doable if…; I can't commit to that date without looking at the backlog. Let's take this offline — when the meeting is stuck. A written summary: As agreed, we will…\n\nTypical mistakes: a silent “yes” and a miss a week later; a no with no option; jargon with no explanation for a non-technical stakeholder. Do not promise best effort as a date. This lesson goes deeper than tech-english; it does not repeat basic stand-up phrases.",
+            "keyPointsUk": [
+              "Повтор запиту → обмеження → варіанти (X, або Y, або дата)",
+              "must-have vs nice-to-have; That's doable if…",
+              "I can't commit to that date without…",
+              "Підсумок As agreed, we will… письмово"
+            ],
+            "keyPointsEn": [
+              "Restate the request → the constraint → options (X, or Y, or the date)",
+              "must-have vs nice-to-have; That's doable if…",
+              "I can't commit to that date without…",
+              "A written summary As agreed, we will…"
+            ]
+          },
+          {
+            "id": "en-d-biz-negotiate-r1",
+            "type": "mcq",
+            "promptUk": "Класичний trade-off:",
+            "promptEn": "The classic trade-off:",
+            "options": [
+              "If we add X, we'll need to drop Y or move the date.",
+              "Yes to everything, with no date change.",
+              "No, with no option.",
+              "Best effort as a fixed Friday deadline."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Додати X — зняти Y або зрушити дату.",
+            "explanationEn": "Adding X means dropping Y or moving the date."
+          },
+          {
+            "id": "en-d-biz-negotiate-r2",
+            "type": "fill_blank",
+            "promptUk": "What's the must-have versus the nice-to-___?",
+            "promptEn": "What's the must-have versus the nice-to-___?",
+            "sentence": "What's the must-have versus the nice-to-___?",
+            "accepted": [
+              "have",
+              "Have"
+            ]
+          },
+          {
+            "id": "en-d-biz-negotiate-r3",
+            "type": "mcq",
+            "promptUk": "I can't commit to that date without looking at the backlog означає:",
+            "promptEn": "I can't commit to that date without looking at the backlog means:",
+            "options": [
+              "ви ще не обіцяєте дату, поки не перевірите обсяг",
+              "ви вже згодні на будь-яку дату",
+              "ви відмовляєтесь говорити",
+              "ви берете best effort як контракт"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Чесне обмеження, не відмова від розмови.",
+            "explanationEn": "An honest constraint, not a refusal to talk.",
+            "optionsEn": [
+              "you are not promising the date yet, until you check the scope",
+              "you already agree to any date",
+              "you refuse to talk",
+              "you take best effort as a contract"
+            ]
+          },
+          {
+            "id": "en-d-biz-negotiate-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть.",
+            "promptEn": "Translate.",
+            "source": "Якщо додамо X, доведеться зняти Y або перенести дату.",
+            "accepted": [
+              "If we add X, we'll need to drop Y or move the date",
+              "If we add X, we'll need to drop Y or move the date.",
+              "If we add X, we will need to drop Y or move the date",
+              "If we add X, we will need to drop Y or move the date."
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-biz-negotiate-e",
+            "type": "explain",
+            "promptUk": "Яка рамка переговорів про обсяг? Що таке must-have versus nice-to-have? Чому не варто обіцяти best effort як дату?",
+            "promptEn": "What is the frame for negotiating scope? What is must-have versus nice-to-have? Why shouldn't you promise best effort as a date?",
+            "keyIdeas": [
+              {
+                "labelUk": "trade-off",
+                "labelEn": "trade-off",
+                "anyOf": [
+                  "add X",
+                  "drop Y",
+                  "move the date"
+                ]
+              },
+              {
+                "labelUk": "must-have",
+                "labelEn": "must-have",
+                "anyOf": [
+                  "must-have",
+                  "nice-to-have",
+                  "descope"
+                ]
+              },
+              {
+                "labelUk": "commit",
+                "labelEn": "commit",
+                "anyOf": [
+                  "commit",
+                  "backlog",
+                  "best effort"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Спочатку повторюють запит, називають обмеження і дають варіанти: додати X, зняти Y або зрушити дату. Must-have — обов'язкове, nice-to-have можна відкласти. Best effort — не дата, і перед обіцянкою дивляться backlog.",
+            "sampleAnswerEn": "First you restate the request, name the constraint and offer options: add X, drop Y or move the date. Must-have is essential, and nice-to-have can wait. Best effort is not a date, and before a promise you look at the backlog."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-biz-stakeholder",
+        "titleUk": "Оновлення для стейкхолдерів",
+        "titleEn": "Stakeholder updates",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-biz-stakeholder-c",
+            "type": "concept",
+            "promptUk": "Status, risk, ask — без стіни жаргону",
+            "promptEn": "Status, risk, ask — without a wall of jargon",
+            "bodyUk": "Стейкхолдер часто не хоче лог комітів. Рамка статусу: Green / amber / red (або On track / At risk / Off track); що зроблено з останнього разу; що далі; ризики і що ви вже робите; одне чітке ask (We need a decision on X by Thursday). We are on track to ship on 20 May. One risk: the vendor API is slow; we are testing a cache and will confirm on Wednesday. Ask: please approve the copy.\n\nМова: менше We refactored the orchestrator, більше Users can now export a report in one click, unless аудиторія — інженери. RAG-статус (червоний) потребує причини і плану, не лише слова red.\n\nТипові помилки: приховати ризик до п'ятниці; десять asks; статус без дати. Письмовий weekly може бути шість рядків. Цей формат працює і в Slack, і в листі.",
+            "bodyEn": "A stakeholder often does not want a commit log. The status frame: Green / amber / red (or On track / At risk / Off track); what was done since last time; what is next; risks and what you are already doing; one clear ask (We need a decision on X by Thursday). We are on track to ship on 20 May. One risk: the vendor API is slow; we are testing a cache and will confirm on Wednesday. Ask: please approve the copy.\n\nLanguage: less We refactored the orchestrator, more Users can now export a report in one click, unless the audience is engineers. A RAG status of red needs a reason and a plan, not only the word red.\n\nTypical mistakes: hiding a risk until Friday; ten asks; a status with no date. A written weekly can be six lines. This format works in Slack and in email.",
+            "keyPointsUk": [
+              "On track / At risk / Off track + дата",
+              "Зроблено → далі → ризик із планом → одне ask",
+              "Мова користі для нетехнічної аудиторії",
+              "Червоний статус завжди з причиною і планом"
+            ],
+            "keyPointsEn": [
+              "On track / At risk / Off track + a date",
+              "Done → next → a risk with a plan → one ask",
+              "Benefit language for a non-technical audience",
+              "A red status always has a reason and a plan"
+            ]
+          },
+          {
+            "id": "en-d-biz-stakeholder-r1",
+            "type": "mcq",
+            "promptUk": "Оновлення стейкхолдеру краще містить:",
+            "promptEn": "A stakeholder update is better when it contains:",
+            "options": [
+              "статус, ризик із планом і одне чітке ask",
+              "повний лог комітів без висновку",
+              "слово red без причини",
+              "десять asks без дати"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Коротко: стан, ризик, прохання.",
+            "explanationEn": "Briefly: the state, a risk, a request.",
+            "optionsEn": [
+              "a status, a risk with a plan, and one clear ask",
+              "a full commit log with no conclusion",
+              "the word red with no reason",
+              "ten asks with no date"
+            ]
+          },
+          {
+            "id": "en-d-biz-stakeholder-r2",
+            "type": "fill_blank",
+            "promptUk": "We are on ___ to ship on 20 May. Напишіть track.",
+            "promptEn": "Type track.",
+            "sentence": "We are on ___ to ship on 20 May.",
+            "accepted": [
+              "track",
+              "Track"
+            ]
+          },
+          {
+            "id": "en-d-biz-stakeholder-r3",
+            "type": "mcq",
+            "promptUk": "Для нетехнічного стейкхолдера краще:",
+            "promptEn": "For a non-technical stakeholder it is better to say:",
+            "options": [
+              "Users can now export a report in one click.",
+              "We refactored the orchestrator, as the only sentence.",
+              "Off track. (без плану)",
+              "See the git log."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Користь для користувача, не внутрішній жаргон.",
+            "explanationEn": "A benefit for the user, not internal jargon."
+          },
+          {
+            "id": "en-d-biz-stakeholder-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть.",
+            "promptEn": "Translate.",
+            "source": "Нам потрібне рішення щодо X до четверга.",
+            "accepted": [
+              "We need a decision on X by Thursday",
+              "We need a decision on X by Thursday.",
+              "We need a decision about X by Thursday",
+              "We need a decision about X by Thursday."
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-biz-stakeholder-e",
+            "type": "explain",
+            "promptUk": "Яка рамка статусу для стейкхолдера? Що робити з ризиком і з червоним статусом? Яку мову обирати?",
+            "promptEn": "What is the status frame for a stakeholder? What do you do with a risk and with a red status? Which language do you choose?",
+            "keyIdeas": [
+              {
+                "labelUk": "on track",
+                "labelEn": "on track",
+                "anyOf": [
+                  "on track",
+                  "at risk",
+                  "off track"
+                ]
+              },
+              {
+                "labelUk": "ask",
+                "labelEn": "ask",
+                "anyOf": [
+                  "ask",
+                  "decision",
+                  "Thursday",
+                  "risk"
+                ]
+              },
+              {
+                "labelUk": "users",
+                "labelEn": "users",
+                "anyOf": [
+                  "Users can now",
+                  "jargon",
+                  "orchestrator"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Статус — on track, at risk або off track із датою, далі зроблене, наступні кроки, ризик із планом і одне ask. Червоний статус без причини і плану неповний. Для нетехнічної аудиторії говорять мовою користі, наприклад Users can now export a report.",
+            "sampleAnswerEn": "The status is on track, at risk or off track with a date, then what was done, next steps, a risk with a plan and one ask. A red status with no reason and no plan is incomplete. For a non-technical audience you speak in benefits, for example Users can now export a report."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-biz-incident",
+        "titleUk": "Мова інциденту",
+        "titleEn": "Incident language",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-biz-incident-c",
+            "type": "concept",
+            "promptUk": "What we know, what we're doing, when the next update is",
+            "promptEn": "What we know, what we're doing, when the next update is",
+            "bodyUk": "Під час інциденту мова коротка і чесна. Зовнішнє повідомлення: We are aware of an issue affecting login. Users may see a 500 error. We are investigating and will post the next update by 14:30 EET. Не звинувачуйте вендора публічно в першу хвилину. Не обіцяйте resolved, поки не впевнені. Workaround, якщо є: Logging in via SSO still works.\n\nВнутрішній канал: severity, impact (how many users), timeline, owner, next check. We are mitigating; a rollback is in progress. After the incident — a post-mortem без пошуку винного: What happened, customer impact, root cause, what went well, action items with owners and dates.\n\nТипові помилки: тиша; «все добре» коли не добре; жаргон без impact; post-mortem як суд. Слова: outage, degraded, mitigated, resolved, RCA (root cause analysis).",
+            "bodyEn": "During an incident the language is short and honest. An external message: We are aware of an issue affecting login. Users may see a 500 error. We are investigating and will post the next update by 14:30 EET. Do not blame a vendor in public in the first minute. Do not promise resolved until you are sure. A workaround, if there is one: Logging in via SSO still works.\n\nAn internal channel: severity, impact (how many users), timeline, owner, next check. We are mitigating; a rollback is in progress. After the incident — a post-mortem without a hunt for someone to blame: What happened, customer impact, root cause, what went well, action items with owners and dates.\n\nTypical mistakes: silence; “everything is fine” when it is not; jargon with no impact; a post-mortem as a trial. Words: outage, degraded, mitigated, resolved, RCA (root cause analysis).",
+            "keyPointsUk": [
+              "What we know → what we're doing → next update at [time]",
+              "Не resolved, доки не впевнені; назвіть workaround",
+              "Post-mortem: root cause і action items, не винний",
+              "outage, degraded, mitigated, rollback"
+            ],
+            "keyPointsEn": [
+              "What we know → what we're doing → next update at [time]",
+              "Not resolved until you are sure; name a workaround",
+              "A post-mortem: root cause and action items, not a guilty party",
+              "outage, degraded, mitigated, rollback"
+            ]
+          },
+          {
+            "id": "en-d-biz-incident-r1",
+            "type": "mcq",
+            "promptUk": "Краще зовнішнє повідомлення:",
+            "promptEn": "A better external message:",
+            "options": [
+              "We are investigating a login issue and will update you by 14:30 EET.",
+              "Everything is fine. (коли логін не працює)",
+              "It is all the vendor's fault, as a first public sentence with no facts.",
+              "Resolved. (коли ще розслідуєте)"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Чесно: знаємо, діємо, наступне оновлення о цій годині.",
+            "explanationEn": "Honest: we know, we are acting, the next update is at this time."
+          },
+          {
+            "id": "en-d-biz-incident-r2",
+            "type": "fill_blank",
+            "promptUk": "A ___ is in progress (відкат). Напишіть rollback.",
+            "promptEn": "Type rollback.",
+            "sentence": "A ___ is in progress.",
+            "accepted": [
+              "rollback",
+              "Rollback"
+            ]
+          },
+          {
+            "id": "en-d-biz-incident-r3",
+            "type": "mcq",
+            "promptUk": "Post-mortem має бути:",
+            "promptEn": "A post-mortem should be:",
+            "options": [
+              "розбір причини і дії з відповідальними, без полювання на винного",
+              "судом над однією людиною",
+              "тишею",
+              "обіцянкою resolved під час аварії без перевірки"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Навчання команди, не покарання.",
+            "explanationEn": "Team learning, not punishment.",
+            "optionsEn": [
+              "an analysis of the cause and actions with owners, without a hunt for someone to blame",
+              "a trial of one person",
+              "silence",
+              "a promise of resolved during the outage with no check"
+            ]
+          },
+          {
+            "id": "en-d-biz-incident-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть.",
+            "promptEn": "Translate.",
+            "source": "Ми розслідуємо проблему і дамо наступне оновлення до 14:30.",
+            "accepted": [
+              "We are investigating and will post the next update by 14:30",
+              "We are investigating and will post the next update by 14:30.",
+              "We are investigating and will give the next update by 14:30",
+              "We're investigating and will post the next update by 14:30"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-biz-incident-e",
+            "type": "explain",
+            "promptUk": "Що має бути в повідомленні про інцидент? Коли казати resolved? Який тон post-mortem?",
+            "promptEn": "What should an incident message contain? When do you say resolved? What is the tone of a post-mortem?",
+            "keyIdeas": [
+              {
+                "labelUk": "update",
+                "labelEn": "update",
+                "anyOf": [
+                  "investigating",
+                  "next update",
+                  "14:30"
+                ]
+              },
+              {
+                "labelUk": "resolved",
+                "labelEn": "resolved",
+                "anyOf": [
+                  "resolved",
+                  "workaround",
+                  "rollback"
+                ]
+              },
+              {
+                "labelUk": "post-mortem",
+                "labelEn": "post-mortem",
+                "anyOf": [
+                  "post-mortem",
+                  "root cause",
+                  "blame"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Повідомлення каже, що відомо, що роблять і коли буде наступне оновлення. Resolved говорять лише коли впевнені, і якщо є workaround, його називають. Post-mortem шукає причину і дії, а не винного.",
+            "sampleAnswerEn": "A message says what is known, what is being done and when the next update will be. You say resolved only when you are sure, and if there is a workaround, you name it. A post-mortem looks for a cause and for actions, not for someone to blame."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-biz-interview",
+        "titleUk": "IT-співбесіда: технічна англійська",
+        "titleEn": "An IT interview: technical English",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-biz-interview-c",
+            "type": "concept",
+            "promptUk": "Поясніть trade-off, не лише назву технології",
+            "promptEn": "Explain the trade-off, not only the name of the technology",
+            "bodyUk": "Технічне питання: Why did you choose Redis here? — не «бо круто». Рамка: проблема (We needed sub-millisecond reads for sessions), варіанти (in-memory cache vs DB), trade-off (Redis is fast but we must plan invalidation), результат. Якщо не знаєте — I haven't used X in production; I would start from the docs and from Y, which I do know. Чесність краща за вигаданий досвід.\n\nSystem design вголос: уточніть вимоги (How many users? Read-heavy?); запропонуйте простий варіант; назвіть вузьке місце; що зміните при зростанні. Let's assume…; One bottleneck would be…; We could shard later.\n\nТипові помилки: мовчазне кодування без пояснення (think out loud); захищати рішення, яке вже визнали слабким; акроніми без розшифровки, якщо інтерв'юер не з вашого стеку. Повторюйте питання своїми словами: So you're asking how I would handle retries?",
+            "bodyEn": "A technical question: Why did you choose Redis here? is not “because it's cool”. The frame: the problem (We needed sub-millisecond reads for sessions), the options (an in-memory cache vs the DB), the trade-off (Redis is fast but we must plan invalidation), the result. If you do not know — I haven't used X in production; I would start from the docs and from Y, which I do know. Honesty is better than invented experience.\n\nSystem design out loud: clarify the requirements (How many users? Read-heavy?); offer a simple option; name a bottleneck; what you would change as it grows. Let's assume…; One bottleneck would be…; We could shard later.\n\nTypical mistakes: silent coding with no explanation (think out loud); defending a decision you have already admitted is weak; acronyms with no expansion if the interviewer is not from your stack. Rephrase the question: So you're asking how I would handle retries?",
+            "keyPointsUk": [
+              "Проблема → варіанти → trade-off → результат",
+              "I haven't used X in production — чесно, плюс план",
+              "System design: вимоги, простий варіант, bottleneck",
+              "Think out loud; перефразуйте питання"
+            ],
+            "keyPointsEn": [
+              "Problem → options → trade-off → result",
+              "I haven't used X in production — honestly, plus a plan",
+              "System design: requirements, a simple option, a bottleneck",
+              "Think out loud; rephrase the question"
+            ]
+          },
+          {
+            "id": "en-d-biz-interview-r1",
+            "type": "mcq",
+            "promptUk": "Чому обрали Redis — краща відповідь:",
+            "promptEn": "Why did you choose Redis — a better answer:",
+            "options": [
+              "проблема, варіанти, trade-off і результат",
+              "«Бо круто», без деталей",
+              "вигаданий досвід у production",
+              "мовчазне кодування без слів"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Trade-off показує мислення.",
+            "explanationEn": "The trade-off shows your thinking.",
+            "optionsEn": [
+              "the problem, the options, the trade-off and the result",
+              "“Because it's cool”, with no detail",
+              "invented production experience",
+              "silent coding with no words"
+            ]
+          },
+          {
+            "id": "en-d-biz-interview-r2",
+            "type": "fill_blank",
+            "promptUk": "One ___ would be… (вузьке місце). Напишіть bottleneck.",
+            "promptEn": "Type bottleneck.",
+            "sentence": "One ___ would be the database writes.",
+            "accepted": [
+              "bottleneck",
+              "Bottleneck"
+            ]
+          },
+          {
+            "id": "en-d-biz-interview-r3",
+            "type": "mcq",
+            "promptUk": "Якщо технології не знаєте:",
+            "promptEn": "If you do not know the technology:",
+            "options": [
+              "чесно сказати і показати, з чого почнете",
+              "вигадать досвід",
+              "замовкнути",
+              "образити інтерв'юера"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Чесність плюс план навчання.",
+            "explanationEn": "Honesty plus a learning plan.",
+            "optionsEn": [
+              "say so honestly and show what you would start from",
+              "invent experience",
+              "go silent",
+              "insult the interviewer"
+            ]
+          },
+          {
+            "id": "en-d-biz-interview-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть.",
+            "promptEn": "Translate.",
+            "source": "Отже, ви питаєте, як би я обробляв повторні спроби?",
+            "accepted": [
+              "So you're asking how I would handle retries?",
+              "So you are asking how I would handle retries?",
+              "So you're asking how I would handle retries.",
+              "So you are asking how I would handle retries."
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-biz-interview-e",
+            "type": "explain",
+            "promptUk": "Як пояснити вибір технології? Що казати, якщо досвіду немає? Як говорити system design вголос?",
+            "promptEn": "How do you explain a technology choice? What do you say if you have no experience? How do you talk through system design?",
+            "keyIdeas": [
+              {
+                "labelUk": "trade-off",
+                "labelEn": "trade-off",
+                "anyOf": [
+                  "problem",
+                  "options",
+                  "trade-off",
+                  "Redis"
+                ]
+              },
+              {
+                "labelUk": "haven't used",
+                "labelEn": "haven't used",
+                "anyOf": [
+                  "haven't used",
+                  "production",
+                  "docs"
+                ]
+              },
+              {
+                "labelUk": "bottleneck",
+                "labelEn": "bottleneck",
+                "anyOf": [
+                  "bottleneck",
+                  "assume",
+                  "shard",
+                  "think out loud"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Вибір пояснюють через проблему, варіанти, trade-off і результат. Якщо досвіду немає, це кажуть чесно і показують план. System design вголос починається з вимог, простого варіанта і вузького місця, і треба think out loud.",
+            "sampleAnswerEn": "You explain a choice through the problem, the options, the trade-off and the result. If you have no experience, you say so honestly and show a plan. System design out loud starts with the requirements, a simple option and a bottleneck, and you have to think out loud."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-biz-agile",
+        "titleUk": "Мова agile-церемоній",
+        "titleEn": "The language of agile ceremonies",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-biz-agile-c",
+            "type": "concept",
+            "promptUk": "Yesterday, today, a blocker — і ретро без звинувачень",
+            "promptEn": "Yesterday, today, a blocker — and a retro without blame",
+            "bodyUk": "Stand-up: Yesterday I finished the invoice export. Today I'll review the PR and start filters. I have a blocker: I'm waiting on access to staging. Не звіт за тиждень і не демо коду. Якщо блокера немає — I have no blockers. Parking lot — тему відкласти після стендапу.\n\nПланування: estimate, story points, capacity, spike (дослідження з лімітом часу), definition of ready / of done. I would size this as a five; the unknown is the vendor API — maybe a spike first. Ретроспектива: What went well? What should we change? I liked that we…; Next time I would…; Let's try a WIP limit of two. Без імен у негативі: The hand-off was late, не Inna ruined it.\n\nТипові помилки: стендап як нарада на 40 хвилин; ретро як суд; «блокера немає» коли вже три дні чекаєте доступ. Цей урок розширює вже відомі stand-up фрази з tech-english до оцінки, spike і ретро.",
+            "bodyEn": "A stand-up: Yesterday I finished the invoice export. Today I'll review the PR and start filters. I have a blocker: I'm waiting on access to staging. It is not a weekly report and not a demo of the code. If there is no blocker — I have no blockers. A parking lot is a topic to leave until after the stand-up.\n\nPlanning: estimate, story points, capacity, a spike (research with a time limit), a definition of ready / of done. I would size this as a five; the unknown is the vendor API — maybe a spike first. A retrospective: What went well? What should we change? I liked that we…; Next time I would…; Let's try a WIP limit of two. No names in the negative: The hand-off was late, not Inna ruined it.\n\nTypical mistakes: a stand-up as a 40-minute meeting; a retro as a trial; “no blockers” when you have already been waiting three days for access. This lesson extends the stand-up phrases you already know from tech-english into estimates, spikes and the retro.",
+            "keyPointsUk": [
+              "Yesterday / Today / Blocker — коротко",
+              "estimate, spike, definition of done, capacity",
+              "Ретро: what went well / change; без імен у негативі",
+              "Parking lot — не зараз, після стендапу"
+            ],
+            "keyPointsEn": [
+              "Yesterday / Today / Blocker — briefly",
+              "estimate, spike, definition of done, capacity",
+              "A retro: what went well / change; no names in the negative",
+              "A parking lot is not now, it is after the stand-up"
+            ]
+          },
+          {
+            "id": "en-d-biz-agile-r1",
+            "type": "mcq",
+            "promptUk": "Оберіть правильний стендап-звіт.",
+            "promptEn": "Choose a correct stand-up update.",
+            "options": [
+              "Yesterday I finished the export. Today I'll start filters. Blocker: waiting on staging access.",
+              "Let me demo thirty minutes of code.",
+              "Inna ruined it.",
+              "No blockers. (коли три дні немає доступу, і ви мовчите про це)"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Вчора, сьогодні, блокер — по одному реченню.",
+            "explanationEn": "Yesterday, today, a blocker — one sentence each."
+          },
+          {
+            "id": "en-d-biz-agile-r2",
+            "type": "fill_blank",
+            "promptUk": "Коротке дослідження з лімітом часу називається ___. Напишіть spike.",
+            "promptEn": "Type spike.",
+            "sentence": "Maybe a ___ first, before we estimate.",
+            "accepted": [
+              "spike",
+              "Spike"
+            ]
+          },
+          {
+            "id": "en-d-biz-agile-r3",
+            "type": "mcq",
+            "promptUk": "У ретро краще:",
+            "promptEn": "In a retro it is better to say:",
+            "options": [
+              "The hand-off was late. Next time I would add a checklist.",
+              "Inna ruined it.",
+              "Нічого не казати про проблеми.",
+              "Перетворити ретро на оцінку story points."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Факт і дія, без персонального звинувачення.",
+            "explanationEn": "A fact and an action, with no personal blame."
+          },
+          {
+            "id": "en-d-biz-agile-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть.",
+            "promptEn": "Translate.",
+            "source": "У мене блокер: чекаю доступ до staging.",
+            "accepted": [
+              "I have a blocker: I'm waiting on access to staging",
+              "I have a blocker: I'm waiting on access to staging.",
+              "I have a blocker: I am waiting on access to staging",
+              "I have a blocker: I am waiting for access to staging",
+              "I have a blocker: I'm waiting for access to staging"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-biz-agile-e",
+            "type": "explain",
+            "promptUk": "Що кажуть на стендапі? Що таке spike? Як говорити на ретро без звинувачень?",
+            "promptEn": "What do you say at a stand-up? What is a spike? How do you speak at a retro without blame?",
+            "keyIdeas": [
+              {
+                "labelUk": "stand-up",
+                "labelEn": "stand-up",
+                "anyOf": [
+                  "Yesterday",
+                  "Today",
+                  "blocker"
+                ]
+              },
+              {
+                "labelUk": "spike",
+                "labelEn": "spike",
+                "anyOf": [
+                  "spike",
+                  "estimate",
+                  "definition of done"
+                ]
+              },
+              {
+                "labelUk": "retro",
+                "labelEn": "retro",
+                "anyOf": [
+                  "went well",
+                  "hand-off",
+                  "Inna",
+                  "checklist"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "На стендапі кажуть, що було вчора, що сьогодні і чи є блокер. Spike — коротке дослідження з лімітом часу, перш ніж оцінювати. На ретро говорять про факти й наступні дії, наприклад The hand-off was late, без персональних звинувачень.",
+            "sampleAnswerEn": "At a stand-up you say what happened yesterday, what is happening today and whether there is a blocker. A spike is short research with a time limit, before you estimate. At a retro you talk about facts and next actions, for example The hand-off was late, without personal blame."
+          }
+        ]
+      },
+      {
+        "slug": "en-deep-business-it-exam",
+        "titleUk": "Контрольна: ділова та IT-англійська",
+        "titleEn": "Exam: business and IT English",
+        "baseXp": 30,
+        "difficulty": 3,
+        "isExam": true,
+        "passThreshold": 0.7,
+        "exercises": [
+          {
+            "id": "en-deep-business-it-exam-q1",
+            "type": "mcq",
+            "promptUk": "Trade-off обсягу:",
+            "promptEn": "A scope trade-off:",
+            "options": [
+              "If we add X, we'll need to drop Y or move the date.",
+              "Yes to everything.",
+              "No, with no option, always.",
+              "Best effort as a Friday contract."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "X, або Y, або дата.",
+            "explanationEn": "X, or Y, or the date."
+          },
+          {
+            "id": "en-deep-business-it-exam-q2",
+            "type": "mcq",
+            "promptUk": "Оновлення стейкхолдеру:",
+            "promptEn": "A stakeholder update:",
+            "options": [
+              "статус, ризик із планом, одне ask",
+              "лише лог комітів",
+              "red без причини",
+              "десять asks без дати"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Короткий статус і одне прохання.",
+            "explanationEn": "A short status and one request.",
+            "optionsEn": [
+              "a status, a risk with a plan, one ask",
+              "only a commit log",
+              "red with no reason",
+              "ten asks with no date"
+            ]
+          },
+          {
+            "id": "en-deep-business-it-exam-q3",
+            "type": "mcq",
+            "promptUk": "Під час інциденту краще:",
+            "promptEn": "During an incident it is better to:",
+            "options": [
+              "сказати, що відомо, що робите і коли наступне оновлення",
+              "пообіцяти resolved одразу без перевірки",
+              "мовчати",
+              "звинуватити вендора в першому публічному реченні без фактів"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Чесне коротке оновлення.",
+            "explanationEn": "An honest short update.",
+            "optionsEn": [
+              "say what is known, what you are doing and when the next update is",
+              "promise resolved at once with no check",
+              "stay silent",
+              "blame the vendor in the first public sentence with no facts"
+            ]
+          },
+          {
+            "id": "en-deep-business-it-exam-q4",
+            "type": "mcq",
+            "promptUk": "На стендапі:",
+            "promptEn": "At a stand-up:",
+            "options": [
+              "Yesterday, today, a blocker",
+              "Inna ruined it як стандартний формат",
+              "сорокахвилинне демо коду як норма",
+              "оцінка всіх епіків заново"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Коротко три пункти.",
+            "explanationEn": "Three short points."
+          },
+          {
+            "id": "en-deep-business-it-exam-q5",
+            "type": "fill_blank",
+            "promptUk": "We are on ___ to ship on 20 May.",
+            "promptEn": "We are on ___ to ship on 20 May.",
+            "sentence": "We are on ___ to ship on 20 May.",
+            "accepted": [
+              "track",
+              "Track"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "en-deep-exam-prep",
+    "titleUk": "Підготовка до іспитів",
+    "titleEn": "IELTS and FCE-style tasks",
+    "lessons": [
+      {
+        "slug": "en-d-ex-t1",
+        "titleUk": "IELTS Writing Task 1: графіки",
+        "titleEn": "IELTS Writing Task 1: graphs",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-ex-t1-c",
+            "type": "concept",
+            "promptUk": "Огляд, порівняння, дані — без думки",
+            "promptEn": "An overview, comparisons, data — no opinion",
+            "bodyUk": "Task 1 Academic — описати графік, таблицю чи процес приблизно за 20 хвилин, від 150 слів. Не пишіть свою думку (I think this is terrible). Структура: вступ — перефраз завдання (The chart illustrates…); overview — дві головні тенденції без дрібних чисел (Overall, sales rose sharply, while costs remained stable); два абзаци з даними і порівняннями.\n\nМова змін: rose / increased / climbed / grew; fell / declined / dropped; remained stable / fluctuated; a sharp rise, a gradual fall, peaked at, reached a low of, overtook, three times as high as. Відсотки і роки точні; не треба кожну точку. Процес: The first step is…, After that…, Finally…. Map: to the north of, was replaced by.\n\nТипові помилки: немає overview (це знижує бал Task Achievement); копія завдання; I, we, opinion; перелік усіх чисел без порівняння. The graph shows — можна раз, далі The figure for X was….",
+            "bodyEn": "Academic Task 1 is describing a graph, a table or a process in about twenty minutes, from 150 words. Do not write your opinion (I think this is terrible). The structure: an introduction — a paraphrase of the task (The chart illustrates…); an overview — two main trends with no small numbers (Overall, sales rose sharply, while costs remained stable); two paragraphs of data and comparisons.\n\nThe language of change: rose / increased / climbed / grew; fell / declined / dropped; remained stable / fluctuated; a sharp rise, a gradual fall, peaked at, reached a low of, overtook, three times as high as. Percentages and years are exact; you do not need every point. A process: The first step is…, After that…, Finally…. A map: to the north of, was replaced by.\n\nTypical mistakes: no overview (that lowers the Task Achievement score); copying the task; I, we, opinion; a list of every number with no comparison. The graph shows can appear once; then The figure for X was….",
+            "keyPointsUk": [
+              "150+ слів; вступ, overview, два абзаци даних",
+              "Без особистої думки; обов'язковий загальний огляд",
+              "rose, fell, remained stable, peaked at, three times as high as",
+              "Порівнюйте, не перелічуйте кожну точку"
+            ],
+            "keyPointsEn": [
+              "150+ words; introduction, overview, two data paragraphs",
+              "No personal opinion; a general overview is required",
+              "rose, fell, remained stable, peaked at, three times as high as",
+              "Compare, do not list every point"
+            ]
+          },
+          {
+            "id": "en-d-ex-t1-r1",
+            "type": "mcq",
+            "promptUk": "У Task 1 Academic треба:",
+            "promptEn": "In Academic Task 1 you should:",
+            "options": [
+              "дати overview головних тенденцій і порівняти дані, без особистої думки",
+              "написати I think this is terrible",
+              "скопіювати завдання дослівно",
+              "пропустити overview"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Overview обов'язковий; думка — ні.",
+            "explanationEn": "An overview is required; an opinion is not.",
+            "optionsEn": [
+              "give an overview of the main trends and compare the data, with no personal opinion",
+              "write I think this is terrible",
+              "copy the task word for word",
+              "skip the overview"
+            ]
+          },
+          {
+            "id": "en-d-ex-t1-r2",
+            "type": "fill_blank",
+            "promptUk": "Мінімум слів Task 1. Напишіть 150.",
+            "promptEn": "Type 150.",
+            "sentence": "Write at least ___ words.",
+            "accepted": [
+              "150"
+            ]
+          },
+          {
+            "id": "en-d-ex-t1-r3",
+            "type": "mcq",
+            "promptUk": "Sales rose sharply означає:",
+            "promptEn": "Sales rose sharply means:",
+            "options": [
+              "продажі різко зросли",
+              "продажі залишилися стабільними",
+              "продажі впали",
+              "це особиста думка автора есе"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "a sharp rise — різке зростання.",
+            "explanationEn": "a sharp rise is a steep increase.",
+            "optionsEn": [
+              "sales increased steeply",
+              "sales remained stable",
+              "sales fell",
+              "this is the essay writer's personal opinion"
+            ]
+          },
+          {
+            "id": "en-d-ex-t1-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть overview.",
+            "promptEn": "Translate the overview.",
+            "source": "Загалом продажі різко зросли, тоді як витрати залишилися стабільними.",
+            "accepted": [
+              "Overall, sales rose sharply, while costs remained stable",
+              "Overall, sales rose sharply, while costs remained stable.",
+              "Overall sales rose sharply, while costs remained stable",
+              "Overall, sales increased sharply, while costs remained stable"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-ex-t1-e",
+            "type": "explain",
+            "promptUk": "Яка структура IELTS Task 1? Чому потрібен overview? Якої мови уникати?",
+            "promptEn": "What is the structure of IELTS Task 1? Why do you need an overview? Which language should you avoid?",
+            "keyIdeas": [
+              {
+                "labelUk": "structure",
+                "labelEn": "structure",
+                "anyOf": [
+                  "overview",
+                  "150",
+                  "paraphrase",
+                  "compare",
+                  "вступ",
+                  "огляду"
+                ]
+              },
+              {
+                "labelUk": "trends",
+                "labelEn": "trends",
+                "anyOf": [
+                  "rose",
+                  "fell",
+                  "peaked",
+                  "stable",
+                  "тенденц",
+                  "даних",
+                  "порівнян"
+                ]
+              },
+              {
+                "labelUk": "no opinion",
+                "labelEn": "no opinion",
+                "anyOf": [
+                  "opinion",
+                  "I think",
+                  "copy",
+                  "думк",
+                  "копі",
+                  "особист"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Task 1 має вступ-перефраз, обов'язковий overview головних тенденцій і два абзаци з порівнянням даних, щонайменше 150 слів. Без огляду знижується бал. Особистої думки і копії завдання треба уникати.",
+            "sampleAnswerEn": "Task 1 has a paraphrased introduction, a required overview of the main trends and two paragraphs comparing data, at least 150 words. Without an overview the score falls. You should avoid personal opinion and copying the task."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-ex-t2",
+        "titleUk": "IELTS Writing Task 2: стратегія",
+        "titleEn": "IELTS Writing Task 2: strategy",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-ex-t2-c",
+            "type": "concept",
+            "promptUk": "40 хвилин, 250 слів, теза, абзаци PEEL, перевірка",
+            "promptEn": "40 minutes, 250 words, a thesis, PEEL paragraphs, a check",
+            "bodyUk": "Task 2 важить більше за Task 1. Час: близько 40 хвилин, з них 5 на план і 3–5 на перевірку. Прочитайте питання двічі і визначте тип: opinion, discussion, problem–solution, two-part (дві прямі відповіді). План на папері: теза, дві ідеї з прикладами. Пишіть простою точною мовою; одна-дві доречні ідіоми максимум (урок про реєстр ідіом).\n\nКритерії: Task Response (відповідь на всі частини), Coherence (абзаци і зв'язки), Lexical Resource, Grammatical Range and Accuracy. Підвищують бал: чітка теза, конкретний приклад, поступка, різноманітність речень. Знижують: memorised introductions, недолік слів, пропуск частини питання, off-topic.\n\nТипові помилки: почати писати без плану і вийти за час; підмінити discussion на чисту opinion; не перевірити артиклі та узгодження. У перевірці шукайте три речі: чи відповідь на питання повна, чи є помилки в перших реченнях абзаців, чи вистачає слів.",
+            "bodyEn": "Task 2 weighs more than Task 1. Time: about 40 minutes, including five for a plan and three to five for a check. Read the question twice and identify the type: opinion, discussion, problem–solution, two-part (two direct answers). A paper plan: a thesis, two ideas with examples. Write in simple exact language; one or two fitting idioms at most (the lesson on idiom register).\n\nThe criteria: Task Response (answering every part), Coherence (paragraphs and links), Lexical Resource, Grammatical Range and Accuracy. What raises the score: a clear thesis, a concrete example, a concession, sentence variety. What lowers it: memorised introductions, too few words, skipping part of the question, going off-topic.\n\nTypical mistakes: starting to write with no plan and running out of time; replacing a discussion with a pure opinion; not checking articles and agreement. In the check, look for three things: is the answer complete, are there errors in the first sentences of paragraphs, is there enough word count.",
+            "keyPointsUk": [
+              "≈40 хвилин: план, текст, перевірка; 250+ слів",
+              "Спочатку визначте тип питання",
+              "Критерії: Task Response, Coherence, лексика, граматика",
+              "Не memorised openings і не пропуск частини питання"
+            ],
+            "keyPointsEn": [
+              "About 40 minutes: a plan, the text, a check; 250+ words",
+              "Identify the question type first",
+              "Criteria: Task Response, Coherence, lexis, grammar",
+              "No memorised openings and no skipping part of the question"
+            ]
+          },
+          {
+            "id": "en-d-ex-t2-r1",
+            "type": "mcq",
+            "promptUk": "Перший крок у Task 2:",
+            "promptEn": "The first step in Task 2:",
+            "options": [
+              "прочитати питання двічі і визначити тип, потім план",
+              "одразу писати memorised introduction",
+              "написати Task 1 на 40 хвилин замість цього",
+              "вставити п'ять ідіом у перше речення"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Тип питання визначає структуру.",
+            "explanationEn": "The question type decides the structure.",
+            "optionsEn": [
+              "read the question twice and identify the type, then plan",
+              "write a memorised introduction at once",
+              "write Task 1 for 40 minutes instead",
+              "insert five idioms in the first sentence"
+            ]
+          },
+          {
+            "id": "en-d-ex-t2-r2",
+            "type": "fill_blank",
+            "promptUk": "Мінімум слів Task 2. Напишіть 250.",
+            "promptEn": "Type 250.",
+            "sentence": "Task 2: at least ___ words.",
+            "accepted": [
+              "250"
+            ]
+          },
+          {
+            "id": "en-d-ex-t2-r3",
+            "type": "mcq",
+            "promptUk": "Що знижує бал Task Response?",
+            "promptEn": "What lowers the Task Response score?",
+            "options": [
+              "пропуск частини питання або відхід від теми",
+              "чітка теза і приклад",
+              "поступка While X is true",
+              "перевірка артиклів"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Треба відповісти на всі частини.",
+            "explanationEn": "You must answer every part.",
+            "optionsEn": [
+              "skipping part of the question or going off-topic",
+              "a clear thesis and an example",
+              "a concession While X is true",
+              "checking articles"
+            ]
+          },
+          {
+            "id": "en-d-ex-t2-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть.",
+            "promptEn": "Translate.",
+            "source": "Спочатку визначте тип питання і складіть план.",
+            "accepted": [
+              "First identify the question type and make a plan",
+              "First identify the question type and make a plan.",
+              "First, identify the question type and make a plan",
+              "First, identify the type of question and make a plan"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-ex-t2-e",
+            "type": "explain",
+            "promptUk": "Як розподілити 40 хвилин? Які типи питань і критерії? Що знижує бал?",
+            "promptEn": "How do you divide 40 minutes? What are the question types and the criteria? What lowers the score?",
+            "keyIdeas": [
+              {
+                "labelUk": "time",
+                "labelEn": "time",
+                "anyOf": [
+                  "40",
+                  "plan",
+                  "250",
+                  "check"
+                ]
+              },
+              {
+                "labelUk": "types",
+                "labelEn": "types",
+                "anyOf": [
+                  "opinion",
+                  "discussion",
+                  "problem",
+                  "two-part"
+                ]
+              },
+              {
+                "labelUk": "criteria",
+                "labelEn": "criteria",
+                "anyOf": [
+                  "Task Response",
+                  "Coherence",
+                  "memorised",
+                  "off-topic"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Близько 40 хвилин ділять на план, написання і перевірку, щонайменше 250 слів. Спочатку визначають тип: opinion, discussion, problem–solution або two-part. Бал знижують memorised openings, пропуск частини питання і відхід від теми.",
+            "sampleAnswerEn": "About 40 minutes are divided into a plan, writing and a check, at least 250 words. First you identify the type: opinion, discussion, problem–solution or two-part. Memorised openings, skipping part of the question and going off-topic lower the score."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-ex-speaking",
+        "titleUk": "IELTS Speaking: частини 1–3",
+        "titleEn": "IELTS Speaking: parts 1–3",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-ex-speaking-c",
+            "type": "concept",
+            "promptUk": "Короткі відповіді, довгий монолог, обговорення ідей",
+            "promptEn": "Short answers, a long turn, a discussion of ideas",
+            "bodyUk": "Part 1 (4–5 хв) — знайомі теми: дім, робота, звички. Відповідь: 2–4 речення, не так / ні. Part 2 (3–4 хв) — картка, 1 хвилина на нотатки, 1–2 хвилини мовлення; рамка історії зі Speaking unit. Part 3 (4–5 хв) — абстрактніші питання: причини, порівняння, майбутнє. Тут працюють It depends, припущення might, порівняння In the past… nowadays.\n\nСтратегія: розширювати відповідь причиною або коротким прикладом; якщо не зрозуміли — Sorry, could you repeat that? / Do you mean…? Це не знижує бал. Fluency важливіша за складне слово з довгою паузою. Не вчіть відповіді напам'ять цілими абзацами — examiner чує зубріння.\n\nТипові помилки: однослівні відповіді в Part 1; 20 секунд у Part 2; у Part 3 відповіді як у Part 1, без ідеї. Посмішка і темп допомагають fluency; якщо помилилися — коротко виправте і рухайтеся далі.",
+            "bodyEn": "Part 1 (4–5 min) is familiar topics: home, work, habits. The answer is two to four sentences, not yes / no. Part 2 (3–4 min) is a cue card, one minute for notes, one to two minutes of speech; the story frame from the Speaking unit. Part 3 (4–5 min) is more abstract: reasons, comparisons, the future. This is where It depends, might-speculation and In the past… nowadays work.\n\nA strategy: extend the answer with a reason or a short example; if you did not understand — Sorry, could you repeat that? / Do you mean…? That does not lower the score. Fluency matters more than a difficult word after a long pause. Do not memorise answers as whole paragraphs — the examiner can hear cramming.\n\nTypical mistakes: one-word answers in Part 1; twenty seconds in Part 2; in Part 3, answers as in Part 1, with no idea. A smile and a steady pace help fluency; if you make a mistake — correct it briefly and move on.",
+            "keyPointsUk": [
+              "Part 1: 2–4 речення, не так/ні",
+              "Part 2: 1 хв нотатки, 1–2 хв монолог (STAR)",
+              "Part 3: It depends, порівняння, припущення",
+              "Можна перепитати; не зубрити абзаци"
+            ],
+            "keyPointsEn": [
+              "Part 1: two to four sentences, not yes/no",
+              "Part 2: one minute of notes, one to two minutes of monologue (STAR)",
+              "Part 3: It depends, comparisons, speculation",
+              "You may ask again; do not cram paragraphs"
+            ]
+          },
+          {
+            "id": "en-d-ex-speaking-r1",
+            "type": "mcq",
+            "promptUk": "У Part 1 краще:",
+            "promptEn": "In Part 1 it is better to:",
+            "options": [
+              "дати 2–4 речення з причиною або прикладом",
+              "сказати тільки yes",
+              "говорити вісім хвилин",
+              "відмовитись відповідати"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Коротка, але розгорнута відповідь.",
+            "explanationEn": "A short but extended answer.",
+            "optionsEn": [
+              "give two to four sentences with a reason or an example",
+              "say only yes",
+              "speak for eight minutes",
+              "refuse to answer"
+            ]
+          },
+          {
+            "id": "en-d-ex-speaking-r2",
+            "type": "fill_blank",
+            "promptUk": "У Part 2 на нотатки дають ___ хвилину. Напишіть one або 1.",
+            "promptEn": "Type one.",
+            "sentence": "You have ___ minute to make notes.",
+            "accepted": [
+              "one",
+              "One",
+              "1",
+              "a"
+            ]
+          },
+          {
+            "id": "en-d-ex-speaking-r3",
+            "type": "mcq",
+            "promptUk": "Якщо не зрозуміли питання:",
+            "promptEn": "If you did not understand the question:",
+            "options": [
+              "можна сказати Could you repeat that? — бал за це не знімають",
+              "треба мовчати",
+              "треба відповісти навмання одним словом",
+              "іспит одразу закінчується"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Перепитати дозволено і розумно.",
+            "explanationEn": "Asking again is allowed and wise.",
+            "optionsEn": [
+              "you can say Could you repeat that? — they do not mark you down for that",
+              "you must stay silent",
+              "you must answer at random with one word",
+              "the exam ends at once"
+            ]
+          },
+          {
+            "id": "en-d-ex-speaking-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть.",
+            "promptEn": "Translate.",
+            "source": "Перепрошую, не могли б ви повторити?",
+            "accepted": [
+              "Sorry, could you repeat that?",
+              "Sorry, could you repeat that?",
+              "I'm sorry, could you repeat that?",
+              "Excuse me, could you repeat that?",
+              "Could you repeat that, please?"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-ex-speaking-e",
+            "type": "explain",
+            "promptUk": "Чим відрізняються частини 1, 2 і 3? Що робити в Part 2 з часом? Чи можна перепитати?",
+            "promptEn": "How do parts 1, 2 and 3 differ? What do you do with time in Part 2? May you ask the examiner to repeat?",
+            "keyIdeas": [
+              {
+                "labelUk": "part 1",
+                "labelEn": "part 1",
+                "anyOf": [
+                  "Part 1",
+                  "two",
+                  "four",
+                  "yes"
+                ]
+              },
+              {
+                "labelUk": "part 2",
+                "labelEn": "part 2",
+                "anyOf": [
+                  "Part 2",
+                  "minute",
+                  "notes",
+                  "STAR"
+                ]
+              },
+              {
+                "labelUk": "part 3 / repeat",
+                "labelEn": "part 3 / repeat",
+                "anyOf": [
+                  "Part 3",
+                  "depends",
+                  "repeat",
+                  "перепита"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Part 1 потребує коротких розгорнутих відповідей, Part 2 — хвилину нотаток і монолог на 1–2 хвилини, Part 3 — ідеї, порівняння і It depends. Перепитати Could you repeat that можна, і за це бал не знижують.",
+            "sampleAnswerEn": "Part 1 needs short extended answers, Part 2 needs a minute of notes and a one-to-two-minute monologue, and Part 3 needs ideas, comparisons and It depends. You may ask Could you repeat that, and they do not lower the score for that."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-ex-kwt",
+        "titleUk": "FCE: Key Word Transformation",
+        "titleEn": "FCE: Key Word Transformation",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-ex-kwt-c",
+            "type": "concept",
+            "promptUk": "2–5 слів, ключове слово без змін, той самий зміст",
+            "promptEn": "2–5 words, the key word unchanged, the same meaning",
+            "bodyUk": "У B2 First (FCE) Use of English 4 ви маєте завершити друге речення так, щоб зміст був як у першому, використавши дане ключове слово і від 2 до 5 слів, саме слово не змінюючи. Приклад: I last saw her in 2019. SEEN → I have not SEEN her since 2019. Тут працюють граматичні сім'ї цього курсу: reported speech, passives, conditionals, wish, comparatives, phrasals, too/enough, so/such, have/get something done.\n\nСтратегія: визначте, яку конструкцію хочуть (наприклад, since + Present Perfect); порахуйте слова (скорочення I'm = два слова в цій вправі часто рахують як два: I + 'm — перевірте поточну інструкцію екзамену; historically contractions count as two). Не змінюйте KEY.\n\nТипові помилки: шість слів; змінений ключ (SEENіng); змінений зміст (never замість since); орфографія. Тренуйте пари: despite / although; not as … as; would rather; there is no point in + -ing.",
+            "bodyEn": "In B2 First (FCE) Use of English 4 you complete the second sentence so that the meaning is like the first, using the given key word and between two and five words, without changing the word itself. Example: I last saw her in 2019. SEEN → I have not SEEN her since 2019. The grammar families from this course work here: reported speech, passives, conditionals, wish, comparatives, phrasals, too/enough, so/such, have/get something done.\n\nA strategy: identify the structure they want (for example, since + Present Perfect); count the words (a contraction such as I'm is often two words in this task — I + 'm — check the current exam instructions; historically contractions count as two). Do not change the KEY.\n\nTypical mistakes: six words; a changed key (SEENing); a changed meaning (never instead of since); spelling. Practise pairs: despite / although; not as … as; would rather; there is no point in + -ing.",
+            "keyPointsUk": [
+              "2–5 слів; ключове слово без змін",
+              "Той самий зміст, інша конструкція",
+              "Приклад: have not SEEN her since 2019",
+              "Рахуйте слова і перевіряйте орфографію"
+            ],
+            "keyPointsEn": [
+              "2–5 words; the key word is unchanged",
+              "The same meaning, a different structure",
+              "Example: have not SEEN her since 2019",
+              "Count the words and check the spelling"
+            ]
+          },
+          {
+            "id": "en-d-ex-kwt-r1",
+            "type": "mcq",
+            "promptUk": "I last saw her in 2019. KEY: SEEN. Правильно:",
+            "promptEn": "I last saw her in 2019. KEY: SEEN. The correct option:",
+            "options": [
+              "I have not SEEN her since 2019.",
+              "I have not SEENing her since 2019.",
+              "I never SEEN her in 2019, as a full equivalent.",
+              "I have not SEEN her since 2019 and I also forgot her address, as a six-plus-word answer required by the task."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Present Perfect + since; ключ SEEN не змінено.",
+            "explanationEn": "Present Perfect + since; the key SEEN is unchanged."
+          },
+          {
+            "id": "en-d-ex-kwt-r2",
+            "type": "fill_blank",
+            "promptUk": "Максимум слів у трансформації. Напишіть 5.",
+            "promptEn": "Type 5.",
+            "sentence": "Use between 2 and ___ words.",
+            "accepted": [
+              "5",
+              "five",
+              "Five"
+            ]
+          },
+          {
+            "id": "en-d-ex-kwt-r3",
+            "type": "mcq",
+            "promptUk": "Ключове слово треба:",
+            "promptEn": "The key word must be:",
+            "options": [
+              "використати без зміни форми, яку дали",
+              "вільно змінити на іншу частину мови завжди",
+              "пропустити",
+              "повторити шість разів"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "KEY без змін.",
+            "explanationEn": "The KEY is unchanged.",
+            "optionsEn": [
+              "used in the form they gave, without change",
+              "freely changed into another part of speech, always",
+              "left out",
+              "repeated six times"
+            ]
+          },
+          {
+            "id": "en-d-ex-kwt-r4",
+            "type": "translate",
+            "promptUk": "Перекладіть готове друге речення.",
+            "promptEn": "Translate the completed second sentence.",
+            "source": "Я не бачила її з 2019 року.",
+            "accepted": [
+              "I have not seen her since 2019",
+              "I have not seen her since 2019.",
+              "I haven't seen her since 2019",
+              "I haven't seen her since 2019.",
+              "I have not SEEN her since 2019"
+            ],
+            "direction": "uk_en"
+          },
+          {
+            "id": "en-d-ex-kwt-e",
+            "type": "explain",
+            "promptUk": "Які правила Key Word Transformation? Наведіть приклад із SEEN. Які типові помилки?",
+            "promptEn": "What are the rules of Key Word Transformation? Give the SEEN example. What are the typical mistakes?",
+            "keyIdeas": [
+              {
+                "labelUk": "2-5",
+                "labelEn": "2-5",
+                "anyOf": [
+                  "2",
+                  "5",
+                  "key",
+                  "unchanged"
+                ]
+              },
+              {
+                "labelUk": "SEEN",
+                "labelEn": "SEEN",
+                "anyOf": [
+                  "SEEN",
+                  "since",
+                  "2019",
+                  "Perfect"
+                ]
+              },
+              {
+                "labelUk": "mistakes",
+                "labelEn": "mistakes",
+                "anyOf": [
+                  "six",
+                  "meaning",
+                  "spelling",
+                  "SEENing"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "Треба вжити від двох до п'яти слів і ключове слово без змін, зберігши зміст. Приклад: I have not SEEN her since 2019. Типові помилки — шість слів, змінений ключ і зламаний зміст.",
+            "sampleAnswerEn": "You must use between two and five words and the key word without change, keeping the meaning. An example is I have not SEEN her since 2019. Typical mistakes are six words, a changed key and a broken meaning."
+          }
+        ]
+      },
+      {
+        "slug": "en-d-ex-cloze",
+        "titleUk": "Open cloze і словотвір на іспиті",
+        "titleEn": "Open cloze and word formation in the exam",
+        "baseXp": 21,
+        "difficulty": 3,
+        "exercises": [
+          {
+            "id": "en-d-ex-cloze-c",
+            "type": "concept",
+            "promptUk": "Граматика в пропуску; сім'я слова в контексті",
+            "promptEn": "Grammar in the gap; the word family in context",
+            "bodyUk": "Open cloze (FCE Use of English 2) — короткий текст із пропусками, в кожен треба ОДНЕ слово: артиклі, прийменники, допоміжні дієслова, займенники, сполучники, такі як although, despite (потім іменник), since, whether, whom. Читайте ціле речення: This is the book ___ I was telling you about → which / that / Ø, але в open cloze зазвичай потрібне слово: which. Підказка — що стоїть перед і після пропуску.\n\nWord formation (Use of English 3): дають GREAT, треба, наприклад, GREATLY або GREATNESS — дивіться частину мови в реченні. Пригадайте префікси un-/in-/im- і суфікси з одиниці словотвору. Орфографія критична: definitely, successful, responsible → responsibility.\n\nТипові помилки: два слова в open cloze; неправильна частина мови; *unpossible; не прочитати заперечення в реченні (префікс уже потрібен). Після заповнення прочитайте абзац уголос подумки — чи звучить природно.",
+            "bodyEn": "Open cloze (FCE Use of English 2) is a short text with gaps, and each gap needs ONE word: articles, prepositions, auxiliary verbs, pronouns, conjunctions, such as although, despite (then a noun), since, whether, whom. Read the whole sentence: This is the book ___ I was telling you about → which / that / Ø, but in open cloze a word is usually required: which. The clue is what stands before and after the gap.\n\nWord formation (Use of English 3): they give GREAT, and you may need GREATLY or GREATNESS — look at the part of speech in the sentence. Remember the prefixes un-/in-/im- and the suffixes from the word-formation unit. Spelling is critical: definitely, successful, responsible → responsibility.\n\nTypical mistakes: two words in an open cloze; the wrong part of speech; *unpossible; not reading a negation in the sentence (a prefix is already needed). After filling the gaps, read the paragraph in your head — does it sound natural?",
+            "keyPointsUk": [
+              "Open cloze — одне граматичне слово на пропуск",
+              "Дивіться слова ліворуч і праворуч",
+              "Word formation — частина мови і орфографія сім'ї",
+              "Не два слова і не *unpossible"
+            ],
+            "keyPointsEn": [
+              "Open cloze is one grammar word per gap",
+              "Look at the words to the left and to the right",
+              "Word formation is the part of speech and the family's spelling",
+              "Not two words and not *unpossible"
+            ]
+          },
+          {
+            "id": "en-d-ex-cloze-r1",
+            "type": "mcq",
+            "promptUk": "В open cloze в кожен пропуск ставлять:",
+            "promptEn": "In an open cloze each gap takes:",
+            "options": [
+              "одне слово, часто службове",
+              "цілу фразу з п'яти слів завжди",
+              "будь-який іменник навмання",
+              "ідіому kick the bucket як норму"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Одне слово: артикль, прийменник, auxiliary тощо.",
+            "explanationEn": "One word: an article, a preposition, an auxiliary and so on.",
+            "optionsEn": [
+              "one word, often a function word",
+              "a whole five-word phrase, always",
+              "any noun at random",
+              "the idiom kick the bucket as a norm"
+            ]
+          },
+          {
+            "id": "en-d-ex-cloze-r2",
+            "type": "fill_blank",
+            "promptUk": "responsible → іменник. Напишіть responsibility.",
+            "promptEn": "Type responsibility.",
+            "sentence": "It is your ___.",
+            "accepted": [
+              "responsibility",
+              "Responsibility"
+            ]
+          },
+          {
+            "id": "en-d-ex-cloze-r3",
+            "type": "mcq",
+            "promptUk": "Антонім possible з префіксом:",
+            "promptEn": "The antonym of possible with a prefix:",
+            "options": [
+              "impossible",
+              "unpossible",
+              "inpossible",
+              "dispossible"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "impossible — з уроку словотвору.",
+            "explanationEn": "impossible — from the word-formation lesson."
+          },
+          {
+            "id": "en-d-ex-cloze-r4",
+            "type": "match",
+            "promptUk": "Зіставте завдання з тим, що воно перевіряє.",
+            "promptEn": "Match each task with what it tests.",
+            "pairs": [
+              {
+                "left": "open cloze",
+                "right": "одне граматичне слово / one grammar word"
+              },
+              {
+                "left": "word formation",
+                "right": "сім'я слова і частина мови / a word family"
+              },
+              {
+                "left": "key-word transformation",
+                "right": "2–5 слів і ключ / 2–5 words and a key"
+              },
+              {
+                "left": "Task 1 graph",
+                "right": "огляд тенденцій / an overview of trends"
+              }
+            ]
+          },
+          {
+            "id": "en-d-ex-cloze-e",
+            "type": "explain",
+            "promptUk": "Чим open cloze відрізняється від word formation? Скільки слів у пропуску? На що дивитися в реченні?",
+            "promptEn": "How is open cloze different from word formation? How many words go in a gap? What do you look at in the sentence?",
+            "keyIdeas": [
+              {
+                "labelUk": "one word",
+                "labelEn": "one word",
+                "anyOf": [
+                  "one",
+                  "preposition",
+                  "article",
+                  "cloze"
+                ]
+              },
+              {
+                "labelUk": "word family",
+                "labelEn": "word family",
+                "anyOf": [
+                  "GREATLY",
+                  "responsibility",
+                  "part of speech"
+                ]
+              },
+              {
+                "labelUk": "context",
+                "labelEn": "context",
+                "anyOf": [
+                  "left",
+                  "right",
+                  "negation",
+                  "unpossible"
+                ]
+              }
+            ],
+            "minWords": 12,
+            "passRatio": 0.6,
+            "sampleAnswerUk": "В open cloze в пропуск іде одне службове або граматичне слово, а у word formation треба утворити правильну частину мови від даного кореня. Дивляться на слова зліва і справа і на заперечення в реченні, і уникають двох слів та форм на кшталт unpossible.",
+            "sampleAnswerEn": "In an open cloze the gap takes one function or grammar word, and in word formation you must build the right part of speech from a given root. You look at the words on the left and the right and at negation in the sentence, and you avoid two words and forms such as unpossible."
+          }
+        ]
+      },
+      {
+        "slug": "en-deep-exam-prep-exam",
+        "titleUk": "Контрольна: підготовка до іспитів",
+        "titleEn": "Exam: exam-prep tasks",
+        "baseXp": 30,
+        "difficulty": 3,
+        "isExam": true,
+        "passThreshold": 0.7,
+        "exercises": [
+          {
+            "id": "en-deep-exam-prep-exam-q1",
+            "type": "mcq",
+            "promptUk": "У IELTS Task 1 Academic треба:",
+            "promptEn": "In IELTS Academic Task 1 you should:",
+            "options": [
+              "overview тенденцій і порівняння даних, без особистої думки",
+              "написати I think this is terrible",
+              "пропустити overview",
+              "написати 250 слів думки замість опису графіка"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Огляд і дані, не думка.",
+            "explanationEn": "An overview and data, not an opinion.",
+            "optionsEn": [
+              "an overview of trends and a comparison of data, with no personal opinion",
+              "write I think this is terrible",
+              "skip the overview",
+              "write 250 words of opinion instead of describing the graph"
+            ]
+          },
+          {
+            "id": "en-deep-exam-prep-exam-q2",
+            "type": "mcq",
+            "promptUk": "Task 2: мінімум слів і перший крок:",
+            "promptEn": "Task 2: the minimum words and the first step:",
+            "options": [
+              "250 слів; спочатку тип питання і план",
+              "150 слів; одразу memorised opening",
+              "50 слів; без плану",
+              "1000 слів; лише ідіоми"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "250 і план за типом.",
+            "explanationEn": "250 and a plan by type.",
+            "optionsEn": [
+              "250 words; first the question type and a plan",
+              "150 words; a memorised opening at once",
+              "50 words; no plan",
+              "1000 words; only idioms"
+            ]
+          },
+          {
+            "id": "en-deep-exam-prep-exam-q3",
+            "type": "mcq",
+            "promptUk": "У Speaking Part 2:",
+            "promptEn": "In Speaking Part 2:",
+            "options": [
+              "хвилина нотаток і 1–2 хвилини монологу",
+              "відповідь yes",
+              "не можна перепитати ніколи, навіть якщо не почули",
+              "вісім хвилин без структури"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Нотатки, потім довгий хід.",
+            "explanationEn": "Notes, then a long turn.",
+            "optionsEn": [
+              "a minute of notes and one to two minutes of monologue",
+              "the answer yes",
+              "you may never ask for a repeat, even if you did not hear",
+              "eight minutes with no structure"
+            ]
+          },
+          {
+            "id": "en-deep-exam-prep-exam-q4",
+            "type": "mcq",
+            "promptUk": "Key Word Transformation:",
+            "promptEn": "Key Word Transformation:",
+            "options": [
+              "2–5 слів, ключ без змін, той самий зміст",
+              "шість і більше слів як норма",
+              "ключ можна вільно змінити",
+              "одне службове слово, як в open cloze завжди"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "2–5 і незмінний ключ.",
+            "explanationEn": "2–5 and an unchanged key.",
+            "optionsEn": [
+              "2–5 words, the key unchanged, the same meaning",
+              "six or more words as a norm",
+              "the key may be freely changed",
+              "one function word, as in an open cloze always"
+            ]
+          },
+          {
+            "id": "en-deep-exam-prep-exam-q5",
+            "type": "fill_blank",
+            "promptUk": "responsible → ___. (іменник)",
+            "promptEn": "responsible → ___. (noun)",
+            "sentence": "It is your ___.",
+            "accepted": [
+              "responsibility",
+              "Responsibility"
+            ]
+          }
+        ]
+      }
+    ]
   }
 ];
 

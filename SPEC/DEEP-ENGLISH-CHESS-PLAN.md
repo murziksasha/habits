@@ -403,7 +403,7 @@ Update this section after every commit so a successor can resume without a full 
 | 2026-11-12 ~20:30 | 2 | **done** | English parts A–B: 8 units, 48 bilingual lessons (40 teach + 8 exams). Units `en-deep-perfect` through `en-deep-modals-plus`. Content tests and `@eduforge/content` typecheck pass. |
 | 2026-11-12 ~20:40 | 3 | **done** | English parts C–D: units 9–15 (wish, questions, linking, C1 style, IPA/vowels, consonants, stress/intonation). 7 more units, +42 lessons. Running total: **15 units, 90 lessons (15 exams)**. Content tests and typecheck pass. |
 | 2026-11-12 ~20:50 | 4 | **done** | English part E: units 16–21 (collocations and false friends, word formation, phrasal verbs, idioms, thematic vocab A and B). +36 lessons. Running total: **21 units, 126 lessons (21 exams)** — already over the +120 English floor. Content tests and typecheck pass. Skills units 22–27 still pending. |
-| | 5 | pending | |
+| 2026-11-12 ~21:00 | 5 | **done** | English part F: units 22–27 (reading, emails, essays/CV/cover letter, speaking, business/IT English, IELTS/FCE exam prep). +36 lessons. Running total: **27 units, 162 lessons (27 exams)** — full planned English curriculum. Content tests and typecheck pass. Chess not started. |
 | | 6 | pending | |
 | | 7 | pending | |
 | | 8 | pending | |
