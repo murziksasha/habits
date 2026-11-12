@@ -31,11 +31,57 @@ describe("course parts", () => {
     expect(COURSE_META.devops.descriptionEn).toContain("CI ends at the image push");
   });
 
-  it("does not create presentation groups for other courses or unknown CMS slugs", () => {
+  it("does not create presentation groups for unrelated courses or unknown CMS slugs", () => {
     expect(getCourseParts("sysadmin")).toEqual([]);
-    expect(getCourseParts("english")).toEqual([]);
+    expect(getCourseParts("typescript")).toEqual([]);
     expect(getCourseParts("custom-course")).toEqual([]);
     expect(getCourseParts("toString")).toEqual([]);
+  });
+
+  it("groups English and Chess into presentation parts without repeating slugs", () => {
+    const english = getCourseParts("english");
+    expect(english.map((part) => part.id)).toEqual([
+      "en-part-foundations",
+      "en-part-communication",
+      "en-part-grammar-toolkit",
+      "en-part-tenses",
+      "en-part-core-grammar",
+      "en-part-sentences",
+      "en-part-pronunciation",
+      "en-part-vocabulary",
+      "en-part-skills",
+    ]);
+    const englishSlugs = english.flatMap((part) => part.unitSlugs);
+    expect(englishSlugs[0]).toBe("basics-1");
+    expect(englishSlugs.at(-1)).toBe("en-deep-exam-prep");
+    expect(englishSlugs).toContain("learning-skills");
+    expect(englishSlugs).toContain("en-deep-perfect");
+    expect(new Set(englishSlugs).size).toBe(englishSlugs.length);
+
+    const chess = getCourseParts("chess");
+    expect(chess.map((part) => part.id)).toEqual([
+      "ch-part-early",
+      "ch-part-structures",
+      "ch-part-foundations",
+      "ch-part-tactics",
+      "ch-part-openings",
+      "ch-part-middlegame",
+      "ch-part-endgames",
+      "ch-part-practice",
+    ]);
+    const chessSlugs = chess.flatMap((part) => part.unitSlugs);
+    expect(chessSlugs[0]).toBe("rules");
+    expect(chessSlugs.at(-1)).toBe("ch-deep-tournament");
+    expect(chessSlugs).toContain("ch-deep-notation");
+    expect(chessSlugs).toContain("opening-principles-plus");
+    expect(new Set(chessSlugs).size).toBe(chessSlugs.length);
+
+    for (const part of [...english, ...chess]) {
+      expect(part.titleUk.length).toBeGreaterThan(0);
+      expect(part.titleEn.length).toBeGreaterThan(0);
+      expect(part.titleUk).not.toEqual(part.titleEn);
+      expect(part.unitSlugs.length).toBeGreaterThan(0);
+    }
   });
 
   it("registers the five AI skills deep tracks and roadmap edges without blocking existing paths", () => {

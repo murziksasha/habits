@@ -9,7 +9,7 @@ import {
 } from "./learning-paths.js";
 
 describe("learning paths", () => {
-  it("registers six goal paths with unique slugs and real course slugs", () => {
+  it("registers job paths and dedicated English and Chess tracks with real course slugs", () => {
     expect(LEARNING_PATHS.map((p) => p.slug)).toEqual([
       "frontend-dev",
       "backend-dev",
@@ -17,10 +17,14 @@ describe("learning paths", () => {
       "ai-builder",
       "dba-sql",
       "devops",
+      "english-fluency",
+      "chess-mastery",
     ]);
     const slugs = new Set<string>();
+    const singleCourse = new Set(["english-fluency", "chess-mastery"]);
     for (const path of LEARNING_PATHS) {
-      expect(path.courseSlugs.length).toBeGreaterThanOrEqual(4);
+      const min = singleCourse.has(path.slug) ? 1 : 4;
+      expect(path.courseSlugs.length).toBeGreaterThanOrEqual(min);
       expect(new Set(path.courseSlugs).size).toBe(path.courseSlugs.length);
       expect(path.titleUk).not.toEqual(path.titleEn);
       expect(path.blurbUk.length).toBeGreaterThan(20);
@@ -31,6 +35,10 @@ describe("learning paths", () => {
         slugs.add(slug);
       }
     }
+    expect(getLearningPath("english-fluency")?.courseSlugs).toEqual(["english"]);
+    expect(getLearningPath("chess-mastery")?.courseSlugs).toEqual(["chess"]);
+    expect(getLearningPath("english-fluency")?.blurbEn.toLowerCase()).toContain("ukrainian");
+    expect(getLearningPath("chess-mastery")?.blurbEn.toLowerCase()).toMatch(/endgame|opening|tactic/);
     // New PR #13 / follow-up courses should be discoverable on a path
     for (const must of [
       "go_fundamentals",
@@ -70,6 +78,8 @@ describe("learning paths", () => {
   it("lists paths that include a course and ignores unknown slugs", () => {
     const paths = pathsForCourse("react_fundamentals");
     expect(paths.map((p) => p.slug)).toEqual(["frontend-dev"]);
+    expect(pathsForCourse("english").map((p) => p.slug)).toEqual(["english-fluency"]);
+    expect(pathsForCourse("chess").map((p) => p.slug)).toEqual(["chess-mastery"]);
     expect(pathsForCourse("not-a-course")).toEqual([]);
     expect(computeAllPathProgress([]).every((p) => p.ratio === 0 && p.totalLessons === 0)).toBe(
       true,
