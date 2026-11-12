@@ -136,6 +136,12 @@ export const COURSE_PARTS: Partial<Record<CourseSlug, readonly CoursePart[]>> = 
       unitSlugs: ["k8s-workloads", "traffic-identity", "gitops-delivery"],
     },
     {
+      id: "platform-discipline",
+      titleUk: "Дисципліна платформи",
+      titleEn: "Platform discipline",
+      unitSlugs: ["finops_cost", "supply_chain_builds", "policy_as_code"],
+    },
+    {
       id: "on-call",
       titleUk: "На зміні",
       titleEn: "On call",

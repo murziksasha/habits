@@ -25,6 +25,20 @@ EXPAND = {
     "typing": ("typing-exp.ts", "expandTyping"),
     "speed_reading": ("speed-reading-exp.ts", "expandSpeedReading"),
     "logic": ("logic-exp.ts", "expandLogic"),
+    "sysadmin": ("sysadmin-exp.ts", "expandSysadmin"),
+    "devops": ("devops-exp.ts", "expandDevops", "data-plane"),
+    "software_testing": ("software-testing-exp.ts", "expandSoftwareTesting"),
+    "postgresql_apps": ("postgresql-apps-exp.ts", "expandPostgresqlApps"),
+    "git_workflows": ("git-workflows-exp.ts", "expandGitWorkflows"),
+    "web_security": ("web-security-exp.ts", "expandWebSecurity"),
+    "ai_development": ("ai-development-exp.ts", "expandAiDevelopment"),
+    "python_for_ai": ("python-for-ai-exp.ts", "expandPythonForAi"),
+    "agentic_systems": ("agentic-systems-exp.ts", "expandAgenticSystems"),
+    "llmops": ("llmops-exp.ts", "expandLlmops"),
+    "ai_security": ("ai-security-exp.ts", "expandAiSecurity"),
+    "ai_product": ("ai-product-exp.ts", "expandAiProduct"),
+    "nextjs_fullstack": ("nextjs-fullstack-exp.ts", "expandNextjsFullstack"),
+    "applied_algorithms": ("applied-algorithms-exp.ts", "expandAppliedAlgorithms"),
 }
 
 NEW_META = {
@@ -42,8 +56,10 @@ def main():
         units = payload.get("units") or []
         insertions = payload.get("insertions") or {}
         if course in EXPAND:
-            fn, expand = EXPAND[course]
-            results[course] = write_expansion(fn, expand, units, insertions)
+            entry = EXPAND[course]
+            fn, expand = entry[0], entry[1]
+            before = entry[2] if len(entry) > 2 else None
+            results[course] = write_expansion(fn, expand, units, insertions, before)
         elif course in NEW_META:
             meta = NEW_META[course]
             n = write_full_course(

@@ -285,7 +285,7 @@ describe("course content integrity", () => {
         expect(e.exercises.length).toBeGreaterThanOrEqual(6);
       }
       expect(lessons.some((l) => l.isFree)).toBe(true);
-      expect(lessons).toHaveLength(64);
+      expect(lessons).toHaveLength(76);
       const bySlug = Object.fromEntries(lessons.map((l) => [l.slug, l]));
       expect(bySlug["sa-etc"]?.titleEn).toBe("Git for configs");
       expect(bySlug["sa-least"]?.titleEn).toBe("VPN instead of an open port");
@@ -329,11 +329,11 @@ describe("course content integrity", () => {
         "alerts-runbooks": ["do-alert-symptom", "do-alert-burn", "do-alert-use", "do-alert-labels", "do-alert-trace", "do-alert-book", "do-alert-exam"],
         "incident-drills": ["do-drill-cert", "do-drill-digest", "do-drill-disk", "do-drill-5xx", "do-drill-secret", "do-drill-write", "do-drill-exam"],
       };
-      expect(devopsContent.units).toHaveLength(19);
+      expect(devopsContent.units).toHaveLength(22);
       const lessons = devopsContent.units.flatMap((u) => u.lessons);
-      expect(lessons).toHaveLength(108);
+      expect(lessons).toHaveLength(123);
       const exams = lessons.filter((l) => l.isExam);
-      expect(exams).toHaveLength(19);
+      expect(exams).toHaveLength(22);
       for (const e of exams) {
         expect(e.exercises.length).toBeGreaterThanOrEqual(6);
       }
@@ -357,6 +357,9 @@ describe("course content integrity", () => {
         "k8s-workloads",
         "traffic-identity",
         "gitops-delivery",
+        "finops_cost",
+        "supply_chain_builds",
+        "policy_as_code",
         "data-plane",
         "alerts-runbooks",
         "incident-drills",
@@ -781,13 +784,13 @@ describe("course content integrity", () => {
 
   it("full-stack curriculum expansion: 7 new courses + unit counts + exams + free lessons + ForgeBoard milestones", () => {
     const expectedNew: Array<[CourseContent, number, string]> = [
-      [softwareTestingContent, 6, "st-forgeboard-suite-lab"],
-      [postgresqlAppsContent, 6, "pg-forgeboard-db-lab"],
-      [gitWorkflowsContent, 5, "gw-forgeboard-conflict-lab"],
-      [webSecurityContent, 6, "ws-forgeboard-security-lab"],
-      [aiDevelopmentContent, 6, "ai-forgeboard-review-lab"],
-      [nextjsFullstackContent, 7, "nx-forgeboard-app-lab"],
-      [appliedAlgorithmsContent, 6, "aa-forgeboard-perf-lab"],
+      [softwareTestingContent, 9, "st-forgeboard-suite-lab"],
+      [postgresqlAppsContent, 9, "pg-forgeboard-db-lab"],
+      [gitWorkflowsContent, 8, "gw-forgeboard-conflict-lab"],
+      [webSecurityContent, 9, "ws-forgeboard-security-lab"],
+      [aiDevelopmentContent, 9, "ai-forgeboard-review-lab"],
+      [nextjsFullstackContent, 10, "nx-forgeboard-app-lab"],
+      [appliedAlgorithmsContent, 9, "aa-forgeboard-perf-lab"],
     ];
     for (const [course, unitCount, labSlug] of expectedNew) {
       expect(course.units.length, course.slug).toBe(unitCount);
@@ -822,11 +825,11 @@ describe("course content integrity", () => {
 
   it("AI skills stack: 5 deep tracks + ai_coder_control unit integrity", () => {
     const expectedAiTracks: Array<[CourseContent, number]> = [
-      [pythonForAiContent, 6],
-      [agenticSystemsContent, 6],
-      [llmopsContent, 6],
-      [aiSecurityContent, 6],
-      [aiProductContent, 5],
+      [pythonForAiContent, 9],
+      [agenticSystemsContent, 9],
+      [llmopsContent, 9],
+      [aiSecurityContent, 9],
+      [aiProductContent, 8],
     ];
     for (const [course, unitCount] of expectedAiTracks) {
       expect(course.units.length, course.slug).toBe(unitCount);

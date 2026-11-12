@@ -260,10 +260,17 @@ export function expandCourse(
   course: CourseContent,
   insertions: Record<string, LessonContent[]>,
   newUnits: UnitContent[] = [],
+  insertBeforeSlug?: string,
 ): CourseContent {
-  const units = course.units.map((u) => {
+  const mapped = course.units.map((u) => {
     const extra = insertions[u.slug];
     return extra && extra.length ? appendLessonsBeforeExam(u, extra) : u;
   });
-  return { ...course, units: [...units, ...newUnits] };
+  if (newUnits.length && insertBeforeSlug) {
+    const idx = mapped.findIndex((u) => u.slug === insertBeforeSlug);
+    if (idx !== -1) {
+      return { ...course, units: [...mapped.slice(0, idx), ...newUnits, ...mapped.slice(idx)] };
+    }
+  }
+  return { ...course, units: [...mapped, ...newUnits] };
 }

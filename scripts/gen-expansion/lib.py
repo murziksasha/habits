@@ -203,13 +203,14 @@ import {{ expandCourse, sectionUnit, teachLesson }} from "./factory.js";
 {insertions_const}
 
 export function {fn}(course: CourseContent): CourseContent {{
-  return expandCourse(course, insertions, newUnits);
+  return expandCourse(course, insertions, newUnits{before_arg});
 }}
 """
 
 
-def write_expansion(filename: str, fn: str, new_units: list[dict], insertions: dict[str, list[dict]]) -> dict:
+def write_expansion(filename: str, fn: str, new_units: list[dict], insertions: dict[str, list[dict]], insert_before: str | None = None) -> dict:
     """Write an expansion module. Returns counts."""
+    before_arg = f", {js(insert_before)}" if insert_before else ""
     units_ts = "export const newUnits: UnitContent[] = [\n" + ",\n".join(
         indent(emit_section_unit(u), 2) for u in new_units
     ) + "\n];"
@@ -229,7 +230,7 @@ import {{ expandCourse, sectionUnit, teachLesson }} from "./factory.js";
 {ins_ts}
 
 export function {fn}(course: CourseContent): CourseContent {{
-  return expandCourse(course, insertions, newUnits);
+  return expandCourse(course, insertions, newUnits{before_arg});
 }}
 '''
     path = OUT / filename
