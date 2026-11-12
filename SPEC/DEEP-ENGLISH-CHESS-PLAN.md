@@ -364,19 +364,20 @@ After every batch: local commit, update **Progress log**, periodic `git push ori
 
 ## 7. Validation checklist
 
-- [ ] Unique lesson slugs and exercise ids (quality gate)
-- [ ] Every new lesson has `titleUk`/`titleEn`; every exercise has `promptUk`/`promptEn`
-- [ ] Concept bodies bilingual, non-empty, under 6000 chars; exams have no concept
-- [ ] Explain samples pass their rubric (`content.test.ts`)
-- [ ] English: ≥120 new lessons; every new unit has an exam of ≥4 questions
-- [ ] Chess: ≥100 new lessons; every new unit has an exam of ≥4 questions
-- [ ] Every chess FEN legal; every `solutionSans` legal from that FEN; mate puzzles mate
-- [ ] No duplicate teaching of an existing narrow topic; no copied old puzzles
-- [ ] `pnpm --filter @eduforge/content test`
-- [ ] `pnpm typecheck`
-- [ ] `pnpm test:unit`
-- [ ] `pnpm --filter @eduforge/content build` and `pnpm --filter @eduforge/web build`
-- [ ] Docs and PR #15 description updated
+- [x] Unique lesson slugs and exercise ids (quality gate) — `quality-gate.test.ts` passed
+- [x] Every new lesson has `titleUk`/`titleEn`; every exercise has `promptUk`/`promptEn`
+- [x] Concept bodies bilingual, non-empty, under 6000 chars; exams have no concept
+- [x] Explain samples pass their rubric (`content.test.ts`, 47 tests)
+- [x] English: **162** new lessons (floor was ≥120); every new unit has an exam of ≥4 questions (27 exams)
+- [x] Chess: **126** new lessons (floor was ≥100); every new unit has an exam of ≥4 questions (21 exams)
+- [x] Every chess FEN legal; every `solutionSans` legal from that FEN; mate puzzles mate — `chess-fen.test.ts` (all course FENs) and `validate_fens.mjs` (263 deep positions: 105 lessons, 158 puzzles, 47 mates)
+- [x] No duplicate teaching of an existing narrow topic; no copied old puzzles (curriculum and FEN uniqueness as authored)
+- [x] `pnpm --filter @eduforge/content test` — 8 files, **72** tests passed (includes quality gate, FENs, flashcards, COURSE_PARTS coverage)
+- [x] `pnpm typecheck` — 14/14 tasks passed
+- [x] `pnpm test:unit` — 14/14 tasks passed (shared 220, content 72, api 121, web 29, db 6, …)
+- [x] `pnpm --filter @eduforge/content build` and `pnpm --filter @eduforge/web build` — both passed (Next.js 15, 91 pages)
+- [x] Docs and PR #15 description updated
+- [x] Throwaway Postgres 17 + Redis: `pnpm db:migrate` (all **38** migrations, including `0037_placement_unit_skip`) and `pnpm db:seed` (35 courses, 2153 lessons, 272 flashcards). `pnpm test:integration` — **28** passed; instance-backup integration — **1** passed. Servers stopped after validation.
 
 ---
 
@@ -389,6 +390,16 @@ After every batch: local commit, update **Progress log**, periodic `git push ori
 | App total |              |             |           1865 |    1865+288=2153 |              |              |
 
 If a batch is trimmed, never go below **+120 English** and **+100 Chess** lessons. Record actuals here when done.
+
+**Actuals (seeded `@eduforge/content`, 2026-11-12, Europe/Kiev):** the full curriculum landed with no trimming.
+
+| Course   | Units | Lessons | Exams | Free non-exam |
+|----------|------:|--------:|------:|--------------:|
+| `english` |    45 |     248 |    30 |            12 |
+| `chess`   |    34 |     188 |    24 |            14 |
+| **App**   | **498** | **2153** | **453** |  |
+
+App: **35** courses (unchanged), **15** flashcard decks / **272** cards (was 9 decks / 179 cards; **+6** decks, **+93** cards). Learning paths: 8 (six job paths plus `english-fluency` and `chess-mastery`).
 
 ---
 
@@ -408,8 +419,8 @@ Update this section after every commit so a successor can resume without a full 
 | 2026-11-12 ~21:50 | 7 | **done** | Chess part C: 4 units, 24 bilingual lessons (20 teach + 4 exams). Units `ch-deep-italian-ruy`, `ch-deep-qg-london`, `ch-deep-sicilian-french`, `ch-deep-caro-kid`. Plans and structures, not move trees; thematic tactics (fork trick, Tarrasch trap, Noah’s Ark, Dragon Rxc3, Caro Nd6#, Mar del Plata). FEN validator: 143 positions legal (55 lessons, 88 puzzles, 38 ended in mate). Content tests (67) and `@eduforge/content` typecheck pass. Running chess-deep total: **11 units, 66 lessons**. |
 | 2026-11-12 ~22:20 | 8 | **done** | Chess parts D–E: 7 units, 42 bilingual lessons (35 teach + 7 exams). Units `ch-deep-planning`, `ch-deep-minor-pieces`, `ch-deep-attack-king`, `ch-deep-pawn-play` (middlegame) and `ch-deep-kp-theory`, `ch-deep-rook-theory`, `ch-deep-minor-end` (endgames). Full Lucena/Philidor methods, Vancura, short-side defence, KBN mate, queen vs pawn on the 7th; hanging pawns and chains extend (do not repeat) earlier IQP/islands lessons. FEN validator: 225 positions legal (90 lessons, 135 puzzles, 43 ended in mate). Content tests (67) and `@eduforge/content` typecheck pass. Running chess-deep total: **18 units, 108 lessons**. |
 | 2026-11-12 ~22:35 | 9 | **done** | Chess part F: 3 units, 18 bilingual lessons (15 teach + 3 exams). Units `ch-deep-famous-1` (Greco; Morphy’s Opera build-up, not the already-taught corridor finish; Immortal; Evergreen; Byrne–Fischer 1956), `ch-deep-famous-2` (Fischer–Spassky game 6, Kasparov–Topalov, Karpov–Unzicker, Tal–Smyslov 1959, study method with Lasker–Bauer as a cover-the-move drill), `ch-deep-tournament` (time trouble, draw offers, preparation, Swiss/rating, fair play). Original explanations of critical positions, not book annotations. FEN validator: 263 positions legal (105 lessons, 158 puzzles, 47 ended in mate). Content tests (67) and `@eduforge/content` typecheck pass. Running chess-deep total: **21 units, 126 lessons** — full planned chess curriculum. |
-| | 10 | pending | |
-| | 11 | pending | |
-| | 12 | pending | |
+| 2026-11-12 ~22:42 | 10 | **done** | Flashcards, paths, COURSE_PARTS, placement. Six new decks (**93** cards): `english-perfect-passives` (14), `english-collocations` (16), `english-idioms-phrasals` (16), `english-pronunciation` (14, Ukrainian hints), `chess-tactics-patterns` (16, including Lucena/Philidor/Vancura/KBN and queen-vs-pawn-on-7th), `chess-opening-ideas` (17, one idea-card per opening). Paths `english-fluency` and `chess-mastery` (single-course goal cards; English not injected into job paths). `COURSE_PARTS` for `english` (9 parts, all 45 units in course order) and `chess` (8 parts, all 34 units). `ENGLISH_PLACEMENT` gained `p11`–`p14` (Present Perfect vs Past, *despite*, the *actual* false friend, *it's time we went*) without changing `p1`–`p10`; C1 rung unchanged. Chess placement bank builds from early-unit MCQs (4–8 questions); no dedicated chess bank needed. Commit `ef874f5`, pushed to `origin/newCourses`. |
+| 2026-11-12 ~22:46 | 11 | **done** | Full validation, no code changes (no extra commit). Quality gate, FEN tests, `pnpm typecheck` (14/14), `pnpm test:unit` (14/14), `@eduforge/content` and `@eduforge/web` builds passed. Throwaway PG 17 on :5433 and Redis on :6380: all 38 migrations and seed succeeded (35 courses, 498 units, 2153 lessons, 453 exams, 272 flashcards). `pnpm test:integration` 28 passed; backup integration 1 passed. Servers stopped. |
+| 2026-11-12 ~22:50 | 12 | **done** | Actuals recorded in §8; checklist §7 filled. `SPEC/CONTENT-EXPANSION.md`, `SPEC/courses/english.md`, `chess.md`, `SPEC/courses/README.md`, and root `README.md` updated. PR #15 body appended with a “Deep English & Chess” section. |
 
-**Resume instructions:** `git fetch && git checkout newCourses`. If local has no unpushed commits, align with `origin/newCourses`. Leave untracked `scripts/gen-expansion/compact-src/` and `scripts/gen-expansion/courses/_build.py` alone. Read this log, then implement the first `pending` batch. Commit locally after the batch; push with a normal push only.
+**Resume instructions:** All planned batches (0–12) are **done** and pushed to `origin/newCourses`. `git fetch && git checkout newCourses` to inspect. Leave untracked `scripts/gen-expansion/compact-src/` and `scripts/gen-expansion/courses/_build.py` alone. There is no remaining implementation work from this plan.

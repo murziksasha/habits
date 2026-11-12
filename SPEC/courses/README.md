@@ -6,8 +6,8 @@ Update in the same change as `packages/content`. See `SPEC/CONTENT-DX.md`.
 
 | Slug | Group | Units | Lessons | Exams | Local Lab | Scope |
 | --- | --- | ---: | ---: | ---: | --- | --- |
-| [`english`](./english.md) | skill | 18 | 86 | 3 | — | Learn English through short interactive lessons. |
-| [`chess`](./chess.md) | chess | 13 | 62 | 3 | — | Theory, puzzles, and live games with other players. |
+| [`english`](./english.md) | skill | 45 | 248 | 30 | — | A1–C1 English for Ukrainian speakers: foundations, communication, deep grammar, pronunciation, vocabulary, and exam skills. |
+| [`chess`](./chess.md) | chess | 34 | 188 | 24 | — | Rules, tactics, openings as ideas, middlegame, full endgames, famous games, and live play. |
 | [`typing`](./typing.md) | skill | 7 | 81 | 3 | — | Build speed and accuracy with touch typing drills. |
 | [`speed_reading`](./speed_reading.md) | skill | 8 | 53 | 3 | — | RSVP, chunking, and reading comprehension. |
 | [`logic`](./logic.md) | skill | 14 | 77 | 3 | — | Sequences, patterns, and critical thinking puzzles. |
