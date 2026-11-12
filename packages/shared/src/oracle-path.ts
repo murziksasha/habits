@@ -87,7 +87,12 @@ export const ORACLE_UNIT_META: Record<string, OracleUnitMeta> = {
   "dba-optimizer": { section: "dba", prerequisites: ["cte-performance", "dba-architecture"] },
   "dba-backup": { section: "dba", prerequisites: ["dba-storage"] },
   "dba-operations": { section: "dba", prerequisites: ["dba-backup", "dba-optimizer"] },
+  hierarchical_queries: { section: "dba", prerequisites: ["joins", "dba-operations"] },
+  materialized_views: { section: "dba", prerequisites: ["dba-operations", "aggregates"] },
+  table_partitioning: { section: "dba", prerequisites: ["dba-storage", "dba-operations"] },
+  sql_profiling: { section: "dba", prerequisites: ["dba-optimizer", "dba-operations"] },
 };
+
 
 export function oracleSection(id: OracleSectionId): OracleSection {
   const found = ORACLE_SECTIONS.find((s) => s.id === id);

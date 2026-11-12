@@ -241,7 +241,9 @@ describe("course content integrity", () => {
       expect(slugs).toContain("set-ops");
       expect(slugs).toContain("schema-objects");
       expect(slugs).toContain("access-dict");
-      expect(slugs.at(-1)).toBe("dba-operations");
+      expect(slugs.at(-1)).toBe("sql_profiling");
+      expect(slugs).toContain("dba-operations");
+      expect(slugs.indexOf("sql_profiling")).toBeGreaterThan(slugs.indexOf("dba-operations"));
       const capstoneAt = slugs.indexOf("capstone");
       expect(capstoneAt).toBeGreaterThan(0);
       expect(slugs[capstoneAt + 1]).toBe("plsql-blocks");
