@@ -12,13 +12,13 @@ import {
 } from "./index.js";
 
 describe("course parts", () => {
-  it("keeps DevOps on its existing hub with five ordered parts and the capstone last", () => {
+  it("keeps DevOps on its existing hub with six ordered parts and the capstone last", () => {
     const parts = getCourseParts("devops");
     expect(parts.map((part) => part.titleEn)).toEqual([
-      "Foundations", "Ship an image", "Run it", "Stay up", "On call",
+      "Foundations", "Ship an image", "Run it", "Stay up", "Platform discipline", "On call",
     ]);
     const slugs = parts.flatMap((part) => part.unitSlugs);
-    expect(slugs).toHaveLength(19);
+    expect(slugs).toHaveLength(22);
     expect(new Set(slugs).size).toBe(slugs.length);
     expect(slugs[0]).toBe("git-workstation");
     expect(slugs.at(-1)).toBe("sre-capstone");

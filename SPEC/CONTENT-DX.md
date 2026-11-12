@@ -75,3 +75,66 @@ Supported markers: YAML frontmatter, `<!-- mcq ... -->`, `<!-- fill ... -->`, `<
 ## Adaptive next weights
 
 `ADAPTIVE_WEIGHTS_JSON` overrides `DEFAULT_ADAPTIVE_WEIGHTS` in `@eduforge/shared` (`adaptive-next.ts`). Prefer weak lessons. Defaults are unit-tested; A/B via feature flags + env per environment.
+
+## Course expansion pipeline
+
+Bulk bilingual lesson add-ons live under `scripts/gen-expansion/` and
+`packages/content/src/expansion/`. Existing course source files stay
+unchanged; an `expandX(raw)` wrapper in `packages/content/src/index.ts`
+appends new units (and optional in-unit insertions) before
+`normalizeCourseLocales`.
+
+### Layout
+
+| Path | Role |
+|------|------|
+| `scripts/gen-expansion/lib.py` | Lesson constructors (`L`, `MCQ`, `FILL`, `READ`, `EQ`, `U`) and TypeScript emitters |
+| `scripts/gen-expansion/store.py` | JSON store of generated units / insertions |
+| `scripts/gen-expansion/store.json` | Generated payload (do not hand-edit) |
+| `scripts/gen-expansion/courses/<name>.py` | Per-course unit modules (`UNITS`, optional `INSERTIONS`) |
+| `scripts/gen-expansion/courses/load.py` | Loads modules into the store |
+| `scripts/gen-expansion/assemble.py` | Writes `*-exp.ts` add-ons and full files for new courses |
+| `packages/content/src/expansion/factory.ts` | `teachLesson`, `sectionUnit`, `expandCourse` |
+| `packages/content/src/expansion/<slug>-exp.ts` | Assembled TypeScript, wired in `index.ts` |
+
+New full courses (Go, accessibility, REST API design) are written as
+`packages/content/src/<slug>.ts` and registered in
+`packages/shared/src/courses.ts` (`COURSE_SLUGS`, `COURSE_META`,
+`COURSE_GROUP`, hub, prerequisites). See [COURSE-REGISTRY](./COURSE-REGISTRY.md)
+and [CONTENT-EXPANSION](./CONTENT-EXPANSION.md) for counts and the
+before/after table.
+
+### Adding lessons to an existing course
+
+1. Add a Python module under `scripts/gen-expansion/courses/` that exports
+   `UNITS` (and/or `INSERTIONS` keyed by existing unit slug). Each teach
+   lesson uses `L(...)` with bilingual concept, retrieval (MCQ/FILL/READ),
+   explain ideas, and sample answers that pass the rubric. Each unit ends
+   with an exam of at least 4 questions (`EQ`); sysadmin and DevOps exams
+   need 6. DevOps non-exam lessons must keep exactly 4 exercises
+   (concept + 2 retrievals + explain).
+2. Register the module in `courses/load.py` `MODULES` and, for a new
+   expansion file, in `assemble.py` `EXPAND`.
+3. Run `python3 scripts/gen-expansion/courses/load.py` then
+   `python3 scripts/gen-expansion/assemble.py`.
+4. If this is the first add-on for the course, wire
+   `expandX` in `packages/content/src/index.ts`.
+5. Update exact unit/lesson assertions in
+   `packages/content/src/content.test.ts` (and DevOps `COURSE_PARTS` if
+   needed). Capstones should stay last — `expandCourse` accepts an
+   optional `insertBeforeSlug`.
+6. Update `SPEC/courses/<slug>.md` and the count row in
+   `SPEC/courses/README.md`.
+7. `pnpm --filter @eduforge/content test` and `pnpm typecheck`.
+
+### Adding a brand-new course
+
+Follow the checklist above **and** the registry checklist at the top of
+this file: slug + meta + group + hub page (`RoadmapCourseHub`), seed
+import, i18n `courses.*`, `COURSE_SUBJECT`, content export, SPEC file.
+List the course in `assemble.py` `NEW_META` so `assemble.py` emits the
+full content file.
+
+Lesson and exercise IDs must be unique. Every exercise with `promptUk`
+needs `promptEn`. Explain samples are checked by `content.test.ts`
+against their own rubric.

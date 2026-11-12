@@ -55,9 +55,9 @@ Relational modeling, constraints and migrations, parameterized CRUD, joins and k
 
 ## Depth now
 
-- Units: 6
-- Lessons: 18
-- Exams: 6
+- Units: 9
+- Lessons: 30
+- Exams: 9
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, match, mcq
 
@@ -65,3 +65,12 @@ Relational modeling, constraints and migrations, parameterized CRUD, joins and k
 
 - PostgreSQL Tutorial & Documentation: https://www.postgresql.org/docs/current/tutorial.html
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+New units:
+
+- `pg_jsonb_fts` — JSONB, indexes, and full-text search (4 lessons including exam)
+- `pg_rls_notify` — RLS, advisory locks, and notifications (4 lessons including exam)
+- `pg_pool_replicas` — Connection pools, replicas, and lag (4 lessons including exam)

@@ -32,6 +32,9 @@ import {
   aiProductContent,
   nextjsFullstackContent,
   appliedAlgorithmsContent,
+  goFundamentalsContent,
+  webAccessibilityContent,
+  restApiDesignContent,
   type CourseContent,
 } from "@eduforge/content";
 import bcrypt from "bcryptjs";
@@ -81,6 +84,9 @@ const allCourses: CourseContent[] = [
   aiProductContent,
   nextjsFullstackContent,
   appliedAlgorithmsContent,
+  goFundamentalsContent,
+  webAccessibilityContent,
+  restApiDesignContent,
 ];
 
 export async function seedCourse(

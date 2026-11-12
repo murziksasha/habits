@@ -51,8 +51,18 @@ Read and repair agent-style Python: values, collections, typed functions, JSON/H
 
 ## Depth now
 
-- Units: 6
-- Lessons: 18
-- Exams: 6
+- Units: 9
+- Lessons: 27
+- Exams: 9
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_read, match, mcq
+
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+New units:
+
+- `py_typing_contracts` — Annotations, protocols, and data contracts (3 lessons including exam)
+- `py_packaging_env` — Environments, dependencies, and a reproducible run (3 lessons including exam)
+- `py_pydantic_io` — Pydantic at the boundaries and safe text splitting (3 lessons including exam)

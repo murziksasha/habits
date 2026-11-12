@@ -117,9 +117,18 @@ From a small office to the console: network, backups, Windows desks, bash, permi
 
 ## Depth now
 
-- Units: 13
-- Lessons: 64
-- Exams: 13
+- Units: 16
+- Lessons: 76
+- Exams: 16
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_read, match, mcq
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+New units:
+
+- `backups_verify` — Backups you can actually restore (4 lessons including exam)
+- `containers_home` — Containers at home: Podman, rootless, systemd (4 lessons including exam)
+- `observability_home` — Home observability: journals, rotation, and metrics (4 lessons including exam)

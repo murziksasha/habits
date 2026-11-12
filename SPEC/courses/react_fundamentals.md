@@ -94,9 +94,9 @@ Components, props, useState, lists/keys, useEffect, forms, composition, advanced
 
 ## Depth now
 
-- Units: 12
-- Lessons: 39
-- Exams: 12
+- Units: 18
+- Lessons: 63
+- Exams: 18
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_project, code_read, match, mcq
 
@@ -104,3 +104,15 @@ Components, props, useState, lists/keys, useEffect, forms, composition, advanced
 
 - React Docs — Thinking in React: https://react.dev/learn/thinking-in-react
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+New units:
+
+- `concurrent_ui` — Concurrent UI: update priority (4 lessons including exam)
+- `suspense_lazy` — Suspense, lazy, and error boundaries (4 lessons including exam)
+- `portals_escape` — Portals and controlled batching escapes (4 lessons including exam)
+- `compound_patterns` — Compound components and state colocation (4 lessons including exam)
+- `external_stores` — External stores and layout effects (4 lessons including exam)
+- `react_strict_dev` — Strict Mode, keys, and resetting state (4 lessons including exam)

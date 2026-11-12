@@ -82,9 +82,19 @@ Runtime, modules, fs/path, env, http server, npm, async, events/streams, process
 
 ## Depth now
 
-- Units: 11
-- Lessons: 34
-- Exams: 11
+- Units: 15
+- Lessons: 50
+- Exams: 15
 - Free non-exam lessons: 6
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, match, mcq
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+New units:
+
+- `buffers_bytes` — Buffers, bytes, and encodings (4 lessons including exam)
+- `child_process_ipc` — Child processes and IPC (4 lessons including exam)
+- `workers_threads` — Worker threads and shared memory (4 lessons including exam)
+- `node_diagnostics` — Signals, diagnostics, and channels (4 lessons including exam)

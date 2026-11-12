@@ -31,6 +31,9 @@ export const COURSE_SLUGS = [
   "ai_product",
   "nextjs_fullstack",
   "applied_algorithms",
+  "go_fundamentals",
+  "web_accessibility",
+  "rest_api_design",
 ] as const;
 
 export type CourseSlug = (typeof COURSE_SLUGS)[number];
@@ -85,6 +88,9 @@ export const COURSE_GROUP: Record<CourseSlug, CourseGroup> = {
   ai_product: "deep",
   nextjs_fullstack: "deep",
   applied_algorithms: "deep",
+  go_fundamentals: "deep",
+  web_accessibility: "deep",
+  rest_api_design: "deep",
 };
 
 export const COURSE_GROUP_META: Record<
@@ -134,6 +140,12 @@ export const COURSE_PARTS: Partial<Record<CourseSlug, readonly CoursePart[]>> = 
       titleUk: "Тримати сервіс",
       titleEn: "Stay up",
       unitSlugs: ["k8s-workloads", "traffic-identity", "gitops-delivery"],
+    },
+    {
+      id: "platform-discipline",
+      titleUk: "Дисципліна платформи",
+      titleEn: "Platform discipline",
+      unitSlugs: ["finops_cost", "supply_chain_builds", "policy_as_code"],
     },
     {
       id: "on-call",
@@ -493,6 +505,42 @@ export const COURSE_META: Record<
     color: "#D97706",
     group: "deep",
   },
+  go_fundamentals: {
+    slug: "go_fundamentals",
+    titleUk: "Go: основи",
+    titleEn: "Go Fundamentals",
+    descriptionUk:
+      "Пакети, типи, зрізи, інтерфейси, горутини та тестування — глибокий старт у Go.",
+    descriptionEn:
+      "Packages, types, slices, interfaces, goroutines and testing — a solid start in Go.",
+    icon: "🐹",
+    color: "#00ADD8",
+    group: "deep",
+  },
+  web_accessibility: {
+    slug: "web_accessibility",
+    titleUk: "Веб-доступність (WCAG)",
+    titleEn: "Web Accessibility (WCAG)",
+    descriptionUk:
+      "Принципи POUR, клавіатура, ARIA, контраст і перевірка доступності за WCAG 2.2.",
+    descriptionEn:
+      "POUR principles, keyboard, ARIA, contrast and accessibility testing against WCAG 2.2.",
+    icon: "♿",
+    color: "#0F766E",
+    group: "deep",
+  },
+  rest_api_design: {
+    slug: "rest_api_design",
+    titleUk: "Дизайн REST API",
+    titleEn: "REST API Design",
+    descriptionUk:
+      "Ресурси, методи HTTP, статус-коди, ідемпотентність, версіонування та помилки API.",
+    descriptionEn:
+      "Resources, HTTP methods, status codes, idempotency, versioning and API errors.",
+    icon: "🔗",
+    color: "#EA580C",
+    group: "deep",
+  },
 };
 
 /** Hub path for deep tracks / code (fallback /courses/:slug) */
@@ -520,6 +568,9 @@ export const COURSE_HUB_HREF: Partial<Record<CourseSlug | string, string>> = {
   ai_product: "/ai-product",
   nextjs_fullstack: "/nextjs-fullstack",
   applied_algorithms: "/applied-algorithms",
+  go_fundamentals: "/go-fundamentals",
+  web_accessibility: "/web-accessibility",
+  rest_api_design: "/rest-api-design",
   chess: "/play",
 };
 
@@ -528,12 +579,14 @@ export const FULL_STACK_ROADMAP_ORDER: readonly CourseSlug[] = [
   "programming",
   "html_semantics",
   "css_layout",
+  "web_accessibility",
   "git_workflows",
   "js_fundamentals",
   "typescript",
   "react_fundamentals",
   "node_fundamentals",
   "express_fundamentals",
+  "rest_api_design",
   "postgresql_apps",
   "software_testing",
   "web_security",
@@ -545,6 +598,7 @@ export const FULL_STACK_ROADMAP_ORDER: readonly CourseSlug[] = [
   "ai_product",
   "nextjs_fullstack",
   "applied_algorithms",
+  "go_fundamentals",
   "sysadmin",
   "devops",
 ] as const;
@@ -572,18 +626,21 @@ export const COURSE_PREREQUISITES: Partial<Record<CourseSlug, readonly CourseSlu
   nextjs_fullstack: ["react_fundamentals", "express_fundamentals", "postgresql_apps"],
   applied_algorithms: ["js_fundamentals", "typescript"],
   devops: ["sysadmin", "express_fundamentals", "postgresql_apps", "software_testing"],
+  go_fundamentals: ["programming"],
+  web_accessibility: ["html_semantics", "css_layout"],
+  rest_api_design: ["express_fundamentals"],
 };
 
 export const COURSE_NEXT_MAP: Partial<Record<CourseSlug, readonly CourseSlug[]>> = {
-  programming: ["html_semantics", "css_layout", "git_workflows", "js_fundamentals"],
-  html_semantics: ["css_layout", "js_fundamentals"],
-  css_layout: ["js_fundamentals", "react_fundamentals"],
+  programming: ["html_semantics", "css_layout", "git_workflows", "js_fundamentals", "go_fundamentals"],
+  html_semantics: ["css_layout", "js_fundamentals", "web_accessibility"],
+  css_layout: ["js_fundamentals", "react_fundamentals", "web_accessibility"],
   git_workflows: ["js_fundamentals", "ai_development"],
   js_fundamentals: ["typescript", "react_fundamentals", "node_fundamentals"],
   typescript: ["react_fundamentals", "express_fundamentals", "applied_algorithms"],
   react_fundamentals: ["software_testing", "nextjs_fullstack"],
   node_fundamentals: ["express_fundamentals", "sysadmin"],
-  express_fundamentals: ["postgresql_apps", "software_testing", "web_security"],
+  express_fundamentals: ["postgresql_apps", "software_testing", "web_security", "rest_api_design"],
   sql_fundamentals: ["postgresql_apps"],
   postgresql_apps: ["software_testing", "web_security", "nextjs_fullstack"],
   qa_theory: ["software_testing"],
@@ -599,6 +656,9 @@ export const COURSE_NEXT_MAP: Partial<Record<CourseSlug, readonly CourseSlug[]>>
   applied_algorithms: ["devops"],
   sysadmin: ["devops"],
   devops: ["applied_algorithms"],
+  go_fundamentals: ["devops"],
+  web_accessibility: ["react_fundamentals", "web_security"],
+  rest_api_design: ["web_security", "nextjs_fullstack"],
 };
 
 export function getCoursePrerequisites(slug: string): readonly CourseSlug[] {

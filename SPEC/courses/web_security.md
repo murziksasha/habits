@@ -55,9 +55,9 @@ OWASP Top 10:2025 in practice: trust boundaries, validation and XSS/SQLi defense
 
 ## Depth now
 
-- Units: 6
-- Lessons: 18
-- Exams: 6
+- Units: 9
+- Lessons: 30
+- Exams: 9
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_project, code_read, match, mcq
 
@@ -65,3 +65,12 @@ OWASP Top 10:2025 in practice: trust boundaries, validation and XSS/SQLi defense
 
 - OWASP Top 10:2025: https://top10.owasp.org/2025/en/
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+New units:
+
+- `ws_ssrf_redirect` — SSRF, open redirects, and CSRF in the 2020s (4 lessons including exam)
+- `ws_csp_passkeys` — CSP, Trusted Types, and passkeys (4 lessons including exam)
+- `ws_oauth_supply` — OAuth PKCE and the npm supply chain (4 lessons including exam)

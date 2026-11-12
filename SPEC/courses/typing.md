@@ -77,9 +77,16 @@ Build speed and accuracy with touch typing drills.
 
 ## Depth now
 
-- Units: 4
-- Lessons: 52
+- Units: 7
+- Lessons: 81
 - Exams: 3
 - Free non-exam lessons: 6
 - Exercise types in seed: typing
 
+## Expansion (Nov 2026)
+
+Additional bilingual (uk+en) units in `packages/content/src/expansion/typing-exp.ts`.
+
+- `code-drills` — Typing code and commands
+- `uk-prose-professional` — Ukrainian professional prose
+- `en-prose-engineering` — English engineering prose

@@ -61,7 +61,7 @@ docker compose --profile tools run --rm migrate
 
 | Область | Що є |
 |---------|------|
-| Курси | english, chess, typing, speed_reading, logic, **programming**, **typescript**, **html_semantics**, **css_layout**, **qa_theory** |
+| Курси | 33 курси (uk+en): навички, код, deep tracks (JS/TS/React/Node/Express/SQL, AI, DevOps, …) плюс **Go**, **веб-доступність**, **дизайн REST API**. 1805 уроків. Як додавати: [`SPEC/CONTENT-DX.md`](./SPEC/CONTENT-DX.md), лічильник: [`SPEC/CONTENT-EXPANSION.md`](./SPEC/CONTENT-EXPANSION.md) |
 | Programming | path units, Monaco drills, mini-projects, weekly race, stack hubs |
 | Deep tracks | HTML semantics, CSS Flex/Grid, QA theory (+ unit exams) |
 | Deep learning | **concept cards** (теорія перед практикою), **крива забування** (`/review` памʼять ≈ %), **змішана практика** `/review/mixed` — [SPEC/91](./SPEC/91-deep-learning-features.md) |

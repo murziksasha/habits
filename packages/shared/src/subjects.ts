@@ -70,6 +70,9 @@ export const COURSE_SUBJECT: Record<CourseSlug, SubjectId> = {
   ai_product: "technology",
   nextjs_fullstack: "technology",
   applied_algorithms: "technology",
+  go_fundamentals: "technology",
+  web_accessibility: "technology",
+  rest_api_design: "technology",
 };
 
 export function subjectForCourse(slug: string): SubjectId {

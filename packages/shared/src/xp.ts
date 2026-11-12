@@ -79,6 +79,9 @@ export const COURSE_GLOBAL_WEIGHT: Record<string, number> = {
   ai_product: 1.05,
   nextjs_fullstack: 1.1,
   applied_algorithms: 1.1,
+  go_fundamentals: 1.05,
+  web_accessibility: 1.05,
+  rest_api_design: 1.05,
 };
 
 export function typingXpAward(wpm: number, accuracy: number): number {
