@@ -399,8 +399,9 @@ Update this section after every commit so a successor can resume without a full 
 | When (Europe/Kiev) | Batch | Status | Notes |
 |--------------------|------:|--------|-------|
 | 2026-11-12 evening | 0 | **done** | Plan written as `SPEC/DEEP-ENGLISH-CHESS-PLAN.md`. Implementation not started. |
-| | 1 | pending | |
-| | 2 | pending | |
+| 2026-11-12 ~20:30 | 1 | **done** | Generator scaffolding in `scripts/gen-expansion/deep/` (`lib.py`, `assemble.py`). `expandEnglishDeep` wired in `index.ts`. Optional `optionsEn` added to the MCQ (and chess quiz) types. |
+| 2026-11-12 ~20:30 | 2 | **done** | English parts A–B: 8 units, 48 bilingual lessons (40 teach + 8 exams). Units `en-deep-perfect` through `en-deep-modals-plus`. Content tests and `@eduforge/content` typecheck pass. |
+| | 3 | pending | |
 | | 3 | pending | |
 | | 4 | pending | |
 | | 5 | pending | |

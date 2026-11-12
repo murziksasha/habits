@@ -5,6 +5,7 @@ export type Exercise =
       promptUk: string;
       promptEn?: string;
       options: string[];
+      optionsEn?: string[];
       correctIndex: number;
       explanationUk?: string;
       explanationEn?: string;
@@ -99,7 +100,7 @@ export type Exercise =
       fen: string;
       notesUk: string;
       notesEn?: string;
-      quiz?: { q: string; qEn?: string; options: string[]; correctIndex: number };
+      quiz?: { q: string; qEn?: string; options: string[]; optionsEn?: string[]; correctIndex: number };
     }
   | {
       id: string;
