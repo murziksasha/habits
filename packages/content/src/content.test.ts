@@ -33,6 +33,8 @@ import {
   goFundamentalsContent,
   webAccessibilityContent,
   restApiDesignContent,
+  frontendPerformanceContent,
+  browserWebApisContent,
   type CourseContent,
   type Exercise,
 } from "./index.js";
@@ -99,6 +101,8 @@ const courses: CourseContent[] = [
   goFundamentalsContent,
   webAccessibilityContent,
   restApiDesignContent,
+  frontendPerformanceContent,
+  browserWebApisContent,
 ];
 
 const EXERCISE_TYPES = new Set([
@@ -165,6 +169,8 @@ describe("course content integrity", () => {
         "go_fundamentals",
         "web_accessibility",
         "rest_api_design",
+        "frontend_performance",
+        "browser_web_apis",
       ].sort(),
     );
   });
@@ -957,6 +963,33 @@ describe("js_fundamentals prompt quality (SPEC 92)", () => {
           expect(ex.promptUk.length, ex.id).toBeGreaterThanOrEqual(12);
           expect((ex.promptEn ?? "").length, ex.id).toBeGreaterThanOrEqual(12);
         }
+      }
+    }
+  });
+});
+
+
+describe("new and extended deep tracks (learning-improvements)", () => {
+  it("REST API Design has 24 bilingual lessons across 6 units", () => {
+    expect(restApiDesignContent.units).toHaveLength(6);
+    const lessons = restApiDesignContent.units.flatMap((u) => u.lessons);
+    expect(lessons).toHaveLength(24);
+    expect(lessons.filter((l) => l.isExam)).toHaveLength(6);
+    for (const l of lessons) {
+      expect(l.titleUk.trim().length).toBeGreaterThan(0);
+      expect(l.titleEn?.trim().length ?? 0).toBeGreaterThan(0);
+    }
+  });
+
+  it("Frontend Performance and Browser Web APIs have 24 bilingual lessons each", () => {
+    for (const c of [frontendPerformanceContent, browserWebApisContent]) {
+      expect(c.units, c.slug).toHaveLength(6);
+      const lessons = c.units.flatMap((u) => u.lessons);
+      expect(lessons, c.slug).toHaveLength(24);
+      expect(lessons.filter((l) => l.isExam), c.slug).toHaveLength(6);
+      for (const l of lessons) {
+        expect(l.titleUk.trim().length).toBeGreaterThan(0);
+        expect(l.titleEn?.trim().length ?? 0).toBeGreaterThan(0);
       }
     }
   });

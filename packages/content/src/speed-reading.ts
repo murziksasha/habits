@@ -35,6 +35,8 @@ export const speedReadingContent: CourseContent = {
               correctIndex: 0,
               explanationUk:
                 "Rapid Serial Visual Presentation зменшує саккади й допомагає тримати фокус.",
+              explanationEn:
+                "Rapid Serial Visual Presentation reduces saccades and helps you keep focus.",
             },
             {
               id: "sr-1-2",

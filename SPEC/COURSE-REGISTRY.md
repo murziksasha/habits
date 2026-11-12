@@ -31,7 +31,9 @@ App-level map of course slug → hub → freemium. DB stores `varchar` slugs; re
 | `applied_algorithms` | deep | `/applied-algorithms` | same | Web complexity, Maps/Sets, stacks/queues, cycle-safe trees + ForgeBoard M12 |
 | `go_fundamentals` | deep | `/go-fundamentals` | same | Packages, types, slices, interfaces, goroutines and testing. Not primary nav |
 | `web_accessibility` | deep | `/web-accessibility` | same | POUR, keyboard, ARIA, contrast and WCAG 2.2 testing. Not primary nav |
-| `rest_api_design` | deep | `/rest-api-design` | same | Resource URLs, HTTP methods, status codes, idempotency and API errors. Not primary nav |
+| `rest_api_design` | deep | `/rest-api-design` | same | Resource URLs, HTTP methods, status codes, idempotency, versioning and API errors (24 lessons). Not a primary-nav item; discover via `/courses`, `/learn`, `/paths`. |
+| `frontend_performance` | deep | `/frontend-performance` | same | Critical path, bundles, images, cache and Core Web Vitals. Not a primary-nav item; discover via `/courses`, `/learn`, `/paths`. |
+| `browser_web_apis` | deep | `/browser-web-apis` | same | DOM, fetch, storage, observers, workers and platform APIs. Not a primary-nav item; discover via `/courses`, `/learn`, `/paths`. |
 | `english` | skill | `/courses/english` | same | Core skill + engineering issues/PRs/tradeoffs |
 | `typing` | skill | `/courses/typing` | same | Accuracy-first touch typing + code/docs symbol drills |
 | `speed_reading` | skill | `/courses/speed_reading` | same | RSVP, chunking + technical spec comprehension |

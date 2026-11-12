@@ -16,6 +16,7 @@ import { useLocale } from "@/lib/locale-context";
 import { useTheme } from "@/lib/theme-context";
 import { NotificationsBell } from "@/components/notifications-bell";
 import { CommandPalette } from "@/components/command-palette";
+import { api } from "@/lib/api";
 
 type NavLink = { href: string; label: string; icon: string; group?: string };
 
@@ -45,13 +46,14 @@ function labelForSlot(
 
 export function Nav() {
   const pathname = usePathname();
-  const { user, character, logout } = useAuth();
+  const { user, character, logout, token } = useAuth();
   const { t, locale, setLocale } = useLocale();
   const { theme, toggle } = useTheme();
   const [open, setOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const moreButtonRef = useRef<HTMLButtonElement | null>(null);
   const [labsOn, setLabsOn] = useState(false);
+  const [dueCount, setDueCount] = useState(0);
   const persona = resolvePersona(character?.onboarding);
 
   // Labs: ?labs=1 enables experimental routes; ?labs=0 disables; persists in localStorage
@@ -75,6 +77,24 @@ export function Nav() {
     }
   }, [pathname]);
 
+  useEffect(() => {
+    if (!user || !token) {
+      setDueCount(0);
+      return;
+    }
+    let cancelled = false;
+    void api<{ due?: number }>("/review/due-count", { token })
+      .then((d) => {
+        if (!cancelled) setDueCount(Math.max(0, d.due ?? 0));
+      })
+      .catch(() => {
+        if (!cancelled) setDueCount(0);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, token, pathname]);
+
   // Embed routes: chrome-free for iframe / share embeds
   if (pathname.startsWith("/embed")) return null;
 
@@ -95,6 +115,7 @@ export function Nav() {
   // Compact More: toolkit + social + account; school only for parent/teacher personas
   const moreDefs: NavLink[] = [
     { href: "/review", label: t.nav.review, icon: "🔁", group: toolkitLabel },
+    { href: "/paths", label: t.nav.paths, icon: "🛤️", group: toolkitLabel },
     { href: "/playground", label: t.nav.playground, icon: "🖥️", group: toolkitLabel },
     { href: "/flashcards", label: t.nav.flashcards, icon: "🃏", group: toolkitLabel },
     { href: "/tutor", label: t.nav.tutor, icon: "🤖", group: toolkitLabel },
@@ -149,6 +170,24 @@ export function Nav() {
         icon: "📡",
         group: labsLabel,
       },
+    );
+  }
+
+
+  function linkLabel(href: string, label: string) {
+    const show = href === "/review" && dueCount > 0;
+    return (
+      <>
+        <span>{label}</span>
+        {show ? (
+          <span
+            className="ml-auto rounded-full bg-sun px-1.5 py-0.5 text-[10px] font-black leading-none text-white"
+            aria-label={`${dueCount}`}
+          >
+            {dueCount > 99 ? "99+" : dueCount}
+          </span>
+        ) : null}
+      </>
     );
   }
 
@@ -248,7 +287,7 @@ export function Nav() {
                             )}
                           >
                             <span>{l.icon}</span>
-                            {l.label}
+                            {linkLabel(l.href, l.label)}
                           </Link>
                         ))}
                       </div>
@@ -377,7 +416,7 @@ export function Nav() {
                 )}
               >
                 <span>{l.icon}</span>
-                {l.label}
+                {linkLabel(l.href, l.label)}
               </Link>
             ))}
             {user && (

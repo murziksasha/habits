@@ -61,7 +61,7 @@ docker compose --profile tools run --rm migrate
 
 | Область | Що є |
 |---------|------|
-| Курси | 33 курси (uk+en): навички, код, deep tracks (JS/TS/React/Node/Express/SQL, AI, DevOps, …) плюс **Go**, **веб-доступність**, **дизайн REST API**. 1805 уроків. Як додавати: [`SPEC/CONTENT-DX.md`](./SPEC/CONTENT-DX.md), лічильник: [`SPEC/CONTENT-EXPANSION.md`](./SPEC/CONTENT-EXPANSION.md) |
+| Курси | 35 курсів (uk+en): навички, код, deep tracks (JS/TS/React/Node/Express/SQL, AI, DevOps, …) плюс **Go**, **веб-доступність**, **дизайн REST API** (24 уроки), **продуктивність фронтенду**, **веб-API браузера**. 1865 уроків. Як додавати: [`SPEC/CONTENT-DX.md`](./SPEC/CONTENT-DX.md), лічильник: [`SPEC/CONTENT-EXPANSION.md`](./SPEC/CONTENT-EXPANSION.md) |
 | Programming | path units, Monaco drills, mini-projects, weekly race, stack hubs |
 | Deep tracks | HTML semantics, CSS Flex/Grid, QA theory (+ unit exams) |
 | Deep learning | **concept cards** (теорія перед практикою), **крива забування** (`/review` памʼять ≈ %), **змішана практика** `/review/mixed` — [SPEC/91](./SPEC/91-deep-learning-features.md) |
@@ -71,6 +71,10 @@ docker compose --profile tools run --rm migrate
 | Соціальне | friends, minis vs friends, weekly race vs friends, certificates |
 | Клас / батьки | orgs, homework, gradebook CSV, parent digests |
 | Гейміфікація | XP, levels, hearts, streak shields, shop, quests, achievements |
+| Навчальні шляхи | шість цілей (фронтенд, бекенд, QA, AI, DBA/SQL, DevOps) на `/paths`, прогрес з пройдених уроків, посилання з хабів курсів |
+| Вхідний тест | опційний тест на старті курсу (`/placement/[slug]`), можна позначити вже відомі теми як пройдені (0 XP) |
+| Головна | картка «продовжити з того місця», підсумок тижня, серія днів; бейдж кількості карток до повторення |
+| Якість контенту | quality gate у `pnpm test:unit` і GitHub Actions (`content-gate`): переклади, унікальні slug/id, пояснення, форма вправ |
 | Ops | admin metrics CSV, cron digests, push, tutor (SpaceXAI) |
 
 ## Прокачка

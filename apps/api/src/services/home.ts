@@ -7,7 +7,8 @@ import {
 } from "@eduforge/db";
 import { db } from "../db.js";
 import { buildExamBoard } from "./exam-board.js";
-import { getRecordedStudyDates } from "./learning-progress.js";
+import { getLearningProgress, getRecordedStudyDates } from "./learning-progress.js";
+import type { LearningWeeklyRecap } from "@eduforge/shared";
 import { buildMinisRace } from "./minis-race.js";
 import { buildNextRecommendations } from "./next-steps.js";
 
@@ -48,6 +49,7 @@ export type HomePayload = {
     }[];
   } | null;
   studyDates: string[];
+  weeklyRecap: LearningWeeklyRecap | null;
   meta: {
     progressOk: boolean;
     activityOk: boolean;
@@ -55,6 +57,7 @@ export type HomePayload = {
     examsOk: boolean;
     raceOk: boolean;
     studyDatesOk: boolean;
+    weeklyOk: boolean;
   };
 };
 
@@ -104,6 +107,7 @@ export async function buildHomePayload(userId: string): Promise<HomePayload> {
     examsOk: true,
     raceOk: true,
     studyDatesOk: true,
+    weeklyOk: true,
   };
 
   // Shared foundation: courses list + full lesson progress (used by next + exams)
@@ -146,7 +150,7 @@ export async function buildHomePayload(userId: string): Promise<HomePayload> {
     })),
   };
 
-  const [nextR, examsR, raceR, studyDatesR] = await Promise.allSettled([
+  const [nextR, examsR, raceR, studyDatesR, weeklyR] = await Promise.allSettled([
     buildNextRecommendations(userId, 5, prefetch),
     buildExamBoard(userId, null, {
       courses: allCourses,
@@ -154,6 +158,7 @@ export async function buildHomePayload(userId: string): Promise<HomePayload> {
     }),
     buildMinisRace(userId),
     getRecordedStudyDates(userId, 14),
+    getLearningProgress(userId, { days: 30, course: null }),
   ]);
 
   let recommendations: HomePayload["recommendations"] = [];
@@ -204,6 +209,14 @@ export async function buildHomePayload(userId: string): Promise<HomePayload> {
     console.error("[home] studyDates", studyDatesR.reason);
   }
 
+  let weeklyRecap: LearningWeeklyRecap | null = null;
+  if (weeklyR.status === "fulfilled") {
+    weeklyRecap = weeklyR.value.weeklyRecap;
+  } else {
+    meta.weeklyOk = false;
+    console.error("[home] weeklyRecap", weeklyR.reason);
+  }
+
   return {
     progress,
     activity,
@@ -211,6 +224,7 @@ export async function buildHomePayload(userId: string): Promise<HomePayload> {
     examBoard,
     minisRace,
     studyDates,
+    weeklyRecap,
     meta,
   };
 }

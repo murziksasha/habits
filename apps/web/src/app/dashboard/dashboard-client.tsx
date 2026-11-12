@@ -13,6 +13,9 @@ import { PrimaryMission } from "@/components/primary-mission";
 import { EmptyState, Skeleton } from "@/components/ui";
 import { OnboardingWizard } from "@/components/onboarding-wizard";
 import { StreakCalendar } from "@/components/streak-calendar";
+import { ContinueCta } from "@/components/continue-cta";
+import { WeeklyRecapCard } from "@/components/weekly-recap-card";
+import type { LearningWeeklyRecap } from "@eduforge/shared";
 
 type HomePayload = {
   progress: {
@@ -45,11 +48,12 @@ type HomePayload = {
     summary: { totalExams: number; passed: number; ready: number; locked: number };
   } | null;
   studyDates?: string[];
+  weeklyRecap?: LearningWeeklyRecap | null;
 };
 
 /**
- * Thin home shell: one primary mission + streak/hearts + 2–3 chips.
- * Learn owns the full map; no DailyQuests / Continue duplication.
+ * Thin home shell: continue-where-you-left-off, weekly summary, primary mission,
+ * streak/hearts, and a few chips. Daily quests stay on /learn.
  */
 export function DashboardClient() {
   const { character, setCharacter, refresh } = useAuth();
@@ -218,7 +222,13 @@ export function DashboardClient() {
         </div>
       </section>
 
-      {/* Single primary CTA — daily/weekly quests live on /learn only */}
+      {user ? (
+        <section aria-label={t.dashboard.continueWhere}>
+          <ContinueCta variant="card" />
+        </section>
+      ) : null}
+
+      {/* Primary mission — daily/weekly quests live on /learn only */}
       <PrimaryMission showSecondary />
 
       {home?.progress && home.progress.length > 0 && (
@@ -253,6 +263,8 @@ export function DashboardClient() {
         streakDays={character?.streakDays ?? 0}
         progressHref="/calendar"
       />
+
+      {home?.weeklyRecap ? <WeeklyRecapCard recap={home.weeklyRecap} /> : null}
 
       <div className="grid gap-3 sm:grid-cols-3">
         {chips.map((x) => (

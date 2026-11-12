@@ -34,6 +34,8 @@ export const COURSE_SLUGS = [
   "go_fundamentals",
   "web_accessibility",
   "rest_api_design",
+  "frontend_performance",
+  "browser_web_apis",
 ] as const;
 
 export type CourseSlug = (typeof COURSE_SLUGS)[number];
@@ -91,6 +93,8 @@ export const COURSE_GROUP: Record<CourseSlug, CourseGroup> = {
   go_fundamentals: "deep",
   web_accessibility: "deep",
   rest_api_design: "deep",
+  frontend_performance: "deep",
+  browser_web_apis: "deep",
 };
 
 export const COURSE_GROUP_META: Record<
@@ -541,6 +545,30 @@ export const COURSE_META: Record<
     color: "#EA580C",
     group: "deep",
   },
+  frontend_performance: {
+    slug: "frontend_performance",
+    titleUk: "Продуктивність фронтенду",
+    titleEn: "Frontend Performance",
+    descriptionUk:
+      "Критичний шлях, рендер, бандлі, зображення, кеш і Core Web Vitals (LCP, INP, CLS).",
+    descriptionEn:
+      "Critical path, rendering, bundles, images, caching and Core Web Vitals (LCP, INP, CLS).",
+    icon: "⚡",
+    color: "#CA8A04",
+    group: "deep",
+  },
+  browser_web_apis: {
+    slug: "browser_web_apis",
+    titleUk: "Веб-API браузера",
+    titleEn: "Browser Web APIs",
+    descriptionUk:
+      "DOM і події, fetch і стріми, сховища, спостерігачі, воркери, історія, буфер і дозволи.",
+    descriptionEn:
+      "The DOM and events, fetch and streams, storage, observers, workers, history, clipboard and permissions.",
+    icon: "🌐",
+    color: "#2563EB",
+    group: "deep",
+  },
 };
 
 /** Hub path for deep tracks / code (fallback /courses/:slug) */
@@ -571,6 +599,8 @@ export const COURSE_HUB_HREF: Partial<Record<CourseSlug | string, string>> = {
   go_fundamentals: "/go-fundamentals",
   web_accessibility: "/web-accessibility",
   rest_api_design: "/rest-api-design",
+  frontend_performance: "/frontend-performance",
+  browser_web_apis: "/browser-web-apis",
   chess: "/play",
 };
 
@@ -582,8 +612,10 @@ export const FULL_STACK_ROADMAP_ORDER: readonly CourseSlug[] = [
   "web_accessibility",
   "git_workflows",
   "js_fundamentals",
+  "browser_web_apis",
   "typescript",
   "react_fundamentals",
+  "frontend_performance",
   "node_fundamentals",
   "express_fundamentals",
   "rest_api_design",
@@ -629,6 +661,8 @@ export const COURSE_PREREQUISITES: Partial<Record<CourseSlug, readonly CourseSlu
   go_fundamentals: ["programming"],
   web_accessibility: ["html_semantics", "css_layout"],
   rest_api_design: ["express_fundamentals"],
+  frontend_performance: ["js_fundamentals", "react_fundamentals"],
+  browser_web_apis: ["js_fundamentals"],
 };
 
 export const COURSE_NEXT_MAP: Partial<Record<CourseSlug, readonly CourseSlug[]>> = {
@@ -636,9 +670,9 @@ export const COURSE_NEXT_MAP: Partial<Record<CourseSlug, readonly CourseSlug[]>>
   html_semantics: ["css_layout", "js_fundamentals", "web_accessibility"],
   css_layout: ["js_fundamentals", "react_fundamentals", "web_accessibility"],
   git_workflows: ["js_fundamentals", "ai_development"],
-  js_fundamentals: ["typescript", "react_fundamentals", "node_fundamentals"],
+  js_fundamentals: ["typescript", "react_fundamentals", "node_fundamentals", "browser_web_apis"],
   typescript: ["react_fundamentals", "express_fundamentals", "applied_algorithms"],
-  react_fundamentals: ["software_testing", "nextjs_fullstack"],
+  react_fundamentals: ["software_testing", "nextjs_fullstack", "frontend_performance"],
   node_fundamentals: ["express_fundamentals", "sysadmin"],
   express_fundamentals: ["postgresql_apps", "software_testing", "web_security", "rest_api_design"],
   sql_fundamentals: ["postgresql_apps"],
@@ -659,6 +693,8 @@ export const COURSE_NEXT_MAP: Partial<Record<CourseSlug, readonly CourseSlug[]>>
   go_fundamentals: ["devops"],
   web_accessibility: ["react_fundamentals", "web_security"],
   rest_api_design: ["web_security", "nextjs_fullstack"],
+  frontend_performance: ["nextjs_fullstack"],
+  browser_web_apis: ["frontend_performance", "web_security"],
 };
 
 export function getCoursePrerequisites(slug: string): readonly CourseSlug[] {
@@ -859,3 +895,12 @@ export type ExerciseType =
   | "code_judge"
   | "concept"
   | "explain";
+
+/** Newly added deep tracks surfaced on the catalog and learn map (not a 7th primary-nav slot). */
+export const FEATURED_COURSE_SLUGS: readonly CourseSlug[] = [
+  "go_fundamentals",
+  "web_accessibility",
+  "rest_api_design",
+  "frontend_performance",
+  "browser_web_apis",
+];

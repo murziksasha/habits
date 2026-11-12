@@ -73,6 +73,8 @@ export const COURSE_SUBJECT: Record<CourseSlug, SubjectId> = {
   go_fundamentals: "technology",
   web_accessibility: "technology",
   rest_api_design: "technology",
+  frontend_performance: "technology",
+  browser_web_apis: "technology",
 };
 
 export function subjectForCourse(slug: string): SubjectId {

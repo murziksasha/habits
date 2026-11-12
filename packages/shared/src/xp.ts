@@ -82,6 +82,8 @@ export const COURSE_GLOBAL_WEIGHT: Record<string, number> = {
   go_fundamentals: 1.05,
   web_accessibility: 1.05,
   rest_api_design: 1.05,
+  frontend_performance: 1.05,
+  browser_web_apis: 1.05,
 };
 
 export function typingXpAward(wpm: number, accuracy: number): number {

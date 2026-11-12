@@ -9,6 +9,8 @@ import {
   getCourseParts,
   getCoursePrerequisites,
   listCourseRegistry,
+  FEATURED_COURSE_SLUGS,
+  COURSE_SLUGS,
 } from "./index.js";
 
 describe("course parts", () => {
@@ -72,5 +74,18 @@ describe("course parts", () => {
     expect(aiDevNext).toContain("python_for_ai");
     expect(aiDevNext).toContain("nextjs_fullstack");
     expect(aiDevNext).toContain("applied_algorithms");
+  });
+
+  it("features the new deep tracks on the catalog", () => {
+    expect([...FEATURED_COURSE_SLUGS]).toEqual([
+      "go_fundamentals",
+      "web_accessibility",
+      "rest_api_design",
+      "frontend_performance",
+      "browser_web_apis",
+    ]);
+    for (const slug of FEATURED_COURSE_SLUGS) {
+      expect((COURSE_SLUGS as readonly string[]).includes(slug)).toBe(true);
+    }
   });
 });

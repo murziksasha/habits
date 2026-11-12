@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
   COURSE_HUB_HREF,
+  FEATURED_COURSE_SLUGS,
   SUBJECT_IDS,
   SUBJECT_META,
   pickLocale,
@@ -152,9 +153,33 @@ export function SubjectCatalog({
     </Link>
   );
 
+  const featuredCourses = (courses ?? []).filter((c) =>
+    (FEATURED_COURSE_SLUGS as readonly string[]).includes(c.slug),
+  );
+  const showFeatured = !query.trim() && subject === "all" && featuredCourses.length > 0;
+  const featuredRow = showFeatured ? (
+    <section className="space-y-2" aria-label={t.catalog.featured}>
+      <div>
+        <h2 className="text-lg font-black">{t.catalog.featured}</h2>
+        <p className="text-sm text-ink-muted">{t.catalog.featuredHint}</p>
+      </div>
+      <div className="flex gap-3 overflow-x-auto pb-1 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:overflow-visible">
+        {featuredCourses
+          .slice()
+          .sort(
+            (a, b) =>
+              (FEATURED_COURSE_SLUGS as readonly string[]).indexOf(a.slug) -
+              (FEATURED_COURSE_SLUGS as readonly string[]).indexOf(b.slug),
+          )
+          .map(card)}
+      </div>
+    </section>
+  ) : null;
+
   if (variant === "grid") {
     return (
       <div className="space-y-4">
+        {featuredRow}
         {filters}
         {filtered.length === 0 ? (
           <p className="card font-bold text-ink-muted">{t.catalog.empty}</p>
@@ -172,6 +197,7 @@ export function SubjectCatalog({
 
   return (
     <div className="space-y-6">
+      {featuredRow}
       {sections.length === 0 ? <p className="card font-bold text-ink-muted">{t.catalog.empty}</p> : null}
       {sections.map((s) => (
         <section key={s.id} className="space-y-3">

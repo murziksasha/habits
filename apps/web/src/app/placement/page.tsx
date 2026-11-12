@@ -1,6 +1,6 @@
-import { PlacementClient } from "./placement-client";
+import { CoursePlacementClient } from "./course-placement-client";
 
-/** RSC shell — placement */
+/** RSC shell — English placement (default). */
 export default function PlacementPage() {
-  return <PlacementClient />;
+  return <CoursePlacementClient courseSlug="english" />;
 }

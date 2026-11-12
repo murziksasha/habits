@@ -208,6 +208,7 @@ export const englishContent: CourseContent = {
               options: ["go", "goes", "going", "gone"],
               correctIndex: 1,
               explanationUk: "3-тя особа однини: goes.",
+              explanationEn: "Third person singular takes goes.",
             },
             {
               id: "en-6-2",

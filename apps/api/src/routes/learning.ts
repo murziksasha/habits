@@ -15,7 +15,6 @@ import {
   users,
 } from "@eduforge/db";
 import {
-  ENGLISH_PLACEMENT,
   isoWeekBounds,
   isoWeekKey,
   learningHistoryQuerySchema,
@@ -23,10 +22,9 @@ import {
   levelFromXp,
   parsePagination,
   PROGRAMMING_MINI_LESSON_SLUGS,
-  PROGRAMMING_PLACEMENT,
   PROGRAMMING_UNIT_ORDER,
-  scorePlacement,
-  scoreProgrammingPlacement,
+  LEARNING_PATHS,
+  computeAllPathProgress,
   updateLearningGoalSchema,
   weeklyMinisRaceSlugs,
   weeklyMinisRaceXpBonus,
@@ -44,6 +42,7 @@ import {
 } from "../services/learning-progress.js";
 import { buildMinisRace } from "../services/minis-race.js";
 import { buildNextRecommendations } from "../services/next-steps.js";
+import { getCoursePlacement, submitCoursePlacement } from "../services/course-placement.js";
 
 type Vars = { user: AuthedUser };
 
@@ -107,6 +106,58 @@ learningRoutes.put("/goal", authMiddleware, async (c) => {
     return c.json({ error: "no_character" }, 404);
   }
   return c.json(updated);
+});
+
+learningRoutes.get("/paths", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const pathSlugs = [...new Set(LEARNING_PATHS.flatMap((p) => [...p.courseSlugs]))];
+  const totalRows = await db
+    .select({
+      slug: courses.slug,
+      total: sql<number>`count(${lessons.id})::int`,
+    })
+    .from(lessons)
+    .innerJoin(courses, eq(courses.id, lessons.courseId))
+    .where(inArray(courses.slug, pathSlugs))
+    .groupBy(courses.slug);
+  const doneRows = await db
+    .select({
+      slug: courses.slug,
+      completed: sql<number>`count(${userLessonProgress.id})::int`,
+    })
+    .from(userLessonProgress)
+    .innerJoin(courses, eq(courses.id, userLessonProgress.courseId))
+    .where(
+      and(
+        eq(userLessonProgress.userId, user.id),
+        eq(userLessonProgress.status, "completed"),
+        inArray(courses.slug, pathSlugs),
+      ),
+    )
+    .groupBy(courses.slug);
+  const totals = new Map(totalRows.map((r) => [r.slug, r.total]));
+  const dones = new Map(doneRows.map((r) => [r.slug, r.completed]));
+  const courseSnapshots = pathSlugs.map((slug) => ({
+    slug,
+    completedLessons: dones.get(slug) ?? 0,
+    totalLessons: totals.get(slug) ?? 0,
+  }));
+  const progress = computeAllPathProgress(courseSnapshots);
+  const bySlug = new Map(progress.map((p) => [p.slug, p]));
+  return c.json({
+    courses: courseSnapshots,
+    paths: LEARNING_PATHS.map((p) => ({
+      slug: p.slug,
+      icon: p.icon,
+      color: p.color,
+      titleUk: p.titleUk,
+      titleEn: p.titleEn,
+      blurbUk: p.blurbUk,
+      blurbEn: p.blurbEn,
+      courseSlugs: [...p.courseSlugs],
+      progress: bySlug.get(p.slug),
+    })),
+  });
 });
 
 /** Smart next steps: unfinished lessons, due cards, weak review, placement */
@@ -219,34 +270,6 @@ learningRoutes.get("/export", authMiddleware, async (c) => {
   return c.json(payload);
 });
 
-/** Placement test questions (no answers) */
-learningRoutes.get("/placement/english", authMiddleware, async (c) => {
-  const user = c.get("user");
-  const last = await db.query.placementResults.findFirst({
-    where: and(
-      eq(placementResults.userId, user.id),
-      eq(placementResults.courseSlug, "english"),
-    ),
-    orderBy: [desc(placementResults.createdAt)],
-  });
-  return c.json({
-    questions: ENGLISH_PLACEMENT.map((q) => ({
-      id: q.id,
-      promptUk: q.promptUk,
-      promptEn: q.promptEn,
-      options: q.options,
-    })),
-    lastResult: last
-      ? {
-          score: last.score,
-          levelLabel: last.levelLabel,
-          recommendedUnitSlug: last.recommendedUnitSlug,
-          createdAt: last.createdAt,
-        }
-      : null,
-  });
-});
-
 const placementSubmitSchema = z.object({
   answers: z.array(
     z.object({
@@ -254,6 +277,15 @@ const placementSubmitSchema = z.object({
       index: z.number().int().min(0).max(10),
     }),
   ),
+  applySkip: z.boolean().optional(),
+});
+
+/** Placement test questions (no answers). English/programming keep stable URLs. */
+learningRoutes.get("/placement/english", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const result = await getCoursePlacement(user.id, "english");
+  if (!result.ok) return c.json({ error: result.error }, result.status);
+  return c.json(result.data);
 });
 
 learningRoutes.post("/placement/english", authMiddleware, async (c) => {
@@ -261,98 +293,19 @@ learningRoutes.post("/placement/english", authMiddleware, async (c) => {
   const body = await c.req.json().catch(() => null);
   const parsed = placementSubmitSchema.safeParse(body);
   if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
-
-  const result = scorePlacement(parsed.data.answers);
-  const [row] = await db
-    .insert(placementResults)
-    .values({
-      userId: user.id,
-      courseSlug: "english",
-      score: result.score,
-      levelLabel: result.level.label,
-      answers: { answers: parsed.data.answers },
-      recommendedUnitSlug: result.level.recommendedUnitSlug,
-    })
-    .returning();
-
-  await logActivity(db, user.id, "placement_completed", {
-    courseSlug: "english",
-    level: result.level.label,
-    score: result.score,
+  const result = await submitCoursePlacement(user.id, "english", {
+    answers: parsed.data.answers,
+    applySkip: parsed.data.applySkip ?? false,
   });
-  await notifyUser(db, user.id, {
-    type: "placement",
-    titleUk: `Placement: ${result.level.label}`,
-    titleEn: `Placement: ${result.level.label}`,
-    bodyUk: result.level.titleUk,
-    bodyEn: result.level.titleEn,
-    href: "/placement",
-  });
-
-  // Milestone
-  await ensureMilestone(user.id, "placement_english", "Placement English", "English placement");
-
-  // Link to first lesson of recommended unit if exists
-  let startHref = "/courses/english";
-  const course = await db.query.courses.findFirst({
-    where: eq(courses.slug, "english"),
-  });
-  if (course) {
-    const unit = await db.query.units.findFirst({
-      where: and(
-        eq(units.courseId, course.id),
-        eq(units.slug, result.level.recommendedUnitSlug),
-      ),
-    });
-    if (unit) {
-      const first = await db.query.lessons.findFirst({
-        where: eq(lessons.unitId, unit.id),
-        orderBy: [asc(lessons.sortOrder)],
-      });
-      if (first) startHref = `/courses/english/lessons/${first.id}`;
-    }
-  }
-
-  return c.json({
-    result: {
-      score: result.score,
-      correct: result.correct,
-      total: result.total,
-      levelLabel: result.level.label,
-      titleUk: result.level.titleUk,
-      titleEn: result.level.titleEn,
-      recommendedUnitSlug: result.level.recommendedUnitSlug,
-      startHref,
-    },
-    id: row.id,
-  });
+  if (!result.ok) return c.json({ error: result.error }, result.status);
+  return c.json(result.data);
 });
 
 learningRoutes.get("/placement/programming", authMiddleware, async (c) => {
   const user = c.get("user");
-  const last = await db.query.placementResults.findFirst({
-    where: and(
-      eq(placementResults.userId, user.id),
-      eq(placementResults.courseSlug, "programming"),
-    ),
-    orderBy: [desc(placementResults.createdAt)],
-  });
-  return c.json({
-    questions: PROGRAMMING_PLACEMENT.map((q) => ({
-      id: q.id,
-      promptUk: q.promptUk,
-      promptEn: q.promptEn,
-      options: q.options,
-    })),
-    lastResult: last
-      ? {
-          score: last.score,
-          levelLabel: last.levelLabel,
-          recommendedUnitSlug: last.recommendedUnitSlug,
-          createdAt: last.createdAt,
-        }
-      : null,
-  });
+  const result = await getCoursePlacement(user.id, "programming");
+  if (!result.ok) return c.json({ error: result.error }, result.status);
+  return c.json(result.data);
 });
 
 learningRoutes.post("/placement/programming", authMiddleware, async (c) => {
@@ -360,74 +313,38 @@ learningRoutes.post("/placement/programming", authMiddleware, async (c) => {
   const body = await c.req.json().catch(() => null);
   const parsed = placementSubmitSchema.safeParse(body);
   if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
-
-  const result = scoreProgrammingPlacement(parsed.data.answers);
-  const [row] = await db
-    .insert(placementResults)
-    .values({
-      userId: user.id,
-      courseSlug: "programming",
-      score: result.score,
-      levelLabel: result.level.label,
-      answers: { answers: parsed.data.answers },
-      recommendedUnitSlug: result.level.recommendedUnitSlug,
-    })
-    .returning();
-
-  await logActivity(db, user.id, "placement_completed", {
-    courseSlug: "programming",
-    level: result.level.label,
-    score: result.score,
+  const result = await submitCoursePlacement(user.id, "programming", {
+    answers: parsed.data.answers,
+    applySkip: parsed.data.applySkip ?? false,
   });
-  await notifyUser(db, user.id, {
-    type: "placement",
-    titleUk: `Programming: ${result.level.label}`,
-    titleEn: `Programming: ${result.level.label}`,
-    bodyUk: result.level.titleUk,
-    bodyEn: result.level.titleEn,
-    href: "/programming",
-  });
-  await ensureMilestone(
-    user.id,
-    "placement_programming",
-    "Placement Programming",
-    "Programming placement",
-  );
-
-  let startHref = "/programming";
-  const course = await db.query.courses.findFirst({
-    where: eq(courses.slug, "programming"),
-  });
-  if (course) {
-    const unit = await db.query.units.findFirst({
-      where: and(
-        eq(units.courseId, course.id),
-        eq(units.slug, result.level.recommendedUnitSlug),
-      ),
-    });
-    if (unit) {
-      const first = await db.query.lessons.findFirst({
-        where: eq(lessons.unitId, unit.id),
-        orderBy: [asc(lessons.sortOrder)],
-      });
-      if (first) startHref = `/courses/programming/lessons/${first.id}`;
-    }
-  }
-
-  return c.json({
-    result: {
-      score: result.score,
-      correct: result.correct,
-      total: result.total,
-      levelLabel: result.level.label,
-      titleUk: result.level.titleUk,
-      titleEn: result.level.titleEn,
-      recommendedUnitSlug: result.level.recommendedUnitSlug,
-      startHref,
-    },
-    id: row.id,
-  });
+  if (!result.ok) return c.json({ error: result.error }, result.status);
+  return c.json(result.data);
 });
+
+learningRoutes.get("/placement/:courseSlug", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const courseSlug = c.req.param("courseSlug");
+  if (!courseSlug) return c.json({ error: "invalid_input" }, 400);
+  const result = await getCoursePlacement(user.id, courseSlug);
+  if (!result.ok) return c.json({ error: result.error }, result.status);
+  return c.json(result.data);
+});
+
+learningRoutes.post("/placement/:courseSlug", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const courseSlug = c.req.param("courseSlug");
+  if (!courseSlug) return c.json({ error: "invalid_input" }, 400);
+  const body = await c.req.json().catch(() => null);
+  const parsed = placementSubmitSchema.safeParse(body);
+  if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
+  const result = await submitCoursePlacement(user.id, courseSlug, {
+    answers: parsed.data.answers,
+    applySkip: parsed.data.applySkip ?? false,
+  });
+  if (!result.ok) return c.json({ error: result.error }, result.status);
+  return c.json(result.data);
+});
+
 
 learningRoutes.get("/milestones", authMiddleware, async (c) => {
   const user = c.get("user");
