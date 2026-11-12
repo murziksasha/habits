@@ -138,3 +138,7 @@ full content file.
 Lesson and exercise IDs must be unique. Every exercise with `promptUk`
 needs `promptEn`. Explain samples are checked by `content.test.ts`
 against their own rubric.
+
+## Quality gate
+
+`packages/content/src/quality-gate.test.ts` fails CI on missing uk/en titles or prompts, unpaired empty explanations, duplicate slugs or exercise ids, and malformed exercises. Run it with `pnpm --filter @eduforge/content test`. It is part of `pnpm test:unit` and the `content-gate` GitHub Actions job.

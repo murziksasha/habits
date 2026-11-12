@@ -33,6 +33,7 @@ import { webAccessibilityContent as webAccessibilityRaw } from "./web-accessibil
 import { restApiDesignContent as restApiDesignRaw } from "./rest-api-design.js";
 import { frontendPerformanceContent as frontendPerformanceRaw } from "./frontend-performance.js";
 import { browserWebApisContent as browserWebApisRaw } from "./browser-web-apis.js";
+import type { CourseContent } from "./types.js";
 import { normalizeCourseLocales } from "./locale-normalize.js";
 import { expandEnglish } from "./expansion/english-exp.js";
 import { expandChess } from "./expansion/chess-exp.js";
@@ -119,3 +120,42 @@ export {
   parseExplainIdeas,
 } from "./mdx/parse.js";
 export type { MdxFrontmatter, ParsedMdxLesson, MdxLessonSeed, MdxConcept } from "./mdx/parse.js";
+
+/** Every published course, in COURSE_SLUGS order. Used by the quality gate and seed-adjacent tests. */
+export const ALL_COURSE_CONTENTS: CourseContent[] = [
+  englishContent,
+  chessContent,
+  typingContent,
+  speedReadingContent,
+  logicContent,
+  programmingContent,
+  typescriptContent,
+  htmlSemanticsContent,
+  cssLayoutContent,
+  qaTheoryContent,
+  jsFundamentalsContent,
+  reactFundamentalsContent,
+  sqlFundamentalsContent,
+  nodeFundamentalsContent,
+  expressFundamentalsContent,
+  embeddedCppContent,
+  sysadminContent,
+  devopsContent,
+  softwareTestingContent,
+  postgresqlAppsContent,
+  gitWorkflowsContent,
+  webSecurityContent,
+  aiDevelopmentContent,
+  pythonForAiContent,
+  agenticSystemsContent,
+  llmopsContent,
+  aiSecurityContent,
+  aiProductContent,
+  nextjsFullstackContent,
+  appliedAlgorithmsContent,
+  goFundamentalsContent,
+  webAccessibilityContent,
+  restApiDesignContent,
+  frontendPerformanceContent,
+  browserWebApisContent,
+];

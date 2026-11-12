@@ -3,82 +3,13 @@ import fs from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import {
-  aiDevelopmentContent,
-  aiProductContent,
-  aiSecurityContent,
-  agenticSystemsContent,
-  appliedAlgorithmsContent,
-  goFundamentalsContent,
-  webAccessibilityContent,
-  restApiDesignContent,
-  chessContent,
-  cssLayoutContent,
-  devopsContent,
-  embeddedCppContent,
-  englishContent,
-  expressFundamentalsContent,
-  gitWorkflowsContent,
-  htmlSemanticsContent,
-  jsFundamentalsContent,
-  llmopsContent,
-  logicContent,
-  nextjsFullstackContent,
-  nodeFundamentalsContent,
-  postgresqlAppsContent,
-  programmingContent,
-  pythonForAiContent,
-  qaTheoryContent,
-  reactFundamentalsContent,
-  softwareTestingContent,
-  speedReadingContent,
-  sqlFundamentalsContent,
-  sysadminContent,
-  typingContent,
-  typescriptContent,
-  webSecurityContent,
-  type CourseContent,
-} from "@eduforge/content";
+import { ALL_COURSE_CONTENTS } from "@eduforge/content";
 import { COURSE_SLUGS, LOCAL_LAB_MANIFESTS } from "@eduforge/shared";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "../../..");
 
-const ALL_CONTENT: CourseContent[] = [
-  englishContent,
-  chessContent,
-  typingContent,
-  speedReadingContent,
-  logicContent,
-  programmingContent,
-  typescriptContent,
-  htmlSemanticsContent,
-  cssLayoutContent,
-  qaTheoryContent,
-  jsFundamentalsContent,
-  reactFundamentalsContent,
-  sqlFundamentalsContent,
-  nodeFundamentalsContent,
-  expressFundamentalsContent,
-  embeddedCppContent,
-  sysadminContent,
-  devopsContent,
-  softwareTestingContent,
-  postgresqlAppsContent,
-  gitWorkflowsContent,
-  webSecurityContent,
-  aiDevelopmentContent,
-  pythonForAiContent,
-  agenticSystemsContent,
-  llmopsContent,
-  aiSecurityContent,
-  aiProductContent,
-  nextjsFullstackContent,
-  appliedAlgorithmsContent,
-  goFundamentalsContent,
-  webAccessibilityContent,
-  restApiDesignContent,
-];
+const ALL_CONTENT = ALL_COURSE_CONTENTS;
 
 function readZipEntryNames(buf: Buffer): string[] {
   const names: string[] = [];
