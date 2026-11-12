@@ -71,6 +71,10 @@ docker compose --profile tools run --rm migrate
 | Соціальне | friends, minis vs friends, weekly race vs friends, certificates |
 | Клас / батьки | orgs, homework, gradebook CSV, parent digests |
 | Гейміфікація | XP, levels, hearts, streak shields, shop, quests, achievements |
+| Навчальні шляхи | шість цілей (фронтенд, бекенд, QA, AI, DBA/SQL, DevOps) на `/paths`, прогрес з пройдених уроків, посилання з хабів курсів |
+| Вхідний тест | опційний тест на старті курсу (`/placement/[slug]`), можна позначити вже відомі теми як пройдені (0 XP) |
+| Головна | картка «продовжити з того місця», підсумок тижня, серія днів; бейдж кількості карток до повторення |
+| Якість контенту | quality gate у `pnpm test:unit` і GitHub Actions (`content-gate`): переклади, унікальні slug/id, пояснення, форма вправ |
 | Ops | admin metrics CSV, cron digests, push, tutor (SpaceXAI) |
 
 ## Прокачка

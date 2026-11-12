@@ -326,16 +326,16 @@ Then: validate, **one** non-force push, `gh pr create --base dev`. PR body notes
 
 | Step | Status | Notes |
 | --- | --- | --- |
-| 0. Study codebase, write this plan, commit | **done** (this commit) | Branched from `origin/dev` (`41e40f7`, PR #13 merged). Remote `feat/expand-courses-lessons` was deleted after merge. |
-| 1. Missing `explanationEn` | pending | |
-| 2. REST +12 lessons | pending | |
-| 3. Frontend Performance + Browser Web APIs | pending | |
-| 4. Content spot-check + catalog featured row | pending | |
-| 5. Learning paths | pending | |
-| 6. SRS due-count badge | pending | |
-| 7. Home continue + weekly summary | pending | |
-| 8. Content quality CI gate | pending | |
-| 9. Placement for all courses + migration `0037` | pending | |
-| 10. Docs, typecheck, unit tests, builds, PR | pending | |
+| 0. Study codebase, write this plan, commit | **done** | `f0ce2b7`. Branched from `origin/dev` (`41e40f7`, PR #13 already merged). |
+| 1. Missing `explanationEn` | **done** | `ac3198b` — English `en-6-1`, speed-reading `sr-1-1`. |
+| 2. REST +12 lessons | **done** | `83afed0` — REST API Design is 24 lessons / 6 units. |
+| 3. Frontend Performance + Browser Web APIs | **done** | Same commit: 24 lessons each, registry, hubs, specs. Totals 35 courses, 1,865 lessons. |
+| 4. Content spot-check + catalog featured row | **done** | `SPEC/CONTENT-AUDIT.md`. `FEATURED_COURSE_SLUGS` on `/courses` and `/learn`. Not a 7th primary-nav slot. |
+| 5. Learning paths | **done** | Six paths in `@eduforge/shared`, `GET /learning/paths`, `/paths` page, hub links, More menu. Progress is computed from completed lessons (known placement units count). |
+| 6. SRS due-count badge | **done** | `GET /review/due-count` (exercise reviews + due flashcards). Badge on Review in More and the mobile drawer. |
+| 7. Home continue + weekly summary | **done** | `ContinueCta` on the dashboard; `weeklyRecap` on `GET /me/home`; compact `WeeklyRecapCard`. Streaks still come from the existing character/streak calendar — not a second system. |
+| 8. Content quality CI gate | **done** | `packages/content/src/quality-gate.test.ts` in `pnpm test:unit` and the Actions `content-gate` job. |
+| 9. Placement for all courses + migration `0037` | **done** | `user_unit_placements`, `placement_results.course_slug` → varchar(64). `GET/POST /learning/placement/:courseSlug` (English/Programming keep dedicated banks and URLs). Optional 0 XP skip of earlier units. UI at `/placement/[courseSlug]`. |
+| 10. Docs, typecheck, unit tests, builds, PR | **in progress** | This status update. Validation results go in the PR body. |
 
 Successor resume hints: generators in `scripts/gen-expansion/courses/`; registry edits mirror `1e561c1`; i18n is `packages/shared/src/i18n.ts` (`uk` then `en: UiDict`); migrations in `packages/db/drizzle/` + `meta/_journal.json`.
