@@ -895,3 +895,12 @@ export type ExerciseType =
   | "code_judge"
   | "concept"
   | "explain";
+
+/** Newly added deep tracks surfaced on the catalog and learn map (not a 7th primary-nav slot). */
+export const FEATURED_COURSE_SLUGS: readonly CourseSlug[] = [
+  "go_fundamentals",
+  "web_accessibility",
+  "rest_api_design",
+  "frontend_performance",
+  "browser_web_apis",
+];
