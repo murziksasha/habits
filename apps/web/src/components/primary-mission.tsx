@@ -27,6 +27,32 @@ function kindIcon(kind: string): string {
   return "✨";
 }
 
+function getRecommendationReason(kind: string | undefined, t: ReturnType<typeof useLocale>["t"]): string {
+  if (!kind) return t.learn.reasonDefault;
+  if (kind === "review_weak" || kind === "leech") {
+    return t.learn.reasonWeak;
+  }
+  if (kind === "spaced_review" || kind === "review_queue") {
+    return t.learn.reasonSpaced;
+  }
+  if (kind.includes("exam")) {
+    return t.learn.reasonExam;
+  }
+  if (kind.includes("placement")) {
+    return t.learn.reasonPlacement;
+  }
+  if (kind.includes("continue")) {
+    return t.learn.reasonContinue;
+  }
+  if (kind.includes("start")) {
+    return t.learn.reasonStart;
+  }
+  if (kind.includes("flash")) {
+    return t.learn.reasonFlashcards;
+  }
+  return t.learn.reasonDefault;
+}
+
 /** Single source-of-truth primary CTA for thin home / learn. */
 export function PrimaryMission({
   variant = "hero",
@@ -97,12 +123,9 @@ export function PrimaryMission({
           {t.onboarding.missionOfDay}
         </p>
         {skillPoints > 0 ? (
-          <Link
-            href="/profile#build"
-            className="rounded-full bg-grape/15 px-2 py-0.5 text-[10px] font-black text-grape hover:underline"
-          >
-            ⭐ {skillPoints} SP
-          </Link>
+          <span className="rounded-full bg-grape/10 px-2 py-0.5 text-[10px] font-bold text-ink-muted">
+            {skillPoints} SP
+          </span>
         ) : null}
       </div>
       <p className="text-xl font-black">
@@ -113,20 +136,15 @@ export function PrimaryMission({
       </p>
       {next?.kind ? (
         <p className="text-xs font-bold text-ink-muted">
-          {locale === "en" ? "Why this" : "Чому це"}:{" "}
-          <span className="font-black text-brand-dark">{next.kind.replace(/_/g, " ")}</span>
+          {t.learn.whyThis}:{" "}
+          <span className="font-black text-brand-dark">
+            {getRecommendationReason(next.kind, t)}
+          </span>
         </p>
       ) : null}
-      <div className="flex flex-wrap gap-2">
-        <Link href={href} className="btn-primary inline-flex">
-          {t.onboarding.startNow} →
-        </Link>
-        {skillPoints > 0 ? (
-          <Link href="/profile#build" className="btn-secondary inline-flex">
-            ⭐ {locale === "en" ? "Spend skill points" : "Вкласти очки"}
-          </Link>
-        ) : null}
-      </div>
+      <Link href={href} className="btn-primary inline-flex min-h-11">
+        {t.coursePage.continue} →
+      </Link>
       {showSecondary && secondary.length > 0 && (
         <ul className="space-y-1 pt-1">
           {secondary.map((r, i) => (

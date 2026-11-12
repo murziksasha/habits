@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import type { editor } from "monaco-editor";
 
-const Editor = dynamic(() => import("@monaco-editor/react"), {
+const Editor = dynamic(() => import("./monaco-editor-inner"), {
   ssr: false,
   loading: () => (
     <div className="grid h-[320px] place-items-center rounded-2xl border-2 border-slate-200 bg-slate-50 text-sm font-bold text-ink-muted dark:border-slate-700 dark:bg-slate-900">
@@ -37,20 +37,22 @@ export function MonacoCodeEditor({
   language = "javascript",
   height = "320px",
   readOnly = false,
+  fileName,
 }: {
   value: string;
   onChange: (v: string) => void;
   language?: string;
   height?: string;
   readOnly?: boolean;
+  fileName?: string;
 }) {
   const monacoLang = LANG_MAP[language] ?? language;
 
   return (
     <div
-      className="overflow-hidden rounded-2xl border-2 border-slate-200 dark:border-slate-700"
+      className="w-full min-w-0 rounded-2xl border-2 border-slate-200 dark:border-slate-700"
       role="region"
-      aria-label="Code editor"
+      aria-label={fileName ? `Code editor: ${fileName}` : "Code editor"}
     >
       <Editor
         height={height}
@@ -69,6 +71,11 @@ export function MonacoCodeEditor({
             tabSize: 2,
             readOnly,
             padding: { top: 12 },
+            fixedOverflowWidgets: true,
+            scrollbar: {
+              alwaysConsumeMouseWheel: false,
+            },
+            overviewRulerLanes: 0,
           } satisfies editor.IStandaloneEditorConstructionOptions
         }
       />

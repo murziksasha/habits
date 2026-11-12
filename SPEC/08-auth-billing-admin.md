@@ -1,4 +1,4 @@
-# 08 — Auth, Billing & Admin
+# 08 — Auth & Admin
 
 ## Authentication
 
@@ -13,6 +13,17 @@
 3. Log reset URL; in non-production include `resetUrl` in JSON  
 4. `POST /auth/reset-password` validates unused non-expired token, updates password  
 
+### Email verification & account lifecycle
+
+See **[SPEC/89-unverified-lifecycle.md](./89-unverified-lifecycle.md)** for full detail.
+
+1. On `POST /auth/register`, create `email_verification_tokens` (30d TTL) and send `registrationVerifyEmail`  
+2. Client shows post-register notice: confirm email or account becomes **inactive after 7 days** and is **deleted after 30 days**  
+3. `POST /auth/verify-email` confirms; reactivates if inactive  
+4. `POST /auth/resend-verification` (public, no enumeration)  
+5. Cron / admin ops: inactivate unverified ≥7d; hard-delete ≥30d  
+6. Pre-migration users are backfilled as verified  
+
 ## Roles
 
 | Role | Access |
@@ -20,18 +31,9 @@
 | `user` | Standard product |
 | `admin` | `/admin` UI + `/admin/*` API |
 
-## Billing / freemium
+## Access
 
-- Plan enum: `free` | `premium`  
-- Entitlements in `@eduforge/shared/entitlements`  
-- Stripe Checkout when keys configured  
-- Dev endpoints upgrade/downgrade without Stripe for demos  
-
-Premium unlocks:
-
-- All lessons beyond free index  
-- Unlimited hearts  
-- Unlimited rated chess  
+EduForge has no checkout, subscription, or trial. The legacy `users.plan` column and `plan` enum are dropped in migration `0034_drop_plan`. Lessons, rated chess, and hints are open. Hearts use one shared cap.
 
 ## Admin CMS
 
@@ -43,9 +45,9 @@ See **[SPEC 72 — Admin Platform v2](./72-admin-platform-v2.md)** for the full 
 - `/admin/courses` — create draft courses, publish/archive  
 - `/admin/content` — course tree, lesson editor (UK/EN, exams, exercises JSON)  
 - `/admin/appearance` — design tokens + branding  
-- `/admin/users` — promote admin, change plan  
+- `/admin/users` — promote admin  
 - `/admin/metrics`, `/admin/feedback`, `/admin/audit`  
-- `/admin/billing`, `/admin/classroom`, `/admin/engagement`, `/admin/programming` — read-only overviews  
+- `/admin/classroom`, `/admin/engagement`, `/admin/programming` — read-only overviews  
 - `/admin/security` — TOTP enroll  
 
 Lesson editor stores `exercises` JSON; **publish** validates via Zod (`validateExercises`).

@@ -142,7 +142,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 className={clsx(
                   "flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold transition",
                   active
-                    ? "bg-brand text-white shadow-btn"
+                    ? "bg-brand-dark text-white shadow-btn dark:text-emerald-950"
                     : "text-ink hover:bg-slate-50 dark:hover:bg-slate-800",
                 )}
               >

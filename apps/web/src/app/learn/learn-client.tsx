@@ -2,14 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import {
-  COURSE_GROUP_META,
-  COURSE_HUB_HREF,
-  COURSE_META,
-  pickLocale,
-  type CourseGroup,
-  type CourseSlug,
-} from "@eduforge/shared";
+import { pickLocale } from "@eduforge/shared";
 import { useLocale } from "@/lib/locale-context";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api";
@@ -20,6 +13,7 @@ import { DailyQuestsCard } from "@/components/daily-quests-card";
 import { WeeklyQuestsCard } from "@/components/weekly-quests-card";
 import { OnboardingWizard } from "@/components/onboarding-wizard";
 import { GuestBanner } from "@/components/guest-banner";
+import { SubjectCatalog } from "@/components/subject-catalog";
 
 type NextRec = {
   kind: string;
@@ -46,9 +40,7 @@ type ExamSummary = {
   }[];
 };
 
-const GROUP_ORDER: CourseGroup[] = ["code", "deep", "skill", "chess"];
-
-/** Learning map: mission + groups + contextual toolkit (no Continue CTA dupe). */
+/** Learning map: one continue action, then subjects, with quests kept below. */
 export function LearnClient() {
   const { t, locale } = useLocale();
   const { user, token, character, loading: authLoading } = useAuth();
@@ -101,7 +93,6 @@ export function LearnClient() {
     );
   }
 
-  const next = (data.next?.recommendations ?? []).slice(0, 5);
   const exams = data.exams ?? null;
   const readyExams =
     exams?.courses.flatMap((c) =>
@@ -110,17 +101,15 @@ export function LearnClient() {
         .map((e) => ({ ...e, icon: c.icon, course: c.titleUk })),
     ) ?? [];
 
-  const secondary = next.slice(1, 4);
   const showExams =
     exams &&
     (exams.summary.ready > 0 || exams.summary.passed > 0 || exams.summary.locked > 0);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {!user ? <GuestBanner /> : <OnboardingWizard />}
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-black">🗺️ {t.learn.title}</h1>
+      <div>
+          <h1 className="text-3xl font-black">{t.learn.title}</h1>
           <p className="text-sm font-bold text-ink-muted">{t.learn.mapTitle}</p>
         </div>
         {user ? (
@@ -141,31 +130,24 @@ export function LearnClient() {
             ) : null}
           </div>
         ) : null}
-      </div>
+
+      {user ? <PrimaryMission showSecondary={false} /> : (
+        <Link href="/courses" className="btn-primary inline-flex min-h-11">
+          {t.coursePage.continue} →
+        </Link>
+      )}
+
+      <SubjectCatalog variant="sections" showChessBot />
+
+      {user ? (
+        <div className="space-y-3">
+          <DailyQuestsCard defaultOpen={false} />
+          <WeeklyQuestsCard defaultOpen={false} />
+        </div>
+      ) : null}
 
       {user && (
-        <>
-          <PrimaryMission showSecondary={false} />
-          {/* Quests only on Learn (not also on dashboard) */}
-          <DailyQuestsCard />
-          <WeeklyQuestsCard />
-
-          {secondary.length > 0 && (
-            <section className="space-y-2">
-              <h2 className="text-lg font-black">{t.learning.nextSteps}</h2>
-              {secondary.map((r, i) => (
-                <Link
-                  key={`${r.href}-${i}`}
-                  href={r.href}
-                  className="card flex min-h-11 justify-between font-bold hover:border-brand/40"
-                >
-                  <span>{locale === "en" ? r.titleEn : r.titleUk}</span>
-                  <span>→</span>
-                </Link>
-              ))}
-            </section>
-          )}
-
+        <div className="space-y-6 pt-4 border-t border-slate-100 dark:border-slate-800">
           <ContextualToolkit />
 
           {showExams && exams && (
@@ -199,43 +181,8 @@ export function LearnClient() {
               ))}
             </section>
           )}
-        </>
+        </div>
       )}
-
-      {GROUP_ORDER.map((g) => {
-        const meta = COURSE_GROUP_META[g];
-        const slugs = (Object.keys(COURSE_META) as CourseSlug[]).filter(
-          (s) => COURSE_META[s].group === g,
-        );
-        return (
-          <section key={g} className="space-y-3">
-            <h2 className="text-lg font-black">
-              {locale === "en" ? meta.titleEn : meta.titleUk}
-            </h2>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {slugs.map((slug) => {
-                const c = COURSE_META[slug];
-                const href = COURSE_HUB_HREF[slug] ?? `/courses/${slug}`;
-                return (
-                  <Link
-                    key={slug}
-                    href={href}
-                    className="card flex min-h-11 items-center gap-3 hover:border-brand/40 border-l-4"
-                    style={{ borderLeftColor: c.color }}
-                  >
-                    <span className="text-2xl" aria-hidden>
-                      {c.icon}
-                    </span>
-                    <span className="font-black">
-                      {pickLocale(locale, c.titleUk, c.titleEn)}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          </section>
-        );
-      })}
     </div>
   );
 }

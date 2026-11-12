@@ -3,6 +3,7 @@
  * Keep rules identical to avoid client/server drift.
  */
 
+import { gradeExplanation, type ExplainKeyIdea } from "./explain.js";
 import { jsStaticPartialScore, runJsStaticAsserts, type JsStaticAssert } from "./js-static.js";
 
 export type GradeExercise = {
@@ -290,6 +291,33 @@ export function gradeExercise(
       const idx =
         typeof answer === "number" ? answer : Number((answer as { index?: number })?.index);
       return { correct: idx === quiz.correctIndex };
+    }
+    case "explain": {
+      const raw = answer as string | { text?: string } | null;
+      const text = typeof raw === "string" ? raw : String(raw?.text ?? "");
+      const g = gradeExplanation(text, {
+        keyIdeas: (exercise.keyIdeas as ExplainKeyIdea[]) ?? [],
+        minWords: exercise.minWords as number | undefined,
+        passRatio: exercise.passRatio as number | undefined,
+      });
+      return {
+        correct: g.correct,
+        partial: g.partial,
+        meta: { explain: true, matched: g.matched, missing: g.missing, words: g.words, tooShort: g.tooShort },
+      };
+    }
+    case "concept": {
+      // Theory card: acknowledged → correct; optional self-check must match.
+      const check = exercise.check as { correctIndex: number } | undefined;
+      if (!check) {
+        const ack =
+          answer === true ||
+          Boolean((answer as { acknowledged?: boolean } | null)?.acknowledged);
+        return { correct: ack, partial: ack ? 1 : 0, meta: { concept: true } };
+      }
+      const idx =
+        typeof answer === "number" ? answer : Number((answer as { index?: number })?.index);
+      return { correct: idx === check.correctIndex, meta: { concept: true } };
     }
     case "video": {
       // answer: { watchedSec, durationSec } or { completed: true }

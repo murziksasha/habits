@@ -73,6 +73,5 @@ chessRoutes.get("/can-rated", authMiddleware, async (c) => {
   return c.json({
     allowed: true,
     ratedGamesToday: ratedToday,
-    plan: user.plan,
   });
 });

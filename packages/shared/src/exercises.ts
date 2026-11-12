@@ -22,6 +22,8 @@ export const EXERCISE_TYPES = [
   "code_run",
   "video",
   "code_judge",
+  "concept",
+  "explain",
 ] as const satisfies readonly ExerciseType[];
 
 export const exerciseTypeSchema = z.enum(EXERCISE_TYPES);
@@ -69,6 +71,7 @@ export const exerciseSchema = z.discriminatedUnion("type", [
     ...base,
     type: z.literal("mcq"),
     options: z.array(z.string()).min(2).max(12),
+    optionsEn: z.array(z.string().min(1).max(500)).max(12).optional(),
     correctIndex: z.number().int().min(0),
     explanationUk: z.string().max(2000).optional(),
     explanationEn: z.string().max(2000).optional(),
@@ -84,6 +87,7 @@ export const exerciseSchema = z.discriminatedUnion("type", [
     ...base,
     type: z.literal("match"),
     pairs: z.array(z.object({ left: z.string(), right: z.string() })).min(1),
+    pairsEn: z.array(z.object({ left: z.string().min(1), right: z.string().min(1) })).optional(),
   }),
   z.object({
     ...base,
@@ -131,6 +135,7 @@ export const exerciseSchema = z.discriminatedUnion("type", [
     category: z.string(),
     difficulty: z.number().int().min(1).max(5),
     options: z.array(z.string()).min(2),
+    optionsEn: z.array(z.string().min(1)).optional(),
     correctIndex: z.number().int().min(0),
     hintUk: z.string().optional(),
     hintEn: z.string().optional(),
@@ -159,10 +164,47 @@ export const exerciseSchema = z.discriminatedUnion("type", [
   }),
   z.object({
     ...base,
+    type: z.literal("concept"),
+    bodyUk: z.string().min(1).max(6000),
+    bodyEn: z.string().max(6000).optional(),
+    keyPointsUk: z.array(z.string().max(400)).max(8).optional(),
+    keyPointsEn: z.array(z.string().max(400)).max(8).optional(),
+    code: z.string().max(4000).optional(),
+    language: z.string().optional(),
+    check: z
+      .object({
+        qUk: z.string().min(1),
+        qEn: z.string().optional(),
+        options: z.array(z.string()).min(2).max(8),
+        correctIndex: z.number().int().min(0),
+      })
+      .optional(),
+  }),
+  z.object({
+    ...base,
+    type: z.literal("explain"),
+    keyIdeas: z
+      .array(
+        z.object({
+          labelUk: z.string().min(1).max(200),
+          labelEn: z.string().max(200).optional(),
+          anyOf: z.array(z.string().min(1).max(80)).min(1).max(12),
+        }),
+      )
+      .min(1)
+      .max(8),
+    minWords: z.number().int().min(0).max(400).optional(),
+    passRatio: z.number().min(0.1).max(1).optional(),
+    sampleAnswerUk: z.string().max(2000).optional(),
+    sampleAnswerEn: z.string().max(2000).optional(),
+  }),
+  z.object({
+    ...base,
     type: z.literal("code_read"),
     code: z.string(),
     language: z.string(),
     options: z.array(z.string()).min(2),
+    optionsEn: z.array(z.string().min(1)).optional(),
     correctIndex: z.number().int().min(0),
     explanationUk: z.string().optional(),
     explanationEn: z.string().optional(),
@@ -173,6 +215,7 @@ export const exerciseSchema = z.discriminatedUnion("type", [
     code: z.string(),
     language: z.string(),
     options: z.array(z.string()).min(2).optional(),
+    optionsEn: z.array(z.string().min(1)).optional(),
     correctIndex: z.number().int().min(0).optional(),
     accepted: z.array(z.string()).optional(),
     explanationUk: z.string().optional(),
@@ -301,6 +344,19 @@ export function validateExercises(exercises: unknown): {
     const r = exerciseSchema.safeParse(ex);
     if (!r.success) {
       errors.push(`exercise[${i}]: ${r.error.issues[0]?.message ?? "invalid"}`);
+      return;
+    }
+    const row = r.data as {
+      options?: string[];
+      optionsEn?: string[];
+      pairs?: unknown[];
+      pairsEn?: unknown[];
+    };
+    if (row.optionsEn && row.optionsEn.length !== (row.options?.length ?? -1)) {
+      errors.push(`exercise[${i}]: options_en_length`);
+    }
+    if (row.pairsEn && row.pairsEn.length !== (row.pairs?.length ?? -1)) {
+      errors.push(`exercise[${i}]: pairs_en_length`);
     }
   });
   return { ok: errors.length === 0, errors };

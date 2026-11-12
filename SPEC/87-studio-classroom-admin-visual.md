@@ -1,4 +1,4 @@
-# 87 — Node Studio shell, live classroom, admin appearance/billing, visual baseline
+# 87 — Node Studio shell, live classroom, admin appearance, visual baseline
 
 **Status:** Implemented (2026-08)  
 **Builds on:** SPEC 79–86
@@ -21,12 +21,12 @@
 - Labeled fields, color inputs, live preview, reset defaults
 - Step-up publish + status live region
 
-### Admin billing
-- PageLoading, Stripe badge, error alert
-- Links to Users + public pricing
+### Admin appearance
+- PageLoading and error alert
+- Billing and the public pricing page were removed. The app is free.
 
 ### Visual regression baseline
-- Playwright `e2e/visual.spec.ts` screenshots: landing, login, pricing, learn, admin-home
+- Playwright `e2e/visual.spec.ts` screenshots: landing, login, learn, admin-home
 - Config: `snapshotPathTemplate` → `e2e/__snapshots__/`
 - Scripts: `test:e2e:visual`, `test:e2e:visual:update`
 - First run generates baselines with `--update-snapshots`

@@ -22,15 +22,22 @@ import {
   isoWeekBounds,
   paginatedMeta,
   parsePagination,
+  passwordSchema,
 } from "@eduforge/shared";
 import { z } from "zod";
 import {
   adminMiddleware,
   requireStepUp,
+  destroyAllUserSessions,
+  hashPassword,
   type AuthedUser,
 } from "../auth.js";
 import { db } from "../db.js";
 import { runInactivePushReengage } from "../services/reengage.js";
+import {
+  countUnverifiedUsers,
+  runUnverifiedLifecycle,
+} from "../services/unverified-lifecycle.js";
 import {
   funnelHistoryToCsv,
   productFunnelCompare,
@@ -47,7 +54,7 @@ import {
   validateExercises,
   type PlatformTheme,
 } from "@eduforge/shared";
-import { platformSettings, organizations, classes } from "@eduforge/db";
+import { platformSettings, organizations, classes, tournamentPairings, adminAuditLog } from "@eduforge/db";
 import { adminBackupRoutes } from "./admin-backup.js";
 
 type Vars = { user: AuthedUser; sessionToken?: string };
@@ -82,11 +89,12 @@ adminRoutes.get("/users", async (c) => {
       id: users.id,
       email: users.email,
       role: users.role,
-      plan: users.plan,
       createdAt: users.createdAt,
       displayName: characters.displayName,
       globalXp: characters.globalXp,
       globalLevel: characters.globalLevel,
+      totpEnabled: users.totpEnabled,
+      mfaExempt: users.mfaExempt,
     })
     .from(users)
     .leftJoin(characters, eq(characters.userId, users.id))
@@ -145,7 +153,6 @@ adminRoutes.patch("/users/:id", async (c) => {
       id: updated.id,
       email: updated.email,
       role: updated.role,
-      plan: updated.plan,
     },
   });
 });
@@ -668,10 +675,13 @@ adminRoutes.get("/ops/summary", async (c) => {
     .orderBy(desc(activityEvents.createdAt))
     .limit(15);
 
+  const unverified = await countUnverifiedUsers();
+
   return c.json({
     parentLinksActive: linkCount?.n ?? 0,
     digestsSentLast7d: digests7?.n ?? 0,
     weeklyEmailOptIn: weeklyOptIn?.n ?? 0,
+    unverifiedUsers: unverified,
     recentDigests: recentDigests.map((r) => ({
       parentUserId: r.userId,
       parentName: r.displayName ?? "—",
@@ -739,6 +749,23 @@ adminRoutes.get("/ops/weekly-preview/:userId", async (c) => {
   return c.json({ stats, preview: mail.text, subject: mail.subject });
 });
 
+/** Mark 7d+ unverified inactive; hard-delete 30d+ unverified */
+adminRoutes.post("/ops/unverified-lifecycle", async (c) => {
+  const actor = c.get("user");
+  const denied = await requireStepUp(c);
+  if (denied) return denied;
+  const result = await runUnverifiedLifecycle();
+  const { writeAdminAudit } = await import("../audit.js");
+  await writeAdminAudit(db, {
+    actorUserId: actor.id,
+    action: "ops_unverified_lifecycle",
+    targetType: "ops",
+    targetId: "",
+    meta: { stepUp: true, ...result },
+  });
+  return c.json({ ok: true, ...result });
+});
+
 /** Admin: trigger learner weekly send-all (same as reports, admin-gated here) */
 adminRoutes.post("/ops/weekly-learners", async (c) => {
   const actor = c.get("user");
@@ -781,7 +808,6 @@ export type AdminMetrics = {
   since: string;
   totals: {
     users: number;
-    premium: number;
     certificates: number;
     streakShieldsHeld: number;
     avgStreakDays: number;
@@ -821,8 +847,6 @@ export type AdminMetrics = {
   productFunnel: {
     firstLessonComplete: number;
     lessonCompleted: number;
-    paywallShown: number;
-    paywallCtaClick: number;
     examPassed: number;
     examFailed: number;
     windowDays: number;
@@ -837,10 +861,6 @@ export async function buildAdminMetrics(daysRaw?: number): Promise<AdminMetrics>
   const since30 = new Date(Date.now() - 30 * 86400000);
 
   const [usersTotal] = await db.select({ n: sql<number>`count(*)::int` }).from(users);
-  const [premium] = await db
-    .select({ n: sql<number>`count(*)::int` })
-    .from(users)
-    .where(eq(users.plan, "premium"));
 
   const [active7] = await db
     .select({ n: sql<number>`count(distinct ${activityEvents.userId})::int` })
@@ -1017,7 +1037,6 @@ export async function buildAdminMetrics(daysRaw?: number): Promise<AdminMetrics>
     since: since.toISOString(),
     totals: {
       users: usersTotal?.n ?? 0,
-      premium: premium?.n ?? 0,
       certificates: certs?.n ?? 0,
       streakShieldsHeld: shields?.n ?? 0,
       avgStreakDays: Math.round((avgStreak?.n ?? 0) * 10) / 10,
@@ -1113,7 +1132,6 @@ function metricsToCsv(m: AdminMetrics): string {
     ["windowDays", m.windowDays],
     ["since", m.since],
     ["users", m.totals.users],
-    ["premium", m.totals.premium],
     ["certificates", m.totals.certificates],
     ["streakShieldsHeld", m.totals.streakShieldsHeld],
     ["avgStreakDays", m.totals.avgStreakDays],
@@ -1139,8 +1157,6 @@ function metricsToCsv(m: AdminMetrics): string {
     ["deepTrackLearners", m.exams.deepTrackLearners],
     ["funnelFirstLesson", m.productFunnel.firstLessonComplete],
     ["funnelLessonCompleted", m.productFunnel.lessonCompleted],
-    ["funnelPaywallShown", m.productFunnel.paywallShown],
-    ["funnelPaywallCta", m.productFunnel.paywallCtaClick],
     ["funnelExamPassed", m.productFunnel.examPassed],
     ["funnelExamFailed", m.productFunnel.examFailed],
   ];
@@ -1418,29 +1434,128 @@ adminRoutes.get("/security/status", async (c) => {
   });
 });
 
+adminRoutes.post("/users/:id/password", async (c) => {
+  const denied = await requireStepUp(c);
+  if (denied) return denied;
+  const actor = c.get("user");
+  const id = c.req.param("id") as string;
+  if (id === actor.id) return c.json({ error: "self_target" }, 400);
+
+  const body = await c.req.json().catch(() => null);
+  const parsed = passwordSchema.safeParse(body?.password);
+  if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
+
+  const target = await db.query.users.findFirst({ where: eq(users.id, id) });
+  if (!target) return c.json({ error: "not_found" }, 404);
+
+  const passwordHash = await hashPassword(parsed.data);
+  await db.update(users).set({ passwordHash, updatedAt: new Date() }).where(eq(users.id, id));
+  await destroyAllUserSessions(id);
+
+  const { writeAdminAudit } = await import("../audit.js");
+  await writeAdminAudit(db, {
+    actorUserId: actor.id,
+    action: "user_set_password",
+    targetType: "user",
+    targetId: id,
+    meta: {},
+  });
+  return c.json({ ok: true });
+});
+
 adminRoutes.post("/users/:id/reset-mfa", async (c) => {
   const denied = await requireStepUp(c);
   if (denied) return denied;
   const actor = c.get("user");
-  const id = c.req.param("id");
-  const [updated] = await db
+  const id = c.req.param("id") as string;
+  if (id === actor.id) return c.json({ error: "self_target" }, 400);
+
+  const target = await db.query.users.findFirst({ where: eq(users.id, id) });
+  if (!target) return c.json({ error: "not_found" }, 404);
+
+  await db
     .update(users)
     .set({
       totpEnabled: false,
       totpSecretEnc: null,
       totpVerifiedAt: null,
+      mfaBackupCodeHashes: [],
+      mfaExempt: target.role === "admin" ? true : target.mfaExempt,
       updatedAt: new Date(),
     })
-    .where(eq(users.id, id))
-    .returning();
-  if (!updated) return c.json({ error: "not_found" }, 404);
+    .where(eq(users.id, id));
+  await destroyAllUserSessions(id);
+
   const { writeAdminAudit } = await import("../audit.js");
   await writeAdminAudit(db, {
     actorUserId: actor.id,
-    action: "reset_mfa",
+    action: "user_mfa_off",
     targetType: "user",
     targetId: id,
-    meta: { stepUp: true },
+    meta: {},
+  });
+  return c.json({ ok: true });
+});
+
+adminRoutes.post("/users/:id/require-mfa", async (c) => {
+  const denied = await requireStepUp(c);
+  if (denied) return denied;
+  const actor = c.get("user");
+  const id = c.req.param("id") as string;
+  if (id === actor.id) return c.json({ error: "self_target" }, 400);
+
+  const target = await db.query.users.findFirst({ where: eq(users.id, id) });
+  if (!target) return c.json({ error: "not_found" }, 404);
+  if (target.role !== "admin") return c.json({ error: "mfa_require_admin_only" }, 400);
+
+  await db
+    .update(users)
+    .set({
+      mfaExempt: false,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, id));
+  await destroyAllUserSessions(id);
+
+  const { writeAdminAudit } = await import("../audit.js");
+  await writeAdminAudit(db, {
+    actorUserId: actor.id,
+    action: "user_mfa_require",
+    targetType: "user",
+    targetId: id,
+    meta: {},
+  });
+  return c.json({ ok: true });
+});
+
+adminRoutes.delete("/users/:id", async (c) => {
+  const denied = await requireStepUp(c);
+  if (denied) return denied;
+  const actor = c.get("user");
+  const id = c.req.param("id") as string;
+  if (id === actor.id) return c.json({ error: "self_target" }, 400);
+
+  const target = await db.query.users.findFirst({ where: eq(users.id, id) });
+  if (!target) return c.json({ error: "not_found" }, 404);
+
+  const body = await c.req.json().catch(() => null);
+  const confirmEmail = typeof body?.confirmEmail === "string" ? body.confirmEmail.trim() : "";
+  if (!confirmEmail || confirmEmail.toLowerCase() !== target.email.toLowerCase()) {
+    return c.json({ error: "confirm_mismatch" }, 400);
+  }
+
+  await db.transaction(async (tx) => {
+    await tx.update(classes).set({ teacherUserId: null }).where(eq(classes.teacherUserId, id));
+    await tx.update(tournamentPairings).set({ whiteId: null }).where(eq(tournamentPairings.whiteId, id));
+    await tx.update(tournamentPairings).set({ blackId: null }).where(eq(tournamentPairings.blackId, id));
+    await tx.delete(users).where(eq(users.id, id));
+    await tx.insert(adminAuditLog).values({
+      actorUserId: actor.id,
+      action: "user_delete",
+      targetType: "user",
+      targetId: id,
+      meta: { email: target.email },
+    });
   });
   return c.json({ ok: true });
 });

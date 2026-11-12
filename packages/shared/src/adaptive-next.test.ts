@@ -13,10 +13,10 @@ describe("loadAdaptiveWeights", () => {
 
   it("merges numeric overrides only", () => {
     const w = loadAdaptiveWeights({
-      ADAPTIVE_WEIGHTS_JSON: JSON.stringify({ isWeak: 2.5, paywalled: "nope", junk: 1 }),
+      ADAPTIVE_WEIGHTS_JSON: JSON.stringify({ isWeak: 2.5, junk: 1, basePriority: "nope" }),
     });
     expect(w.isWeak).toBe(2.5);
-    expect(w.paywalled).toBe(DEFAULT_ADAPTIVE_WEIGHTS.paywalled);
+    expect(w.basePriority).toBe(DEFAULT_ADAPTIVE_WEIGHTS.basePriority);
   });
 
   it("falls back on invalid JSON", () => {
@@ -35,7 +35,6 @@ describe("adaptiveScore", () => {
       daysInactive: 1,
       isWeak: true,
       isExam: false,
-      paywalled: false,
       basePriority: 10,
     });
     const strong = adaptiveScore({
@@ -45,34 +44,31 @@ describe("adaptiveScore", () => {
       daysInactive: 0,
       isWeak: false,
       isExam: false,
-      paywalled: false,
       basePriority: 10,
     });
     expect(weak).toBeGreaterThan(strong);
   });
 
-  it("penalizes paywall", () => {
-    const free = adaptiveScore({
+  it("scores exams above an otherwise equal item", () => {
+    const exam = adaptiveScore({
+      lastMastery: 0.5,
+      attempts: 1,
+      streakDays: 0,
+      daysInactive: 0,
+      isWeak: false,
+      isExam: true,
+      basePriority: 12,
+    });
+    const plain = adaptiveScore({
       lastMastery: 0.5,
       attempts: 1,
       streakDays: 0,
       daysInactive: 0,
       isWeak: false,
       isExam: false,
-      paywalled: false,
       basePriority: 12,
     });
-    const paid = adaptiveScore({
-      lastMastery: 0.5,
-      attempts: 1,
-      streakDays: 0,
-      daysInactive: 0,
-      isWeak: false,
-      isExam: false,
-      paywalled: true,
-      basePriority: 12,
-    });
-    expect(free).toBeGreaterThan(paid);
+    expect(exam).toBeGreaterThan(plain);
   });
 });
 
@@ -90,7 +86,6 @@ describe("rankByAdaptive", () => {
         daysInactive: 0,
         isWeak: item.id === "a",
         isExam: false,
-        paywalled: false,
         basePriority: item.priority,
       }),
       DEFAULT_ADAPTIVE_WEIGHTS,

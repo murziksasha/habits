@@ -188,7 +188,6 @@ oauthRoutes.get("/google/callback", async (c) => {
           email,
           passwordHash: null,
           emailVerifiedAt: info.email_verified !== false ? new Date() : null,
-          plan: "free",
         })
         .returning();
       user = created;
@@ -294,7 +293,6 @@ oauthRoutes.post("/google/dev-login", async (c) => {
     user: {
       id: user.id,
       email: user.email,
-      plan: user.plan,
       role: user.role,
       emailVerified: Boolean(user.emailVerifiedAt),
     },

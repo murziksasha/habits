@@ -1,0 +1,3 @@
+ALTER TABLE "users" DROP COLUMN IF EXISTS "plan";
+DROP TYPE IF EXISTS "plan";
+

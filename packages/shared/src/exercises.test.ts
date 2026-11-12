@@ -54,6 +54,44 @@ describe("validateExercises", () => {
     expect(r.ok).toBe(true);
   });
 
+  it("requires optionsEn and pairsEn to match canonical lengths", () => {
+    const badOptions = validateExercises([
+      {
+        id: "1",
+        type: "mcq",
+        promptUk: "Питання достатньої довжини",
+        options: ["a", "b"],
+        optionsEn: ["only one"],
+        correctIndex: 1,
+      },
+    ]);
+    expect(badOptions.ok).toBe(false);
+    expect(badOptions.errors.join(" ")).toContain("options_en_length");
+
+    const okPairs = validateExercises([
+      {
+        id: "2",
+        type: "match",
+        promptUk: "Зіставте пари",
+        pairs: [{ left: "a", right: "1" }],
+        pairsEn: [{ left: "A", right: "one" }],
+      },
+    ]);
+    expect(okPairs.ok).toBe(true);
+
+    const badPairs = validateExercises([
+      {
+        id: "3",
+        type: "match",
+        promptUk: "Зіставте пари",
+        pairs: [{ left: "a", right: "1" }],
+        pairsEn: [],
+      },
+    ]);
+    expect(badPairs.ok).toBe(false);
+    expect(badPairs.errors.join(" ")).toContain("pairs_en_length");
+  });
+
   it("rejects bad type", () => {
     const r = validateExercises([{ id: "1", type: "nope", promptUk: "x" }]);
     expect(r.ok).toBe(false);

@@ -222,8 +222,43 @@
                     {
                         "idx":  31,
                         "version":  "7",
+                        "when":  1740000031000,
+                        "tag":  "0031_unverified_lifecycle",
+                        "breakpoints":  true
+                    },
+                    {
+                        "idx":  32,
+                        "version":  "7",
+                        "when":  1740000032000,
+                        "tag":  "0032_exercise_attempts_reviews",
+                        "breakpoints":  true
+                    },
+                    {
+                        "idx":  33,
+                        "version":  "7",
+                        "when":  1740000033000,
+                        "tag":  "0033_drop_billing",
+                        "breakpoints":  true
+                    },
+                    {
+                        "idx":  34,
+                        "version":  "7",
+                        "when":  1740000034000,
+                        "tag":  "0034_drop_plan",
+                        "breakpoints":  true
+                    },
+                    {
+                        "idx":  35,
+                        "version":  "7",
+                        "when":  1740000035000,
+                        "tag":  "0035_admin_mfa_exempt",
+                        "breakpoints":  true
+                    },
+                    {
+                        "idx":  36,
+                        "version":  "7",
                         "when":  1794545000000,
-                        "tag":  "0031_weekly_learning_goal",
+                        "tag":  "0036_weekly_learning_goal",
                         "breakpoints":  true
                     }
                 ]

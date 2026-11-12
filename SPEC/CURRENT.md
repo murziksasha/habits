@@ -1,24 +1,25 @@
 # CURRENT — Product surface freeze & IA map
 
 **Status:** Active (2026-07)  
+**Access:** EduForge is free. There is no subscription, Stripe checkout, trial, or premium unlock.  
 **Scope:** Consolidation after SPECs 01–71. Prefer quality, IA, and platform over new surface area.
 
 ## North star
 
-EduForge is a **Learning OS** for skills + coding (with chess as a strong pillar), not an unbounded feature kitchen sink.
+EduForge is a free learning place for many subjects: English, thinking, reading, chess, and technology.
 
 Primary journeys:
 
-1. Register → first free lesson → daily return (streak / next step)
+1. Register → confirm email (7d/30d policy) → first free lesson → daily return (streak / next step)
 2. Programming path + playground (+ deep tracks via hub)
-3. Freemium → Premium
+3. Keep practicing (hearts regen; the legacy plan label is gone and nothing is locked)
 4. Schools / homework / parents (B2B, supporting)
 
 ## Feature classification
 
 | Class | Meaning | Examples |
 |-------|---------|----------|
-| **Core** | Always surfaced in primary IA | Auth, `/learn`, courses, programming path, playground, XP/hearts/streak, freemium, lesson player |
+| **Core** | Always surfaced in primary IA | Auth, `/learn`, courses, programming path, playground, XP/hearts/streak, lesson player |
 | **Supporting** | Discoverable, secondary nav | Chess play, friends, leaderboard, flashcards, review, quests, tutor, certificates, homework, schools, parents |
 | **Labs** | Keep API/UI routes; not primary nav | Chat, referrals, export, focus timer, reports email, shop cosmetics |
 | **Ops** | Role-gated | Admin CMS, metrics, digests, audit |
@@ -36,17 +37,20 @@ Skill tracks `sysadmin` and `devops` are the same kind of surface: `/learn` and 
 | Slot | Route | Notes |
 |------|-------|--------|
 | Home | `/dashboard` | Thin shell: next action, streak, progress |
-| Learn | `/learn` | Learning map (recommended home of curriculum) |
-| Courses | `/courses` | Catalog by group |
-| Code | `/programming` | Path hub (deep tracks linked from here) |
-| Play | `/play` or `/playground` | Chess / sandbox — primary uses Play + playground in More if needed |
-| Social | `/friends` | Friends + light social |
+| Learn | `/learn` | One continue action, then subjects. Quests stay below the catalog |
+| Courses | `/courses` | Searchable grid. Filters: Languages, Thinking & Strategy, Learning Skills, Technology |
+| Practice | `/review` | Spaced review. Programming and chess stay in Courses and More |
+| Friends | `/friends` | Friends + light social |
 
-**More:** toolkit (flashcards, review, quests, notes, tutor, shop), schools/parents/homework, certificates, leaderboard, search, pricing, feedback, admin (role).
+**More (student):** Programming (`/programming`) and chess (`/play`), plus toolkit (flashcards, review, quests, tutor), certificates, leaderboard, search, feedback, admin (role). Parent and teacher primary nav stay as they were.
 
 ### Mobile bottom (5)
 
-`Learn · Code · Play · Courses · Profile` — Home/dashboard remains reachable from logo or profile.
+`Learn · Courses · Practice · Friends · Profile` — Home stays on the logo. Programming and chess are not bottom tabs.
+
+### SQL & Oracle Database
+
+`sql_fundamentals` stays one course at `/sql-fundamentals`. Learners browse three sections: SQL & Modern Oracle, PL/SQL, and Database Administration. Prerequisites are advice, not locks. Modern syntax is labeled with the Oracle version. Examples follow the Oracle Database 26 documentation and are not claimed as live-server runs unless a check actually executed them.
 
 ### Explicitly removed from global nav clutter
 
@@ -64,6 +68,7 @@ Skill tracks `sysadmin` and `devops` are the same kind of surface: `/learn` and 
 
 1. ~~IA + onboarding consolidation~~ (nav + CURRENT freeze)  
 2. ~~Auth session hygiene~~ (cookie-first + Bearer dual-support), error contract, `/me/home`  
+2b. Email verification + unverified lifecycle (7d inactive / 30d delete) — SPEC 89  
 3. Backend modularization of learning core:  
    `services/exam-board`, `next-steps`, `minis-race`, `home`, `submit-lesson`  
 4. Exercise type safety + EN gate (all courses; skill tracks via `skill-prompt-en` map)  
@@ -75,11 +80,11 @@ Skill tracks `sysadmin` and `devops` are the same kind of surface: `/learn` and 
 10. Course slugs: **varchar + app registry** (`isCourseSlug` / `COURSE_SLUGS`) — no ALTER TYPE per course  
 11. Onboarding v2: 4 core steps + primary CTA  
 12. Mastery: weak lessons → next-steps priority + `/review` queue when ≥2 weak  
-13. Freemium matrix + `/billing/entitlements` + PaywallCard / pricing compare  
+13. ~~Freemium matrix + `/billing/entitlements` + PaywallCard~~ — removed; the app is free  
 14. Design system light: `components/ui` (Button, Card, EmptyState, Skeleton, Badge)  
 15. Content DX guide: `SPEC/CONTENT-DX.md`  
 16. Retention emails: CTA buttons, exams in parent digest, inactive nudge  
-17. Stripe Customer Portal `POST /billing/portal`  
+17. ~~Stripe Customer Portal~~ — removed; the app is free  
 18. A11y: skip link, focus-visible rings, MCQ + text + order keyboard  
 19. Push re-engage: `POST /admin/ops/push-reengage` (inactive ≥3d)  
 20. Admin content: live ExercisePlayer preview + open lesson link  
@@ -106,7 +111,7 @@ Skill tracks `sysadmin` and `devops` are the same kind of surface: `/learn` and 
 ### Security & retention pack (2026-08 audit)
 
 48. Judge fail-closed: prod default `JUDGE_MODE=off` unless `docker`; no silent docker→local fallback  
-49. Dev billing gated: `ALLOW_DEV_BILLING` / non-prod default; blocked in real production  
+49. ~~Dev billing~~ — removed; the app is free  
 50. Security headers: Next CSP baseline + API `X-Content-Type-Options` / `X-Frame-Options` / HSTS prod; nginx headers  
 51. Cookie-first web: session `token` omitted from JSON in production unless `X-Issue-Bearer: 1`  
 52. Email verification: `email_verified_at` + tokens; resend; soft banner; optional hard gate  
@@ -116,14 +121,14 @@ Skill tracks `sysadmin` and `devops` are the same kind of surface: `/learn` and 
 56. Landing honesty (core loop only); compact More menu  
 57. Account privacy: change password, GDPR JSON export on profile, `POST /auth/account/delete`  
 58. Lesson summary `nextLesson` one-tap continue; Learn “mission of the day”  
-59. Pricing respects `devBilling` flag (hides demo trial/downgrade when off)  
+59. ~~Pricing / dev billing flag~~ — removed; there is no pricing page  
 60. Google OAuth (`/auth/oauth/google/*`, `oauth_accounts`)  
 61. User TOTP 2FA for all accounts (login challenge + profile enroll/disable)  
-62. Family plan (`plan=family`, seats, invites, child premium inheritance)  
+62. Family group (seats, invites). A seat does not change access  
 63. Teacher homework heat board (`GET /homework/teacher/board`, `/teacher` UI)  
 64. Daily mission card (`DailyQuestsCard` on dashboard + learn)  
-65. Teacher quick-assign homework from desk; family activate via demo billing  
-66. Family plan expiry clears seats; `isPaidPlan` freemium gates for family  
+65. Teacher quick-assign homework from desk; family activate is `POST /family/activate`  
+66. ~~Family plan expiry / paid gates~~ — removed  
 
 ### UX user pack (SPEC 79)
 
@@ -131,7 +136,7 @@ Skill tracks `sysadmin` and `devops` are the same kind of surface: `/learn` and 
 68. Register → `postRegisterPath` (intent/friend/learn); onboarding wizard persona/track  
 69. Persona nav (student/parent/teacher) desktop + mobile bottom  
 70. Lesson: human miss labels, celebration, share summary, skeleton/retry, hearts low, a11y progress  
-71. Course freemium path bar + lock labels; paywall recovery CTAs  
+71. ~~Course lock labels and paywall recovery~~ — removed; lessons stay open  
 72. ⌘K command palette + search tools hub; landing guest trial + persona cards  
 73. Streak calendar (dashboard/profile); parent/teacher home shells  
 74. Shared `packages/shared/src/ux.ts` pure helpers + unit tests  
@@ -141,7 +146,7 @@ Skill tracks `sysadmin` and `devops` are the same kind of surface: `/learn` and 
 75. Lesson result sheet + explanation delay; coach tip F/Esc  
 76. `safeNextPath` + login default `/learn`; `useRequireAuth` deep links  
 77. Programming hub continue CTA + freemium + skeleton  
-78. Paywall regen estimate; review/friends empty states  
+78. Heart regen estimate; review/friends empty states  
 79. Profile change role wizard; onboarding complete `value` + exclusive persona  
 
 ### UX chrome pack (SPEC 81)
@@ -185,18 +190,18 @@ Skill tracks `sysadmin` and `devops` are the same kind of surface: `/learn` and 
 101. Tournaments list/detail shells  
 102. 404 bilingual recovery CTAs  
 103. Parent child EmptyState; admin security/courses loading  
-104. Login/register alert live regions; pricing flags gate  
+104. Login/register alert live regions  
 
 ### Studio / classroom / visual (SPEC 87)
 
 105. Node Studio shell (Labs badge, auth, PageLoading)  
 106. Live classroom shell (connection status, sticky hide, chat a11y)  
-107. Admin appearance + billing polish  
+107. Admin appearance polish  
 108. Playwright visual regression baseline (`e2e/visual.spec.ts`)  
 
 ### Improvement program waves (2026-08)
 
-109. Product funnel: `POST /analytics/events`, first_lesson_complete, paywall_shown/cta  
+109. Product funnel: `POST /analytics/events`, first_lesson_complete, exams (no paywall events)  
 110. Metrics `productFunnel7d` + admin `GET /analytics/funnel`  
 111. Review inbox reasons (`buildReviewReasons` + UI Why)  
 112. Freemium content normalize + CI content-gate + e2e-smoke job  
@@ -205,9 +210,9 @@ Skill tracks `sysadmin` and `devops` are the same kind of surface: `/learn` and 
 115. Lazy Chessboard; PWA sw.js offline shell; OTel compose profile  
 116. Docs sync README/SPEC 01–87 + P2 strategic status  
 117. Judge result store + `GET /judge/result/:id` + `POST /judge/worker/drain`  
-118. Pricing RSC shell + client island; billing-ops service  
+118. ~~Pricing page and billing service~~ — removed  
 119. Classroom live: reconnect + outbound chat buffer  
-120. E2E smoke: pricing, review, openapi analytics/judge paths  
+120. E2E smoke: review, openapi analytics/judge paths  
 121. RSC shells: login, register, certificate, public profile, embed playground  
 122. Admin metrics product funnel (+ CSV columns)  
 123. Visual regression workflow (nightly / path / dispatch)  
@@ -267,6 +272,29 @@ Skill tracks `sysadmin` and `devops` are the same kind of surface: `/learn` and 
 174. **AI skills stack:** Added 5 deep tracks (`python_for_ai`, `agentic_systems`, `llmops`, `ai_security`, `ai_product`) plus unit `ai_coder_control` on `ai_development` so the IT-AI engineering skills stack is learnable offline inside EduForge without paid model keys, external vector databases, new primary nav items, or new ForgeBoard zip labs (`LOCAL_LAB_MANIFESTS` stays 13). Reached via `/learn`, `/courses`, `/programming`, and `RoadmapCourseHub` RSC shells.
 175. **My progress, history & clearer level-ups:** Upgraded `/calendar` into **My progress** backed by shared `learning-progress` aggregation (`GET /learning/progress`, `GET /learning/history`, `PUT /learning/goal`, study-day `GET /learning/calendar`), Dashboard/Profile small calendars switched to recorded study dates (`skill_attempts`), linked from Dashboard/Learn/Profile without new primary nav items, nullable `characters.weekly_target` (`0031_weekly_learning_goal`), daily XP cap applied before level rewards, and explicit course vs character level-up + granted rewards metadata and lesson result UX.
 
+### Deep learning pack (SPEC 90–92)
+
+171. **Learning depth:** `concept` exercise type (theory + key points + code + self-check) · forgetting-curve memory model (`retentionPct` / `dueInDays` on `/review`) · interleaved mixed practice (`/review/mixed`, `GET /review/mixed`, `POST /review/mixed/check`) · 14 new lessons: JS closures/this/event loop, TS conditional/mapped/template-literal types, SQL CTE/indexes/EXPLAIN, English learning skills. Backlog delivered in wave 172.
+
+172. **Learning depth 2 (SPEC 92):** confidence ratings + calibration card · mistake notebook `/review/mistakes` (exercise-level SRS, migration 0032) · mastery map `/courses/[slug]/mastery` · `explain` exercise type (rubric + tutor feedback `POST /deep/explain-feedback`) · MDX `<!-- concept -->` / `<!-- explain -->` markers + admin forms · capped XP for mixed/mistake practice · js_fundamentals prompt rewrite · CI on `deepImprovements`.
+
+173. **Admin God Mode (`/admin/users`):** Any admin can hard-delete another account (with school-owner cascade, detaching teacher and pairing seats), set password (destroys sessions, audits `user_set_password`), turn 2FA off (clears TOTP/backup hashes, sets `mfa_exempt = true` for admins, kills sessions, audits `user_mfa_off`), and require 2FA (clears `mfa_exempt`, kills sessions, audits `user_mfa_require`). Own row hides controls; API rejects self-target (`400 self_target`). Step-up enforced with auto-pass when admin 2FA is off. Migration `0035_admin_mfa_exempt`.
+
+174. **Smarter chess practice & tighter Learn session:**
+   - **Chess bot practice (Phase A):** Move selection moved into `@eduforge/chess-core` as `chooseBotMove(fen, level)`. Three calibrated levels:
+     - `Learner`: 1-ply search scoring hanging pieces/safe captures and development, with ~25% random blunder moves.
+     - `Club`: Depth-2 alpha-beta search with MVV-LVA capture ordering, piece-square tables (development, center control, castling), and occasional second-best move selection (~35%) among moves within 35 cp of best score.
+     - `Strong`: Depth-3 alpha-beta search with near-zero noise, offloaded in the browser to a Web Worker (`chess-bot-worker.ts`) to keep board rendering smooth, falling back to Club on failure.
+     - Natural opening book for first moves (1. e4, d4, c4, Nf3 and principal replies).
+     - Pre-game color selection (White or Black) and level selector (`/play?level=club|learner|strong`).
+     - Bot displays level name with no fake Elo; invariant preserved (no DB `chess_games` rows, no Elo changes for bot matches).
+   - **Learn UX session fold:**
+     - One focused session above the fold: `PrimaryMission` paired with a dedicated explanation line showing recommendation reasoning (weak lesson review, spaced repetition due, exam ready, course progress).
+     - Quests start collapsed: Daily and weekly quest cards on `/learn` show compact summaries (e.g. `2 of 3 today`, `1 of 2 this week`) and expand on tap.
+     - Course catalog groups remain directly accessible below the session fold.
+     - Extra "Practice vs Club bot" link in the Chess course group directly deep-linking to `/play?level=club`.
+
+
 **What not to build next:** native store apps, full multi-worker judge pool, trained ML ranking, new deep track without CONTENT-DX + IA justification, extra primary nav slots.
 
 ### P2 strategic foundations (scaffolds live — see SPEC/P2-STRATEGIC.md)
@@ -280,7 +308,7 @@ Skill tracks `sysadmin` and `devops` are the same kind of surface: `/learn` and 
 46. Live classroom Socket.IO + `/classroom/live/[classId]`  
 47. Native mobile WebView shell `apps/mobile`  
 
-Still later: CRDT collab, judge worker pool, OAuth/SSO, family plan, store binaries, trained ML, full RSC migration, video CDN.
+Still later: CRDT collab, judge worker pool, OAuth/SSO, store binaries, trained ML, full RSC migration, video CDN.
 
 ### Auth model (current)
 
@@ -295,7 +323,6 @@ Still later: CRDT collab, judge worker pool, OAuth/SSO, family plan, store binar
 - Time to first completed lesson  
 - D1 / D7 retention  
 - Lessons / user / week  
-- Free → Premium conversion  
 - Exam pass rate  
 - Homework completion (B2B)  
 

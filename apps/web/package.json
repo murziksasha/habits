@@ -15,6 +15,7 @@
     "test:e2e:visual:update": "playwright test e2e/visual.spec.ts --update-snapshots"
   },
   "dependencies": {
+    "@eduforge/chess-core": "workspace:*",
     "@eduforge/shared": "workspace:*",
     "@monaco-editor/react": "^4.7.0",
     "@webcontainer/api": "^1.6.4",

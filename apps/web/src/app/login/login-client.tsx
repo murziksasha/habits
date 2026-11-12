@@ -73,8 +73,11 @@ function LoginForm() {
         return;
       }
       await postLoginRedirect();
-    } catch {
-      setError(mfaToken ? "Невірний код 2FA" : "Невірний email або пароль");
+    } catch (e) {
+      const code = (e as { data?: { error?: string } }).data?.error;
+      if (code === "account_inactive") setError(t.auth.accountInactive);
+      else if (code === "email_unverified") setError(t.auth.unverifiedBanner);
+      else setError(mfaToken ? "Невірний код 2FA" : t.auth.invalidCredentials);
     } finally {
       setLoading(false);
     }

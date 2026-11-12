@@ -1,5 +1,6 @@
 import type { CourseContent, Exercise, LessonContent, UnitContent } from "./types.js";
 import { codeFill, codeRead, codeOrder, codeOrderAuto, codeProject, mcq, why } from "./builders.js";
+import { tsAdvancedTypesUnit } from "./deep-units.js";
 
 function lesson(
   slug: string,
@@ -1577,9 +1578,9 @@ export const typescriptContent: CourseContent = {
   titleUk: "TypeScript",
   titleEn: "TypeScript",
   descriptionUk:
-    "Повний курс TypeScript: від примітивів до generics, narrowing і utility types. Контрольні після кожного розділу.",
+    "Повний курс TypeScript: від примітивів до generics, narrowing, utility types і просунуті типи (conditional, mapped, template literal). Контрольні після кожного розділу.",
   descriptionEn:
-    "Full TypeScript course: primitives to generics, narrowing, and utility types. Unit exams after each section.",
+    "Full TypeScript course: primitives to generics, narrowing, utility types and advanced types (conditional, mapped, template literal). Unit exams after each section.",
   icon: "📘",
   color: "#3178C6",
   units: [
@@ -1593,6 +1594,7 @@ export const typescriptContent: CourseContent = {
     modules,
     appliedErrorDiagnosis,
     strictContractsUnions,
+    tsAdvancedTypesUnit,
     capstone,
   ],
 };

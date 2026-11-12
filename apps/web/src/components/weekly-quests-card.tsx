@@ -17,14 +17,15 @@ type WeeklyQuest = {
   titleEn: string;
 };
 
-/** Compact weekly build/lesson quests for learn / dashboard. */
-export function WeeklyQuestsCard() {
+/** Compact weekly build/lesson quests for learn — starts closed, opens on tap. */
+export function WeeklyQuestsCard({ defaultOpen = false }: { defaultOpen?: boolean } = {}) {
   const { token, user, setCharacter, refresh } = useAuth();
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const en = locale === "en";
   const [weekKey, setWeekKey] = useState("");
   const [quests, setQuests] = useState<WeeklyQuest[]>([]);
   const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
 
   async function load() {
     if (!token) return;
@@ -45,6 +46,9 @@ export function WeeklyQuestsCard() {
   }, [token, user]);
 
   if (!user || quests.length === 0) return null;
+
+  const completedCount = quests.filter((q) => q.completed || q.claimed).length;
+  const totalCount = quests.length;
 
   const primary =
     quests.find((q) => q.completed && !q.claimed) ??
@@ -71,12 +75,52 @@ export function WeeklyQuestsCard() {
     }
   }
 
+  if (!open) {
+    return (
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => setOpen(true)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setOpen(true);
+          }
+        }}
+        className="card cursor-pointer border-sun/30 bg-gradient-to-br from-sun/10 to-transparent py-2.5 px-4 flex items-center justify-between hover:border-sun/50 transition-colors"
+        aria-expanded={false}
+      >
+        <div className="flex items-center gap-2">
+          <span>📅</span>
+          <span className="font-bold text-sm">
+            {en ? "Weekly quests" : "Тижневі квести"}:{" "}
+            <strong className="text-sun">
+              {completedCount} {en ? "of" : "з"} {totalCount} {t.learn.questsWeekSummary}
+            </strong>
+          </span>
+        </div>
+        <span className="text-xs font-bold text-ink-muted">
+          ▼ {t.learn.tapToOpen}
+        </span>
+      </div>
+    );
+  }
+
   return (
     <section className="card space-y-2 border-sun/30 bg-gradient-to-br from-sun/10 to-transparent">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs font-black uppercase text-sun">
-          {en ? "Weekly" : "Тиждень"}
-        </p>
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          className="flex items-center gap-1.5 text-xs font-black uppercase text-sun hover:underline"
+          aria-expanded={true}
+        >
+          <span>📅 {en ? "Weekly quests" : "Тижневі квести"}</span>
+          <span className="text-ink-muted font-normal lowercase">
+            ({completedCount} {en ? "of" : "з"} {totalCount} {t.learn.questsWeekSummary})
+          </span>
+          <span className="text-[10px] text-ink-muted">▲</span>
+        </button>
         {weekKey ? (
           <span className="text-[10px] font-bold text-ink-muted">{weekKey}</span>
         ) : null}

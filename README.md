@@ -2,7 +2,7 @@
 
 Освітній SaaS: **англійська**, **шахи** (уроки + online PvP), **друк**, **швидкочитання**, **логіка**, **програмування** (Mimo-style path + playground + mini-projects).
 
-UI: **українська + англійська** · повна технічна документація: [`SPEC/`](./SPEC/) (English, 01–87 + CURRENT) · surface freeze: [`SPEC/CURRENT.md`](./SPEC/CURRENT.md).
+UI: **українська + англійська** · повна технічна документація: [`SPEC/`](./SPEC/) (English, 01–91 + CURRENT) · surface freeze: [`SPEC/CURRENT.md`](./SPEC/CURRENT.md).
 
 - Monorepo: **pnpm + Turborepo**
 - Apps: `web` (Next.js), `api` (Hono), `realtime` (Socket.IO)
@@ -64,6 +64,8 @@ docker compose --profile tools run --rm migrate
 | Курси | english, chess, typing, speed_reading, logic, **programming**, **typescript**, **html_semantics**, **css_layout**, **qa_theory** |
 | Programming | path units, Monaco drills, mini-projects, weekly race, stack hubs |
 | Deep tracks | HTML semantics, CSS Flex/Grid, QA theory (+ unit exams) |
+| Deep learning | **concept cards** (теорія перед практикою), **крива забування** (`/review` памʼять ≈ %), **змішана практика** `/review/mixed` — [SPEC/91](./SPEC/91-deep-learning-features.md) |
+| Deep learning 2 | **впевненість + калібрування**, **зошит помилок** `/review/mistakes` (SRS на рівні вправ), **карта майстерності** `/courses/[slug]/mastery`, вправа **«поясни своїми словами»** з відгуком тьютора — [SPEC/92](./SPEC/92-deep-learning-2.md) |
 | Playground | client sandbox (JS/TS/HTML/CSS + **React Studio** + **C++**), race |
 | Node Studio | **WebContainers** in-browser Node/npm/Express (`/studio/node`, flag `NEXT_PUBLIC_WEBCONTAINERS`) |
 | Соціальне | friends, minis vs friends, weekly race vs friends, certificates |
@@ -79,11 +81,9 @@ docker compose --profile tools run --rm migrate
 | Персонаж | `globalXp` / `globalLevel` з усіх курсів + бонуси |
 | Шахи Elo | окремий рейтинг для online-партій |
 
-## Freemium
+## Access
 
-- Free: перші 5 уроків курсу, ліміт рейтингових партій, 5 ❤️
-- Premium: Stripe Checkout / Portal у production
-- Demo upgrade (`/billing/dev-upgrade`, trial): **лише non-prod** або `ALLOW_DEV_BILLING=1` на staging — у реальному production вимкнено
+EduForge is free. Every account can open every lesson and play rated chess. Hearts (5, regen) are a shared practice limit, not a subscription.
 
 ## Security (коротко)
 
@@ -98,7 +98,7 @@ docker compose --profile tools run --rm migrate
 | Continue | Post-lesson `nextLesson` + Learn «місія дня» |
 | OAuth | Google — `GOOGLE_CLIENT_ID` / `SECRET` → Continue with Google |
 | 2FA | TOTP для всіх акаунтів (профіль + challenge на login) |
-| Family | `/family` — seats, invite codes, Premium для дітей |
+| Family | `/family` — free group, seats, invite codes |
 | Teacher | `/teacher` — heatmap домашки |
 | UX | Thin home, PageLoading floor, labs shells, visual baselines (Playwright) |
 
@@ -113,7 +113,7 @@ pnpm --filter @eduforge/web test:e2e:visual          # compare
 
 ## Admin Platform (v2)
 
-Modular admin at `/admin` (sidebar): courses (draft→publish), content tree, appearance (CSS tokens), users, metrics, ops, feedback, audit, security (TOTP), plus read-only overviews (billing, classroom, engagement, programming).
+Modular admin at `/admin` (sidebar): courses (draft→publish), content tree, appearance (CSS tokens), users, metrics, ops, feedback, audit, security (TOTP), plus read-only overviews (classroom, engagement, programming).
 
 - **2FA:** TOTP when enrolled (always challenged on login); backup codes; step-up via `X-Admin-StepUp`. Enforce enroll in production / `ADMIN_MFA_ENFORCE=true`.
 - **E2E MFA:** `loginAsAdmin()` generates live TOTP from seed secret (`JBSWY3DPEHPK3PXP`).
@@ -124,10 +124,9 @@ Modular admin at `/admin` (sidebar): courses (draft→publish), content tree, ap
 
 Після `pnpm db:seed` створюються акаунти:
 
-| Роль | Email | Password | Plan |
-|------|-------|----------|------|
-| Admin | `admin@eduforge.ua` | `admin12345` | premium |
-| Test user | `premium@eduforge.ua` | `premium12345` | premium |
+| Роль | Email | Password |
+|------|-------|----------|
+| Admin | `admin@eduforge.ua` | `admin12345` |
 
 Сторінки: `/admin`, `/admin/courses`, `/admin/content`, `/admin/appearance`, `/admin/users`, `/admin/metrics`, `/admin/security`, …
 
@@ -152,17 +151,22 @@ packages/content  Seed-уроки + MDX pipeline
 packages/shared   XP, Elo, entitlements, i18n, minis race
 packages/judge    Multi-lang judge + job queue
 packages/chess-core
-SPEC/             Product & technical docs (English) 01–87 + CURRENT
+SPEC/             Product & technical docs (English) 01–91 + CURRENT
 ```
 
 ## Documentation
 
 - [`SPEC/README.md`](./SPEC/README.md) — full index  
 - [`SPEC/CURRENT.md`](./SPEC/CURRENT.md) — product surface freeze & IA map  
+- [`SPEC/90-deep-improvements-plan.md`](./SPEC/90-deep-improvements-plan.md) — deep-learning analysis + step-by-step plan  
+- [`SPEC/91-deep-learning-features.md`](./SPEC/91-deep-learning-features.md) — concept cards, memory model, mixed practice  
+- [`SPEC/92-deep-learning-2.md`](./SPEC/92-deep-learning-2.md) — calibration, mistake notebook, mastery map, explain step  
 - [`SPEC/58-docs-freeze.md`](./SPEC/58-docs-freeze.md) — historical closeout 01–58  
 - [`.env.example`](./.env.example) — environment variables  
 
 ## Tests
+
+> pnpm 11 має вбудовану команду `pnpm ci` (clean install) — для нашого скрипта використовуйте **`pnpm run ci`**. Потрібен Node 22 (`.nvmrc`).
 
 ```bash
 pnpm --filter @eduforge/content test

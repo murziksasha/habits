@@ -25,6 +25,7 @@ import { parentRoutes } from "./routes/parents.js";
 import { referralRoutes } from "./routes/referrals.js";
 import { reminderRoutes } from "./routes/reminders.js";
 import { reviewRoutes } from "./routes/review.js";
+import { deepLearningRoutes } from "./routes/deep-learning.js";
 import { searchRoutes } from "./routes/search.js";
 import { shopRoutes } from "./routes/shop.js";
 import { characterRoutes } from "./routes/character.js";
@@ -183,6 +184,7 @@ export function createApp() {
   app.route("/character", characterRoutes);
   app.route("/gifts", giftRoutes);
   app.route("/review", reviewRoutes);
+  app.route("/deep", deepLearningRoutes);
   app.route("/quests", questRoutes);
   app.route("/notes", notesRoutes);
   app.route("/focus", focusRoutes);

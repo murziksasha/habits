@@ -83,7 +83,7 @@ const allCourses: CourseContent[] = [
   appliedAlgorithmsContent,
 ];
 
-async function seedCourse(
+export async function seedCourse(
   db: ReturnType<typeof createDb>,
   content: CourseContent,
   sortOrder: number,
@@ -279,7 +279,6 @@ async function seedAdmin(db: ReturnType<typeof createDb>) {
         email,
         passwordHash,
         role: "admin",
-        plan: "free",
         emailVerifiedAt: new Date(),
       })
       .returning();
@@ -376,7 +375,12 @@ async function main() {
   process.exit(0);
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+const seedEntrypoint = process.argv[1]?.replace(/\\/g, "/") ?? "";
+const launchedAsCli = seedEntrypoint.endsWith("/seed.ts") || seedEntrypoint.endsWith("/seed.js");
+
+if (launchedAsCli) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

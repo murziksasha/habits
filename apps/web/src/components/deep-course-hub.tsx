@@ -11,6 +11,7 @@ import {
   getCoursePrerequisites,
   pickLocale,
 } from "@eduforge/shared";
+import { OracleSectionBar, prerequisiteLabels, unitInOracleSection } from "@/components/oracle-sections";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
@@ -33,6 +34,7 @@ type Lesson = {
 
 type Unit = {
   id: string;
+  slug?: string;
   titleUk: string;
   titleEn?: string;
   lessons: Lesson[];
@@ -67,6 +69,7 @@ export function DeepCourseHub({
   });
   const [dataLoading, setDataLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
+  const [section, setSection] = useState("all");
 
   useEffect(() => {
     if (loading) return;
@@ -121,17 +124,22 @@ export function DeepCourseHub({
     );
   }
 
-  const allLessons = units.flatMap((u) => u.lessons);
+  const oracle = courseSlug === "sql_fundamentals";
+  const visibleUnits = oracle ? units.filter((u) => unitInOracleSection(u.slug, section)) : units;
+  const allLessons = visibleUnits.flatMap((u) => u.lessons);
   const total = allLessons.length;
   const exams = allLessons.filter((l) => l.isExam);
   const examsDone = exams.filter((l) => l.status === "completed").length;
   const continueHref =
-    firstAvailableLessonHref(courseSlug, units) ?? `/courses/${courseSlug}`;
+    firstAvailableLessonHref(courseSlug, visibleUnits) ??
+    firstAvailableLessonHref(courseSlug, units) ??
+    `/courses/${courseSlug}`;
   const nextLesson =
     allLessons.find((l) => !l.locked && l.status !== "completed") ??
     allLessons.find((l) => !l.locked) ??
     null;
-  const pathPct = total ? Math.round((progress.completedLessons / total) * 100) : 0;
+  const completedVisible = allLessons.filter((l) => l.status === "completed").length;
+  const pathPct = total ? Math.round((completedVisible / total) * 100) : 0;
   const readyExams = exams.filter(
     (l) => !l.locked && l.status !== "completed" && !l.examLocked,
   );
@@ -150,7 +158,7 @@ export function DeepCourseHub({
           <h1 className="mt-2 text-3xl font-black">{title}</h1>
           <p className="text-ink-muted font-bold">{subtitle}</p>
           <p className="mt-1 text-sm font-bold text-ink-muted">
-            {progress.completedLessons}/{total} · 📝 {examsDone}/{exams.length}{" "}
+            {completedVisible}/{total} · 📝 {examsDone}/{exams.length}{" "}
             {t.lesson.exam} · {pathPct}%
           </p>
           <div className="mt-2 h-2 max-w-md overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
@@ -240,6 +248,8 @@ export function DeepCourseHub({
         </div>
       </section>
 
+      {oracle ? <OracleSectionBar units={units} value={section} onChange={setSection} /> : null}
+
       {readyExams.length > 0 && (
         <section className="card space-y-2 border-grape/30">
           <h2 className="text-sm font-black uppercase text-grape">
@@ -259,7 +269,8 @@ export function DeepCourseHub({
       )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {units.map((u, i) => {
+        {visibleUnits.map((u, i) => {
+          const prereq = prerequisiteLabels(u.slug, units, locale);
           const done = u.lessons.filter((l) => l.status === "completed").length;
           const examL = u.lessons.find((l) => l.isExam);
           const unitNext = u.lessons.find((l) => !l.locked && l.status !== "completed");
@@ -271,6 +282,11 @@ export function DeepCourseHub({
               <p className="text-xs font-bold text-ink-muted">
                 {i + 1}. {pickLocale(locale, u.titleUk, u.titleEn)}
               </p>
+              {prereq.length > 0 ? (
+                <p className="text-xs text-ink-muted">
+                  {t.coursePage.prerequisites}: {prereq.join(", ")}
+                </p>
+              ) : null}
               <p className="text-sm font-bold">
                 {done}/{u.lessons.length}
                 {examL

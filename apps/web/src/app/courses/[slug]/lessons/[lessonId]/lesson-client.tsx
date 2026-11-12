@@ -7,6 +7,7 @@ import {
   exerciseExplanation,
   exerciseTypeLabel,
 
+  LESSON_MATE_RESULT_MS,
   LESSON_RESULT_SHEET_MS,
   type GrantedRewardItem,
   type LocalLabManifest,
@@ -16,6 +17,16 @@ import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api, isNetworkOrOfflineError } from "@/lib/api";
 import { ExercisePlayer, type Exercise } from "@/components/exercises";
+import { ConfidencePicker, isConfidenceRateable } from "@/components/confidence-picker";
+import type { ConfidenceLevel } from "@eduforge/shared";
+
+/** Answer + learning signals (SPEC 92: wrong soft attempts, confidence). */
+type LessonAnswer = {
+  exerciseId: string;
+  answer: unknown;
+  wrongAttempts?: number;
+  confidence?: ConfidenceLevel | null;
+};
 import { HeartsBar } from "@/components/hearts";
 import { Celebration } from "@/components/celebration";
 import { ShareLinkButtons } from "@/components/share-link";
@@ -55,12 +66,24 @@ export function LessonClient() {
   const [hearts, setHearts] = useState(5);
   const [maxHearts, setMaxHearts] = useState(5);
   const [idx, setIdx] = useState(0);
-  const [answers, setAnswers] = useState<{ exerciseId: string; answer: unknown }[]>([]);
+  const [answers, setAnswers] = useState<LessonAnswer[]>([]);
+  const [confidence, setConfidence] = useState<ConfidenceLevel | null>(null);
+  const [isMateHold, setIsMateHold] = useState(false);
+  const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (advanceTimerRef.current) {
+        clearTimeout(advanceTimerRef.current);
+      }
+    };
+  }, []);
+  const wrongAttemptsRef = useRef(0);
   const [feedback, setFeedback] = useState<"ok" | "bad" | null>(null);
   const [feedbackExplain, setFeedbackExplain] = useState("");
   const [showCoach, setShowCoach] = useState(false);
   const [pendingSubmit, setPendingSubmit] = useState<
-    { exerciseId: string; answer: unknown }[] | null
+    LessonAnswer[] | null
   >(null);
   const [keysHelp, setKeysHelp] = useState(false);
   const [summary, setSummary] = useState<{
@@ -289,34 +312,60 @@ export function LessonClient() {
   async function handleAnswer(answer: unknown) {
     if (!lesson || submitting || feedback === "ok") return;
     const ex = lesson.exercises[idx];
-    const nextAnswers = [
+    const nextAnswers: LessonAnswer[] = [
       ...answers.filter((a) => a.exerciseId !== ex.id),
-      { exerciseId: ex.id, answer },
+      {
+        exerciseId: ex.id,
+        answer,
+        wrongAttempts: wrongAttemptsRef.current,
+        confidence,
+      },
     ];
+    wrongAttemptsRef.current = 0;
+    setConfidence(null);
     setAnswers(nextAnswers);
     const explain = exerciseExplanation(
       ex as Record<string, unknown>,
       locale === "en" ? "en" : "uk",
     );
 
+    const isMateOrStalemate =
+      typeof answer === "object" &&
+      answer !== null &&
+      (Boolean((answer as { mate?: boolean }).mate) ||
+        Boolean((answer as { stalemate?: boolean }).stalemate));
+
+    if (isMateOrStalemate) {
+      setIsMateHold(true);
+    }
+
     if (idx < lesson.exercises.length - 1) {
       // Result sheet: show correct + explanation before next
       setFeedback("ok");
       setFeedbackExplain(explain);
-      setTimeout(() => {
+      const delay = isMateOrStalemate ? LESSON_MATE_RESULT_MS : LESSON_RESULT_SHEET_MS;
+      advanceTimerRef.current = setTimeout(() => {
         setFeedback(null);
         setFeedbackExplain("");
+        setIsMateHold(false);
         setIdx((i) => i + 1);
-      }, LESSON_RESULT_SHEET_MS);
+      }, delay);
     } else {
       setFeedback("ok");
       setFeedbackExplain(explain);
-      await submitLessonAnswers(nextAnswers);
+      if (isMateOrStalemate) {
+        advanceTimerRef.current = setTimeout(async () => {
+          setIsMateHold(false);
+          await submitLessonAnswers(nextAnswers);
+        }, LESSON_MATE_RESULT_MS);
+      } else {
+        await submitLessonAnswers(nextAnswers);
+      }
     }
   }
 
   async function submitLessonAnswers(
-    nextAnswers: { exerciseId: string; answer: unknown }[],
+    nextAnswers: LessonAnswer[],
   ) {
     if (!lessonId) return;
     setSubmitting(true);
@@ -815,7 +864,7 @@ export function LessonClient() {
 
   return (
     <div
-      className={`mx-auto max-w-2xl space-y-4 ${isCodeEx ? "lesson-code-mobile" : ""}`}
+      className={`mx-auto ${isCodeEx ? "max-w-3xl lesson-code-mobile" : "max-w-2xl"} space-y-4`}
     >
       <LessonShortcutsHelp open={keysHelp} onClose={() => setKeysHelp(false)} />
       <Breadcrumbs
@@ -928,12 +977,21 @@ export function LessonClient() {
       )}
       <div className="card relative">
         <p className="mb-4 text-sm font-bold text-ink-muted">{lesson.titleUk}</p>
-        <div className={feedback === "ok" ? "pointer-events-none opacity-60" : undefined}>
+        <div className={feedback === "ok" ? (isMateHold ? "pointer-events-none" : "pointer-events-none opacity-60") : undefined}>
+          {isConfidenceRateable(ex.type) && (
+            <div className="mb-3">
+              <ConfidencePicker value={confidence} onChange={setConfidence} />
+            </div>
+          )}
           <ExercisePlayer
             key={ex.id}
             exercise={ex}
             onAnswer={handleAnswer}
             examMode={Boolean(lesson.isExam)}
+            onWrongAttempt={() => {
+              wrongAttemptsRef.current += 1;
+            }}
+            lessonId={lessonId}
           />
         </div>
         {feedback === "ok" && (

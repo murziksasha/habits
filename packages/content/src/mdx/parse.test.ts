@@ -47,3 +47,30 @@ console.log(1)
     expect(lesson.exercises.some((e) => e.type === "code_fill")).toBe(true);
   });
 });
+
+describe("concept + explain markers (SPEC 92)", () => {
+  it("parses a concept block into a concept exercise placed first", () => {
+    const src = readFileSync(join(here, "concept-lesson.mdx"), "utf8");
+    const p = parseMdxLesson(src);
+    expect(p.concepts).toHaveLength(1);
+    const c = p.concepts[0]!;
+    expect(c.titleEn).toBe("What a closure is");
+    expect(c.bodyUk).toContain("лексичним оточенням");
+    expect(c.bodyUk.split("\n\n")).toHaveLength(2);
+    expect(c.bodyEn).toContain("outer variables");
+    expect(c.keyPointsUk).toHaveLength(2);
+    expect(c.check).toMatchObject({ options: ["3", "1", "undefined"], correctIndex: 0 });
+    expect(c.language).toBe("js");
+    expect(c.code).toContain("counter");
+    // code inside the concept is an example, not a code_fill drill
+    expect(p.codeBlocks).toHaveLength(0);
+
+    const lesson = mdxToLesson(p);
+    expect(lesson.exercises[0]!.type).toBe("concept");
+    expect(lesson.exercises.some((e) => e.type === "mcq")).toBe(true);
+    const explain = lesson.exercises.find((e) => e.type === "explain")!;
+    expect(explain.minWords).toBe(12);
+    expect((explain.keyIdeas as unknown[]).length).toBe(3);
+    expect(lesson.exercises.some((e) => e.type === "code_fill")).toBe(false);
+  });
+});

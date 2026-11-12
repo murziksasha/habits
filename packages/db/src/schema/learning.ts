@@ -10,4 +10,6 @@ export {
   placementResults,
   lessonComments,
   learningMilestones,
+  exerciseAttempts,
+  exerciseReviews,
 } from "./tables.js";

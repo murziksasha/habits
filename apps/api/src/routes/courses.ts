@@ -12,7 +12,6 @@ import {
   listLabsForCourse,
   maxHearts,
   regenerateHearts,
-  type Plan,
 } from "@eduforge/shared";
 
 function attachLabMeta(
@@ -128,8 +127,8 @@ courseRoutes.get("/:slug", optionalAuth, async (c) => {
       progress: {
         xp: 0,
         level: 1,
-        hearts: maxHearts("free"),
-        maxHearts: maxHearts("free"),
+        hearts: maxHearts(),
+        maxHearts: maxHearts(),
         completedLessons: 0,
       },
     });
@@ -142,10 +141,8 @@ courseRoutes.get("/:slug", optionalAuth, async (c) => {
     ),
   });
 
-  const plan = user.plan as Plan;
   if (progress) {
     const regen = regenerateHearts({
-      plan,
       hearts: progress.hearts,
       heartsUpdatedAt: progress.heartsUpdatedAt,
     });
@@ -204,7 +201,7 @@ courseRoutes.get("/:slug", optionalAuth, async (c) => {
       }),
   }));
 
-  const hearts = progress?.hearts ?? maxHearts(plan);
+  const hearts = progress?.hearts ?? maxHearts();
 
   return c.json({
     course,
@@ -215,14 +212,14 @@ courseRoutes.get("/:slug", optionalAuth, async (c) => {
           xp: progress.xp,
           level: progress.level,
           hearts,
-          maxHearts: maxHearts(plan),
+          maxHearts: maxHearts(),
           completedLessons: progress.completedLessons,
         }
       : {
           xp: 0,
           level: 1,
-          hearts: maxHearts(plan),
-          maxHearts: maxHearts(plan),
+          hearts: maxHearts(),
+          maxHearts: maxHearts(),
           completedLessons: 0,
         },
   });
@@ -269,12 +266,11 @@ courseRoutes.get("/:slug/lessons/:lessonId", optionalAuth, async (c) => {
       course,
       localLab: labMeta.localLab,
       indexInCourse: idx,
-      hearts: maxHearts("free"),
-      maxHearts: maxHearts("free"),
+      hearts: maxHearts(),
+      maxHearts: maxHearts(),
     });
   }
 
-  const plan = user.plan as Plan;
 
   if (lesson.isExam) {
     const unitLessons = sorted.filter((l) => l.unitId === lesson.unitId && !l.isExam);
@@ -305,7 +301,7 @@ courseRoutes.get("/:slug/lessons/:lessonId", optionalAuth, async (c) => {
       .values({
         userId: user.id,
         courseId: course.id,
-        hearts: maxHearts(plan),
+        hearts: maxHearts(),
       })
       .onConflictDoNothing();
     progress = await db.query.userCourseProgress.findFirst({
@@ -316,7 +312,6 @@ courseRoutes.get("/:slug/lessons/:lessonId", optionalAuth, async (c) => {
     });
   } else {
     const regen = regenerateHearts({
-      plan,
       hearts: progress.hearts,
       heartsUpdatedAt: progress.heartsUpdatedAt,
     });
@@ -340,8 +335,8 @@ courseRoutes.get("/:slug/lessons/:lessonId", optionalAuth, async (c) => {
     course,
     localLab: labMeta.localLab,
     indexInCourse: idx,
-    hearts: progress?.hearts ?? maxHearts(plan),
-    maxHearts: maxHearts(plan),
+    hearts: progress?.hearts ?? maxHearts(),
+    maxHearts: maxHearts(),
   });
 });
 

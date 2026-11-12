@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { emailVerifyEmail, parentChildDigestEmail, weeklyReportEmail } from "./email.js";
+import {
+  emailVerifyEmail,
+  parentChildDigestEmail,
+  registrationVerifyEmail,
+  weeklyReportEmail,
+} from "./email.js";
 
 describe("retention emails", () => {
   it("parent digest includes exams, portal CTA, and inactive copy", () => {
@@ -66,5 +71,19 @@ describe("retention emails", () => {
     expect(mail.subject).toMatch(/email/i);
     expect(mail.html).toMatch(/verify-email\?token=abc/);
     expect(mail.html).toMatch(/Підтвердити/);
+    expect(mail.text).toMatch(/30 днів/);
+    expect(mail.text).toMatch(/7 днів/);
+  });
+
+  it("registration verify email states the 7d/30d policy", () => {
+    const mail = registrationVerifyEmail({
+      to: "a@test.com",
+      displayName: "Ada",
+      verifyUrl: "http://localhost:3000/verify-email?token=abc",
+      locale: "en",
+    });
+    expect(mail.text).toMatch(/after 7 days/);
+    expect(mail.text).toMatch(/after 30 days/);
+    expect(mail.html).toMatch(/token=abc/);
   });
 });

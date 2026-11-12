@@ -1,6 +1,6 @@
 /**
  * UX helpers — pure logic for persona nav, post-register routing,
- * contextual toolkit, freemium path labels, lesson miss titles.
+ * contextual toolkit, lesson progress labels, lesson miss titles.
  * Keep web/API free of duplicated decision trees.
  */
 
@@ -23,7 +23,8 @@ export type NavSlot = {
     | "desk"
     | "homework"
     | "class"
-    | "friends";
+    | "friends"
+    | "practice";
   icon: string;
 };
 
@@ -42,7 +43,6 @@ export const UX_ONBOARDING_KEYS = [
   "triedChess",
   "triedFlashcards",
   "viewedLeaderboard",
-  "exploredPricing",
   "dismissed",
 ] as const;
 
@@ -103,8 +103,7 @@ export function primaryNavForPersona(persona: UxPersona): NavSlot[] {
         { href: "/dashboard", id: "home", icon: "🏠" },
         { href: "/learn", id: "learn", icon: "🗺️" },
         { href: "/courses", id: "courses", icon: "📚" },
-        { href: "/programming", id: "code", icon: "💻" },
-        { href: "/play", id: "play", icon: "♟️" },
+        { href: "/review", id: "practice", icon: "🔁" },
         { href: "/friends", id: "friends", icon: "👥" },
       ];
   }
@@ -132,9 +131,9 @@ export function mobileNavForPersona(persona: UxPersona): NavSlot[] {
     default:
       return [
         { href: "/learn", id: "learn", icon: "🗺️" },
-        { href: "/programming", id: "code", icon: "💻" },
-        { href: "/play", id: "play", icon: "♟️" },
         { href: "/courses", id: "courses", icon: "📚" },
+        { href: "/review", id: "practice", icon: "🔁" },
+        { href: "/friends", id: "friends", icon: "👥" },
         { href: "/profile", id: "profile", icon: "🧙" },
       ];
   }
@@ -240,6 +239,8 @@ export function exerciseTypeLabel(
     chess_puzzle: ["Шахова задача", "Chess puzzle"],
     chess_lesson: ["Шаховий урок", "Chess lesson"],
     video: ["Відео", "Video"],
+    concept: ["Теорія", "Concept"],
+    explain: ["Поясніть своїми словами", "Explain in your own words"],
   };
   const pair = type ? map[type] : undefined;
   if (!pair) return type || (en ? "Exercise" : "Вправа");
@@ -249,17 +250,13 @@ export function exerciseTypeLabel(
 export function freemiumPathLabel(opts: {
   freeCompleted: number;
   freeLessonCount: number;
-  isPremium: boolean;
   locale?: "uk" | "en";
 }): string {
-  if (opts.isPremium) {
-    return opts.locale === "en" ? "Premium · all unlocked" : "Premium · усе відкрито";
-  }
   const left = Math.max(0, opts.freeLessonCount - opts.freeCompleted);
   if (opts.locale === "en") {
-    return `${opts.freeCompleted}/${opts.freeLessonCount} free · ${left} left`;
+    return `${opts.freeCompleted}/${opts.freeLessonCount} · ${left} left`;
   }
-  return `${opts.freeCompleted}/${opts.freeLessonCount} free · лишилось ${left}`;
+  return `${opts.freeCompleted}/${opts.freeLessonCount} · лишилось ${left}`;
 }
 
 /** Static discovery tools for ⌘K / search hub (no network). */
@@ -349,13 +346,6 @@ export function discoveryTools(): {
       group: "toolkit",
     },
     {
-      href: "/pricing",
-      titleUk: "Тарифи",
-      titleEn: "Pricing",
-      keywords: "premium pricing plan",
-      group: "account",
-    },
-    {
       href: "/parents",
       titleUk: "Батьки",
       titleEn: "Parents",
@@ -372,7 +362,7 @@ export function discoveryTools(): {
     {
       href: "/family",
       titleUk: "Сімʼя",
-      titleEn: "Family plan",
+      titleEn: "Family group",
       keywords: "family seats",
       group: "school",
     },
@@ -531,19 +521,19 @@ export function landingPersonas(): {
   return [
     {
       intent: "skills",
-      titleUk: "Навички",
-      titleEn: "Skills",
-      bodyUk: "Англійська, друк, логіка, швидкочитання",
-      bodyEn: "English, typing, logic, speed reading",
-      icon: "📚",
+      titleUk: "Англійська",
+      titleEn: "English",
+      bodyUk: "Слова, фрази та короткі розмови з перевіркою.",
+      bodyEn: "Words, phrases, and short conversations with checks.",
+      icon: "📗",
       href: "/register?intent=skills",
     },
     {
       intent: "code",
-      titleUk: "Код",
-      titleEn: "Code",
-      bodyUk: "Programming path, playground, mini-projects",
-      bodyEn: "Programming path, playground, mini-projects",
+      titleUk: "Технології",
+      titleEn: "Technology",
+      bodyUk: "Програмування, SQL і практика на своїх прикладах.",
+      bodyEn: "Programming, SQL, and practice on your own examples.",
       icon: "💻",
       href: "/register?intent=code",
     },
@@ -551,8 +541,8 @@ export function landingPersonas(): {
       intent: "chess",
       titleUk: "Шахи",
       titleEn: "Chess",
-      bodyUk: "Уроки + online / бот",
-      bodyEn: "Lessons + online / bot",
+      bodyUk: "Ідеї позицій, задачі та партії у своєму темпі.",
+      bodyEn: "Ideas, puzzles, and games at your own pace.",
       icon: "♟️",
       href: "/register?intent=chess",
     },
@@ -568,17 +558,27 @@ export function guestTrialMcq(locale: "uk" | "en" = "uk"): {
 } {
   if (locale === "en") {
     return {
-      prompt: "What does `const x = 1` declare in JavaScript?",
-      options: ["A constant binding", "A function", "A CSS class", "A database"],
+      prompt: "You read a short example, then try a similar question. What should you do next?",
+      options: [
+        "Try the question from memory, then read the explanation",
+        "Skip every explanation",
+        "Only collect points",
+        "Open a different subject at random",
+      ],
       correctIndex: 0,
-      explanation: "const creates a block-scoped constant binding (not reassignable).",
+      explanation: "A short try, then the explanation, is how the lesson checks that the idea stuck.",
     };
   }
   return {
-    prompt: "Що робить `const x = 1` у JavaScript?",
-    options: ["Оголошує константу", "Створює функцію", "CSS-клас", "Базу даних"],
+    prompt: "Ви прочитали короткий приклад і бачите схоже питання. Що робити далі?",
+    options: [
+      "Спробувати відповісти з пам’яті, потім прочитати пояснення",
+      "Пропустити всі пояснення",
+      "Лише збирати бали",
+      "Відкрити випадковий інший предмет",
+    ],
     correctIndex: 0,
-    explanation: "const створює блокову константу (без переприсвоєння).",
+    explanation: "Коротка спроба, а потім пояснення, показує, що ідея залишилась.",
   };
 }
 
@@ -621,6 +621,7 @@ export function safeNextPath(
 
 /** Ms to show intermediate correct result sheet before next exercise. */
 export const LESSON_RESULT_SHEET_MS = 1100;
+export const LESSON_MATE_RESULT_MS = 2500;
 
 /** Explanation / hint text from exercise payload for result sheet. */
 export function exerciseExplanation(
@@ -647,7 +648,7 @@ export function exerciseExplanation(
 
 /**
  * Approx minutes until next heart regen given last update time.
- * Returns 0 if full / paid / unknown.
+ * Returns 0 when the heart stack is already full.
  */
 export function minutesUntilHeartRegen(opts: {
   hearts: number;
@@ -656,7 +657,7 @@ export function minutesUntilHeartRegen(opts: {
   regenMinutes: number;
   now?: Date;
 }): number {
-  if (opts.hearts >= opts.maxHearts || opts.maxHearts >= 900) return 0;
+  if (opts.hearts >= opts.maxHearts) return 0;
   if (!opts.heartsUpdatedAt || opts.regenMinutes <= 0) return opts.regenMinutes;
   const updated = new Date(opts.heartsUpdatedAt).getTime();
   const now = (opts.now ?? new Date()).getTime();

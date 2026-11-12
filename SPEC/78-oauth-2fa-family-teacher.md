@@ -20,23 +20,22 @@
 
 - Any user may `POST /auth/mfa/totp/setup` → `confirm` (was admin-only).
 - Login challenges **all** `totpEnabled` users (not only admin).
-- `POST /auth/mfa/totp/disable` with valid code (admin enforce blocks disable in prod).
+- `POST /auth/mfa/totp/disable` with valid code (admin enforce blocks self-service disable in prod).
+- Admin God Mode: An admin can turn 2FA off for any other user (`POST /admin/users/:id/reset-mfa`). If the target is an admin, sets `users.mfa_exempt = true` (exempting them from `ADMIN_MFA_ENFORCE` wall until re-enrolled or required).
 - `authMiddleware` returns `mfa_required` for API until session MFA-verified (exempt: `/auth/mfa/*`, `/auth/me`, logout).
+- `mfaEnrollRequired` applies when `user.role === "admin" && adminMfaEnforce() && !user.totpEnabled && !user.mfaExempt`.
 - Profile UI: enable / confirm / disable + backup codes display.
 
-## 3. Family plan
+## 3. Family group
 
 | Piece | Detail |
 |-------|--------|
-| Plan enum | `family` added |
 | Seats | `users.family_max_seats` (default activate = 4) |
 | Members | `family_members` (owner + children) |
 | Invites | `family_invites` (code, 7d expiry) |
-| Entitlements | `resolveEffectivePlan` — children inherit owner premium window |
-| Auth middleware | `withEffectivePlan` patches free→premium for child seats |
+| Access | Children are not promoted. A family seat does not change lessons or hearts. |
 | API | `GET/POST /family/*` activate, invite, claim, leave, remove |
-| Billing | Checkout `kind=family` + webhook; status includes family info |
-| UI | `/family` + pricing link |
+| UI | `/family` |
 
 ## 4. Teacher desk / homework heat
 
@@ -53,10 +52,9 @@
 
 ## Iteration polish
 
-- `isPaidPlan` in course freemium payload; family expiry → free + seats cleared
+- Family activate is `POST /family/activate` only
 - Teacher desk: quick assign (programming catalog → `POST /homework`)
 - Dashboard/Learn: `DailyQuestsCard` primary daily mission
-- Family activate tries `POST /billing/dev-upgrade` `{ kind: "family" }` then `/family/activate`
 - Org invite codes: 16 hex entropy
 
 ## Ops

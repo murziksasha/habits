@@ -24,7 +24,97 @@ export type ParsedMdxLesson = {
   codeBlocks: { lang: string; code: string }[];
   /** Simple MCQ blocks: <!-- mcq q="..." options="a|b|c" answer=0 --> */
   mcqHints: { prompt: string; options: string[]; correctIndex: number }[];
+  /** Concept card blocks (SPEC 92): <!-- concept titleUk=".." titleEn=".." --> … <!-- /concept --> */
+  concepts: MdxConcept[];
 };
+
+export type MdxConcept = {
+  titleUk: string;
+  titleEn: string;
+  bodyUk: string;
+  bodyEn: string;
+  keyPointsUk: string[];
+  keyPointsEn: string[];
+  code?: string;
+  language?: string;
+  check?: { qUk: string; qEn: string; options: string[]; correctIndex: number };
+};
+
+const CONCEPT_RE =
+  /<!--\s*concept\s+titleUk="([^"]+)"(?:\s+titleEn="([^"]*)")?\s*-->([\s\S]*?)<!--\s*\/concept\s*-->/g;
+const CHECK_RE = /q="([^"]+)"(?:\s+qEn="([^"]*)")?\s+options="([^"]+)"\s+answer=(\d+)/;
+
+function splitPoints(v: string): string[] {
+  return v
+    .split("|")
+    .map((x) => x.trim())
+    .filter(Boolean);
+}
+
+/**
+ * Concept block body: sections start with `::uk`, `::en`, `::points-uk a | b`,
+ * `::points-en a | b`, `::check q=".." qEn=".." options="a|b" answer=0`.
+ * The first fenced code block inside becomes the concept's code example.
+ */
+export function parseConceptBlock(titleUk: string, titleEn: string, inner: string): MdxConcept {
+  const out: MdxConcept = {
+    titleUk,
+    titleEn: titleEn || titleUk,
+    bodyUk: "",
+    bodyEn: "",
+    keyPointsUk: [],
+    keyPointsEn: [],
+  };
+  const fence = new RegExp(FENCE_RE.source).exec(inner);
+  if (fence) {
+    out.language = fence[1] || "text";
+    out.code = fence[2]!.trimEnd();
+  }
+  const withoutCode = inner.replace(new RegExp(FENCE_RE.source, "g"), "");
+  let section: "uk" | "en" | null = null;
+  const uk: string[] = [];
+  const en: string[] = [];
+  for (const line of withoutCode.split(/\r?\n/)) {
+    const t = line.trim();
+    if (t === "::uk") {
+      section = "uk";
+      continue;
+    }
+    if (t === "::en") {
+      section = "en";
+      continue;
+    }
+    if (t.startsWith("::points-uk")) {
+      out.keyPointsUk = splitPoints(t.slice("::points-uk".length));
+      section = null;
+      continue;
+    }
+    if (t.startsWith("::points-en")) {
+      out.keyPointsEn = splitPoints(t.slice("::points-en".length));
+      section = null;
+      continue;
+    }
+    if (t.startsWith("::check")) {
+      const m = CHECK_RE.exec(t);
+      if (m) {
+        out.check = {
+          qUk: m[1]!,
+          qEn: m[2]?.trim() || m[1]!,
+          options: splitPoints(m[3]!),
+          correctIndex: Number(m[4]),
+        };
+      }
+      section = null;
+      continue;
+    }
+    if (section === "uk") uk.push(line);
+    if (section === "en") en.push(line);
+  }
+  out.bodyUk = uk.join("\n").trim();
+  out.bodyEn = en.join("\n").trim() || out.bodyUk;
+  if (!out.keyPointsEn.length) out.keyPointsEn = out.keyPointsUk;
+  return out;
+}
 
 function parseYamlish(block: string): MdxFrontmatter {
   const out: MdxFrontmatter = {};
@@ -60,10 +150,18 @@ export function parseMdxLesson(source: string): ParsedMdxLesson {
     body = fm[2]!;
   }
 
-  const codeBlocks: { lang: string; code: string }[] = [];
   let m: RegExpExecArray | null;
+  const concepts: MdxConcept[] = [];
+  const conceptRe = new RegExp(CONCEPT_RE.source, "g");
+  while ((m = conceptRe.exec(body))) {
+    concepts.push(parseConceptBlock(m[1]!, m[2] ?? "", m[3] ?? ""));
+  }
+  // Code inside concept blocks is an example, not a code_fill drill
+  const drillBody = body.replace(new RegExp(CONCEPT_RE.source, "g"), "");
+
+  const codeBlocks: { lang: string; code: string }[] = [];
   const fence = new RegExp(FENCE_RE.source, "g");
-  while ((m = fence.exec(body))) {
+  while ((m = fence.exec(drillBody))) {
     codeBlocks.push({ lang: m[1] || "text", code: m[2]!.trimEnd() });
   }
 
@@ -77,11 +175,30 @@ export function parseMdxLesson(source: string): ParsedMdxLesson {
     });
   }
 
-  return { frontmatter, body, codeBlocks, mcqHints };
+  return { frontmatter, body, codeBlocks, mcqHints, concepts };
 }
 
 const FILL_BLANK_RE =
   /<!--\s*fill\s+q="([^"]+)"\s+answer="([^"]+)"\s*(?:qEn="([^"]*)")?\s*-->/g;
+/** <!-- explain q=".." qEn=".." ideas="labelUk|labelEn|stem1,stem2;..." minWords=12 --> */
+const EXPLAIN_RE =
+  /<!--\s*explain\s+q="([^"]+)"(?:\s+qEn="([^"]*)")?\s+ideas="([^"]+)"(?:\s+minWords=(\d+))?\s*-->/g;
+
+export function parseExplainIdeas(v: string): { labelUk: string; labelEn?: string; anyOf: string[] }[] {
+  return v
+    .split(";")
+    .map((chunk) => {
+      const [uk = "", en = "", stems = ""] = chunk.split("|").map((x) => x.trim());
+      const anyOf = stems
+        .split(",")
+        .map((x) => x.trim().toLowerCase())
+        .filter(Boolean);
+      if (!uk || !anyOf.length) return null;
+      return { labelUk: uk, ...(en ? { labelEn: en } : {}), anyOf };
+    })
+    .filter((x): x is { labelUk: string; labelEn?: string; anyOf: string[] } => x !== null);
+}
+
 const TRANSLATE_RE =
   /<!--\s*translate\s+q="([^"]+)"\s+accepted="([^"]+)"\s*(?:qEn="([^"]*)")?\s*-->/g;
 
@@ -108,6 +225,20 @@ export function mdxToExercises(
 ): Record<string, unknown>[] {
   const exercises: Record<string, unknown>[] = [];
   const fm = parsed.frontmatter;
+  (parsed.concepts ?? []).forEach((c, i) => {
+    exercises.push({
+      id: `${idPrefix}-concept-${i + 1}`,
+      type: "concept",
+      promptUk: c.titleUk,
+      promptEn: c.titleEn,
+      bodyUk: c.bodyUk,
+      bodyEn: c.bodyEn,
+      keyPointsUk: c.keyPointsUk,
+      keyPointsEn: c.keyPointsEn,
+      ...(c.code ? { code: c.code, language: c.language } : {}),
+      ...(c.check ? { check: c.check } : {}),
+    });
+  });
   if (fm.videoUrl) {
     exercises.push({
       id: `${idPrefix}-video`,
@@ -164,6 +295,20 @@ export function mdxToExercises(
       source: m[1],
       accepted,
       direction: "en_uk",
+    });
+  }
+
+  const exRe = new RegExp(EXPLAIN_RE.source, "g");
+  let xi = 0;
+  while ((m = exRe.exec(parsed.body))) {
+    xi += 1;
+    exercises.push({
+      id: `${idPrefix}-explain-${xi}`,
+      type: "explain",
+      promptUk: m[1],
+      promptEn: m[2]?.trim() || m[1],
+      keyIdeas: parseExplainIdeas(m[3]!),
+      minWords: m[4] ? Number(m[4]) : 12,
     });
   }
 

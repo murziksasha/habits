@@ -1,9 +1,17 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { Chessboard } from "@/components/chessboard-lazy";
-import { Chess } from "chess.js";
-import { exercisePrompt, UI } from "@eduforge/shared";
+import { ChessBoardFrame } from "@/components/chess-board-frame";
+import { Chess } from "@eduforge/chess-core";
+import {
+  countWords,
+  exercisePrompt,
+  gradeExplanation,
+  localizeExerciseOptions,
+  localizeMatchPairs,
+  UI,
+  type ExplainKeyIdea,
+} from "@eduforge/shared";
 import clsx from "clsx";
 import { useLocale } from "@/lib/locale-context";
 import { SpeakButton } from "@/components/speak-button";
@@ -24,6 +32,7 @@ import {
   formatExerciseSolution,
   getApplyableAnswer,
 } from "@/lib/exercise-solution";
+import { hasOpenDialog, isTypingTarget, optionIndexFromKey } from "@/lib/answer-keys";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 
@@ -36,6 +45,10 @@ export type Exercise = {
 };
 
 const ExamModeCtx = createContext(false);
+/** Reports wrong soft attempts to the session (SPEC 92: first-try / mistake notebook). */
+const WrongAttemptCtx = createContext<(() => void) | null>(null);
+/** Lesson id for server-side helpers (explain tutor feedback). */
+const LessonIdCtx = createContext<string | null>(null);
 
 function usePrompt(exercise: Exercise) {
   const { locale } = useLocale();
@@ -46,11 +59,17 @@ export function ExercisePlayer({
   exercise,
   onAnswer,
   examMode = false,
+  onWrongAttempt,
+  lessonId,
 }: {
   exercise: Exercise;
   onAnswer: (answer: unknown) => void;
   /** Unit exams: no skip / solution reveal */
   examMode?: boolean;
+  /** Called on each wrong soft attempt (client check) */
+  onWrongAttempt?: () => void;
+  /** Lesson id (enables tutor feedback on explain exercises) */
+  lessonId?: string;
 }) {
   const body = (() => {
     switch (exercise.type) {
@@ -91,24 +110,30 @@ export function ExercisePlayer({
         return <VideoExercise exercise={exercise} onAnswer={onAnswer} />;
       case "code_judge":
         return <CodeJudgeExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "concept":
+        return <ConceptExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "explain":
+        return <ExplainExercise exercise={exercise} onAnswer={onAnswer} />;
       default:
         return <p>Невідомий тип: {exercise.type}</p>;
     }
   })();
 
-  return <ExamModeCtx.Provider value={examMode}>{body}</ExamModeCtx.Provider>;
+  return (
+    <ExamModeCtx.Provider value={examMode}>
+      <WrongAttemptCtx.Provider value={onWrongAttempt ?? null}>
+        <LessonIdCtx.Provider value={lessonId ?? null}>{body}</LessonIdCtx.Provider>
+      </WrongAttemptCtx.Provider>
+    </ExamModeCtx.Provider>
+  );
 }
 
-function CodeBlock({ code, language }: { code: string; language?: string }) {
+function CodeBlock({ code }: { code: string; language?: string }) {
   if (!code) return null;
   return (
-    <MonacoCodeEditor
-      value={code}
-      onChange={() => undefined}
-      language={language || "javascript"}
-      height="200px"
-      readOnly
-    />
+    <pre className="overflow-x-auto rounded-2xl border border-slate-700 bg-slate-950 p-4 font-mono text-[15px] leading-7 text-slate-50 shadow-card">
+      <code>{code}</code>
+    </pre>
   );
 }
 
@@ -216,6 +241,7 @@ const SOFT_MAX_ATTEMPTS = 3;
 
 function useSoftAttempts(hintOpen: (v: boolean | ((b: boolean) => boolean)) => void) {
   const examMode = useContext(ExamModeCtx);
+  const reportWrong = useContext(WrongAttemptCtx);
   const { character } = useAuth();
   const mentorRank = Math.min(
     3,
@@ -228,6 +254,7 @@ function useSoftAttempts(hintOpen: (v: boolean | ((b: boolean) => boolean)) => v
   const [detail, setDetail] = useState<string | null>(null);
 
   function registerFail(msg?: string | null) {
+    reportWrong?.();
     setWrong(true);
     setDetail(msg ?? null);
     setAttempts((a) => {
@@ -427,8 +454,9 @@ function McqExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
+  const { locale } = useLocale();
   const prompt = usePrompt(exercise);
-  const options = (exercise.options as string[]) ?? [];
+  const options = localizeExerciseOptions(locale, exercise as { options?: string[]; optionsEn?: string[] });
   const [selected, setSelected] = useState<number | null>(null);
   const hint = useExerciseHint(exercise);
   const soft = useSoftAttempts(hint.setOpen);
@@ -454,41 +482,55 @@ function McqExercise({
     onAnswer(selected);
   }
 
-  function onKeyDown(e: React.KeyboardEvent) {
-    const n = options.length;
-    if (!n) return;
-    if (e.key >= "1" && e.key <= "9") {
-      const idx = Number(e.key) - 1;
-      if (idx < n) {
-        e.preventDefault();
-        setSelected(idx);
-      }
-      return;
-    }
-    if (e.key === "ArrowDown" || e.key === "ArrowRight") {
-      e.preventDefault();
-      setSelected((s) => (s === null ? 0 : Math.min(n - 1, s + 1)));
-      return;
-    }
-    if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
-      e.preventDefault();
-      setSelected((s) => (s === null ? 0 : Math.max(0, s - 1)));
-      return;
-    }
-    if (e.key === "Enter" && selected !== null) {
-      e.preventDefault();
-      check();
-    }
-  }
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (isTypingTarget(e.target)) return;
+      if (hasOpenDialog()) return;
 
-  const { locale } = useLocale();
+      const optIdx = optionIndexFromKey(e);
+      if (optIdx !== null) {
+        e.preventDefault();
+        if (optIdx < options.length) {
+          setSelected(optIdx);
+          soft.resetSoft();
+        }
+        return;
+      }
+
+      const n = options.length;
+      if (!n) return;
+
+      const target = e.target as HTMLElement | null;
+      const isButtonOrLink = Boolean(target?.closest?.("button, a"));
+      if (isButtonOrLink) return;
+
+      if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+        e.preventDefault();
+        setSelected((s) => (s === null ? 0 : Math.min(n - 1, s + 1)));
+        return;
+      }
+      if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+        e.preventDefault();
+        setSelected((s) => (s === null ? 0 : Math.max(0, s - 1)));
+        return;
+      }
+      if (e.key === "Enter" && selected !== null) {
+        e.preventDefault();
+        check();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [options.length, selected, correctIndex, soft, onAnswer]);
+
   const keysHint =
     locale === "en"
-      ? "Keys: 1–9 select · arrows move · Enter check"
-      : "Клавіші: 1–9 вибір · стрілки · Enter перевірка";
+      ? "Keys: 1–9 (top row and numpad) select · arrows move · Enter check"
+      : "Клавіші: 1–9 (верхній ряд і numpad) вибір · стрілки · Enter перевірка";
 
   return (
-    <div className="space-y-4" onKeyDown={onKeyDown}>
+    <div className="space-y-4">
       <h2 className="text-xl font-black" id={`ex-prompt-${exercise.id}`}>
         {prompt}
       </h2>
@@ -519,6 +561,9 @@ function McqExercise({
               soft.resetSoft();
             }}
           >
+            {i < 9 && (
+              <span className="mr-2 text-xs text-ink-muted">{i + 1}.</span>
+            )}
             {opt}
           </button>
         ))}
@@ -605,17 +650,24 @@ function MatchExercise({
 }) {
   const { locale } = useLocale();
   const prompt = usePrompt(exercise);
-  const pairs = (exercise.pairs as { left: string; right: string }[]) ?? [];
+  const pairs = useMemo(
+    () =>
+      localizeMatchPairs(locale, {
+        pairs: exercise.pairs as { left: string; right: string }[] | undefined,
+        pairsEn: (exercise as { pairsEn?: { left: string; right: string }[] }).pairsEn,
+      }),
+    [exercise, locale],
+  );
   const rights = useMemo(
-    () => [...pairs.map((p) => p.right)].sort(() => Math.random() - 0.5),
+    () => [...pairs].sort(() => Math.random() - 0.5),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [exercise.id],
+    [exercise.id, locale],
   );
   const [selectedLeft, setSelectedLeft] = useState<string | null>(null);
   const [matched, setMatched] = useState<{ left: string; right: string }[]>([]);
 
   const freeLefts = pairs.filter((p) => !matched.some((m) => m.left === p.left));
-  const freeRights = rights.filter((r) => !matched.some((m) => m.right === r));
+  const freeRights = rights.filter((r) => !matched.some((m) => m.right === r.right));
 
   function pickRight(right: string) {
     if (!selectedLeft) return;
@@ -624,38 +676,55 @@ function MatchExercise({
     setSelectedLeft(null);
   }
 
-  function onKeyDown(e: React.KeyboardEvent) {
-    if (e.key >= "1" && e.key <= "9") {
-      const idx = Number(e.key) - 1;
-      e.preventDefault();
-      if (!selectedLeft) {
-        const left = freeLefts[idx]?.left;
-        if (left) setSelectedLeft(left);
-      } else {
-        const right = freeRights[idx];
-        if (right) pickRight(right);
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (isTypingTarget(e.target)) return;
+      if (hasOpenDialog()) return;
+
+      const optIdx = optionIndexFromKey(e);
+      if (optIdx !== null) {
+        e.preventDefault();
+        if (!selectedLeft) {
+          const left = freeLefts[optIdx]?.left;
+          if (left) setSelectedLeft(left);
+        } else {
+          const right = freeRights[optIdx]?.right;
+          if (right) pickRight(right);
+        }
+        return;
       }
-      return;
+
+      if (e.key === "Escape") {
+        if (selectedLeft) {
+          e.preventDefault();
+          setSelectedLeft(null);
+        }
+        return;
+      }
+
+      if (e.key === "Backspace" && matched.length) {
+        e.preventDefault();
+        setMatched((m) => m.slice(0, -1));
+        setSelectedLeft(null);
+        return;
+      }
+
+      if (e.key === "Enter" && matched.length === pairs.length) {
+        const target = e.target as HTMLElement | null;
+        const isButtonOrLink = Boolean(target?.closest?.("button, a"));
+        if (!isButtonOrLink) {
+          e.preventDefault();
+          onAnswer(matched);
+        }
+      }
     }
-    if (e.key === "Escape") {
-      e.preventDefault();
-      setSelectedLeft(null);
-      return;
-    }
-    if (e.key === "Backspace" && matched.length) {
-      e.preventDefault();
-      setMatched((m) => m.slice(0, -1));
-      setSelectedLeft(null);
-      return;
-    }
-    if (e.key === "Enter" && matched.length === pairs.length) {
-      e.preventDefault();
-      onAnswer(matched);
-    }
-  }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [freeLefts, freeRights, matched, pairs.length, selectedLeft, onAnswer]);
 
   return (
-    <div className="space-y-4" onKeyDown={onKeyDown} tabIndex={0}>
+    <div className="space-y-4">
       <h2 className="text-xl font-black" id={`ex-prompt-${exercise.id}`}>
         {prompt}
       </h2>
@@ -682,26 +751,26 @@ function MatchExercise({
                 {freeIdx >= 0 && (
                   <span className="mr-1 text-[10px] text-ink-muted">{freeIdx + 1}.</span>
                 )}
-                {p.left}
+                {p.labelLeft}
               </button>
             );
           })}
         </div>
         <div className="space-y-2" role="list" aria-label="right">
           {rights.map((r) => {
-            const freeIdx = freeRights.indexOf(r);
+            const freeIdx = freeRights.findIndex((x) => x.right === r.right);
             return (
               <button
-                key={r}
+                key={r.right}
                 type="button"
-                disabled={matched.some((m) => m.right === r)}
+                disabled={matched.some((m) => m.right === r.right)}
                 className="w-full rounded-2xl border-2 border-slate-200 px-3 py-2 font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky"
-                onClick={() => pickRight(r)}
+                onClick={() => pickRight(r.right)}
               >
                 {freeIdx >= 0 && (
                   <span className="mr-1 text-[10px] text-ink-muted">{freeIdx + 1}.</span>
                 )}
-                {r}
+                {r.labelRight}
               </button>
             );
           })}
@@ -709,7 +778,12 @@ function MatchExercise({
       </div>
       {matched.length > 0 && (
         <p className="text-xs font-bold text-ink-muted">
-          {matched.map((m) => `${m.left}→${m.right}`).join(" · ")}
+          {matched
+            .map((m) => {
+              const pair = pairs.find((p) => p.left === m.left);
+              return `${pair?.labelLeft ?? m.left}→${pair?.labelRight ?? m.right}`;
+            })
+            .join(" · ")}
         </p>
       )}
       <button
@@ -899,6 +973,7 @@ function CodeFillExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
+  const { locale } = useLocale();
   const prompt = usePrompt(exercise);
   const code = String(exercise.code ?? "");
   const [value, setValue] = useState("");
@@ -922,15 +997,30 @@ function CodeFillExercise({
       <h2 className="text-xl font-black">{prompt}</h2>
       <CodeBlock code={code} language={String(exercise.language ?? "")} />
       {hint.panel}
-      <p className="text-xs font-bold text-ink-muted">Your answer (fill ___)</p>
-      <MonacoCodeEditor
+      <label htmlFor={`code-fill-${exercise.id}`} className="block text-xs font-bold text-ink-muted">
+        {locale === "en" ? "Your answer (fill ___)" : "Ваша відповідь (заповніть ___)"}
+      </label>
+      <input
+        id={`code-fill-${exercise.id}`}
+        type="text"
+        className="input font-mono text-base font-bold"
         value={value}
-        onChange={(v) => {
-          setValue(v);
+        onChange={(e) => {
+          setValue(e.target.value);
           soft.resetSoft();
         }}
-        language={String(exercise.language ?? "javascript")}
-        height="100px"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && value.trim()) {
+            e.preventDefault();
+            check();
+          }
+        }}
+        placeholder={locale === "en" ? "Type the missing code…" : "Введіть код для ___…"}
+        autoFocus
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck={false}
       />
       <DrillFooter
         canCheck={Boolean(value.trim())}
@@ -954,6 +1044,18 @@ type ProjectFile = {
   language: string;
   starter: string;
 };
+
+function projectFileLanguage(lang?: string, name?: string): string {
+  if (name?.endsWith(".md") || lang === "markdown") return "Markdown";
+  if (name?.endsWith(".sql") || lang === "sql") return "SQL";
+  if (name?.endsWith(".html") || lang === "html") return "HTML";
+  if (name?.endsWith(".css") || lang === "css") return "CSS";
+  if (name?.endsWith(".ts") || lang === "typescript" || lang === "ts") return "TypeScript";
+  if (name?.endsWith(".js") || lang === "javascript" || lang === "js") return "JavaScript";
+  if (name?.endsWith(".json") || lang === "json") return "JSON";
+  if (lang) return lang.toUpperCase();
+  return "";
+}
 
 function CodeProjectExercise({
   exercise,
@@ -1051,18 +1153,27 @@ function CodeProjectExercise({
           showPreview && previewable && "lg:grid-cols-2",
         )}
       >
-        <div>
+        <div className="min-w-0 w-full">
+          <div className="flex items-center justify-between rounded-t-2xl border-2 border-b-0 border-slate-200 bg-slate-100/90 px-3 py-1.5 text-xs font-mono font-bold dark:border-slate-700 dark:bg-slate-800/90">
+            <span className="text-ink dark:text-slate-100">{current?.name}</span>
+            <span className="text-[11px] font-semibold text-ink-muted">
+              {projectFileLanguage(current?.language, current?.name)}
+            </span>
+          </div>
           {current ? (
-            <MonacoCodeEditor
-              key={current.id}
-              value={contents[current.id] ?? ""}
-              onChange={(v) => {
-                setContents((c) => ({ ...c, [current.id]: v }));
-                soft.resetSoft();
-              }}
-              language={current.language || "javascript"}
-              height="280px"
-            />
+            <div className="[&>div]:rounded-t-none [&>div]:border-t-0">
+              <MonacoCodeEditor
+                key={current.id}
+                value={contents[current.id] ?? ""}
+                onChange={(v) => {
+                  setContents((c) => ({ ...c, [current.id]: v }));
+                  soft.resetSoft();
+                }}
+                language={current.language || "javascript"}
+                height="360px"
+                fileName={current.name}
+              />
+            </div>
           ) : null}
         </div>
         {showPreview && previewable ? (
@@ -1074,7 +1185,7 @@ function CodeProjectExercise({
               key={previewKey}
               title="project-preview"
               sandbox="allow-scripts"
-              className="h-[280px] w-full bg-white"
+              className="h-[360px] w-full bg-white"
               srcDoc={srcDoc}
             />
           </div>
@@ -1144,34 +1255,48 @@ function OrderWordsExercise({
     onAnswer(built);
   }
 
-  function onKeyDown(e: React.KeyboardEvent) {
-    if (e.key >= "1" && e.key <= "9") {
-      const idx = Number(e.key) - 1;
-      if (idx < pool.length) {
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (isTypingTarget(e.target)) return;
+      if (hasOpenDialog()) return;
+
+      const optIdx = optionIndexFromKey(e);
+      if (optIdx !== null) {
         e.preventDefault();
-        const w = pool[idx]!;
-        setPool((p) => p.filter((_, j) => j !== idx));
-        setBuilt((b) => [...b, w]);
-        soft.resetSoft();
+        if (optIdx < pool.length) {
+          const w = pool[optIdx]!;
+          setPool((p) => p.filter((_, j) => j !== optIdx));
+          setBuilt((b) => [...b, w]);
+          soft.resetSoft();
+        }
+        return;
       }
-      return;
+
+      if (e.key === "Backspace" && built.length) {
+        e.preventDefault();
+        const last = built[built.length - 1]!;
+        setBuilt((b) => b.slice(0, -1));
+        setPool((p) => [...p, last]);
+        soft.resetSoft();
+        return;
+      }
+
+      if (e.key === "Enter" && built.length) {
+        const target = e.target as HTMLElement | null;
+        const isButtonOrLink = Boolean(target?.closest?.("button, a"));
+        if (!isButtonOrLink) {
+          e.preventDefault();
+          check();
+        }
+      }
     }
-    if (e.key === "Backspace" && built.length) {
-      e.preventDefault();
-      const last = built[built.length - 1]!;
-      setBuilt((b) => b.slice(0, -1));
-      setPool((p) => [...p, last]);
-      soft.resetSoft();
-      return;
-    }
-    if (e.key === "Enter" && built.length) {
-      e.preventDefault();
-      check();
-    }
-  }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [pool, built, soft, correct, onAnswer]);
 
   return (
-    <div className="space-y-4" onKeyDown={onKeyDown} tabIndex={0}>
+    <div className="space-y-4">
       <h2 className="text-xl font-black" id={`ex-prompt-${exercise.id}`}>
         {prompt}
       </h2>
@@ -1438,6 +1563,16 @@ function ChessPuzzleExercise({
   const [game, setGame] = useState(() => new Chess(fen));
   const [sans, setSans] = useState<string[]>([]);
   const [msg, setMsg] = useState("");
+  const [endReason, setEndReason] = useState<"checkmate" | "stalemate" | null>(null);
+
+  const viewer = useMemo(() => {
+    try {
+      return (new Chess(fen)).turn();
+    } catch {
+      return "w";
+    }
+  }, [fen]);
+  const orientation = viewer === "b" ? "black" : "white";
 
   function onDrop(from: string, to: string) {
     const g = new Chess(game.fen());
@@ -1445,8 +1580,6 @@ function ChessPuzzleExercise({
       const move = g.move({ from, to, promotion: "q" });
       if (!move) return false;
       const nextSans = [...sans, move.san];
-      setSans(nextSans);
-      setGame(g);
       const expected = solution[nextSans.length - 1];
       const norm = (s: string) => s.replace(/[+#]/g, "");
       if (expected && norm(move.san) !== norm(expected)) {
@@ -1455,12 +1588,23 @@ function ChessPuzzleExercise({
           setGame(new Chess(fen));
           setSans([]);
           setMsg("");
+          setEndReason(null);
         }, 800);
         return true;
       }
+      setSans(nextSans);
+      setGame(g);
       if (nextSans.length >= solution.length) {
         setMsg(UI.lesson.correct);
-        onAnswer({ solved: true, sans: nextSans });
+        if (g.isCheckmate()) {
+          setEndReason("checkmate");
+          onAnswer({ solved: true, sans: nextSans, mate: true });
+        } else if (g.isStalemate()) {
+          setEndReason("stalemate");
+          onAnswer({ solved: true, sans: nextSans, stalemate: true });
+        } else {
+          onAnswer({ solved: true, sans: nextSans });
+        }
       }
       return true;
     } catch {
@@ -1472,7 +1616,16 @@ function ChessPuzzleExercise({
     <div className="space-y-4">
       <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
       <div className="mx-auto max-w-md">
-        <Chessboard position={game.fen()} onPieceDrop={onDrop} boardWidth={360} />
+        <ChessBoardFrame
+          fen={game.fen()}
+          mode="puzzle"
+          orientation={orientation}
+          viewer={viewer}
+          onMove={onDrop}
+          endReason={endReason}
+          endLine={UI.chess.puzzleSolved}
+          boardWidth={360}
+        />
       </div>
       {msg && <p className="font-bold text-center">{msg}</p>}
     </div>
@@ -1488,12 +1641,27 @@ function ChessLessonExercise({
 }) {
   const quiz = exercise.quiz as { q: string; options: string[]; correctIndex: number } | undefined;
   const [selected, setSelected] = useState<number | null>(null);
+  const fen = String(exercise.fen);
+  const viewer = useMemo(() => {
+    try {
+      return (new Chess(fen)).turn();
+    } catch {
+      return "w";
+    }
+  }, [fen]);
+  const orientation = viewer === "b" ? "black" : "white";
 
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
       <div className="mx-auto max-w-md">
-        <Chessboard position={String(exercise.fen)} arePiecesDraggable={false} boardWidth={360} />
+        <ChessBoardFrame
+          fen={fen}
+          mode="explore"
+          orientation={orientation}
+          viewer={viewer}
+          boardWidth={360}
+        />
       </div>
       <p className="rounded-2xl bg-slate-100 p-4 leading-relaxed">{String(exercise.notesUk)}</p>
       {quiz ? (
@@ -1527,6 +1695,228 @@ function ChessLessonExercise({
           {UI.lesson.continue}
         </button>
       )}
+    </div>
+  );
+}
+
+/**
+ * Concept card — theory / worked example before practice.
+ * Shows body paragraphs, key points, optional read-only code and an optional self-check.
+ */
+function ConceptExercise({
+  exercise,
+  onAnswer,
+}: {
+  exercise: Exercise;
+  onAnswer: (a: unknown) => void;
+}) {
+  const { locale } = useLocale();
+  const en = locale === "en";
+  const body = String(
+    (en ? exercise.bodyEn || exercise.bodyUk : exercise.bodyUk || exercise.bodyEn) ?? "",
+  );
+  const pointsRaw = (en
+    ? (exercise.keyPointsEn as string[] | undefined) ?? (exercise.keyPointsUk as string[] | undefined)
+    : (exercise.keyPointsUk as string[] | undefined) ?? (exercise.keyPointsEn as string[] | undefined)) ?? [];
+  const check = exercise.check as
+    | { qUk: string; qEn?: string; options: string[]; correctIndex: number }
+    | undefined;
+  const [selected, setSelected] = useState<number | null>(null);
+  const paragraphs = body.split(/\n{2,}/).filter((p) => p.trim());
+
+  return (
+    <div className="space-y-4">
+      <p className="text-xs font-black uppercase tracking-wide text-grape">
+        📘 {en ? "Concept" : "Теорія"}
+      </p>
+      <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
+      <div className="space-y-3 rounded-2xl bg-slate-100 p-4 leading-relaxed dark:bg-slate-800">
+        {paragraphs.map((p, i) => (
+          <p key={i} className="whitespace-pre-line">
+            {p}
+          </p>
+        ))}
+      </div>
+      {pointsRaw.length > 0 && (
+        <div className="rounded-2xl border-2 border-brand/30 p-4">
+          <p className="mb-2 text-sm font-black">{en ? "Key points" : "Головне"}</p>
+          <ul className="list-inside list-disc space-y-1 text-sm font-bold">
+            {pointsRaw.map((kp, i) => (
+              <li key={i}>{kp}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {exercise.code ? (
+        <CodeBlock code={String(exercise.code)} language={String(exercise.language ?? "")} />
+      ) : null}
+      {check ? (
+        <>
+          <p className="font-bold">
+            {en ? "Self-check: " : "Самоперевірка: "}
+            {en ? check.qEn || check.qUk : check.qUk}
+          </p>
+          <div className="grid gap-2">
+            {check.options.map((opt, i) => (
+              <button
+                key={i}
+                type="button"
+                className={clsx(
+                  "rounded-2xl border-2 px-4 py-3 text-left font-bold",
+                  selected === i ? "border-sky bg-sky/10" : "border-slate-200",
+                )}
+                onClick={() => setSelected(i)}
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
+          <button
+            className="btn-primary"
+            disabled={selected === null}
+            onClick={() => selected !== null && onAnswer(selected)}
+          >
+            {UI.lesson.check}
+          </button>
+        </>
+      ) : (
+        <button className="btn-primary" onClick={() => onAnswer({ acknowledged: true })}>
+          {en ? "Got it" : "Зрозуміло"} →
+        </button>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Explain in your own words (self-explanation). Client soft-grades with the shared rubric;
+ * optional tutor feedback via POST /deep/explain-feedback.
+ */
+function ExplainExercise({
+  exercise,
+  onAnswer,
+}: {
+  exercise: Exercise;
+  onAnswer: (a: unknown) => void;
+}) {
+  const { locale } = useLocale();
+  const en = locale === "en";
+  const { token } = useAuth();
+  const lessonId = useContext(LessonIdCtx);
+  const examMode = useContext(ExamModeCtx);
+  const hint = useExerciseHint(exercise);
+  const soft = useSoftAttempts(hint.setOpen);
+  const [text, setText] = useState("");
+  const [missing, setMissing] = useState<string[]>([]);
+  const [tutor, setTutor] = useState<string | null>(null);
+  const [tutorBusy, setTutorBusy] = useState(false);
+  const ideas = (exercise.keyIdeas as ExplainKeyIdea[]) ?? [];
+  const minWords = Number(exercise.minWords ?? 12);
+  const words = countWords(text);
+  const sample = String((en ? exercise.sampleAnswerEn || exercise.sampleAnswerUk : exercise.sampleAnswerUk) ?? "");
+
+  function check() {
+    const g = gradeExplanation(text, {
+      keyIdeas: ideas,
+      minWords,
+      passRatio: exercise.passRatio as number | undefined,
+    });
+    if (!g.correct) {
+      const labels = ideas
+        .filter((i) => g.missing.includes(i.labelEn || i.labelUk))
+        .map((i) => (en ? i.labelEn || i.labelUk : i.labelUk));
+      setMissing(labels);
+      soft.registerFail(
+        g.tooShort
+          ? en
+            ? `At least ${minWords} words (now ${g.words}).`
+            : `Щонайменше ${minWords} слів (зараз ${g.words}).`
+          : null,
+      );
+      return;
+    }
+    soft.markOk();
+    onAnswer({ text });
+  }
+
+  async function askTutor() {
+    if (!lessonId || !text.trim()) return;
+    setTutorBusy(true);
+    try {
+      const r = await api<{ feedback: string }>("/deep/explain-feedback", {
+        method: "POST",
+        token,
+        body: { lessonId, exerciseId: exercise.id, text, locale },
+      });
+      setTutor(r.feedback);
+    } catch {
+      setTutor(en ? "Tutor is unavailable right now." : "Репетитор зараз недоступний.");
+    } finally {
+      setTutorBusy(false);
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <p className="text-xs font-black uppercase tracking-wide text-grape">
+        ✍️ {en ? "Explain in your own words" : "Поясніть своїми словами"}
+      </p>
+      <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
+      <textarea
+        className="min-h-[140px] w-full rounded-2xl border-2 border-slate-200 p-3 font-bold dark:border-slate-700 dark:bg-slate-900"
+        value={text}
+        onChange={(e) => {
+          setText(e.target.value);
+          soft.resetSoft();
+        }}
+        aria-label={en ? "Your explanation" : "Ваше пояснення"}
+        placeholder={en ? "Explain as if to a friend…" : "Поясніть так, ніби другу…"}
+      />
+      <p className={clsx("text-xs font-bold", words >= minWords ? "text-green-600" : "text-ink-muted")}>
+        {words}/{minWords} {en ? "words" : "слів"}
+      </p>
+      {soft.wrong && (
+        <div className="rounded-2xl border-2 border-orange-300 bg-orange-50 p-3 text-sm font-bold dark:bg-orange-950/30">
+          {soft.detail ? <p>{soft.detail}</p> : null}
+          {missing.length > 0 && (
+            <p>
+              {en ? "Think about: " : "Подумайте про: "}
+              {missing.join(", ")}
+            </p>
+          )}
+        </div>
+      )}
+      {tutor && (
+        <p className="whitespace-pre-wrap rounded-2xl bg-sky/10 p-3 text-sm font-bold">🎓 {tutor}</p>
+      )}
+      <div className="flex flex-wrap gap-2">
+        <button className="btn-primary" disabled={!text.trim()} onClick={check}>
+          {UI.lesson.check}
+        </button>
+        {lessonId && !examMode && (
+          <button
+            type="button"
+            className="btn-secondary"
+            disabled={!text.trim() || tutorBusy}
+            onClick={() => void askTutor()}
+          >
+            🎓 {en ? "Tutor feedback" : "Відгук репетитора"}
+          </button>
+        )}
+        {soft.canSkip && sample && (
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={() => {
+              setText(sample);
+              setMissing([]);
+            }}
+          >
+            {en ? "Show sample answer" : "Показати приклад відповіді"}
+          </button>
+        )}
+      </div>
+      {hint.panel}
     </div>
   );
 }

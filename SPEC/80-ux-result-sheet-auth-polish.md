@@ -10,7 +10,7 @@
 3. **`safeNextPath`** — login/register `?next=` hardened; login default → `/learn`.
 4. **`useRequireAuth` + `PageLoading`** — review / programming (and pattern for others); login preserves path.
 5. **Programming hub** — skeleton, freemium label, primary “Continue path” CTA via `firstAvailableLessonHref`.
-6. **Paywall regen** — `minutesUntilHeartRegen` approximate countdown.
+6. **Heart regen** — `minutesUntilHeartRegen` approximate countdown.
 7. **Review / Friends empty states**.
 8. **Profile “Change role / path”** reopens onboarding wizard; API exclusive persona flags + `value: false` support.
 9. **SoftFeedback** `aria-live=assertive`.

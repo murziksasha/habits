@@ -53,6 +53,5 @@ Invite games are **unrated**.
 - [ ] Strong `AUTH_SECRET`  
 - [ ] Change default admin password  
 - [ ] TLS + reverse proxy  
-- [ ] Stripe live keys + webhooks  
 - [ ] Redis-backed rate limits if multi-node  
 - [ ] Postgres backups  

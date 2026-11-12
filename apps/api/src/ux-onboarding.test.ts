@@ -19,7 +19,6 @@ describe("UX onboarding API contract", () => {
     "triedTyping",
     "triedFlashcards",
     "viewedLeaderboard",
-    "exploredPricing",
     "dismissed",
     "wizardCompleted",
     "personaStudent",

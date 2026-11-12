@@ -19,13 +19,13 @@ test.describe("EduForge smoke", () => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("lang", "uk");
-    await expect(page.getByText(/EduForge|Навчайся|Learn|Learning OS/i).first()).toBeVisible();
+    await expect(page.getByText(/EduForge|Вчіться|Learn calmly|безкоштовно/i).first()).toBeVisible();
     // Register CTA (uk UI strings) or EN marketing fallbacks
     await expect(
       page.getByRole("link", { name: /Почати|Start free|безкоштовно|Реєстрація|Sign up/i }).first(),
     ).toBeVisible();
     // Persona cards + guest trial (SPEC 79)
-    await expect(page.getByText(/Оберіть шлях|Pick a path|Код|Code/i).first()).toBeVisible();
+    await expect(page.getByText(/Що ви зможете|What you will be able to do|Англійська|English/i).first()).toBeVisible();
     await expect(page.getByText(/Спробуйте без|Try without|const x/i).first()).toBeVisible();
   });
 
@@ -33,7 +33,7 @@ test.describe("EduForge smoke", () => {
     await page.goto("/courses");
     await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
     await expect(
-      page.getByText(/English|Англій|Programming|Програм|Chess|Шах|Deep|Code|Path/i).first(),
+      page.getByText(/English|Англій|Мови|Languages|Технології|Technology|Шах|Chess/i).first(),
     ).toBeVisible({ timeout: 15_000 });
   });
 
@@ -311,7 +311,7 @@ test.describe("EduForge smoke", () => {
     await page.goto("/admin/metrics");
     await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 15_000 });
     await expect(
-      page.getByText(/Product funnel|First lesson|Paywall|Metrics|Метрик|previous/i).first(),
+      page.getByText(/Product funnel|First lesson|Metrics|Метрик|previous/i).first(),
     ).toBeVisible({ timeout: 20_000 });
   });
 

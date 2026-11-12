@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { PopoverLayer } from "@/components/popover-layer";
 import clsx from "clsx";
 import {
   mobileNavForPersona,
@@ -37,6 +38,7 @@ function labelForSlot(
     homework: t.nav.homework,
     class: t.nav.schools,
     friends: t.nav.friends,
+    practice: t.nav.practice,
   };
   return map[id] ?? id;
 }
@@ -48,6 +50,7 @@ export function Nav() {
   const { theme, toggle } = useTheme();
   const [open, setOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
+  const moreButtonRef = useRef<HTMLButtonElement | null>(null);
   const [labsOn, setLabsOn] = useState(false);
   const persona = resolvePersona(character?.onboarding);
 
@@ -106,6 +109,13 @@ export function Nav() {
     { href: "/quests", label: t.nav.quests, icon: "✅", group: accountLabel },
     { href: "/shop", label: t.nav.shop, icon: "🛒", group: accountLabel },
   ];
+
+  if (persona === "student") {
+    moreDefs.unshift(
+      { href: "/programming", label: t.nav.programming, icon: "💻", group: toolkitLabel },
+      { href: "/play", label: t.nav.play, icon: "♟️", group: toolkitLabel },
+    );
+  }
 
   if (persona === "parent" || persona === "teacher" || persona === "student") {
     // Student: soft-hide school (still discoverable via search); parent/teacher surface school
@@ -168,14 +178,14 @@ export function Nav() {
             className="flex items-center gap-2 font-black text-xl text-brand-dark"
             onClick={() => setOpen(false)}
           >
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand text-white shadow-btn">
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-dark text-white shadow-btn dark:text-emerald-950">
               E
             </span>
             <span className="hidden xs:inline sm:inline">{t.appName}</span>
           </Link>
 
           <nav
-            className="hidden lg:flex items-center gap-1 relative"
+            className="hidden md:flex items-center gap-1 relative"
             aria-label={locale === "en" ? "Primary" : "Головна навігація"}
           >
             {primaryLinks.map((l) => {
@@ -198,6 +208,7 @@ export function Nav() {
             })}
             <div className="relative">
               <button
+                ref={moreButtonRef}
                 type="button"
                 className={clsx(
                   "rounded-xl px-3 py-2 text-sm font-bold transition",
@@ -207,18 +218,18 @@ export function Nav() {
                 )}
                 onClick={() => setMoreOpen((v) => !v)}
                 aria-expanded={moreOpen}
+                aria-controls="more-menu-panel"
               >
                 {moreLabel} ▾
               </button>
-              {moreOpen && (
-                <>
-                  <button
-                    type="button"
-                    className="fixed inset-0 z-40 cursor-default"
-                    aria-label="Close"
-                    onClick={() => setMoreOpen(false)}
-                  />
-                  <div className="absolute right-0 top-full z-50 mt-1 max-h-[70vh] w-64 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-lg dark:border-slate-700 dark:bg-slate-950">
+              <PopoverLayer
+                open={moreOpen}
+                anchorRef={moreButtonRef}
+                onClose={() => setMoreOpen(false)}
+                label={moreLabel}
+                id="more-menu-panel"
+              >
+                <div className="max-h-[70vh] w-full overflow-y-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-lg dark:border-slate-700 dark:bg-slate-950">
                     {Object.entries(moreByGroup).map(([group, links]) => (
                       <div key={group} className="mb-2 last:mb-0">
                         <p className="px-3 py-1 text-[10px] font-black uppercase tracking-wide text-ink-muted">
@@ -270,8 +281,7 @@ export function Nav() {
                       </button>
                     </div>
                   </div>
-                </>
-              )}
+              </PopoverLayer>
             </div>
           </nav>
 
@@ -299,18 +309,10 @@ export function Nav() {
                 >
                   {t.nav.logout}
                 </button>
-                <button
-                  type="button"
-                  className="lg:hidden grid h-10 w-10 place-items-center rounded-xl border-2 border-slate-200 font-black dark:border-slate-700"
-                  aria-label="Menu"
-                  onClick={() => setOpen((v) => !v)}
-                >
-                  {open ? "✕" : "☰"}
-                </button>
               </>
             ) : (
               <>
-                <Link href="/login" className="btn-secondary !py-2 !px-3 text-sm">
+                <Link href="/login" className="btn-secondary !py-2 !px-3 text-sm hidden sm:inline-flex">
                   {t.nav.login}
                 </Link>
                 <Link href="/register" className="btn-primary !py-2 !px-3 text-sm hidden sm:inline-flex">
@@ -331,7 +333,7 @@ export function Nav() {
                 type="button"
                 className={clsx(
                   "px-2 py-1.5",
-                  locale === "uk" ? "bg-brand text-white" : "bg-white dark:bg-slate-900",
+                  locale === "uk" ? "bg-brand-dark text-white dark:text-emerald-950" : "bg-white text-ink dark:bg-slate-900",
                 )}
                 onClick={() => setLocale("uk")}
               >
@@ -341,18 +343,27 @@ export function Nav() {
                 type="button"
                 className={clsx(
                   "px-2 py-1.5",
-                  locale === "en" ? "bg-brand text-white" : "bg-white dark:bg-slate-900",
+                  locale === "en" ? "bg-brand-dark text-white dark:text-emerald-950" : "bg-white text-ink dark:bg-slate-900",
                 )}
                 onClick={() => setLocale("en")}
               >
                 EN
               </button>
             </div>
+            <button
+              type="button"
+              className="md:hidden grid h-10 w-10 place-items-center rounded-xl border-2 border-slate-200 font-black dark:border-slate-700"
+              aria-label="Menu"
+              aria-expanded={open}
+              onClick={() => setOpen((v) => !v)}
+            >
+              {open ? "✕" : "☰"}
+            </button>
           </div>
         </div>
 
         {open && (
-          <div className="lg:hidden border-t border-slate-100 bg-white px-4 py-3 space-y-1 max-h-[70vh] overflow-y-auto dark:border-slate-800 dark:bg-slate-950">
+          <div className="md:hidden border-t border-slate-100 bg-white px-4 py-3 space-y-1 max-h-[70vh] overflow-y-auto dark:border-slate-800 dark:bg-slate-950">
             {mobileLinks.map((l) => (
               <Link
                 key={l.href}

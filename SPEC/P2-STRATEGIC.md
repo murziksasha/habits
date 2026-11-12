@@ -41,7 +41,7 @@ Spans recorded in-process; metrics expose `otel.byName`. When `OTEL_EXPORTER_OTL
 `buildNextRecommendations` re-scores with logistic blend. Override weights:
 
 ```json
-{"isWeak":1.5,"paywalled":-3,"basePriority":0.1}
+{"isWeak":1.5,"basePriority":0.1}
 ```
 
 via `ADAPTIVE_WEIGHTS_JSON`.
@@ -55,10 +55,10 @@ Open `/classroom/live/{classId}` while logged in. Events: `class_join`, `class_c
 | Area | Status |
 |------|--------|
 | Product funnel events | `POST /analytics/events`, `GET /analytics/funnel`, metrics `productFunnel7d` |
-| first_lesson_complete | Server-side on submit-lesson (deduped) + paywall_shown from PaywallCard |
+| first_lesson_complete | Server-side on submit-lesson (deduped) |
 | Review reasons | `buildReviewReasons` on `/review` items + UI “Why” |
 | Judge queue | `@eduforge/judge` queue + result TTL store + `/judge/result/:id` + `/judge/worker/drain` |
-| Pricing RSC | Server shell + `PricingClient` island; `billing-ops` service |
+| Pricing | Removed. The app is free. |
 | Classroom live | Reconnect + pending chat buffer |
 | RSC strangler | Full app directory strangler: primary, toolkit, B2B, labs, deep hubs, course/lesson, admin shells |
 | Admin funnel | `/admin/metrics` productFunnel + `/analytics/funnel` |

@@ -10,8 +10,7 @@ export function LandingLocaleBits() {
       {locale === "en"
         ? t.landing?.badge ?? "Learn by doing"
         : t.landing?.badge ?? "Навчайся в дії"}
-      {" · "}
-      <span className="text-brand-dark">RSC + client islands</span>
+
     </p>
   );
 }

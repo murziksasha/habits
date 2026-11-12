@@ -15,7 +15,7 @@ Deep track aligned with the public Oracle Database SQL 1Z0-071 checklist: SELECT
 
 ## Profile
 
-- Shows plan + `planExpiresAt` when premium trial/demo
+- Profile does not show a subscription or trial. The app is free.
 
 ## Related
 
