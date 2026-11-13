@@ -8,7 +8,9 @@ export type LearningPathSlug =
   | "qa-engineer"
   | "ai-builder"
   | "dba-sql"
-  | "devops";
+  | "devops"
+  | "english-fluency"
+  | "chess-mastery";
 
 export type LearningPathDef = {
   slug: LearningPathSlug;
@@ -130,6 +132,30 @@ export const LEARNING_PATHS: readonly LearningPathDef[] = [
     blurbUk: "Сисадмін, Git і командні воркфлоу, DevOps-практики та безпека вебу.",
     blurbEn: "Sysadmin, Git and team workflows, DevOps practices, and web security.",
     courseSlugs: ["sysadmin", "git_workflows", "devops", "web_security", "node_fundamentals"],
+  },
+  {
+    slug: "english-fluency",
+    icon: "📗",
+    color: "#58CC02",
+    titleUk: "Англійська: вільне володіння",
+    titleEn: "English fluency",
+    blurbUk:
+      "Від A1 до C1: граматика, вимова, словник і іспитові навички — з фокусом на типових помилках українських мовців.",
+    blurbEn:
+      "From A1 to C1: grammar, pronunciation, vocabulary, and exam skills, with a focus on typical mistakes of Ukrainian speakers.",
+    courseSlugs: ["english"],
+  },
+  {
+    slug: "chess-mastery",
+    icon: "♟️",
+    color: "#1B1B1B",
+    titleUk: "Шахи: від основ до майстерності",
+    titleEn: "Chess mastery",
+    blurbUk:
+      "Від початківця до просунутого: тактика і мати, дебюти як ідеї, мітельшпіль, ендшпілі та класичні партії.",
+    blurbEn:
+      "From beginner to advanced: tactics and mating patterns, openings as ideas, middlegame strategy, endgames, and famous games.",
+    courseSlugs: ["chess"],
   },
 ] as const;
 

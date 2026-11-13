@@ -84,11 +84,11 @@ Learn English through short interactive lessons.
 
 ## Depth now
 
-- Units: 18
-- Lessons: 86
-- Exams: 3
-- Free non-exam lessons: 11
-- Exercise types in seed: fill_blank, match, mcq, order_words, translate
+- Units: **45**
+- Lessons: **248**
+- Exams: **30**
+- Free non-exam lessons: 12
+- Exercise types in seed: fill_blank, match, mcq, order_words, translate, concept, explain, comprehension
 
 ## Expansion (Nov 2026)
 
@@ -102,3 +102,63 @@ Additional bilingual (uk+en) units in `packages/content/src/expansion/english-ex
 - `relative-clauses` — Relative clauses
 - `modal-verbs` — Modal verbs
 - `tech-english` — Technical English
+
+## Deep track (Nov 2026)
+
+27 bilingual units (162 lessons, 27 exams) in
+`packages/content/src/expansion/english-deep.ts`, appended after the
+expansion units. Curriculum and rationale:
+[`SPEC/DEEP-ENGLISH-CHESS-PLAN.md`](../DEEP-ENGLISH-CHESS-PLAN.md).
+Written for Ukrainian speakers (false friends, *since/for*, *th* and *w/v*,
+*wish* vs *hope*). Course page groups (`COURSE_PARTS`): Foundations and
+Communication (existing A1–A2 and dialogue units), Grammar and technical
+English (the Nov 2026 expansion), then the deep parts below.
+
+### Tense and aspect (`en-part-tenses`)
+
+- `en-deep-perfect` — Present Perfect: experience and result
+- `en-deep-perfect-plus` — Perfect Continuous and the past-in-the-past
+- `en-deep-past-story` — Telling a story in the past (*used to* vs *would*)
+- `en-deep-future` — Talking about the future
+
+### Voice, patterns, and comparison (`en-part-core-grammar`)
+
+- `en-deep-passive` — The passive (including *it is said that* and causatives)
+- `en-deep-gerunds` — Gerunds and infinitives
+- `en-deep-comparison` — Comparison and degree
+- `en-deep-modals-plus` — Modals: past and nuance
+
+### Sentence craft (`en-part-sentences`)
+
+- `en-deep-wish` — Wish, if only, it's time
+- `en-deep-questions-plus` — Questions in more depth
+- `en-deep-linking` — Linking and discourse
+- `en-deep-c1-style` — C1 grammar and style (inversion, clefts, hedging)
+
+### Pronunciation (`en-part-pronunciation`)
+
+- `en-deep-ipa-vowels` — IPA and vowels (*ship/sheep*, schwa, /ɜː/)
+- `en-deep-consonants` — Consonants that matter (/θ ð/, /w v/, /ŋ/)
+- `en-deep-stress-intonation` — Stress and intonation
+
+### Vocabulary (`en-part-vocabulary`)
+
+- `en-deep-collocations` — Collocations and false friends
+- `en-deep-word-formation` — Word formation
+- `en-deep-phrasals` — Phrasals: life, work, talk, and problems
+- `en-deep-idioms` — Idioms and register
+- `en-deep-themes-a` / `en-deep-themes-b` — Thematic vocabulary
+
+### Skills, work, and exams (`en-part-skills`)
+
+- `en-deep-reading` — Reading skills
+- `en-deep-writing-email` — Emails and messages
+- `en-deep-writing-essay` — Essays, CV and cover letter
+- `en-deep-speaking` — Speaking and functional language
+- `en-deep-business-it` — Business and IT English plus
+- `en-deep-exam-prep` — IELTS and FCE-style tasks
+
+Flashcard decks: `english-perfect-passives`, `english-collocations`,
+`english-idioms-phrasals`, `english-pronunciation`. Placement bank
+`ENGLISH_PLACEMENT` extended with `p11`–`p14` (B2–C1). Learning path:
+`english-fluency`.

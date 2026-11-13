@@ -93,3 +93,44 @@ Program details: [SPEC/courses](./courses/). Two pre-existing missing
 `explanationEn` values (`english` `en-6-1`, `speed_reading` `sr-1-1`) are
 filled in this branch.
 
+## Deep English & Chess on `newCourses`
+
+Deep tracks planned in [`SPEC/DEEP-ENGLISH-CHESS-PLAN.md`](./DEEP-ENGLISH-CHESS-PLAN.md)
+and shipped on `newCourses` (PR #15). **+162** English and **+126** Chess
+bilingual lessons (288 total), plus flashcards, learning paths, course parts,
+and placement items. Counts from a fresh `pnpm db:migrate && pnpm db:seed`
+against throwaway Postgres 17 (2026-11-12).
+
+| | Courses | Units | Lessons | Of which exams | Flashcard decks | Cards |
+|---|---:|---:|---:|---:|---:|---:|
+| After the learning-improvements follow-up | 35 | 450 | 1865 | 405 | 9 | 179 |
+| After deep English & Chess | **35** | **498** | **2153** | **453** | **15** | **272** |
+| **Delta** | **0** | **+48** | **+288** | **+48** | **+6** | **+93** |
+
+| Course | Units before | Units after | Lessons before | Lessons after | Exams before | Exams after |
+|--------|-------------:|------------:|---------------:|--------------:|-------------:|------------:|
+| `english` | 18 | 45 | 86 | **248** | 3 | **30** |
+| `chess` | 13 | 34 | 62 | **188** | 3 | **24** |
+
+English deep curriculum (27 units, 162 lessons) lives in
+`packages/content/src/expansion/english-deep.ts` (`expandEnglishDeep`):
+tenses and aspect, voice/gerunds/comparison/modals, sentence craft,
+pronunciation (IPA), vocabulary (collocations, false friends, phrasals,
+idioms, themes), and skills (reading, writing, speaking, business/IT,
+IELTS/FCE-style exam prep). Written for Ukrainian speakers.
+
+Chess deep curriculum (21 units, 126 lessons) lives in
+`packages/content/src/expansion/chess-deep.ts` (`expandChessDeep`):
+notation and calculation, hidden tactics and classic mates, openings as
+ideas (not move trees), middlegame strategy, full Lucena/Philidor/Vancura
+endgames, famous games, and tournament practice. Every `chess_lesson` and
+`chess_puzzle` FEN in the course is checked by `chess-fen.test.ts` and
+`scripts/gen-expansion/deep/validate_fens.mjs` (263 deep positions legal;
+47 ended in mate).
+
+Presentation groups: `COURSE_PARTS` in `packages/shared/src/courses.ts`
+(English 9 parts, Chess 8 parts), listing every unit in existing course
+order so in-progress learners are not reordered. Dedicated paths
+`english-fluency` and `chess-mastery` on `/paths`. Six new flashcard decks
+(93 cards) and English placement items `p11`–`p14` (B2–C1) without changing
+`p1`–`p10`.

@@ -66,11 +66,11 @@ Theory, puzzles, and live games with other players.
 
 ## Depth now
 
-- Units: 13
-- Lessons: 62
-- Exams: 3
-- Free non-exam lessons: 7
-- Exercise types in seed: chess_lesson, chess_puzzle, mcq
+- Units: **34**
+- Lessons: **188**
+- Exams: **24**
+- Free non-exam lessons: 14
+- Exercise types in seed: chess_lesson, chess_puzzle, mcq, explain
 
 ## Expansion (Nov 2026)
 
@@ -82,3 +82,62 @@ Additional bilingual (uk+en) units in `packages/content/src/expansion/chess-exp.
 - `rook-endgames-plus` — Rook endgames
 - `calculation-hygiene` — Calculation hygiene
 - `practical-study` — Practical play and study
+
+## Deep track (Nov 2026)
+
+21 bilingual units (126 lessons, 21 exams) in
+`packages/content/src/expansion/chess-deep.ts`, appended after the
+expansion units. Curriculum and rationale:
+[`SPEC/DEEP-ENGLISH-CHESS-PLAN.md`](../DEEP-ENGLISH-CHESS-PLAN.md).
+Openings are taught as plans and pawn structures, not move trees.
+Every `chess_lesson` and `chess_puzzle` FEN in the *whole* course
+(not only the deep track) is validated by `packages/content/src/chess-fen.test.ts`
+and, for deep positions, `scripts/gen-expansion/deep/validate_fens.mjs`
+(263 deep positions legal: 105 lessons, 158 puzzles, 47 ended in mate).
+
+Course page groups (`COURSE_PARTS`): Rules and early tactics (original
+units), First endgames and structures (the Nov 2026 expansion), then the
+deep parts below.
+
+### Rules and calculation tools (`ch-part-foundations`)
+
+- `ch-deep-notation` — Notation and complete rules
+- `ch-deep-calc-viz` — Calculation and visualisation
+
+### Tactics and mate patterns (`ch-part-tactics`)
+
+- `ch-deep-tactics-hidden` — Hidden motifs (decoy, overload, interference, x-ray, attraction)
+- `ch-deep-tactics-remove` — Removing defenders and sacrifices (Greek gift)
+- `ch-deep-mates-classic` — Classic mates (smothered, Arabian, Anastasia, Boden, Legal)
+- `ch-deep-mates-attack` — Mates in the king attack
+- `ch-deep-tactics-mix` — Mixed motifs and practical tactics
+
+### Openings as ideas (`ch-part-openings`)
+
+- `ch-deep-italian-ruy` — Italian and Ruy Lopez
+- `ch-deep-qg-london` — Queen's Gambit and London
+- `ch-deep-sicilian-french` — Sicilian and French
+- `ch-deep-caro-kid` — Caro-Kann and King's Indian
+
+### Middlegame strategy (`ch-part-middlegame`)
+
+- `ch-deep-planning` — Evaluation and planning
+- `ch-deep-minor-pieces` — Bishop versus knight
+- `ch-deep-attack-king` — Attacking the king
+- `ch-deep-pawn-play` — Pawn play (hanging pawns and chains extend, do not repeat, earlier IQP lessons)
+
+### Endgames (`ch-part-endgames`)
+
+- `ch-deep-kp-theory` — King and pawn theory
+- `ch-deep-rook-theory` — Rook endings in full (Lucena, Philidor, Vancura, short-side)
+- `ch-deep-minor-end` — Minor-piece and queen endings (KBN mate, queen vs pawn on the 7th)
+
+### Games, practice, mind (`ch-part-practice`)
+
+- `ch-deep-famous-1` — Classic games (Greco, Morphy Opera build-up, Immortal, Evergreen, Byrne–Fischer 1956)
+- `ch-deep-famous-2` — Modern model games (Fischer–Spassky, Kasparov–Topalov, Karpov, Tal, study method)
+- `ch-deep-tournament` — Tournament practice and psychology
+
+Flashcard decks: `chess-tactics-patterns`, `chess-opening-ideas`.
+Learning path: `chess-mastery`. `/placement/chess` uses the course-agnostic
+MCQ bank from early units (enough questions; no dedicated chess bank).
