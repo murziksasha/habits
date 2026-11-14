@@ -297,6 +297,25 @@ Skill tracks `sysadmin` and `devops` are accessed via `/learn` and `/courses`, n
    - **Editor keyboard event isolation (`isTypingTarget`):** Deep detection of Monaco editor, ARIA text entry roles, and text inputs prevents global hotkeys (`f`, `?`, `Esc`, digits) from firing when typing code such as `font-size`.
    - **Open lesson reload detection:** Real-time hash comparison prompts learner to reload updated lesson structure without loss of completed progress.
    - **CMS builder & safe synchronization:** CMS exercise builder supports `code_judge` authoring; `pnpm content:sync` updates `seed` courses safely without touching accounts, progress, or CMS materials.
+181. **Comprehensive Learning Quality & Mastery Verification Program (Waves 0–10):**
+   - **Canonical skill objectives for all 35 courses:** `packages/shared/src/skills.ts` defines explicit Bloom-level taxonomies, bilingual descriptions, criteria, outcomes, and common learner remediation errors across all 35 courses in the registry. Enforced by automated test gate `verifyAllCoursesHaveObjectives()`.
+   - **Four-tier mastery evidence model:** `MasteryEvidenceLevel` (`insufficient_data`, `assisted`, `self_verified`, `retained_verified`) decoupled from raw completion counts. Evaluative integrity enforced: non-evaluative formats (theory, video, rsvp) never award mastery; hint usage or solution views cap at `assisted`; unassisted first-attempt passes grant `self_verified`.
+   - **Structured feedback contract & environment waiver:** `DetailedFeedback` categorizes errors (`knowledge_gap`, `incomplete`, `accepted_alternative`, `environment_error`). Environment and judge runner failures (`environment_error`) strictly waive heart deductions (`penaltyWaived: true`).
+   - **High-signal exercise formats:** Added `composite_artifact` (multi-file projects), `dataset_query` (analytical database queries), and `incident_step` (production incident triage ordering) to the assessment bank.
+   - **Deterministic unit exam variants:** `resolveExamVariantId` deterministically hashes `(userId, lessonId, attemptNumber)` across `variant_A`, `variant_B`, and `variant_C` preventing browser-refresh exploitation while rotating across re-takes.
+   - **Spaced retention transfer checks:** `isTransferCheckDue(lastVerifiedAt, now)` triggers spaced transfer verification checks at 7-day and 30-day retention intervals to promote `self_verified` mastery to `retained_verified`.
+   - **Self-verification sessions & attempt tracking:** Endpoints `POST /learning/self-verify/start` and `POST /learning/self-verify/submit` backed by migration `0038_learning_evidence_and_verification.sql` for recording verification attempts and evidence levels.
+   - **Learner agency & UX:**
+     - Session duration presets (5m, 10m [default], 20m) persisted in `localStorage`.
+     - Real-time syllabus search & filter (by title, exam, lab) on course detail pages.
+     - Granular draft persistence and recovery in Monaco / input fields with explicit reset confirmation (↺).
+     - Four-tier stepped graduated hints (Principle → Diagnostic → Partial Step → Mentor Tip).
+     - Mobile responsive code execution tabs (📋 Task, 💻 Code, ▶️ Output).
+     - Contextual ambiguity / issue reporting modal (🚩) sending direct feedback to `/feedback`.
+   - **Actionable parent report cards:** 3-part card ("🎯 Чому навчився", "🤝 Де потрібна підтримка", "🚀 Наступний крок") providing clear, human-understandable guidance without raw grade jargon.
+   - **ForgeBoard local practice labs validation:** All 13 local practice labs verified with automated lifecycle testing (starter fail, solution pass, broken fail) via `scripts/verify-labs.mjs`.
+   - **Dual-locale CMS authoring validation:** CMS `ExerciseBuilder` and `validateExercises` strictly enforce presence of both Ukrainian and English prompts before publication.
+   - **Fail-closed judge integrity:** Docker runner isolates student code; production mode strictly enforces fail-closed without silent local fallback.
 
 **What not to build next:** native store apps, full multi-worker judge pool, trained ML ranking, new deep track without CONTENT-DX + IA justification, extra primary nav slots.
 
