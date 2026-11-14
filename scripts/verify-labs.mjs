@@ -124,11 +124,16 @@ let pgUrl = null;
 if (selected.some((m) => m.labId === "forgeboard-m6-postgres")) {
   pgUrl = await preparePostgresLabUrl();
   if (!pgUrl) {
-    throw new Error(
-      "PostgreSQL is unreachable for forgeboard-m6-postgres verification. Start local Postgres (port 5433/5432) or set LABS_DATABASE_URL.",
-    );
+    if (process.env.SKIP_INTEGRATION === "1" || process.env.SKIP_POSTGRES_LAB === "1") {
+      console.warn("Skipping forgeboard-m6-postgres verification because PostgreSQL is not reachable (SKIP_INTEGRATION=1).");
+    } else {
+      throw new Error(
+        "PostgreSQL is unreachable for forgeboard-m6-postgres verification. Start local Postgres (port 5433/5432) or set LABS_DATABASE_URL.",
+      );
+    }
+  } else {
+    console.log(`Prepared M6 PostgreSQL database cleanly`);
   }
-  console.log(`Prepared M6 PostgreSQL database cleanly`);
 }
 
 const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "eduforge-labs-verify-"));
@@ -136,6 +141,10 @@ let failures = 0;
 
 try {
   for (const manifest of selected) {
+    if (manifest.labId === "forgeboard-m6-postgres" && !pgUrl) {
+      console.log(`\n=== Skipping ${manifest.labId} (PostgreSQL not reachable, SKIP_INTEGRATION=1) ===`);
+      continue;
+    }
     const labDir = path.join(labsRoot, manifest.labId);
     const zipPath = path.join(zipsRoot, manifest.downloadPath.replace(/^\//, ""));
     if (!fs.existsSync(zipPath)) {

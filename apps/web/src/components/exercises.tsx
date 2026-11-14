@@ -827,6 +827,7 @@ function CodeRunExercise({
   const [busy, setBusy] = useState(false);
   const [runMsg, setRunMsg] = useState("");
   const [testsOk, setTestsOk] = useState(false);
+  const [mobileTab, setMobileTab] = useState<"task" | "editor" | "output">("editor");
   const hint = useExerciseHint(exercise);
   const soft = useSoftAttempts(hint.setOpen);
   const tests =
@@ -843,6 +844,7 @@ function CodeRunExercise({
     setBusy(true);
     setRunMsg(locale === "en" ? "Running…" : "Запуск…");
     setTestsOk(false);
+    setMobileTab("output");
     try {
       const srcCheck = softGradeCodeRunSource(
         source,
@@ -898,6 +900,7 @@ function CodeRunExercise({
           ? "Run tests successfully before submit"
           : "Спочатку успішно запусти тести",
       );
+      setMobileTab("output");
       return;
     }
     const srcCheck = softGradeCodeRunSource(
@@ -909,6 +912,7 @@ function CodeRunExercise({
     );
     if (!srcCheck.ok) {
       soft.registerFail();
+      setMobileTab("output");
       return;
     }
     soft.markOk();
@@ -917,36 +921,91 @@ function CodeRunExercise({
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-black">{prompt}</h2>
-      {hint.panel}
-      <p className="text-xs font-bold text-ink-muted">
-        {locale === "en"
-          ? "C++ lab — Run tests (client), then Check"
-          : "C++ lab — Запусти тести (у браузері), потім Перевірити"}
-      </p>
-      <MonacoCodeEditor
-        value={source}
-        onChange={(v) => {
-          setSource(v);
-          setTestsOk(false);
-          soft.resetSoft();
-        }}
-        language={lang === "cpp" ? "cpp" : lang}
-        height="320px"
-      />
-      {runMsg ? (
-        <pre
+      {/* Mobile Tab Switcher (Task / Code / Output) */}
+      <div className="flex sm:hidden border-b border-slate-200 dark:border-slate-800 mb-2 gap-1" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mobileTab === "task"}
           className={clsx(
-            "rounded-xl border-2 p-3 text-xs font-mono whitespace-pre-wrap",
-            testsOk
-              ? "border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-100"
-              : "border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100",
+            "flex-1 py-1.5 text-xs font-bold border-b-2 text-center transition",
+            mobileTab === "task"
+              ? "border-brand text-brand-dark dark:text-brand-light"
+              : "border-transparent text-ink-muted",
           )}
+          onClick={() => setMobileTab("task")}
         >
-          {runMsg}
-        </pre>
-      ) : null}
-      <div className="flex flex-wrap gap-2">
+          📋 {locale === "en" ? "Task" : "Умова"}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mobileTab === "editor"}
+          className={clsx(
+            "flex-1 py-1.5 text-xs font-bold border-b-2 text-center transition",
+            mobileTab === "editor"
+              ? "border-brand text-brand-dark dark:text-brand-light"
+              : "border-transparent text-ink-muted",
+          )}
+          onClick={() => setMobileTab("editor")}
+        >
+          💻 {locale === "en" ? "Code" : "Код"}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mobileTab === "output"}
+          className={clsx(
+            "flex-1 py-1.5 text-xs font-bold border-b-2 text-center transition",
+            mobileTab === "output"
+              ? "border-brand text-brand-dark dark:text-brand-light"
+              : "border-transparent text-ink-muted",
+          )}
+          onClick={() => setMobileTab("output")}
+        >
+          ▶️ {locale === "en" ? "Output" : "Результат"}
+        </button>
+      </div>
+
+      <div className={clsx("space-y-3", mobileTab !== "task" && "hidden sm:block")}>
+        <h2 className="text-xl font-black">{prompt}</h2>
+        {hint.panel}
+        <p className="text-xs font-bold text-ink-muted">
+          {locale === "en"
+            ? "C++ lab — Run tests (client), then Check"
+            : "C++ lab — Запусти тести (у браузері), потім Перевірити"}
+        </p>
+      </div>
+
+      <div className={clsx("space-y-2", mobileTab !== "editor" && "hidden sm:block")}>
+        <MonacoCodeEditor
+          value={source}
+          onChange={(v) => {
+            setSource(v);
+            setTestsOk(false);
+            soft.resetSoft();
+          }}
+          language={lang === "cpp" ? "cpp" : lang}
+          height="320px"
+        />
+      </div>
+
+      <div className={clsx("space-y-2", mobileTab !== "output" && "hidden sm:block")}>
+        {runMsg ? (
+          <pre
+            className={clsx(
+              "rounded-xl border-2 p-3 text-xs font-mono whitespace-pre-wrap",
+              testsOk
+                ? "border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-100"
+                : "border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100",
+            )}
+          >
+            {runMsg}
+          </pre>
+        ) : null}
+      </div>
+
+      <div className="flex flex-wrap gap-2 pt-1">
         <button
           type="button"
           className="btn-secondary"
@@ -2048,6 +2107,7 @@ function CodeJudgeExercise({
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const [judgeUnavailable, setJudgeUnavailable] = useState(false);
+  const [mobileTab, setMobileTab] = useState<"task" | "editor" | "output">("editor");
 
   // Verification mode: "behavior" (default) or "text", saved to device localStorage
   const [mode, setMode] = useState<"behavior" | "text">(() => {
@@ -2104,6 +2164,7 @@ function CodeJudgeExercise({
         setMsg(`FAIL: ${reason}`);
         onWrongAttempt?.();
       }
+      setMobileTab("output");
     } finally {
       setBusy(false);
     }
@@ -2161,6 +2222,7 @@ function CodeJudgeExercise({
       } else {
         onWrongAttempt?.();
       }
+      setMobileTab("output");
     } catch (e: unknown) {
       const err = e as Error & { status?: number; data?: { error?: string } };
       if (err.status === 503 || err.data?.error === "judge_unavailable" || err.data?.error === "judge_disabled") {
@@ -2168,6 +2230,7 @@ function CodeJudgeExercise({
       } else {
         setMsg(e instanceof Error ? e.message : "judge_error");
       }
+      setMobileTab("output");
     } finally {
       setBusy(false);
     }
@@ -2175,98 +2238,156 @@ function CodeJudgeExercise({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
-        <div className="inline-flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
-          <button
-            type="button"
-            className={clsx(
-              "rounded-lg px-3 py-1 text-xs font-bold transition",
-              mode === "behavior"
-                ? "bg-white text-ink shadow dark:bg-slate-700 dark:text-white"
-                : "text-ink-muted hover:text-ink dark:text-slate-400 dark:hover:text-white",
-            )}
-            onClick={() => handleModeChange("behavior")}
-          >
-            ⚙️ {t.lesson.modeBehavior}
-          </button>
-          <button
-            type="button"
-            className={clsx(
-              "rounded-lg px-3 py-1 text-xs font-bold transition",
-              mode === "text"
-                ? "bg-white text-ink shadow dark:bg-slate-700 dark:text-white"
-                : "text-ink-muted hover:text-ink dark:text-slate-400 dark:hover:text-white",
-            )}
-            onClick={() => handleModeChange("text")}
-          >
-            📄 {t.lesson.modeText}
-          </button>
-        </div>
+      {/* Mobile Tab Switcher (Condition / Code / Output) */}
+      <div className="flex sm:hidden border-b border-slate-200 dark:border-slate-800 mb-2 gap-1" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mobileTab === "task"}
+          className={clsx(
+            "flex-1 py-1.5 text-xs font-bold border-b-2 text-center transition",
+            mobileTab === "task"
+              ? "border-brand text-brand-dark dark:text-brand-light"
+              : "border-transparent text-ink-muted",
+          )}
+          onClick={() => setMobileTab("task")}
+        >
+          📋 {locale === "en" ? "Task" : "Умова"}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mobileTab === "editor"}
+          className={clsx(
+            "flex-1 py-1.5 text-xs font-bold border-b-2 text-center transition",
+            mobileTab === "editor"
+              ? "border-brand text-brand-dark dark:text-brand-light"
+              : "border-transparent text-ink-muted",
+          )}
+          onClick={() => setMobileTab("editor")}
+        >
+          💻 {locale === "en" ? "Code" : "Код"}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mobileTab === "output"}
+          className={clsx(
+            "flex-1 py-1.5 text-xs font-bold border-b-2 text-center transition",
+            mobileTab === "output"
+              ? "border-brand text-brand-dark dark:text-brand-light"
+              : "border-transparent text-ink-muted",
+          )}
+          onClick={() => setMobileTab("output")}
+        >
+          ▶️ {locale === "en" ? "Output" : "Результат"}
+        </button>
       </div>
 
-      {mode === "text" && (
-        <div className="rounded-2xl border border-sky-300 bg-sky-50/80 p-3 text-xs font-medium text-sky-900 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-200">
-          ℹ️ {t.lesson.textModeDisclaimer}
-        </div>
-      )}
-
-      {Boolean(limitations) && (
-        <p className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-ink-muted dark:bg-slate-800/60 dark:text-slate-300">
-          ℹ️ {String(limitations)}
-        </p>
-      )}
-
-      <p className="text-xs font-bold text-ink-muted">
-        Judge · {lang} ·{" "}
-        {mode === "behavior"
-          ? locale === "en"
-            ? "isolated server execution"
-            : "ізольоване серверне виконання"
-          : locale === "en"
-            ? "static source verification"
-            : "статична перевірка коду"}
-      </p>
-
-      <MonacoCodeEditor
-        value={code}
-        onChange={setCode}
-        language={lang === "python" ? "python" : lang === "bash" ? "shell" : "javascript"}
-        height="220px"
-      />
-
-      {judgeUnavailable && (
-        <div className="rounded-2xl border-2 border-amber-500 bg-amber-50 p-4 dark:bg-amber-950/30 space-y-2">
-          <p className="font-bold text-amber-800 dark:text-amber-200">
-            ⚠️ {t.lesson.judgeUnavailable}
-          </p>
-          <p className="text-xs text-amber-700 dark:text-amber-300">
-            {t.lesson.judgeUnavailableHint}
-          </p>
-          <div className="flex flex-wrap gap-2 pt-1">
+      <div className={clsx("space-y-3", mobileTab !== "task" && "hidden sm:block")}>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
+          <div className="inline-flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
             <button
               type="button"
-              className="btn-primary !py-1.5 !text-xs"
-              disabled={busy}
-              onClick={() => void runBehaviorMode()}
+              className={clsx(
+                "rounded-lg px-3 py-1 text-xs font-bold transition",
+                mode === "behavior"
+                  ? "bg-white text-ink shadow dark:bg-slate-700 dark:text-white"
+                  : "text-ink-muted hover:text-ink dark:text-slate-400 dark:hover:text-white",
+              )}
+              onClick={() => handleModeChange("behavior")}
             >
-              🔄 {t.lesson.retryBehaviorCheck}
+              ⚙️ {t.lesson.modeBehavior}
             </button>
             <button
               type="button"
-              className="btn-secondary !py-1.5 !text-xs"
-              onClick={() => {
-                setJudgeUnavailable(false);
-                handleModeChange("text");
-              }}
+              className={clsx(
+                "rounded-lg px-3 py-1 text-xs font-bold transition",
+                mode === "text"
+                  ? "bg-white text-ink shadow dark:bg-slate-700 dark:text-white"
+                  : "text-ink-muted hover:text-ink dark:text-slate-400 dark:hover:text-white",
+              )}
+              onClick={() => handleModeChange("text")}
             >
-              📝 {t.lesson.switchToTextCheck}
+              📄 {t.lesson.modeText}
             </button>
           </div>
         </div>
-      )}
 
-      <div className="flex gap-2">
+        {mode === "text" && (
+          <div className="rounded-2xl border border-sky-300 bg-sky-50/80 p-3 text-xs font-medium text-sky-900 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-200">
+            ℹ️ {t.lesson.textModeDisclaimer}
+          </div>
+        )}
+
+        {Boolean(limitations) && (
+          <p className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-ink-muted dark:bg-slate-800/60 dark:text-slate-300">
+            ℹ️ {String(limitations)}
+          </p>
+        )}
+
+        <p className="text-xs font-bold text-ink-muted">
+          Judge · {lang} ·{" "}
+          {mode === "behavior"
+            ? locale === "en"
+              ? "isolated server execution"
+              : "ізольоване серверне виконання"
+            : locale === "en"
+              ? "static source verification"
+              : "статична перевірка коду"}
+        </p>
+      </div>
+
+      <div className={clsx("space-y-2", mobileTab !== "editor" && "hidden sm:block")}>
+        <MonacoCodeEditor
+          value={code}
+          onChange={setCode}
+          language={lang === "python" ? "python" : lang === "bash" ? "shell" : "javascript"}
+          height="220px"
+        />
+      </div>
+
+      <div className={clsx("space-y-3", mobileTab !== "output" && "hidden sm:block")}>
+        {judgeUnavailable && (
+          <div className="rounded-2xl border-2 border-amber-500 bg-amber-50 p-4 dark:bg-amber-950/30 space-y-2">
+            <p className="font-bold text-amber-800 dark:text-amber-200">
+              ⚠️ {t.lesson.judgeUnavailable}
+            </p>
+            <p className="text-xs text-amber-700 dark:text-amber-300">
+              {t.lesson.judgeUnavailableHint}
+            </p>
+            <div className="flex flex-wrap gap-2 pt-1">
+              <button
+                type="button"
+                className="btn-primary !py-1.5 !text-xs"
+                disabled={busy}
+                onClick={() => void runBehaviorMode()}
+              >
+                🔄 {t.lesson.retryBehaviorCheck}
+              </button>
+              <button
+                type="button"
+                className="btn-secondary !py-1.5 !text-xs"
+                onClick={() => {
+                  setJudgeUnavailable(false);
+                  handleModeChange("text");
+                }}
+              >
+                📝 {t.lesson.switchToTextCheck}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {msg && (
+          <pre className="max-h-40 overflow-auto rounded-xl bg-slate-900 p-3 text-xs text-green-300">
+            {msg}
+          </pre>
+        )}
+      </div>
+
+      <div className="flex gap-2 pt-1">
         <button
           type="button"
           className="btn-primary"
@@ -2292,12 +2413,6 @@ function CodeJudgeExercise({
                 : "Запустити в judge"}
         </button>
       </div>
-
-      {msg && (
-        <pre className="max-h-40 overflow-auto rounded-xl bg-slate-900 p-3 text-xs text-green-300">
-          {msg}
-        </pre>
-      )}
     </div>
   );
 }

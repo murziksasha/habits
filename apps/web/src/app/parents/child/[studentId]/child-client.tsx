@@ -169,6 +169,54 @@ export function ParentChildClient() {
         </p>
       </Card>
 
+      {/* 3-part Actionable Parent Report Card */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="card space-y-2 border-emerald-300/40 bg-emerald-50/20 dark:border-emerald-800/40 dark:bg-emerald-950/20">
+          <p className="text-xs font-black uppercase text-emerald-800 dark:text-emerald-300">
+            🎯 {locale === "en" ? "What Was Mastered" : "Чому навчився"}
+          </p>
+          <p className="text-sm font-bold text-ink">
+            {digest && digest.lessonsCompleted > 0
+              ? locale === "en"
+                ? `${digest.lessonsCompleted} lessons completed, ${digest.examsPassedWeek ?? 0} exams passed with verified mastery.`
+                : `Пройдено ${digest.lessonsCompleted} уроків, складено ${digest.examsPassedWeek ?? 0} контрольних із підтвердженим результатом.`
+              : locale === "en"
+                ? "Active practice recorded in course syllabus."
+                : "Зафіксовано активні навчальні сесії за програмою."}
+          </p>
+        </div>
+
+        <div className="card space-y-2 border-amber-300/40 bg-amber-50/20 dark:border-amber-800/40 dark:bg-amber-950/20">
+          <p className="text-xs font-black uppercase text-amber-800 dark:text-amber-300">
+            🤝 {locale === "en" ? "Where Support Is Needed" : "Де потрібна підтримка"}
+          </p>
+          <p className="text-sm font-bold text-ink">
+            {data?.homework?.some((h) => h.status !== "graded" && h.status !== "submitted")
+              ? locale === "en"
+                ? "Check pending assignments and encourage independent first attempts."
+                : "Є поточні домашні завдання, заохочуйте самостійні перші спроби."
+              : locale === "en"
+                ? "Encourage solving exercises with fewer hints to boost self-verified mastery."
+                : "Заохочуйте вирішувати вправи без підказок для зростання самостійності."}
+          </p>
+        </div>
+
+        <div className="card space-y-2 border-sky-300/40 bg-sky-50/20 dark:border-sky-800/40 dark:bg-sky-950/20">
+          <p className="text-xs font-black uppercase text-sky-800 dark:text-sky-300">
+            🚀 {locale === "en" ? "Next Step" : "Наступний крок"}
+          </p>
+          <p className="text-sm font-bold text-ink">
+            {data?.courses[0]
+              ? locale === "en"
+                ? `Continue ${data.courses[0].titleUk} or complete spaced retention check.`
+                : `Продовжити курс «${data.courses[0].titleUk}» або пройти інтервальне закріплення.`
+              : locale === "en"
+                ? "Start the next recommended 10-minute learning session."
+                : "Почати наступну рекомендовану 10-хвилинну сесію."}
+          </p>
+        </div>
+      </div>
+
       {digest && (
         <Card className="space-y-3 border-sky/30">
           <div className="flex flex-wrap items-center justify-between gap-2">

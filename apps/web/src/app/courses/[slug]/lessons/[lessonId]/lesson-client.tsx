@@ -135,6 +135,11 @@ export function LessonClient() {
     { id: string; body: string; displayName: string | null; createdAt: string }[]
   >([]);
   const [commentText, setCommentText] = useState("");
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportNote, setReportNote] = useState("");
+  const [reportSent, setReportSent] = useState(false);
+  const [reportBusy, setReportBusy] = useState(false);
+  const [confirmResetOpen, setConfirmResetOpen] = useState(false);
   // Default focus on mobile; desktop starts full (notes/comments available)
   const [focusMode, setFocusMode] = useState(() =>
     typeof window !== "undefined" ? window.matchMedia("(max-width: 767px)").matches : true,
@@ -539,6 +544,38 @@ export function LessonClient() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  async function submitReport(exerciseId: string) {
+    if (!token) return;
+    setReportBusy(true);
+    try {
+      await api("/feedback", {
+        method: "POST",
+        token,
+        body: {
+          category: "content",
+          pagePath: typeof window !== "undefined" ? window.location.pathname : "",
+          message: `[Exercise Ambiguity: ${exerciseId}] ${reportNote.trim() || "Reported ambiguity"}`,
+        },
+      });
+      setReportSent(true);
+      setTimeout(() => {
+        setReportModalOpen(false);
+        setReportSent(false);
+        setReportNote("");
+      }, 1500);
+    } catch {
+      /* ignore */
+    } finally {
+      setReportBusy(false);
+    }
+  }
+
+  function handleResetDraft(exerciseId: string) {
+    localStorage.removeItem(getDraftKey(user?.id, slug, lessonId, exerciseId));
+    setConfirmResetOpen(false);
+    window.location.reload();
   }
 
   if (error === "exam_locked") {
@@ -1045,6 +1082,22 @@ export function LessonClient() {
               <HeartsBar hearts={hearts} max={maxHearts} compact />
             </>
           ) : null}
+          <button
+            type="button"
+            className="touch-target rounded-xl border border-slate-200 px-2 py-1 text-xs font-bold text-ink-muted hover:text-ink dark:border-slate-800"
+            onClick={() => setConfirmResetOpen(true)}
+            title={locale === "en" ? "Reset draft" : "Скинути чернетку"}
+          >
+            ↺
+          </button>
+          <button
+            type="button"
+            className="touch-target rounded-xl border border-slate-200 px-2 py-1 text-xs font-bold text-ink-muted hover:text-ink dark:border-slate-800"
+            onClick={() => setReportModalOpen(true)}
+            title={locale === "en" ? "Report ambiguity" : "Повідомити про неточність"}
+          >
+            🚩
+          </button>
           <span
             className="text-sm font-bold text-ink-muted"
             aria-live="polite"
@@ -1230,6 +1283,86 @@ export function LessonClient() {
             </div>
           </div>
         </>
+      )}
+
+      {confirmResetOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="card w-full max-w-sm space-y-4">
+            <h3 className="text-lg font-black">
+              {locale === "en" ? "Reset current draft?" : "Скинути чернетку?"}
+            </h3>
+            <p className="text-xs text-ink-muted">
+              {locale === "en"
+                ? "This will clear your saved draft answer for this exercise."
+                : "Це очистить збережену відповідь для цієї вправи."}
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                className="btn-secondary !py-1.5 text-xs"
+                onClick={() => setConfirmResetOpen(false)}
+              >
+                {locale === "en" ? "Cancel" : "Скасувати"}
+              </button>
+              <button
+                type="button"
+                className="btn-primary !py-1.5 text-xs !bg-red-600 hover:!bg-red-700"
+                onClick={() => handleResetDraft(ex.id)}
+              >
+                {locale === "en" ? "Reset" : "Скинути"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {reportModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="card w-full max-w-md space-y-3">
+            <h3 className="text-lg font-black">
+              🚩 {locale === "en" ? "Report ambiguity in exercise" : "Повідомити про неточність у завданні"}
+            </h3>
+            <p className="text-xs font-mono text-ink-muted">
+              ID: {ex?.id}
+            </p>
+            {reportSent ? (
+              <p className="text-sm font-bold text-green-600">
+                ✓ {locale === "en" ? "Thank you! Your report has been submitted." : "Дякуємо! Ваше повідомлення надіслано авторам."}
+              </p>
+            ) : (
+              <>
+                <textarea
+                  className="input min-h-[96px] text-sm"
+                  placeholder={
+                    locale === "en"
+                      ? "Describe what is unclear or incorrect in the formulation or test checks..."
+                      : "Опишіть, що саме є незрозумілим або некоректним в умові чи перевірці..."
+                  }
+                  value={reportNote}
+                  onChange={(e) => setReportNote(e.target.value)}
+                />
+                <div className="flex justify-end gap-2 pt-1">
+                  <button
+                    type="button"
+                    className="btn-secondary !py-1.5 text-xs"
+                    disabled={reportBusy}
+                    onClick={() => setReportModalOpen(false)}
+                  >
+                    {locale === "en" ? "Cancel" : "Скасувати"}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-primary !py-1.5 text-xs"
+                    disabled={reportBusy || !reportNote.trim()}
+                    onClick={() => void submitReport(ex.id)}
+                  >
+                    {reportBusy ? "…" : locale === "en" ? "Send report" : "Надіслати"}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
