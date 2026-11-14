@@ -115,6 +115,12 @@ export function ExercisePlayer({
         return <ConceptExercise exercise={exercise} onAnswer={onAnswer} />;
       case "explain":
         return <ExplainExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "composite_artifact":
+        return <CodeProjectExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "dataset_query":
+        return <CodeFillExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "incident_step":
+        return <OrderWordsExercise exercise={exercise} onAnswer={onAnswer} />;
       default:
         return <p>Невідомий тип: {exercise.type}</p>;
     }

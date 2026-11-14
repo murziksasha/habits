@@ -524,6 +524,44 @@ export function gradeExercise(
       }
       return { correct: false, partial: 0, meta: { judge: true } };
     }
+    case "composite_artifact": {
+      const files =
+        (answer as { files?: Record<string, string> })?.files ??
+        (answer as Record<string, string>) ??
+        {};
+      const checks = (exercise.checks as ProjectCheck[]) ?? [];
+      const res = gradeCodeProjectChecks(files, checks);
+      const passedCount = checks.length - res.missing.length;
+      const partial = checks.length > 0 ? Math.max(0, passedCount / checks.length) : 0;
+      return {
+        correct: res.ok,
+        partial,
+        meta: { composite: true, missing: res.missing, total: checks.length },
+      };
+    }
+    case "dataset_query": {
+      const query =
+        typeof answer === "string" ? answer : String((answer as { query?: string })?.query ?? "");
+      const required = (exercise.requiredKeywords as string[]) ?? [];
+      const forbidden = (exercise.forbiddenKeywords as string[]) ?? [];
+      const norm = query.toLowerCase();
+      const missing = required.filter((k) => !norm.includes(k.toLowerCase()));
+      const banned = forbidden.filter((k) => norm.includes(k.toLowerCase()));
+      const correct = missing.length === 0 && banned.length === 0 && query.trim().length > 0;
+      return {
+        correct,
+        meta: { datasetQuery: true, missing, banned },
+      };
+    }
+    case "incident_step": {
+      const steps = (answer as (string | number)[]) ?? [];
+      const expected = (exercise.correctSteps as (string | number)[]) ?? [];
+      const ok = steps.length === expected.length && steps.every((s, i) => s === expected[i]);
+      return {
+        correct: ok,
+        meta: ok ? { ok: true } : { missing: ["step_mismatch"] },
+      };
+    }
     default:
       return { correct: false };
   }

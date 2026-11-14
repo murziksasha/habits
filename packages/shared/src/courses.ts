@@ -1076,7 +1076,10 @@ export type ExerciseType =
   | "video"
   | "code_judge"
   | "concept"
-  | "explain";
+  | "explain"
+  | "composite_artifact"
+  | "dataset_query"
+  | "incident_step";
 
 /** Newly added deep tracks surfaced on the catalog and learn map (not a 7th primary-nav slot). */
 export const FEATURED_COURSE_SLUGS: readonly CourseSlug[] = [

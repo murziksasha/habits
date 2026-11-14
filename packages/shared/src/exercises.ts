@@ -24,6 +24,9 @@ export const EXERCISE_TYPES = [
   "code_judge",
   "concept",
   "explain",
+  "composite_artifact",
+  "dataset_query",
+  "incident_step",
 ] as const satisfies readonly ExerciseType[];
 
 export const exerciseTypeSchema = z.enum(EXERCISE_TYPES);

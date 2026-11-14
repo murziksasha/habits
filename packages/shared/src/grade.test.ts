@@ -172,4 +172,46 @@ describe("gradeCodeProjectChecks", () => {
     );
     expect(r.ok).toBe(true);
   });
+
+  it("grades composite_artifact, dataset_query, and incident_step", () => {
+    // composite_artifact
+    const compositeEx = {
+      id: "ca-1",
+      type: "composite_artifact",
+      checks: [{ fileId: "index.html", contains: ["<nav>"] }],
+    };
+    expect(
+      gradeExercise(compositeEx, { files: { "index.html": "<nav>Menu</nav>" } }).correct,
+    ).toBe(true);
+    expect(
+      gradeExercise(compositeEx, { files: { "index.html": "<div>Menu</div>" } }).correct,
+    ).toBe(false);
+
+    // dataset_query
+    const datasetEx = {
+      id: "dq-1",
+      type: "dataset_query",
+      requiredKeywords: ["SELECT", "GROUP BY", "HAVING"],
+      forbiddenKeywords: ["DROP", "DELETE"],
+    };
+    expect(
+      gradeExercise(datasetEx, "SELECT user_id, COUNT(*) FROM orders GROUP BY user_id HAVING COUNT(*) > 5").correct,
+    ).toBe(true);
+    expect(
+      gradeExercise(datasetEx, "SELECT user_id, COUNT(*) FROM orders GROUP BY user_id").correct,
+    ).toBe(false);
+
+    // incident_step
+    const incidentEx = {
+      id: "inc-1",
+      type: "incident_step",
+      correctSteps: ["triage", "mitigate", "postmortem"],
+    };
+    expect(
+      gradeExercise(incidentEx, ["triage", "mitigate", "postmortem"]).correct,
+    ).toBe(true);
+    expect(
+      gradeExercise(incidentEx, ["mitigate", "triage", "postmortem"]).correct,
+    ).toBe(false);
+  });
 });

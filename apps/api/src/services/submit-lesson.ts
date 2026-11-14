@@ -27,6 +27,8 @@ import {
   typingXpAward,
   utcDateKey,
   evaluateMasteryEvidence,
+  resolveExamVariantId,
+  isTransferCheckDue,
   type MasteryEvidenceLevel,
   type GrantedRewardItem,
   type LevelChangeTrigger,
@@ -487,6 +489,10 @@ export async function submitLesson(
     xpGain = Math.max(1, Math.floor(xpGain * 0.35));
   }
 
+  const examVariantId = isExam
+    ? resolveExamVariantId(user.id, lesson.id, prevLp?.attempts ?? 0)
+    : null;
+
   const prevEvidence = (prevLp?.evidenceLevel as MasteryEvidenceLevel) ?? "insufficient_data";
   const daysSinceFirst = prevLp?.lastSelfVerifiedAt
     ? Math.max(0, Math.floor((Date.now() - new Date(prevLp.lastSelfVerifiedAt).getTime()) / 86_400_000))
@@ -928,6 +934,7 @@ export async function submitLesson(
       isExam,
       passed,
       evidenceLevel,
+      variantId: examVariantId,
       passThreshold: completeBar,
       examFailed: isExam && !passed,
       nextLesson,
