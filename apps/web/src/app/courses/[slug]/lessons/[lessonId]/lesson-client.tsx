@@ -53,6 +53,10 @@ function newIdempotencyKey() {
   return `k${Date.now().toString(36)}${Math.random().toString(36).slice(2, 12)}`;
 }
 
+function getDraftKey(userId: string | undefined, slug: string, lessonId: string, exId: string) {
+  return `draft:${userId || "guest"}:${slug}:${lessonId}:${exId}:1`;
+}
+
 export function LessonClient() {
   const { slug, lessonId } = useParams<{ slug: string; lessonId: string }>();
   const { token, user, loading, setCharacter } = useAuth();
@@ -354,6 +358,11 @@ export function LessonClient() {
     wrongAttemptsRef.current = 0;
     setConfidence(null);
     setAnswers(nextAnswers);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(getDraftKey(user?.id, slug, lessonId, ex.id), JSON.stringify(answer));
+      } catch {}
+    }
     const explain = exerciseExplanation(
       ex as Record<string, unknown>,
       locale === "en" ? "en" : "uk",
@@ -453,6 +462,13 @@ export function LessonClient() {
 
       if (result.passed && !user) {
         recordGuestLessonProgress(slug, lessonId);
+      }
+      if (typeof window !== "undefined" && lesson) {
+        for (const exercise of lesson.exercises) {
+          try {
+            localStorage.removeItem(getDraftKey(user?.id, slug, lessonId, exercise.id));
+          } catch {}
+        }
       }
       if (result.character) setCharacter(result.character);
       if (typeof result.hearts === "number") setHearts(result.hearts);

@@ -52,6 +52,13 @@ export function LearnClient() {
     next: null,
     exams: null,
   });
+  const [sessionDuration, setSessionDuration] = useState<5 | 10 | 20>(() => {
+    if (typeof window !== "undefined") {
+      const saved = Number(localStorage.getItem("eduforge_session_duration"));
+      if (saved === 5 || saved === 10 || saved === 20) return saved;
+    }
+    return 10;
+  });
   const [dataLoading, setDataLoading] = useState(false);
 
   useEffect(() => {
@@ -113,21 +120,48 @@ export function LearnClient() {
           <p className="text-sm font-bold text-ink-muted">{t.learn.mapTitle}</p>
         </div>
         {user ? (
-          <div className="flex flex-wrap items-center gap-2">
-            <Link
-              href="/calendar"
-              className="btn-secondary shrink-0 !py-2 text-sm"
-            >
-              📊 {t.learning.myProgress}
-            </Link>
-            {skillPoints > 0 ? (
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
               <Link
-                href="/profile#build"
-                className="btn-secondary shrink-0 !py-2 text-sm ring-1 ring-grape/40"
+                href="/calendar"
+                className="btn-secondary shrink-0 !py-2 text-sm"
               >
-                ⭐ {locale === "en" ? "Build" : "Прокачка"} ({skillPoints})
+                📊 {t.learning.myProgress}
               </Link>
-            ) : null}
+              {skillPoints > 0 ? (
+                <Link
+                  href="/profile#build"
+                  className="btn-secondary shrink-0 !py-2 text-sm ring-1 ring-grape/40"
+                >
+                  ⭐ {locale === "en" ? "Build" : "Прокачка"} ({skillPoints})
+                </Link>
+              ) : null}
+            </div>
+            <div className="flex items-center gap-1.5 rounded-2xl border border-slate-200 bg-white p-1 text-xs font-bold dark:border-slate-800 dark:bg-slate-900">
+              <span className="px-2 text-ink-muted">
+                ⏱️ {locale === "en" ? "Session:" : "Час:"}
+              </span>
+              {([5, 10, 20] as const).map((mins) => (
+                <button
+                  key={mins}
+                  type="button"
+                  onClick={() => {
+                    setSessionDuration(mins);
+                    if (typeof window !== "undefined") {
+                      localStorage.setItem("eduforge_session_duration", String(mins));
+                    }
+                  }}
+                  className={`rounded-xl px-2.5 py-1 transition ${
+                    sessionDuration === mins
+                      ? "bg-brand text-white font-black shadow-sm"
+                      : "text-ink-muted hover:text-ink hover:bg-slate-100 dark:hover:bg-slate-800"
+                  }`}
+                  aria-pressed={sessionDuration === mins}
+                >
+                  {mins} {locale === "en" ? "min" : "хв"}
+                </button>
+              ))}
+            </div>
           </div>
         ) : null}
 

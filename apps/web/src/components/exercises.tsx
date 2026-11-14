@@ -210,7 +210,15 @@ function useExerciseHint(exercise: Exercise) {
             onClick={() => setLevel((l) => (l > 0 ? 0 : autoOpenLevel))}
           >
             💡 {level > 0 ? t.lesson.hideHint : t.lesson.showHint}
-            {level > 0 ? ` · L${level}` : ""}
+            {level === 1
+              ? ` · ${locale === "en" ? "L1: Principle" : "L1: Ключовий принцип"}`
+              : level === 2
+                ? ` · ${locale === "en" ? "L2: Clue" : "L2: Діагностика"}`
+                : level === 3
+                  ? ` · ${locale === "en" ? "L3: Partial Step" : "L3: Частковий крок"}`
+                  : level > 3
+                    ? ` · L${level}`
+                    : ""}
             {mentorRank > 0 ? " 🎓" : ""}
           </button>
           {level > 0 && level < maxLevel && (

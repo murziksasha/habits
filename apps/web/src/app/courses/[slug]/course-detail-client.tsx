@@ -45,6 +45,7 @@ export function CourseDetailClient() {
   const { token, user, loading } = useAuth();
   const { locale, t } = useLocale();
   const [section, setSection] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [openUnits, setOpenUnits] = useState<Record<string, boolean>>({});
   const [data, setData] = useState<{
     course: {
@@ -128,8 +129,25 @@ export function CourseDetailClient() {
   }
 
   const oracle = slug === "sql_fundamentals";
-  const visibleUnits = oracle ? data.units.filter((u) => unitInOracleSection(u.slug, section)) : data.units;
-  const allLessons = visibleUnits.flatMap((u) => u.lessons);
+  const baseUnits = oracle ? data.units.filter((u) => unitInOracleSection(u.slug, section)) : data.units;
+  const q = searchQuery.trim().toLowerCase();
+  const visibleUnits = q
+    ? baseUnits
+        .map((u) => {
+          const uMatch =
+            u.titleUk.toLowerCase().includes(q) ||
+            Boolean(u.titleEn && u.titleEn.toLowerCase().includes(q));
+          const matchingLessons = u.lessons.filter(
+            (l) =>
+              uMatch ||
+              l.titleUk.toLowerCase().includes(q) ||
+              Boolean(l.titleEn && l.titleEn.toLowerCase().includes(q)),
+          );
+          return { ...u, lessons: matchingLessons };
+        })
+        .filter((u) => u.lessons.length > 0)
+    : baseUnits;
+  const allLessons = baseUnits.flatMap((u) => u.lessons);
   const continueLesson =
     allLessons.find((l) => !l.locked && l.status !== "completed") ??
     allLessons.find((l) => !l.locked) ??
@@ -234,12 +252,30 @@ export function CourseDetailClient() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-xl font-black">{t.coursePage.outline}</h2>
-        <div className="flex gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-xl font-black">{t.coursePage.outline}</h2>
+          {q ? (
+            <p className="text-xs font-bold text-sky">
+              {visibleUnits.flatMap((u) => u.lessons).length}{" "}
+              {locale === "en" ? "lessons found" : "уроків знайдено"}
+            </p>
+          ) : null}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative min-w-[180px] flex-1 sm:w-60">
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={locale === "en" ? "Search lessons..." : "Пошук уроків..."}
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 pl-8 text-xs font-bold placeholder:text-ink-muted focus:border-brand focus:outline-none dark:border-slate-700 dark:bg-slate-900"
+            />
+            <span className="pointer-events-none absolute left-2.5 top-2 text-xs text-ink-muted">🔍</span>
+          </div>
           <button
             type="button"
-            className="btn-secondary !px-3 !py-2 text-sm"
+            className="btn-secondary !px-2.5 !py-1.5 text-xs"
             onClick={() =>
               setOpenUnits(Object.fromEntries(visibleUnits.map((u) => [u.id, true])))
             }
@@ -248,7 +284,7 @@ export function CourseDetailClient() {
           </button>
           <button
             type="button"
-            className="btn-secondary !px-3 !py-2 text-sm"
+            className="btn-secondary !px-2.5 !py-1.5 text-xs"
             onClick={() =>
               setOpenUnits(Object.fromEntries(visibleUnits.map((u) => [u.id, false])))
             }
@@ -266,7 +302,7 @@ export function CourseDetailClient() {
         const defaultOpenId =
           visibleUnits.find((u) => u.lessons.some((l) => l.status !== "completed"))?.id ??
           visibleUnits[0]?.id;
-        const open = openUnits[unit.id] ?? unit.id === defaultOpenId;
+        const open = q ? true : (openUnits[unit.id] ?? unit.id === defaultOpenId);
         const prereq = prerequisiteLabels(unit.slug, data.units, locale);
         const unitDone = unit.lessons.filter((l) => l.status === "completed").length;
         const unitTotal = unit.lessons.length || 1;
