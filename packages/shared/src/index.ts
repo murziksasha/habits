@@ -39,3 +39,7 @@ export * from "./labs.js";
 export * from "./learning-progress.js";
 export * from "./learning-paths.js";
 export * from "./course-placement.js";
+export * from "./skills.js";
+export * from "./mastery-evidence.js";
+export * from "./feedback-contract.js";
+export * from "./attempts.js";

@@ -9,6 +9,8 @@ import {
 
   LESSON_MATE_RESULT_MS,
   LESSON_RESULT_SHEET_MS,
+  getEvidenceLevelLabels,
+  type MasteryEvidenceLevel,
   type GrantedRewardItem,
   type LocalLabManifest,
   UI,
@@ -111,6 +113,7 @@ export function LessonClient() {
     results?: ExerciseResult[];
     correctCount?: number;
     total?: number;
+    evidenceLevel?: MasteryEvidenceLevel;
     certificate?: { code: string; titleUk: string } | null;
     nextLesson?: {
       id: string;
@@ -431,6 +434,7 @@ export function LessonClient() {
         results?: ExerciseResult[];
         correctCount?: number;
         total?: number;
+        evidenceLevel?: MasteryEvidenceLevel;
         certificate?: { code: string; titleUk: string } | null;
         nextLesson?: {
           id: string;
@@ -476,6 +480,7 @@ export function LessonClient() {
         results: result.results,
         correctCount: result.correctCount,
         total: result.total,
+        evidenceLevel: result.evidenceLevel,
         certificate: result.certificate ?? null,
         nextLesson: result.nextLesson ?? null,
         skillPoints: (() => {
@@ -738,6 +743,26 @@ export function LessonClient() {
             ? ` · ≥${Math.round(summary.passThreshold * 100)}%`
             : ""}
         </p>
+        {summary.evidenceLevel && summary.evidenceLevel !== "insufficient_data" ? (
+          <div className="flex justify-center">
+            <span
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
+                summary.evidenceLevel === "retained_verified"
+                  ? "border border-emerald-300 bg-emerald-100 text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
+                  : summary.evidenceLevel === "self_verified"
+                    ? "border border-sky/30 bg-sky/15 text-sky-dark dark:bg-sky/20 dark:text-sky-light"
+                    : "bg-slate-100 text-ink-muted dark:bg-slate-800"
+              }`}
+            >
+              <span>{summary.evidenceLevel === "retained_verified" ? "🛡️" : summary.evidenceLevel === "self_verified" ? "✨" : "💬"}</span>
+              <span>
+                {locale === "en"
+                  ? getEvidenceLevelLabels(summary.evidenceLevel).labelEn
+                  : getEvidenceLevelLabels(summary.evidenceLevel).labelUk}
+              </span>
+            </span>
+          </div>
+        ) : null}
         {user ? (
           <div className="grid gap-2 text-left sm:grid-cols-2">
             <div
@@ -786,11 +811,16 @@ export function LessonClient() {
                   r.type,
                   locale === "en" ? "en" : "uk",
                 );
+                const isEnv = Boolean(r.meta?.category === "environment_error" || r.meta?.isEnvironmentIssue);
                 return (
-                  <li key={r.exerciseId || i} className="flex flex-wrap gap-2">
-                    <span className="text-red-500">✗</span>
+                  <li key={r.exerciseId || i} className="flex flex-wrap items-center gap-2">
+                    <span className={isEnv ? "text-amber-500" : "text-red-500"}>{isEnv ? "⚠️" : "✗"}</span>
                     <span>{human}</span>
-                    {missing ? (
+                    {isEnv ? (
+                      <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+                        {locale === "en" ? "Runtime issue (penalty waived)" : "Збій середовища (штраф скасовано)"}
+                      </span>
+                    ) : missing ? (
                       <span className="text-xs text-ink-muted">· {missing}</span>
                     ) : null}
                   </li>

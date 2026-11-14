@@ -22,8 +22,22 @@ describe("exercise learning planner", () => {
       { replayable },
     );
     expect(attempts).toHaveLength(2);
-    expect(attempts[0]).toMatchObject({ firstTry: true, confidence: 3 });
-    expect(attempts[1]).toMatchObject({ firstTry: false, wrongAttempts: 2, confidence: null });
+    expect(attempts[0]).toMatchObject({
+      firstTry: true,
+      firstCheckPassed: true,
+      confidence: 3,
+      hintsUsed: 0,
+      solutionRevealed: false,
+      practiceMode: "guided",
+      verificationMethod: "lesson",
+    });
+    expect(attempts[1]).toMatchObject({
+      firstTry: false,
+      firstCheckPassed: false,
+      wrongAttempts: 2,
+      confidence: null,
+      feedbackCategory: "accepted_alternative",
+    });
   });
 
   it("tracks new mistakes due now and leaves clean answers alone", () => {

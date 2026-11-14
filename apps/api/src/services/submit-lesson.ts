@@ -26,6 +26,8 @@ import {
   rollLevelUpLoot,
   typingXpAward,
   utcDateKey,
+  evaluateMasteryEvidence,
+  type MasteryEvidenceLevel,
   type GrantedRewardItem,
   type LevelChangeTrigger,
   type LootDrop,
@@ -485,6 +487,28 @@ export async function submitLesson(
     xpGain = Math.max(1, Math.floor(xpGain * 0.35));
   }
 
+  const prevEvidence = (prevLp?.evidenceLevel as MasteryEvidenceLevel) ?? "insufficient_data";
+  const daysSinceFirst = prevLp?.lastSelfVerifiedAt
+    ? Math.max(0, Math.floor((Date.now() - new Date(prevLp.lastSelfVerifiedAt).getTime()) / 86_400_000))
+    : 0;
+
+  const evidenceLevel = evaluateMasteryEvidence({
+    exerciseKind: isExam ? "unit_exam" : "lesson",
+    isFirstAttempt: !prevLp || prevLp.attempts === 0,
+    firstCheckPassed: accuracy >= 0.8,
+    hintsUsed: 0,
+    solutionRevealed: false,
+    verificationMethod: isExam ? "unit_exam" : "lesson",
+    daysSinceFirstVerification: daysSinceFirst,
+    priorEvidenceLevel: prevEvidence,
+    correct: passed,
+  });
+
+  const updatedLastSelfVerifiedAt =
+    evidenceLevel === "self_verified" || evidenceLevel === "retained_verified"
+      ? prevLp?.lastSelfVerifiedAt ?? new Date()
+      : prevLp?.lastSelfVerifiedAt ?? null;
+
   if (prevLp) {
     await db
       .update(userLessonProgress)
@@ -492,6 +516,8 @@ export async function submitLesson(
         status: passed ? "completed" : prevLp.status,
         bestScore: Math.max(prevLp.bestScore, accuracy),
         attempts: prevLp.attempts + 1,
+        evidenceLevel,
+        lastSelfVerifiedAt: updatedLastSelfVerifiedAt,
         completedAt: passed ? prevLp.completedAt ?? new Date() : prevLp.completedAt,
       })
       .where(eq(userLessonProgress.id, prevLp.id));
@@ -503,6 +529,8 @@ export async function submitLesson(
       status: passed ? "completed" : "available",
       bestScore: accuracy,
       attempts: 1,
+      evidenceLevel,
+      lastSelfVerifiedAt: updatedLastSelfVerifiedAt,
       completedAt: passed ? new Date() : null,
     });
   }
@@ -899,6 +927,7 @@ export async function submitLesson(
       homeworkCompleted,
       isExam,
       passed,
+      evidenceLevel,
       passThreshold: completeBar,
       examFailed: isExam && !passed,
       nextLesson,

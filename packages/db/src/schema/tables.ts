@@ -294,6 +294,8 @@ export const userLessonProgress = pgTable(
     status: lessonStatusEnum("status").notNull().default("available"),
     bestScore: real("best_score").notNull().default(0),
     attempts: integer("attempts").notNull().default(0),
+    evidenceLevel: varchar("evidence_level", { length: 32 }).notNull().default("insufficient_data"),
+    lastSelfVerifiedAt: timestamp("last_self_verified_at", { withTimezone: true }),
     completedAt: timestamp("completed_at", { withTimezone: true }),
   },
   (t) => [
@@ -1104,12 +1106,50 @@ export const exerciseAttempts = pgTable(
     exerciseType: varchar("exercise_type", { length: 32 }).notNull().default(""),
     correct: boolean("correct").notNull(),
     firstTry: boolean("first_try").notNull(),
+    firstCheckPassed: boolean("first_check_passed").notNull().default(false),
     wrongAttempts: integer("wrong_attempts").notNull().default(0),
+    hintsUsed: integer("hints_used").notNull().default(0),
+    solutionRevealed: boolean("solution_revealed").notNull().default(false),
+    practiceMode: varchar("practice_mode", { length: 32 }).notNull().default("guided"),
+    verificationMethod: varchar("verification_method", { length: 32 }).notNull().default("lesson"),
+    dataSource: varchar("data_source", { length: 32 }).notNull().default("curated"),
+    feedbackCategory: varchar("feedback_category", { length: 32 }),
+    exerciseVersion: varchar("exercise_version", { length: 32 }).notNull().default("1"),
+    variantId: varchar("variant_id", { length: 64 }),
     confidence: integer("confidence"),
     source: varchar("source", { length: 16 }).notNull().default("lesson"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [index("exercise_attempts_user_created_idx").on(t.userId, t.createdAt)],
+);
+
+/**
+ * Server-governed self-verification sessions (SPEC Wave 1).
+ * Records learner's first answer before disclosing verification/grading results.
+ */
+export const selfVerificationSessions = pgTable(
+  "self_verification_sessions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    courseSlug: varchar("course_slug", { length: 64 }).notNull(),
+    lessonSlug: varchar("lesson_slug", { length: 128 }).notNull(),
+    exerciseIndex: integer("exercise_index").notNull().default(0),
+    datasetVersion: varchar("dataset_version", { length: 64 }).notNull().default("1"),
+    firstAnswerSubmitted: text("first_answer_submitted").notNull().default(""),
+    passed: boolean("passed").notNull().default(false),
+    evidenceLevel: varchar("evidence_level", { length: 32 }).notNull().default("insufficient_data"),
+    feedbackCategory: varchar("feedback_category", { length: 32 }).notNull().default("knowledge_gap"),
+    meta: jsonb("meta").$type<Record<string, unknown>>().notNull().default({}),
+    submittedAt: timestamp("submitted_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index("svs_user_course_lesson_idx").on(t.userId, t.courseSlug, t.lessonSlug),
+    index("svs_user_created_idx").on(t.userId, t.createdAt),
+  ],
 );
 
 /** Exercise-level spaced repetition ("mistake notebook"), SM-2 state from `@eduforge/shared` srs. */

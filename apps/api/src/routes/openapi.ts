@@ -624,6 +624,66 @@ const doc = {
         },
       },
     },
+    "/learning/self-verify/start": {
+      post: {
+        tags: ["learning"],
+        summary: "Start a server-governed self-verification session",
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["courseSlug", "lessonSlug"],
+                properties: {
+                  courseSlug: { type: "string" },
+                  lessonSlug: { type: "string" },
+                  exerciseIndex: { type: "integer", default: 0 },
+                  datasetVersion: { type: "string", default: "1" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "Session started" },
+          "400": { description: "invalid_input" },
+          "401": { description: "unauthorized" },
+          "404": { description: "not_found" },
+        },
+      },
+    },
+    "/learning/self-verify/submit": {
+      post: {
+        tags: ["learning"],
+        summary: "Submit first answer for self-verification before disclosing grading",
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["sessionId", "answer"],
+                properties: {
+                  sessionId: { type: "string", format: "uuid" },
+                  answer: {},
+                  hintsUsed: { type: "integer", default: 0 },
+                  solutionRevealed: { type: "boolean", default: false },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "Verified and graded with mastery evidence" },
+          "400": { description: "invalid_input" },
+          "401": { description: "unauthorized" },
+          "404": { description: "session_not_found" },
+        },
+      },
+    },
     "/learning/next": {
       get: {
         tags: ["learning"],

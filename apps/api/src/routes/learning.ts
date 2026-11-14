@@ -12,6 +12,8 @@ import {
   units,
   userCourseProgress,
   userLessonProgress,
+  selfVerificationSessions,
+  exerciseAttempts,
   users,
 } from "@eduforge/db";
 import {
@@ -28,7 +30,11 @@ import {
   updateLearningGoalSchema,
   weeklyMinisRaceSlugs,
   weeklyMinisRaceXpBonus,
+  evaluateMasteryEvidence,
+  buildDetailedFeedback,
+  type MasteryEvidenceLevel,
 } from "@eduforge/shared";
+import { gradeExercise } from "../grade.js";
 import { z } from "zod";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
@@ -107,6 +113,187 @@ learningRoutes.put("/goal", authMiddleware, async (c) => {
   }
   return c.json(updated);
 });
+
+const startSelfVerifySchema = z.object({
+  courseSlug: z.string().min(1).max(64),
+  lessonSlug: z.string().min(1).max(128),
+  exerciseIndex: z.number().int().min(0).default(0),
+  datasetVersion: z.string().min(1).max(64).default("1"),
+  meta: z.record(z.unknown()).optional(),
+});
+
+const submitSelfVerifySchema = z.object({
+  sessionId: z.string().uuid(),
+  answer: z.unknown(),
+  hintsUsed: z.number().int().min(0).default(0),
+  solutionRevealed: z.boolean().default(false),
+});
+
+/** Start a server-governed self-verification session (SPEC Wave 1) */
+learningRoutes.post("/self-verify/start", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const body = await c.req.json().catch(() => null);
+  const parsed = startSelfVerifySchema.safeParse(body);
+  if (!parsed.success) {
+    return c.json({ error: "invalid_input" }, 400);
+  }
+
+  const { courseSlug, lessonSlug, exerciseIndex, datasetVersion, meta } = parsed.data;
+  const course = await db.query.courses.findFirst({ where: eq(courses.slug, courseSlug) });
+  if (!course) return c.json({ error: "course_not_found" }, 404);
+
+  const lesson = await db.query.lessons.findFirst({
+    where: and(eq(lessons.courseId, course.id), eq(lessons.slug, lessonSlug)),
+  });
+  if (!lesson) return c.json({ error: "lesson_not_found" }, 404);
+
+  const [session] = await db
+    .insert(selfVerificationSessions)
+    .values({
+      userId: user.id,
+      courseSlug,
+      lessonSlug,
+      exerciseIndex,
+      datasetVersion,
+      firstAnswerSubmitted: "",
+      passed: false,
+      evidenceLevel: "insufficient_data",
+      feedbackCategory: "knowledge_gap",
+      meta: meta ?? {},
+    })
+    .returning();
+
+  return c.json({
+    sessionId: session.id,
+    courseSlug: session.courseSlug,
+    lessonSlug: session.lessonSlug,
+    exerciseIndex: session.exerciseIndex,
+    datasetVersion: session.datasetVersion,
+  });
+});
+
+/** Submit first answer for self-verification before disclosing grading (SPEC Wave 1) */
+learningRoutes.post("/self-verify/submit", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const body = await c.req.json().catch(() => null);
+  const parsed = submitSelfVerifySchema.safeParse(body);
+  if (!parsed.success) {
+    return c.json({ error: "invalid_input" }, 400);
+  }
+
+  const { sessionId, answer, hintsUsed, solutionRevealed } = parsed.data;
+  const session = await db.query.selfVerificationSessions.findFirst({
+    where: and(
+      eq(selfVerificationSessions.id, sessionId),
+      eq(selfVerificationSessions.userId, user.id),
+    ),
+  });
+  if (!session) return c.json({ error: "session_not_found" }, 404);
+
+  if (session.submittedAt) {
+    return c.json({
+      sessionId: session.id,
+      passed: session.passed,
+      evidenceLevel: session.evidenceLevel,
+      feedbackCategory: session.feedbackCategory,
+      submittedAt: session.submittedAt.toISOString(),
+      alreadySubmitted: true,
+    });
+  }
+
+  const course = await db.query.courses.findFirst({ where: eq(courses.slug, session.courseSlug) });
+  const lesson = course
+    ? await db.query.lessons.findFirst({
+        where: and(eq(lessons.courseId, course.id), eq(lessons.slug, session.lessonSlug)),
+      })
+    : null;
+  if (!course || !lesson) return c.json({ error: "lesson_not_found" }, 404);
+
+  const exercises = (lesson.exercises as Array<{ id: string; type: string; [k: string]: unknown }>) ?? [];
+  const ex = exercises[session.exerciseIndex] ?? exercises[0];
+  if (!ex) return c.json({ error: "exercise_not_found" }, 404);
+
+  const gradeRes = gradeExercise(ex, answer);
+  const passed = Boolean(gradeRes.correct);
+
+  const detailedFeedback = buildDetailedFeedback({
+    passed,
+    category: passed ? "accepted_alternative" : "knowledge_gap",
+  });
+
+  const prevLp = await db.query.userLessonProgress.findFirst({
+    where: and(eq(userLessonProgress.userId, user.id), eq(userLessonProgress.lessonId, lesson.id)),
+  });
+
+  const priorEvidence = (prevLp?.evidenceLevel as MasteryEvidenceLevel) ?? "insufficient_data";
+  const daysSinceFirst = prevLp?.lastSelfVerifiedAt
+    ? Math.max(0, Math.floor((Date.now() - new Date(prevLp.lastSelfVerifiedAt).getTime()) / 86_400_000))
+    : 0;
+
+  const evidenceLevel = evaluateMasteryEvidence({
+    exerciseKind: ex.type ?? "code",
+    isFirstAttempt: !prevLp || prevLp.attempts === 0,
+    firstCheckPassed: passed,
+    hintsUsed,
+    solutionRevealed,
+    verificationMethod: "self_verify",
+    daysSinceFirstVerification: daysSinceFirst,
+    priorEvidenceLevel: priorEvidence,
+    correct: passed,
+  });
+
+  const now = new Date();
+  await db
+    .update(selfVerificationSessions)
+    .set({
+      firstAnswerSubmitted: typeof answer === "string" ? answer : JSON.stringify(answer),
+      passed,
+      evidenceLevel,
+      feedbackCategory: detailedFeedback.category,
+      submittedAt: now,
+    })
+    .where(eq(selfVerificationSessions.id, session.id));
+
+  await db.insert(exerciseAttempts).values({
+    userId: user.id,
+    lessonId: lesson.id,
+    exerciseId: ex.id,
+    exerciseType: (ex.type ?? "").slice(0, 32),
+    correct: passed,
+    firstTry: passed && hintsUsed === 0 && !solutionRevealed,
+    firstCheckPassed: passed,
+    wrongAttempts: passed ? 0 : 1,
+    hintsUsed,
+    solutionRevealed,
+    practiceMode: "independent",
+    verificationMethod: "self_verify",
+    dataSource: "curated",
+    feedbackCategory: detailedFeedback.category,
+    source: "lesson",
+  });
+
+  if (prevLp) {
+    await db
+      .update(userLessonProgress)
+      .set({
+        evidenceLevel,
+        lastSelfVerifiedAt:
+          evidenceLevel === "self_verified" || evidenceLevel === "retained_verified"
+            ? prevLp.lastSelfVerifiedAt ?? now
+            : prevLp.lastSelfVerifiedAt,
+      })
+      .where(eq(userLessonProgress.id, prevLp.id));
+  }
+
+  return c.json({
+    ok: true,
+    sessionId: session.id,
+    passed,
+    evidenceLevel,
+    feedback: detailedFeedback,
+  });
+});
+
 
 learningRoutes.get("/paths", authMiddleware, async (c) => {
   const user = c.get("user");
