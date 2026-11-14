@@ -3,7 +3,7 @@
 Slug: `ai_product`
 Group: deep
 Hub: `/ai-product`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `agentic_systems`, `ai_security`
 Recommended next: `devops`
 
@@ -15,19 +15,19 @@ Routing between strong hosted models, local models, and plain Python; turning bu
 
 ### `ap_route` — Routing: Strong Hosted Model vs Local Model vs Plain Python
 
-- `ap-rt-matrix` — Choosing Between Frontier Model, Local Model, and Plain Python [free] (3 exercises)
-- `ap-rt-code` — Short-Circuiting Deterministic Cases in Code First [free] (3 exercises)
+- `ap-rt-matrix` — Choosing Between Frontier Model, Local Model, and Plain Python (3 exercises)
+- `ap-rt-code` — Short-Circuiting Deterministic Cases in Code First (3 exercises)
 - `ap-rt-exam` — Checkpoint: Model vs Code Routing [exam] (3 exercises)
 
 ### `ap_brief` — Product Brief: Boundaries, Inputs, and System Failure Checks
 
-- `ap-br-spec` — Turning a Business Ask into Boundaries, Inputs, and Pass/Fail Checks [free] (3 exercises)
-- `ap-br-checks` — Checks a System Can Explicitly Fail On [free] (3 exercises)
+- `ap-br-spec` — Turning a Business Ask into Boundaries, Inputs, and Pass/Fail Checks (3 exercises)
+- `ap-br-checks` — Checks a System Can Explicitly Fail On (3 exercises)
 - `ap-br-exam` — Checkpoint: AI Product Brief [exam] (3 exercises)
 
 ### `ap_hitl` — Approve, Edit, Undo: Humans Own the Irreversible Step
 
-- `ap-hl-patterns` — Three Core HITL Patterns: Approve, Edit, and Undo [free] (3 exercises)
+- `ap-hl-patterns` — Three Core HITL Patterns: Approve, Edit, and Undo (3 exercises)
 - `ap-hl-state` — Proposal State Machines and Server-Verified Approval (3 exercises)
 - `ap-hl-exam` — Checkpoint: Human-in-the-Loop Controls [exam] (3 exercises)
 

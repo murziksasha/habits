@@ -50,6 +50,15 @@ const nextConfig: NextConfig = {
     config.externals = config.externals ?? [];
     return config;
   },
+  async redirects() {
+    return [
+      {
+        source: "/pricing",
+        destination: "/courses",
+        permanent: false,
+      },
+    ];
+  },
   async headers() {
     return [
       {

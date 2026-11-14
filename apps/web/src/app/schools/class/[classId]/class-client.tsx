@@ -308,12 +308,12 @@ export function SchoolClassClient() {
     }
   }
 
-  async function assignProgrammingFreePack() {
+  async function assignProgrammingStarterPack() {
     if (!token || !progCourseId) return;
-    const freeIds = progUnits.flatMap((u) =>
-      u.lessons.filter((l) => l.isFree).map((l) => l.id),
+    const starterIds = progUnits.flatMap((u) =>
+      u.lessons.map((l) => l.id),
     );
-    if (!freeIds.length) return;
+    if (!starterIds.length) return;
     try {
       const d = await api<{ count: number }>("/homework/bulk", {
         method: "POST",
@@ -321,8 +321,8 @@ export function SchoolClassClient() {
         body: {
           classId,
           courseId: progCourseId,
-          lessonIds: freeIds.slice(0, 12),
-          titlePrefix: "💻 Free pack",
+          lessonIds: starterIds.slice(0, 12),
+          titlePrefix: "💻 Starter pack",
           dueAt: dueAt ? new Date(dueAt).toISOString() : null,
         },
       });
@@ -546,9 +546,9 @@ export function SchoolClassClient() {
             <button
               type="button"
               className="btn-secondary"
-              onClick={() => void assignProgrammingFreePack()}
+              onClick={() => void assignProgrammingStarterPack()}
             >
-              Free pack (≤12)
+              Starter pack (≤12)
             </button>
           </div>
           {progExams.length > 0 && (

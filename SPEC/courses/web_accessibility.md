@@ -3,9 +3,9 @@
 Slug: `web_accessibility`
 Group: deep
 Hub: `/web-accessibility`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `html_semantics`, `css_layout`
-Recommended next: `react_fundamentals`, `web_security`
+Recommended next: `frontend_performance`, `react_fundamentals`
 
 ## What this course is
 

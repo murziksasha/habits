@@ -275,6 +275,10 @@ export type LessonContent = {
   titleEn?: string;
   baseXp: number;
   difficulty: number;
+  /**
+   * @deprecated EduForge is free for all users. All lessons are open.
+   * Kept only for backwards compatibility with legacy CMS data and imports.
+   */
   isFree?: boolean;
   /** Unit control test — higher pass bar, no solution reveal */
   isExam?: boolean;

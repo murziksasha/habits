@@ -3,7 +3,7 @@
 Slug: `devops`
 Group: skill
 Hub: `/courses/devops`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `sysadmin`, `express_fundamentals`, `postgresql_apps`, `software_testing`
 Recommended next: `applied_algorithms`
 
@@ -19,15 +19,15 @@ One service, forge-status: a Git-to-Kubernetes survey, then Stay up and On call.
 
 ### `git-workstation` — Workstation and Git
 
-- `do-ssh` — SSH keys [free] (4 exercises)
-- `do-git-objects` — Git objects [free] (4 exercises)
-- `do-git-branch` — Branch, PR, rebase [free] (4 exercises)
-- `do-git-hooks` — Hooks and branch protection [free] (4 exercises)
+- `do-ssh` — SSH keys (4 exercises)
+- `do-git-objects` — Git objects (4 exercises)
+- `do-git-branch` — Branch, PR, rebase (4 exercises)
+- `do-git-hooks` — Hooks and branch protection (4 exercises)
 - `do-git-exam` — Check: Git [exam] (6 exercises)
 
 ### `linux-base` — Linux base
 
-- `do-distro` — Distro and FHS [free] (4 exercises)
+- `do-distro` — Distro and FHS (4 exercises)
 - `do-users` — Users and sudo (4 exercises)
 - `do-systemd` — Your own unit (4 exercises)
 - `do-lvm` — Packages and an LVM sketch (4 exercises)

@@ -3,7 +3,7 @@
 Slug: `sql_fundamentals`
 Group: deep
 Hub: `/sql-fundamentals`
-Freemium: first 6 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `programming`
 Recommended next: `postgresql_apps`
 
@@ -15,11 +15,11 @@ Oracle SQL along the public 1Z0-071 checklist: SELECT, functions, joins, subquer
 
 ### `select` — SELECT and the model
 
-- `sqlf-rel-model` — Tables, keys, NULL [free] (4 exercises)
-- `sqlf-select` — SELECT / FROM [free] (3 exercises)
-- `sqlf-distinct-alias` — DISTINCT, aliases, expressions [free] (4 exercises)
-- `sqlf-dual-quote` — DUAL, q-quote, concatenation [free] (4 exercises)
-- `sqlf-where` — WHERE filters [free] (3 exercises)
+- `sqlf-rel-model` — Tables, keys, NULL (4 exercises)
+- `sqlf-select` — SELECT / FROM (3 exercises)
+- `sqlf-distinct-alias` — DISTINCT, aliases, expressions (4 exercises)
+- `sqlf-dual-quote` — DUAL, q-quote, concatenation (4 exercises)
+- `sqlf-where` — WHERE filters (3 exercises)
 - `sqlf-select-exam` — Exam: SELECT [exam] (4 exercises)
 
 ### `order-limit` — Filters and sorting
@@ -104,7 +104,7 @@ Oracle SQL along the public 1Z0-071 checklist: SELECT, functions, joins, subquer
 
 ### `windows` — NULL and window functions
 
-- `sqlf-null-coalesce` — NULL & COALESCE [free] (4 exercises)
+- `sqlf-null-coalesce` — NULL & COALESCE (4 exercises)
 - `sqlf-window-row` — ROW_NUMBER / OVER (3 exercises)
 - `sqlf-window-rank` — RANK vs DENSE_RANK (3 exercises)
 - `sqlf-window-exam` — Exam: windows [exam] (4 exercises)

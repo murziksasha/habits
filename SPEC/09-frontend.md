@@ -47,7 +47,7 @@
 | `/calendar`, `/export`, `/reports`, `/focus`, `/notes` | Learning OS (`/calendar` = My progress, linked from Dashboard, Learn, Profile) |
 | `/bookmarks`, `/search`, `/referrals` | Extra UX |
 | `/achievements`, `/u/[userId]` | Social profile |
-| `/pricing` | Freemium / Premium |
+| `/pricing` | Legacy pricing URL; permanently redirects to `/courses` (catalog; all courses are free) |
 | `/profile` | Character, push, minis, certificates |
 | `/admin/*` | Modular admin shell: CMS, appearance, security, metrics, ops (SPEC 72) |
 | `/tournaments/*` | Chess tournaments |

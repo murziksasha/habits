@@ -3,9 +3,9 @@
 Slug: `node_fundamentals`
 Group: deep
 Hub: `/node-fundamentals`
-Freemium: first 6 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `js_fundamentals`
-Recommended next: `express_fundamentals`, `sysadmin`
+Recommended next: `express_fundamentals`, `rest_api_design`
 
 ## What this course is
 
@@ -15,19 +15,19 @@ Runtime, modules, fs/path, env, http server, npm, async, events/streams, process
 
 ### `runtime` — Node runtime
 
-- `nf-what` — What is Node.js [free] (3 exercises)
-- `nf-repl-cli` — node CLI [free] (3 exercises)
+- `nf-what` — What is Node.js (3 exercises)
+- `nf-repl-cli` — node CLI (3 exercises)
 - `nf-runtime-exam` — Exam: runtime [exam] (4 exercises)
 
 ### `modules` — Modules
 
-- `nf-cjs` — CommonJS require [free] (3 exercises)
-- `nf-esm` — ESM import/export [free] (3 exercises)
+- `nf-cjs` — CommonJS require (3 exercises)
+- `nf-esm` — ESM import/export (3 exercises)
 - `nf-mod-exam` — Exam: modules [exam] (4 exercises)
 
 ### `fs-path` — fs & path
 
-- `nf-path` — path module [free] (3 exercises)
+- `nf-path` — path module (3 exercises)
 - `nf-fs` — fs read/write intro (3 exercises)
 - `nf-fs-exam` — Exam: fs/path [exam] (4 exercises)
 
@@ -60,7 +60,7 @@ Runtime, modules, fs/path, env, http server, npm, async, events/streams, process
 - `nf-events` — EventEmitter basics (3 exercises)
 - `nf-streams` — Readable streams idea (3 exercises)
 - `nf-events-exam` — Exam: events/streams [exam] (4 exercises)
-- `nf-json-errors` — JSON & errors lite [free] (4 exercises)
+- `nf-json-errors` — JSON & errors lite (4 exercises)
 
 ### `node_resilience_scenarios` — Scenario: Process Resilience & Failure Handling
 

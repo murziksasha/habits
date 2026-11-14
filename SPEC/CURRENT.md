@@ -26,7 +26,7 @@ Primary journeys:
 
 Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, `react_*`, `sql_*`, `node_*`, `express_*`) are **Core content** but **not** primary nav entries — reach via `/learn`, `/courses`, `/programming`.
 
-Skill tracks `sysadmin` and `devops` are the same kind of surface: `/learn` and `/courses`, not a new primary-nav slot. `devops` is the container, Kubernetes, and delivery path. `sysadmin` stops before those topics. Per-course depth is `SPEC/courses/`.
+Skill tracks `sysadmin` and `devops` are accessed via `/learn` and `/courses`, not a new primary-nav slot. `sysadmin` covers workstation and SOHO administration, Linux console, local service troubleshooting, and local container operations (Podman/rootless Docker, systemd unit integration). `devops` owns the delivery pipeline, CI/CD, registries, infrastructure-as-code, orchestration (Kubernetes, AWS), observability, and on-call reliability runbooks. Per-course depth is `SPEC/courses/`.
 
 `devops` is still reached from `/learn` and `/courses`; Stay up and On call are more units on that course page, not a new nav slot.
 
@@ -272,15 +272,12 @@ Skill tracks `sysadmin` and `devops` are the same kind of surface: `/learn` and 
 174. **AI skills stack:** Added 5 deep tracks (`python_for_ai`, `agentic_systems`, `llmops`, `ai_security`, `ai_product`) plus unit `ai_coder_control` on `ai_development` so the IT-AI engineering skills stack is learnable offline inside EduForge without paid model keys, external vector databases, new primary nav items, or new ForgeBoard zip labs (`LOCAL_LAB_MANIFESTS` stays 13). Reached via `/learn`, `/courses`, `/programming`, and `RoadmapCourseHub` RSC shells.
 175. **My progress, history & clearer level-ups:** Upgraded `/calendar` into **My progress** backed by shared `learning-progress` aggregation (`GET /learning/progress`, `GET /learning/history`, `PUT /learning/goal`, study-day `GET /learning/calendar`), Dashboard/Profile small calendars switched to recorded study dates (`skill_attempts`), linked from Dashboard/Learn/Profile without new primary nav items, nullable `characters.weekly_target` (`0031_weekly_learning_goal`), daily XP cap applied before level rewards, and explicit course vs character level-up + granted rewards metadata and lesson result UX.
 
-### Deep learning pack (SPEC 90–92)
+### Deep learning pack (SPEC 90–93)
 
-171. **Learning depth:** `concept` exercise type (theory + key points + code + self-check) · forgetting-curve memory model (`retentionPct` / `dueInDays` on `/review`) · interleaved mixed practice (`/review/mixed`, `GET /review/mixed`, `POST /review/mixed/check`) · 14 new lessons: JS closures/this/event loop, TS conditional/mapped/template-literal types, SQL CTE/indexes/EXPLAIN, English learning skills. Backlog delivered in wave 172.
-
-172. **Learning depth 2 (SPEC 92):** confidence ratings + calibration card · mistake notebook `/review/mistakes` (exercise-level SRS, migration 0032) · mastery map `/courses/[slug]/mastery` · `explain` exercise type (rubric + tutor feedback `POST /deep/explain-feedback`) · MDX `<!-- concept -->` / `<!-- explain -->` markers + admin forms · capped XP for mixed/mistake practice · js_fundamentals prompt rewrite · CI on `deepImprovements`.
-
-173. **Admin God Mode (`/admin/users`):** Any admin can hard-delete another account (with school-owner cascade, detaching teacher and pairing seats), set password (destroys sessions, audits `user_set_password`), turn 2FA off (clears TOTP/backup hashes, sets `mfa_exempt = true` for admins, kills sessions, audits `user_mfa_off`), and require 2FA (clears `mfa_exempt`, kills sessions, audits `user_mfa_require`). Own row hides controls; API rejects self-target (`400 self_target`). Step-up enforced with auto-pass when admin 2FA is off. Migration `0035_admin_mfa_exempt`.
-
-174. **Smarter chess practice & tighter Learn session:**
+176. **Learning depth (SPEC 90–91):** `concept` exercise type (theory + key points + code + self-check) · forgetting-curve memory model (`retentionPct` / `dueInDays` on `/review`) · interleaved mixed practice (`/review/mixed`, `GET /review/mixed`, `POST /review/mixed/check`) · 14 new lessons: JS closures/this/event loop, TS conditional/mapped/template-literal types, SQL CTE/indexes/EXPLAIN, English learning skills. Backlog delivered in wave 172.  
+177. **Learning depth 2 (SPEC 92):** confidence ratings + calibration card · mistake notebook `/review/mistakes` (exercise-level SRS, migration 0032) · mastery map `/courses/[slug]/mastery` · `explain` exercise type (rubric + tutor feedback `POST /deep/explain-feedback`) · MDX `<!-- concept -->` / `<!-- explain -->` markers + admin forms · capped XP for mixed/mistake practice · js_fundamentals prompt rewrite · CI on `deepImprovements`.  
+178. **Admin God Mode (`/admin/users`):** Any admin can hard-delete another account (with school-owner cascade, detaching teacher and pairing seats), set password (destroys sessions, audits `user_set_password`), turn 2FA off (clears TOTP/backup hashes, sets `mfa_exempt = true` for admins, kills sessions, audits `user_mfa_off`), and require 2FA (clears `mfa_exempt`, kills sessions, audits `user_mfa_require`). Own row hides controls; API rejects self-target (`400 self_target`). Step-up enforced with auto-pass when admin 2FA is off. Migration `0035_admin_mfa_exempt`.  
+179. **Smarter chess practice & tighter Learn session:**
    - **Chess bot practice (Phase A):** Move selection moved into `@eduforge/chess-core` as `chooseBotMove(fen, level)`. Three calibrated levels:
      - `Learner`: 1-ply search scoring hanging pieces/safe captures and development, with ~25% random blunder moves.
      - `Club`: Depth-2 alpha-beta search with MVV-LVA capture ordering, piece-square tables (development, center control, castling), and occasional second-best move selection (~35%) among moves within 35 cp of best score.
@@ -293,9 +290,7 @@ Skill tracks `sysadmin` and `devops` are the same kind of surface: `/learn` and 
      - Quests start collapsed: Daily and weekly quest cards on `/learn` show compact summaries (e.g. `2 of 3 today`, `1 of 2 this week`) and expand on tap.
      - Course catalog groups remain directly accessible below the session fold.
      - Extra "Practice vs Club bot" link in the Chess course group directly deep-linking to `/play?level=club`.
-
-
-176. **Clear tasks, robust grading & editor keyboard isolation (SPEC 93):**
+180. **Clear tasks, robust grading & editor keyboard isolation (SPEC 93):**
    - **Clarity of exercise conditions:** Defined input data, expected outcome, mandatory elements, and validation limits without solution leakage across built-in courses; exercise IDs and student progress preserved.
    - **Expanded normalization & equivalence:** `@eduforge/shared` `normText` unifies Ukrainian apostrophes (`’`, `‘`, `ʼ`, `'`) and quotation styles; `normCode` and `isCodeEquivalent` accept formatting variations in quotes, operator spacing, semicolons, and CSS properties (`font-size`).
    - **Server behavior verification (`code_judge`):** Zero trust for client-reported test passes; execution isolated to Docker sandbox; 503 `judge_unavailable` fallback with retry/switch without heart penalty; dual-mode toggle (behavior vs text) persisted in `localStorage`.

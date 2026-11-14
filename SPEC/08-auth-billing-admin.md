@@ -4,7 +4,7 @@
 
 - Email + password (bcrypt, cost 10)  
 - Session token: 32-byte hex; DB stores SHA-256 hash; TTL 14 days  
-- Client stores token in `localStorage` key `eduforge_token` and sends Bearer  
+- Client: cookie-first via HTTP-only `eduforge_session` cookie (`credentials: include`). Dual-support accepts `Authorization: Bearer` and promotes to cookie. No session secrets in client `localStorage` (legacy `eduforge_token` key cleared on migration).  
 
 ### Password reset
 

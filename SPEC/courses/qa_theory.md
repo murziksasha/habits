@@ -3,7 +3,7 @@
 Slug: `qa_theory`
 Group: deep
 Hub: `/qa-theory`
-Freemium: first 6 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `programming`
 Recommended next: `software_testing`
 
@@ -15,15 +15,15 @@ Deep testing theory: principles, levels, types, black/white-box, STLC, defects, 
 
 ### `foundations` — Quality foundations
 
-- `qt-what-quality` — What is software quality [free] (3 exercises)
-- `qt-vv` — Verification vs Validation [free] (3 exercises)
-- `qt-cost-bug` — Cost of a bug over time [free] (3 exercises)
+- `qt-what-quality` — What is software quality (3 exercises)
+- `qt-vv` — Verification vs Validation (3 exercises)
+- `qt-cost-bug` — Cost of a bug over time (3 exercises)
 - `qt-f-exam` — Exam: foundations [exam] (5 exercises)
 
 ### `principles` — Testing principles
 
-- `qt-p-exhaustive` — Exhaustive testing is impossible [free] (3 exercises)
-- `qt-p-early-cluster` — Early & pesticide & clusters [free] (3 exercises)
+- `qt-p-exhaustive` — Exhaustive testing is impossible (3 exercises)
+- `qt-p-early-cluster` — Early & pesticide & clusters (3 exercises)
 - `qt-p-context` — Context & absence of errors (3 exercises)
 - `qt-p-exam` — Exam: principles [exam] (5 exercises)
 
@@ -81,7 +81,7 @@ Deep testing theory: principles, levels, types, black/white-box, STLC, defects, 
 
 - `qt-df-sev-pri` — Severity vs priority (3 exercises)
 - `qt-df-lifecycle` — Defect lifecycle (3 exercises)
-- `qt-df-report-practice` — Bug report practice [free] (4 exercises)
+- `qt-df-report-practice` — Bug report practice (4 exercises)
 - `qt-df-report` — Good bug report (3 exercises)
 - `qt-df-exam` — Exam: defects [exam] (5 exercises)
 

@@ -13,41 +13,25 @@ function withPromptEn(ex: Exercise): Exercise {
   return { ...any, promptEn: any.promptUk } as Exercise;
 }
 
-/** Align with @eduforge/shared FREE_LESSONS_PER_COURSE (path order, skip exams). */
+/**
+ * @deprecated EduForge is 100% free for all users. Kept for backwards compatibility.
+ */
 export const FREEMIUM_FREE_LESSON_COUNT = 5;
 
 /**
- * Mark the first N non-exam lessons in course path order as free.
- * Does not unmark existing free exams or extra free lessons.
+ * @deprecated EduForge is 100% free for all users. All lessons are accessible.
+ * Preserves the course structure without mutating lessons or marking isFree.
  */
 export function ensureFreemiumFreeLessons(
   course: CourseContent,
-  freeCount = FREEMIUM_FREE_LESSON_COUNT,
+  _freeCount = FREEMIUM_FREE_LESSON_COUNT,
 ): CourseContent {
-  let remaining = freeCount;
-  return {
-    ...course,
-    units: course.units.map((u) => ({
-      ...u,
-      lessons: u.lessons.map((l) => {
-        if (l.isExam) return l;
-        if (l.isFree) {
-          remaining = Math.max(0, remaining - 1);
-          return l;
-        }
-        if (remaining > 0) {
-          remaining -= 1;
-          return { ...l, isFree: true };
-        }
-        return l;
-      }),
-    })),
-  };
+  return course;
 }
 
 /** Ensure every exercise with promptUk has promptEn (skill tracks + future seeds). */
 export function normalizeCourseLocales(course: CourseContent): CourseContent {
-  const withEn = {
+  return {
     ...course,
     units: course.units.map((u) => ({
       ...u,
@@ -57,5 +41,4 @@ export function normalizeCourseLocales(course: CourseContent): CourseContent {
       })),
     })),
   };
-  return ensureFreemiumFreeLessons(withEn);
 }

@@ -59,7 +59,7 @@ Grading: `@eduforge/shared` `gradeExercise` (API + client soft-grade).
 
 The product is free. Shared rules live in `packages/shared` `accessMatrix()` (all lessons, shared heart cap, unlimited rated chess).
 
-`normalizeCourseLocales()` also runs **`ensureFreemiumFreeLessons`**: first 5 non-exam lessons in path order get `isFree: true` (idempotent metadata). That flag does not hide lessons.
+All lessons and courses are 100% free for all users. `normalizeCourseLocales()` ensures bilingual parity (`promptEn`) across all courses without artificial freemium tiering or gating.
 
 ### MDX authoring (preferred for new lessons)
 
@@ -111,8 +111,10 @@ before/after table.
    lesson uses `L(...)` with bilingual concept, retrieval (MCQ/FILL/READ),
    explain ideas, and sample answers that pass the rubric. Each unit ends
    with an exam of at least 4 questions (`EQ`); sysadmin and DevOps exams
-   need 6. DevOps non-exam lessons must keep exactly 4 exercises
-   (concept + 2 retrievals + explain).
+   have 6 to 8 questions. DevOps lessons feature structured profiles: standard
+   foundation lessons have 4 exercises (concept + 2 retrievals + explain), while
+   expanded reliability, on-call, and incident response sections feature 4 to 6
+   exercises per lesson and up to 8 questions per exam.
 2. Register the module in `courses/load.py` `MODULES` and, for a new
    expansion file, in `assemble.py` `EXPAND`.
 3. Run `python3 scripts/gen-expansion/courses/load.py` then

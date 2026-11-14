@@ -3,9 +3,9 @@
 Slug: `frontend_performance`
 Group: deep
 Hub: `/frontend-performance`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `js_fundamentals`, `react_fundamentals`
-Recommended next: `nextjs_fullstack`
+Recommended next: `nextjs_fullstack`, `browser_web_apis`
 
 ## What this course is
 

@@ -3,7 +3,7 @@
 Slug: `typescript`
 Group: deep
 Hub: `/typescript`
-Freemium: first 6 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `js_fundamentals`
 Recommended next: `react_fundamentals`, `express_fundamentals`, `applied_algorithms`
 
@@ -19,15 +19,15 @@ Full TypeScript course: primitives to generics, narrowing, and utility types. Un
 
 ### `basics` — TS basics
 
-- `tsc-what-is-ts` — What is TypeScript [free] (3 exercises)
-- `tsc-primitives` — Primitives [free] (3 exercises)
-- `tsc-annotations` — Annotations & inference [free] (3 exercises)
+- `tsc-what-is-ts` — What is TypeScript (3 exercises)
+- `tsc-primitives` — Primitives (3 exercises)
+- `tsc-annotations` — Annotations & inference (3 exercises)
 - `tsc-basics-exam` — Exam: basics [exam] (5 exercises)
 
 ### `objects` — Objects & arrays
 
-- `tsc-objects` — Object types [free] (2 exercises)
-- `tsc-arrays-tuples` — Arrays & tuples [free] (3 exercises)
+- `tsc-objects` — Object types (2 exercises)
+- `tsc-arrays-tuples` — Arrays & tuples (3 exercises)
 - `tsc-enums` — Enums (intro) (2 exercises)
 - `tsc-objects-exam` — Exam: objects [exam] (4 exercises)
 
@@ -59,7 +59,7 @@ Full TypeScript course: primitives to generics, narrowing, and utility types. Un
 
 - `tsc-partial-pick` — Partial & Pick (2 exercises)
 - `tsc-omit-record` — Omit & Record (2 exercises)
-- `tsc-pick-required` — Pick & Required [free] (4 exercises)
+- `tsc-pick-required` — Pick & Required (4 exercises)
 - `tsc-utilities-exam` — Exam: utilities [exam] (4 exercises)
 
 ### `modules` — Modules & tsconfig

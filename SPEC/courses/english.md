@@ -3,7 +3,7 @@
 Slug: `english`
 Group: skill
 Hub: `/courses/english`
-Freemium: first 11 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 
 ## What this course is
 
@@ -13,11 +13,11 @@ Learn English through short interactive lessons.
 
 ### `basics-1` — Basics 1
 
-- `greetings` — Greetings [free] (4 exercises)
-- `introductions` — Introductions [free] (3 exercises)
-- `numbers` — Числа 1–10 [free] (3 exercises)
-- `food-basics` — Їжа: основи [free] (3 exercises)
-- `daily-phrases` — Щоденні фрази [free] (3 exercises)
+- `greetings` — Greetings (4 exercises)
+- `introductions` — Introductions (3 exercises)
+- `numbers` — Числа 1–10 (3 exercises)
+- `food-basics` — Їжа: основи (3 exercises)
+- `daily-phrases` — Щоденні фрази (3 exercises)
 - `present-simple` — Present Simple (3 exercises)
 - `colors-family` — Кольори та сім'я (3 exercises)
 - `questions` — Питання (3 exercises)
@@ -42,21 +42,21 @@ Learn English through short interactive lessons.
 - `future-plans` — Плани на майбутнє (2 exercises)
 - `opinions` — Думки та згода (2 exercises)
 - `review-basics` — Повторення основ (3 exercises)
-- `travel-phrases` — Travel phrases [free] (3 exercises)
+- `travel-phrases` — Travel phrases (3 exercises)
 - `email-soft-skills` — Email soft skills (3 exercises)
 - `idioms-boost` — Idioms boost (3 exercises)
 
 ### `conversation` — Conversation · small talk
 
-- `small-talk-weather` — Small talk: weather [free] (3 exercises)
-- `small-talk-weekend` — Weekend plans [free] (3 exercises)
-- `polite-requests` — Polite requests [free] (3 exercises)
+- `small-talk-weather` — Small talk: weather (3 exercises)
+- `small-talk-weekend` — Weekend plans (3 exercises)
+- `polite-requests` — Polite requests (3 exercises)
 - `agree-disagree` — Agree & disagree (3 exercises)
 
 ### `meetings-phone` — Calls & meetings
 
-- `phone-basics` — Phone basics [free] (3 exercises)
-- `meeting-open` — Opening a meeting [free] (3 exercises)
+- `phone-basics` — Phone basics (3 exercises)
+- `meeting-open` — Opening a meeting (3 exercises)
 - `meeting-clarify` — Clarifying in meetings (3 exercises)
 - `wrap-up-call` — Wrapping up a call (2 exercises)
 

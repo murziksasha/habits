@@ -3,9 +3,9 @@
 Slug: `go_fundamentals`
 Group: deep
 Hub: `/go-fundamentals`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `programming`
-Recommended next: `devops`
+Recommended next: `devops`, `web_security`
 
 ## What this course is
 

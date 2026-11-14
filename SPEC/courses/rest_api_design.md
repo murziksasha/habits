@@ -3,9 +3,9 @@
 Slug: `rest_api_design`
 Group: deep
 Hub: `/rest-api-design`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `express_fundamentals`
-Recommended next: `web_security`, `nextjs_fullstack`
+Recommended next: `postgresql_apps`, `web_security`
 
 ## What this course is
 

@@ -3,7 +3,7 @@
 Slug: `ai_development`
 Group: deep
 Hub: `/ai-development`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `typescript`, `git_workflows`, `software_testing`
 Recommended next: `python_for_ai`, `nextjs_fullstack`, `applied_algorithms`
 
@@ -19,19 +19,19 @@ Clear specifications, safe context curation, reviewing saved AI diffs, catching 
 
 ### `ai_task_specs` — Task Specification & Constraints (No Paid AI Required)
 
-- `ai-ts-spec` — Turning Vague Prompts into Testable Contracts [free] (2 exercises)
-- `ai-ts-non-goals` — Stating Non-Goals & Preserving Contracts [free] (1 exercises)
+- `ai-ts-spec` — Turning Vague Prompts into Testable Contracts (2 exercises)
+- `ai-ts-non-goals` — Stating Non-Goals & Preserving Contracts (1 exercises)
 - `ai-ts-exam` — Checkpoint: Task Specifications [exam] (1 exercises)
 
 ### `ai_context_selection` — Context Selection & Privacy Boundaries
 
-- `ai-cs-signal` — Curating High-Signal Context Over Raw File Dumps [free] (2 exercises)
+- `ai-cs-signal` — Curating High-Signal Context Over Raw File Dumps (2 exercises)
 - `ai-cs-exam` — Checkpoint: Context Selection [exam] (1 exercises)
 
 ### `ai_small_diffs_review` — Small Diffs & Reviewing Saved AI Code
 
-- `ai-sd-diff-inspection` — Reading Plausible-Looking Diffs Critically [free] (2 exercises)
-- `ai-sd-chunking` — Small Reviewable Increments [free] (1 exercises)
+- `ai-sd-diff-inspection` — Reading Plausible-Looking Diffs Critically (2 exercises)
+- `ai-sd-chunking` — Small Reviewable Increments (1 exercises)
 - `ai-sd-exam` — Checkpoint: Reviewing AI Diffs [exam] (1 exercises)
 
 ### `ai_verification_debugging` — Verification Loops & Catching Hallucinated APIs

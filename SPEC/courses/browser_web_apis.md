@@ -3,7 +3,7 @@
 Slug: `browser_web_apis`
 Group: deep
 Hub: `/browser-web-apis`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `js_fundamentals`
 Recommended next: `frontend_performance`, `web_security`
 

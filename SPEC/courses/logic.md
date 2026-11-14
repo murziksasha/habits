@@ -3,7 +3,7 @@
 Slug: `logic`
 Group: skill
 Hub: `/courses/logic`
-Freemium: first 6 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 
 ## What this course is
 
@@ -13,11 +13,11 @@ Sequences, patterns, and critical thinking puzzles.
 
 ### `sequences` — Послідовності
 
-- `seq-1` — Числа 1 [free] (2 exercises)
-- `seq-2` — Числа 2 [free] (2 exercises)
-- `seq-3` — Числа 3 [free] (2 exercises)
-- `seq-4` — Числа 4 [free] (2 exercises)
-- `seq-5` — Літери [free] (2 exercises)
+- `seq-1` — Числа 1 (2 exercises)
+- `seq-2` — Числа 2 (2 exercises)
+- `seq-3` — Числа 3 (2 exercises)
+- `seq-4` — Числа 4 (2 exercises)
+- `seq-5` — Літери (2 exercises)
 
 ### `patterns` — Патерни
 
@@ -58,7 +58,7 @@ Sequences, patterns, and critical thinking puzzles.
 
 ### `deduction` — Deduction · sets
 
-- `ded-0` — Deduction intro [free] (3 exercises)
+- `ded-0` — Deduction intro (3 exercises)
 - `ded-1` — Syllogisms light (2 exercises)
 - `ded-2` — Sets (3 exercises)
 - `ded-3` — Odd one out (2 exercises)

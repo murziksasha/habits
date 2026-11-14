@@ -3,9 +3,9 @@
 Slug: `html_semantics`
 Group: deep
 Hub: `/html-semantics`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `programming`
-Recommended next: `css_layout`, `js_fundamentals`
+Recommended next: `css_layout`, `web_accessibility`
 
 ## What this course is
 
@@ -19,15 +19,15 @@ Semantic markup: landmarks, outline, accessible forms & validation, focus manage
 
 ### `document` — Document
 
-- `hs-doc-basics` — HTML document shell [free] (3 exercises)
-- `hs-doc-head` — Head: meta & title [free] (3 exercises)
-- `hs-doc-body` — Body & visible content [free] (2 exercises)
-- `hs-doc-semantics-intro` — Why semantics [free] (4 exercises)
+- `hs-doc-basics` — HTML document shell (3 exercises)
+- `hs-doc-head` — Head: meta & title (3 exercises)
+- `hs-doc-body` — Body & visible content (2 exercises)
+- `hs-doc-semantics-intro` — Why semantics (4 exercises)
 - `hs-doc-exam` — Exam: document [exam] (5 exercises)
 
 ### `landmarks` — Landmarks
 
-- `hs-lm-main` — main, header, footer [free] (3 exercises)
+- `hs-lm-main` — main, header, footer (3 exercises)
 - `hs-lm-nav-aside` — nav & aside (3 exercises)
 - `hs-lm-section` — section vs div (3 exercises)
 - `hs-lm-exam` — Exam: landmarks [exam] (5 exercises)

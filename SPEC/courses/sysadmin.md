@@ -3,7 +3,7 @@
 Slug: `sysadmin`
 Group: skill
 Hub: `/courses/sysadmin`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Recommended next: `devops`
 
 ## What this course is
@@ -14,15 +14,15 @@ From a small office to the console: network, backups, Windows desks, bash, permi
 
 ### `foundations` — What you are responsible for
 
-- `sa-role` — What a sysadmin owns [free] (5 exercises)
-- `sa-hardware` — What fails in an office PC [free] (5 exercises)
-- `sa-boot` — The boot path [free] (5 exercises)
-- `sa-sizes` — Sizes you will read [free] (5 exercises)
+- `sa-role` — What a sysadmin owns (5 exercises)
+- `sa-hardware` — What fails in an office PC (5 exercises)
+- `sa-boot` — The boot path (5 exercises)
+- `sa-sizes` — Sizes you will read (5 exercises)
 - `sa-exam-foundations` — Exam: foundations [exam] (6 exercises)
 
 ### `soho-network` — Small-office network
 
-- `sa-lan` — LAN, gateway, and DNS [free] (5 exercises)
+- `sa-lan` — LAN, gateway, and DNS (5 exercises)
 - `sa-dhcp` — DHCP and a static address (5 exercises)
 - `sa-wifi` — Office Wi-Fi (5 exercises)
 - `sa-nat` — NAT and port forwarding (5 exercises)

@@ -3,9 +3,9 @@
 Slug: `applied_algorithms`
 Group: deep
 Hub: `/applied-algorithms`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `js_fundamentals`, `typescript`
-Recommended next: `devops`
+Recommended next: `devops`, `go_fundamentals`
 
 ## What this course is
 
@@ -19,27 +19,27 @@ Complexity profiling in web apps, Map/Set indexing vs O(N²), undo stacks and bo
 
 ### `aa_complexity_profiling` — Complexity in Real Workloads & Profiling
 
-- `aa-cp-big-o` — Why Quadratic Code Looks Fast in Dev and Stalls in Prod [free] (2 exercises)
+- `aa-cp-big-o` — Why Quadratic Code Looks Fast in Dev and Stalls in Prod (2 exercises)
 - `aa-cp-exam` — Checkpoint: Complexity & Profiling [exam] (1 exercises)
 
 ### `aa_maps_sets_dedup` — Maps, Sets, Indexing & Deduplication
 
-- `aa-ms-lookup` — Choosing Map, Set, or Plain Object Cleanly [free] (2 exercises)
+- `aa-ms-lookup` — Choosing Map, Set, or Plain Object Cleanly (2 exercises)
 - `aa-ms-exam` — Checkpoint: Maps & Sets [exam] (1 exercises)
 
 ### `aa_stacks_queues` — Stacks, Queues & Bounded Concurrency
 
-- `aa-sq-undo-queue` — Undo Stacks, FIFO Queues & Avoiding O(N) Array.shift() [free] (2 exercises)
+- `aa-sq-undo-queue` — Undo Stacks, FIFO Queues & Avoiding O(N) Array.shift() (2 exercises)
 - `aa-sq-exam` — Checkpoint: Stacks & Queues [exam] (1 exercises)
 
 ### `aa_search_sort_pagination` — Binary Search & Deterministic Comparators
 
-- `aa-ss-comparators` — Comparator Tie-Breakers & Binary Search Boundaries [free] (2 exercises)
+- `aa-ss-comparators` — Comparator Tie-Breakers & Binary Search Boundaries (2 exercises)
 - `aa-ss-exam` — Checkpoint: Searching & Sorting [exam] (1 exercises)
 
 ### `aa_trees_traversal` — Trees, Org Hierarchies, BFS/DFS & Cycle Guards
 
-- `aa-tt-cycles` — Building Trees from Flat DB Rows & Cycle Guards [free] (2 exercises)
+- `aa-tt-cycles` — Building Trees from Flat DB Rows & Cycle Guards (2 exercises)
 - `aa-tt-exam` — Checkpoint: Trees & Graph Traversal [exam] (1 exercises)
 
 ### `aa_tradeoffs_capstone` — Time-Space Tradeoffs & ForgeBoard Bottleneck Lab

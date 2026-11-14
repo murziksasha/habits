@@ -16,10 +16,12 @@
 | `qa_theory` | QA theory deep track | principles, levels, types, techniques, STLC + exams |
 | `js_fundamentals` | JavaScript deep track | types, functions, arrays, async, DOM, modules + exams |
 | `react_fundamentals` | React deep track | components, props, state, lists, effects, forms + exams |
-| `sql_fundamentals` | SQL & Oracle Database | One course, three sections: SQL & Modern Oracle (22 units including the capstone), PL/SQL (8), Database Administration (8). 38 units, 155 lessons. Identities stay stable across incremental seeds |
+| `sql_fundamentals` | SQL & Oracle Database | One course, three sections: SQL & Modern Oracle, PL/SQL, Database Administration. 44 units, 177 lessons, 44 exams. Oracle 1Z0-071 checklist, query repair, and explicit Oracle ↔ PostgreSQL dialect notes |
 | `node_fundamentals` | Node.js deep track | runtime, modules, fs, env, http, npm, async + exams |
 | `express_fundamentals` | Express deep track | app, routes, middleware, REST, errors, Router + exams |
 | `embedded_cpp` | Embedded C++ · MilTech | memory, CMake, net, RTOS, MAVLink, safety, datalink, mission + labs/exams |
+
+Full canonical list of all **35 courses** (498 units, 2,153 lessons, 453 exams, 13 ForgeBoard labs) lives in **[SPEC/courses/README.md](./courses/README.md)** and **[SPEC/COURSE-REGISTRY.md](./COURSE-REGISTRY.md)**. All courses and lessons are free for all accounts.
 
 ## Content pipeline
 

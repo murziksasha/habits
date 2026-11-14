@@ -3,7 +3,7 @@
 Slug: `python_for_ai`
 Group: deep
 Hub: `/python-for-ai`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `programming`
 Recommended next: `agentic_systems`, `typescript`
 
@@ -15,19 +15,19 @@ Read and repair agent-style Python: values, collections, typed functions, JSON/H
 
 ### `py_values` — Values, Booleans, None, and f-strings
 
-- `py-val-bindings` — Bindings, Truthiness, Zero vs None [free] (3 exercises)
-- `py-val-fstrings` — f-strings, Brace Escaping, and Safe Formatting [free] (3 exercises)
+- `py-val-bindings` — Bindings, Truthiness, Zero vs None (3 exercises)
+- `py-val-fstrings` — f-strings, Brace Escaping, and Safe Formatting (3 exercises)
 - `py-val-exam` — Checkpoint: Values, Booleans, and f-strings [exam] (3 exercises)
 
 ### `py_collections` — Lists, Dicts, Sets, and Comprehensions
 
-- `py-col-dicts-sets` — Safe Dict Access and Deduplication with Sets [free] (3 exercises)
-- `py-col-comprehensions` — Comprehensions Without Mutating While Iterating [free] (3 exercises)
+- `py-col-dicts-sets` — Safe Dict Access and Deduplication with Sets (3 exercises)
+- `py-col-comprehensions` — Comprehensions Without Mutating While Iterating (3 exercises)
 - `py-col-exam` — Checkpoint: Python Collections [exam] (3 exercises)
 
 ### `py_functions` — Functions, Exceptions, and Type Hints as Contracts
 
-- `py-fn-contracts` — Type Hints as a Contract for the Next Reader [free] (3 exercises)
+- `py-fn-contracts` — Type Hints as a Contract for the Next Reader (3 exercises)
 - `py-fn-exceptions` — Specific Exceptions Without Silent Swallowing (3 exercises)
 - `py-fn-exam` — Checkpoint: Functions and Exceptions [exam] (3 exercises)
 

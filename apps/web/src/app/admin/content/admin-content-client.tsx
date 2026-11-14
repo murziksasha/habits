@@ -391,7 +391,7 @@ export function AdminContentClient() {
                 <label className="label">Title (EN)</label>
                 <input className="input" value={titleEn} onChange={(e) => setTitleEn(e.target.value)} />
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="label">XP</label>
                   <input
@@ -412,14 +412,6 @@ export function AdminContentClient() {
                     onChange={(e) => setDifficulty(Number(e.target.value))}
                   />
                 </div>
-                <label className="flex items-end gap-2 pb-3 font-bold text-sm">
-                  <input
-                    type="checkbox"
-                    checked={isFree}
-                    onChange={(e) => setIsFree(e.target.checked)}
-                  />
-                  Free
-                </label>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <label className="flex items-center gap-2 font-bold text-sm">

@@ -6,12 +6,12 @@
  *   node scripts/count-lessons.mjs
  */
 import { createRequire } from "node:module";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import path from "node:path";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const require = createRequire(path.join(root, "packages/content/dist/index.js"));
-const content = await import(path.join(root, "packages/content/dist/index.js"));
+const contentPath = path.join(root, "packages/content/dist/index.js");
+const content = await import(pathToFileURL(contentPath).href);
 
 const courses = Object.values(content).filter(
   (x) => x && typeof x === "object" && x.slug && Array.isArray(x.units),

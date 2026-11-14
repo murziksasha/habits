@@ -3,7 +3,7 @@
 Slug: `programming`
 Group: code
 Hub: `/programming`
-Freemium: first 17 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Recommended next: `html_semantics`, `css_layout`, `git_workflows`, `js_fundamentals`
 
 ## What this course is
@@ -14,11 +14,11 @@ Mimo-style path: HTML → CSS → JS → TypeScript → React → Git → Node �
 
 ### `html` — HTML
 
-- `html-tags` — Tags & structure [free] (4 exercises)
-- `html-links-images` — Links & images [free] (3 exercises)
-- `html-forms` — Forms [free] (3 exercises)
-- `html-forms-polish` — Forms: label & button [free] (3 exercises)
-- `html-semantic` — Semantics [free] (3 exercises)
+- `html-tags` — Tags & structure (4 exercises)
+- `html-links-images` — Links & images (3 exercises)
+- `html-forms` — Forms (3 exercises)
+- `html-forms-polish` — Forms: label & button (3 exercises)
+- `html-semantic` — Semantics (3 exercises)
 - `html-depth-meta` — Depth: meta & a11y (3 exercises)
 - `prog-env-terminal-http` — Environment setup, terminal basics, HTTP overview & deep tracks (4 exercises)
 - `html-mini-card` — Mini-project: Card (2 exercises)
@@ -26,8 +26,8 @@ Mimo-style path: HTML → CSS → JS → TypeScript → React → Git → Node �
 
 ### `css` — CSS
 
-- `css-selectors` — Selectors [free] (3 exercises)
-- `css-box` — Box model [free] (3 exercises)
+- `css-selectors` — Selectors (3 exercises)
+- `css-box` — Box model (3 exercises)
 - `css-flex` — Flexbox (3 exercises)
 - `css-colors` — Colors & background (2 exercises)
 - `css-depth-responsive` — Depth: media queries (3 exercises)
@@ -36,10 +36,10 @@ Mimo-style path: HTML → CSS → JS → TypeScript → React → Git → Node �
 
 ### `js` — JavaScript
 
-- `js-vars` — Variables & types [free] (3 exercises)
-- `js-functions` — Functions [free] (3 exercises)
+- `js-vars` — Variables & types (3 exercises)
+- `js-functions` — Functions (3 exercises)
 - `js-arrays` — Arrays (3 exercises)
-- `js-map-filter` — map & filter [free] (4 exercises)
+- `js-map-filter` — map & filter (4 exercises)
 - `js-dom` — DOM intro (3 exercises)
 - `js-classlist-toggle` — classList & styles (3 exercises)
 - `js-event-delegation` — Event delegation (3 exercises)
@@ -53,7 +53,7 @@ Mimo-style path: HTML → CSS → JS → TypeScript → React → Git → Node �
 
 ### `typescript` — TypeScript
 
-- `ts-basics` — Types basics [free] (3 exercises)
+- `ts-basics` — Types basics (3 exercises)
 - `ts-interfaces` — Interface & type (3 exercises)
 - `ts-generics-intro` — Generics intro (2 exercises)
 - `ts-depth-union` — Depth: unions & narrowing (2 exercises)
@@ -62,7 +62,7 @@ Mimo-style path: HTML → CSS → JS → TypeScript → React → Git → Node �
 
 ### `react` — React
 
-- `react-components` — Components [free] (3 exercises)
+- `react-components` — Components (3 exercises)
 - `react-props` — Props (3 exercises)
 - `react-state` — State (useState) (3 exercises)
 - `react-capstone` — Capstone: UI checklist (3 exercises)
@@ -72,7 +72,7 @@ Mimo-style path: HTML → CSS → JS → TypeScript → React → Git → Node �
 
 ### `git` — Git
 
-- `git-basics` — init / status / commit [free] (3 exercises)
+- `git-basics` — init / status / commit (3 exercises)
 - `git-branch` — Branches & merge (3 exercises)
 - `git-collab` — PR workflow (2 exercises)
 - `git-depth-rebase` — Depth: rebase vs merge (2 exercises)
@@ -82,7 +82,7 @@ Mimo-style path: HTML → CSS → JS → TypeScript → React → Git → Node �
 
 ### `node` — Node.js
 
-- `node-intro` — What is Node [free] (3 exercises)
+- `node-intro` — What is Node (3 exercises)
 - `node-modules` — Modules (3 exercises)
 - `node-async` — Async intro (2 exercises)
 - `node-depth-env` — Depth: env & process (3 exercises)
@@ -91,7 +91,7 @@ Mimo-style path: HTML → CSS → JS → TypeScript → React → Git → Node �
 
 ### `express` — Express
 
-- `express-routes` — Routes [free] (3 exercises)
+- `express-routes` — Routes (3 exercises)
 - `express-middleware` — Middleware (3 exercises)
 - `express-rest` — REST basics (2 exercises)
 - `express-capstone` — Capstone: API checklist (3 exercises)
@@ -101,7 +101,7 @@ Mimo-style path: HTML → CSS → JS → TypeScript → React → Git → Node �
 
 ### `sql` — SQL
 
-- `sql-select` — SELECT [free] (3 exercises)
+- `sql-select` — SELECT (3 exercises)
 - `sql-filter` — WHERE & ORDER (3 exercises)
 - `sql-join` — JOIN intro (3 exercises)
 - `sql-depth-group` — Depth: GROUP BY (3 exercises)
@@ -110,7 +110,7 @@ Mimo-style path: HTML → CSS → JS → TypeScript → React → Git → Node �
 
 ### `qa` — QA
 
-- `qa-pyramid` — Test pyramid [free] (3 exercises)
+- `qa-pyramid` — Test pyramid (3 exercises)
 - `qa-cases` — Test cases (3 exercises)
 - `qa-bugs-api` — Bugs & API checks (3 exercises)
 - `qa-mini-case` — Mini-project: Test case pack (1 exercises)

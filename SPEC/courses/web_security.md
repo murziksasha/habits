@@ -3,7 +3,7 @@
 Slug: `web_security`
 Group: deep
 Hub: `/web-security`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `express_fundamentals`, `postgresql_apps`
 Recommended next: `ai_development`, `nextjs_fullstack`, `devops`
 
@@ -19,19 +19,19 @@ OWASP Top 10:2025 in practice: trust boundaries, validation and XSS/SQLi defense
 
 ### `ws_trust_boundaries` — Trust Boundaries & Fail-Closed Defaults
 
-- `ws-tb-boundaries` — Client UI vs Server Authority Trust Boundaries [free] (2 exercises)
-- `ws-tb-threat-flow` — Least Privilege & Attack Surface Mapping [free] (1 exercises)
+- `ws-tb-boundaries` — Client UI vs Server Authority Trust Boundaries (2 exercises)
+- `ws-tb-threat-flow` — Least Privilege & Attack Surface Mapping (1 exercises)
 - `ws-tb-exam` — Checkpoint: Trust Boundaries [exam] (2 exercises)
 
 ### `ws_validation_output` — Server Validation, XSS & Injection Prevention
 
-- `ws-vo-xss-sql` — Preventing XSS & SQL Injection [free] (2 exercises)
-- `ws-vo-zod-strict` — Strict Payload Validation & Mass Assignment Prevention [free] (2 exercises)
+- `ws-vo-xss-sql` — Preventing XSS & SQL Injection (2 exercises)
+- `ws-vo-zod-strict` — Strict Payload Validation & Mass Assignment Prevention (2 exercises)
 - `ws-vo-exam` — Checkpoint: Validation & Injection [exam] (2 exercises)
 
 ### `ws_sessions_authn` — Sessions, Password Hashing & MFA
 
-- `ws-sa-tokens-cookies` — Hashed Session Tokens & Cookie Flags [free] (2 exercises)
+- `ws-sa-tokens-cookies` — Hashed Session Tokens & Cookie Flags (2 exercises)
 - `ws-sa-passwords-mfa` — Slow Password Hashing, Session Rotation & MFA (1 exercises)
 - `ws-sa-exam` — Checkpoint: Sessions & Authentication [exam] (2 exercises)
 
