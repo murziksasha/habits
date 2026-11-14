@@ -49,6 +49,38 @@ describe("validateExercises", () => {
     expect(r.ok).toBe(true);
   });
 
+  it("enforces both promptUk and promptEn when requireBothLocales is set", () => {
+    const withoutEn = validateExercises(
+      [
+        {
+          id: "1",
+          type: "mcq",
+          promptUk: "Питання?",
+          options: ["A", "B"],
+          correctIndex: 0,
+        },
+      ],
+      { requireBothLocales: true },
+    );
+    expect(withoutEn.ok).toBe(false);
+    expect(withoutEn.errors[0]).toContain("missing_prompt_en_or_uk");
+
+    const withBoth = validateExercises(
+      [
+        {
+          id: "1",
+          type: "mcq",
+          promptUk: "Питання?",
+          promptEn: "Question?",
+          options: ["A", "B"],
+          correctIndex: 0,
+        },
+      ],
+      { requireBothLocales: true },
+    );
+    expect(withBoth.ok).toBe(true);
+  });
+
   it("accepts empty array (publish enforces min lessons separately)", () => {
     const r = validateExercises([]);
     expect(r.ok).toBe(true);

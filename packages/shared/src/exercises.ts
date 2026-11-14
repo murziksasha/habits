@@ -346,7 +346,10 @@ export const exercisesArraySchema = z.array(exerciseSchema).min(1);
 
 export const courseSlugPattern = /^[a-z][a-z0-9_]{1,62}$/;
 
-export function validateExercises(exercises: unknown): {
+export function validateExercises(
+  exercises: unknown,
+  opts?: { requireBothLocales?: boolean },
+): {
   ok: boolean;
   errors: string[];
 } {
@@ -360,11 +363,16 @@ export function validateExercises(exercises: unknown): {
       return;
     }
     const row = r.data as {
+      promptUk?: string;
+      promptEn?: string;
       options?: string[];
       optionsEn?: string[];
       pairs?: unknown[];
       pairsEn?: unknown[];
     };
+    if (opts?.requireBothLocales && (!row.promptUk || !row.promptEn)) {
+      errors.push(`exercise[${i}]: missing_prompt_en_or_uk`);
+    }
     if (row.optionsEn && row.optionsEn.length !== (row.options?.length ?? -1)) {
       errors.push(`exercise[${i}]: options_en_length`);
     }

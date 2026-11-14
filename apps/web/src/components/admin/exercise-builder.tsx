@@ -229,7 +229,7 @@ type Props = {
 export function ExerciseBuilder({ exercises, onChange, onJsonSync }: Props) {
   const [selected, setSelected] = useState(0);
   const [addType, setAddType] = useState<string>("mcq");
-  const validation = useMemo(() => validateExercises(exercises), [exercises]);
+  const validation = useMemo(() => validateExercises(exercises, { requireBothLocales: true }), [exercises]);
 
   function emit(next: BuilderExercise[]) {
     onChange(next);
