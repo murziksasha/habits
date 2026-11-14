@@ -40,6 +40,7 @@ import { db } from "../db.js";
 import { logActivity, notifyUser } from "../engagement.js";
 import { gradeExercise, gradeCodeJudgeText } from "../grade.js";
 import { runJudge, getJudgeMode, type JudgeTest, type JudgeLang } from "@eduforge/judge";
+import { evaluateCircuitLab } from "@eduforge/circuit-engine";
 import { log } from "../logger.js";
 import { buildXpPatch } from "./character-progression.js";
 import { applyLootDrop } from "./loot-apply.js";
@@ -146,14 +147,37 @@ export async function gradeLessonAttemptAsync(
   passThreshold?: number | null,
 ): Promise<
   | { ok: true; grading: LessonGradingResult }
-  | { ok: false; error: "judge_unavailable"; exerciseId: string }
+  | { ok: false; error: "judge_unavailable" | "circuit_engine_unavailable"; exerciseId: string }
 > {
   const results: GradedExerciseResult[] = [];
 
   for (const ex of exercises) {
     const a = answers.find((x) => x.exerciseId === ex.id);
 
-    if (ex.type === "code_judge") {
+    if (ex.type === "circuit_lab") {
+      const rawAns = a?.answer;
+      let circuitDoc = rawAns;
+      if (typeof rawAns === "object" && rawAns !== null && "circuit" in rawAns) {
+        circuitDoc = (rawAns as any).circuit;
+      }
+      try {
+        const evalRes = await evaluateCircuitLab(circuitDoc, ex as any);
+        if (!evalRes.ok && evalRes.error && evalRes.error.startsWith("simulation_timeout")) {
+          return { ok: false, error: "circuit_engine_unavailable", exerciseId: ex.id };
+        }
+        const graded = gradeExercise(ex, {
+          _serverVerified: true,
+          ok: evalRes.ok,
+          criteriaPassed: evalRes.criteriaPassed,
+          criteriaTotal: evalRes.criteriaTotal,
+          results: evalRes.criteriaResults,
+          error: evalRes.error,
+        });
+        results.push({ exerciseId: ex.id, type: ex.type, ...graded });
+      } catch {
+        return { ok: false, error: "circuit_engine_unavailable", exerciseId: ex.id };
+      }
+    } else if (ex.type === "code_judge") {
       const rawAns = a?.answer;
       const ansObj =
         typeof rawAns === "object" && rawAns !== null
@@ -348,7 +372,7 @@ export async function buildGuestSubmitResultAsync(opts: {
   nextLesson: NextLessonSummary | null;
 }): Promise<
   | GuestSubmitResultBody
-  | { error: "judge_unavailable"; exerciseId: string; status: 503 }
+  | { error: "judge_unavailable" | "circuit_engine_unavailable"; exerciseId: string; status: 503 }
 > {
   const asyncGrading = await gradeLessonAttemptAsync(
     opts.exercises,
@@ -401,10 +425,18 @@ export type SubmitLessonJudgeUnavailable = {
   exerciseId: string;
 };
 
+export type SubmitLessonCircuitEngineUnavailable = {
+  ok: false;
+  status: 503;
+  error: "circuit_engine_unavailable";
+  exerciseId: string;
+};
+
 export type SubmitLessonResult =
   | SubmitLessonError
   | SubmitLessonSuccess
-  | SubmitLessonJudgeUnavailable;
+  | SubmitLessonJudgeUnavailable
+  | SubmitLessonCircuitEngineUnavailable;
 
 /**
  * Grade a lesson attempt, update progress/XP/streak, side-effects (quests, certs).

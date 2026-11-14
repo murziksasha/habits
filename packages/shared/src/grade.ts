@@ -5,6 +5,7 @@
 
 import { gradeExplanation, type ExplainKeyIdea } from "./explain.js";
 import { jsStaticPartialScore, runJsStaticAsserts, type JsStaticAssert } from "./js-static.js";
+import { gradeNumericAnswer } from "./numeric.js";
 
 export type GradeExercise = {
   id: string;
@@ -561,6 +562,55 @@ export function gradeExercise(
         correct: ok,
         meta: ok ? { ok: true } : { missing: ["step_mismatch"] },
       };
+    }
+    case "numeric": {
+      const res = gradeNumericAnswer(answer, exercise as any);
+      return {
+        correct: res.correct,
+        meta: {
+          numeric: true,
+          actual: res.actual,
+          expected: res.expected,
+          error: res.error,
+          fieldResults: res.fieldResults,
+        },
+      };
+    }
+    case "circuit_lab": {
+      const a = answer as Record<string, unknown> | null;
+      if (a && typeof a === "object") {
+        if (a._serverVerified === true) {
+          const ok = Boolean(a.ok);
+          const passed = Number(a.criteriaPassed ?? 0);
+          const total = Number(a.criteriaTotal ?? 1);
+          const ratio = total > 0 ? passed / total : ok ? 1 : 0;
+          return {
+            correct: ok && ratio >= 1,
+            partial: ratio,
+            meta: {
+              circuitLab: true,
+              serverVerified: true,
+              criteriaPassed: passed,
+              criteriaTotal: total,
+              results: a.results,
+              error: a.error,
+            },
+          };
+        }
+        if (a.clientEvaluated === true && Boolean(a.ok)) {
+          return {
+            correct: false,
+            partial: 1,
+            meta: { circuitLab: true, softGrade: true, pendingServerVerification: true },
+          };
+        }
+        return {
+          correct: false,
+          partial: 0,
+          meta: { circuitLab: true, reason: "untrusted_client_result" },
+        };
+      }
+      return { correct: false, partial: 0, meta: { circuitLab: true } };
     }
     default:
       return { correct: false };

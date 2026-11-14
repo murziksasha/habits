@@ -213,5 +213,34 @@ describe("gradeCodeProjectChecks", () => {
     expect(
       gradeExercise(incidentEx, ["mitigate", "triage", "postmortem"]).correct,
     ).toBe(false);
+
+    // numeric
+    const numericEx = {
+      id: "num-1",
+      type: "numeric",
+      target: 12,
+      unit: "V",
+      relTolerance: 0.05,
+    };
+    expect(gradeExercise(numericEx, "12.2 V").correct).toBe(true);
+    expect(gradeExercise(numericEx, "12200 mV").correct).toBe(true);
+    expect(gradeExercise(numericEx, "15 V").correct).toBe(false);
+
+    // circuit_lab
+    const circuitLabEx = {
+      id: "cl-1",
+      type: "circuit_lab",
+    };
+    // Untrusted client result rejected
+    expect(gradeExercise(circuitLabEx, { ok: true }).correct).toBe(false);
+    // Server verified result accepted
+    expect(
+      gradeExercise(circuitLabEx, {
+        _serverVerified: true,
+        ok: true,
+        criteriaPassed: 3,
+        criteriaTotal: 3,
+      }).correct,
+    ).toBe(true);
   });
 });

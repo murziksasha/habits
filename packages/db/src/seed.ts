@@ -37,6 +37,7 @@ import {
   restApiDesignContent,
   frontendPerformanceContent,
   browserWebApisContent,
+  electricalEngineeringContent,
   type CourseContent,
 } from "@eduforge/content";
 import bcrypt from "bcryptjs";
@@ -91,6 +92,7 @@ export const allCourses: CourseContent[] = [
   restApiDesignContent,
   frontendPerformanceContent,
   browserWebApisContent,
+  electricalEngineeringContent,
 ];
 
 export async function seedCourse(

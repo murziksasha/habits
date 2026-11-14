@@ -35,6 +35,7 @@ import {
   restApiDesignContent,
   frontendPerformanceContent,
   browserWebApisContent,
+  electricalEngineeringContent,
   type CourseContent,
   type Exercise,
 } from "./index.js";
@@ -103,6 +104,7 @@ const courses: CourseContent[] = [
   restApiDesignContent,
   frontendPerformanceContent,
   browserWebApisContent,
+  electricalEngineeringContent,
 ];
 
 const EXERCISE_TYPES = new Set([
@@ -127,6 +129,8 @@ const EXERCISE_TYPES = new Set([
   "video",
   "concept",
   "explain",
+  "numeric",
+  "circuit_lab",
 ]);
 
 function collectExercises(course: CourseContent): Exercise[] {
@@ -172,6 +176,7 @@ describe("course content integrity", () => {
         "rest_api_design",
         "frontend_performance",
         "browser_web_apis",
+        "electrical_engineering",
       ].sort(),
     );
   });
@@ -969,6 +974,28 @@ describe("new and extended deep tracks (learning-improvements)", () => {
         expect(l.titleUk.trim().length).toBeGreaterThan(0);
         expect(l.titleEn?.trim().length ?? 0).toBeGreaterThan(0);
       }
+    }
+  });
+
+  it("Electrical Engineering has 60 units, 360 lessons, and 10-task exams", () => {
+    expect(electricalEngineeringContent.units).toHaveLength(60);
+    const lessons = electricalEngineeringContent.units.flatMap((u) => u.lessons);
+    expect(lessons).toHaveLength(360);
+    const exams = lessons.filter((l) => l.isExam);
+    expect(exams).toHaveLength(60);
+
+    for (const unit of electricalEngineeringContent.units) {
+      expect(unit.lessons).toHaveLength(6);
+      const exam = unit.lessons[5];
+      expect(exam?.isExam).toBe(true);
+      expect(exam?.exercises).toHaveLength(10);
+    }
+
+    // Projects 58, 59, 60 have 1.0 passThreshold
+    const projectUnits = electricalEngineeringContent.units.slice(57, 60);
+    for (const pu of projectUnits) {
+      const exam = pu.lessons[5];
+      expect(exam?.passThreshold).toBe(1.0);
     }
   });
 });

@@ -27,6 +27,8 @@ export const EXERCISE_TYPES = [
   "composite_artifact",
   "dataset_query",
   "incident_step",
+  "numeric",
+  "circuit_lab",
 ] as const satisfies readonly ExerciseType[];
 
 export const exerciseTypeSchema = z.enum(EXERCISE_TYPES);
@@ -337,6 +339,62 @@ export const exerciseSchema = z.discriminatedUnion("type", [
     checkMode: z.enum(["behavior", "text", "both"]).optional(),
     limitationsUk: z.string().optional(),
     limitationsEn: z.string().optional(),
+    explanationUk: z.string().optional(),
+    explanationEn: z.string().optional(),
+  }),
+  z.object({
+    ...base,
+    type: z.literal("numeric"),
+    target: z.union([z.number(), z.string(), z.object({ real: z.number(), imag: z.number() })]).optional(),
+    unit: z.string().optional(),
+    absTolerance: z.number().optional(),
+    relTolerance: z.number().optional(),
+    requireUnit: z.boolean().optional(),
+    fields: z
+      .array(
+        z.object({
+          name: z.string(),
+          labelUk: z.string().optional(),
+          labelEn: z.string().optional(),
+          target: z.union([z.number(), z.string(), z.object({ real: z.number(), imag: z.number() })]),
+          unit: z.string().optional(),
+          absTolerance: z.number().optional(),
+          relTolerance: z.number().optional(),
+          requireUnit: z.boolean().optional(),
+        }),
+      )
+      .optional(),
+    hintUk: z.string().optional(),
+    hintEn: z.string().optional(),
+    explanationUk: z.string().optional(),
+    explanationEn: z.string().optional(),
+  }),
+  z.object({
+    ...base,
+    type: z.literal("circuit_lab"),
+    circuit: z.union([z.record(z.unknown()), z.string()]),
+    allowedModifications: z
+      .object({
+        canAddComponents: z.boolean().optional(),
+        canRemoveComponents: z.boolean().optional(),
+        canChangeValues: z.boolean().optional(),
+        allowedComponentTypes: z.array(z.string()).optional(),
+        editableComponentIds: z.array(z.string()).optional(),
+      })
+      .optional(),
+    analysis: z.object({
+      type: z.enum(["op", "dc", "ac", "tran", "noise"]),
+      dc: z.record(z.unknown()).optional(),
+      ac: z.record(z.unknown()).optional(),
+      tran: z.record(z.unknown()).optional(),
+      noise: z.record(z.unknown()).optional(),
+      params: z.record(z.union([z.string(), z.number()])).optional(),
+    }),
+    criteria: z.array(z.record(z.unknown())).min(1),
+    starterNetlist: z.string().optional(),
+    solutionNetlist: z.string().optional(),
+    hintUk: z.string().optional(),
+    hintEn: z.string().optional(),
     explanationUk: z.string().optional(),
     explanationEn: z.string().optional(),
   }),

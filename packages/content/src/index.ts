@@ -33,6 +33,7 @@ import { webAccessibilityContent as webAccessibilityRaw } from "./web-accessibil
 import { restApiDesignContent as restApiDesignRaw } from "./rest-api-design.js";
 import { frontendPerformanceContent as frontendPerformanceRaw } from "./frontend-performance.js";
 import { browserWebApisContent as browserWebApisRaw } from "./browser-web-apis.js";
+import { electricalEngineeringContent as electricalEngineeringRaw } from "./electrical-engineering/index.js";
 import type { CourseContent } from "./types.js";
 import { normalizeCourseLocales } from "./locale-normalize.js";
 import { expandEnglish } from "./expansion/english-exp.js";
@@ -104,6 +105,7 @@ export const webAccessibilityContent = normalizeCourseLocales(webAccessibilityRa
 export const restApiDesignContent = normalizeCourseLocales(restApiDesignRaw);
 export const frontendPerformanceContent = normalizeCourseLocales(frontendPerformanceRaw);
 export const browserWebApisContent = normalizeCourseLocales(browserWebApisRaw);
+export const electricalEngineeringContent = normalizeCourseLocales(electricalEngineeringRaw);
 
 export { FLASHCARD_DECKS } from "./flashcards.js";
 export type { CourseContent, UnitContent, LessonContent, Exercise } from "./types.js";
@@ -160,4 +162,5 @@ export const ALL_COURSE_CONTENTS: CourseContent[] = [
   restApiDesignContent,
   frontendPerformanceContent,
   browserWebApisContent,
+  electricalEngineeringContent,
 ];

@@ -389,7 +389,7 @@ courseRoutes.post("/:slug/lessons/:lessonId/submit", optionalAuth, async (c) => 
     });
 
     if (!result.ok) {
-      if (result.error === "judge_unavailable") {
+      if (result.error === "judge_unavailable" || result.error === "circuit_engine_unavailable") {
         return c.json(
           { error: result.error, exerciseId: (result as { exerciseId: string }).exerciseId },
           result.status as 503,

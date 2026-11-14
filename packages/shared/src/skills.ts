@@ -989,6 +989,33 @@ export const CORE_SKILL_OBJECTIVES: readonly SkillObjective[] = [
     practicalOutcomeUk: "Критичне мислення при аналізі системних багів та архітектурних рішень",
     practicalOutcomeEn: "Rigorous root-cause analysis and sound architectural decision making",
   },
+
+  // 36. electrical_engineering
+  {
+    id: "ee.circuits.spice",
+    courseSlug: "electrical_engineering",
+    unitSlug: "ee-01-matter-charge",
+    titleUk: "Аналіз електричних кіл та SPICE-моделювання",
+    titleEn: "Circuit Analysis & SPICE Simulation",
+    actionUk: "Розраховувати параметри кіл за законами Ома й Кірхгофа та перевіряти їх у симуляторі ngspice",
+    actionEn: "Calculate circuit parameters using Ohm's and Kirchhoff's laws and verify them via ngspice simulation",
+    prerequisites: [],
+    commonErrors: [
+      {
+        code: "floating_node_no_ground",
+        labelUk: "Відсутність опорного вузла заземлення (вузол 0) або розрив кола",
+        labelEn: "Missing reference ground node 0 or open floating circuit",
+        fixUk: "Завжди з'єднуйте спільну шину з землею (вузол 0) та перевіряйте нерозривність контурів",
+        fixEn: "Always connect the reference common bus to node 0 and verify circuit continuity",
+      },
+    ],
+    evidenceCriteria: [
+      "Збіг аналітичного розрахунку з результатами SPICE-симуляції з точністю до допусків",
+    ],
+    relatedCourses: ["embedded_cpp", "sysadmin"],
+    practicalOutcomeUk: "Впевнений розрахунок, проектування та діагностика аналогових і силових електронних пристроїв",
+    practicalOutcomeEn: "Confident design, calculation, and troubleshooting of analog and power electronic hardware",
+  },
 ];
 
 /** Find all defined skill objectives for a given course slug */

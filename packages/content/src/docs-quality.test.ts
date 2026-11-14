@@ -58,9 +58,9 @@ describe("documentation quality and consistency gate", () => {
       expect(actualExams, `${slug} exams count matches README`).toBe(docExams);
     }
 
-    expect(docUnitsTotal).toBe(498);
-    expect(docLessonsTotal).toBe(2153);
-    expect(docExamsTotal).toBe(453);
+    expect(docUnitsTotal).toBe(558);
+    expect(docLessonsTotal).toBe(2513);
+    expect(docExamsTotal).toBe(513);
   });
 
   it("all 13 LocalLabManifests are accounted for in SPEC/courses/README.md", () => {

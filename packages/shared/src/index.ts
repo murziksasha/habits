@@ -43,3 +43,5 @@ export * from "./skills.js";
 export * from "./mastery-evidence.js";
 export * from "./feedback-contract.js";
 export * from "./attempts.js";
+export * from "./numeric.js";
+export * from "./circuit-types.js";

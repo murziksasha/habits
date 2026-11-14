@@ -1,3 +1,5 @@
+import type { CircuitDocument, CircuitAnalysis, CircuitCriterion } from "@eduforge/shared";
+
 export type Exercise =
   | {
       id: string;
@@ -265,6 +267,46 @@ export type Exercise =
       checkMode?: "behavior" | "text" | "both";
       limitationsUk?: string;
       limitationsEn?: string;
+      explanationUk?: string;
+      explanationEn?: string;
+    }
+  | {
+      id: string;
+      type: "numeric";
+      promptUk: string;
+      promptEn?: string;
+      target?: number | { real: number; imag: number } | string;
+      unit?: string;
+      formula?: string;
+      absTolerance?: number;
+      relTolerance?: number;
+      requireUnit?: boolean;
+      fields?: {
+        name?: string;
+        labelUk?: string;
+        labelEn?: string;
+        target: number | { real: number; imag: number } | string;
+        unit?: string;
+        absTolerance?: number;
+        relTolerance?: number;
+        requireUnit?: boolean;
+        placeholder?: string;
+      }[];
+      explanationUk?: string;
+      explanationEn?: string;
+    }
+  | {
+      id: string;
+      type: "circuit_lab";
+      promptUk: string;
+      promptEn?: string;
+      title?: string;
+      circuitDocument?: CircuitDocument;
+      netlist?: string;
+      analysis: CircuitAnalysis;
+      criteria: CircuitCriterion[];
+      hintsUk?: string[];
+      hintsEn?: string[];
       explanationUk?: string;
       explanationEn?: string;
     };

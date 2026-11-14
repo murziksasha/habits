@@ -36,6 +36,7 @@ export const COURSE_SLUGS = [
   "rest_api_design",
   "frontend_performance",
   "browser_web_apis",
+  "electrical_engineering",
 ] as const;
 
 export type CourseSlug = (typeof COURSE_SLUGS)[number];
@@ -95,6 +96,7 @@ export const COURSE_GROUP: Record<CourseSlug, CourseGroup> = {
   rest_api_design: "deep",
   frontend_performance: "deep",
   browser_web_apis: "deep",
+  electrical_engineering: "skill",
 };
 
 export const COURSE_GROUP_META: Record<
@@ -120,6 +122,138 @@ export type CoursePart = {
 
 /** Presentation groups on an existing course page; these do not create courses or locks. */
 export const COURSE_PARTS: Partial<Record<CourseSlug, readonly CoursePart[]>> = {
+  electrical_engineering: [
+    {
+      id: "ee-part-1-nature-of-electricity",
+      titleUk: "1. Природа електрики",
+      titleEn: "1. Nature of Electricity",
+      unitSlugs: [
+        "ee-01-matter-charge",
+        "ee-02-electric-field",
+        "ee-03-current-voltage",
+        "ee-04-si-units-math",
+        "ee-05-resistance-ohm",
+        "ee-06-work-power-safety",
+      ],
+    },
+    {
+      id: "ee-part-2-dc-circuits",
+      titleUk: "2. Кола постійного струму",
+      titleEn: "2. DC Circuits",
+      unitSlugs: [
+        "ee-07-schematics-meters",
+        "ee-08-series-parallel",
+        "ee-09-dividers-loaded",
+        "ee-10-kirchhoff-laws",
+        "ee-11-nodal-analysis",
+        "ee-12-mesh-thevenin-norton",
+      ],
+    },
+    {
+      id: "ee-part-3-components-transients",
+      titleUk: "3. Компоненти і перехідні процеси",
+      titleEn: "3. Components & Transients",
+      unitSlugs: [
+        "ee-13-real-resistors",
+        "ee-14-capacitors-dielectrics",
+        "ee-15-inductors-magnetic",
+        "ee-16-math-transients",
+        "ee-17-rc-rl-transients",
+        "ee-18-rlc-second-order",
+      ],
+    },
+    {
+      id: "ee-part-4-ac-circuits",
+      titleUk: "4. Змінний струм",
+      titleEn: "4. Alternating Current",
+      unitSlugs: [
+        "ee-19-ac-sine-rms",
+        "ee-20-complex-phasors",
+        "ee-21-impedance-admittance",
+        "ee-22-ac-circuit-analysis",
+        "ee-23-ac-power-factor",
+        "ee-24-resonance-bode",
+      ],
+    },
+    {
+      id: "ee-part-5-semiconductors-analog",
+      titleUk: "5. Напівпровідники та аналогові схеми",
+      titleEn: "5. Semiconductors & Analog Circuits",
+      unitSlugs: [
+        "ee-25-semiconductors-diodes",
+        "ee-26-rectifiers-filters",
+        "ee-27-zeners-linear-reg",
+        "ee-28-bjt-circuits",
+        "ee-29-mosfet-switches",
+        "ee-30-opamp-foundations",
+      ],
+    },
+    {
+      id: "ee-part-6-signals-measurement-digital",
+      titleUk: "6. Сигнали, вимірювання та цифрові вузли",
+      titleEn: "6. Signals, Measurement & Digital Nodes",
+      unitSlugs: [
+        "ee-31-filters-laplace",
+        "ee-32-real-opamps",
+        "ee-33-comparators-timers",
+        "ee-34-boolean-cmos",
+        "ee-35-flipflops-counters",
+        "ee-36-sensors-adc-dac",
+      ],
+    },
+    {
+      id: "ee-part-7-power-electronics",
+      titleUk: "7. Силова електроніка",
+      titleEn: "7. Power Electronics",
+      unitSlugs: [
+        "ee-37-power-switches-pwm",
+        "ee-38-buck-converters",
+        "ee-39-boost-buckboost",
+        "ee-40-isolated-flyback",
+        "ee-41-bridge-inverters",
+        "ee-42-magnetics-thermal",
+      ],
+    },
+    {
+      id: "ee-part-8-power-systems-machines",
+      titleUk: "8. Енергетика та електричні машини",
+      titleEn: "8. Power Systems & Electrical Machines",
+      unitSlugs: [
+        "ee-43-three-phase-systems",
+        "ee-44-unbalanced-loads",
+        "ee-45-transformers",
+        "ee-46-dc-machines",
+        "ee-47-induction-motors",
+        "ee-48-synchronous-bldc",
+      ],
+    },
+    {
+      id: "ee-part-9-practical-engineering",
+      titleUk: "9. Практична інженерія",
+      titleEn: "9. Practical Engineering",
+      unitSlugs: [
+        "ee-49-instruments-probes",
+        "ee-50-measurement-errors-rms",
+        "ee-51-datasheets-soa",
+        "ee-52-protection-grounding",
+        "ee-53-distribution-drops",
+        "ee-54-relays-motor-control",
+      ],
+    },
+    {
+      id: "ee-part-10-design-and-capstone",
+      titleUk: "10. Проєктування та атестація",
+      titleEn: "10. Design & Capstone Projects",
+      unitSlugs: [
+        "ee-55-worst-case-monte-carlo",
+        "ee-56-troubleshooting-reports",
+        "ee-57-pcb-emc-parasitics",
+        "ee-58-project-analog-frontend",
+        "ee-59-project-power-supply",
+        "ee-60-project-three-phase",
+      ],
+    },
+  ],
   devops: [
     {
       id: "foundations",
@@ -751,6 +885,18 @@ export const COURSE_META: Record<
     color: "#2563EB",
     group: "deep",
   },
+  electrical_engineering: {
+    slug: "electrical_engineering",
+    titleUk: "Електротехніка",
+    titleEn: "Electrical Engineering",
+    descriptionUk:
+      "Від природи заряду, законів Ома і Кірхгофа до SPICE-симуляцій, напівпровідників, силових пристроїв та електроприводу.",
+    descriptionEn:
+      "From charge physics, Ohm and Kirchhoff laws to SPICE simulation, semiconductors, power electronics, and electrical machines.",
+    icon: "⚡",
+    color: "#EAB308",
+    group: "skill",
+  },
 };
 
 /** Hub path for deep tracks / code (fallback /courses/:slug) */
@@ -783,6 +929,7 @@ export const COURSE_HUB_HREF: Partial<Record<CourseSlug | string, string>> = {
   rest_api_design: "/rest-api-design",
   frontend_performance: "/frontend-performance",
   browser_web_apis: "/browser-web-apis",
+  electrical_engineering: "/courses/electrical_engineering",
   chess: "/play",
 };
 
@@ -1079,7 +1226,9 @@ export type ExerciseType =
   | "explain"
   | "composite_artifact"
   | "dataset_query"
-  | "incident_step";
+  | "incident_step"
+  | "numeric"
+  | "circuit_lab";
 
 /** Newly added deep tracks surfaced on the catalog and learn map (not a 7th primary-nav slot). */
 export const FEATURED_COURSE_SLUGS: readonly CourseSlug[] = [

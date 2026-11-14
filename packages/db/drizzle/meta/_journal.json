@@ -267,6 +267,20 @@
             "when": 1794545100000,
             "tag": "0037_placement_unit_skip",
             "breakpoints": true
+        },
+        {
+            "idx": 38,
+            "version": "7",
+            "when": 1794545200000,
+            "tag": "0038_learning_evidence_and_verification",
+            "breakpoints": true
+        },
+        {
+            "idx": 39,
+            "version": "7",
+            "when": 1794545300000,
+            "tag": "0039_circuit_projects",
+            "breakpoints": true
         }
     ]
 }

@@ -1177,3 +1177,23 @@ export const exerciseReviews = pgTable(
     index("exercise_reviews_user_due_idx").on(t.userId, t.dueAt),
   ],
 );
+
+/** Saved user personal SPICE circuit projects */
+export const circuitProjects = pgTable(
+  "circuit_projects",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 255 }).notNull(),
+    document: jsonb("document").notNull(),
+    revision: integer("revision").notNull().default(1),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index("circuit_projects_user_idx").on(t.userId),
+    index("circuit_projects_updated_idx").on(t.updatedAt),
+  ],
+);

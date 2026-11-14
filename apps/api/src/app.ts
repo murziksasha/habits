@@ -48,6 +48,7 @@ import { feedbackRoutes } from "./routes/feedback.js";
 import { publicBrandingRoutes } from "./routes/public-branding.js";
 import { meRoutes } from "./routes/me.js";
 import { judgeRoutes } from "./routes/judge.js";
+import { circuitRoutes } from "./routes/circuits.js";
 import { oauthRoutes } from "./routes/oauth.js";
 import { familyRoutes } from "./routes/family.js";
 import { csrfOriginMiddleware } from "./csrf.js";
@@ -202,6 +203,7 @@ export function createApp() {
   app.route("/admin", adminRoutes);
   app.route("/me", meRoutes);
   app.route("/judge", judgeRoutes);
+  app.route("/circuits", circuitRoutes);
 
   app.notFound((c) => c.json({ error: "not_found" }, 404));
   app.onError((err, c) => {

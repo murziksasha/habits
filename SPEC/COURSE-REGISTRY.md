@@ -2,7 +2,7 @@
 
 App-level map of course slug → group → hub → prerequisites and progression. DB stores `varchar` slugs; registry is in `@eduforge/shared` (`COURSE_SLUGS`, `COURSE_META`, `COURSE_GROUP`, `COURSE_PREREQUISITES`, `LEARNING_PATHS`).
 
-**Access:** All 35 courses, lessons, exercises, exams, and rated chess are **100% free for every user**. There are no paywalls, subscriptions, Pro tiers, or trial gates.
+**Access:** All 36 courses, lessons, exercises, exams, and rated chess are **100% free for every user**. There are no paywalls, subscriptions, Pro tiers, or trial gates.
 
 ## Matrix
 
@@ -42,6 +42,7 @@ App-level map of course slug → group → hub → prerequisites and progression
 | `logic` | skill | `/courses/logic` | none | none | Sequences, invariants, counterexamples, De Morgan bug triage |
 | `sysadmin` | skill | `/courses/sysadmin` | none | `devops` | Workstation & SOHO troubleshooting (`ss`, `journalctl`, perms, restore) + local container operation (Podman/rootless Docker) |
 | `devops` | skill | `/courses/devops` | `sysadmin`, `express_fundamentals`, `postgresql_apps`, `software_testing` | `applied_algorithms` | Continuous delivery, CI/CD, registries, IaC, Kubernetes, observability, and on-call reliability + ForgeBoard M13 (`forgeboard-m13-devops`) |
+| `electrical_engineering` | skill | `/courses/electrical_engineering` | none | `embedded_cpp`, `programming` | Full engineering course: 10 stages, 60 modules, 360 lessons, SPICE lab & 3 capstone projects |
 | `chess` | chess | `/play` | none | none | Theory, puzzles, endgame accuracy review, bot sparring, and live rated chess |
 
 ## Rules

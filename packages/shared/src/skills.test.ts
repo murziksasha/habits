@@ -8,7 +8,7 @@ import {
 } from "./skills.js";
 
 describe("skills", () => {
-  it("covers all 35 courses in COURSE_SLUGS with canonical skill objectives", () => {
+  it("covers all courses in COURSE_SLUGS with canonical skill objectives", () => {
     const check = verifyAllCoursesHaveObjectives();
     expect(check.missing).toEqual([]);
     expect(check.complete).toBe(true);
