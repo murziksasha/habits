@@ -1,7 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { CORE_SKILL_OBJECTIVES, getObjective, getSkillObjectives, mapExerciseToSkill } from "./skills.js";
+import {
+  CORE_SKILL_OBJECTIVES,
+  getObjective,
+  getSkillObjectives,
+  mapExerciseToSkill,
+  verifyAllCoursesHaveObjectives,
+} from "./skills.js";
 
 describe("skills", () => {
+  it("covers all 35 courses in COURSE_SLUGS with canonical skill objectives", () => {
+    const check = verifyAllCoursesHaveObjectives();
+    expect(check.missing).toEqual([]);
+    expect(check.complete).toBe(true);
+    expect(CORE_SKILL_OBJECTIVES.length).toBeGreaterThanOrEqual(35);
+  });
   it("has valid core skill objectives with both uk and en descriptions", () => {
     expect(CORE_SKILL_OBJECTIVES.length).toBeGreaterThan(0);
     for (const obj of CORE_SKILL_OBJECTIVES) {
