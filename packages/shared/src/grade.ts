@@ -30,13 +30,56 @@ export type ProjectCheck = {
 };
 
 export function normText(s: string) {
-  return s.trim().toLowerCase().replace(/[.…!?]/g, "").replace(/\s+/g, " ");
+  let res = s
+    .trim()
+    .toLowerCase()
+    .replace(/[\u2018\u2019\u02BC\u0060\u00B4]/g, "'")
+    .replace(/[\u201C\u201D\u00AB\u00BB]/g, '"')
+    .replace(/[\u2013\u2014\u2212]/g, "-")
+    .replace(/[.…!?]+$/g, "")
+    .replace(/[.…!?]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (
+    (res.startsWith('"') && res.endsWith('"') && res.length >= 2) ||
+    (res.startsWith("'") && res.endsWith("'") && res.length >= 2)
+  ) {
+    res = res.slice(1, -1).trim();
+  }
+  return res;
 }
 
-/** Light normalize for code: trim + collapse internal whitespace runs */
+/** Robust normalize for code: collapses whitespace, standardizes quotes, operator spacing, and trailing semicolons */
 export function normCode(s: string, caseSensitive: boolean) {
-  const t = s.trim().replace(/\s+/g, " ");
-  return caseSensitive ? t : t.toLowerCase();
+  let t = s.trim();
+  if (!caseSensitive) t = t.toLowerCase();
+  return t
+    .replace(/[\u2018\u2019\u02BC\u0060\u00B4]/g, "'")
+    .replace(/[\u201C\u201D\u00AB\u00BB]/g, '"')
+    .replace(/'([^']*)'/g, '"$1"')
+    .replace(/\s*([;,:+\-*\/=<>!%&|^~?])\s*/g, "$1")
+    .replace(/\s*([()\[\]{}])\s*/g, "$1")
+    .replace(/\s+/g, " ")
+    .replace(/;+$/g, "")
+    .trim();
+}
+
+/** Check if actual code answer is equivalent to expected answer */
+export function isCodeEquivalent(
+  actual: string,
+  expected: string,
+  caseSensitive = true,
+): boolean {
+  if (actual === expected) return true;
+  const aRaw = actual.trim();
+  const eRaw = expected.trim();
+  if (caseSensitive ? aRaw === eRaw : aRaw.toLowerCase() === eRaw.toLowerCase()) return true;
+
+  const aLight = aRaw.replace(/\s+/g, " ");
+  const eLight = eRaw.replace(/\s+/g, " ");
+  if (caseSensitive ? aLight === eLight : aLight.toLowerCase() === eLight.toLowerCase()) return true;
+
+  return normCode(actual, caseSensitive) === normCode(expected, caseSensitive);
 }
 
 export function filesToMap(
@@ -86,7 +129,9 @@ export function gradeCodeProjectChecks(
       if (!caseSensitive) content = content.toLowerCase();
       for (const needle of ch.containsHtml) {
         const n = caseSensitive ? needle : needle.toLowerCase();
-        if (!content.includes(n)) missing.push(`html:${needle}`);
+        if (!content.includes(n) && !normCode(content, caseSensitive).includes(normCode(n, caseSensitive))) {
+          missing.push(`html:${needle}`);
+        }
       }
     }
 
@@ -95,7 +140,9 @@ export function gradeCodeProjectChecks(
       if (!caseSensitive) content = content.toLowerCase();
       for (const needle of ch.contains) {
         const n = caseSensitive ? needle : needle.toLowerCase();
-        if (!content.includes(n)) missing.push(`${ch.fileId}:${needle}`);
+        if (!content.includes(n) && !normCode(content, caseSensitive).includes(normCode(n, caseSensitive))) {
+          missing.push(`${ch.fileId}:${needle}`);
+        }
       }
     }
     if (ch.fileId && ch.forbidden?.length) {
@@ -109,6 +156,107 @@ export function gradeCodeProjectChecks(
   }
 
   return { ok: missing.length === 0, missing };
+}
+
+export function gradeCodeJudgeText(
+  exercise: GradeExercise,
+  source: string,
+): GradeResult {
+  const code = source.trim();
+  if (!code) {
+    return {
+      correct: false,
+      partial: 0,
+      meta: { judge: true, mode: "text", reason: "empty" },
+    };
+  }
+
+  const cs = exercise.caseSensitive !== false;
+  const hay = cs ? code : code.toLowerCase();
+
+  const forbidden = (exercise.forbiddenSource as string[]) ?? [];
+  for (const f of forbidden) {
+    const fn = cs ? f : f.toLowerCase();
+    if (hay.includes(fn)) {
+      return {
+        correct: false,
+        partial: 0,
+        meta: { judge: true, mode: "text", forbidden: f },
+      };
+    }
+  }
+
+  const required = (exercise.requiredSource as string[]) ?? [];
+  const missing: string[] = [];
+  for (const r of required) {
+    const rn = cs ? r : r.toLowerCase();
+    if (!hay.includes(rn) && !normCode(hay, cs).includes(normCode(rn, cs))) {
+      missing.push(r);
+    }
+  }
+
+  const accepted = (exercise.accepted as string[]) ?? [];
+  if (accepted.length > 0) {
+    const ok = accepted.some((a) => isCodeEquivalent(code, a, cs));
+    if (ok) {
+      return {
+        correct: true,
+        partial: 1,
+        meta: { judge: true, mode: "text", textVerified: true },
+      };
+    }
+    if (!required.length) {
+      return {
+        correct: false,
+        partial: 0,
+        meta: { judge: true, mode: "text", missing: ["accepted_pattern"] },
+      };
+    }
+  }
+
+  const tests = (exercise.tests as { type: string; value: string | number }[]) ?? [];
+  if (tests.length > 0 && !required.length && !accepted.length) {
+    let matched = 0;
+    for (const t of tests) {
+      const val = String(t.value);
+      const valNorm = cs ? val : val.toLowerCase();
+      if (t.type === "stdout_contains" || t.type === "stdout_equals") {
+        if (hay.includes(valNorm) || normCode(hay, false).includes(normCode(valNorm, false))) {
+          matched++;
+        }
+      } else if (t.type === "not_stdout_contains") {
+        if (!hay.includes(valNorm)) {
+          matched++;
+        }
+      } else {
+        matched++;
+      }
+    }
+    const pass = matched === tests.length;
+    return {
+      correct: pass,
+      partial: tests.length > 0 ? matched / tests.length : 1,
+      meta: {
+        judge: true,
+        mode: "text",
+        textVerified: pass,
+        matched,
+        total: tests.length,
+      },
+    };
+  }
+
+  const ok = missing.length === 0;
+  return {
+    correct: ok,
+    partial: ok ? 1 : 0,
+    meta: {
+      judge: true,
+      mode: "text",
+      textVerified: ok,
+      ...(missing.length ? { missing } : {}),
+    },
+  };
 }
 
 export function gradeExercise(
@@ -133,7 +281,7 @@ export function gradeExercise(
       const accepted = (exercise.accepted as string[]) ?? [];
       const cs = exercise.caseSensitive !== false;
       return {
-        correct: accepted.some((a) => normCode(a, cs) === normCode(text, cs)),
+        correct: accepted.some((a) => isCodeEquivalent(text, a, cs)),
       };
     }
     case "code_fill": {
@@ -141,7 +289,7 @@ export function gradeExercise(
       const accepted = (exercise.accepted as string[]) ?? [];
       const cs = exercise.caseSensitive !== false;
       const exactOk = accepted.some(
-        (a) => normCode(String(a), cs) === normCode(text, cs),
+        (a) => isCodeEquivalent(text, String(a), cs),
       );
       const staticAsserts = (exercise.staticAsserts as JsStaticAssert[]) ?? [];
       if (staticAsserts.length) {
@@ -341,21 +489,37 @@ export function gradeExercise(
       };
     }
     case "code_judge": {
-      // Server/client may pass { ok: boolean, testsPassed?: number, testsTotal?: number }
-      const a = answer as {
-        ok?: boolean;
-        testsPassed?: number;
-        testsTotal?: number;
-      };
-      if (a?.ok) return { correct: true, partial: 1, meta: { judge: true } };
-      const total = Number(a?.testsTotal ?? 0);
-      const passed = Number(a?.testsPassed ?? 0);
-      if (total > 0) {
-        const ratio = passed / total;
+      const a = answer as Record<string, unknown> | string | null;
+      if (typeof a === "string") {
+        return gradeCodeJudgeText(exercise, a);
+      }
+      if (a && typeof a === "object") {
+        if (a.mode === "text") {
+          return gradeCodeJudgeText(exercise, String(a.source ?? a.code ?? ""));
+        }
+        // ONLY trust runner results if flagged by internal server verification
+        if (a._serverVerified === true) {
+          const ok = Boolean(a.ok);
+          const total = Number(a.testsTotal ?? 0);
+          const passed = Number(a.testsPassed ?? 0);
+          const ratio = total > 0 ? passed / total : ok ? 1 : 0;
+          return {
+            correct: ok && ratio >= 1,
+            partial: ratio,
+            meta: {
+              judge: true,
+              mode: "behavior",
+              serverVerified: true,
+              passed,
+              total,
+            },
+          };
+        }
+        // If client sends { ok: true } without _serverVerified, DO NOT TRUST IT!
         return {
-          correct: ratio >= 1,
-          partial: ratio,
-          meta: { judge: true, passed, total },
+          correct: false,
+          partial: 0,
+          meta: { judge: true, reason: "untrusted_client_result" },
         };
       }
       return { correct: false, partial: 0, meta: { judge: true } };

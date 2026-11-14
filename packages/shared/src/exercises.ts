@@ -295,6 +295,9 @@ export const exerciseSchema = z.discriminatedUnion("type", [
     explanationEn: z.string().optional(),
     solutionUk: z.string().optional(),
     solutionEn: z.string().optional(),
+    limitationsUk: z.string().optional(),
+    limitationsEn: z.string().optional(),
+    checkMode: z.enum(["behavior", "text", "both"]).optional(),
   }),
   z.object({
     ...base,
@@ -324,6 +327,13 @@ export const exerciseSchema = z.discriminatedUnion("type", [
       )
       .min(1),
     timeoutMs: z.number().optional(),
+    accepted: z.array(z.string()).optional(),
+    requiredSource: z.array(z.string()).optional(),
+    forbiddenSource: z.array(z.string()).optional(),
+    caseSensitive: z.boolean().optional(),
+    checkMode: z.enum(["behavior", "text", "both"]).optional(),
+    limitationsUk: z.string().optional(),
+    limitationsEn: z.string().optional(),
     explanationUk: z.string().optional(),
     explanationEn: z.string().optional(),
   }),

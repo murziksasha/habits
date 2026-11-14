@@ -140,6 +140,9 @@ export function codeRun(
     hintEn?: string;
     solutionUk?: string;
     solutionEn?: string;
+    limitationsUk?: string;
+    limitationsEn?: string;
+    checkMode?: "behavior" | "text" | "both";
   },
 ): Exercise {
   return {
@@ -157,6 +160,44 @@ export function codeRun(
     hintEn: extra?.hintEn,
     solutionUk: extra?.solutionUk,
     solutionEn: extra?.solutionEn,
+    limitationsUk: extra?.limitationsUk,
+    limitationsEn: extra?.limitationsEn,
+    checkMode: extra?.checkMode,
+  };
+}
+
+export function codeJudge(
+  id: string,
+  promptUk: string,
+  promptEn: string,
+  language: "javascript" | "typescript" | "python" | "bash",
+  starter: string,
+  tests: {
+    type: "stdout_contains" | "stdout_equals" | "exit_code" | "not_stdout_contains";
+    value: string | number;
+  }[],
+  extra?: {
+    timeoutMs?: number;
+    accepted?: string[];
+    requiredSource?: string[];
+    forbiddenSource?: string[];
+    caseSensitive?: boolean;
+    checkMode?: "behavior" | "text" | "both";
+    limitationsUk?: string;
+    limitationsEn?: string;
+    explanationUk?: string;
+    explanationEn?: string;
+  },
+): Exercise {
+  return {
+    id,
+    type: "code_judge",
+    promptUk,
+    promptEn,
+    language,
+    starter,
+    tests,
+    ...extra,
   };
 }
 

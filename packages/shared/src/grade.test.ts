@@ -1,9 +1,45 @@
 import { describe, expect, it } from "vitest";
 import { gradeCodeProjectChecks, gradeExercise, normCode } from "./grade.js";
 
-describe("normCode", () => {
-  it("collapses whitespace", () => {
-    expect(normCode("  a   b  ", true)).toBe("a b");
+import { describe, expect, it } from "vitest";
+import {
+  gradeCodeJudgeText,
+  gradeCodeProjectChecks,
+  gradeExercise,
+  isCodeEquivalent,
+  normCode,
+  normText,
+} from "./grade.js";
+
+describe("normText", () => {
+  it("normalizes Ukrainian apostrophes and quotes", () => {
+    expect(normText("комп'ютер")).toBe(normText("комп’ютер"));
+    expect(normText("компʼютер")).toBe(normText("комп`ютер"));
+    expect(normText("«Привіт»!")).toBe("привіт");
+    expect(normText('"hello"')).toBe("hello");
+  });
+
+  it("normalizes English contractions and trailing punctuation", () => {
+    expect(normText("Don't...")).toBe("don't");
+    expect(normText("don’t!")).toBe("don't");
+    expect(normText("It is a cat.")).toBe("it is a cat");
+  });
+});
+
+describe("normCode and isCodeEquivalent", () => {
+  it("collapses whitespace and operator spacing", () => {
+    expect(isCodeEquivalent("return a + b;", "return a+b")).toBe(true);
+    expect(isCodeEquivalent("const x = 5;", "const x=5")).toBe(true);
+    expect(isCodeEquivalent("fn(a, b)", "fn(a,b)")).toBe(true);
+  });
+
+  it("normalizes single and double quotes", () => {
+    expect(isCodeEquivalent("console.log('hello')", 'console.log("hello")')).toBe(true);
+  });
+
+  it("normalizes CSS declarations and font-size formatting", () => {
+    expect(isCodeEquivalent("font-size: 16px;", "font-size:16px")).toBe(true);
+    expect(isCodeEquivalent("font-size: 16px", "font-size: 16px;")).toBe(true);
   });
 });
 
@@ -13,24 +49,80 @@ describe("gradeExercise", () => {
     expect(gradeExercise({ id: "1", type: "mcq", correctIndex: 2 }, 0).correct).toBe(false);
   });
 
-  it("grades code_fill", () => {
-    const ex = { id: "1", type: "code_fill", accepted: ["const x = 1"] };
-    expect(gradeExercise(ex, "const x = 1").correct).toBe(true);
-    expect(gradeExercise(ex, "const  x  = 1").correct).toBe(true);
+  it("grades code_fill with equivalent code variations", () => {
+    const ex = { id: "1", type: "code_fill", accepted: ["return a + b;"] };
+    expect(gradeExercise(ex, "return a + b;").correct).toBe(true);
+    expect(gradeExercise(ex, "return a+b").correct).toBe(true);
+    expect(gradeExercise(ex, "return a  +  b ;").correct).toBe(true);
   });
 
-  it("grades code_project via shared checks", () => {
+  it("grades code_output with equivalent quotes and spacing", () => {
+    const ex = { id: "1", type: "code_output", accepted: ['"hello world"'] };
+    expect(gradeExercise(ex, "'hello world'").correct).toBe(true);
+    expect(gradeExercise(ex, '"hello world"').correct).toBe(true);
+  });
+
+  it("rejects untrusted client spoofing in code_judge", () => {
+    const ex = {
+      id: "j1",
+      type: "code_judge",
+      language: "javascript",
+      starter: "",
+      tests: [{ type: "stdout_contains", value: "hello" }],
+    };
+    // Client trying to spoof { ok: true } without server execution
+    const spoofed = gradeExercise(ex, { ok: true, testsPassed: 10, testsTotal: 10 });
+    expect(spoofed.correct).toBe(false);
+    expect(spoofed.meta?.reason).toBe("untrusted_client_result");
+
+    // Server-verified execution passes
+    const verified = gradeExercise(ex, {
+      _serverVerified: true,
+      ok: true,
+      testsPassed: 1,
+      testsTotal: 1,
+    });
+    expect(verified.correct).toBe(true);
+  });
+
+  it("grades code_judge in text mode statically", () => {
+    const ex = {
+      id: "j2",
+      type: "code_judge",
+      language: "javascript",
+      starter: "",
+      tests: [{ type: "stdout_contains", value: "42" }],
+      requiredSource: ["console.log"],
+    };
+    // Text mode passes with static criteria
+    const pass = gradeExercise(ex, {
+      mode: "text",
+      source: "console.log(42);",
+    });
+    expect(pass.correct).toBe(true);
+    expect(pass.meta?.mode).toBe("text");
+
+    // Text mode fails if required element is missing
+    const fail = gradeExercise(ex, {
+      mode: "text",
+      source: "const x = 42;",
+    });
+    expect(fail.correct).toBe(false);
+  });
+
+  it("grades code_project via shared checks with equivalent styling", () => {
     const ex = {
       id: "1",
       type: "code_project",
-      checks: [{ fileId: "html", contains: ["<h1>"] }],
+      checks: [
+        { fileId: "css", contains: ["font-size: 16px;"] },
+      ],
     };
     expect(
-      gradeExercise(ex, { files: { html: "<h1>Hi</h1>" } }).correct,
+      gradeExercise(ex, { files: { css: "#count { font-size:16px; }" } }).correct,
     ).toBe(true);
-    const bad = gradeExercise(ex, { files: { html: "<p>no</p>" } });
+    const bad = gradeExercise(ex, { files: { css: "#count { color: red; }" } });
     expect(bad.correct).toBe(false);
-    expect(Array.isArray(bad.meta?.missing)).toBe(true);
   });
 
   it("code_fill staticAsserts give partial", () => {

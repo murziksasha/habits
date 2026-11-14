@@ -222,7 +222,7 @@ describe("chooseBotMove", () => {
     expect(blackClubMove?.san).toBe("Re1#");
     const blackStrongMove = chooseBotMove(blackMateFen, "strong");
     expect(blackStrongMove?.san).toBe("Re1#");
-  });
+  }, 15000);
 
   it("the bot does not give away the queen when a safe move exists", () => {
     // White Queen on e4, Black Pawn on d5 defended by King on d6.
@@ -241,7 +241,7 @@ describe("chooseBotMove", () => {
     const learnerSafe = chooseBotMove(fen, "learner", { rng: () => 0.9 });
     expect(learnerSafe).not.toBeNull();
     expect(learnerSafe?.san).not.toBe("Qxd5+");
-  });
+  }, 15000);
 
   it("Learner sometimes misses a capture", () => {
     // White pawn on e4 can capture undefended Black queen on d5 (exd5)

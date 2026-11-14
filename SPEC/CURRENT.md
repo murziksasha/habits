@@ -295,6 +295,14 @@ Skill tracks `sysadmin` and `devops` are the same kind of surface: `/learn` and 
      - Extra "Practice vs Club bot" link in the Chess course group directly deep-linking to `/play?level=club`.
 
 
+176. **Clear tasks, robust grading & editor keyboard isolation (SPEC 93):**
+   - **Clarity of exercise conditions:** Defined input data, expected outcome, mandatory elements, and validation limits without solution leakage across built-in courses; exercise IDs and student progress preserved.
+   - **Expanded normalization & equivalence:** `@eduforge/shared` `normText` unifies Ukrainian apostrophes (`’`, `‘`, `ʼ`, `'`) and quotation styles; `normCode` and `isCodeEquivalent` accept formatting variations in quotes, operator spacing, semicolons, and CSS properties (`font-size`).
+   - **Server behavior verification (`code_judge`):** Zero trust for client-reported test passes; execution isolated to Docker sandbox; 503 `judge_unavailable` fallback with retry/switch without heart penalty; dual-mode toggle (behavior vs text) persisted in `localStorage`.
+   - **Editor keyboard event isolation (`isTypingTarget`):** Deep detection of Monaco editor, ARIA text entry roles, and text inputs prevents global hotkeys (`f`, `?`, `Esc`, digits) from firing when typing code such as `font-size`.
+   - **Open lesson reload detection:** Real-time hash comparison prompts learner to reload updated lesson structure without loss of completed progress.
+   - **CMS builder & safe synchronization:** CMS exercise builder supports `code_judge` authoring; `pnpm content:sync` updates `seed` courses safely without touching accounts, progress, or CMS materials.
+
 **What not to build next:** native store apps, full multi-worker judge pool, trained ML ranking, new deep track without CONTENT-DX + IA justification, extra primary nav slots.
 
 ### P2 strategic foundations (scaffolds live — see SPEC/P2-STRATEGIC.md)

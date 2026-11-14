@@ -34,7 +34,8 @@ import {
 import type { AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 import { logActivity, notifyUser } from "../engagement.js";
-import { gradeExercise } from "../grade.js";
+import { gradeExercise, gradeCodeJudgeText } from "../grade.js";
+import { runJudge, getJudgeMode, type JudgeTest, type JudgeLang } from "@eduforge/judge";
 import { log } from "../logger.js";
 import { buildXpPatch } from "./character-progression.js";
 import { applyLootDrop } from "./loot-apply.js";
@@ -132,6 +133,107 @@ function lootDropToRewardItem(drop: LootDrop): GrantedRewardItem {
         source: "loot",
       };
   }
+}
+
+export async function gradeLessonAttemptAsync(
+  exercises: { id: string; type: string; [k: string]: unknown }[],
+  answers: SubmitAnswer[],
+  isExam: boolean,
+  passThreshold?: number | null,
+): Promise<
+  | { ok: true; grading: LessonGradingResult }
+  | { ok: false; error: "judge_unavailable"; exerciseId: string }
+> {
+  const results: GradedExerciseResult[] = [];
+
+  for (const ex of exercises) {
+    const a = answers.find((x) => x.exerciseId === ex.id);
+
+    if (ex.type === "code_judge") {
+      const rawAns = a?.answer;
+      const ansObj =
+        typeof rawAns === "object" && rawAns !== null
+          ? (rawAns as Record<string, unknown>)
+          : { source: String(rawAns ?? "") };
+      const mode = ansObj.mode === "text" ? "text" : "behavior";
+      const source = String(ansObj.source ?? ansObj.code ?? "");
+
+      if (mode === "text") {
+        // Text mode verification: pure static analysis, no execution
+        const graded = gradeCodeJudgeText(ex, source);
+        results.push({ exerciseId: ex.id, type: ex.type, ...graded });
+      } else {
+        // Behavior mode: MUST run isolated Docker runner on server!
+        // Client-supplied `ok: true` or test passes are completely ignored!
+        const judgeMode = getJudgeMode();
+        if (judgeMode === "off") {
+          return { ok: false, error: "judge_unavailable", exerciseId: ex.id };
+        }
+        try {
+          const tests = (ex.tests as JudgeTest[]) ?? [];
+          const judgeRes = await runJudge({
+            lang: ex.language as JudgeLang,
+            source,
+            tests,
+            timeoutMs: Number(ex.timeoutMs ?? 3000),
+          });
+          if (judgeRes.mode === "disabled" || judgeRes.error === "judge_disabled") {
+            return { ok: false, error: "judge_unavailable", exerciseId: ex.id };
+          }
+          const total = judgeRes.tests.length || (judgeRes.ok ? 1 : 0);
+          const passed = judgeRes.tests.filter((t) => t.pass).length || (judgeRes.ok ? 1 : 0);
+          const ratio = total > 0 ? passed / total : judgeRes.ok ? 1 : 0;
+          results.push({
+            exerciseId: ex.id,
+            type: ex.type,
+            correct: judgeRes.ok && ratio >= 1,
+            partial: ratio,
+            meta: {
+              judge: true,
+              mode: "behavior",
+              serverVerified: true,
+              stdout: judgeRes.stdout,
+              stderr: judgeRes.stderr,
+              passed,
+              total,
+            },
+          });
+        } catch {
+          return { ok: false, error: "judge_unavailable", exerciseId: ex.id };
+        }
+      }
+    } else {
+      const graded = gradeExercise(ex, a?.answer);
+      results.push({ exerciseId: ex.id, type: ex.type, ...graded });
+    }
+  }
+
+  const correctCount = results.filter((r) => r.correct).length;
+  const accuracy = exercises.length
+    ? results.reduce((sum, r) => {
+        if (typeof r.partial === "number") return sum + Math.min(1, Math.max(0, r.partial));
+        return sum + (r.correct ? 1 : 0);
+      }, 0) / exercises.length
+    : 0;
+
+  const completeBar = lessonCompleteThreshold({
+    isExam,
+    passThreshold,
+  });
+  const passed = accuracy + 1e-9 >= completeBar;
+
+  return {
+    ok: true,
+    grading: {
+      results,
+      correctCount,
+      accuracy,
+      passThreshold: completeBar,
+      passed,
+      isExam,
+      examFailed: isExam && !passed,
+    },
+  };
 }
 
 export function gradeLessonAttempt(
@@ -234,6 +336,41 @@ export function buildGuestSubmitResult(opts: {
   };
 }
 
+export async function buildGuestSubmitResultAsync(opts: {
+  exercises: { id: string; type: string; [k: string]: unknown }[];
+  answers: SubmitAnswer[];
+  isExam: boolean;
+  passThreshold?: number | null;
+  nextLesson: NextLessonSummary | null;
+}): Promise<
+  | GuestSubmitResultBody
+  | { error: "judge_unavailable"; exerciseId: string; status: 503 }
+> {
+  const asyncGrading = await gradeLessonAttemptAsync(
+    opts.exercises,
+    opts.answers,
+    opts.isExam,
+    opts.passThreshold,
+  );
+  if (!asyncGrading.ok) {
+    return { error: asyncGrading.error, exerciseId: asyncGrading.exerciseId, status: 503 };
+  }
+  const grading = asyncGrading.grading;
+  return {
+    guest: true,
+    accuracy: grading.accuracy,
+    passed: grading.passed,
+    results: grading.results,
+    correctCount: grading.correctCount,
+    total: opts.exercises.length,
+    isExam: grading.isExam,
+    examFailed: grading.examFailed,
+    passThreshold: grading.passThreshold,
+    nextLesson: grading.passed ? opts.nextLesson : null,
+    xpGain: 0,
+  };
+}
+
 export type SubmitLessonInput = {
   user: AuthedUser;
   lessonId: string;
@@ -253,7 +390,17 @@ export type SubmitLessonSuccess = {
   body: Record<string, unknown>;
 };
 
-export type SubmitLessonResult = SubmitLessonError | SubmitLessonSuccess;
+export type SubmitLessonJudgeUnavailable = {
+  ok: false;
+  status: 503;
+  error: "judge_unavailable";
+  exerciseId: string;
+};
+
+export type SubmitLessonResult =
+  | SubmitLessonError
+  | SubmitLessonSuccess
+  | SubmitLessonJudgeUnavailable;
 
 /**
  * Grade a lesson attempt, update progress/XP/streak, side-effects (quests, certs).
@@ -271,12 +418,21 @@ export async function submitLesson(
 
   const exercises =
     (lesson.exercises as { id: string; type: string; [k: string]: unknown }[]) ?? [];
-  const grading = gradeLessonAttempt(
+  const gradingResult = await gradeLessonAttemptAsync(
     exercises,
     answers,
     Boolean(lesson.isExam),
     lesson.passThreshold,
   );
+  if (!gradingResult.ok) {
+    return {
+      ok: false,
+      status: 503,
+      error: gradingResult.error,
+      exerciseId: gradingResult.exerciseId,
+    };
+  }
+  const grading = gradingResult.grading;
   const { results, correctCount, accuracy, isExam, passThreshold: completeBar, passed } = grading;
   const outcome: "passed" | "failed" = passed ? "passed" : "failed";
 

@@ -1,6 +1,7 @@
 import type { CourseContent, Exercise } from "./types.js";
 import {
   codeFill,
+  codeJudge,
   codeOrder,
   codeOrderAuto,
   codeOutputMcq,
@@ -1363,9 +1364,9 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
         id: "jsf-c1",
         type: "code_project",
         promptUk:
-          "JS: function createCounter() returns { inc, value }. HTML button#inc. README: state.",
+          "Вихідні файли: counter.js, index.html, README.md. Очікуваний результат: модуль лічильника зі станом у замиканні, кнопка в розмітці та документація стану. Обов'язкові елементи: createCounter, inc, return; в HTML кнопка #inc; у README згадка state. Обмеження: статичний аналіз структури файлів проекту.",
         promptEn:
-          "JS: function createCounter() returns { inc, value }. HTML button#inc. README: state.",
+          "Input files: counter.js, index.html, README.md. Expected result: closure counter module, button in HTML, and state documentation. Mandatory elements: createCounter, inc, return; in HTML #inc button; in README state. Validation limits: static project source checks.",
         files: [
           {
             id: "js",
@@ -1399,6 +1400,35 @@ export function createCounter() {
           { fileId: "md", contains: ["state"] },
         ],
       } as Exercise,
+      codeJudge(
+        "jsf-c2-judge",
+        "Вхідні дані: функція createCounter(initial). Очікуваний результат: об'єкт із методами inc() та get(); вивід «Count: 11». Обов'язкові елементи: let count, inc, get, return. Обмеження: поведінковий режим виконує код у Node.js Docker-пісочниці; текстовий режим перевіряє сигнатуру статично.",
+        "Input: createCounter(initial) function. Expected result: object with inc() and get(); prints 'Count: 11'. Mandatory elements: let count, inc, get, return. Limits: behavior mode executes code in Node.js Docker sandbox; text mode statically checks signature.",
+        "javascript",
+        `function createCounter(initial = 0) {
+  let count = initial;
+  return {
+    inc: () => ++count,
+    get: () => count,
+  };
+}
+
+const c = createCounter(10);
+c.inc();
+console.log("Count:", c.get());
+`,
+        [
+          { type: "stdout_contains", value: "Count: 11" },
+          { type: "exit_code", value: 0 },
+        ],
+        {
+          checkMode: "both",
+          accepted: ["createCounter", "inc", "get", "Count: 11"],
+          requiredSource: ["createCounter", "inc", "get"],
+          limitationsUk: "Поведінковий режим перевіряє результат виконання у Docker-контейнері. Текстовий режим аналізує текст коду без запуску.",
+          limitationsEn: "Behavior mode executes and checks output in a Docker sandbox. Text mode analyzes code structure without execution.",
+        },
+      ),
     ],
   ),
   lesson(

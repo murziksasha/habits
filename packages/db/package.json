@@ -17,6 +17,7 @@
     "generate": "drizzle-kit generate",
     "migrate": "tsx src/migrate.ts",
     "seed": "tsx src/seed.ts",
+    "content:sync": "tsx src/sync-content.ts",
     "studio": "drizzle-kit studio",
     "test": "tsx --test src/seed-flashcards.test.ts src/labs-manifest.test.ts",
     "typecheck": "tsc --noEmit",

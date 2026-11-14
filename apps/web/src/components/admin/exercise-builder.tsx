@@ -29,6 +29,7 @@ const TYPES = [
   "code_output",
   "code_fill",
   "code_order",
+  "code_judge",
   "typing",
   "rsvp",
   "comprehension",
@@ -118,6 +119,18 @@ function blankExercise(type: string): BuilderExercise {
         promptUk: "Порядок рядків",
         lines: ["const a = 1;", "const b = a + 1;", "console.log(b);"],
         correct: ["const a = 1;", "const b = a + 1;", "console.log(b);"],
+      };
+    case "code_judge":
+      return {
+        id,
+        type,
+        promptUk: "Напиши код, що виводить Hello, world!",
+        promptEn: "Write code that prints Hello, world!",
+        language: "javascript",
+        starter: "// напиши код тут\n",
+        tests: [{ type: "stdout_contains", value: "Hello, world!" }],
+        checkMode: "both",
+        accepted: ['console.log("Hello, world!");'],
       };
     case "typing":
       return {
@@ -670,6 +683,77 @@ export function ExerciseBuilder({ exercises, onChange, onJsonSync }: Props) {
                 value={String(ex.sampleAnswerEn ?? "")}
                 onChange={(e) => updateAt(selected, { sampleAnswerEn: e.target.value || undefined })}
               />
+            </div>
+          )}
+
+          {ex.type === "code_judge" && (
+            <div className="space-y-3 rounded-2xl border-2 border-slate-200 p-3 dark:border-slate-700">
+              <p className="text-xs font-bold text-ink-muted">Code Judge Settings</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="label">Language</label>
+                  <select
+                    className="input text-xs"
+                    value={String(ex.language ?? "javascript")}
+                    onChange={(e) => updateAt(selected, { language: e.target.value })}
+                  >
+                    <option value="javascript">JavaScript</option>
+                    <option value="typescript">TypeScript</option>
+                    <option value="python">Python</option>
+                    <option value="bash">Bash</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="label">Verification Mode</label>
+                  <select
+                    className="input text-xs"
+                    value={String(ex.checkMode ?? "both")}
+                    onChange={(e) => updateAt(selected, { checkMode: e.target.value })}
+                  >
+                    <option value="both">Both (Behavior + Text)</option>
+                    <option value="behavior">Behavior only</option>
+                    <option value="text">Text only</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="label">Starter Code</label>
+                <textarea
+                  className="input min-h-20 font-mono text-xs"
+                  value={String(ex.starter ?? "")}
+                  onChange={(e) => updateAt(selected, { starter: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="label">Judge Tests (JSON array)</label>
+                <textarea
+                  className="input min-h-20 font-mono text-xs"
+                  value={JSON.stringify(ex.tests ?? [], null, 2)}
+                  onChange={(e) => {
+                    try {
+                      updateAt(selected, { tests: JSON.parse(e.target.value) });
+                    } catch {
+                      /* allow typing */
+                    }
+                  }}
+                />
+              </div>
+              <div>
+                <label className="label">Limitations note (UK)</label>
+                <input
+                  className="input text-xs"
+                  value={String(ex.limitationsUk ?? "")}
+                  onChange={(e) => updateAt(selected, { limitationsUk: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="label">Limitations note (EN)</label>
+                <input
+                  className="input text-xs"
+                  value={String(ex.limitationsEn ?? "")}
+                  onChange={(e) => updateAt(selected, { limitationsEn: e.target.value })}
+                />
+              </div>
             </div>
           )}
 

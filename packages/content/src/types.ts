@@ -204,6 +204,9 @@ export type Exercise =
       explanationEn?: string;
       solutionUk?: string;
       solutionEn?: string;
+      limitationsUk?: string;
+      limitationsEn?: string;
+      checkMode?: "behavior" | "text" | "both";
     }
   | {
       id: string;
@@ -255,6 +258,13 @@ export type Exercise =
         value: string | number;
       }[];
       timeoutMs?: number;
+      accepted?: string[];
+      requiredSource?: string[];
+      forbiddenSource?: string[];
+      caseSensitive?: boolean;
+      checkMode?: "behavior" | "text" | "both";
+      limitationsUk?: string;
+      limitationsEn?: string;
       explanationUk?: string;
       explanationEn?: string;
     };

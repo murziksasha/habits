@@ -35,6 +35,7 @@ import { isBrowserOffline } from "@/components/online-status";
 import { LessonShortcutsHelp } from "@/components/lesson-shortcuts-help";
 import { LocalLabPanel } from "@/components/local-lab-panel";
 import { recordGuestLessonProgress } from "@/lib/guest-progress";
+import { isTypingTarget } from "@/lib/answer-keys";
 
 type ExerciseResult = {
   exerciseId: string;
@@ -133,6 +134,9 @@ export function LessonClient() {
   );
   const [submitting, setSubmitting] = useState(false);
   const idempotencyKeyRef = useRef(newIdempotencyKey());
+  const initialExercisesSigRef = useRef<string | null>(null);
+  const [structureChanged, setStructureChanged] = useState(false);
+  const [judgeUnavailable, setJudgeUnavailable] = useState<string | null>(null);
   const { toast } = useToast();
 
   // One-time coach tip for focus / Esc
@@ -180,8 +184,7 @@ export function LessonClient() {
   // Escape → exit lesson (confirm if mid-progress); F toggles focus; ? help
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      const tag = (e.target as HTMLElement | null)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if (isTypingTarget(e.target)) return;
 
       if (e.key === "?" || (e.shiftKey && e.key === "/")) {
         if (!e.metaKey && !e.ctrlKey && !e.altKey) {
@@ -236,7 +239,13 @@ export function LessonClient() {
       maxHearts?: number;
     }>(`/courses/${slug}/lessons/${lessonId}`, token ? { token } : {})
       .then((d) => {
-        setLesson(d.lesson);
+        const sig = d.lesson.exercises.map((e) => e.id).join(",");
+        if (initialExercisesSigRef.current && initialExercisesSigRef.current !== sig) {
+          setStructureChanged(true);
+        } else {
+          initialExercisesSigRef.current = sig;
+          setLesson(d.lesson);
+        }
         setLocalLab(d.localLab ?? null);
         if (typeof d.hearts === "number") setHearts(d.hearts);
         if (typeof d.maxHearts === "number") setMaxHearts(d.maxHearts);
@@ -259,6 +268,24 @@ export function LessonClient() {
         .catch(() => setComments([]));
     }
   }, [loading, token, slug, lessonId]);
+
+  function reloadLessonStructure() {
+    setStructureChanged(false);
+    void api<{
+      lesson: {
+        id: string;
+        titleUk: string;
+        exercises: Exercise[];
+        isExam?: boolean;
+        passThreshold?: number | null;
+      };
+    }>(`/courses/${slug}/lessons/${lessonId}`, token ? { token } : {}).then((d) => {
+      initialExercisesSigRef.current = d.lesson.exercises.map((e) => e.id).join(",");
+      setLesson(d.lesson);
+      setAnswers((prev) => prev.filter((a) => d.lesson.exercises.some((e) => e.id === a.exerciseId)));
+      setIdx((curr) => Math.min(curr, Math.max(0, d.lesson.exercises.length - 1)));
+    });
+  }
 
   async function toggleBookmark() {
     if (!token || !lessonId) return;
@@ -464,7 +491,16 @@ export function LessonClient() {
       setFeedback(null);
       setFeedbackExplain("");
     } catch (e: unknown) {
-      const err = e as Error & { data?: { error?: string }; offline?: boolean };if (isNetworkOrOfflineError(e) || err.data?.error === "offline") {
+      const err = e as Error & { data?: { error?: string; exerciseId?: string }; offline?: boolean };
+      if (err.data?.error === "judge_unavailable") {
+        setJudgeUnavailable(err.data.exerciseId ?? "judge");
+        setPendingSubmit(nextAnswers);
+        setFeedback(null);
+        setFeedbackExplain("");
+        toast(t.lesson.judgeUnavailable, "error");
+        return;
+      }
+      if (isNetworkOrOfflineError(e) || err.data?.error === "offline") {
         setPendingSubmit(nextAnswers);
         setFeedback(null);
         setFeedbackExplain("");
@@ -492,6 +528,49 @@ export function LessonClient() {
         <Link href={`/courses/${slug}`} className="btn-primary">
           {UI.common.back}
         </Link>
+      </div>
+    );
+  }
+
+  if (judgeUnavailable && pendingSubmit && !summary) {
+    return (
+      <div className="card mx-auto max-w-lg space-y-4 text-center">
+        <p className="font-bold text-amber-500 text-lg">
+          ⚠️ {t.lesson.judgeUnavailable}
+        </p>
+        <p className="text-sm text-ink-muted">
+          {t.lesson.judgeUnavailableHint}
+        </p>
+        <div className="flex flex-col sm:flex-row gap-2 justify-center pt-2">
+          <button
+            type="button"
+            className="btn-primary min-h-11"
+            disabled={submitting}
+            onClick={() => {
+              setJudgeUnavailable(null);
+              void submitLessonAnswers(pendingSubmit);
+            }}
+          >
+            🔄 {t.lesson.retryBehaviorCheck}
+          </button>
+          <button
+            type="button"
+            className="btn-secondary min-h-11"
+            disabled={submitting}
+            onClick={() => {
+              setJudgeUnavailable(null);
+              const switched = pendingSubmit.map((a) => {
+                if (typeof a.answer === "object" && a.answer !== null) {
+                  return { ...a, answer: { ...(a.answer as Record<string, unknown>), mode: "text" } };
+                }
+                return { ...a, answer: { source: String(a.answer ?? ""), mode: "text" } };
+              });
+              void submitLessonAnswers(switched);
+            }}
+          >
+            📝 {t.lesson.switchToTextCheck}
+          </button>
+        </div>
       </div>
     );
   }
@@ -974,6 +1053,20 @@ export function LessonClient() {
         >
           💡 {t.onboarding.coachFocus}
         </p>
+      )}
+      {structureChanged && (
+        <div className="card border-2 border-sky-400 bg-sky-50 dark:bg-sky-950/30 p-3 space-y-2">
+          <p className="text-xs font-bold text-sky-800 dark:text-sky-200">
+            ℹ️ {t.lesson.lessonStructureChanged}
+          </p>
+          <button
+            type="button"
+            className="btn-primary !py-1 !text-xs"
+            onClick={reloadLessonStructure}
+          >
+            🔄 {t.lesson.reloadLesson}
+          </button>
+        </div>
       )}
       <div className="card relative">
         <p className="mb-4 text-sm font-bold text-ink-muted">{lesson.titleUk}</p>

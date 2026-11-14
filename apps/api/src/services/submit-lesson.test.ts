@@ -368,4 +368,75 @@ describe("submitLesson progression, daily cap, and reward failures", () => {
     expect(res.body.characterXpGain).toBe(0);
     expect(res.body.levelChangeTrigger).toBeNull();
   });
+
+  it("submits code_judge in text mode and awards normal XP", async () => {
+    state.lesson!.exercises = [
+      {
+        id: "cj1",
+        type: "code_judge",
+        language: "javascript",
+        starter: "",
+        tests: [{ type: "stdout_contains", value: "Hello" }],
+        requiredSource: ["console.log"],
+      },
+    ];
+
+    const res = await submitLesson({
+      user,
+      lessonId: "lesson-1",
+      answers: [
+        {
+          exerciseId: "cj1",
+          answer: { mode: "text", source: 'console.log("Hello");' },
+        },
+      ],
+    });
+
+    expect(res.ok).toBe(true);
+    if (!res.ok) return;
+    expect(res.body.passed).toBe(true);
+    expect(res.body.accuracy).toBe(1);
+    expect(res.body.xpGain).toBeGreaterThan(0);
+  });
+
+  it("returns judge_unavailable (503) without penalizing user when judge is disabled", async () => {
+    state.lesson!.exercises = [
+      {
+        id: "cj1",
+        type: "code_judge",
+        language: "javascript",
+        starter: "",
+        tests: [{ type: "stdout_contains", value: "Hello" }],
+      },
+    ];
+
+    const prevHearts = state.character?.hearts ?? 5;
+
+    // By default in test environment getJudgeMode() may return local or off, let's test mode: "behavior"
+    // with judge off or mocked
+    const res = await submitLesson({
+      user,
+      lessonId: "lesson-1",
+      answers: [
+        {
+          exerciseId: "cj1",
+          // Client sends spoofed ok: true in behavior mode
+          answer: { mode: "behavior", source: "console.log(1)", ok: true },
+        },
+      ],
+    });
+
+    // In dev / test when local or off:
+    // If judge is off: returns judge_unavailable status 503
+    // Or if local judge runs: it checks source and rejects client's spoofed ok: true
+    if (!res.ok) {
+      expect(res.status).toBe(503);
+      expect(res.error).toBe("judge_unavailable");
+      // Hearts must NOT be deducted
+      expect(state.character?.hearts ?? 5).toBe(prevHearts);
+    } else {
+      // If local judge ran, accuracy must NOT be 1 from client's spoofed ok: true!
+      expect(res.body.accuracy).toBe(0);
+    }
+  });
 });

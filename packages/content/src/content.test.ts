@@ -123,6 +123,7 @@ const EXERCISE_TYPES = new Set([
   "code_order",
   "code_project",
   "code_run",
+  "code_judge",
   "video",
   "concept",
   "explain",

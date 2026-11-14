@@ -18,6 +18,7 @@
     "db:generate": "pnpm --filter @eduforge/db generate",
     "db:migrate": "pnpm --filter @eduforge/db migrate",
     "db:seed": "pnpm --filter @eduforge/db seed",
+    "content:sync": "pnpm --filter @eduforge/db content:sync",
     "db:studio": "pnpm --filter @eduforge/db studio",
     "docker:up": "docker compose up --build -d",
     "docker:down": "docker compose down",

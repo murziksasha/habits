@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * Validate chess FENs and solutionSans sequences.
  *

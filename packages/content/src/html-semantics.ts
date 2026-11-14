@@ -1073,9 +1073,9 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
         id: "hs-c1",
         type: "code_project",
         promptUk:
-          "Семантичний каркас: header+nav, main з article/h1, footer. CSS .wrap { max-width }. README: landmarks.",
+          "Вихідні файли: index.html, styles.css, README.md. Очікуваний результат: семантична структура лендінгу з орієнтирами доступності. Обов'язкові елементи: <header>, <nav>, <main>, <article>, <h1>, <footer>; у styles.css .wrap { max-width }; у README згадка landmarks. Обмеження: статичний семантичний аналіз тегів без виконання скриптів.",
         promptEn:
-          "Semantic shell: header+nav, main with article/h1, footer. CSS .wrap { max-width }. README: landmarks.",
+          "Input files: index.html, styles.css, README.md. Expected result: accessible semantic landing page shell. Mandatory elements: <header>, <nav>, <main>, <article>, <h1>, <footer>; in styles.css .wrap { max-width }; in README mention landmarks. Validation limits: static HTML tag semantics check without script execution.",
         files: [
           {
             id: "html",

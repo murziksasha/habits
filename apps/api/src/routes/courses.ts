@@ -35,6 +35,7 @@ import { clientIp, rateLimit } from "../rate-limit.js";
 import { getCourseProgress } from "../services/home.js";
 import {
   buildGuestSubmitResult,
+  buildGuestSubmitResultAsync,
   getNextCourseLesson,
   submitLesson,
 } from "../services/submit-lesson.js";
@@ -388,6 +389,12 @@ courseRoutes.post("/:slug/lessons/:lessonId/submit", optionalAuth, async (c) => 
     });
 
     if (!result.ok) {
+      if (result.error === "judge_unavailable") {
+        return c.json(
+          { error: result.error, exerciseId: (result as { exerciseId: string }).exerciseId },
+          result.status as 503,
+        );
+      }
       return c.json({ error: result.error }, result.status);
     }
 
@@ -427,13 +434,17 @@ courseRoutes.post("/:slug/lessons/:lessonId/submit", optionalAuth, async (c) => 
   const exercises =
     (lesson.exercises as { id: string; type: string; [k: string]: unknown }[]) ?? [];
   const nextLesson = await getNextCourseLesson(course.id, course.slug, lesson.sortOrder);
-  const guestBody = buildGuestSubmitResult({
+  const guestBody = await buildGuestSubmitResultAsync({
     exercises,
     answers,
     isExam: Boolean(lesson.isExam),
     passThreshold: lesson.passThreshold,
     nextLesson,
   });
+
+  if ("error" in guestBody) {
+    return c.json({ error: guestBody.error, exerciseId: guestBody.exerciseId }, guestBody.status as 503);
+  }
 
   return c.json(guestBody);
 });

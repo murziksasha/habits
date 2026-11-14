@@ -55,7 +55,7 @@ import {
   users,
 } from "./schema.js";
 
-const allCourses: CourseContent[] = [
+export const allCourses: CourseContent[] = [
   englishContent,
   chessContent,
   typingContent,
@@ -224,7 +224,7 @@ export async function seedCourse(
   console.log(`Seeded course ${content.slug}`);
 }
 
-async function seedFlashcards(db: ReturnType<typeof createDb>) {
+export async function seedFlashcards(db: ReturnType<typeof createDb>) {
   for (const deck of FLASHCARD_DECKS) {
     let d = await db.query.flashcardDecks.findFirst({
       where: eq(flashcardDecks.slug, deck.slug),
@@ -352,7 +352,7 @@ async function seedAdmin(db: ReturnType<typeof createDb>) {
   }
 }
 
-async function seedAchievements(db: ReturnType<typeof createDb>) {
+export async function seedAchievements(db: ReturnType<typeof createDb>) {
   for (const a of ACHIEVEMENT_CATALOG) {
     const existing = await db.query.achievements.findFirst({
       where: eq(achievements.code, a.code),

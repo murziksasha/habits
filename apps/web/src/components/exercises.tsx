@@ -6,6 +6,7 @@ import { Chess } from "@eduforge/chess-core";
 import {
   countWords,
   exercisePrompt,
+  gradeCodeJudgeText,
   gradeExplanation,
   localizeExerciseOptions,
   localizeMatchPairs,
@@ -2012,7 +2013,7 @@ function VideoExercise({
   );
 }
 
-/** Multi-lang Docker/local judge exercise */
+/** Multi-lang Docker/local judge exercise with behavior and text verification modes */
 function CodeJudgeExercise({
   exercise,
   onAnswer,
@@ -2020,8 +2021,9 @@ function CodeJudgeExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const { token } = useAuth();
+  const onWrongAttempt = useContext(WrongAttemptCtx);
   const lang = String(exercise.language ?? "javascript") as
     | "javascript"
     | "typescript"
@@ -2031,11 +2033,72 @@ function CodeJudgeExercise({
   const [code, setCode] = useState(starter);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
-  const tests = (exercise.tests as { type: string; value: string | number }[]) ?? [];
+  const [judgeUnavailable, setJudgeUnavailable] = useState(false);
 
-  async function run() {
+  // Verification mode: "behavior" (default) or "text", saved to device localStorage
+  const [mode, setMode] = useState<"behavior" | "text">(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("eduforge_grading_mode");
+        if (saved === "text" || saved === "behavior") return saved;
+      } catch {
+        /* ignore */
+      }
+    }
+    return "behavior";
+  });
+
+  function handleModeChange(newMode: "behavior" | "text") {
+    setMode(newMode);
+    setMsg("");
+    setJudgeUnavailable(false);
+    try {
+      localStorage.setItem("eduforge_grading_mode", newMode);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  const tests = (exercise.tests as { type: string; value: string | number }[]) ?? [];
+  const limitations = locale === "en" ? exercise.limitationsEn : exercise.limitationsUk;
+
+  async function checkTextMode() {
     setBusy(true);
     setMsg("");
+    try {
+      const res = gradeCodeJudgeText(exercise, code);
+      if (res.correct) {
+        setMsg(
+          locale === "en"
+            ? "✓ Text criteria passed! Code accepted."
+            : "✓ Текстові критерії пройдено! Відповідь зараховано.",
+        );
+        onAnswer({
+          source: code,
+          mode: "text",
+        });
+      } else {
+        const miss = res.meta?.missing as string[] | undefined;
+        const forb = res.meta?.forbidden as string | undefined;
+        const reason = forb
+          ? `${locale === "en" ? "Forbidden pattern:" : "Заборонений патерн:"} ${forb}`
+          : miss?.length
+            ? `${locale === "en" ? "Missing required elements:" : "Не вистачає обов'язкових елементів:"} ${miss.join(", ")}`
+            : locale === "en"
+              ? "Code does not meet the required criteria."
+              : "Код не відповідає зазначеним критеріям.";
+        setMsg(`FAIL: ${reason}`);
+        onWrongAttempt?.();
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function runBehaviorMode() {
+    setBusy(true);
+    setMsg("");
+    setJudgeUnavailable(false);
     try {
       const d = await api<{
         result: {
@@ -2044,6 +2107,7 @@ function CodeJudgeExercise({
           stderr: string;
           tests: { pass: boolean; name: string }[];
           mode: string;
+          error?: string;
         };
       }>("/judge/run", {
         method: "POST",
@@ -2058,28 +2122,38 @@ function CodeJudgeExercise({
           timeoutMs: Number(exercise.timeoutMs ?? 3000),
         },
       });
+
+      if (d.result.mode === "disabled" || d.result.error === "judge_disabled") {
+        setJudgeUnavailable(true);
+        setMsg(
+          locale === "en"
+            ? "Judge runner is currently offline or disabled."
+            : "Judge runner зараз вимкнено або недоступний.",
+        );
+        return;
+      }
+
       const passed = d.result.tests.filter((t) => t.pass).length;
       const total = d.result.tests.length || (d.result.ok ? 1 : 0);
       setMsg(
         `${d.result.mode}: ${d.result.ok ? "OK" : "FAIL"}\n${d.result.stdout}\n${d.result.stderr}`,
       );
+
       if (d.result.ok) {
         onAnswer({
-          ok: true,
-          testsPassed: passed || 1,
-          testsTotal: total || 1,
-          stdout: d.result.stdout,
+          source: code,
+          mode: "behavior",
         });
       } else {
-        onAnswer({
-          ok: false,
-          testsPassed: passed,
-          testsTotal: Math.max(total, 1),
-          stdout: d.result.stdout,
-        });
+        onWrongAttempt?.();
       }
-    } catch (e) {
-      setMsg(e instanceof Error ? e.message : "judge_error");
+    } catch (e: unknown) {
+      const err = e as Error & { status?: number; data?: { error?: string } };
+      if (err.status === 503 || err.data?.error === "judge_unavailable" || err.data?.error === "judge_disabled") {
+        setJudgeUnavailable(true);
+      } else {
+        setMsg(e instanceof Error ? e.message : "judge_error");
+      }
     } finally {
       setBusy(false);
     }
@@ -2087,26 +2161,124 @@ function CodeJudgeExercise({
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
+        <div className="inline-flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+          <button
+            type="button"
+            className={clsx(
+              "rounded-lg px-3 py-1 text-xs font-bold transition",
+              mode === "behavior"
+                ? "bg-white text-ink shadow dark:bg-slate-700 dark:text-white"
+                : "text-ink-muted hover:text-ink dark:text-slate-400 dark:hover:text-white",
+            )}
+            onClick={() => handleModeChange("behavior")}
+          >
+            ⚙️ {t.lesson.modeBehavior}
+          </button>
+          <button
+            type="button"
+            className={clsx(
+              "rounded-lg px-3 py-1 text-xs font-bold transition",
+              mode === "text"
+                ? "bg-white text-ink shadow dark:bg-slate-700 dark:text-white"
+                : "text-ink-muted hover:text-ink dark:text-slate-400 dark:hover:text-white",
+            )}
+            onClick={() => handleModeChange("text")}
+          >
+            📄 {t.lesson.modeText}
+          </button>
+        </div>
+      </div>
+
+      {mode === "text" && (
+        <div className="rounded-2xl border border-sky-300 bg-sky-50/80 p-3 text-xs font-medium text-sky-900 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-200">
+          ℹ️ {t.lesson.textModeDisclaimer}
+        </div>
+      )}
+
+      {Boolean(limitations) && (
+        <p className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-ink-muted dark:bg-slate-800/60 dark:text-slate-300">
+          ℹ️ {String(limitations)}
+        </p>
+      )}
+
       <p className="text-xs font-bold text-ink-muted">
         Judge · {lang} ·{" "}
-        {locale === "en" ? "runs on API (local or Docker)" : "виконується на API (local/Docker)"}
+        {mode === "behavior"
+          ? locale === "en"
+            ? "isolated server execution"
+            : "ізольоване серверне виконання"
+          : locale === "en"
+            ? "static source verification"
+            : "статична перевірка коду"}
       </p>
+
       <MonacoCodeEditor
         value={code}
         onChange={setCode}
         language={lang === "python" ? "python" : lang === "bash" ? "shell" : "javascript"}
         height="220px"
       />
-      <button type="button" className="btn-primary" disabled={busy} onClick={() => void run()}>
-        {busy
-          ? locale === "en"
-            ? "Running…"
-            : "Виконуємо…"
-          : locale === "en"
-            ? "Run in judge"
-            : "Запустити в judge"}
-      </button>
+
+      {judgeUnavailable && (
+        <div className="rounded-2xl border-2 border-amber-500 bg-amber-50 p-4 dark:bg-amber-950/30 space-y-2">
+          <p className="font-bold text-amber-800 dark:text-amber-200">
+            ⚠️ {t.lesson.judgeUnavailable}
+          </p>
+          <p className="text-xs text-amber-700 dark:text-amber-300">
+            {t.lesson.judgeUnavailableHint}
+          </p>
+          <div className="flex flex-wrap gap-2 pt-1">
+            <button
+              type="button"
+              className="btn-primary !py-1.5 !text-xs"
+              disabled={busy}
+              onClick={() => void runBehaviorMode()}
+            >
+              🔄 {t.lesson.retryBehaviorCheck}
+            </button>
+            <button
+              type="button"
+              className="btn-secondary !py-1.5 !text-xs"
+              onClick={() => {
+                setJudgeUnavailable(false);
+                handleModeChange("text");
+              }}
+            >
+              📝 {t.lesson.switchToTextCheck}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="flex gap-2">
+        <button
+          type="button"
+          className="btn-primary"
+          disabled={busy}
+          onClick={() => {
+            if (mode === "text") {
+              void checkTextMode();
+            } else {
+              void runBehaviorMode();
+            }
+          }}
+        >
+          {busy
+            ? locale === "en"
+              ? "Running…"
+              : "Виконуємо…"
+            : mode === "text"
+              ? locale === "en"
+                ? "Check text"
+                : "Перевірити (текст)"
+              : locale === "en"
+                ? "Run in judge"
+                : "Запустити в judge"}
+        </button>
+      </div>
+
       {msg && (
         <pre className="max-h-40 overflow-auto rounded-xl bg-slate-900 p-3 text-xs text-green-300">
           {msg}

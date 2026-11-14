@@ -1182,9 +1182,9 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
         id: "cl-c1",
         type: "code_project",
         promptUk:
-          "Layout: .page display:grid areas header/nav/main; .nav display:flex. HTML: header, nav, main. README: flex vs grid.",
+          "Вихідні файли: index.html, styles.css, README.md. Очікуваний результат: макет дашборду на Grid з гнучкою навігацією на Flexbox. Обов'язкові елементи: в HTML <header>, <nav>, <main>, class=\"page\"; у CSS .page з display: grid та grid-template-areas, .nav з display: flex; у README порівняння flex та grid. Обмеження: статична перевірка правил верстки без браузерного рендеру.",
         promptEn:
-          "Layout: .page display:grid areas header/nav/main; .nav display:flex. HTML: header, nav, main. README: flex vs grid.",
+          "Input files: index.html, styles.css, README.md. Expected result: dashboard shell using CSS Grid with Flexbox navigation. Mandatory elements: in HTML <header>, <nav>, <main>, class=\"page\"; in CSS .page with display: grid and grid-template-areas, .nav with display: flex; in README compare flex and grid. Validation limits: static CSS layout check without headless browser render.",
         files: [
           {
             id: "html",

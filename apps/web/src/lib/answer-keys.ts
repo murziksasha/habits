@@ -30,11 +30,7 @@ export function optionIndexFromKey(e: KeyLike): number | null {
   return null;
 }
 
-/**
- * True for elements where typing should take precedence over lesson shortcuts:
- * input, textarea, select, and contenteditable.
- */
-export function isTypingTarget(target: EventTarget | null): boolean {
+function isSingleElementTyping(target: EventTarget | null): boolean {
   if (!target || typeof target !== "object") return false;
   const el = target as Partial<HTMLElement>;
   const tag = typeof el.tagName === "string" ? el.tagName.toLowerCase() : "";
@@ -49,6 +45,38 @@ export function isTypingTarget(target: EventTarget | null): boolean {
     if (ce !== null && ce !== "false") {
       return true;
     }
+    const role = el.getAttribute("role");
+    if (role === "textbox" || role === "searchbox" || role === "combobox") {
+      return true;
+    }
+  }
+  if (typeof el.closest === "function") {
+    const parentTyping = el.closest(
+      "input, textarea, select, [contenteditable]:not([contenteditable='false']), [role='textbox'], [role='searchbox'], [role='combobox'], .monaco-editor, [data-monaco-editor], .editor-instance",
+    );
+    if (parentTyping) return true;
+  }
+  const className = typeof el.className === "string" ? el.className : "";
+  if (className.includes("monaco-editor") || className.includes("inputarea")) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * True for elements where typing should take precedence over lesson shortcuts:
+ * input, textarea, select, contenteditable, and code editors (Monaco/Ace).
+ * Also checks activeElement if target is body/document/window.
+ */
+export function isTypingTarget(target: EventTarget | null): boolean {
+  if (isSingleElementTyping(target)) return true;
+  if (
+    typeof document !== "undefined" &&
+    document.activeElement &&
+    document.activeElement !== document.body &&
+    document.activeElement !== target
+  ) {
+    if (isSingleElementTyping(document.activeElement)) return true;
   }
   return false;
 }
