@@ -3,6 +3,7 @@
 import React, { useMemo, useState, useRef, useCallback } from "react";
 import clsx from "clsx";
 import type { SimSeries, RunSimOutput } from "@eduforge/circuit-engine";
+import { useLocale } from "@/lib/locale-context";
 
 export type WaveformChartProps = {
   result: RunSimOutput | null;
@@ -46,6 +47,7 @@ export function CircuitWaveformChart({
   className,
   analysisType,
 }: WaveformChartProps) {
+  const { t } = useLocale();
   const [hiddenTraces, setHiddenTraces] = useState<Record<string, boolean>>({});
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const [acMode, setAcMode] = useState<"mag" | "phase">("mag");
@@ -192,6 +194,12 @@ export function CircuitWaveformChart({
     const xMin = Math.min(...xVals);
     const xMax = Math.max(...xVals);
     const xRange = xMax - xMin || 1;
+    const xName = (xSeries?.name ?? "").toLowerCase();
+    const frequencyAxis =
+      isAc || xSeries?.type === "frequency" || xName === "frequency" || analysisType === "ac" || analysisType === "noise";
+    const timeAxis = xSeries?.type === "time" || xName === "time" || analysisType === "tran";
+    const xUnit = frequencyAxis ? "Hz" : timeAxis ? "s" : "";
+    const logX = frequencyAxis && xMin > 0 && xMax / xMin >= 10;
 
     // Y bounds across all visible traces
     let yMin = Infinity;
@@ -217,8 +225,14 @@ export function CircuitWaveformChart({
     }
     const yRange = yMax - yMin || 1;
 
-    // Coordinate transforms
-    const getX = (val: number) => padLeft + ((val - xMin) / xRange) * plotW;
+    const getX = (val: number) => {
+      if (logX) {
+        const start = Math.log10(xMin);
+        const stop = Math.log10(xMax);
+        return padLeft + ((Math.log10(Math.max(val, xMin)) - start) / (stop - start || 1)) * plotW;
+      }
+      return padLeft + ((val - xMin) / xRange) * plotW;
+    };
     const getY = (val: number) => padTop + plotH - ((val - yMin) / yRange) * plotH;
 
     // Generate polyline paths for visible traces
@@ -241,20 +255,28 @@ export function CircuitWaveformChart({
 
     // Generate grid lines
     const xTicks: { x: number; label: string }[] = [];
-    const numXTicks = 6;
-    for (let i = 0; i <= numXTicks; i++) {
-      const v = xMin + (xRange * i) / numXTicks;
-      const x = getX(v);
-      const xUnit = isAc ? "Hz" : "s";
-      xTicks.push({ x, label: formatEngineering(v, xUnit) });
+    if (logX) {
+      const first = Math.ceil(Math.log10(xMin));
+      const last = Math.floor(Math.log10(xMax));
+      for (let decade = first; decade <= last; decade++) {
+        const v = 10 ** decade;
+        xTicks.push({ x: getX(v), label: formatEngineering(v, xUnit) });
+      }
+      if (xTicks.length === 0) xTicks.push({ x: getX(xMin), label: formatEngineering(xMin, xUnit) });
+    } else {
+      const numXTicks = 6;
+      for (let i = 0; i <= numXTicks; i++) {
+        const v = xMin + (xRange * i) / numXTicks;
+        xTicks.push({ x: getX(v), label: formatEngineering(v, xUnit) });
+      }
     }
 
+    const yUnit = parsedData.yTraces[0]?.unit || (isAc ? (acMode === "mag" ? "dB" : "°") : "V");
     const yTicks: { y: number; label: string }[] = [];
     const numYTicks = 5;
     for (let i = 0; i <= numYTicks; i++) {
       const v = yMin + (yRange * i) / numYTicks;
       const y = getY(v);
-      const yUnit = isAc ? (acMode === "mag" ? "dB" : "°") : "V";
       yTicks.push({ y, label: formatEngineering(v, yUnit) });
     }
 
@@ -276,8 +298,10 @@ export function CircuitWaveformChart({
       paths,
       xTicks,
       yTicks,
+      xUnit,
+      logX,
     };
-  }, [parsedData, hiddenTraces, isAc, acMode]);
+  }, [parsedData, hiddenTraces, isAc, acMode, analysisType, xSeries?.name, xSeries?.type]);
 
   // Mouse hover event handler for crosshair cursor
   const handleMouseMove = useCallback(
@@ -296,9 +320,10 @@ export function CircuitWaveformChart({
         return;
       }
 
-      const ratio =
-        (plotMouseX - chartLayout.padLeft) / chartLayout.plotW;
-      const targetX = chartLayout.xMin + ratio * (chartLayout.xMax - chartLayout.xMin);
+      const ratio = (plotMouseX - chartLayout.padLeft) / chartLayout.plotW;
+      const targetX = chartLayout.logX
+        ? 10 ** (Math.log10(chartLayout.xMin) + ratio * (Math.log10(chartLayout.xMax) - Math.log10(chartLayout.xMin)))
+        : chartLayout.xMin + ratio * (chartLayout.xMax - chartLayout.xMin);
 
       // Find closest index in xVals
       const xVals = parsedData.xVals;
@@ -350,7 +375,7 @@ export function CircuitWaveformChart({
     return (
       <div className={clsx("flex flex-col items-center justify-center p-8 border rounded-xl bg-slate-900/40 border-slate-800 text-slate-400 min-h-[320px]", className)}>
         <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin mb-3" />
-        <p className="text-sm font-medium">Running SPICE simulation...</p>
+        <p className="text-sm font-medium">{t.circuitLab.simulating}</p>
       </div>
     );
   }
@@ -382,7 +407,34 @@ export function CircuitWaveformChart({
         <svg className="w-10 h-10 mb-2 opacity-50 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
         </svg>
-        <p className="text-sm">Click &ldquo;Run Simulation&rdquo; to plot waveforms</p>
+        <p className="text-sm">{t.circuitLab.plotEmpty}</p>
+      </div>
+    );
+  }
+
+  const paneUnits = [...new Set(parsedData.yTraces.map((trace) => trace.unit))];
+  if (paneUnits.length > 1) {
+    return (
+      <div className={clsx("flex flex-col gap-4", className)}>
+        {paneUnits.map((unit) => (
+          <CircuitWaveformChart
+            key={unit}
+            analysisType={analysisType}
+            result={{
+              ...result,
+              data: result.data.filter((series) => {
+                const lower = series.name.toLowerCase();
+                const isX =
+                  series.type === "time" ||
+                  series.type === "frequency" ||
+                  lower === "time" ||
+                  lower === "frequency";
+                if (isX) return true;
+                return parsedData.yTraces.find((item) => item.name === series.name)?.unit === unit;
+              }),
+            }}
+          />
+        ))}
       </div>
     );
   }
@@ -395,7 +447,7 @@ export function CircuitWaveformChart({
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-            {isAc ? "AC Frequency Response" : "Transient Waveforms"}
+            {isAc ? t.circuitLab.frequencyResponse : chartLayout.xUnit === "s" ? t.circuitLab.transientWaveforms : t.circuitLab.sweep}
           </span>
           <span className="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">
             {result.numPoints} pts
@@ -415,7 +467,7 @@ export function CircuitWaveformChart({
                     : "text-slate-400 hover:text-white"
                 )}
               >
-                Magnitude (dB)
+                {t.circuitLab.magnitudeDb}
               </button>
               <button
                 type="button"
@@ -427,7 +479,7 @@ export function CircuitWaveformChart({
                     : "text-slate-400 hover:text-white"
                 )}
               >
-                Phase (°)
+                {t.circuitLab.phaseDeg}
               </button>
             </div>
           )}
@@ -592,7 +644,7 @@ export function CircuitWaveformChart({
         {hoverIndex !== null && hoverXVal !== null && (
           <div className="absolute top-2 right-2 p-2.5 rounded-lg bg-slate-900/95 border border-slate-700/80 shadow-lg text-xs font-mono pointer-events-none backdrop-blur-sm">
             <div className="text-slate-400 mb-1 border-b border-slate-800 pb-1 font-semibold">
-              {xSeries?.name}: {formatEngineering(hoverXVal, isAc ? "Hz" : "s")}
+              {xSeries?.name}: {formatEngineering(hoverXVal, chartLayout.xUnit)}
             </div>
             <div className="flex flex-col gap-1">
               {parsedData.yTraces.map((t) => {

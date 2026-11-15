@@ -13,6 +13,8 @@ import type { RunSimOutput } from "@eduforge/circuit-engine";
 import { COMPONENT_REGISTRY, type ComponentDef } from "./circuit-symbols";
 import { CircuitWaveformChart } from "./circuit-waveform-chart";
 import { api } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/locale-context";
 
 export type CircuitEditorProps = {
   initialDoc?: CircuitDocument;
@@ -53,12 +55,17 @@ export function CircuitEditor({
   className,
 }: CircuitEditorProps) {
   // Document state
+  const { t } = useLocale();
+  const { user } = useAuth();
+  const workerRef = useRef<Worker | null>(null);
+  const runSeq = useRef(0);
   const [doc, setDoc] = useState<CircuitDocument>(
     initialDoc ?? {
-      version: 1,
+      version: 2,
       title: "New Circuit",
       components: [],
       wires: [],
+      junctions: [],
       mode: "schematic",
     }
   );
@@ -68,10 +75,11 @@ export function CircuitEditor({
 
   // Analysis state
   const [analysis, setAnalysis] = useState<CircuitAnalysis>(
-    initialAnalysis ?? {
-      type: "tran",
-      tran: { tStep: 1e-5, tStop: 5e-3 },
-    }
+    initialAnalysis ??
+      initialDoc?.analysis ?? {
+        type: "tran",
+        tran: { tStep: 1e-5, tStop: 5e-3 },
+      }
   );
 
   // Interaction state
@@ -94,18 +102,75 @@ export function CircuitEditor({
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
   const canvasRef = useRef<SVGSVGElement | null>(null);
+  const docRef = useRef(doc);
+  docRef.current = doc;
+  const pastRef = useRef<CircuitDocument[]>([]);
+  const futureRef = useRef<CircuitDocument[]>([]);
+  const skipHistoryRef = useRef(false);
+  const dragBeforeRef = useRef<CircuitDocument | null>(null);
+  const [view, setView] = useState({ x: 0, y: 0, w: 800, h: 500 });
+  const viewRef = useRef(view);
+  viewRef.current = view;
+  const panRef = useRef<{ x: number; y: number; w: number; h: number; px: number; py: number } | null>(null);
+
+  const clientToSvg = useCallback((clientX: number, clientY: number) => {
+    const svg = canvasRef.current;
+    const box = viewRef.current;
+    if (!svg) return { x: 0, y: 0 };
+    const rect = svg.getBoundingClientRect();
+    const width = rect.width || 1;
+    const height = rect.height || 1;
+    return {
+      x: box.x + ((clientX - rect.left) / width) * box.w,
+      y: box.y + ((clientY - rect.top) / height) * box.h,
+    };
+  }, []);
 
   // Sync to parent onChange
   const updateDoc = useCallback(
     (updater: (prev: CircuitDocument) => CircuitDocument) => {
       setDoc((prev) => {
         const next = updater(prev);
+        if (!skipHistoryRef.current) {
+          pastRef.current = [...pastRef.current, prev].slice(-80);
+          futureRef.current = [];
+        }
         if (onChange) onChange(next);
         return next;
       });
     },
     [onChange]
   );
+
+  const applyDoc = useCallback(
+    (next: CircuitDocument) => {
+      setDoc(next);
+      if (onChange) onChange(next);
+    },
+    [onChange],
+  );
+
+  const undoDoc = useCallback(() => {
+    const prev = pastRef.current.pop();
+    if (!prev) return;
+    futureRef.current.push(docRef.current);
+    applyDoc(prev);
+  }, [applyDoc]);
+
+  const redoDoc = useCallback(() => {
+    const next = futureRef.current.pop();
+    if (!next) return;
+    pastRef.current.push(docRef.current);
+    applyDoc(next);
+  }, [applyDoc]);
+
+  const zoomBy = useCallback((factor: number) => {
+    setView((current) => ({
+      ...current,
+      w: Math.min(3200, Math.max(200, current.w * factor)),
+      h: Math.min(2000, Math.max(125, current.h * factor)),
+    }));
+  }, []);
 
   // Palette components to choose from
   const paletteKeys = useMemo(
@@ -209,17 +274,28 @@ export function CircuitEditor({
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
         return;
       }
-      if (e.key === "r" || e.key === "R") {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        if (e.shiftKey) redoDoc();
+        else undoDoc();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") {
+        e.preventDefault();
+        redoDoc();
+      } else if (e.key === "r" || e.key === "R") {
         e.preventDefault();
         handleRotateSelected();
       } else if (e.key === "Delete" || e.key === "Backspace") {
         e.preventDefault();
         handleDeleteSelected();
+      } else if (e.key === "+" || e.key === "=") {
+        zoomBy(0.8);
+      } else if (e.key === "-" || e.key === "_") {
+        zoomBy(1.25);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleRotateSelected, handleDeleteSelected]);
+  }, [handleRotateSelected, handleDeleteSelected, undoDoc, redoDoc, zoomBy]);
 
   // Pin absolute position calculation
   const getPinAbsolutePos = useCallback(
@@ -307,33 +383,31 @@ export function CircuitEditor({
     }
   };
 
-  const handleComponentMouseDown = (e: React.MouseEvent, comp: CircuitComponent) => {
+  const handleComponentPointerDown = (e: React.PointerEvent, comp: CircuitComponent) => {
     if (readOnly) return;
     e.stopPropagation();
     setSelectedCompId(comp.id);
     setSelectedWireId(null);
     setDraggingCompId(comp.id);
-
-    if (canvasRef.current) {
-      const rect = canvasRef.current.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
-      setDragOffset({
-        x: mouseX - comp.x,
-        y: mouseY - comp.y,
-      });
-    }
+    dragBeforeRef.current = docRef.current;
+    skipHistoryRef.current = true;
+    const point = clientToSvg(e.clientX, e.clientY);
+    setDragOffset({ x: point.x - comp.x, y: point.y - comp.y });
   };
 
-  const handleCanvasMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
-    if (!draggingCompId || readOnly || !canvasRef.current) return;
-    const rect = canvasRef.current.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-
-    const newX = snap(mouseX - dragOffset.x);
-    const newY = snap(mouseY - dragOffset.y);
-
+  const handleCanvasPointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (panRef.current && canvasRef.current) {
+      const rect = canvasRef.current.getBoundingClientRect();
+      const start = panRef.current;
+      const dx = ((e.clientX - start.px) / (rect.width || 1)) * start.w;
+      const dy = ((e.clientY - start.py) / (rect.height || 1)) * start.h;
+      setView({ x: start.x - dx, y: start.y - dy, w: start.w, h: start.h });
+      return;
+    }
+    if (!draggingCompId || readOnly) return;
+    const point = clientToSvg(e.clientX, e.clientY);
+    const newX = snap(point.x - dragOffset.x);
+    const newY = snap(point.y - dragOffset.y);
     updateDoc((prev) => ({
       ...prev,
       components: prev.components.map((c) =>
@@ -342,55 +416,114 @@ export function CircuitEditor({
     }));
   };
 
-  const handleCanvasMouseUp = () => {
+  const handleCanvasPointerUp = () => {
+    if (dragBeforeRef.current) {
+      pastRef.current = [...pastRef.current, dragBeforeRef.current].slice(-80);
+      futureRef.current = [];
+      dragBeforeRef.current = null;
+    }
+    skipHistoryRef.current = false;
+    panRef.current = null;
     setDraggingCompId(null);
   };
 
-  // Run SPICE Simulation via API
+  const handleCanvasPointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (e.target === canvasRef.current) {
+      setSelectedCompId(null);
+      setSelectedWireId(null);
+      setWiringFrom(null);
+      const box = viewRef.current;
+      panRef.current = { x: box.x, y: box.y, w: box.w, h: box.h, px: e.clientX, py: e.clientY };
+    }
+  };
+
+  const applyAnalysis = (next: CircuitAnalysis) => {
+    setAnalysis(next);
+    updateDoc((prev) => ({ ...prev, analysis: next }));
+  };
+
+  useEffect(() => {
+    return () => {
+      workerRef.current?.terminate();
+      workerRef.current = null;
+    };
+  }, []);
+
+  const stopPreview = () => {
+    runSeq.current += 1;
+    workerRef.current?.terminate();
+    workerRef.current = null;
+    setIsSimulating(false);
+  };
+
+  // Authenticated preview uses the server. Guests stay in a worker that cancel can kill.
   const handleRunSimulation = async () => {
+    stopPreview();
+    const seq = runSeq.current;
     setIsSimulating(true);
     setSimResult(null);
+    const circuit = mode === "schematic" ? { ...doc, analysis } : netlistText;
+    const payload = { circuit, analysis };
+
+    const accept = (result: RunSimOutput) => {
+      if (seq !== runSeq.current) return;
+      setSimResult(result);
+      if (onSimulationResult) onSimulationResult(result);
+    };
 
     try {
-      const payload = {
-        document: mode === "schematic" ? doc : undefined,
-        netlist: mode === "netlist" ? netlistText : undefined,
-        analysis,
-      };
-
-      const res = await api<{
-        ok: boolean;
-        result?: RunSimOutput;
-        error?: string;
-      }>("/circuits/simulate", {
-        method: "POST",
-        body: payload,
-      });
-
-      if (res.result) {
-        setSimResult(res.result);
-        if (onSimulationResult) onSimulationResult(res.result);
-      } else {
-        setSimResult({
-          ok: false,
-          dataType: "real",
-          variableNames: [],
-          numPoints: 0,
-          data: [],
-          error: res.error || "Simulation error",
+      if (user) {
+        const res = await api<{ ok: boolean; result?: RunSimOutput; error?: string }>("/circuits/simulate", {
+          method: "POST",
+          body: payload,
         });
+        accept(
+          res.result ?? {
+            ok: false,
+            dataType: "real",
+            variableNames: [],
+            numPoints: 0,
+            data: [],
+            error: res.error || "Simulation error",
+          },
+        );
+      } else {
+        const worker = new Worker(new URL("./spice-preview-worker.ts", import.meta.url));
+        workerRef.current = worker;
+        const result = await new Promise<RunSimOutput>((resolve, reject) => {
+          const watch = window.setInterval(() => {
+            if (seq !== runSeq.current) {
+              window.clearInterval(watch);
+              reject(new Error("cancelled"));
+            }
+          }, 100);
+          worker.onmessage = (event: MessageEvent<{ result: RunSimOutput }>) => {
+            window.clearInterval(watch);
+            resolve(event.data.result);
+          };
+          worker.onerror = () => {
+            window.clearInterval(watch);
+            reject(new Error("circuit_engine_unavailable"));
+          };
+          worker.postMessage(payload);
+        });
+        worker.terminate();
+        if (workerRef.current === worker) workerRef.current = null;
+        accept(result);
       }
-    } catch (err: any) {
-      setSimResult({
+    } catch (err: unknown) {
+      if (seq !== runSeq.current) return;
+      const data = (err as { data?: { error?: string }; message?: string }) ?? {};
+      accept({
         ok: false,
         dataType: "real",
         variableNames: [],
         numPoints: 0,
         data: [],
-        error: err?.data?.error || err.message || "Failed to reach circuit simulation engine",
+        error: data.data?.error || data.message || "circuit_engine_unavailable",
       });
     } finally {
-      setIsSimulating(false);
+      if (seq === runSeq.current) setIsSimulating(false);
     }
   };
 
@@ -488,8 +621,48 @@ export function CircuitEditor({
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
               </svg>
             )}
-            Моделювати
+            {isSimulating ? t.circuitLab.simulating : t.circuitLab.simulate}
           </button>
+          {isSimulating && (
+            <button type="button" onClick={stopPreview} className="px-2.5 py-1.5 text-xs font-medium rounded-md border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700">
+              {t.circuitLab.cancel}
+            </button>
+          )}
+          {!user && (
+            <span className="text-[10px] text-slate-500">{t.circuitLab.guestPreview}</span>
+          )}
+          <button type="button" onClick={undoDoc} className="px-2.5 py-1.5 text-xs font-medium rounded-md border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700">
+            {t.circuitLab.undo}
+          </button>
+          <button type="button" onClick={redoDoc} className="px-2.5 py-1.5 text-xs font-medium rounded-md border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700">
+            {t.circuitLab.redo}
+          </button>
+          <button type="button" onClick={() => zoomBy(0.8)} title={t.circuitLab.zoomIn} className="px-2.5 py-1.5 text-xs font-medium rounded-md border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700">
+            +
+          </button>
+          <button type="button" onClick={() => zoomBy(1.25)} title={t.circuitLab.zoomOut} className="px-2.5 py-1.5 text-xs font-medium rounded-md border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700">
+            −
+          </button>
+          <label className="text-[11px] text-slate-400">
+            <select
+              value={analysis.type}
+              onChange={(e) => {
+                const type = e.target.value as CircuitAnalysis["type"];
+                if (type === "dc") applyAnalysis({ type, dc: { source: "V1", start: 0, stop: 10, step: 1 } });
+                else if (type === "ac") applyAnalysis({ type, ac: { variation: "dec", points: 20, fStart: 10, fStop: 1e6 } });
+                else if (type === "tran") applyAnalysis({ type, tran: { tStep: 1e-5, tStop: 5e-3 } });
+                else if (type === "noise") applyAnalysis({ type, noise: { output: "V(out)", ref: "0", variation: "dec", points: 10, fStart: 10, fStop: 1e6 } });
+                else applyAnalysis({ type: "op" });
+              }}
+              className="bg-slate-950 border border-slate-700 rounded-md px-2 py-1 text-xs text-slate-200"
+            >
+              <option value="op">.op</option>
+              <option value="dc">.dc</option>
+              <option value="ac">.ac</option>
+              <option value="tran">.tran</option>
+              <option value="noise">.noise</option>
+            </select>
+          </label>
 
           {/* Export Dropdown */}
           <button
@@ -615,11 +788,12 @@ export function CircuitEditor({
             <div className="relative border border-slate-800 rounded-xl bg-slate-950 overflow-hidden min-h-[460px]">
               <svg
                 ref={canvasRef}
-                viewBox="0 0 800 500"
-                className="w-full h-[460px] cursor-default select-none"
-                onMouseDown={handleCanvasMouseDown}
-                onMouseMove={handleCanvasMouseMove}
-                onMouseUp={handleCanvasMouseUp}
+                viewBox={`${view.x} ${view.y} ${view.w} ${view.h}`}
+                className="w-full h-[460px] cursor-default select-none touch-none"
+                onPointerDown={handleCanvasPointerDown}
+                onPointerMove={handleCanvasPointerMove}
+                onPointerUp={handleCanvasPointerUp}
+                onPointerLeave={handleCanvasPointerUp}
               >
                 <defs>
                   {/* Dot Grid Pattern */}
@@ -643,34 +817,26 @@ export function CircuitEditor({
                   let x2 = 0;
                   let y2 = 0;
 
-                  if ("id" in w.from) {
-                    const fromNode = w.from;
-                    const c1 = doc.components.find((c) => c.id === fromNode.id);
-                    const def1 = c1 ? COMPONENT_REGISTRY[c1.type] : null;
-                    const p1 = def1?.pins.find((p) => p.name === fromNode.pin || p.id === fromNode.pin);
-                    if (c1 && p1) {
-                      const pos = getPinAbsolutePos(c1, p1);
-                      x1 = pos.x;
-                      y1 = pos.y;
-                    }
-                  } else {
-                    x1 = w.from.x;
-                    y1 = w.from.y;
+                  const place = (endpoint: CircuitWire["from"]) => {
+                    if ("x" in endpoint && "y" in endpoint) return { x: endpoint.x, y: endpoint.y };
+                    const id = "componentId" in endpoint ? endpoint.componentId : "id" in endpoint ? endpoint.id : null;
+                    const pin = "pin" in endpoint ? endpoint.pin : undefined;
+                    if (!id || !pin) return null;
+                    const comp = doc.components.find((c) => c.id === id);
+                    const defn = comp ? COMPONENT_REGISTRY[comp.type] : null;
+                    const pinDef = defn?.pins.find((p) => p.name === pin || p.id === pin);
+                    if (!comp || !pinDef) return null;
+                    return getPinAbsolutePos(comp, pinDef);
+                  };
+                  const fromPos = place(w.from);
+                  const toPos = place(w.to);
+                  if (fromPos) {
+                    x1 = fromPos.x;
+                    y1 = fromPos.y;
                   }
-
-                  if ("id" in w.to) {
-                    const toNode = w.to;
-                    const c2 = doc.components.find((c) => c.id === toNode.id);
-                    const def2 = c2 ? COMPONENT_REGISTRY[c2.type] : null;
-                    const p2 = def2?.pins.find((p) => p.name === toNode.pin || p.id === toNode.pin);
-                    if (c2 && p2) {
-                      const pos = getPinAbsolutePos(c2, p2);
-                      x2 = pos.x;
-                      y2 = pos.y;
-                    }
-                  } else {
-                    x2 = w.to.x;
-                    y2 = w.to.y;
+                  if (toPos) {
+                    x2 = toPos.x;
+                    y2 = toPos.y;
                   }
 
                   const isSelected = selectedWireId === w.id;
@@ -734,7 +900,7 @@ export function CircuitEditor({
                     <g
                       key={comp.id}
                       transform={`translate(${comp.x}, ${comp.y}) rotate(${comp.rotation}, ${def.width / 2}, ${def.height / 2})`}
-                      onMouseDown={(e) => handleComponentMouseDown(e, comp)}
+                      onPointerDown={(e) => handleComponentPointerDown(e, comp)}
                       className="cursor-move"
                     >
                       {/* Selection Box */}
@@ -834,7 +1000,7 @@ export function CircuitEditor({
         /* SPICE Netlist Raw Editor */
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between text-xs text-slate-400 px-1">
-            <span>Редактор SPICE Netlist (.cir)</span>
+            <span>{t.circuitLab.textMode}</span>
             <span className="text-[11px] font-mono">ngspice syntax</span>
           </div>
           <textarea

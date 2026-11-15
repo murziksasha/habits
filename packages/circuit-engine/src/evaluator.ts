@@ -3,10 +3,32 @@
  * Runs SPICE simulation on submitted circuit and tests every criterion.
  */
 
-import type { CircuitCriterion, CircuitLabExercise } from "@eduforge/shared";
-import { isWithinTolerance } from "@eduforge/shared";
-import { generateNetlist } from "./netlist-generator.js";
+import {
+  adaptCircuitDocument,
+  type CircuitCriterion,
+  type CircuitDocument,
+  type CircuitLabExercise,
+  isWithinTolerance,
+} from "@eduforge/shared";
+import { compileNetlist } from "./netlist-generator.js";
+import {
+  averageUneven,
+  complexGain,
+  cutoffFrequency,
+  dcPower,
+  isAllowedMetric,
+  measureScalar,
+  phasorPower,
+  resonanceFrequency,
+  riseTime,
+  rmsUneven,
+  sampleMagnitude,
+  sliceWindow,
+  trapezoid,
+  type MeasureKind,
+} from "./measure.js";
 import { executeSpiceNetlist, type RunSimOutput, type SimSeries } from "./runner.js";
+import { applyScenarioOverrides, checkStructure } from "./structure.js";
 
 export type CriterionEvaluation = {
   id?: string;
@@ -67,6 +89,62 @@ export function extractVoltageSeries(
   return posVals.map((v, i) => v - (negVals[i] ?? 0));
 }
 
+function seriesReals(series: SimSeries | undefined): number[] | null {
+  if (!series || series.values.length === 0) return null;
+  return series.values.map((v) => (typeof v === "number" ? v : v.real));
+}
+
+function axisValues(output: RunSimOutput): number[] | null {
+  return seriesReals(findSeries(output, "time") ?? findSeries(output, "frequency") ?? findSeries(output, "v-sweep"));
+}
+
+function traceForMeasure(series: SimSeries, kind: MeasureKind): number[] {
+  if (kind === "magnitude") return series.values.map((v) => sampleMagnitude(v));
+  return series.values.map((v) => (typeof v === "number" ? v : v.real));
+}
+
+/** Windowed scalar. Transient average, RMS, and signed mean use time integration when a time axis exists. */
+function measureTrace(values: number[], xs: number[] | null, criterion: CircuitCriterion): number | null {
+  const kind: MeasureKind = criterion.measure ?? "signed";
+  const sliced = sliceWindow(values, xs, criterion.window);
+  const slicedX = xs ? sliceWindow(xs, xs, criterion.window) : null;
+  const timed = slicedX && slicedX.length === sliced.length && slicedX.length >= 2 && slicedX.some((x, i) => i > 0 && x !== slicedX[0]);
+  if (timed && slicedX) {
+    if (kind === "rms") return rmsUneven(sliced, slicedX);
+    if (kind === "average" || kind === "signed") return averageUneven(sliced, slicedX);
+  }
+  return measureScalar(sliced, kind);
+}
+
+function judgeNumber(
+  actual: number | null,
+  criterion: CircuitCriterion,
+  base: CriterionEvaluation,
+  failError: string,
+): CriterionEvaluation {
+  if (actual === null || !Number.isFinite(actual)) {
+    return { ...base, error: "missing_crossing" };
+  }
+  const relTol = criterion.relTolerance ?? 0.05;
+  const absTol = criterion.absTolerance ?? 0;
+  let passed = false;
+  if (criterion.target !== undefined) {
+    passed = isWithinTolerance(actual, criterion.target, absTol, relTol);
+    base.expected = criterion.target;
+  } else if (criterion.min !== undefined || criterion.max !== undefined) {
+    const minOk = criterion.min === undefined || actual >= criterion.min - absTol;
+    const maxOk = criterion.max === undefined || actual <= criterion.max + absTol;
+    passed = minOk && maxOk;
+    base.expected = { min: criterion.min, max: criterion.max };
+  }
+  return {
+    ...base,
+    passed,
+    actual: Number(actual.toPrecision(6)),
+    error: passed ? undefined : failError,
+  };
+}
+
 /**
  * Evaluates an individual circuit lab criterion.
  */
@@ -92,32 +170,18 @@ export function evaluateCriterion(
       if (!criterion.node) {
         return { ...baseResult, error: "criterion_missing_node" };
       }
-      const vals = extractVoltageSeries(simOutput, criterion.node, criterion.referenceNode);
+      const kind = criterion.measure ?? "signed";
+      const nodeName = criterion.node.replace(/^v\(/i, "").replace(/\)$/, "").trim();
+      const series = findSeries(simOutput, `v(${nodeName})`);
+      let vals = extractVoltageSeries(simOutput, criterion.node, criterion.referenceNode);
+      if (series && kind === "magnitude" && !criterion.referenceNode) {
+        vals = traceForMeasure(series, "magnitude");
+      }
       if (!vals || vals.length === 0) {
         return { ...baseResult, error: `node_not_found: Node "${criterion.node}" not in simulation output` };
       }
-
-      // If transient or sweep, use steady-state (last value or average of last 10%)
-      const lastVals = vals.slice(Math.floor(vals.length * 0.9));
-      const actualVal = lastVals.reduce((a, b) => a + b, 0) / (lastVals.length || 1);
-
-      let passed = false;
-      if (criterion.target !== undefined) {
-        passed = isWithinTolerance(actualVal, criterion.target, absTol, relTol);
-        baseResult.expected = criterion.target;
-      } else if (criterion.min !== undefined || criterion.max !== undefined) {
-        const minOk = criterion.min === undefined || actualVal >= criterion.min - absTol;
-        const maxOk = criterion.max === undefined || actualVal <= criterion.max + absTol;
-        passed = minOk && maxOk;
-        baseResult.expected = { min: criterion.min, max: criterion.max };
-      }
-
-      return {
-        ...baseResult,
-        passed,
-        actual: Number(actualVal.toFixed(4)),
-        error: passed ? undefined : "voltage_out_of_range",
-      };
+      const actual = measureTrace(vals, axisValues(simOutput), criterion);
+      return judgeNumber(actual, criterion, baseResult, "voltage_out_of_range");
     }
 
     case "branch_current": {
@@ -126,28 +190,10 @@ export function evaluateCriterion(
       if (!series || series.values.length === 0) {
         return { ...baseResult, error: `current_source_not_found: "${src}"` };
       }
-
-      const vals = series.values.map((v) => Math.abs(typeof v === "number" ? v : v.real));
-      const lastVals = vals.slice(Math.floor(vals.length * 0.9));
-      const actualVal = lastVals.reduce((a, b) => a + b, 0) / (lastVals.length || 1);
-
-      let passed = false;
-      if (criterion.target !== undefined) {
-        passed = isWithinTolerance(actualVal, criterion.target, absTol, relTol);
-        baseResult.expected = criterion.target;
-      } else if (criterion.min !== undefined || criterion.max !== undefined) {
-        const minOk = criterion.min === undefined || actualVal >= criterion.min - absTol;
-        const maxOk = criterion.max === undefined || actualVal <= criterion.max + absTol;
-        passed = minOk && maxOk;
-        baseResult.expected = { min: criterion.min, max: criterion.max };
-      }
-
-      return {
-        ...baseResult,
-        passed,
-        actual: Number(actualVal.toPrecision(4)),
-        error: passed ? undefined : "current_out_of_range",
-      };
+      const kind = criterion.measure ?? "signed";
+      const vals = traceForMeasure(series, kind === "magnitude" ? "magnitude" : "signed");
+      const actual = measureTrace(vals, axisValues(simOutput), { ...criterion, measure: kind });
+      return judgeNumber(actual, criterion, baseResult, "current_out_of_range");
     }
 
     case "power": {
@@ -159,10 +205,9 @@ export function evaluateCriterion(
         return { ...baseResult, error: "missing_voltage_or_current_for_power" };
       }
 
-      const iVals = iSeries.values.map((v) => Math.abs(typeof v === "number" ? v : v.real));
-      const pVals = vVals.map((v, i) => Math.abs(v * (iVals[i] ?? 0)));
-      const actualPower = pVals.slice(Math.floor(pVals.length * 0.9)).reduce((a, b) => a + b, 0) /
-        (pVals.length * 0.1 || 1);
+      const iVals = iSeries.values.map((v) => (typeof v === "number" ? v : v.real));
+      const actualPower = dcPower(vVals, iVals, null, criterion.window);
+      if (actualPower === null) return { ...baseResult, error: "missing_voltage_or_current_for_power" };
 
       let passed = false;
       if (criterion.target !== undefined) {
@@ -184,22 +229,16 @@ export function evaluateCriterion(
     }
 
     case "gain": {
-      // Gain = Vout / Vin
-      const outVals = criterion.node ? extractVoltageSeries(simOutput, criterion.node) : null;
-      const inVals = criterion.referenceNode
-        ? extractVoltageSeries(simOutput, criterion.referenceNode)
-        : null;
-
-      if (!outVals || !inVals || outVals.length === 0 || inVals.length === 0) {
+      const outSeries = criterion.node ? findSeries(simOutput, `v(${criterion.node})`) : undefined;
+      const inSeries = criterion.referenceNode ? findSeries(simOutput, `v(${criterion.referenceNode})`) : undefined;
+      const outSample = outSeries?.values.at(-1);
+      const inSample = inSeries?.values.at(-1);
+      if (outSample === undefined || inSample === undefined) {
         return { ...baseResult, error: "missing_input_or_output_for_gain" };
       }
-
-      // Compute RMS or peak of output and input
-      const maxOut = Math.max(...outVals.map(Math.abs));
-      const maxIn = Math.max(...inVals.map(Math.abs));
-      if (maxIn === 0) return { ...baseResult, error: "input_signal_is_zero" };
-
-      const actualGain = maxOut / maxIn;
+      const gain = complexGain(outSample, inSample);
+      if (!gain) return { ...baseResult, error: "input_signal_is_zero" };
+      const actualGain = criterion.measure === "signed" ? gain.real : gain.magnitude;
       const isDb = unit?.toLowerCase() === "db";
       const evaluatedGain = isDb ? 20 * Math.log10(Math.max(1e-12, actualGain)) : actualGain;
 
@@ -223,180 +262,226 @@ export function evaluateCriterion(
     }
 
     case "ripple": {
-      // Peak-to-peak ripple: max - min in the last 40% of transient analysis
       if (!criterion.node) return { ...baseResult, error: "missing_ripple_node" };
       const vals = extractVoltageSeries(simOutput, criterion.node);
-      if (!vals || vals.length < 5) return { ...baseResult, error: "insufficient_points_for_ripple" };
-
-      const steady = vals.slice(Math.floor(vals.length * 0.6));
-      const maxV = Math.max(...steady);
-      const minV = Math.min(...steady);
-      const rippleVpp = maxV - minV;
-
-      let passed = false;
-      if (criterion.max !== undefined) {
-        passed = rippleVpp <= criterion.max + (criterion.absTolerance ?? 1e-4);
-        baseResult.expected = { max: criterion.max };
-      } else if (criterion.target !== undefined) {
-        passed = isWithinTolerance(rippleVpp, criterion.target, absTol, relTol);
-        baseResult.expected = criterion.target;
-      }
-
-      return {
-        ...baseResult,
-        passed,
-        actual: Number(rippleVpp.toFixed(4)),
-        error: passed ? undefined : "ripple_exceeds_threshold",
-      };
+      if (!vals || vals.length < 2) return { ...baseResult, error: "insufficient_points_for_ripple" };
+      const actual = measureTrace(vals, axisValues(simOutput), { ...criterion, measure: "peak_to_peak" });
+      return judgeNumber(actual, criterion, baseResult, "ripple_exceeds_threshold");
     }
 
     case "frequency": {
-      // In AC analysis: find cutoff frequency (-3dB) or peak resonance frequency
       const freqSeries = findSeries(simOutput, "frequency");
-      const outSeries = criterion.node ? findSeries(simOutput, `v(${criterion.node})`) : null;
+      const outSeries = criterion.node ? findSeries(simOutput, `v(${criterion.node})`) : undefined;
       if (!freqSeries || !outSeries) {
         return { ...baseResult, error: "ac_frequency_data_missing" };
       }
-
-      const freqs = freqSeries.values.map(Number);
-      const mags = outSeries.values.map((v) =>
-        typeof v === "number" ? Math.abs(v) : Math.hypot(v.real, v.imag),
-      );
-
-      // Find -3dB frequency relative to max/DC magnitude
-      const peakMag = Math.max(...mags);
-      const targetMag = peakMag * Math.SQRT1_2; // 0.7071
-
-      let foundFreq = freqs[0] ?? 0;
-      for (let i = 0; i < mags.length - 1; i++) {
-        const m1 = mags[i]!;
-        const m2 = mags[i + 1]!;
-        if ((m1 >= targetMag && m2 <= targetMag) || (m1 <= targetMag && m2 >= targetMag)) {
-          foundFreq = freqs[i]!;
-          break;
-        }
-      }
-
-      let passed = false;
-      if (criterion.target !== undefined) {
-        passed = isWithinTolerance(foundFreq, criterion.target, absTol, relTol);
-        baseResult.expected = criterion.target;
-      } else if (criterion.min !== undefined || criterion.max !== undefined) {
-        passed =
-          (criterion.min === undefined || foundFreq >= criterion.min) &&
-          (criterion.max === undefined || foundFreq <= criterion.max);
-        baseResult.expected = { min: criterion.min, max: criterion.max };
-      }
-
-      return {
-        ...baseResult,
-        passed,
-        actual: Number(foundFreq.toFixed(1)),
-        error: passed ? undefined : "frequency_out_of_range",
-      };
+      const freqs = seriesReals(freqSeries) ?? [];
+      const mags = outSeries.values.map((v) => sampleMagnitude(v));
+      const metric = criterion.metric ?? criterion.metricName;
+      const found = metric === "resonance_hz" ? resonanceFrequency(freqs, mags) : cutoffFrequency(freqs, mags);
+      if (found === null) return { ...baseResult, error: "missing_crossing" };
+      return judgeNumber(found, criterion, baseResult, "frequency_out_of_range");
     }
 
     case "timing": {
-      // Rise time or delay in transient analysis
       if (!criterion.node) return { ...baseResult, error: "missing_timing_node" };
       const timeSeries = findSeries(simOutput, "time");
       const vVals = extractVoltageSeries(simOutput, criterion.node);
-      if (!timeSeries || !vVals || vVals.length < 5) {
+      if (!timeSeries || !vVals || vVals.length < 2) {
         return { ...baseResult, error: "timing_data_missing" };
       }
+      const times = seriesReals(timeSeries) ?? [];
+      const rise = riseTime(times, vVals);
+      if (rise === null) return { ...baseResult, error: "missing_crossing" };
+      return judgeNumber(rise, criterion, baseResult, "rise_time_out_of_spec");
+    }
 
-      const times = timeSeries.values.map(Number);
-      const minV = Math.min(...vVals);
-      const maxV = Math.max(...vVals);
-      const v10 = minV + 0.1 * (maxV - minV);
-      const v90 = minV + 0.9 * (maxV - minV);
-
-      let t10 = times[0] ?? 0;
-      let t90 = times[times.length - 1] ?? 0;
-      for (let i = 0; i < vVals.length; i++) {
-        if (vVals[i]! >= v10 && t10 === times[0]) t10 = times[i]!;
-        if (vVals[i]! >= v90) {
-          t90 = times[i]!;
-          break;
-        }
+    case "custom_metric": {
+      const name = criterion.metric ?? criterion.metricName;
+      if (!isAllowedMetric(name)) {
+        return { ...baseResult, error: "metric_not_allowed" };
       }
-
-      const riseTime = t90 - t10;
-      let passed = false;
-      if (criterion.target !== undefined) {
-        passed = isWithinTolerance(riseTime, criterion.target, absTol, relTol);
-        baseResult.expected = criterion.target;
-      } else if (criterion.max !== undefined) {
-        passed = riseTime <= criterion.max;
-        baseResult.expected = { max: criterion.max };
+      const xs = axisValues(simOutput);
+      const vSeries = criterion.node ? findSeries(simOutput, `v(${criterion.node})`) : undefined;
+      const iSeries = criterion.source ? findSeries(simOutput, `i(${criterion.source})`) : undefined;
+      if (name === "active_power" || name === "reactive_power") {
+        const vs = vSeries?.values.at(-1);
+        const isamp = iSeries?.values.at(-1);
+        if (vs === undefined || isamp === undefined) return { ...baseResult, error: "missing_phasor" };
+        const power = phasorPower(vs, isamp);
+        return judgeNumber(name === "active_power" ? power.active : power.reactive, criterion, baseResult, "metric_out_of_range");
       }
-
-      return {
-        ...baseResult,
-        passed,
-        actual: Number(riseTime.toExponential(3)),
-        error: passed ? undefined : "rise_time_out_of_spec",
-      };
+      if (name === "ac_gain_magnitude" || name === "ac_gain_phase_deg") {
+        const outS = vSeries?.values.at(-1);
+        const inS = criterion.referenceNode ? findSeries(simOutput, `v(${criterion.referenceNode})`)?.values.at(-1) : undefined;
+        if (outS === undefined || inS === undefined) return { ...baseResult, error: "missing_input_or_output_for_gain" };
+        const gain = complexGain(outS, inS);
+        if (!gain) return { ...baseResult, error: "input_signal_is_zero" };
+        const phase = Math.atan2(gain.imag, gain.real) * (180 / Math.PI);
+        return judgeNumber(name === "ac_gain_magnitude" ? gain.magnitude : phase, criterion, baseResult, "metric_out_of_range");
+      }
+      if (name === "cutoff_hz" || name === "resonance_hz") {
+        const freqSeries = findSeries(simOutput, "frequency");
+        if (!freqSeries || !vSeries) return { ...baseResult, error: "ac_frequency_data_missing" };
+        const freqs = seriesReals(freqSeries) ?? [];
+        const mags = vSeries.values.map((v) => sampleMagnitude(v));
+        const found = name === "resonance_hz" ? resonanceFrequency(freqs, mags) : cutoffFrequency(freqs, mags);
+        if (found === null) return { ...baseResult, error: "missing_crossing" };
+        return judgeNumber(found, criterion, baseResult, "metric_out_of_range");
+      }
+      if (name === "rise_time_s") {
+        const timeSeries = findSeries(simOutput, "time");
+        const vals = vSeries ? seriesReals(vSeries) : null;
+        const times = seriesReals(timeSeries);
+        if (!times || !vals) return { ...baseResult, error: "timing_data_missing" };
+        const rise = riseTime(times, vals);
+        if (rise === null) return { ...baseResult, error: "missing_crossing" };
+        return judgeNumber(rise, criterion, baseResult, "metric_out_of_range");
+      }
+      if (name === "energy") {
+        const vVals = vSeries ? seriesReals(vSeries) : null;
+        const iVals = iSeries ? seriesReals(iSeries) : null;
+        const times = seriesReals(findSeries(simOutput, "time"));
+        if (!vVals || !iVals || !times) return { ...baseResult, error: "missing_voltage_or_current_for_power" };
+        const n = Math.min(vVals.length, iVals.length, times.length);
+        const product = vVals.slice(0, n).map((v, i) => v * (iVals[i] ?? 0));
+        return judgeNumber(trapezoid(product, times.slice(0, n)), criterion, baseResult, "metric_out_of_range");
+      }
+      if (name === "dc_power") {
+        const vVals = vSeries ? seriesReals(vSeries) : null;
+        const iVals = iSeries ? seriesReals(iSeries) : null;
+        if (!vVals || !iVals) return { ...baseResult, error: "missing_voltage_or_current_for_power" };
+        return judgeNumber(dcPower(vVals, iVals, xs, criterion.window), criterion, baseResult, "metric_out_of_range");
+      }
+      const scalarSeries = vSeries ?? iSeries;
+      if (!scalarSeries) return { ...baseResult, error: "metric_requires_context" };
+      const kind: MeasureKind = name === "rms" ? "rms" : name === "average" ? "average" : "peak_to_peak";
+      const nums = traceForMeasure(scalarSeries, "signed");
+      return judgeNumber(measureTrace(nums, xs, { ...criterion, measure: kind }), criterion, baseResult, "metric_out_of_range");
     }
 
     default:
-      return { ...baseResult, error: `unknown_criterion_type: ${criterion.type}` };
+      return { ...baseResult, passed: false, error: `unknown_criterion_type: ${criterion.type}` };
   }
 }
 
+const STRUCTURAL = new Set(["required_connection", "forbidden_element", "component_count"]);
+
+async function simulateDocument(
+  doc: CircuitDocument,
+  exercise: CircuitLabExercise,
+): Promise<{ ok: true; sim: RunSimOutput } | { ok: false; error: string; sim?: RunSimOutput }> {
+  const compiled = compileNetlist(doc, exercise.analysis);
+  if (!compiled.ok) return { ok: false, error: compiled.errors.join("; ") };
+  const sim = await executeSpiceNetlist(compiled.netlist);
+  if (!sim.ok) {
+    const unavailable = /simulation_timeout|circuit_engine_unavailable|engine_crashed/i.test(sim.error ?? "");
+    return { ok: false, error: unavailable ? `circuit_engine_unavailable: ${sim.error}` : sim.error || "simulation_failed", sim };
+  }
+  return { ok: true, sim };
+}
+
 /**
- * Executes and grades a complete circuit lab submission.
+ * Grades a circuit submission. Analysis, limits, and scenarios come from the
+ * exercise. Client flags and client simulation results are ignored.
  */
 export async function evaluateCircuitLab(
-  submittedCircuit: any,
+  submittedCircuit: unknown,
   exercise: CircuitLabExercise,
 ): Promise<CircuitLabEvaluationResult> {
-  let netlist = "";
-
-  if (typeof submittedCircuit === "string") {
-    netlist = submittedCircuit;
-  } else if (submittedCircuit && typeof submittedCircuit === "object") {
-    // Generate netlist from CircuitDocument
-    netlist = generateNetlist(submittedCircuit, exercise.analysis);
-  } else {
+  const scenarioExtra = (exercise.scenarios ?? []).reduce((n, s) => n + s.criteria.length, 0);
+  const criteriaTotal = exercise.criteria.length + scenarioExtra;
+  const adapted = adaptCircuitDocument(
+    submittedCircuit && typeof submittedCircuit === "object" && "circuit" in submittedCircuit
+      ? (submittedCircuit as { circuit: unknown }).circuit
+      : submittedCircuit,
+  );
+  if (!adapted.ok || !adapted.document) {
     return {
       ok: false,
       criteriaPassed: 0,
-      criteriaTotal: exercise.criteria.length,
+      criteriaTotal,
       criteriaResults: [],
-      error: "invalid_circuit_submission",
+      error: adapted.errors.join("; ") || "invalid_circuit_submission",
     };
   }
 
-  // Execute simulation
-  const simOutput = await executeSpiceNetlist(netlist);
-  if (!simOutput.ok) {
+  const structure = checkStructure(adapted.document, exercise);
+  const structuralResults: CriterionEvaluation[] = structure.criteria.map((c) => ({
+    id: c.id,
+    type: c.type,
+    passed: c.passed,
+    error: c.error,
+    labelUk: c.labelUk,
+    labelEn: c.labelEn,
+  }));
+  if (!structure.ok) {
+    const rest = exercise.criteria
+      .filter((c) => !STRUCTURAL.has(c.type))
+      .map((c) => ({
+        id: c.id,
+        type: c.type,
+        passed: false,
+        error: "not_simulated",
+        labelUk: c.labelUk,
+        labelEn: c.labelEn,
+      }));
+    const criteriaResults = [...structuralResults, ...rest];
     return {
       ok: false,
-      criteriaPassed: 0,
-      criteriaTotal: exercise.criteria.length,
-      criteriaResults: [],
-      simOutput,
-      error: simOutput.error || "simulation_failed",
+      criteriaPassed: criteriaResults.filter((c) => c.passed).length,
+      criteriaTotal,
+      criteriaResults,
+      error: structure.errors[0] ?? "circuit_rejected",
     };
   }
 
-  // Grade each criterion
-  const criteriaResults: CriterionEvaluation[] = [];
-  let passedCount = 0;
-
-  for (const crit of exercise.criteria) {
-    const res = evaluateCriterion(crit, simOutput);
-    criteriaResults.push(res);
-    if (res.passed) passedCount++;
+  const measured: CriterionEvaluation[] = [];
+  const runs: { doc: CircuitDocument; criteria: CircuitCriterion[] }[] = [
+    { doc: adapted.document, criteria: exercise.criteria.filter((c) => !STRUCTURAL.has(c.type)) },
+  ];
+  for (const scenario of exercise.scenarios ?? []) {
+    runs.push({
+      doc: applyScenarioOverrides(adapted.document, scenario.overrides, scenario.faults),
+      criteria: scenario.criteria,
+    });
   }
 
-  const ok = passedCount === exercise.criteria.length;
+  let simOutput: RunSimOutput | undefined;
+  for (const run of runs) {
+    const sim = await simulateDocument(run.doc, exercise);
+    if (!sim.ok) {
+      if (sim.error.startsWith("circuit_engine_unavailable")) {
+        return {
+          ok: false,
+          criteriaPassed: 0,
+          criteriaTotal,
+          criteriaResults: structuralResults,
+          error: sim.error,
+        };
+      }
+      return {
+        ok: false,
+        criteriaPassed: structuralResults.filter((c) => c.passed).length,
+        criteriaTotal,
+        criteriaResults: structuralResults,
+        simOutput: sim.sim,
+        error: sim.error,
+      };
+    }
+    simOutput = sim.sim;
+    for (const criterion of run.criteria) {
+      measured.push(evaluateCriterion(criterion, sim.sim));
+    }
+  }
 
+  const criteriaResults = [...structuralResults, ...measured];
+  const criteriaPassed = criteriaResults.filter((c) => c.passed).length;
+  const ok = criteriaResults.length === criteriaTotal && criteriaResults.every((c) => c.passed);
   return {
     ok,
-    criteriaPassed: passedCount,
-    criteriaTotal: exercise.criteria.length,
+    criteriaPassed,
+    criteriaTotal,
     criteriaResults,
     simOutput,
     error: ok ? undefined : "one_or_more_criteria_failed",

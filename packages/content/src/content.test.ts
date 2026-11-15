@@ -988,7 +988,14 @@ describe("new and extended deep tracks (learning-improvements)", () => {
       expect(unit.lessons).toHaveLength(6);
       const exam = unit.lessons[5];
       expect(exam?.isExam).toBe(true);
-      expect(exam?.exercises).toHaveLength(10);
+      const formA = exam?.exercises.filter((e) => e.examVariant === "A") ?? [];
+      const formB = exam?.exercises.filter((e) => e.examVariant === "B") ?? [];
+      expect(formA, unit.slug).toHaveLength(10);
+      expect(formB, unit.slug).toHaveLength(10);
+      for (const form of [formA, formB]) {
+        expect(form.filter((e) => e.type === "mcq").length, unit.slug).toBeLessThanOrEqual(4);
+        expect(form.some((e) => e.type === "concept" || e.type === "explain"), unit.slug).toBe(false);
+      }
     }
 
     // Projects 58, 59, 60 have 1.0 passThreshold
@@ -996,6 +1003,42 @@ describe("new and extended deep tracks (learning-improvements)", () => {
     for (const pu of projectUnits) {
       const exam = pu.lessons[5];
       expect(exam?.passThreshold).toBe(1.0);
+    }
+  });
+
+  it("electrical engineering lessons are original version-2 instruction", () => {
+    const banned = /коефіцієнті 1\.5|factor 1\.5|базовому значенні|Частина \d|Part \d/i;
+    const bodies = new Set<string>();
+    for (const unit of electricalEngineeringContent.units) {
+      expect(unit.titleUk, unit.slug).not.toMatch(banned);
+      expect(unit.titleEn, unit.slug).not.toMatch(banned);
+      for (const lesson of unit.lessons) {
+        expect(lesson.contentVersion, lesson.slug).toBe(2);
+        expect(lesson.titleUk, lesson.slug).not.toMatch(banned);
+        expect(lesson.titleEn ?? "", lesson.slug).not.toMatch(banned);
+        if (lesson.isExam) continue;
+        const concept = lesson.exercises.find((e) => e.type === "concept");
+        const explain = lesson.exercises.find((e) => e.type === "explain");
+        const checks = lesson.exercises.filter((e) => e.type !== "concept" && e.type !== "explain");
+        expect(concept, lesson.slug).toBeTruthy();
+        expect(explain, lesson.slug).toBeTruthy();
+        expect(checks.length, lesson.slug).toBeGreaterThanOrEqual(3);
+        expect(new Set(checks.map((e) => e.type)).size, lesson.slug).toBeGreaterThanOrEqual(2);
+        const body = "bodyUk" in (concept ?? {}) ? String((concept as { bodyUk?: string }).bodyUk ?? "") : "";
+        expect(body.length, lesson.slug).toBeGreaterThan(400);
+        expect(bodies.has(body), lesson.slug).toBe(false);
+        bodies.add(body);
+        expect(body, lesson.slug).not.toMatch(banned);
+        if (unit.slug === "ee-01-matter-charge") {
+          const blob = JSON.stringify(lesson);
+          expect(blob, lesson.slug).not.toMatch(/Ом|Ohm|Кірхгоф|Kirchhoff/);
+        }
+        for (const ex of lesson.exercises) {
+          expect(ex.id, lesson.slug).toMatch(/v2/);
+          expect(ex.contentVersion, ex.id).toBe("2");
+          if (ex.promptEn) expect(ex.promptUk, ex.id).not.toBe(ex.promptEn);
+        }
+      }
     }
   });
 });

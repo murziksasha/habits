@@ -218,6 +218,7 @@ Rn n 0 0.001
           { id: "R2", type: "resistor", value: "1k", x: 50, y: 50, rotation: 0, nodes: ["out", "0"] },
         ],
         wires: [],
+        junctions: [],
         mode: "schematic",
       },
       analysis: { type: "op" },

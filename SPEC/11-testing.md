@@ -78,6 +78,8 @@ pnpm test:e2e
 
 Uses Hono `app.request()` via exported `createApp()` — no live port needed, only DB.
 
+Electrical engineering content is gated by `@eduforge/content` tests: 60 units, 360 lessons, version-2 lesson bodies, bilingual prompts, exam shape, and explain samples that pass `gradeExercise`. Circuit reference labs are gated by `@eduforge/circuit-engine` `project-labs.test.ts`. A 503 from an unavailable engine is specified and is not covered by the Postgres integration file yet. Browser desktop and mobile passes of the lab editor were not run in the authoring session that landed the version-2 course.
+
 ## What matchmaking tests cover
 
 `apps/realtime/src/matchmaking.test.ts`:

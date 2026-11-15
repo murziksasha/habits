@@ -3,4868 +3,866 @@ import {
   createConcept,
   createExplain,
   createNumeric,
-  createCircuitLab,
   createMcq,
+  createMatch,
   createLesson,
   createUnit,
 } from "./helpers.js";
+import { stage7RestUnits } from "./stage7-rest.js";
+
+function asVariant<T extends object>(exercise: T, examVariant: "A" | "B"): T {
+  return Object.assign(exercise, { examVariant });
+}
+
+function withPairsEn<T extends object>(exercise: T, pairsEn: { left: string; right: string }[]): T {
+  return Object.assign(exercise, { pairsEn });
+}
 
 /**
- * Stage 7: 6 Units, 36 Lessons (5 instructional + 1 exam per unit)
+ * Stage 7 — power electronics, units 37–42.
+ * Instructional lessons are content version 2. Exams ship forms A and B
+ * and do not override the course pass threshold.
  */
 export const stage7Units: UnitContent[] = [
   createUnit({
     slug: "ee-37-power-switches-pwm",
-    titleUk: "Імпульсні ключі, PWM, драйвери, комутація та захист",
-    titleEn: "Power Switches, PWM, Gate Drivers & Snubbers",
+    titleUk: "Силові ключі, ШІМ, драйвери затвора та снаббери",
+    titleEn: "Power switches, PWM, gate drivers, and snubbers",
     lessons: [
       createLesson({
         slug: "ee-37-l1",
-        titleUk: "Імпульсні ключі, PWM, драйвери, комутація та захист (Частина 1)",
-        titleEn: "Power Switches, PWM, Gate Drivers & Snubbers (Part 1)",
+        titleUk: "Період, шпаруватість і час увімкнення ШІМ",
+        titleEn: "PWM period, duty, and on-time",
         difficulty: 4,
         baseXp: 35,
+        contentVersion: 2,
         exercises: [
           createConcept({
-            "id": "ee-37-l1-c1",
-            "promptUk": "Теоретичні основи: Імпульсні ключі, PWM, драйвери, комутація та захист (Частина 1)",
-            "promptEn": "Theoretical Foundations: Power Switches, PWM, Gate Drivers & Snubbers (Part 1)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Імпульсні ключі, PWM, драйвери, комутація та захист». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Power Switches, PWM, Gate Drivers & Snubbers'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
+            id: "ee-37-l1-v2-c",
+            promptUk: "Як з частоти 20 кГц і шпаруватості 0,25 отримати час увімкнення 12,5 мкс?",
+            promptEn: "How do 20 kHz and duty 0.25 fix the on-time at 12.5 µs?",
+            bodyUk:
+              "Широтно-імпульсна модуляція задає середню напругу ключа без послідовного резистора. У робочому прикладі несуча частота дорівнює 20 кГц, тому період T = 1/20000 = 50 мкс. Шпаруватість D = 0,25 означає, що ключ замкнений чверть періоду. Час увімкнення t_on = D/f = 0,25/20000 = 12,5 мкс, а час вимкнення дорівнює 37,5 мкс. Той самий ключ при струмі 5 А і Rds = 0,02 Ом розсіює I^2*Rds = 0,5 Вт, поки він відкритий. Усереднені за період втрати провідності становлять I^2*Rds*D = 0,5*0,25 = 0,125 Вт. Втрати перемикання є додатковими і не входять у ці 0,125 Вт: перекриття напруги й струму на фронтах та ємність ключа лежать поза опором відкритого каналу. Формула t_on = D/f дає лише тривалість імпульсу. Енергію фронту множать на частоту окремо, коли вона відома.",
+            bodyEn:
+              "Pulse-width modulation sets the average voltage of a power switch without a series resistor. In the worked example the carrier is 20 kHz, so the period is T = 1/20000 = 50 µs. Duty D = 0.25 means the switch is on for one quarter of the period. The on-time is t_on = D/f = 0.25/20000 = 12.5 µs, and the off interval is 37.5 µs. The same switch, carrying 5 A with Rds = 0.02 ohm, dissipates I^2*Rds = 0.5 W while it is on. Averaged over the period, conduction loss is I^2*Rds*D = 0.5*0.25 = 0.125 W. Switching loss is extra and is not included in that 0.125 W, because edge overlap and device capacitance sit outside the on-state resistance. The identity t_on = D/f is only a timing result. Multiply a known edge energy by frequency only when that energy is given.",
+            keyPointsUk: [
+              "При 20 кГц період дорівнює 50 мкс",
+              "D = 0,25 дає t_on = 12,5 мкс",
+              "Втрати провідності прикладу: 0,125 Вт",
+              "Втрати перемикання в цю цифру не входять",
             ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
+            keyPointsEn: [
+              "At 20 kHz the period is 50 µs",
+              "D = 0.25 gives t_on = 12.5 µs",
+              "The example conduction loss is 0.125 W",
+              "Switching loss is not inside that figure",
+            ],
+          }),
+          createNumeric({
+            id: "ee-37-l1-v2-n1",
+            promptUk: "Який період ШІМ у мікросекундах при частоті перемикання 20 кГц?",
+            promptEn: "What is the PWM period in microseconds when the switching frequency is 20 kHz?",
+            target: 50,
+            unit: "µs",
+            formula: "T = 1/f",
+            absTolerance: 0.05,
+            relTolerance: 0.01,
+            explanationUk: "T = 1/20000 с = 50 мкс.",
+            explanationEn: "T = 1/20000 s = 50 µs.",
+          }),
+          createNumeric({
+            id: "ee-37-l1-v2-n2",
+            promptUk: "Який час увімкнення в мікросекундах при 20 кГц і шпаруватості 0,25?",
+            promptEn: "What is the on-time in microseconds at 20 kHz with duty 0.25?",
+            target: 12.5,
+            unit: "µs",
+            formula: "t_on = D/f",
+            absTolerance: 0.05,
+            relTolerance: 0.01,
+            explanationUk: "t_on = 0,25/20000 с = 12,5 мкс.",
+            explanationEn: "t_on = 0.25/20000 s = 12.5 µs.",
+          }),
           createMcq({
-            "id": "ee-37-l1-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Імпульсні ключі, PWM, драйвери, комутація та захист»?",
-            "promptEn": "Which core statement is correct regarding 'Power Switches, PWM, Gate Drivers & Snubbers'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
+            id: "ee-37-l1-v2-q",
+            promptUk: "Що в цьому прикладі прямо задає час увімкнення 12,5 мкс?",
+            promptEn: "What directly sets the 12.5 µs on-time in this example?",
+            options: [
+              "Добуток струму стоку на Rds",
+              "Шпаруватість 0,25 і частота 20 кГц",
+              "Лише ємність затвора, без періоду",
+              "Тепловий опір корпусу ключа",
             ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
+            optionsEn: [
+              "Drain current times Rds",
+              "Duty 0.25 together with 20 kHz",
+              "Gate capacitance alone, with no period",
+              "The package thermal resistance",
             ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-37-l1-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 26 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 26 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 39.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 26 * 1.5 = 39.0 В.",
-            "explanationEn": "Calculation follows direct scaling: 26 * 1.5 = 39.0 V."
-}),
-          createNumeric({
-            "id": "ee-37-l1-n2",
-            "promptUk": "Розрахуйте струм у вітці при опорі 26 Ом та напрузі 25 В:",
-            "promptEn": "Calculate branch current for resistance 26 Ohm with 25 V applied:",
-            "formula": "I = \\frac{V}{R}",
-            "target": 0.962,
-            "unit": "A",
-            "absTolerance": 0.05,
-            "relTolerance": 0.02,
-            "explanationUk": "Струм визначається за законом Ома: I = 25 / 26 А.",
-            "explanationEn": "Current is determined via Ohm's Law: I = 25 / 26 A."
-}),
+            correctIndex: 1,
+            explanationUk: "t_on = D/f = 0,25/20000 = 12,5 мкс. Струм і Rds потрібні для втрат, не для тривалості імпульсу.",
+            explanationEn: "t_on = D/f = 0.25/20000 = 12.5 µs. Current and Rds enter the loss equation, not the pulse width.",
+          }),
           createExplain({
-            "id": "ee-37-l1-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Імпульсні ключі, PWM, драйвери, комутація та захист»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Power Switches, PWM, Gate Drivers & Snubbers':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
+            id: "ee-37-l1-v2-x",
+            promptUk: "Поясніть, як з 20 кГц і шпаруватості 0,25 виходить 12,5 мкс, і чи входять втрати перемикання у 0,125 Вт.",
+            promptEn: "Explain how 20 kHz and duty 0.25 produce 12.5 µs, and whether switching loss is inside the 0.125 W.",
+            minWords: 20,
+            passRatio: 0.6,
+            keyIdeas: [
+              { labelUk: "шпаруватість", labelEn: "duty", anyOf: ["шпаруват", "duty"] },
+              { labelUk: "час увімкнення", labelEn: "on-time", anyOf: ["увімкнення", "on-time", "12.5", "12,5"] },
+              { labelUk: "втрати перемикання", labelEn: "switching loss", anyOf: ["перемикання", "switching"] },
             ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
+            sampleAnswerUk:
+              "При частоті 20 кГц період ШІМ дорівнює 50 мкс. Шпаруватість 0,25 тримає ключ увімкненим 12,5 мкс, бо час увімкнення це D поділити на f. Втрати провідності при 5 А і Rds 0,02 Ом усереднюються до 0,125 Вт. Втрати перемикання є додатковими і не входять у цю цифру провідності.",
+            sampleAnswerEn:
+              "At 20 kHz the PWM period is 50 microseconds. Duty 0.25 holds the switch on for an on-time of 12.5 microseconds, because on-time is duty divided by frequency. Conduction loss at 5 A and 0.02 ohm averages 0.125 W. Switching loss is extra and is not included in that conduction figure.",
+          }),
         ],
       }),
       createLesson({
         slug: "ee-37-l2",
-        titleUk: "Імпульсні ключі, PWM, драйвери, комутація та захист (Частина 2)",
-        titleEn: "Power Switches, PWM, Gate Drivers & Snubbers (Part 2)",
+        titleUk: "Втрати провідності і окремий член перемикання",
+        titleEn: "Conduction loss and the separate switching term",
         difficulty: 4,
         baseXp: 35,
+        contentVersion: 2,
         exercises: [
           createConcept({
-            "id": "ee-37-l2-c1",
-            "promptUk": "Теоретичні основи: Імпульсні ключі, PWM, драйвери, комутація та захист (Частина 2)",
-            "promptEn": "Theoretical Foundations: Power Switches, PWM, Gate Drivers & Snubbers (Part 2)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Імпульсні ключі, PWM, драйвери, комутація та захист». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Power Switches, PWM, Gate Drivers & Snubbers'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
+            id: "ee-37-l2-v2-c",
+            promptUk: "Чому усереднені втрати провідності в прикладі дорівнюють 0,125 Вт, а не 0,5 Вт?",
+            promptEn: "Why is the averaged conduction loss 0.125 W rather than 0.5 W?",
+            bodyUk:
+              "Поки MOSFET відкритий, миттєва втрата провідності дорівнює I^2*Rds. Для 5 А і Rds = 0,02 Ом це 25*0,02 = 0,5 Вт, але лише протягом імпульсу. ШІМ з частотою 20 кГц має період 50 мкс і шпаруватість D = 0,25, тобто ключ відкритий 12,5 мкс і закритий решту 37,5 мкс. Середнє за період є добутком миттєвої втрати на шпаруватість: 0,5*0,25 = 0,125 Вт, або одразу I^2*Rds*D. Закритий ідеальний ключ струму не проводить, тому в цьому наближенні його внесок провідності нульовий. Втрати перемикання є додатковими і не входять у 0,125 Вт. Їх оцінюють як енергію фронтів, помножену на частоту, і додають після розрахунку провідності, а не замість множника D.",
+            bodyEn:
+              "While a MOSFET is on, instantaneous conduction loss is I^2*Rds. At 5 A and Rds = 0.02 ohm that is 25*0.02 = 0.5 W, but only during the pulse. The 20 kHz PWM period is 50 µs and the duty is D = 0.25, so the channel is on for 12.5 µs and off for the other 37.5 µs. The period average is the on-state loss times duty: 0.5*0.25 = 0.125 W, which is the same statement as I^2*Rds*D. An ideal off switch carries no current, so its conduction contribution is zero in this estimate. Switching loss is extra and is not included in the 0.125 W. Estimate it as edge energy times frequency and add it after the conduction term, rather than hiding it inside D.",
+            keyPointsUk: [
+              "У відкритому стані I^2*Rds = 0,5 Вт",
+              "Середнє за період: 0,5*0,25 = 0,125 Вт",
+              "Множник D враховує лише провідність",
+              "Втрати перемикання додають окремо",
             ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-37-l2-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Імпульсні ключі, PWM, драйвери, комутація та захист»?",
-            "promptEn": "Which core statement is correct regarding 'Power Switches, PWM, Gate Drivers & Snubbers'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
+            keyPointsEn: [
+              "On-state I^2*Rds is 0.5 W",
+              "Period average is 0.5*0.25 = 0.125 W",
+              "Duty scales conduction only",
+              "Switching loss is added separately",
             ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
+          }),
           createNumeric({
-            "id": "ee-37-l2-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 31 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 31 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 46.5,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 31 * 1.5 = 46.5 В.",
-            "explanationEn": "Calculation follows direct scaling: 31 * 1.5 = 46.5 V."
-}),
+            id: "ee-37-l2-v2-n1",
+            promptUk: "Які втрати у ватах розсіює відкритий ключ при 5 А і Rds = 0,02 Ом, ще без урахування шпаруватості?",
+            promptEn: "What on-state loss, in watts, does the switch dissipate at 5 A and Rds = 0.02 ohm, before duty is applied?",
+            target: 0.5,
+            unit: "W",
+            formula: "P_on = I^2*Rds",
+            absTolerance: 0.01,
+            relTolerance: 0.02,
+            explanationUk: "I^2*Rds = 25*0,02 = 0,5 Вт протягом відкритого стану.",
+            explanationEn: "I^2*Rds = 25*0.02 = 0.5 W during the on state.",
+          }),
           createNumeric({
-            "id": "ee-37-l2-n2",
-            "promptUk": "Розрахуйте струм у вітці при опорі 31 Ом та напрузі 25 В:",
-            "promptEn": "Calculate branch current for resistance 31 Ohm with 25 V applied:",
-            "formula": "I = \\frac{V}{R}",
-            "target": 0.806,
-            "unit": "A",
-            "absTolerance": 0.05,
-            "relTolerance": 0.02,
-            "explanationUk": "Струм визначається за законом Ома: I = 25 / 31 А.",
-            "explanationEn": "Current is determined via Ohm's Law: I = 25 / 31 A."
-}),
+            id: "ee-37-l2-v2-n2",
+            promptUk: "Які середні втрати провідності у ватах при 5 А, Rds = 0,02 Ом і D = 0,25? Втрати перемикання не додавайте.",
+            promptEn: "What is the average conduction loss in watts at 5 A, Rds = 0.02 ohm, and D = 0.25? Do not add switching loss.",
+            target: 0.125,
+            unit: "W",
+            formula: "P_cond = I^2*Rds*D",
+            absTolerance: 0.005,
+            relTolerance: 0.02,
+            explanationUk: "0,5 Вт * 0,25 = 0,125 Вт. Втрати перемикання в цю відповідь не входять.",
+            explanationEn: "0.5 W * 0.25 = 0.125 W. Switching loss is not part of this answer.",
+          }),
+          withPairsEn(
+            createMatch({
+              id: "ee-37-l2-v2-m",
+              promptUk: "Зіставте член втрат ключа з його змістом у прикладі 20 кГц.",
+              promptEn: "Match each switch-loss term with its meaning in the 20 kHz example.",
+              pairs: [
+                { left: "Втрати провідності", right: "I^2*Rds*D = 0,125 Вт" },
+                { left: "Втрати у відкритому стані", right: "I^2*Rds = 0,5 Вт" },
+                { left: "Втрати перемикання", right: "окремий член, не входить у 0,125 Вт" },
+                { left: "Час увімкнення", right: "12,5 мкс при D = 0,25" },
+              ],
+              explanationUk: "Провідність усереднюється множником D. Енергія фронтів у формулу I^2*Rds*D не підставляється.",
+              explanationEn: "Conduction is averaged by D. Edge energy is not substituted into I^2*Rds*D.",
+            }),
+            [
+              { left: "Conduction loss", right: "I^2*Rds*D = 0.125 W" },
+              { left: "On-state loss", right: "I^2*Rds = 0.5 W" },
+              { left: "Switching loss", right: "a separate term, not inside 0.125 W" },
+              { left: "On-time", right: "12.5 µs at D = 0.25" },
+            ],
+          ),
           createExplain({
-            "id": "ee-37-l2-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Імпульсні ключі, PWM, драйвери, комутація та захист»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Power Switches, PWM, Gate Drivers & Snubbers':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
+            id: "ee-37-l2-v2-x",
+            promptUk: "Поясніть різницю між 0,5 Вт у відкритому стані та середніми 0,125 Вт, і куди дівати втрати перемикання.",
+            promptEn: "Explain the difference between the 0.5 W on-state loss and the 0.125 W average, and where switching loss goes.",
+            minWords: 20,
+            passRatio: 0.6,
+            keyIdeas: [
+              { labelUk: "провідність", labelEn: "conduction", anyOf: ["провідност", "conduction"] },
+              { labelUk: "шпаруватість", labelEn: "duty", anyOf: ["шпаруват", "duty"] },
+              { labelUk: "перемикання", labelEn: "switching", anyOf: ["перемикання", "switching"] },
             ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
+            sampleAnswerUk:
+              "У відкритому стані ключ на 5 А з Rds 0,02 Ом виділяє 0,5 Вт втрат провідності. Шпаруватість 0,25 усереднює їх до 0,125 Вт, бо імпульс триває лише 12,5 мкс із періоду 50 мкс. Втрати перемикання цим множником не замінюються: це додатковий член енергії фронтів, помноженої на частоту, і він не входить у 0,125 Вт.",
+            sampleAnswerEn:
+              "While on, the 5 A switch with 0.02 ohm Rds dissipates 0.5 W of conduction loss. Duty 0.25 averages that to 0.125 W, because the pulse lasts only 12.5 microseconds of the 50 microsecond period. Switching loss is not replaced by that factor. It is an extra edge-energy term times frequency, and it is not included in the 0.125 W conduction result.",
+          }),
         ],
       }),
       createLesson({
         slug: "ee-37-l3",
-        titleUk: "Імпульсні ключі, PWM, драйвери, комутація та захист (Частина 3)",
-        titleEn: "Power Switches, PWM, Gate Drivers & Snubbers (Part 3)",
+        titleUk: "Драйвер затвора і заряд Qg на тлі імпульсу 12,5 мкс",
+        titleEn: "Gate drive and Qg against the 12.5 µs pulse",
         difficulty: 4,
         baseXp: 35,
+        contentVersion: 2,
         exercises: [
           createConcept({
-            "id": "ee-37-l3-c1",
-            "promptUk": "Теоретичні основи: Імпульсні ключі, PWM, драйвери, комутація та захист (Частина 3)",
-            "promptEn": "Theoretical Foundations: Power Switches, PWM, Gate Drivers & Snubbers (Part 3)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Імпульсні ключі, PWM, драйвери, комутація та захист». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Power Switches, PWM, Gate Drivers & Snubbers'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
+            id: "ee-37-l3-v2-c",
+            promptUk: "Який струм драйвера потрібен, щоб перезарядити затвор за час, набагато менший за 12,5 мкс?",
+            promptEn: "What driver current recharges the gate in a time much shorter than 12.5 µs?",
+            bodyUk:
+              "Затвор MOSFET є ємнісним входом. Драйвер має перенести заряд Qg за час фронту, інакше ключ довго лишається в активній області. Візьміть Qg = 20 нКл і бажаний фронт 40 нс: середній струм драйвера Ig ≈ Qg/t = 20 нКл/40 нс = 0,5 А. Цей фронт у 312 разів коротший за час увімкнення робочого прикладу. Там частота 20 кГц, шпаруватість 0,25 і t_on = 12,5 мкс при періоді 50 мкс. Струм навантаження 5 А через Rds = 0,02 Ом як і раніше дає середні втрати провідності I^2*Rds*D = 0,125 Вт. Драйвер не скасовує цю формулу і не замінює її. Втрати перемикання є додатковими і не входять у 0,125 Вт: заряд затвора пояснює, звідки береться струм фронту, але вати навантаження рахують окремо. Бутстрепний діод і резистор затвора обмежують Ig, тому 0,5 А є вимогою до пікового струму мікросхеми драйвера, а не струмом стоку.",
+            bodyEn:
+              "A MOSFET gate is a capacitive port. The driver must deliver charge Qg during the edge, or the channel lingers in the active region. Take Qg = 20 nC and a desired edge of 40 ns: the average driver current is Ig ≈ Qg/t = 20 nC/40 ns = 0.5 A. That edge is about 312 times shorter than the worked-example on-time. There the carrier is 20 kHz, duty is 0.25, and t_on = 12.5 µs inside a 50 µs period. Load current of 5 A through Rds = 0.02 ohm still produces average conduction loss I^2*Rds*D = 0.125 W. The driver does not cancel that formula or replace it. Switching loss is extra and is not included in the 0.125 W. Gate charge explains where the edge current comes from, but the load watts are counted separately. A bootstrap diode and a gate resistor limit Ig, so 0.5 A is a peak-current requirement of the driver IC, not the drain current.",
+            keyPointsUk: [
+              "Ig ≈ Qg/t = 0,5 А для 20 нКл і 40 нс",
+              "Фронт має бути набагато коротшим за 12,5 мкс",
+              "Провідність прикладу лишається 0,125 Вт",
+              "Струм драйвера не є струмом стоку 5 А",
             ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
+            keyPointsEn: [
+              "Ig ≈ Qg/t = 0.5 A for 20 nC in 40 ns",
+              "The edge must be much shorter than 12.5 µs",
+              "Example conduction loss stays 0.125 W",
+              "Driver current is not the 5 A drain current",
+            ],
+          }),
+          createNumeric({
+            id: "ee-37-l3-v2-n1",
+            promptUk: "Який середній струм драйвера в амперах переносить 20 нКл за 40 нс?",
+            promptEn: "What average driver current, in amperes, moves 20 nC in 40 ns?",
+            target: 0.5,
+            unit: "A",
+            formula: "Ig = Qg/t",
+            absTolerance: 0.02,
+            relTolerance: 0.02,
+            explanationUk: "Ig = 20e-9/40e-9 = 0,5 А.",
+            explanationEn: "Ig = 20e-9/40e-9 = 0.5 A.",
+          }),
+          createNumeric({
+            id: "ee-37-l3-v2-n2",
+            promptUk: "Скільки мікросекунд триває увімкнений стан при 20 кГц і D = 0,25? Фронт 40 нс у відповідь не додавайте.",
+            promptEn: "How many microseconds is the on interval at 20 kHz and D = 0.25? Do not add the 40 ns edge.",
+            target: 12.5,
+            unit: "µs",
+            formula: "t_on = D/f",
+            absTolerance: 0.05,
+            relTolerance: 0.01,
+            explanationUk: "t_on = 0,25/20000 с = 12,5 мкс. Фронт 40 нс є окремою вимогою до драйвера.",
+            explanationEn: "t_on = 0.25/20000 s = 12.5 µs. The 40 ns edge is a separate driver requirement.",
+          }),
           createMcq({
-            "id": "ee-37-l3-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Імпульсні ключі, PWM, драйвери, комутація та захист»?",
-            "promptEn": "Which core statement is correct regarding 'Power Switches, PWM, Gate Drivers & Snubbers'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
+            id: "ee-37-l3-v2-q",
+            promptUk: "Що з наведеного правильно описує драйвер у прикладі з втратами 0,125 Вт?",
+            promptEn: "Which statement correctly describes the driver in the 0.125 W example?",
+            options: [
+              "Драйвер проводить струм навантаження 5 А у стік",
+              "Драйвер переносить Qg, а I^2*Rds*D лишається втратами провідності",
+              "Заряд затвора вже включений у Rds = 0,02 Ом",
+              "Фронт 40 нс замінює період 50 мкс",
             ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
+            optionsEn: [
+              "The driver carries the 5 A load into the drain",
+              "The driver moves Qg, while I^2*Rds*D remains the conduction loss",
+              "Gate charge is already included in Rds = 0.02 ohm",
+              "A 40 ns edge replaces the 50 µs period",
             ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-37-l3-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 36 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 36 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 54.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 36 * 1.5 = 54.0 В.",
-            "explanationEn": "Calculation follows direct scaling: 36 * 1.5 = 54.0 V."
-}),
-          createNumeric({
-            "id": "ee-37-l3-n2",
-            "promptUk": "Розрахуйте струм у вітці при опорі 36 Ом та напрузі 25 В:",
-            "promptEn": "Calculate branch current for resistance 36 Ohm with 25 V applied:",
-            "formula": "I = \\frac{V}{R}",
-            "target": 0.694,
-            "unit": "A",
-            "absTolerance": 0.05,
-            "relTolerance": 0.02,
-            "explanationUk": "Струм визначається за законом Ома: I = 25 / 36 А.",
-            "explanationEn": "Current is determined via Ohm's Law: I = 25 / 36 A."
-}),
+            correctIndex: 1,
+            explanationUk: "0,5 А є струмом затвора. Втрати провідності 0,125 Вт рахують по стоку, а втрати перемикання додають окремо.",
+            explanationEn: "The 0.5 A is gate current. The 0.125 W conduction loss is calculated from the drain, and switching loss is added separately.",
+          }),
           createExplain({
-            "id": "ee-37-l3-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Імпульсні ключі, PWM, драйвери, комутація та захист»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Power Switches, PWM, Gate Drivers & Snubbers':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
+            id: "ee-37-l3-v2-x",
+            promptUk: "Поясніть, навіщо драйверу близько 0,5 А, якщо середні втрати провідності вже дорівнюють 0,125 Вт.",
+            promptEn: "Explain why the driver needs about 0.5 A if the average conduction loss is already 0.125 W.",
+            minWords: 20,
+            passRatio: 0.6,
+            keyIdeas: [
+              { labelUk: "затвор", labelEn: "gate", anyOf: ["затвор", "gate"] },
+              { labelUk: "провідність", labelEn: "conduction", anyOf: ["провідност", "conduction"] },
+              { labelUk: "перемикання", labelEn: "switching", anyOf: ["перемикання", "switching"] },
             ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
+            sampleAnswerUk:
+              "Драйвер затвора переносить заряд Qg. Для 20 нКл за 40 нс потрібен струм близько 0,5 А, щоб фронт закінчився задовго до кінця імпульсу 12,5 мкс. Втрати провідності 0,125 Вт рахують як I^2*Rds*D для струму 5 А і не містять струм драйвера. Втрати перемикання залишаються додатковим членом і не входять у ці 0,125 Вт.",
+            sampleAnswerEn:
+              "The gate driver moves charge Qg. Moving 20 nC in 40 ns takes about 0.5 A so the edge finishes long before the 12.5 microsecond on-time ends. Conduction loss of 0.125 W is I squared times Rds times duty for the 5 A channel, and it does not contain the driver current. Switching loss stays an extra term and is not included in that 0.125 W.",
+          }),
         ],
       }),
       createLesson({
         slug: "ee-37-l4",
-        titleUk: "Імпульсні ключі, PWM, драйвери, комутація та захист (Частина 4)",
-        titleEn: "Power Switches, PWM, Gate Drivers & Snubbers (Part 4)",
+        titleUk: "Снаббер і енергія паразитної індуктивності",
+        titleEn: "Snubbers and stray-inductance energy",
         difficulty: 4,
         baseXp: 35,
+        contentVersion: 2,
         exercises: [
           createConcept({
-            "id": "ee-37-l4-c1",
-            "promptUk": "Теоретичні основи: Імпульсні ключі, PWM, драйвери, комутація та захист (Частина 4)",
-            "promptEn": "Theoretical Foundations: Power Switches, PWM, Gate Drivers & Snubbers (Part 4)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Імпульсні ключі, PWM, драйвери, комутація та захист». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Power Switches, PWM, Gate Drivers & Snubbers'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
+            id: "ee-37-l4-v2-c",
+            promptUk: "Яку енергію має поглинути снаббер, якщо паразитна індуктивність 20 нГн рве струм 5 А?",
+            promptEn: "What energy must a snubber absorb if 20 nH of stray inductance interrupts 5 A?",
+            bodyUk:
+              "Паразитна індуктивність монтажу не може миттєво змінити струм. Якщо ключ розриває 5 А через Ls = 20 нГн, запасена енергія дорівнює 0,5*Ls*I^2 = 0,5*20e-9*25 = 0,25 мкДж. Без снаббера або клампера ця енергія збуджує викид напруги на ємності вузла і може пробити ключ. Снаббер приймає цей імпульс і потім віддає його в резистор. Це не ті самі втрати, що провідність каналу. У ШІМ-прикладі частота 20 кГц, D = 0,25, час увімкнення 12,5 мкс, а середні втрати провідності при Rds = 0,02 Ом дорівнюють 0,125 Вт. Якщо окремо відомо, що енергія комутації за цикл становить 4 мкДж, то втрати перемикання дорівнюють 4 мкДж * 20 кГц = 0,08 Вт. Вони є додатковими і не входять у 0,125 Вт. Енергію 0,25 мкДж не можна додати до 0,125 Вт без множення на частоту і без розуміння, чи вже вона входить у ці 4 мкДж.",
+            bodyEn:
+              "Stray wiring inductance cannot change current instantly. If the switch interrupts 5 A through Ls = 20 nH, the stored energy is 0.5*Ls*I^2 = 0.5*20e-9*25 = 0.25 µJ. Without a snubber or clamp, that energy excites a voltage spike on the node capacitance and can avalanche the switch. A snubber catches the pulse and later dumps it into a resistor. That is not the same term as channel conduction. In the PWM example the carrier is 20 kHz, D = 0.25, the on-time is 12.5 µs, and the average conduction loss at Rds = 0.02 ohm is 0.125 W. If the switching energy is separately known to be 4 µJ each cycle, switching loss is 4 µJ * 20 kHz = 0.08 W. Switching loss is extra and is not included in the 0.125 W. Do not add 0.25 µJ to 0.125 W until it is multiplied by frequency, and do not add it twice if it is already inside the 4 µJ.",
+            keyPointsUk: [
+              "0,5*20 нГн*5^2 = 0,25 мкДж",
+              "Снаббер приймає енергію викиду, не струм провідності",
+              "4 мкДж * 20 кГц = 0,08 Вт втрат перемикання",
+              "0,08 Вт не входять у 0,125 Вт провідності",
             ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-37-l4-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Імпульсні ключі, PWM, драйвери, комутація та захист»?",
-            "promptEn": "Which core statement is correct regarding 'Power Switches, PWM, Gate Drivers & Snubbers'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
+            keyPointsEn: [
+              "0.5*20 nH*5^2 = 0.25 µJ",
+              "A snubber absorbs the spike, not the conduction current",
+              "4 µJ * 20 kHz = 0.08 W of switching loss",
+              "The 0.08 W is outside the 0.125 W conduction term",
             ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
+          }),
           createNumeric({
-            "id": "ee-37-l4-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 41 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 41 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 61.5,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 41 * 1.5 = 61.5 В.",
-            "explanationEn": "Calculation follows direct scaling: 41 * 1.5 = 61.5 V."
-}),
-          createCircuitLab({
-            "id": "ee-37-l4-lab",
-            "promptUk": "SPICE Лабораторія: Дослідження режиму роботи для «Імпульсні ключі, PWM, драйвери, комутація та захист». Запустіть симуляцію схеми.",
-            "promptEn": "SPICE Laboratory: Operating Mode Analysis for 'Power Switches, PWM, Gate Drivers & Snubbers'. Run simulation and verify nodes.",
-            "title": "Lab 37.4: Power Switches, PWM, Gate Drivers & Snubbers",
-            "netlist": "* EduForge SPICE Model for Unit 37\nV1 in 0 DC 10\nR1 in out 41k\nR2 out 0 8k\n.tran 10u 2m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.002
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 1.633,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out відповідає дільнику",
-                                    "labelEn": "Node voltage at out matches divider ratio"
-                        }
+            id: "ee-37-l4-v2-n1",
+            promptUk: "Скільки мікродожоулів накопичено в індуктивності 20 нГн при струмі 5 А? Відповідь у мікродожоулях.",
+            promptEn: "How many microjoules are stored in 20 nH at 5 A? Answer in microjoules.",
+            target: 0.25,
+            formula: "E = 0.5*L*I^2",
+            absTolerance: 0.01,
+            relTolerance: 0.02,
+            explanationUk: "E = 0,5*20e-9*25 = 2,5e-7 Дж = 0,25 мкДж.",
+            explanationEn: "E = 0.5*20e-9*25 = 2.5e-7 J = 0.25 µJ.",
+          }),
+          createNumeric({
+            id: "ee-37-l4-v2-n2",
+            promptUk: "Якщо енергія комутації дорівнює 4 мкДж за цикл при 20 кГц, які це втрати перемикання у ватах? Не додавайте 0,125 Вт провідності.",
+            promptEn: "If the switching energy is 4 µJ per cycle at 20 kHz, what is the switching loss in watts? Do not add the 0.125 W of conduction.",
+            target: 0.08,
+            unit: "W",
+            formula: "P_sw = E*f",
+            absTolerance: 0.004,
+            relTolerance: 0.02,
+            explanationUk: "P_sw = 4e-6 * 20000 = 0,08 Вт. Це додатковий член, не частина I^2*Rds*D.",
+            explanationEn: "P_sw = 4e-6 * 20000 = 0.08 W. This is an extra term, not part of I^2*Rds*D.",
+          }),
+          withPairsEn(
+            createMatch({
+              id: "ee-37-l4-v2-m",
+              promptUk: "Зіставте механізм із числом робочого прикладу ключа.",
+              promptEn: "Match each mechanism with the number from the switch example.",
+              pairs: [
+                { left: "Енергія Ls = 20 нГн", right: "0,25 мкДж при 5 А" },
+                { left: "Втрати провідності", right: "0,125 Вт при D = 0,25" },
+                { left: "Втрати перемикання 4 мкДж", right: "0,08 Вт на 20 кГц" },
+                { left: "Час відкритого каналу", right: "12,5 мкс" },
+              ],
+              explanationUk: "Енергію в джоулях не додають до ват, доки її не помножено на частоту. Провідність і комутація лишаються різними членами.",
+              explanationEn: "Joules are not added to watts until they are multiplied by frequency. Conduction and switching remain different terms.",
+            }),
+            [
+              { left: "Energy in Ls = 20 nH", right: "0.25 µJ at 5 A" },
+              { left: "Conduction loss", right: "0.125 W at D = 0.25" },
+              { left: "Switching energy of 4 µJ", right: "0.08 W at 20 kHz" },
+              { left: "Channel on-time", right: "12.5 µs" },
             ],
-            "hintsUk": [
-                        "Перевірте підключення опорного вузла землі (0)"
-            ],
-            "hintsEn": [
-                        "Verify reference ground connection at node 0"
-            ],
-            "explanationUk": "Симуляція SPICE підтверджує аналітичний розрахунок вузлових потенціалів.",
-            "explanationEn": "SPICE transient simulation validates analytical calculation of nodal voltages."
-}),
+          ),
           createExplain({
-            "id": "ee-37-l4-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Імпульсні ключі, PWM, драйвери, комутація та захист»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Power Switches, PWM, Gate Drivers & Snubbers':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
+            id: "ee-37-l4-v2-x",
+            promptUk: "Поясніть, чому 0,25 мкДж снаббера і 0,08 Вт комутації не замінюють втрати провідності 0,125 Вт.",
+            promptEn: "Explain why 0.25 µJ in the snubber and 0.08 W of switching do not replace the 0.125 W conduction loss.",
+            minWords: 20,
+            passRatio: 0.6,
+            keyIdeas: [
+              { labelUk: "снаббер", labelEn: "snubber", anyOf: ["снаббер", "snubber"] },
+              { labelUk: "провідність", labelEn: "conduction", anyOf: ["провідност", "conduction"] },
+              { labelUk: "перемикання", labelEn: "switching", anyOf: ["перемикання", "switching"] },
             ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
+            sampleAnswerUk:
+              "Снаббер приймає енергію паразитної індуктивності, у прикладі 0,25 мкДж при 20 нГн і 5 А. Це енергія викиду, а не середня втрата провідності. Втрати провідності лишаються I^2*Rds*D = 0,125 Вт. Якщо енергія комутації дорівнює 4 мкДж, втрати перемикання на 20 кГц становлять 0,08 Вт і є додатковими: вони не входять у 0,125 Вт.",
+            sampleAnswerEn:
+              "A snubber absorbs stray-inductance energy, here 0.25 microjoules at 20 nH and 5 A. That is spike energy, not the average conduction loss. Conduction loss remains I squared times Rds times duty, equal to 0.125 W. If the switching energy is 4 microjoules, switching loss at 20 kHz is 0.08 W and is extra: it is not included in the 0.125 W.",
+          }),
         ],
       }),
       createLesson({
         slug: "ee-37-l5",
-        titleUk: "Імпульсні ключі, PWM, драйвери, комутація та захист (Частина 5)",
-        titleEn: "Power Switches, PWM, Gate Drivers & Snubbers (Part 5)",
+        titleUk: "MOSFET чи IGBT на частоті 20 кГц",
+        titleEn: "MOSFET or IGBT at 20 kHz",
         difficulty: 4,
         baseXp: 35,
+        contentVersion: 2,
         exercises: [
           createConcept({
-            "id": "ee-37-l5-c1",
-            "promptUk": "Теоретичні основи: Імпульсні ключі, PWM, драйвери, комутація та захист (Частина 5)",
-            "promptEn": "Theoretical Foundations: Power Switches, PWM, Gate Drivers & Snubbers (Part 5)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Імпульсні ключі, PWM, драйвери, комутація та захист». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Power Switches, PWM, Gate Drivers & Snubbers'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
+            id: "ee-37-l5-v2-c",
+            promptUk: "Чому на 20 кГц для прикладу з втратами 0,125 Вт зазвичай дивляться на MOSFET, а не на хвіст IGBT?",
+            promptEn: "Why does the 20 kHz example with 0.125 W of conduction usually point at a MOSFET rather than an IGBT tail?",
+            bodyUk:
+              "MOSFET у відкритому стані поводиться як Rds, тому приклад 5 А і 0,02 Ом дає миттєві 0,5 Вт і середні I^2*Rds*D = 0,125 Вт при D = 0,25. IGBT у насиченні має майже стале падіння Vce(sat), тож його провідність ближча до I*Vce*D, а не до квадрата струму. На вимкненні IGBT має хвіст струму: носії ще не зникли, коли напруга вже росте, і енергія цього хвоста множиться на частоту. При 20 кГц період лише 50 мкс, а час увімкнення при D = 0,25 становить 12,5 мкс, тож хвіст у кілька мікросекунд уже з'їдає помітну частку періоду. Втрати перемикання є додатковими і не входять у 0,125 Вт. Для MOSFET вони теж ненульові, але ними керують затвором і снаббером. Вибір приладу не змінює тотожність t_on = D/f. Він змінює те, який додатковий член чесно додати до провідності.",
+            bodyEn:
+              "A MOSFET on-state behaves as Rds, so the example of 5 A and 0.02 ohm gives an instantaneous 0.5 W and an average I^2*Rds*D = 0.125 W at D = 0.25. A saturated IGBT has a nearly fixed Vce(sat), so its conduction term is closer to I*Vce*D than to current squared. At turn-off an IGBT has a current tail: carriers are still present while voltage is already rising, and that tail energy is multiplied by frequency. At 20 kHz the period is only 50 µs, and the on-time at D = 0.25 is 12.5 µs, so a tail of a few microseconds already consumes a visible fraction of the period. Switching loss is extra and is not included in the 0.125 W. A MOSFET has switching loss too, but the gate and the snubber are the levers. Device choice does not change t_on = D/f. It changes which extra term must be added honestly on top of conduction.",
+            keyPointsUk: [
+              "MOSFET: провідність I^2*Rds*D = 0,125 Вт",
+              "IGBT: провідність ближче до I*Vce*D",
+              "Хвіст IGBT на 20 кГц дорожчий, ніж на сотнях герц",
+              "t_on = 12,5 мкс не включає енергію хвоста",
             ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-37-l5-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Імпульсні ключі, PWM, драйвери, комутація та захист»?",
-            "promptEn": "Which core statement is correct regarding 'Power Switches, PWM, Gate Drivers & Snubbers'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
+            keyPointsEn: [
+              "MOSFET conduction is I^2*Rds*D = 0.125 W",
+              "IGBT conduction is closer to I*Vce*D",
+              "An IGBT tail costs more at 20 kHz than at a few hundred hertz",
+              "t_on = 12.5 µs does not include tail energy",
             ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
+          }),
           createNumeric({
-            "id": "ee-37-l5-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 46 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 46 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 69.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 46 * 1.5 = 69.0 В.",
-            "explanationEn": "Calculation follows direct scaling: 46 * 1.5 = 69.0 V."
-}),
-          createCircuitLab({
-            "id": "ee-37-l5-lab",
-            "promptUk": "SPICE Лабораторія: Дослідження режиму роботи для «Імпульсні ключі, PWM, драйвери, комутація та захист». Запустіть симуляцію схеми.",
-            "promptEn": "SPICE Laboratory: Operating Mode Analysis for 'Power Switches, PWM, Gate Drivers & Snubbers'. Run simulation and verify nodes.",
-            "title": "Lab 37.5: Power Switches, PWM, Gate Drivers & Snubbers",
-            "netlist": "* EduForge SPICE Model for Unit 37\nV1 in 0 DC 10\nR1 in out 46k\nR2 out 0 19k\n.tran 10u 2m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.002
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 2.923,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out відповідає дільнику",
-                                    "labelEn": "Node voltage at out matches divider ratio"
-                        }
+            id: "ee-37-l5-v2-n1",
+            promptUk: "Які середні втрати провідності MOSFET у ватах при 5 А, Rds = 0,02 Ом і D = 0,25?",
+            promptEn: "What is the MOSFET average conduction loss in watts at 5 A, Rds = 0.02 ohm, and D = 0.25?",
+            target: 0.125,
+            unit: "W",
+            formula: "P_cond = I^2*Rds*D",
+            absTolerance: 0.005,
+            relTolerance: 0.02,
+            explanationUk: "25*0,02*0,25 = 0,125 Вт. Хвіст IGBT у цю формулу не входить.",
+            explanationEn: "25*0.02*0.25 = 0.125 W. An IGBT tail is not inside this formula.",
+          }),
+          createNumeric({
+            id: "ee-37-l5-v2-n2",
+            promptUk: "Скільки мікросекунд ключ вимкнений при 20 кГц і D = 0,25?",
+            promptEn: "How many microseconds is the switch off at 20 kHz and D = 0.25?",
+            target: 37.5,
+            unit: "µs",
+            formula: "t_off = (1-D)/f",
+            absTolerance: 0.05,
+            relTolerance: 0.01,
+            explanationUk: "t_off = 0,75/20000 с = 37,5 мкс.",
+            explanationEn: "t_off = 0.75/20000 s = 37.5 µs.",
+          }),
+          createMcq({
+            id: "ee-37-l5-v2-q",
+            promptUk: "Що з наведеного є чесним висновком для прикладу 20 кГц і 0,125 Вт?",
+            promptEn: "Which conclusion is fair for the 20 kHz, 0.125 W example?",
+            options: [
+              "Формула I^2*Rds*D вже містить хвіст струму IGBT",
+              "Втрати перемикання додаткові і не входять у 0,125 Вт",
+              "Час увімкнення 12,5 мкс дорівнює енергії хвоста",
+              "IGBT на 20 кГц не має втрат вимкнення",
             ],
-            "hintsUk": [
-                        "Перевірте підключення опорного вузла землі (0)"
+            optionsEn: [
+              "The formula I^2*Rds*D already contains the IGBT current tail",
+              "Switching loss is extra and is not included in the 0.125 W",
+              "The 12.5 µs on-time equals the tail energy",
+              "An IGBT at 20 kHz has no turn-off loss",
             ],
-            "hintsEn": [
-                        "Verify reference ground connection at node 0"
-            ],
-            "explanationUk": "Симуляція SPICE підтверджує аналітичний розрахунок вузлових потенціалів.",
-            "explanationEn": "SPICE transient simulation validates analytical calculation of nodal voltages."
-}),
+            correctIndex: 1,
+            explanationUk: "0,125 Вт є лише провідністю MOSFET. Хвіст IGBT і енергія фронтів додаються як втрати перемикання.",
+            explanationEn: "The 0.125 W is MOSFET conduction only. The IGBT tail and edge energy are added as switching loss.",
+          }),
           createExplain({
-            "id": "ee-37-l5-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Імпульсні ключі, PWM, драйвери, комутація та захист»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Power Switches, PWM, Gate Drivers & Snubbers':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
+            id: "ee-37-l5-v2-x",
+            promptUk: "Поясніть, чому 0,125 Вт не є повною втратою ні MOSFET, ні IGBT на 20 кГц.",
+            promptEn: "Explain why 0.125 W is not the whole loss of either a MOSFET or an IGBT at 20 kHz.",
+            minWords: 20,
+            passRatio: 0.6,
+            keyIdeas: [
+              { labelUk: "провідність", labelEn: "conduction", anyOf: ["провідност", "conduction"] },
+              { labelUk: "перемикання", labelEn: "switching", anyOf: ["перемикання", "switching"] },
+              { labelUk: "IGBT", labelEn: "IGBT", anyOf: ["igbt"] },
             ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
+            sampleAnswerUk:
+              "Для MOSFET середні втрати провідності в прикладі дорівнюють I^2*Rds*D = 0,125 Вт при 5 А, 0,02 Ом і шпаруватості 0,25. Втрати перемикання є додатковими і не входять у цю цифру. В IGBT провідність ближча до добутку струму на Vce, а хвіст струму на частоті 20 кГц додає ще одну енергію вимкнення. Час увімкнення 12,5 мкс сам по собі хвіст не вимірює.",
+            sampleAnswerEn:
+              "For the MOSFET, average conduction loss in the example is I squared times Rds times duty, equal to 0.125 W at 5 A, 0.02 ohm, and duty 0.25. Switching loss is extra and is not included in that number. In an IGBT, conduction is closer to current times Vce, and the current tail at 20 kHz adds another turn-off energy. The 12.5 microsecond on-time does not by itself measure that tail.",
+          }),
         ],
       }),
       createLesson({
         slug: "ee-37-exam",
-        titleUk: "Екзамен: Імпульсні ключі, PWM, драйвери, комутація та захист",
-        titleEn: "Exam: Power Switches, PWM, Gate Drivers & Snubbers",
+        titleUk: "Екзамен: силові ключі та ШІМ",
+        titleEn: "Exam: power switches and PWM",
         difficulty: 4,
         baseXp: 100,
         isExam: true,
-        passThreshold: 0.7,
+        contentVersion: 2,
         exercises: [
-          createMcq({
-            "id": "ee-37-exam-q1",
-            "promptUk": "Екзаменаційне питання 1: Яке твердження є справедливим для аналізу «Імпульсні ключі, PWM, драйвери, комутація та захист»?",
-            "promptEn": "Exam Question 1: Which statement holds true for the analysis of 'Power Switches, PWM, Gate Drivers & Snubbers'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 1)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 1)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createMcq({
-            "id": "ee-37-exam-q2",
-            "promptUk": "Екзаменаційне питання 2: Яке твердження є справедливим для аналізу «Імпульсні ключі, PWM, драйвери, комутація та захист»?",
-            "promptEn": "Exam Question 2: Which statement holds true for the analysis of 'Power Switches, PWM, Gate Drivers & Snubbers'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 2)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 2)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createMcq({
-            "id": "ee-37-exam-q3",
-            "promptUk": "Екзаменаційне питання 3: Яке твердження є справедливим для аналізу «Імпульсні ключі, PWM, драйвери, комутація та захист»?",
-            "promptEn": "Exam Question 3: Which statement holds true for the analysis of 'Power Switches, PWM, Gate Drivers & Snubbers'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 3)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 3)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createMcq({
-            "id": "ee-37-exam-q4",
-            "promptUk": "Екзаменаційне питання 4: Яке твердження є справедливим для аналізу «Імпульсні ключі, PWM, драйвери, комутація та захист»?",
-            "promptEn": "Exam Question 4: Which statement holds true for the analysis of 'Power Switches, PWM, Gate Drivers & Snubbers'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 4)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 4)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createNumeric({
-            "id": "ee-37-exam-n5",
-            "promptUk": "Екзаменаційна задача 5: Обчисліть розрахунковий параметр при базовому опорі 380 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 5: Calculate parameter with base resistance 380 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 190.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 380 = 190.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 380 = 190.0 V."
-}),
-          createNumeric({
-            "id": "ee-37-exam-n6",
-            "promptUk": "Екзаменаційна задача 6: Обчисліть розрахунковий параметр при базовому опорі 382 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 6: Calculate parameter with base resistance 382 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 191.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 382 = 191.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 382 = 191.0 V."
-}),
-          createNumeric({
-            "id": "ee-37-exam-n7",
-            "promptUk": "Екзаменаційна задача 7: Обчисліть розрахунковий параметр при базовому опорі 384 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 7: Calculate parameter with base resistance 384 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 192.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 384 = 192.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 384 = 192.0 V."
-}),
-          createNumeric({
-            "id": "ee-37-exam-n8",
-            "promptUk": "Екзаменаційна задача 8: Обчисліть розрахунковий параметр при базовому опорі 386 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 8: Calculate parameter with base resistance 386 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 193.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 386 = 193.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 386 = 193.0 V."
-}),
-          createCircuitLab({
-            "id": "ee-37-exam-lab9",
-            "promptUk": "Екзаменаційний лабораторний тест 9: Підтвердження режиму в SPICE для «Імпульсні ключі, PWM, драйвери, комутація та захист».",
-            "promptEn": "Exam Lab Test 9: SPICE Operating Point Verification for 'Power Switches, PWM, Gate Drivers & Snubbers'.",
-            "title": "Exam Lab 37.9: Power Switches, PWM, Gate Drivers & Snubbers",
-            "netlist": "* Exam Model 37_9\nV1 in 0 DC 12\nR1 in out 46k\nR2 out 0 10k\n.tran 10u 1m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.001
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 2.143,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out у межах розрахунку",
-                                    "labelEn": "Node voltage at out within tolerance"
-                        }
-            ],
-            "hintsUk": [
-                        "Запустіть симуляцію для перевірки критеріїв"
-            ],
-            "hintsEn": [
-                        "Run simulation to verify criteria"
-            ],
-            "explanationUk": "Симуляція перевіряє правильність складання схеми та відповідність критеріям.",
-            "explanationEn": "Simulation validates schematic correctness and criteria compliance."
-}),
-          createCircuitLab({
-            "id": "ee-37-exam-lab10",
-            "promptUk": "Екзаменаційний лабораторний тест 10: Підтвердження режиму в SPICE для «Імпульсні ключі, PWM, драйвери, комутація та захист».",
-            "promptEn": "Exam Lab Test 10: SPICE Operating Point Verification for 'Power Switches, PWM, Gate Drivers & Snubbers'.",
-            "title": "Exam Lab 37.10: Power Switches, PWM, Gate Drivers & Snubbers",
-            "netlist": "* Exam Model 37_10\nV1 in 0 DC 12\nR1 in out 47k\nR2 out 0 10k\n.tran 10u 1m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.001
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 2.105,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out у межах розрахунку",
-                                    "labelEn": "Node voltage at out within tolerance"
-                        }
-            ],
-            "hintsUk": [
-                        "Запустіть симуляцію для перевірки критеріїв"
-            ],
-            "hintsEn": [
-                        "Run simulation to verify criteria"
-            ],
-            "explanationUk": "Симуляція перевіряє правильність складання схеми та відповідність критеріям.",
-            "explanationEn": "Simulation validates schematic correctness and criteria compliance."
-}),
+          asVariant(
+            createMcq({
+              id: "ee-37-exam-v2-a-q1",
+              promptUk: "Ключ працює з постійним струмом у відкритому стані. Який вираз дає середні втрати провідності?",
+              promptEn: "A switch carries a constant current while on. Which expression is the average conduction loss?",
+              options: [
+                "I^2 * Rds * D",
+                "I^2 * Rds / D",
+                "I * Rds, лише поки ключ закритий",
+                "Енергія фронту без множення на частоту",
+              ],
+              optionsEn: [
+                "I^2 * Rds * D",
+                "I^2 * Rds / D",
+                "I * Rds, only while the switch is off",
+                "Edge energy with no multiplication by frequency",
+              ],
+              correctIndex: 0,
+              explanationUk: "Миттєві I^2*Rds діють частку D періоду. Енергія фронту є іншим членом.",
+              explanationEn: "Instantaneous I^2*Rds acts for a fraction D of the period. Edge energy is a different term.",
+            }),
+            "A",
+          ),
+          asVariant(
+            createMcq({
+              id: "ee-37-exam-v2-a-q2",
+              promptUk: "Як пов'язані час увімкнення, шпаруватість і частота?",
+              promptEn: "How are on-time, duty, and frequency related?",
+              options: [
+                "t_on = f / D",
+                "t_on = D * f",
+                "t_on = D / f",
+                "t_on = D * f^2",
+              ],
+              optionsEn: [
+                "t_on = f / D",
+                "t_on = D * f",
+                "t_on = D / f",
+                "t_on = D * f^2",
+              ],
+              correctIndex: 2,
+              explanationUk: "D = t_on/T і T = 1/f, тому t_on = D/f.",
+              explanationEn: "D = t_on/T and T = 1/f, so t_on = D/f.",
+            }),
+            "A",
+          ),
+          asVariant(
+            createMcq({
+              id: "ee-37-exam-v2-a-q3",
+              promptUk: "Де в балансі втрат стоїть енергія перемикання відносно I^2*Rds*D?",
+              promptEn: "Where does switching energy sit relative to I^2*Rds*D?",
+              options: [
+                "Вона вже повністю вкладена в Rds",
+                "Вона замінює шпаруватість і скасовує провідність",
+                "Це додатковий член, його не включають у I^2*Rds*D",
+                "Вона дорівнює нулю при будь-якій частоті вище 1 кГц",
+              ],
+              optionsEn: [
+                "It is already contained entirely inside Rds",
+                "It replaces duty and cancels conduction",
+                "It is an extra term and is not included in I^2*Rds*D",
+                "It is zero at every frequency above 1 kHz",
+              ],
+              correctIndex: 2,
+              explanationUk: "Провідність і комутація додаються. Другу отримують як енергію циклу, помножену на частоту.",
+              explanationEn: "Conduction and switching are added. The second is cycle energy multiplied by frequency.",
+            }),
+            "A",
+          ),
+          asVariant(
+            withPairsEn(
+              createMatch({
+                id: "ee-37-exam-v2-a-m",
+                promptUk: "Зіставте величину ШІМ з її означенням.",
+                promptEn: "Match each PWM quantity with its definition.",
+                pairs: [
+                  { left: "Період", right: "1/f" },
+                  { left: "Шпаруватість", right: "t_on/T" },
+                  { left: "Провідність", right: "I^2*Rds*D" },
+                  { left: "Комутація", right: "енергія фронту помножити на f" },
+                ],
+                explanationUk: "Період і шпаруватість задають час. Два останні рядки є різними членами втрат.",
+                explanationEn: "Period and duty set time. The last two rows are different loss terms.",
+              }),
+              [
+                { left: "Period", right: "1/f" },
+                { left: "Duty", right: "t_on/T" },
+                { left: "Conduction", right: "I^2*Rds*D" },
+                { left: "Switching", right: "edge energy times f" },
+              ],
+            ),
+            "A",
+          ),
+          asVariant(
+            createNumeric({
+              id: "ee-37-exam-v2-a-n1",
+              promptUk: "Частота ШІМ дорівнює 40 кГц. Який період у мікросекундах?",
+              promptEn: "The PWM frequency is 40 kHz. What is the period in microseconds?",
+              target: 25,
+              unit: "µs",
+              formula: "T = 1/f",
+              absTolerance: 0.05,
+              relTolerance: 0.01,
+              explanationUk: "T = 1/40000 с = 25 мкс.",
+              explanationEn: "T = 1/40000 s = 25 µs.",
+            }),
+            "A",
+          ),
+          asVariant(
+            createNumeric({
+              id: "ee-37-exam-v2-a-n2",
+              promptUk: "При 40 кГц і D = 0,30 який час увімкнення в мікросекундах?",
+              promptEn: "At 40 kHz and D = 0.30, what is the on-time in microseconds?",
+              target: 7.5,
+              unit: "µs",
+              formula: "t_on = D/f",
+              absTolerance: 0.05,
+              relTolerance: 0.01,
+              explanationUk: "t_on = 0,30/40000 с = 7,5 мкс.",
+              explanationEn: "t_on = 0.30/40000 s = 7.5 µs.",
+            }),
+            "A",
+          ),
+          asVariant(
+            createNumeric({
+              id: "ee-37-exam-v2-a-n3",
+              promptUk: "При 40 кГц і D = 0,30 скільки мікросекунд ключ вимкнений?",
+              promptEn: "At 40 kHz and D = 0.30, how many microseconds is the switch off?",
+              target: 17.5,
+              unit: "µs",
+              formula: "t_off = (1-D)/f",
+              absTolerance: 0.05,
+              relTolerance: 0.01,
+              explanationUk: "t_off = 0,70/40000 с = 17,5 мкс.",
+              explanationEn: "t_off = 0.70/40000 s = 17.5 µs.",
+            }),
+            "A",
+          ),
+          asVariant(
+            createNumeric({
+              id: "ee-37-exam-v2-a-n4",
+              promptUk: "Відкритий MOSFET проводить 6 А при Rds = 0,03 Ом. Які втрати у ватах до множення на шпаруватість?",
+              promptEn: "An on MOSFET carries 6 A at Rds = 0.03 ohm. What is the loss in watts before multiplying by duty?",
+              target: 1.08,
+              unit: "W",
+              formula: "P_on = I^2*Rds",
+              absTolerance: 0.02,
+              relTolerance: 0.02,
+              explanationUk: "36 * 0,03 = 1,08 Вт.",
+              explanationEn: "36 * 0.03 = 1.08 W.",
+            }),
+            "A",
+          ),
+          asVariant(
+            createNumeric({
+              id: "ee-37-exam-v2-a-n5",
+              promptUk: "Для тих самих 6 А і Rds = 0,03 Ом шпаруватість D = 0,30. Які середні втрати провідності у ватах?",
+              promptEn: "For the same 6 A and Rds = 0.03 ohm, duty is D = 0.30. What is the average conduction loss in watts?",
+              target: 0.324,
+              unit: "W",
+              formula: "P_cond = I^2*Rds*D",
+              absTolerance: 0.008,
+              relTolerance: 0.02,
+              explanationUk: "1,08 * 0,30 = 0,324 Вт. Комутацію не додавати.",
+              explanationEn: "1.08 * 0.30 = 0.324 W. Do not add switching.",
+            }),
+            "A",
+          ),
+          asVariant(
+            createNumeric({
+              id: "ee-37-exam-v2-a-n6",
+              promptUk: "Енергія перемикання дорівнює 5 мкДж за цикл при 40 кГц. Які це втрати у ватах, без провідності?",
+              promptEn: "Switching energy is 5 µJ per cycle at 40 kHz. What is that loss in watts, excluding conduction?",
+              target: 0.2,
+              unit: "W",
+              formula: "P_sw = E*f",
+              absTolerance: 0.01,
+              relTolerance: 0.02,
+              explanationUk: "5e-6 * 40000 = 0,2 Вт.",
+              explanationEn: "5e-6 * 40000 = 0.2 W.",
+            }),
+            "A",
+          ),
+          asVariant(
+            createMcq({
+              id: "ee-37-exam-v2-b-q1",
+              promptUk: "Яке твердження про час увімкнення є правильним?",
+              promptEn: "Which statement about on-time is correct?",
+              options: [
+                "Зменшення частоти при незмінній шпаруватості скорочує t_on",
+                "t_on = D/f, тож нижча частота подовжує імпульс при тому самому D",
+                "t_on не залежить від D",
+                "t_on дорівнює Rds*Coss завжди",
+              ],
+              optionsEn: [
+                "Lowering frequency at fixed duty shortens t_on",
+                "t_on = D/f, so a lower frequency lengthens the pulse at the same D",
+                "t_on does not depend on D",
+                "t_on is always Rds*Coss",
+              ],
+              correctIndex: 1,
+              explanationUk: "При фіксованому D імпульс займає ту саму частку довшого періоду.",
+              explanationEn: "At fixed D the pulse occupies the same fraction of a longer period.",
+            }),
+            "B",
+          ),
+          asVariant(
+            createMcq({
+              id: "ee-37-exam-v2-b-q2",
+              promptUk: "Чому середні втрати провідності менші за I^2*Rds, якщо D < 1?",
+              promptEn: "Why is average conduction loss smaller than I^2*Rds when D < 1?",
+              options: [
+                "Бо Rds вимикається разом із ключем і середнє множать на D",
+                "Бо струм у відкритому стані завжди нульовий",
+                "Бо шпаруватість збільшує Rds",
+                "Бо частота стоїть у знаменнику I^2*Rds",
+              ],
+              optionsEn: [
+                "Because Rds is in circuit only while the switch is on, and the average is multiplied by D",
+                "Because on-state current is always zero",
+                "Because duty increases Rds",
+                "Because frequency sits in the denominator of I^2*Rds",
+              ],
+              correctIndex: 0,
+              explanationUk: "I^2*Rds діє частку D. Частота задає, як часто це трапляється, але в саму формулу провідності не входить.",
+              explanationEn: "I^2*Rds acts for a fraction D. Frequency sets how often that happens, but it is not inside the conduction formula.",
+            }),
+            "B",
+          ),
+          asVariant(
+            createMcq({
+              id: "ee-37-exam-v2-b-q3",
+              promptUk: "Хвіст струму IGBT на підвищеній частоті найближче до якого члена?",
+              promptEn: "An IGBT current tail at a higher frequency belongs most nearly to which term?",
+              options: [
+                "До Rds відкритого MOSFET",
+                "До додаткових втрат перемикання, яких немає в I^2*Rds*D",
+                "До періоду T = 1/f без енергії",
+                "До теплового опору радіатора",
+              ],
+              optionsEn: [
+                "To the Rds of an on MOSFET",
+                "To extra switching loss, which is absent from I^2*Rds*D",
+                "To the period T = 1/f with no energy",
+                "To heatsink thermal resistance",
+              ],
+              correctIndex: 1,
+              explanationUk: "Хвіст є енергією вимкнення. Її множать на частоту і не підміняють провідністю каналу MOSFET.",
+              explanationEn: "The tail is turn-off energy. Multiply it by frequency and do not substitute it for MOSFET channel conduction.",
+            }),
+            "B",
+          ),
+          asVariant(
+            withPairsEn(
+              createMatch({
+                id: "ee-37-exam-v2-b-m",
+                promptUk: "Зіставте прилад або член із типовою ознакою.",
+                promptEn: "Match each device or term with its typical signature.",
+                pairs: [
+                  { left: "MOSFET у провідності", right: "втрата I^2*Rds*D" },
+                  { left: "IGBT у провідності", right: "ближче до I*Vce*D" },
+                  { left: "Енергія фронту", right: "множиться на частоту" },
+                  { left: "Снаббер", right: "приймає енергію паразитної L" },
+                ],
+                explanationUk: "Квадратичний член належить каналу MOSFET. Хвіст і снаббер не змінюють означення шпаруватості.",
+                explanationEn: "The squared term belongs to the MOSFET channel. The tail and the snubber do not redefine duty.",
+              }),
+              [
+                { left: "MOSFET conduction", right: "loss I^2*Rds*D" },
+                { left: "IGBT conduction", right: "closer to I*Vce*D" },
+                { left: "Edge energy", right: "multiplied by frequency" },
+                { left: "Snubber", right: "absorbs stray-L energy" },
+              ],
+            ),
+            "B",
+          ),
+          asVariant(
+            createNumeric({
+              id: "ee-37-exam-v2-b-n1",
+              promptUk: "Частота ШІМ дорівнює 10 кГц. Який період у мікросекундах?",
+              promptEn: "The PWM frequency is 10 kHz. What is the period in microseconds?",
+              target: 100,
+              unit: "µs",
+              formula: "T = 1/f",
+              absTolerance: 0.1,
+              relTolerance: 0.01,
+              explanationUk: "T = 1/10000 с = 100 мкс.",
+              explanationEn: "T = 1/10000 s = 100 µs.",
+            }),
+            "B",
+          ),
+          asVariant(
+            createNumeric({
+              id: "ee-37-exam-v2-b-n2",
+              promptUk: "При 10 кГц і D = 0,15 який час увімкнення в мікросекундах?",
+              promptEn: "At 10 kHz and D = 0.15, what is the on-time in microseconds?",
+              target: 15,
+              unit: "µs",
+              formula: "t_on = D/f",
+              absTolerance: 0.05,
+              relTolerance: 0.01,
+              explanationUk: "t_on = 0,15/10000 с = 15 мкс.",
+              explanationEn: "t_on = 0.15/10000 s = 15 µs.",
+            }),
+            "B",
+          ),
+          asVariant(
+            createNumeric({
+              id: "ee-37-exam-v2-b-n3",
+              promptUk: "При 10 кГц і D = 0,15 скільки мікросекунд ключ вимкнений?",
+              promptEn: "At 10 kHz and D = 0.15, how many microseconds is the switch off?",
+              target: 85,
+              unit: "µs",
+              formula: "t_off = (1-D)/f",
+              absTolerance: 0.1,
+              relTolerance: 0.01,
+              explanationUk: "t_off = 0,85/10000 с = 85 мкс.",
+              explanationEn: "t_off = 0.85/10000 s = 85 µs.",
+            }),
+            "B",
+          ),
+          asVariant(
+            createNumeric({
+              id: "ee-37-exam-v2-b-n4",
+              promptUk: "Відкритий ключ проводить 4 А при Rds = 0,025 Ом. Які втрати у ватах до множення на D?",
+              promptEn: "An on switch carries 4 A at Rds = 0.025 ohm. What is the loss in watts before multiplying by D?",
+              target: 0.4,
+              unit: "W",
+              formula: "P_on = I^2*Rds",
+              absTolerance: 0.01,
+              relTolerance: 0.02,
+              explanationUk: "16 * 0,025 = 0,4 Вт.",
+              explanationEn: "16 * 0.025 = 0.4 W.",
+            }),
+            "B",
+          ),
+          asVariant(
+            createNumeric({
+              id: "ee-37-exam-v2-b-n5",
+              promptUk: "Для 4 А, Rds = 0,025 Ом і D = 0,15 які середні втрати провідності у ватах?",
+              promptEn: "For 4 A, Rds = 0.025 ohm, and D = 0.15, what is the average conduction loss in watts?",
+              target: 0.06,
+              unit: "W",
+              formula: "P_cond = I^2*Rds*D",
+              absTolerance: 0.003,
+              relTolerance: 0.02,
+              explanationUk: "0,4 * 0,15 = 0,06 Вт.",
+              explanationEn: "0.4 * 0.15 = 0.06 W.",
+            }),
+            "B",
+          ),
+          asVariant(
+            createNumeric({
+              id: "ee-37-exam-v2-b-n6",
+              promptUk: "Енергія перемикання дорівнює 10 мкДж за цикл при 10 кГц. Які це втрати у ватах без провідності?",
+              promptEn: "Switching energy is 10 µJ per cycle at 10 kHz. What is that loss in watts, excluding conduction?",
+              target: 0.1,
+              unit: "W",
+              formula: "P_sw = E*f",
+              absTolerance: 0.005,
+              relTolerance: 0.02,
+              explanationUk: "10e-6 * 10000 = 0,1 Вт.",
+              explanationEn: "10e-6 * 10000 = 0.1 W.",
+            }),
+            "B",
+          ),
         ],
       }),
     ],
   }),
-  createUnit({
-    slug: "ee-38-buck-converters",
-    titleUk: "Понижувальний перетворювач (Buck): режими та стабілізація",
-    titleEn: "Step-Down (Buck) Converter: CCM, Inductor & Sizing",
-    lessons: [
-      createLesson({
-        slug: "ee-38-l1",
-        titleUk: "Понижувальний перетворювач (Buck): режими та стабілізація (Частина 1)",
-        titleEn: "Step-Down (Buck) Converter: CCM, Inductor & Sizing (Part 1)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-38-l1-c1",
-            "promptUk": "Теоретичні основи: Понижувальний перетворювач (Buck): режими та стабілізація (Частина 1)",
-            "promptEn": "Theoretical Foundations: Step-Down (Buck) Converter: CCM, Inductor & Sizing (Part 1)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Понижувальний перетворювач (Buck): режими та стабілізація». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Step-Down (Buck) Converter: CCM, Inductor & Sizing'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-38-l1-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Понижувальний перетворювач (Buck): режими та стабілізація»?",
-            "promptEn": "Which core statement is correct regarding 'Step-Down (Buck) Converter: CCM, Inductor & Sizing'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-38-l1-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 29 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 29 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 43.5,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 29 * 1.5 = 43.5 В.",
-            "explanationEn": "Calculation follows direct scaling: 29 * 1.5 = 43.5 V."
-}),
-          createNumeric({
-            "id": "ee-38-l1-n2",
-            "promptUk": "Розрахуйте струм у вітці при опорі 29 Ом та напрузі 25 В:",
-            "promptEn": "Calculate branch current for resistance 29 Ohm with 25 V applied:",
-            "formula": "I = \\frac{V}{R}",
-            "target": 0.862,
-            "unit": "A",
-            "absTolerance": 0.05,
-            "relTolerance": 0.02,
-            "explanationUk": "Струм визначається за законом Ома: I = 25 / 29 А.",
-            "explanationEn": "Current is determined via Ohm's Law: I = 25 / 29 A."
-}),
-          createExplain({
-            "id": "ee-38-l1-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Понижувальний перетворювач (Buck): режими та стабілізація»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Step-Down (Buck) Converter: CCM, Inductor & Sizing':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-38-l2",
-        titleUk: "Понижувальний перетворювач (Buck): режими та стабілізація (Частина 2)",
-        titleEn: "Step-Down (Buck) Converter: CCM, Inductor & Sizing (Part 2)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-38-l2-c1",
-            "promptUk": "Теоретичні основи: Понижувальний перетворювач (Buck): режими та стабілізація (Частина 2)",
-            "promptEn": "Theoretical Foundations: Step-Down (Buck) Converter: CCM, Inductor & Sizing (Part 2)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Понижувальний перетворювач (Buck): режими та стабілізація». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Step-Down (Buck) Converter: CCM, Inductor & Sizing'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-38-l2-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Понижувальний перетворювач (Buck): режими та стабілізація»?",
-            "promptEn": "Which core statement is correct regarding 'Step-Down (Buck) Converter: CCM, Inductor & Sizing'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-38-l2-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 34 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 34 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 51.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 34 * 1.5 = 51.0 В.",
-            "explanationEn": "Calculation follows direct scaling: 34 * 1.5 = 51.0 V."
-}),
-          createNumeric({
-            "id": "ee-38-l2-n2",
-            "promptUk": "Розрахуйте струм у вітці при опорі 34 Ом та напрузі 25 В:",
-            "promptEn": "Calculate branch current for resistance 34 Ohm with 25 V applied:",
-            "formula": "I = \\frac{V}{R}",
-            "target": 0.735,
-            "unit": "A",
-            "absTolerance": 0.05,
-            "relTolerance": 0.02,
-            "explanationUk": "Струм визначається за законом Ома: I = 25 / 34 А.",
-            "explanationEn": "Current is determined via Ohm's Law: I = 25 / 34 A."
-}),
-          createExplain({
-            "id": "ee-38-l2-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Понижувальний перетворювач (Buck): режими та стабілізація»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Step-Down (Buck) Converter: CCM, Inductor & Sizing':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-38-l3",
-        titleUk: "Понижувальний перетворювач (Buck): режими та стабілізація (Частина 3)",
-        titleEn: "Step-Down (Buck) Converter: CCM, Inductor & Sizing (Part 3)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-38-l3-c1",
-            "promptUk": "Теоретичні основи: Понижувальний перетворювач (Buck): режими та стабілізація (Частина 3)",
-            "promptEn": "Theoretical Foundations: Step-Down (Buck) Converter: CCM, Inductor & Sizing (Part 3)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Понижувальний перетворювач (Buck): режими та стабілізація». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Step-Down (Buck) Converter: CCM, Inductor & Sizing'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-38-l3-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Понижувальний перетворювач (Buck): режими та стабілізація»?",
-            "promptEn": "Which core statement is correct regarding 'Step-Down (Buck) Converter: CCM, Inductor & Sizing'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-38-l3-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 39 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 39 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 58.5,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 39 * 1.5 = 58.5 В.",
-            "explanationEn": "Calculation follows direct scaling: 39 * 1.5 = 58.5 V."
-}),
-          createNumeric({
-            "id": "ee-38-l3-n2",
-            "promptUk": "Розрахуйте струм у вітці при опорі 39 Ом та напрузі 25 В:",
-            "promptEn": "Calculate branch current for resistance 39 Ohm with 25 V applied:",
-            "formula": "I = \\frac{V}{R}",
-            "target": 0.641,
-            "unit": "A",
-            "absTolerance": 0.05,
-            "relTolerance": 0.02,
-            "explanationUk": "Струм визначається за законом Ома: I = 25 / 39 А.",
-            "explanationEn": "Current is determined via Ohm's Law: I = 25 / 39 A."
-}),
-          createExplain({
-            "id": "ee-38-l3-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Понижувальний перетворювач (Buck): режими та стабілізація»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Step-Down (Buck) Converter: CCM, Inductor & Sizing':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-38-l4",
-        titleUk: "Понижувальний перетворювач (Buck): режими та стабілізація (Частина 4)",
-        titleEn: "Step-Down (Buck) Converter: CCM, Inductor & Sizing (Part 4)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-38-l4-c1",
-            "promptUk": "Теоретичні основи: Понижувальний перетворювач (Buck): режими та стабілізація (Частина 4)",
-            "promptEn": "Theoretical Foundations: Step-Down (Buck) Converter: CCM, Inductor & Sizing (Part 4)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Понижувальний перетворювач (Buck): режими та стабілізація». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Step-Down (Buck) Converter: CCM, Inductor & Sizing'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-38-l4-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Понижувальний перетворювач (Buck): режими та стабілізація»?",
-            "promptEn": "Which core statement is correct regarding 'Step-Down (Buck) Converter: CCM, Inductor & Sizing'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-38-l4-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 44 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 44 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 66.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 44 * 1.5 = 66.0 В.",
-            "explanationEn": "Calculation follows direct scaling: 44 * 1.5 = 66.0 V."
-}),
-          createCircuitLab({
-            "id": "ee-38-l4-lab",
-            "promptUk": "SPICE Лабораторія: Дослідження режиму роботи для «Понижувальний перетворювач (Buck): режими та стабілізація». Запустіть симуляцію схеми.",
-            "promptEn": "SPICE Laboratory: Operating Mode Analysis for 'Step-Down (Buck) Converter: CCM, Inductor & Sizing'. Run simulation and verify nodes.",
-            "title": "Lab 38.4: Step-Down (Buck) Converter: CCM, Inductor & Sizing",
-            "netlist": "* EduForge SPICE Model for Unit 38\nV1 in 0 DC 10\nR1 in out 44k\nR2 out 0 15k\n.tran 10u 2m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.002
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 2.542,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out відповідає дільнику",
-                                    "labelEn": "Node voltage at out matches divider ratio"
-                        }
-            ],
-            "hintsUk": [
-                        "Перевірте підключення опорного вузла землі (0)"
-            ],
-            "hintsEn": [
-                        "Verify reference ground connection at node 0"
-            ],
-            "explanationUk": "Симуляція SPICE підтверджує аналітичний розрахунок вузлових потенціалів.",
-            "explanationEn": "SPICE transient simulation validates analytical calculation of nodal voltages."
-}),
-          createExplain({
-            "id": "ee-38-l4-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Понижувальний перетворювач (Buck): режими та стабілізація»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Step-Down (Buck) Converter: CCM, Inductor & Sizing':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-38-l5",
-        titleUk: "Понижувальний перетворювач (Buck): режими та стабілізація (Частина 5)",
-        titleEn: "Step-Down (Buck) Converter: CCM, Inductor & Sizing (Part 5)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-38-l5-c1",
-            "promptUk": "Теоретичні основи: Понижувальний перетворювач (Buck): режими та стабілізація (Частина 5)",
-            "promptEn": "Theoretical Foundations: Step-Down (Buck) Converter: CCM, Inductor & Sizing (Part 5)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Понижувальний перетворювач (Buck): режими та стабілізація». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Step-Down (Buck) Converter: CCM, Inductor & Sizing'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-38-l5-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Понижувальний перетворювач (Buck): режими та стабілізація»?",
-            "promptEn": "Which core statement is correct regarding 'Step-Down (Buck) Converter: CCM, Inductor & Sizing'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-38-l5-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 49 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 49 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 73.5,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 49 * 1.5 = 73.5 В.",
-            "explanationEn": "Calculation follows direct scaling: 49 * 1.5 = 73.5 V."
-}),
-          createCircuitLab({
-            "id": "ee-38-l5-lab",
-            "promptUk": "SPICE Лабораторія: Дослідження режиму роботи для «Понижувальний перетворювач (Buck): режими та стабілізація». Запустіть симуляцію схеми.",
-            "promptEn": "SPICE Laboratory: Operating Mode Analysis for 'Step-Down (Buck) Converter: CCM, Inductor & Sizing'. Run simulation and verify nodes.",
-            "title": "Lab 38.5: Step-Down (Buck) Converter: CCM, Inductor & Sizing",
-            "netlist": "* EduForge SPICE Model for Unit 38\nV1 in 0 DC 10\nR1 in out 49k\nR2 out 0 26k\n.tran 10u 2m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.002
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 3.467,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out відповідає дільнику",
-                                    "labelEn": "Node voltage at out matches divider ratio"
-                        }
-            ],
-            "hintsUk": [
-                        "Перевірте підключення опорного вузла землі (0)"
-            ],
-            "hintsEn": [
-                        "Verify reference ground connection at node 0"
-            ],
-            "explanationUk": "Симуляція SPICE підтверджує аналітичний розрахунок вузлових потенціалів.",
-            "explanationEn": "SPICE transient simulation validates analytical calculation of nodal voltages."
-}),
-          createExplain({
-            "id": "ee-38-l5-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Понижувальний перетворювач (Buck): режими та стабілізація»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Step-Down (Buck) Converter: CCM, Inductor & Sizing':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-38-exam",
-        titleUk: "Екзамен: Понижувальний перетворювач (Buck): режими та стабілізація",
-        titleEn: "Exam: Step-Down (Buck) Converter: CCM, Inductor & Sizing",
-        difficulty: 4,
-        baseXp: 100,
-        isExam: true,
-        passThreshold: 0.7,
-        exercises: [
-          createMcq({
-            "id": "ee-38-exam-q1",
-            "promptUk": "Екзаменаційне питання 1: Яке твердження є справедливим для аналізу «Понижувальний перетворювач (Buck): режими та стабілізація»?",
-            "promptEn": "Exam Question 1: Which statement holds true for the analysis of 'Step-Down (Buck) Converter: CCM, Inductor & Sizing'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 1)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 1)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createMcq({
-            "id": "ee-38-exam-q2",
-            "promptUk": "Екзаменаційне питання 2: Яке твердження є справедливим для аналізу «Понижувальний перетворювач (Buck): режими та стабілізація»?",
-            "promptEn": "Exam Question 2: Which statement holds true for the analysis of 'Step-Down (Buck) Converter: CCM, Inductor & Sizing'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 2)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 2)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createMcq({
-            "id": "ee-38-exam-q3",
-            "promptUk": "Екзаменаційне питання 3: Яке твердження є справедливим для аналізу «Понижувальний перетворювач (Buck): режими та стабілізація»?",
-            "promptEn": "Exam Question 3: Which statement holds true for the analysis of 'Step-Down (Buck) Converter: CCM, Inductor & Sizing'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 3)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 3)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createMcq({
-            "id": "ee-38-exam-q4",
-            "promptUk": "Екзаменаційне питання 4: Яке твердження є справедливим для аналізу «Понижувальний перетворювач (Buck): режими та стабілізація»?",
-            "promptEn": "Exam Question 4: Which statement holds true for the analysis of 'Step-Down (Buck) Converter: CCM, Inductor & Sizing'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 4)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 4)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createNumeric({
-            "id": "ee-38-exam-n5",
-            "promptUk": "Екзаменаційна задача 5: Обчисліть розрахунковий параметр при базовому опорі 390 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 5: Calculate parameter with base resistance 390 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 195.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 390 = 195.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 390 = 195.0 V."
-}),
-          createNumeric({
-            "id": "ee-38-exam-n6",
-            "promptUk": "Екзаменаційна задача 6: Обчисліть розрахунковий параметр при базовому опорі 392 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 6: Calculate parameter with base resistance 392 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 196.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 392 = 196.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 392 = 196.0 V."
-}),
-          createNumeric({
-            "id": "ee-38-exam-n7",
-            "promptUk": "Екзаменаційна задача 7: Обчисліть розрахунковий параметр при базовому опорі 394 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 7: Calculate parameter with base resistance 394 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 197.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 394 = 197.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 394 = 197.0 V."
-}),
-          createNumeric({
-            "id": "ee-38-exam-n8",
-            "promptUk": "Екзаменаційна задача 8: Обчисліть розрахунковий параметр при базовому опорі 396 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 8: Calculate parameter with base resistance 396 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 198.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 396 = 198.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 396 = 198.0 V."
-}),
-          createCircuitLab({
-            "id": "ee-38-exam-lab9",
-            "promptUk": "Екзаменаційний лабораторний тест 9: Підтвердження режиму в SPICE для «Понижувальний перетворювач (Buck): режими та стабілізація».",
-            "promptEn": "Exam Lab Test 9: SPICE Operating Point Verification for 'Step-Down (Buck) Converter: CCM, Inductor & Sizing'.",
-            "title": "Exam Lab 38.9: Step-Down (Buck) Converter: CCM, Inductor & Sizing",
-            "netlist": "* Exam Model 38_9\nV1 in 0 DC 12\nR1 in out 47k\nR2 out 0 10k\n.tran 10u 1m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.001
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 2.105,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out у межах розрахунку",
-                                    "labelEn": "Node voltage at out within tolerance"
-                        }
-            ],
-            "hintsUk": [
-                        "Запустіть симуляцію для перевірки критеріїв"
-            ],
-            "hintsEn": [
-                        "Run simulation to verify criteria"
-            ],
-            "explanationUk": "Симуляція перевіряє правильність складання схеми та відповідність критеріям.",
-            "explanationEn": "Simulation validates schematic correctness and criteria compliance."
-}),
-          createCircuitLab({
-            "id": "ee-38-exam-lab10",
-            "promptUk": "Екзаменаційний лабораторний тест 10: Підтвердження режиму в SPICE для «Понижувальний перетворювач (Buck): режими та стабілізація».",
-            "promptEn": "Exam Lab Test 10: SPICE Operating Point Verification for 'Step-Down (Buck) Converter: CCM, Inductor & Sizing'.",
-            "title": "Exam Lab 38.10: Step-Down (Buck) Converter: CCM, Inductor & Sizing",
-            "netlist": "* Exam Model 38_10\nV1 in 0 DC 12\nR1 in out 48k\nR2 out 0 10k\n.tran 10u 1m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.001
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 2.069,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out у межах розрахунку",
-                                    "labelEn": "Node voltage at out within tolerance"
-                        }
-            ],
-            "hintsUk": [
-                        "Запустіть симуляцію для перевірки критеріїв"
-            ],
-            "hintsEn": [
-                        "Run simulation to verify criteria"
-            ],
-            "explanationUk": "Симуляція перевіряє правильність складання схеми та відповідність критеріям.",
-            "explanationEn": "Simulation validates schematic correctness and criteria compliance."
-}),
-        ],
-      }),
-    ],
-  }),
-  createUnit({
-    slug: "ee-39-boost-buckboost",
-    titleUk: "Підвищувальний (Boost) та інвертувальний перетворювачі",
-    titleEn: "Boost & Buck-Boost Converters: CCM & DCM",
-    lessons: [
-      createLesson({
-        slug: "ee-39-l1",
-        titleUk: "Підвищувальний (Boost) та інвертувальний перетворювачі (Частина 1)",
-        titleEn: "Boost & Buck-Boost Converters: CCM & DCM (Part 1)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-39-l1-c1",
-            "promptUk": "Теоретичні основи: Підвищувальний (Boost) та інвертувальний перетворювачі (Частина 1)",
-            "promptEn": "Theoretical Foundations: Boost & Buck-Boost Converters: CCM & DCM (Part 1)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Підвищувальний (Boost) та інвертувальний перетворювачі». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Boost & Buck-Boost Converters: CCM & DCM'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-39-l1-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Підвищувальний (Boost) та інвертувальний перетворювачі»?",
-            "promptEn": "Which core statement is correct regarding 'Boost & Buck-Boost Converters: CCM & DCM'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-39-l1-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 32 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 32 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 48.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 32 * 1.5 = 48.0 В.",
-            "explanationEn": "Calculation follows direct scaling: 32 * 1.5 = 48.0 V."
-}),
-          createNumeric({
-            "id": "ee-39-l1-n2",
-            "promptUk": "Розрахуйте струм у вітці при опорі 32 Ом та напрузі 25 В:",
-            "promptEn": "Calculate branch current for resistance 32 Ohm with 25 V applied:",
-            "formula": "I = \\frac{V}{R}",
-            "target": 0.781,
-            "unit": "A",
-            "absTolerance": 0.05,
-            "relTolerance": 0.02,
-            "explanationUk": "Струм визначається за законом Ома: I = 25 / 32 А.",
-            "explanationEn": "Current is determined via Ohm's Law: I = 25 / 32 A."
-}),
-          createExplain({
-            "id": "ee-39-l1-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Підвищувальний (Boost) та інвертувальний перетворювачі»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Boost & Buck-Boost Converters: CCM & DCM':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-39-l2",
-        titleUk: "Підвищувальний (Boost) та інвертувальний перетворювачі (Частина 2)",
-        titleEn: "Boost & Buck-Boost Converters: CCM & DCM (Part 2)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-39-l2-c1",
-            "promptUk": "Теоретичні основи: Підвищувальний (Boost) та інвертувальний перетворювачі (Частина 2)",
-            "promptEn": "Theoretical Foundations: Boost & Buck-Boost Converters: CCM & DCM (Part 2)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Підвищувальний (Boost) та інвертувальний перетворювачі». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Boost & Buck-Boost Converters: CCM & DCM'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-39-l2-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Підвищувальний (Boost) та інвертувальний перетворювачі»?",
-            "promptEn": "Which core statement is correct regarding 'Boost & Buck-Boost Converters: CCM & DCM'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-39-l2-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 37 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 37 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 55.5,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 37 * 1.5 = 55.5 В.",
-            "explanationEn": "Calculation follows direct scaling: 37 * 1.5 = 55.5 V."
-}),
-          createNumeric({
-            "id": "ee-39-l2-n2",
-            "promptUk": "Розрахуйте струм у вітці при опорі 37 Ом та напрузі 25 В:",
-            "promptEn": "Calculate branch current for resistance 37 Ohm with 25 V applied:",
-            "formula": "I = \\frac{V}{R}",
-            "target": 0.676,
-            "unit": "A",
-            "absTolerance": 0.05,
-            "relTolerance": 0.02,
-            "explanationUk": "Струм визначається за законом Ома: I = 25 / 37 А.",
-            "explanationEn": "Current is determined via Ohm's Law: I = 25 / 37 A."
-}),
-          createExplain({
-            "id": "ee-39-l2-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Підвищувальний (Boost) та інвертувальний перетворювачі»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Boost & Buck-Boost Converters: CCM & DCM':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-39-l3",
-        titleUk: "Підвищувальний (Boost) та інвертувальний перетворювачі (Частина 3)",
-        titleEn: "Boost & Buck-Boost Converters: CCM & DCM (Part 3)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-39-l3-c1",
-            "promptUk": "Теоретичні основи: Підвищувальний (Boost) та інвертувальний перетворювачі (Частина 3)",
-            "promptEn": "Theoretical Foundations: Boost & Buck-Boost Converters: CCM & DCM (Part 3)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Підвищувальний (Boost) та інвертувальний перетворювачі». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Boost & Buck-Boost Converters: CCM & DCM'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-39-l3-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Підвищувальний (Boost) та інвертувальний перетворювачі»?",
-            "promptEn": "Which core statement is correct regarding 'Boost & Buck-Boost Converters: CCM & DCM'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-39-l3-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 42 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 42 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 63.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 42 * 1.5 = 63.0 В.",
-            "explanationEn": "Calculation follows direct scaling: 42 * 1.5 = 63.0 V."
-}),
-          createNumeric({
-            "id": "ee-39-l3-n2",
-            "promptUk": "Розрахуйте струм у вітці при опорі 42 Ом та напрузі 25 В:",
-            "promptEn": "Calculate branch current for resistance 42 Ohm with 25 V applied:",
-            "formula": "I = \\frac{V}{R}",
-            "target": 0.595,
-            "unit": "A",
-            "absTolerance": 0.05,
-            "relTolerance": 0.02,
-            "explanationUk": "Струм визначається за законом Ома: I = 25 / 42 А.",
-            "explanationEn": "Current is determined via Ohm's Law: I = 25 / 42 A."
-}),
-          createExplain({
-            "id": "ee-39-l3-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Підвищувальний (Boost) та інвертувальний перетворювачі»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Boost & Buck-Boost Converters: CCM & DCM':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-39-l4",
-        titleUk: "Підвищувальний (Boost) та інвертувальний перетворювачі (Частина 4)",
-        titleEn: "Boost & Buck-Boost Converters: CCM & DCM (Part 4)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-39-l4-c1",
-            "promptUk": "Теоретичні основи: Підвищувальний (Boost) та інвертувальний перетворювачі (Частина 4)",
-            "promptEn": "Theoretical Foundations: Boost & Buck-Boost Converters: CCM & DCM (Part 4)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Підвищувальний (Boost) та інвертувальний перетворювачі». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Boost & Buck-Boost Converters: CCM & DCM'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-39-l4-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Підвищувальний (Boost) та інвертувальний перетворювачі»?",
-            "promptEn": "Which core statement is correct regarding 'Boost & Buck-Boost Converters: CCM & DCM'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-39-l4-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 47 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 47 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 70.5,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 47 * 1.5 = 70.5 В.",
-            "explanationEn": "Calculation follows direct scaling: 47 * 1.5 = 70.5 V."
-}),
-          createCircuitLab({
-            "id": "ee-39-l4-lab",
-            "promptUk": "SPICE Лабораторія: Дослідження режиму роботи для «Підвищувальний (Boost) та інвертувальний перетворювачі». Запустіть симуляцію схеми.",
-            "promptEn": "SPICE Laboratory: Operating Mode Analysis for 'Boost & Buck-Boost Converters: CCM & DCM'. Run simulation and verify nodes.",
-            "title": "Lab 39.4: Boost & Buck-Boost Converters: CCM & DCM",
-            "netlist": "* EduForge SPICE Model for Unit 39\nV1 in 0 DC 10\nR1 in out 47k\nR2 out 0 22k\n.tran 10u 2m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.002
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 3.188,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out відповідає дільнику",
-                                    "labelEn": "Node voltage at out matches divider ratio"
-                        }
-            ],
-            "hintsUk": [
-                        "Перевірте підключення опорного вузла землі (0)"
-            ],
-            "hintsEn": [
-                        "Verify reference ground connection at node 0"
-            ],
-            "explanationUk": "Симуляція SPICE підтверджує аналітичний розрахунок вузлових потенціалів.",
-            "explanationEn": "SPICE transient simulation validates analytical calculation of nodal voltages."
-}),
-          createExplain({
-            "id": "ee-39-l4-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Підвищувальний (Boost) та інвертувальний перетворювачі»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Boost & Buck-Boost Converters: CCM & DCM':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-39-l5",
-        titleUk: "Підвищувальний (Boost) та інвертувальний перетворювачі (Частина 5)",
-        titleEn: "Boost & Buck-Boost Converters: CCM & DCM (Part 5)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-39-l5-c1",
-            "promptUk": "Теоретичні основи: Підвищувальний (Boost) та інвертувальний перетворювачі (Частина 5)",
-            "promptEn": "Theoretical Foundations: Boost & Buck-Boost Converters: CCM & DCM (Part 5)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Підвищувальний (Boost) та інвертувальний перетворювачі». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Boost & Buck-Boost Converters: CCM & DCM'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-39-l5-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Підвищувальний (Boost) та інвертувальний перетворювачі»?",
-            "promptEn": "Which core statement is correct regarding 'Boost & Buck-Boost Converters: CCM & DCM'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-39-l5-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 52 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 52 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 78.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 52 * 1.5 = 78.0 В.",
-            "explanationEn": "Calculation follows direct scaling: 52 * 1.5 = 78.0 V."
-}),
-          createCircuitLab({
-            "id": "ee-39-l5-lab",
-            "promptUk": "SPICE Лабораторія: Дослідження режиму роботи для «Підвищувальний (Boost) та інвертувальний перетворювачі». Запустіть симуляцію схеми.",
-            "promptEn": "SPICE Laboratory: Operating Mode Analysis for 'Boost & Buck-Boost Converters: CCM & DCM'. Run simulation and verify nodes.",
-            "title": "Lab 39.5: Boost & Buck-Boost Converters: CCM & DCM",
-            "netlist": "* EduForge SPICE Model for Unit 39\nV1 in 0 DC 10\nR1 in out 52k\nR2 out 0 33k\n.tran 10u 2m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.002
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 3.882,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out відповідає дільнику",
-                                    "labelEn": "Node voltage at out matches divider ratio"
-                        }
-            ],
-            "hintsUk": [
-                        "Перевірте підключення опорного вузла землі (0)"
-            ],
-            "hintsEn": [
-                        "Verify reference ground connection at node 0"
-            ],
-            "explanationUk": "Симуляція SPICE підтверджує аналітичний розрахунок вузлових потенціалів.",
-            "explanationEn": "SPICE transient simulation validates analytical calculation of nodal voltages."
-}),
-          createExplain({
-            "id": "ee-39-l5-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Підвищувальний (Boost) та інвертувальний перетворювачі»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Boost & Buck-Boost Converters: CCM & DCM':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-39-exam",
-        titleUk: "Екзамен: Підвищувальний (Boost) та інвертувальний перетворювачі",
-        titleEn: "Exam: Boost & Buck-Boost Converters: CCM & DCM",
-        difficulty: 4,
-        baseXp: 100,
-        isExam: true,
-        passThreshold: 0.7,
-        exercises: [
-          createMcq({
-            "id": "ee-39-exam-q1",
-            "promptUk": "Екзаменаційне питання 1: Яке твердження є справедливим для аналізу «Підвищувальний (Boost) та інвертувальний перетворювачі»?",
-            "promptEn": "Exam Question 1: Which statement holds true for the analysis of 'Boost & Buck-Boost Converters: CCM & DCM'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 1)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 1)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createMcq({
-            "id": "ee-39-exam-q2",
-            "promptUk": "Екзаменаційне питання 2: Яке твердження є справедливим для аналізу «Підвищувальний (Boost) та інвертувальний перетворювачі»?",
-            "promptEn": "Exam Question 2: Which statement holds true for the analysis of 'Boost & Buck-Boost Converters: CCM & DCM'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 2)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 2)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createMcq({
-            "id": "ee-39-exam-q3",
-            "promptUk": "Екзаменаційне питання 3: Яке твердження є справедливим для аналізу «Підвищувальний (Boost) та інвертувальний перетворювачі»?",
-            "promptEn": "Exam Question 3: Which statement holds true for the analysis of 'Boost & Buck-Boost Converters: CCM & DCM'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 3)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 3)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createMcq({
-            "id": "ee-39-exam-q4",
-            "promptUk": "Екзаменаційне питання 4: Яке твердження є справедливим для аналізу «Підвищувальний (Boost) та інвертувальний перетворювачі»?",
-            "promptEn": "Exam Question 4: Which statement holds true for the analysis of 'Boost & Buck-Boost Converters: CCM & DCM'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 4)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 4)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createNumeric({
-            "id": "ee-39-exam-n5",
-            "promptUk": "Екзаменаційна задача 5: Обчисліть розрахунковий параметр при базовому опорі 400 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 5: Calculate parameter with base resistance 400 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 200.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 400 = 200.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 400 = 200.0 V."
-}),
-          createNumeric({
-            "id": "ee-39-exam-n6",
-            "promptUk": "Екзаменаційна задача 6: Обчисліть розрахунковий параметр при базовому опорі 402 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 6: Calculate parameter with base resistance 402 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 201.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 402 = 201.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 402 = 201.0 V."
-}),
-          createNumeric({
-            "id": "ee-39-exam-n7",
-            "promptUk": "Екзаменаційна задача 7: Обчисліть розрахунковий параметр при базовому опорі 404 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 7: Calculate parameter with base resistance 404 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 202.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 404 = 202.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 404 = 202.0 V."
-}),
-          createNumeric({
-            "id": "ee-39-exam-n8",
-            "promptUk": "Екзаменаційна задача 8: Обчисліть розрахунковий параметр при базовому опорі 406 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 8: Calculate parameter with base resistance 406 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 203.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 406 = 203.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 406 = 203.0 V."
-}),
-          createCircuitLab({
-            "id": "ee-39-exam-lab9",
-            "promptUk": "Екзаменаційний лабораторний тест 9: Підтвердження режиму в SPICE для «Підвищувальний (Boost) та інвертувальний перетворювачі».",
-            "promptEn": "Exam Lab Test 9: SPICE Operating Point Verification for 'Boost & Buck-Boost Converters: CCM & DCM'.",
-            "title": "Exam Lab 39.9: Boost & Buck-Boost Converters: CCM & DCM",
-            "netlist": "* Exam Model 39_9\nV1 in 0 DC 12\nR1 in out 48k\nR2 out 0 10k\n.tran 10u 1m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.001
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 2.069,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out у межах розрахунку",
-                                    "labelEn": "Node voltage at out within tolerance"
-                        }
-            ],
-            "hintsUk": [
-                        "Запустіть симуляцію для перевірки критеріїв"
-            ],
-            "hintsEn": [
-                        "Run simulation to verify criteria"
-            ],
-            "explanationUk": "Симуляція перевіряє правильність складання схеми та відповідність критеріям.",
-            "explanationEn": "Simulation validates schematic correctness and criteria compliance."
-}),
-          createCircuitLab({
-            "id": "ee-39-exam-lab10",
-            "promptUk": "Екзаменаційний лабораторний тест 10: Підтвердження режиму в SPICE для «Підвищувальний (Boost) та інвертувальний перетворювачі».",
-            "promptEn": "Exam Lab Test 10: SPICE Operating Point Verification for 'Boost & Buck-Boost Converters: CCM & DCM'.",
-            "title": "Exam Lab 39.10: Boost & Buck-Boost Converters: CCM & DCM",
-            "netlist": "* Exam Model 39_10\nV1 in 0 DC 12\nR1 in out 49k\nR2 out 0 10k\n.tran 10u 1m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.001
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 2.034,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out у межах розрахунку",
-                                    "labelEn": "Node voltage at out within tolerance"
-                        }
-            ],
-            "hintsUk": [
-                        "Запустіть симуляцію для перевірки критеріїв"
-            ],
-            "hintsEn": [
-                        "Run simulation to verify criteria"
-            ],
-            "explanationUk": "Симуляція перевіряє правильність складання схеми та відповідність критеріям.",
-            "explanationEn": "Simulation validates schematic correctness and criteria compliance."
-}),
-        ],
-      }),
-    ],
-  }),
-  createUnit({
-    slug: "ee-40-isolated-flyback",
-    titleUk: "Ізольовані перетворювачі, зворотньоходовий (Flyback)",
-    titleEn: "Isolated Converters, Flyback Topology & Energy Storage",
-    lessons: [
-      createLesson({
-        slug: "ee-40-l1",
-        titleUk: "Ізольовані перетворювачі, зворотньоходовий (Flyback) (Частина 1)",
-        titleEn: "Isolated Converters, Flyback Topology & Energy Storage (Part 1)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-40-l1-c1",
-            "promptUk": "Теоретичні основи: Ізольовані перетворювачі, зворотньоходовий (Flyback) (Частина 1)",
-            "promptEn": "Theoretical Foundations: Isolated Converters, Flyback Topology & Energy Storage (Part 1)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Ізольовані перетворювачі, зворотньоходовий (Flyback)». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Isolated Converters, Flyback Topology & Energy Storage'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-40-l1-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Ізольовані перетворювачі, зворотньоходовий (Flyback)»?",
-            "promptEn": "Which core statement is correct regarding 'Isolated Converters, Flyback Topology & Energy Storage'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-40-l1-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 35 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 35 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 52.5,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 35 * 1.5 = 52.5 В.",
-            "explanationEn": "Calculation follows direct scaling: 35 * 1.5 = 52.5 V."
-}),
-          createNumeric({
-            "id": "ee-40-l1-n2",
-            "promptUk": "Розрахуйте струм у вітці при опорі 35 Ом та напрузі 25 В:",
-            "promptEn": "Calculate branch current for resistance 35 Ohm with 25 V applied:",
-            "formula": "I = \\frac{V}{R}",
-            "target": 0.714,
-            "unit": "A",
-            "absTolerance": 0.05,
-            "relTolerance": 0.02,
-            "explanationUk": "Струм визначається за законом Ома: I = 25 / 35 А.",
-            "explanationEn": "Current is determined via Ohm's Law: I = 25 / 35 A."
-}),
-          createExplain({
-            "id": "ee-40-l1-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Ізольовані перетворювачі, зворотньоходовий (Flyback)»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Isolated Converters, Flyback Topology & Energy Storage':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-40-l2",
-        titleUk: "Ізольовані перетворювачі, зворотньоходовий (Flyback) (Частина 2)",
-        titleEn: "Isolated Converters, Flyback Topology & Energy Storage (Part 2)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-40-l2-c1",
-            "promptUk": "Теоретичні основи: Ізольовані перетворювачі, зворотньоходовий (Flyback) (Частина 2)",
-            "promptEn": "Theoretical Foundations: Isolated Converters, Flyback Topology & Energy Storage (Part 2)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Ізольовані перетворювачі, зворотньоходовий (Flyback)». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Isolated Converters, Flyback Topology & Energy Storage'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-40-l2-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Ізольовані перетворювачі, зворотньоходовий (Flyback)»?",
-            "promptEn": "Which core statement is correct regarding 'Isolated Converters, Flyback Topology & Energy Storage'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-40-l2-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 40 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 40 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 60.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 40 * 1.5 = 60.0 В.",
-            "explanationEn": "Calculation follows direct scaling: 40 * 1.5 = 60.0 V."
-}),
-          createNumeric({
-            "id": "ee-40-l2-n2",
-            "promptUk": "Розрахуйте струм у вітці при опорі 40 Ом та напрузі 25 В:",
-            "promptEn": "Calculate branch current for resistance 40 Ohm with 25 V applied:",
-            "formula": "I = \\frac{V}{R}",
-            "target": 0.625,
-            "unit": "A",
-            "absTolerance": 0.05,
-            "relTolerance": 0.02,
-            "explanationUk": "Струм визначається за законом Ома: I = 25 / 40 А.",
-            "explanationEn": "Current is determined via Ohm's Law: I = 25 / 40 A."
-}),
-          createExplain({
-            "id": "ee-40-l2-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Ізольовані перетворювачі, зворотньоходовий (Flyback)»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Isolated Converters, Flyback Topology & Energy Storage':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-40-l3",
-        titleUk: "Ізольовані перетворювачі, зворотньоходовий (Flyback) (Частина 3)",
-        titleEn: "Isolated Converters, Flyback Topology & Energy Storage (Part 3)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-40-l3-c1",
-            "promptUk": "Теоретичні основи: Ізольовані перетворювачі, зворотньоходовий (Flyback) (Частина 3)",
-            "promptEn": "Theoretical Foundations: Isolated Converters, Flyback Topology & Energy Storage (Part 3)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Ізольовані перетворювачі, зворотньоходовий (Flyback)». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Isolated Converters, Flyback Topology & Energy Storage'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-40-l3-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Ізольовані перетворювачі, зворотньоходовий (Flyback)»?",
-            "promptEn": "Which core statement is correct regarding 'Isolated Converters, Flyback Topology & Energy Storage'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-40-l3-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 45 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 45 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 67.5,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 45 * 1.5 = 67.5 В.",
-            "explanationEn": "Calculation follows direct scaling: 45 * 1.5 = 67.5 V."
-}),
-          createNumeric({
-            "id": "ee-40-l3-n2",
-            "promptUk": "Розрахуйте струм у вітці при опорі 45 Ом та напрузі 25 В:",
-            "promptEn": "Calculate branch current for resistance 45 Ohm with 25 V applied:",
-            "formula": "I = \\frac{V}{R}",
-            "target": 0.556,
-            "unit": "A",
-            "absTolerance": 0.05,
-            "relTolerance": 0.02,
-            "explanationUk": "Струм визначається за законом Ома: I = 25 / 45 А.",
-            "explanationEn": "Current is determined via Ohm's Law: I = 25 / 45 A."
-}),
-          createExplain({
-            "id": "ee-40-l3-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Ізольовані перетворювачі, зворотньоходовий (Flyback)»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Isolated Converters, Flyback Topology & Energy Storage':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-40-l4",
-        titleUk: "Ізольовані перетворювачі, зворотньоходовий (Flyback) (Частина 4)",
-        titleEn: "Isolated Converters, Flyback Topology & Energy Storage (Part 4)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-40-l4-c1",
-            "promptUk": "Теоретичні основи: Ізольовані перетворювачі, зворотньоходовий (Flyback) (Частина 4)",
-            "promptEn": "Theoretical Foundations: Isolated Converters, Flyback Topology & Energy Storage (Part 4)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Ізольовані перетворювачі, зворотньоходовий (Flyback)». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Isolated Converters, Flyback Topology & Energy Storage'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-40-l4-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Ізольовані перетворювачі, зворотньоходовий (Flyback)»?",
-            "promptEn": "Which core statement is correct regarding 'Isolated Converters, Flyback Topology & Energy Storage'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-40-l4-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 50 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 50 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 75.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 50 * 1.5 = 75.0 В.",
-            "explanationEn": "Calculation follows direct scaling: 50 * 1.5 = 75.0 V."
-}),
-          createCircuitLab({
-            "id": "ee-40-l4-lab",
-            "promptUk": "SPICE Лабораторія: Дослідження режиму роботи для «Ізольовані перетворювачі, зворотньоходовий (Flyback)». Запустіть симуляцію схеми.",
-            "promptEn": "SPICE Laboratory: Operating Mode Analysis for 'Isolated Converters, Flyback Topology & Energy Storage'. Run simulation and verify nodes.",
-            "title": "Lab 40.4: Isolated Converters, Flyback Topology & Energy Storage",
-            "netlist": "* EduForge SPICE Model for Unit 40\nV1 in 0 DC 10\nR1 in out 50k\nR2 out 0 29k\n.tran 10u 2m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.002
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 3.671,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out відповідає дільнику",
-                                    "labelEn": "Node voltage at out matches divider ratio"
-                        }
-            ],
-            "hintsUk": [
-                        "Перевірте підключення опорного вузла землі (0)"
-            ],
-            "hintsEn": [
-                        "Verify reference ground connection at node 0"
-            ],
-            "explanationUk": "Симуляція SPICE підтверджує аналітичний розрахунок вузлових потенціалів.",
-            "explanationEn": "SPICE transient simulation validates analytical calculation of nodal voltages."
-}),
-          createExplain({
-            "id": "ee-40-l4-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Ізольовані перетворювачі, зворотньоходовий (Flyback)»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Isolated Converters, Flyback Topology & Energy Storage':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-40-l5",
-        titleUk: "Ізольовані перетворювачі, зворотньоходовий (Flyback) (Частина 5)",
-        titleEn: "Isolated Converters, Flyback Topology & Energy Storage (Part 5)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-40-l5-c1",
-            "promptUk": "Теоретичні основи: Ізольовані перетворювачі, зворотньоходовий (Flyback) (Частина 5)",
-            "promptEn": "Theoretical Foundations: Isolated Converters, Flyback Topology & Energy Storage (Part 5)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Ізольовані перетворювачі, зворотньоходовий (Flyback)». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Isolated Converters, Flyback Topology & Energy Storage'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-40-l5-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Ізольовані перетворювачі, зворотньоходовий (Flyback)»?",
-            "promptEn": "Which core statement is correct regarding 'Isolated Converters, Flyback Topology & Energy Storage'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-40-l5-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 55 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 55 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 82.5,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 55 * 1.5 = 82.5 В.",
-            "explanationEn": "Calculation follows direct scaling: 55 * 1.5 = 82.5 V."
-}),
-          createCircuitLab({
-            "id": "ee-40-l5-lab",
-            "promptUk": "SPICE Лабораторія: Дослідження режиму роботи для «Ізольовані перетворювачі, зворотньоходовий (Flyback)». Запустіть симуляцію схеми.",
-            "promptEn": "SPICE Laboratory: Operating Mode Analysis for 'Isolated Converters, Flyback Topology & Energy Storage'. Run simulation and verify nodes.",
-            "title": "Lab 40.5: Isolated Converters, Flyback Topology & Energy Storage",
-            "netlist": "* EduForge SPICE Model for Unit 40\nV1 in 0 DC 10\nR1 in out 55k\nR2 out 0 40k\n.tran 10u 2m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.002
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 4.211,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out відповідає дільнику",
-                                    "labelEn": "Node voltage at out matches divider ratio"
-                        }
-            ],
-            "hintsUk": [
-                        "Перевірте підключення опорного вузла землі (0)"
-            ],
-            "hintsEn": [
-                        "Verify reference ground connection at node 0"
-            ],
-            "explanationUk": "Симуляція SPICE підтверджує аналітичний розрахунок вузлових потенціалів.",
-            "explanationEn": "SPICE transient simulation validates analytical calculation of nodal voltages."
-}),
-          createExplain({
-            "id": "ee-40-l5-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Ізольовані перетворювачі, зворотньоходовий (Flyback)»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Isolated Converters, Flyback Topology & Energy Storage':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-40-exam",
-        titleUk: "Екзамен: Ізольовані перетворювачі, зворотньоходовий (Flyback)",
-        titleEn: "Exam: Isolated Converters, Flyback Topology & Energy Storage",
-        difficulty: 4,
-        baseXp: 100,
-        isExam: true,
-        passThreshold: 0.7,
-        exercises: [
-          createMcq({
-            "id": "ee-40-exam-q1",
-            "promptUk": "Екзаменаційне питання 1: Яке твердження є справедливим для аналізу «Ізольовані перетворювачі, зворотньоходовий (Flyback)»?",
-            "promptEn": "Exam Question 1: Which statement holds true for the analysis of 'Isolated Converters, Flyback Topology & Energy Storage'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 1)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 1)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createMcq({
-            "id": "ee-40-exam-q2",
-            "promptUk": "Екзаменаційне питання 2: Яке твердження є справедливим для аналізу «Ізольовані перетворювачі, зворотньоходовий (Flyback)»?",
-            "promptEn": "Exam Question 2: Which statement holds true for the analysis of 'Isolated Converters, Flyback Topology & Energy Storage'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 2)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 2)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createMcq({
-            "id": "ee-40-exam-q3",
-            "promptUk": "Екзаменаційне питання 3: Яке твердження є справедливим для аналізу «Ізольовані перетворювачі, зворотньоходовий (Flyback)»?",
-            "promptEn": "Exam Question 3: Which statement holds true for the analysis of 'Isolated Converters, Flyback Topology & Energy Storage'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 3)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 3)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createMcq({
-            "id": "ee-40-exam-q4",
-            "promptUk": "Екзаменаційне питання 4: Яке твердження є справедливим для аналізу «Ізольовані перетворювачі, зворотньоходовий (Flyback)»?",
-            "promptEn": "Exam Question 4: Which statement holds true for the analysis of 'Isolated Converters, Flyback Topology & Energy Storage'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 4)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 4)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createNumeric({
-            "id": "ee-40-exam-n5",
-            "promptUk": "Екзаменаційна задача 5: Обчисліть розрахунковий параметр при базовому опорі 410 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 5: Calculate parameter with base resistance 410 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 205.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 410 = 205.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 410 = 205.0 V."
-}),
-          createNumeric({
-            "id": "ee-40-exam-n6",
-            "promptUk": "Екзаменаційна задача 6: Обчисліть розрахунковий параметр при базовому опорі 412 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 6: Calculate parameter with base resistance 412 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 206.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 412 = 206.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 412 = 206.0 V."
-}),
-          createNumeric({
-            "id": "ee-40-exam-n7",
-            "promptUk": "Екзаменаційна задача 7: Обчисліть розрахунковий параметр при базовому опорі 414 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 7: Calculate parameter with base resistance 414 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 207.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 414 = 207.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 414 = 207.0 V."
-}),
-          createNumeric({
-            "id": "ee-40-exam-n8",
-            "promptUk": "Екзаменаційна задача 8: Обчисліть розрахунковий параметр при базовому опорі 416 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 8: Calculate parameter with base resistance 416 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 208.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 416 = 208.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 416 = 208.0 V."
-}),
-          createCircuitLab({
-            "id": "ee-40-exam-lab9",
-            "promptUk": "Екзаменаційний лабораторний тест 9: Підтвердження режиму в SPICE для «Ізольовані перетворювачі, зворотньоходовий (Flyback)».",
-            "promptEn": "Exam Lab Test 9: SPICE Operating Point Verification for 'Isolated Converters, Flyback Topology & Energy Storage'.",
-            "title": "Exam Lab 40.9: Isolated Converters, Flyback Topology & Energy Storage",
-            "netlist": "* Exam Model 40_9\nV1 in 0 DC 12\nR1 in out 49k\nR2 out 0 10k\n.tran 10u 1m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.001
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 2.034,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out у межах розрахунку",
-                                    "labelEn": "Node voltage at out within tolerance"
-                        }
-            ],
-            "hintsUk": [
-                        "Запустіть симуляцію для перевірки критеріїв"
-            ],
-            "hintsEn": [
-                        "Run simulation to verify criteria"
-            ],
-            "explanationUk": "Симуляція перевіряє правильність складання схеми та відповідність критеріям.",
-            "explanationEn": "Simulation validates schematic correctness and criteria compliance."
-}),
-          createCircuitLab({
-            "id": "ee-40-exam-lab10",
-            "promptUk": "Екзаменаційний лабораторний тест 10: Підтвердження режиму в SPICE для «Ізольовані перетворювачі, зворотньоходовий (Flyback)».",
-            "promptEn": "Exam Lab Test 10: SPICE Operating Point Verification for 'Isolated Converters, Flyback Topology & Energy Storage'.",
-            "title": "Exam Lab 40.10: Isolated Converters, Flyback Topology & Energy Storage",
-            "netlist": "* Exam Model 40_10\nV1 in 0 DC 12\nR1 in out 50k\nR2 out 0 10k\n.tran 10u 1m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.001
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 2.0,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out у межах розрахунку",
-                                    "labelEn": "Node voltage at out within tolerance"
-                        }
-            ],
-            "hintsUk": [
-                        "Запустіть симуляцію для перевірки критеріїв"
-            ],
-            "hintsEn": [
-                        "Run simulation to verify criteria"
-            ],
-            "explanationUk": "Симуляція перевіряє правильність складання схеми та відповідність критеріям.",
-            "explanationEn": "Simulation validates schematic correctness and criteria compliance."
-}),
-        ],
-      }),
-    ],
-  }),
-  createUnit({
-    slug: "ee-41-bridge-inverters",
-    titleUk: "Напівміст, повний міст, інвертор та синхронне випрямлення",
-    titleEn: "Half-Bridge, Full-Bridge, Inverters & Rectification",
-    lessons: [
-      createLesson({
-        slug: "ee-41-l1",
-        titleUk: "Напівміст, повний міст, інвертор та синхронне випрямлення (Частина 1)",
-        titleEn: "Half-Bridge, Full-Bridge, Inverters & Rectification (Part 1)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-41-l1-c1",
-            "promptUk": "Теоретичні основи: Напівміст, повний міст, інвертор та синхронне випрямлення (Частина 1)",
-            "promptEn": "Theoretical Foundations: Half-Bridge, Full-Bridge, Inverters & Rectification (Part 1)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Напівміст, повний міст, інвертор та синхронне випрямлення». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Half-Bridge, Full-Bridge, Inverters & Rectification'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-41-l1-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Напівміст, повний міст, інвертор та синхронне випрямлення»?",
-            "promptEn": "Which core statement is correct regarding 'Half-Bridge, Full-Bridge, Inverters & Rectification'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-41-l1-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 38 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 38 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 57.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 38 * 1.5 = 57.0 В.",
-            "explanationEn": "Calculation follows direct scaling: 38 * 1.5 = 57.0 V."
-}),
-          createNumeric({
-            "id": "ee-41-l1-n2",
-            "promptUk": "Розрахуйте струм у вітці при опорі 38 Ом та напрузі 25 В:",
-            "promptEn": "Calculate branch current for resistance 38 Ohm with 25 V applied:",
-            "formula": "I = \\frac{V}{R}",
-            "target": 0.658,
-            "unit": "A",
-            "absTolerance": 0.05,
-            "relTolerance": 0.02,
-            "explanationUk": "Струм визначається за законом Ома: I = 25 / 38 А.",
-            "explanationEn": "Current is determined via Ohm's Law: I = 25 / 38 A."
-}),
-          createExplain({
-            "id": "ee-41-l1-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Напівміст, повний міст, інвертор та синхронне випрямлення»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Half-Bridge, Full-Bridge, Inverters & Rectification':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-41-l2",
-        titleUk: "Напівміст, повний міст, інвертор та синхронне випрямлення (Частина 2)",
-        titleEn: "Half-Bridge, Full-Bridge, Inverters & Rectification (Part 2)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-41-l2-c1",
-            "promptUk": "Теоретичні основи: Напівміст, повний міст, інвертор та синхронне випрямлення (Частина 2)",
-            "promptEn": "Theoretical Foundations: Half-Bridge, Full-Bridge, Inverters & Rectification (Part 2)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Напівміст, повний міст, інвертор та синхронне випрямлення». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Half-Bridge, Full-Bridge, Inverters & Rectification'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-41-l2-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Напівміст, повний міст, інвертор та синхронне випрямлення»?",
-            "promptEn": "Which core statement is correct regarding 'Half-Bridge, Full-Bridge, Inverters & Rectification'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-41-l2-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 43 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 43 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 64.5,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 43 * 1.5 = 64.5 В.",
-            "explanationEn": "Calculation follows direct scaling: 43 * 1.5 = 64.5 V."
-}),
-          createNumeric({
-            "id": "ee-41-l2-n2",
-            "promptUk": "Розрахуйте струм у вітці при опорі 43 Ом та напрузі 25 В:",
-            "promptEn": "Calculate branch current for resistance 43 Ohm with 25 V applied:",
-            "formula": "I = \\frac{V}{R}",
-            "target": 0.581,
-            "unit": "A",
-            "absTolerance": 0.05,
-            "relTolerance": 0.02,
-            "explanationUk": "Струм визначається за законом Ома: I = 25 / 43 А.",
-            "explanationEn": "Current is determined via Ohm's Law: I = 25 / 43 A."
-}),
-          createExplain({
-            "id": "ee-41-l2-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Напівміст, повний міст, інвертор та синхронне випрямлення»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Half-Bridge, Full-Bridge, Inverters & Rectification':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-41-l3",
-        titleUk: "Напівміст, повний міст, інвертор та синхронне випрямлення (Частина 3)",
-        titleEn: "Half-Bridge, Full-Bridge, Inverters & Rectification (Part 3)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-41-l3-c1",
-            "promptUk": "Теоретичні основи: Напівміст, повний міст, інвертор та синхронне випрямлення (Частина 3)",
-            "promptEn": "Theoretical Foundations: Half-Bridge, Full-Bridge, Inverters & Rectification (Part 3)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Напівміст, повний міст, інвертор та синхронне випрямлення». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Half-Bridge, Full-Bridge, Inverters & Rectification'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-41-l3-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Напівміст, повний міст, інвертор та синхронне випрямлення»?",
-            "promptEn": "Which core statement is correct regarding 'Half-Bridge, Full-Bridge, Inverters & Rectification'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-41-l3-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 48 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 48 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 72.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 48 * 1.5 = 72.0 В.",
-            "explanationEn": "Calculation follows direct scaling: 48 * 1.5 = 72.0 V."
-}),
-          createNumeric({
-            "id": "ee-41-l3-n2",
-            "promptUk": "Розрахуйте струм у вітці при опорі 48 Ом та напрузі 25 В:",
-            "promptEn": "Calculate branch current for resistance 48 Ohm with 25 V applied:",
-            "formula": "I = \\frac{V}{R}",
-            "target": 0.521,
-            "unit": "A",
-            "absTolerance": 0.05,
-            "relTolerance": 0.02,
-            "explanationUk": "Струм визначається за законом Ома: I = 25 / 48 А.",
-            "explanationEn": "Current is determined via Ohm's Law: I = 25 / 48 A."
-}),
-          createExplain({
-            "id": "ee-41-l3-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Напівміст, повний міст, інвертор та синхронне випрямлення»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Half-Bridge, Full-Bridge, Inverters & Rectification':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-41-l4",
-        titleUk: "Напівміст, повний міст, інвертор та синхронне випрямлення (Частина 4)",
-        titleEn: "Half-Bridge, Full-Bridge, Inverters & Rectification (Part 4)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-41-l4-c1",
-            "promptUk": "Теоретичні основи: Напівміст, повний міст, інвертор та синхронне випрямлення (Частина 4)",
-            "promptEn": "Theoretical Foundations: Half-Bridge, Full-Bridge, Inverters & Rectification (Part 4)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Напівміст, повний міст, інвертор та синхронне випрямлення». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Half-Bridge, Full-Bridge, Inverters & Rectification'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-41-l4-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Напівміст, повний міст, інвертор та синхронне випрямлення»?",
-            "promptEn": "Which core statement is correct regarding 'Half-Bridge, Full-Bridge, Inverters & Rectification'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-41-l4-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 53 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 53 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 79.5,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 53 * 1.5 = 79.5 В.",
-            "explanationEn": "Calculation follows direct scaling: 53 * 1.5 = 79.5 V."
-}),
-          createCircuitLab({
-            "id": "ee-41-l4-lab",
-            "promptUk": "SPICE Лабораторія: Дослідження режиму роботи для «Напівміст, повний міст, інвертор та синхронне випрямлення». Запустіть симуляцію схеми.",
-            "promptEn": "SPICE Laboratory: Operating Mode Analysis for 'Half-Bridge, Full-Bridge, Inverters & Rectification'. Run simulation and verify nodes.",
-            "title": "Lab 41.4: Half-Bridge, Full-Bridge, Inverters & Rectification",
-            "netlist": "* EduForge SPICE Model for Unit 41\nV1 in 0 DC 10\nR1 in out 53k\nR2 out 0 36k\n.tran 10u 2m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.002
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 4.045,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out відповідає дільнику",
-                                    "labelEn": "Node voltage at out matches divider ratio"
-                        }
-            ],
-            "hintsUk": [
-                        "Перевірте підключення опорного вузла землі (0)"
-            ],
-            "hintsEn": [
-                        "Verify reference ground connection at node 0"
-            ],
-            "explanationUk": "Симуляція SPICE підтверджує аналітичний розрахунок вузлових потенціалів.",
-            "explanationEn": "SPICE transient simulation validates analytical calculation of nodal voltages."
-}),
-          createExplain({
-            "id": "ee-41-l4-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Напівміст, повний міст, інвертор та синхронне випрямлення»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Half-Bridge, Full-Bridge, Inverters & Rectification':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-41-l5",
-        titleUk: "Напівміст, повний міст, інвертор та синхронне випрямлення (Частина 5)",
-        titleEn: "Half-Bridge, Full-Bridge, Inverters & Rectification (Part 5)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-41-l5-c1",
-            "promptUk": "Теоретичні основи: Напівміст, повний міст, інвертор та синхронне випрямлення (Частина 5)",
-            "promptEn": "Theoretical Foundations: Half-Bridge, Full-Bridge, Inverters & Rectification (Part 5)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Напівміст, повний міст, інвертор та синхронне випрямлення». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Half-Bridge, Full-Bridge, Inverters & Rectification'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-41-l5-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Напівміст, повний міст, інвертор та синхронне випрямлення»?",
-            "promptEn": "Which core statement is correct regarding 'Half-Bridge, Full-Bridge, Inverters & Rectification'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-41-l5-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 58 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 58 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 87.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 58 * 1.5 = 87.0 В.",
-            "explanationEn": "Calculation follows direct scaling: 58 * 1.5 = 87.0 V."
-}),
-          createCircuitLab({
-            "id": "ee-41-l5-lab",
-            "promptUk": "SPICE Лабораторія: Дослідження режиму роботи для «Напівміст, повний міст, інвертор та синхронне випрямлення». Запустіть симуляцію схеми.",
-            "promptEn": "SPICE Laboratory: Operating Mode Analysis for 'Half-Bridge, Full-Bridge, Inverters & Rectification'. Run simulation and verify nodes.",
-            "title": "Lab 41.5: Half-Bridge, Full-Bridge, Inverters & Rectification",
-            "netlist": "* EduForge SPICE Model for Unit 41\nV1 in 0 DC 10\nR1 in out 58k\nR2 out 0 47k\n.tran 10u 2m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.002
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 4.476,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out відповідає дільнику",
-                                    "labelEn": "Node voltage at out matches divider ratio"
-                        }
-            ],
-            "hintsUk": [
-                        "Перевірте підключення опорного вузла землі (0)"
-            ],
-            "hintsEn": [
-                        "Verify reference ground connection at node 0"
-            ],
-            "explanationUk": "Симуляція SPICE підтверджує аналітичний розрахунок вузлових потенціалів.",
-            "explanationEn": "SPICE transient simulation validates analytical calculation of nodal voltages."
-}),
-          createExplain({
-            "id": "ee-41-l5-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Напівміст, повний міст, інвертор та синхронне випрямлення»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Half-Bridge, Full-Bridge, Inverters & Rectification':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-41-exam",
-        titleUk: "Екзамен: Напівміст, повний міст, інвертор та синхронне випрямлення",
-        titleEn: "Exam: Half-Bridge, Full-Bridge, Inverters & Rectification",
-        difficulty: 4,
-        baseXp: 100,
-        isExam: true,
-        passThreshold: 0.7,
-        exercises: [
-          createMcq({
-            "id": "ee-41-exam-q1",
-            "promptUk": "Екзаменаційне питання 1: Яке твердження є справедливим для аналізу «Напівміст, повний міст, інвертор та синхронне випрямлення»?",
-            "promptEn": "Exam Question 1: Which statement holds true for the analysis of 'Half-Bridge, Full-Bridge, Inverters & Rectification'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 1)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 1)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createMcq({
-            "id": "ee-41-exam-q2",
-            "promptUk": "Екзаменаційне питання 2: Яке твердження є справедливим для аналізу «Напівміст, повний міст, інвертор та синхронне випрямлення»?",
-            "promptEn": "Exam Question 2: Which statement holds true for the analysis of 'Half-Bridge, Full-Bridge, Inverters & Rectification'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 2)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 2)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createMcq({
-            "id": "ee-41-exam-q3",
-            "promptUk": "Екзаменаційне питання 3: Яке твердження є справедливим для аналізу «Напівміст, повний міст, інвертор та синхронне випрямлення»?",
-            "promptEn": "Exam Question 3: Which statement holds true for the analysis of 'Half-Bridge, Full-Bridge, Inverters & Rectification'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 3)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 3)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createMcq({
-            "id": "ee-41-exam-q4",
-            "promptUk": "Екзаменаційне питання 4: Яке твердження є справедливим для аналізу «Напівміст, повний міст, інвертор та синхронне випрямлення»?",
-            "promptEn": "Exam Question 4: Which statement holds true for the analysis of 'Half-Bridge, Full-Bridge, Inverters & Rectification'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 4)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 4)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createNumeric({
-            "id": "ee-41-exam-n5",
-            "promptUk": "Екзаменаційна задача 5: Обчисліть розрахунковий параметр при базовому опорі 420 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 5: Calculate parameter with base resistance 420 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 210.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 420 = 210.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 420 = 210.0 V."
-}),
-          createNumeric({
-            "id": "ee-41-exam-n6",
-            "promptUk": "Екзаменаційна задача 6: Обчисліть розрахунковий параметр при базовому опорі 422 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 6: Calculate parameter with base resistance 422 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 211.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 422 = 211.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 422 = 211.0 V."
-}),
-          createNumeric({
-            "id": "ee-41-exam-n7",
-            "promptUk": "Екзаменаційна задача 7: Обчисліть розрахунковий параметр при базовому опорі 424 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 7: Calculate parameter with base resistance 424 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 212.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 424 = 212.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 424 = 212.0 V."
-}),
-          createNumeric({
-            "id": "ee-41-exam-n8",
-            "promptUk": "Екзаменаційна задача 8: Обчисліть розрахунковий параметр при базовому опорі 426 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 8: Calculate parameter with base resistance 426 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 213.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 426 = 213.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 426 = 213.0 V."
-}),
-          createCircuitLab({
-            "id": "ee-41-exam-lab9",
-            "promptUk": "Екзаменаційний лабораторний тест 9: Підтвердження режиму в SPICE для «Напівміст, повний міст, інвертор та синхронне випрямлення».",
-            "promptEn": "Exam Lab Test 9: SPICE Operating Point Verification for 'Half-Bridge, Full-Bridge, Inverters & Rectification'.",
-            "title": "Exam Lab 41.9: Half-Bridge, Full-Bridge, Inverters & Rectification",
-            "netlist": "* Exam Model 41_9\nV1 in 0 DC 12\nR1 in out 50k\nR2 out 0 10k\n.tran 10u 1m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.001
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 2.0,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out у межах розрахунку",
-                                    "labelEn": "Node voltage at out within tolerance"
-                        }
-            ],
-            "hintsUk": [
-                        "Запустіть симуляцію для перевірки критеріїв"
-            ],
-            "hintsEn": [
-                        "Run simulation to verify criteria"
-            ],
-            "explanationUk": "Симуляція перевіряє правильність складання схеми та відповідність критеріям.",
-            "explanationEn": "Simulation validates schematic correctness and criteria compliance."
-}),
-          createCircuitLab({
-            "id": "ee-41-exam-lab10",
-            "promptUk": "Екзаменаційний лабораторний тест 10: Підтвердження режиму в SPICE для «Напівміст, повний міст, інвертор та синхронне випрямлення».",
-            "promptEn": "Exam Lab Test 10: SPICE Operating Point Verification for 'Half-Bridge, Full-Bridge, Inverters & Rectification'.",
-            "title": "Exam Lab 41.10: Half-Bridge, Full-Bridge, Inverters & Rectification",
-            "netlist": "* Exam Model 41_10\nV1 in 0 DC 12\nR1 in out 51k\nR2 out 0 10k\n.tran 10u 1m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.001
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 1.967,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out у межах розрахунку",
-                                    "labelEn": "Node voltage at out within tolerance"
-                        }
-            ],
-            "hintsUk": [
-                        "Запустіть симуляцію для перевірки критеріїв"
-            ],
-            "hintsEn": [
-                        "Run simulation to verify criteria"
-            ],
-            "explanationUk": "Симуляція перевіряє правильність складання схеми та відповідність критеріям.",
-            "explanationEn": "Simulation validates schematic correctness and criteria compliance."
-}),
-        ],
-      }),
-    ],
-  }),
-  createUnit({
-    slug: "ee-42-magnetics-thermal",
-    titleUk: "Магнітні компоненти, насичення, втрати та тепловий розрахунок",
-    titleEn: "Power Magnetics, Core Saturation, Losses & Thermal Sizing",
-    lessons: [
-      createLesson({
-        slug: "ee-42-l1",
-        titleUk: "Магнітні компоненти, насичення, втрати та тепловий розрахунок (Частина 1)",
-        titleEn: "Power Magnetics, Core Saturation, Losses & Thermal Sizing (Part 1)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-42-l1-c1",
-            "promptUk": "Теоретичні основи: Магнітні компоненти, насичення, втрати та тепловий розрахунок (Частина 1)",
-            "promptEn": "Theoretical Foundations: Power Magnetics, Core Saturation, Losses & Thermal Sizing (Part 1)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Магнітні компоненти, насичення, втрати та тепловий розрахунок». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Power Magnetics, Core Saturation, Losses & Thermal Sizing'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-42-l1-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Магнітні компоненти, насичення, втрати та тепловий розрахунок»?",
-            "promptEn": "Which core statement is correct regarding 'Power Magnetics, Core Saturation, Losses & Thermal Sizing'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-42-l1-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 41 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 41 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 61.5,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 41 * 1.5 = 61.5 В.",
-            "explanationEn": "Calculation follows direct scaling: 41 * 1.5 = 61.5 V."
-}),
-          createNumeric({
-            "id": "ee-42-l1-n2",
-            "promptUk": "Розрахуйте струм у вітці при опорі 41 Ом та напрузі 25 В:",
-            "promptEn": "Calculate branch current for resistance 41 Ohm with 25 V applied:",
-            "formula": "I = \\frac{V}{R}",
-            "target": 0.61,
-            "unit": "A",
-            "absTolerance": 0.05,
-            "relTolerance": 0.02,
-            "explanationUk": "Струм визначається за законом Ома: I = 25 / 41 А.",
-            "explanationEn": "Current is determined via Ohm's Law: I = 25 / 41 A."
-}),
-          createExplain({
-            "id": "ee-42-l1-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Магнітні компоненти, насичення, втрати та тепловий розрахунок»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Power Magnetics, Core Saturation, Losses & Thermal Sizing':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-42-l2",
-        titleUk: "Магнітні компоненти, насичення, втрати та тепловий розрахунок (Частина 2)",
-        titleEn: "Power Magnetics, Core Saturation, Losses & Thermal Sizing (Part 2)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-42-l2-c1",
-            "promptUk": "Теоретичні основи: Магнітні компоненти, насичення, втрати та тепловий розрахунок (Частина 2)",
-            "promptEn": "Theoretical Foundations: Power Magnetics, Core Saturation, Losses & Thermal Sizing (Part 2)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Магнітні компоненти, насичення, втрати та тепловий розрахунок». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Power Magnetics, Core Saturation, Losses & Thermal Sizing'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-42-l2-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Магнітні компоненти, насичення, втрати та тепловий розрахунок»?",
-            "promptEn": "Which core statement is correct regarding 'Power Magnetics, Core Saturation, Losses & Thermal Sizing'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-42-l2-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 46 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 46 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 69.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 46 * 1.5 = 69.0 В.",
-            "explanationEn": "Calculation follows direct scaling: 46 * 1.5 = 69.0 V."
-}),
-          createNumeric({
-            "id": "ee-42-l2-n2",
-            "promptUk": "Розрахуйте струм у вітці при опорі 46 Ом та напрузі 25 В:",
-            "promptEn": "Calculate branch current for resistance 46 Ohm with 25 V applied:",
-            "formula": "I = \\frac{V}{R}",
-            "target": 0.543,
-            "unit": "A",
-            "absTolerance": 0.05,
-            "relTolerance": 0.02,
-            "explanationUk": "Струм визначається за законом Ома: I = 25 / 46 А.",
-            "explanationEn": "Current is determined via Ohm's Law: I = 25 / 46 A."
-}),
-          createExplain({
-            "id": "ee-42-l2-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Магнітні компоненти, насичення, втрати та тепловий розрахунок»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Power Magnetics, Core Saturation, Losses & Thermal Sizing':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-42-l3",
-        titleUk: "Магнітні компоненти, насичення, втрати та тепловий розрахунок (Частина 3)",
-        titleEn: "Power Magnetics, Core Saturation, Losses & Thermal Sizing (Part 3)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-42-l3-c1",
-            "promptUk": "Теоретичні основи: Магнітні компоненти, насичення, втрати та тепловий розрахунок (Частина 3)",
-            "promptEn": "Theoretical Foundations: Power Magnetics, Core Saturation, Losses & Thermal Sizing (Part 3)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Магнітні компоненти, насичення, втрати та тепловий розрахунок». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Power Magnetics, Core Saturation, Losses & Thermal Sizing'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-42-l3-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Магнітні компоненти, насичення, втрати та тепловий розрахунок»?",
-            "promptEn": "Which core statement is correct regarding 'Power Magnetics, Core Saturation, Losses & Thermal Sizing'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-42-l3-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 51 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 51 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 76.5,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 51 * 1.5 = 76.5 В.",
-            "explanationEn": "Calculation follows direct scaling: 51 * 1.5 = 76.5 V."
-}),
-          createNumeric({
-            "id": "ee-42-l3-n2",
-            "promptUk": "Розрахуйте струм у вітці при опорі 51 Ом та напрузі 25 В:",
-            "promptEn": "Calculate branch current for resistance 51 Ohm with 25 V applied:",
-            "formula": "I = \\frac{V}{R}",
-            "target": 0.49,
-            "unit": "A",
-            "absTolerance": 0.05,
-            "relTolerance": 0.02,
-            "explanationUk": "Струм визначається за законом Ома: I = 25 / 51 А.",
-            "explanationEn": "Current is determined via Ohm's Law: I = 25 / 51 A."
-}),
-          createExplain({
-            "id": "ee-42-l3-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Магнітні компоненти, насичення, втрати та тепловий розрахунок»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Power Magnetics, Core Saturation, Losses & Thermal Sizing':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-42-l4",
-        titleUk: "Магнітні компоненти, насичення, втрати та тепловий розрахунок (Частина 4)",
-        titleEn: "Power Magnetics, Core Saturation, Losses & Thermal Sizing (Part 4)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-42-l4-c1",
-            "promptUk": "Теоретичні основи: Магнітні компоненти, насичення, втрати та тепловий розрахунок (Частина 4)",
-            "promptEn": "Theoretical Foundations: Power Magnetics, Core Saturation, Losses & Thermal Sizing (Part 4)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Магнітні компоненти, насичення, втрати та тепловий розрахунок». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Power Magnetics, Core Saturation, Losses & Thermal Sizing'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-42-l4-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Магнітні компоненти, насичення, втрати та тепловий розрахунок»?",
-            "promptEn": "Which core statement is correct regarding 'Power Magnetics, Core Saturation, Losses & Thermal Sizing'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-42-l4-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 56 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 56 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 84.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 56 * 1.5 = 84.0 В.",
-            "explanationEn": "Calculation follows direct scaling: 56 * 1.5 = 84.0 V."
-}),
-          createCircuitLab({
-            "id": "ee-42-l4-lab",
-            "promptUk": "SPICE Лабораторія: Дослідження режиму роботи для «Магнітні компоненти, насичення, втрати та тепловий розрахунок». Запустіть симуляцію схеми.",
-            "promptEn": "SPICE Laboratory: Operating Mode Analysis for 'Power Magnetics, Core Saturation, Losses & Thermal Sizing'. Run simulation and verify nodes.",
-            "title": "Lab 42.4: Power Magnetics, Core Saturation, Losses & Thermal Sizing",
-            "netlist": "* EduForge SPICE Model for Unit 42\nV1 in 0 DC 10\nR1 in out 56k\nR2 out 0 43k\n.tran 10u 2m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.002
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 4.343,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out відповідає дільнику",
-                                    "labelEn": "Node voltage at out matches divider ratio"
-                        }
-            ],
-            "hintsUk": [
-                        "Перевірте підключення опорного вузла землі (0)"
-            ],
-            "hintsEn": [
-                        "Verify reference ground connection at node 0"
-            ],
-            "explanationUk": "Симуляція SPICE підтверджує аналітичний розрахунок вузлових потенціалів.",
-            "explanationEn": "SPICE transient simulation validates analytical calculation of nodal voltages."
-}),
-          createExplain({
-            "id": "ee-42-l4-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Магнітні компоненти, насичення, втрати та тепловий розрахунок»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Power Magnetics, Core Saturation, Losses & Thermal Sizing':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-42-l5",
-        titleUk: "Магнітні компоненти, насичення, втрати та тепловий розрахунок (Частина 5)",
-        titleEn: "Power Magnetics, Core Saturation, Losses & Thermal Sizing (Part 5)",
-        difficulty: 4,
-        baseXp: 35,
-        exercises: [
-          createConcept({
-            "id": "ee-42-l5-c1",
-            "promptUk": "Теоретичні основи: Магнітні компоненти, насичення, втрати та тепловий розрахунок (Частина 5)",
-            "promptEn": "Theoretical Foundations: Power Magnetics, Core Saturation, Losses & Thermal Sizing (Part 5)",
-            "bodyUk": "Вивчення базових фізичних принципів, аналітичних моделей та рівнянь стану для «Магнітні компоненти, насичення, втрати та тепловий розрахунок». Розрахунок спирається на закони збереження енергії та електричного заряду в інженерних системах.",
-            "bodyEn": "Analysis of governing physical principles, circuit models, and constitutive equations for 'Power Magnetics, Core Saturation, Losses & Thermal Sizing'. Formulations are derived from energy conservation and charge dynamics in engineering systems.",
-            "keyPointsUk": [
-                        "Фундаментальний закон розділу для розрахунку параметрів",
-                        "Взаємозв'язок струмів, напруг та потужностей у схемі",
-                        "Методи інженерної верифікації та перевірки на практиці"
-            ],
-            "keyPointsEn": [
-                        "Fundamental physical principle governing the stage calculations",
-                        "Interdependence of circuit currents, branch voltages, and dissipated power",
-                        "Engineering verification criteria for practical hardware application"
-            ]
-}),
-          createMcq({
-            "id": "ee-42-l5-q1",
-            "promptUk": "Яке основне твердження є вірним для теми «Магнітні компоненти, насичення, втрати та тепловий розрахунок»?",
-            "promptEn": "Which core statement is correct regarding 'Power Magnetics, Core Saturation, Losses & Thermal Sizing'?",
-            "options": [
-                        "Рівняння стану строго задовольняє закон збереження енергії",
-                        "Втрати потужності завжди дорівнюють нулю в реальних провідниках",
-                        "Напруга на клемах не залежить від опору навантаження",
-                        "Струм у нерозгалуженому колі зменшується вздовж провідника"
-            ],
-            "optionsEn": [
-                        "The constitutive equations strictly satisfy conservation of energy",
-                        "Power losses are always identically zero in physical conductors",
-                        "Terminal voltage remains invariant regardless of external load",
-                        "Branch current decays monotonically along an uninterrupted conductor"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Закон збереження енергії є непорушним фундаментом електротехніки для всіх лінійних та нелінійних кіл.",
-            "explanationEn": "Conservation of energy is an immutable foundation of electrical engineering across all linear and non-linear networks."
-}),
-          createNumeric({
-            "id": "ee-42-l5-n1",
-            "promptUk": "Обчисліть вихідну напругу або параметр при базовому значенні 61 та коефіцієнті 1.5:",
-            "promptEn": "Calculate the output voltage or parameter for base value 61 with factor 1.5:",
-            "formula": "V_{out} = V_{in} \\cdot 1.5",
-            "target": 91.5,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Розрахунок проводиться за формулою прямого масштабування: 61 * 1.5 = 91.5 В.",
-            "explanationEn": "Calculation follows direct scaling: 61 * 1.5 = 91.5 V."
-}),
-          createCircuitLab({
-            "id": "ee-42-l5-lab",
-            "promptUk": "SPICE Лабораторія: Дослідження режиму роботи для «Магнітні компоненти, насичення, втрати та тепловий розрахунок». Запустіть симуляцію схеми.",
-            "promptEn": "SPICE Laboratory: Operating Mode Analysis for 'Power Magnetics, Core Saturation, Losses & Thermal Sizing'. Run simulation and verify nodes.",
-            "title": "Lab 42.5: Power Magnetics, Core Saturation, Losses & Thermal Sizing",
-            "netlist": "* EduForge SPICE Model for Unit 42\nV1 in 0 DC 10\nR1 in out 61k\nR2 out 0 54k\n.tran 10u 2m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.002
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 4.696,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out відповідає дільнику",
-                                    "labelEn": "Node voltage at out matches divider ratio"
-                        }
-            ],
-            "hintsUk": [
-                        "Перевірте підключення опорного вузла землі (0)"
-            ],
-            "hintsEn": [
-                        "Verify reference ground connection at node 0"
-            ],
-            "explanationUk": "Симуляція SPICE підтверджує аналітичний розрахунок вузлових потенціалів.",
-            "explanationEn": "SPICE transient simulation validates analytical calculation of nodal voltages."
-}),
-          createExplain({
-            "id": "ee-42-l5-exp",
-            "promptUk": "Поясніть фізичну сутність та інженерне значення теми «Магнітні компоненти, насичення, втрати та тепловий розрахунок»:",
-            "promptEn": "Explain the physical meaning and engineering significance of 'Power Magnetics, Core Saturation, Losses & Thermal Sizing':",
-            "keyIdeas": [
-                        {
-                                    "labelUk": "збереження енергії",
-                                    "labelEn": "energy conservation",
-                                    "anyOf": [
-                                                "енергія",
-                                                "energy",
-                                                "збереження",
-                                                "conservation"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "електричний струм",
-                                    "labelEn": "electric current",
-                                    "anyOf": [
-                                                "струм",
-                                                "current",
-                                                "провідник",
-                                                "conductor"
-                                    ]
-                        },
-                        {
-                                    "labelUk": "вузлова напруга",
-                                    "labelEn": "nodal voltage",
-                                    "anyOf": [
-                                                "напруга",
-                                                "voltage",
-                                                "потенціал",
-                                                "potential"
-                                    ]
-                        }
-            ],
-            "sampleAnswerUk": "У цій темі ключову роль відіграє закон збереження, згідно з яким енергія та електричний струм у колі строго узгоджуються з розподілом потенціалів. Вузлова напруга визначає режим роботи всіх компонентів схеми.",
-            "sampleAnswerEn": "In this analysis, the primary principle is conservation of physical states, where energy and electric current through branches directly correspond to potential differences. The nodal voltage governs the operating point across all components.",
-            "minWords": 15,
-            "passRatio": 0.6
-}),
-        ],
-      }),
-      createLesson({
-        slug: "ee-42-exam",
-        titleUk: "Екзамен: Магнітні компоненти, насичення, втрати та тепловий розрахунок",
-        titleEn: "Exam: Power Magnetics, Core Saturation, Losses & Thermal Sizing",
-        difficulty: 4,
-        baseXp: 100,
-        isExam: true,
-        passThreshold: 0.7,
-        exercises: [
-          createMcq({
-            "id": "ee-42-exam-q1",
-            "promptUk": "Екзаменаційне питання 1: Яке твердження є справедливим для аналізу «Магнітні компоненти, насичення, втрати та тепловий розрахунок»?",
-            "promptEn": "Exam Question 1: Which statement holds true for the analysis of 'Power Magnetics, Core Saturation, Losses & Thermal Sizing'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 1)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 1)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createMcq({
-            "id": "ee-42-exam-q2",
-            "promptUk": "Екзаменаційне питання 2: Яке твердження є справедливим для аналізу «Магнітні компоненти, насичення, втрати та тепловий розрахунок»?",
-            "promptEn": "Exam Question 2: Which statement holds true for the analysis of 'Power Magnetics, Core Saturation, Losses & Thermal Sizing'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 2)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 2)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createMcq({
-            "id": "ee-42-exam-q3",
-            "promptUk": "Екзаменаційне питання 3: Яке твердження є справедливим для аналізу «Магнітні компоненти, насичення, втрати та тепловий розрахунок»?",
-            "promptEn": "Exam Question 3: Which statement holds true for the analysis of 'Power Magnetics, Core Saturation, Losses & Thermal Sizing'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 3)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 3)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createMcq({
-            "id": "ee-42-exam-q4",
-            "promptUk": "Екзаменаційне питання 4: Яке твердження є справедливим для аналізу «Магнітні компоненти, насичення, втрати та тепловий розрахунок»?",
-            "promptEn": "Exam Question 4: Which statement holds true for the analysis of 'Power Magnetics, Core Saturation, Losses & Thermal Sizing'?",
-            "options": [
-                        "Розрахунок базується на законах збереження та граничних умовах (Варіант 4)",
-                        "Нелінійні ефекти дозволяють нехтувати законом Кірхгофа",
-                        "Падіння напруги завжди є від'ємним для пасивного елемента",
-                        "Потужність у реактивному елементі повністю перетворюється на тепло"
-            ],
-            "optionsEn": [
-                        "Calculations rely strictly on conservation laws and boundary conditions (Option 4)",
-                        "Non-linear effects permit disregarding Kirchhoff's current conservation",
-                        "Voltage drop across passive loads is unconditionally negative",
-                        "Power in pure reactive storage is completely converted to static heat"
-            ],
-            "correctIndex": 0,
-            "explanationUk": "Усі інженерні розрахунки в цьому розділі ґрунтуються на фундаментальних законах фізики та граничних умовах.",
-            "explanationEn": "All engineering calculations in this unit are grounded in fundamental conservation laws and boundary conditions."
-}),
-          createNumeric({
-            "id": "ee-42-exam-n5",
-            "promptUk": "Екзаменаційна задача 5: Обчисліть розрахунковий параметр при базовому опорі 430 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 5: Calculate parameter with base resistance 430 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 215.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 430 = 215.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 430 = 215.0 V."
-}),
-          createNumeric({
-            "id": "ee-42-exam-n6",
-            "promptUk": "Екзаменаційна задача 6: Обчисліть розрахунковий параметр при базовому опорі 432 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 6: Calculate parameter with base resistance 432 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 216.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 432 = 216.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 432 = 216.0 V."
-}),
-          createNumeric({
-            "id": "ee-42-exam-n7",
-            "promptUk": "Екзаменаційна задача 7: Обчисліть розрахунковий параметр при базовому опорі 434 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 7: Calculate parameter with base resistance 434 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 217.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 434 = 217.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 434 = 217.0 V."
-}),
-          createNumeric({
-            "id": "ee-42-exam-n8",
-            "promptUk": "Екзаменаційна задача 8: Обчисліть розрахунковий параметр при базовому опорі 436 Ом та струмі 0.5 А:",
-            "promptEn": "Exam Problem 8: Calculate parameter with base resistance 436 Ohm and current 0.5 A:",
-            "formula": "V = I \\cdot R",
-            "target": 218.0,
-            "unit": "V",
-            "absTolerance": 0.1,
-            "relTolerance": 0.02,
-            "explanationUk": "Напруга дорівнює добутку струму на опір: 0.5 * 436 = 218.0 В.",
-            "explanationEn": "Voltage equals current times resistance: 0.5 * 436 = 218.0 V."
-}),
-          createCircuitLab({
-            "id": "ee-42-exam-lab9",
-            "promptUk": "Екзаменаційний лабораторний тест 9: Підтвердження режиму в SPICE для «Магнітні компоненти, насичення, втрати та тепловий розрахунок».",
-            "promptEn": "Exam Lab Test 9: SPICE Operating Point Verification for 'Power Magnetics, Core Saturation, Losses & Thermal Sizing'.",
-            "title": "Exam Lab 42.9: Power Magnetics, Core Saturation, Losses & Thermal Sizing",
-            "netlist": "* Exam Model 42_9\nV1 in 0 DC 12\nR1 in out 51k\nR2 out 0 10k\n.tran 10u 1m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.001
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 1.967,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out у межах розрахунку",
-                                    "labelEn": "Node voltage at out within tolerance"
-                        }
-            ],
-            "hintsUk": [
-                        "Запустіть симуляцію для перевірки критеріїв"
-            ],
-            "hintsEn": [
-                        "Run simulation to verify criteria"
-            ],
-            "explanationUk": "Симуляція перевіряє правильність складання схеми та відповідність критеріям.",
-            "explanationEn": "Simulation validates schematic correctness and criteria compliance."
-}),
-          createCircuitLab({
-            "id": "ee-42-exam-lab10",
-            "promptUk": "Екзаменаційний лабораторний тест 10: Підтвердження режиму в SPICE для «Магнітні компоненти, насичення, втрати та тепловий розрахунок».",
-            "promptEn": "Exam Lab Test 10: SPICE Operating Point Verification for 'Power Magnetics, Core Saturation, Losses & Thermal Sizing'.",
-            "title": "Exam Lab 42.10: Power Magnetics, Core Saturation, Losses & Thermal Sizing",
-            "netlist": "* Exam Model 42_10\nV1 in 0 DC 12\nR1 in out 52k\nR2 out 0 10k\n.tran 10u 1m\n.end",
-            "analysis": {
-                        "type": "tran",
-                        "tran": {
-                                    "tStep": 1e-05,
-                                    "tStop": 0.001
-                        }
-            },
-            "criteria": [
-                        {
-                                    "type": "node_voltage",
-                                    "node": "out",
-                                    "target": 1.935,
-                                    "absTolerance": 0.5,
-                                    "relTolerance": 0.1,
-                                    "labelUk": "Напруга у вузлі out у межах розрахунку",
-                                    "labelEn": "Node voltage at out within tolerance"
-                        }
-            ],
-            "hintsUk": [
-                        "Запустіть симуляцію для перевірки критеріїв"
-            ],
-            "hintsEn": [
-                        "Run simulation to verify criteria"
-            ],
-            "explanationUk": "Симуляція перевіряє правильність складання схеми та відповідність критеріям.",
-            "explanationEn": "Simulation validates schematic correctness and criteria compliance."
-}),
-        ],
-      }),
-    ],
-  }),
+  ...stage7RestUnits,
 ];

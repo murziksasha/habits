@@ -8,13 +8,26 @@ import { eq, and, desc, sql } from "drizzle-orm";
 import { db } from "../db.js";
 import { circuitProjects } from "@eduforge/db";
 import { authMiddleware } from "../auth.js";
-import { executeSpiceNetlist, generateNetlist } from "@eduforge/circuit-engine";
-import { circuitAnalysisSchema } from "@eduforge/shared";
+import { downsampleSeries, executeSpiceNetlist, compileNetlist } from "@eduforge/circuit-engine";
+import { adaptCircuitDocument, circuitAnalysisSchema, circuitDocumentSchema } from "@eduforge/shared";
+import { CircuitQueueFull, withCircuitSlot } from "../services/circuit-queue.js";
 
 export const circuitRoutes = new Hono();
 
 const MAX_PROJECTS_PER_ACCOUNT = 100;
-const MAX_DOCUMENT_BYTES = 1_048_576; // 1 MiB limit
+const MAX_DOCUMENT_BYTES = 1_048_576; // 1 MiB UTF-8
+
+function documentBytes(document: unknown): number {
+  return Buffer.byteLength(JSON.stringify(document), "utf8");
+}
+
+function parseStoredDocument(document: unknown): { ok: true; document: Record<string, unknown> } | { ok: false } {
+  const adapted = adaptCircuitDocument(document);
+  if (!adapted.ok || !adapted.document) return { ok: false };
+  const parsed = circuitDocumentSchema.safeParse(adapted.document);
+  if (!parsed.success) return { ok: false };
+  return { ok: true, document: parsed.data as Record<string, unknown> };
+}
 
 const createProjectSchema = z.object({
   title: z.string().trim().min(1).max(255),
@@ -51,40 +64,39 @@ circuitRoutes.get("/projects", authMiddleware, async (c) => {
 circuitRoutes.post("/projects", authMiddleware, async (c) => {
   const user = c.get("user" as never) as { id: string };
 
-  // Check project count limit
-  const countRes = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(circuitProjects)
-    .where(eq(circuitProjects.userId, user.id));
-
-  const total = Number(countRes[0]?.count ?? 0);
-  if (total >= MAX_PROJECTS_PER_ACCOUNT) {
-    return c.json({ error: "project_limit_reached" }, 400);
-  }
-
   const body = await c.req.json().catch(() => null);
   const parsed = createProjectSchema.safeParse(body);
   if (!parsed.success) {
     return c.json({ error: "invalid_input" }, 400);
   }
-
-  const docStr = JSON.stringify(parsed.data.document);
-  if (docStr.length > MAX_DOCUMENT_BYTES) {
+  const stored = parseStoredDocument(parsed.data.document);
+  if (!stored.ok) return c.json({ error: "invalid_input" }, 400);
+  if (documentBytes(stored.document) > MAX_DOCUMENT_BYTES) {
     return c.json({ error: "document_too_large" }, 400);
   }
 
-  const [inserted] = await db
-    .insert(circuitProjects)
-    .values({
-      userId: user.id,
-      title: parsed.data.title,
-      document: parsed.data.document,
-      revision: 1,
-    })
-    .returning();
+  const inserted = await db.transaction(async (tx) => {
+    await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${user.id}))`);
+    const countRes = await tx
+      .select({ count: sql<number>`count(*)` })
+      .from(circuitProjects)
+      .where(eq(circuitProjects.userId, user.id));
+    const total = Number(countRes[0]?.count ?? 0);
+    if (total >= MAX_PROJECTS_PER_ACCOUNT) return null;
+    const [row] = await tx
+      .insert(circuitProjects)
+      .values({
+        userId: user.id,
+        title: parsed.data.title,
+        document: stored.document,
+        revision: 1,
+      })
+      .returning();
+    return row ?? null;
+  });
 
   if (!inserted) {
-    return c.json({ error: "insert_failed" }, 500);
+    return c.json({ error: "project_limit_reached" }, 400);
   }
 
   return c.json({ project: inserted }, 201);
@@ -139,23 +151,43 @@ circuitRoutes.patch("/projects/:id", authMiddleware, async (c) => {
     );
   }
 
+  let nextDocument = project.document;
   if (parsed.data.document) {
-    const docStr = JSON.stringify(parsed.data.document);
-    if (docStr.length > MAX_DOCUMENT_BYTES) {
+    const stored = parseStoredDocument(parsed.data.document);
+    if (!stored.ok) return c.json({ error: "invalid_input" }, 400);
+    if (documentBytes(stored.document) > MAX_DOCUMENT_BYTES) {
       return c.json({ error: "document_too_large" }, 400);
     }
+    nextDocument = stored.document;
   }
 
   const [updated] = await db
     .update(circuitProjects)
     .set({
       title: parsed.data.title ?? project.title,
-      document: parsed.data.document ?? project.document,
-      revision: project.revision + 1,
+      document: nextDocument,
+      revision: sql`${circuitProjects.revision} + 1`,
       updatedAt: new Date(),
     })
-    .where(and(eq(circuitProjects.id, id), eq(circuitProjects.userId, user.id)))
+    .where(
+      and(
+        eq(circuitProjects.id, id),
+        eq(circuitProjects.userId, user.id),
+        eq(circuitProjects.revision, parsed.data.expectedRevision),
+      ),
+    )
     .returning();
+
+  if (!updated) {
+    return c.json(
+      {
+        error: "project_conflict",
+        currentRevision: project.revision,
+        serverProject: project,
+      },
+      409,
+    );
+  }
 
   return c.json({ project: updated });
 });
@@ -181,25 +213,50 @@ circuitRoutes.delete("/projects/:id", authMiddleware, async (c) => {
   return c.json({ ok: true });
 });
 
-/** Execute on-demand SPICE simulation */
-circuitRoutes.post("/simulate", async (c) => {
+/** Authenticated server preview. Guests simulate locally in a worker. */
+circuitRoutes.post("/simulate", authMiddleware, async (c) => {
+  const user = c.get("user" as never) as { id: string };
   const body = await c.req.json().catch(() => null);
-  if (!body) return c.json({ error: "invalid_body" }, 400);
+  if (!body || typeof body !== "object") return c.json({ error: "invalid_body" }, 400);
+  const circuit = (body as { circuit?: unknown; document?: unknown }).circuit
+    ?? (body as { document?: unknown }).document;
+  if (!circuit) return c.json({ error: "missing_circuit_definition" }, 400);
 
-  let netlist = "";
-  if (typeof body.circuit === "string") {
-    netlist = body.circuit;
-  } else if (body.circuit && typeof body.circuit === "object") {
-    const analysis = body.analysis ? circuitAnalysisSchema.parse(body.analysis) : undefined;
-    netlist = generateNetlist(body.circuit, analysis);
-  } else {
-    return c.json({ error: "missing_circuit_definition" }, 400);
+  let analysis = undefined;
+  if ((body as { analysis?: unknown }).analysis) {
+    const parsed = circuitAnalysisSchema.safeParse((body as { analysis: unknown }).analysis);
+    if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
+    analysis = parsed.data;
   }
 
-  const simResult = await executeSpiceNetlist(netlist);
-  if (!simResult.ok) {
-    return c.json({ error: simResult.error || "simulation_failed", simResult }, 400);
+  try {
+    const simResult = await withCircuitSlot(user.id, async () => {
+      let netlist = "";
+      if (typeof circuit === "string") {
+        netlist = circuit;
+      } else {
+        const adapted = adaptCircuitDocument(circuit);
+        if (!adapted.ok || !adapted.document) {
+          return { ok: false as const, dataType: "real" as const, variableNames: [], numPoints: 0, data: [], error: "invalid_circuit_document" };
+        }
+        const compiled = compileNetlist(adapted.document, analysis ?? adapted.document.analysis);
+        if (!compiled.ok) {
+          return { ok: false as const, dataType: "real" as const, variableNames: [], numPoints: 0, data: [], error: compiled.errors.join("; ") };
+        }
+        netlist = compiled.netlist;
+      }
+      return executeSpiceNetlist(netlist);
+    });
+    if (!simResult.ok) {
+      if ((simResult.error ?? "").includes("circuit_engine_unavailable") || (simResult.error ?? "").includes("simulation_timeout")) {
+        return c.json({ error: "circuit_engine_unavailable" }, 503);
+      }
+      return c.json({ error: simResult.error || "simulation_failed" }, 400);
+    }
+    const result = { ...simResult, data: downsampleSeries(simResult.data) };
+    return c.json({ ok: true, result });
+  } catch (err) {
+    if (err instanceof CircuitQueueFull) return c.json({ error: "circuit_engine_unavailable" }, 503);
+    return c.json({ error: "circuit_engine_unavailable" }, 503);
   }
-
-  return c.json({ ok: true, simResult });
 });

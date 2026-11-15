@@ -18,27 +18,39 @@ export const circuitComponentSchema = z.object({
 
 export type CircuitComponent = z.infer<typeof circuitComponentSchema>;
 
+export const circuitEndpointSchema = z.union([
+  z.object({ componentId: z.string().min(1), pin: z.string().min(1) }),
+  z.object({ junctionId: z.string().min(1) }),
+  z.object({ id: z.string().min(1), pin: z.string().optional() }),
+  z.object({ x: z.number(), y: z.number() }),
+]);
+
+export type CircuitEndpoint = z.infer<typeof circuitEndpointSchema>;
+
+export const circuitJunctionSchema = z.object({
+  id: z.string().min(1).max(64),
+  x: z.number(),
+  y: z.number(),
+});
+
+export type CircuitJunction = z.infer<typeof circuitJunctionSchema>;
+
 export const circuitWireSchema = z.object({
   id: z.string().min(1).max(64),
-  from: z.union([
-    z.object({ id: z.string(), pin: z.string().optional() }),
-    z.object({ x: z.number(), y: z.number() }),
-  ]),
-  to: z.union([
-    z.object({ id: z.string(), pin: z.string().optional() }),
-    z.object({ x: z.number(), y: z.number() }),
-  ]),
+  from: circuitEndpointSchema,
+  to: circuitEndpointSchema,
   net: z.string().optional(),
 });
 
 export type CircuitWire = z.infer<typeof circuitWireSchema>;
 
 export const circuitDocumentSchema = z.object({
-  version: z.number().int().min(1).default(1),
+  version: z.number().int().min(1).default(2),
   title: z.string().max(256).optional(),
   description: z.string().max(2000).optional(),
   components: z.array(circuitComponentSchema).default([]),
   wires: z.array(circuitWireSchema).default([]),
+  junctions: z.array(circuitJunctionSchema).default([]),
   customModels: z
     .array(
       z.object({
@@ -49,6 +61,7 @@ export const circuitDocumentSchema = z.object({
     .optional(),
   netlist: z.string().optional(),
   mode: z.enum(["schematic", "netlist"]).default("schematic"),
+  analysis: z.lazy(() => circuitAnalysisSchema).optional(),
 });
 
 export type CircuitDocument = z.infer<typeof circuitDocumentSchema>;
@@ -116,28 +129,73 @@ export const circuitCriterionSchema = z.object({
   min: z.number().optional(),
   max: z.number().optional(),
   unit: z.string().optional(),
-  absTolerance: z.number().optional(),
-  relTolerance: z.number().optional(),
+  absTolerance: z.number().nonnegative().finite().optional(),
+  relTolerance: z.number().nonnegative().finite().optional(),
   labelUk: z.string().optional(),
   labelEn: z.string().optional(),
+  /** signed | magnitude | rms | average | peak_to_peak */
+  measure: z.enum(["signed", "magnitude", "rms", "average", "peak_to_peak"]).optional(),
+  /** Explicit measurement window. Omitted means the whole solved vector. */
+  window: z
+    .object({
+      from: z.number().optional(),
+      to: z.number().optional(),
+      lastFraction: z.number().positive().max(1).optional(),
+    })
+    .optional(),
+  frequencyHz: z.number().positive().optional(),
+  /** Name in the allowed pure-metric registry. Replaces executable custom_metric. */
+  metric: z.string().optional(),
   metricName: z.string().optional(),
+  componentType: z.string().optional(),
+  fromComponent: z.string().optional(),
+  fromPin: z.string().optional(),
+  toComponent: z.string().optional(),
+  toPin: z.string().optional(),
+  count: z.number().int().nonnegative().optional(),
 });
 
 export type CircuitCriterion = z.infer<typeof circuitCriterionSchema>;
 
+export const circuitConstraintsSchema = z.object({
+  canAddComponents: z.boolean().optional(),
+  canRemoveComponents: z.boolean().optional(),
+  canChangeValues: z.boolean().optional(),
+  allowedComponentTypes: z.array(z.string()).optional(),
+  editableComponentIds: z.array(z.string()).optional(),
+  maxComponents: z.number().int().positive().optional(),
+});
+
+export type CircuitConstraints = z.infer<typeof circuitConstraintsSchema>;
+
+export const circuitAnswerSchema = z.object({
+  circuit: z.union([circuitDocumentSchema, z.string()]),
+});
+
+export type CircuitAnswer = z.infer<typeof circuitAnswerSchema>;
+
+export const circuitPreviewRequestSchema = z.object({
+  circuit: z.union([circuitDocumentSchema, z.string()]),
+  analysis: circuitAnalysisSchema,
+});
+
 export const circuitLabExerciseSchema = z.object({
   circuit: z.union([circuitDocumentSchema, z.string()]),
-  allowedModifications: z
-    .object({
-      canAddComponents: z.boolean().optional(),
-      canRemoveComponents: z.boolean().optional(),
-      canChangeValues: z.boolean().optional(),
-      allowedComponentTypes: z.array(z.string()).optional(),
-      editableComponentIds: z.array(z.string()).optional(),
-    })
-    .optional(),
+  constraints: circuitConstraintsSchema.optional(),
+  allowedModifications: circuitConstraintsSchema.optional(),
   analysis: circuitAnalysisSchema,
   criteria: z.array(circuitCriterionSchema).min(1),
+  scenarios: z
+    .array(
+      z.object({
+        id: z.string(),
+        overrides: z.record(z.string()).optional(),
+        faults: z.array(z.string()).optional(),
+        criteria: z.array(circuitCriterionSchema).min(1),
+      }),
+    )
+    .optional(),
+  rejectOutputSubstitution: z.boolean().optional(),
   starterNetlist: z.string().optional(),
   solutionNetlist: z.string().optional(),
   hintUk: z.string().optional(),

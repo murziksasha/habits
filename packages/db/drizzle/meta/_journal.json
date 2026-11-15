@@ -281,6 +281,13 @@
             "when": 1794545300000,
             "tag": "0039_circuit_projects",
             "breakpoints": true
+        },
+        {
+            "idx": 40,
+            "version": "7",
+            "when": 1794545400000,
+            "tag": "0040_content_version",
+            "breakpoints": true
         }
     ]
 }

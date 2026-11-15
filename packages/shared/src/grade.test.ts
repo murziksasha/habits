@@ -233,14 +233,14 @@ describe("gradeCodeProjectChecks", () => {
     };
     // Untrusted client result rejected
     expect(gradeExercise(circuitLabEx, { ok: true }).correct).toBe(false);
-    // Server verified result accepted
     expect(
       gradeExercise(circuitLabEx, {
         _serverVerified: true,
         ok: true,
+        simulationPassed: true,
         criteriaPassed: 3,
         criteriaTotal: 3,
       }).correct,
-    ).toBe(true);
+    ).toBe(false);
   });
 });

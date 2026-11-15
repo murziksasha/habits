@@ -255,6 +255,8 @@ export const lessons = pgTable("lessons", {
   isExam: boolean("is_exam").notNull().default(false),
   /** Pass bar 0..1 when isExam; null → app default 0.7 */
   passThreshold: real("pass_threshold"),
+  /** Content revision. Rewritten electrical engineering lessons are version 2. */
+  contentVersion: integer("content_version").notNull().default(1),
   exercises: jsonb("exercises").notNull().$type<unknown[]>().default([]),
 });
 
@@ -297,6 +299,8 @@ export const userLessonProgress = pgTable(
     evidenceLevel: varchar("evidence_level", { length: 32 }).notNull().default("insufficient_data"),
     lastSelfVerifiedAt: timestamp("last_self_verified_at", { withTimezone: true }),
     completedAt: timestamp("completed_at", { withTimezone: true }),
+    /** Content version recorded when the learner passed. Null is historical version 1. */
+    completedContentVersion: integer("completed_content_version"),
   },
   (t) => [
     uniqueIndex("ulp_user_lesson").on(t.userId, t.lessonId),

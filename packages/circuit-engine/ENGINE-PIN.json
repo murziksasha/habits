@@ -1,0 +1,9 @@
+{
+  "package": "eecircuit-engine",
+  "version": "1.9.0",
+  "license": "MIT",
+  "licenseHolder": "EElab.dev",
+  "repository": "https://github.com/eelab-dev/EEcircuit-engine",
+  "wasmMemoryLimitBytes": 268435456,
+  "note": "The published 1.9.0 bundle is pinned by version. Server runs use a killable child process, a 100000-point cap, and a 10s timeout. Linear memory above 256 MiB is refused by the point cap and process kill rather than by growing the host heap without a bound."
+}

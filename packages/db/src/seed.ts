@@ -140,10 +140,8 @@ export async function seedCourse(
         icon: content.icon,
         color: content.color,
         sortOrder,
-        status: "published",
         category,
         contentSource: "seed",
-        publishedAt: course.publishedAt ?? new Date(),
       })
       .where(eq(courses.id, course.id));
   }
@@ -202,6 +200,7 @@ export async function seedCourse(
           isFree: lesson.isFree ?? false,
           isExam: lesson.isExam ?? false,
           passThreshold: lesson.passThreshold ?? null,
+          contentVersion: lesson.contentVersion ?? 1,
           exercises: lesson.exercises,
         });
         console.log(`  + lesson ${content.slug}/${unit.slug}/${lesson.slug}`);
@@ -217,6 +216,7 @@ export async function seedCourse(
             isFree: lesson.isFree ?? false,
             isExam: lesson.isExam ?? false,
             passThreshold: lesson.passThreshold ?? null,
+            contentVersion: lesson.contentVersion ?? 1,
             exercises: lesson.exercises,
           })
           .where(eq(lessons.id, existing.id));

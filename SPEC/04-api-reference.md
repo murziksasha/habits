@@ -210,3 +210,16 @@ See [SPEC 72](./72-admin-platform-v2.md).
 ```
 
 Common codes: `400 invalid_input`, `401 unauthorized`, `402 insufficient_xp`, `403 forbidden`, `404 not_found`, `409 email_taken`.
+
+## Circuits (`/circuits`)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/circuits/projects` | Yes | `{ projects }` without the document body |
+| POST | `/circuits/projects` | Yes | Create. Body `{ title, document }`. Returns `{ project }` |
+| GET | `/circuits/projects/:id` | Yes | `{ project }` including the document |
+| PATCH | `/circuits/projects/:id` | Yes | `{ title?, document?, expectedRevision }`. Revision increments in SQL. `409 project_conflict` |
+| DELETE | `/circuits/projects/:id` | Yes | Delete the caller's project |
+| POST | `/circuits/simulate` | Yes | `{ circuit, analysis }` → `{ ok: true, result }` or `503 circuit_engine_unavailable` |
+
+A document larger than 1 MiB UTF-8 is `400 document_too_large`. The account cap is 100 projects, counted inside a transaction. Guest preview does not call this route. Guest lesson submit still uses the existing limited server path. `503` must not change attempts, hearts, or XP.

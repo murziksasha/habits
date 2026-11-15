@@ -38,6 +38,7 @@ export const MIXED_PRACTICE_TYPES = [
   "translate",
   "match",
   "order_words",
+  "numeric",
 ] as const;
 
 const MIXED_SET = new Set<string>(MIXED_PRACTICE_TYPES);

@@ -40,7 +40,7 @@ docker compose --profile tools run --rm migrate
 ```
 
 Dockerfiles under `docker/`. Web production image can use Next `standalone` when `NEXT_OUTPUT=standalone`.
-- `Dockerfile.web` copies `packages/shared` and `packages/chess-core` (`package.json` in `deps`, sources in `build`) to satisfy `workspace:*` dependencies and pre-build workspace packages before Next.js.
+- `Dockerfile.web` and `Dockerfile.api` copy the workspace packages they build, including `packages/circuit-engine`, and build that package before the app. The pinned engine note is `packages/circuit-engine/ENGINE-PIN.json` (`eecircuit-engine` 1.9.0). The pin records the intended memory ceiling. It does not by itself prove that the vendor WASM binary enforces a 256 MiB linear-memory limit. A clean image build without host `dist` or `node_modules` was not run in the session that landed the version-2 course.
 
 ## Environment variables
 

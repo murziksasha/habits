@@ -260,6 +260,30 @@ export function gradeCodeJudgeText(
   };
 }
 
+/** Apply a server-side circuit evaluation. Client payloads cannot call this path. */
+export function gradeCircuitServerEvaluation(evaluation: {
+  ok: boolean;
+  criteriaPassed: number;
+  criteriaTotal: number;
+  criteriaResults?: unknown;
+  error?: string;
+}): GradeResult {
+  const total = evaluation.criteriaTotal > 0 ? evaluation.criteriaTotal : 1;
+  const ratio = Math.min(1, Math.max(0, evaluation.criteriaPassed / total));
+  return {
+    correct: evaluation.ok && evaluation.criteriaPassed === evaluation.criteriaTotal && evaluation.criteriaTotal > 0,
+    partial: ratio,
+    meta: {
+      circuitLab: true,
+      serverVerified: true,
+      criteriaPassed: evaluation.criteriaPassed,
+      criteriaTotal: evaluation.criteriaTotal,
+      results: evaluation.criteriaResults,
+      error: evaluation.error,
+    },
+  };
+}
+
 export function gradeExercise(
   exercise: GradeExercise,
   answer: unknown,
@@ -577,40 +601,12 @@ export function gradeExercise(
       };
     }
     case "circuit_lab": {
-      const a = answer as Record<string, unknown> | null;
-      if (a && typeof a === "object") {
-        if (a._serverVerified === true) {
-          const ok = Boolean(a.ok);
-          const passed = Number(a.criteriaPassed ?? 0);
-          const total = Number(a.criteriaTotal ?? 1);
-          const ratio = total > 0 ? passed / total : ok ? 1 : 0;
-          return {
-            correct: ok && ratio >= 1,
-            partial: ratio,
-            meta: {
-              circuitLab: true,
-              serverVerified: true,
-              criteriaPassed: passed,
-              criteriaTotal: total,
-              results: a.results,
-              error: a.error,
-            },
-          };
-        }
-        if (a.clientEvaluated === true && Boolean(a.ok)) {
-          return {
-            correct: false,
-            partial: 1,
-            meta: { circuitLab: true, softGrade: true, pendingServerVerification: true },
-          };
-        }
-        return {
-          correct: false,
-          partial: 0,
-          meta: { circuitLab: true, reason: "untrusted_client_result" },
-        };
-      }
-      return { correct: false, partial: 0, meta: { circuitLab: true } };
+      // Client ok / simulationPassed / _serverVerified never affect the grade.
+      return {
+        correct: false,
+        partial: 0,
+        meta: { circuitLab: true, reason: "untrusted_client_result" },
+      };
     }
     default:
       return { correct: false };

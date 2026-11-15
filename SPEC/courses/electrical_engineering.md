@@ -10,9 +10,9 @@ Recommended next: `embedded_cpp`, `programming`
 ## What this course is
 
 A comprehensive, fully bilingual (Ukrainian and English) professional course in electrical engineering covering 10 sequential stages, 60 modules (units), 360 lessons, integrated SPICE circuit laboratory simulations (powered by ngspice WebAssembly), project cloud persistence, and three independent capstone projects:
-1. **Capstone Project 1 (Unit 58)**: Analog Sensor Front-End (Wheatstone bridge, differential amplification, 1 kHz Sallen-Key low-pass filter, and ADC interface).
-2. **Capstone Project 2 (Unit 59)**: Switching Power Supply (Buck DC-DC converter 18–24 V → 5 V up to 1 A, PWM, continuous conduction, ripple and efficiency verification).
-3. **Capstone Project 3 (Unit 60)**: Three-Phase Industrial Installation (400 V / 230 V source, feeder impedance, inductive motor load, power factor correction capacitor bank bringing $\cos\phi \ge 0.95$, and fault analysis).
+1. **Capstone Project 1 (Unit 58)**: Analog sensor front-end. A 5 V Wheatstone bridge, differential gain near 100, 1.65 V bias, and a separate first-order RC low-pass at 1 kHz. The graded lab is an operating-point card plus an AC card. It is not a Sallen-Key stage, and the ideal op-amp model has no supply rails.
+2. **Capstone Project 2 (Unit 59)**: Buck converter from 18–24 V to 5 V at 0.1–1 A. The graded schematic is the DC average model (duty times input, inductor DCR, load). Ripple, CCM boundary, loss, and the load-step estimate are numeric checks. The lab does not run a switching transient.
+3. **Capstone Project 3 (Unit 60)**: Three-phase installation at 400 V, 50 Hz. Line impedance, compensation to a power factor of at least 0.95, and unbalance are calculated. The graded schematic is one phase of the electrical motor equivalent. It is not a mechanical machine model.
 
 ## Curriculum Structure
 
@@ -97,3 +97,33 @@ The course is divided into 10 stages matching `COURSE_PARTS`:
 - `ee-58-project-analog-frontend`: Capstone Project 1 — Analog Sensor Front-End (`passThreshold: 1.0`).
 - `ee-59-project-power-supply`: Capstone Project 2 — Switching Power Supply (`passThreshold: 1.0`).
 - `ee-60-project-three-phase`: Capstone Project 3 — Three-Phase Industrial Installation (`passThreshold: 1.0`).
+
+## Version 2 contracts
+
+Lesson and unit slugs stay as listed above. Rewritten exercises use new ids that contain `v2` and `contentVersion: "2"`. `lessons.content_version` is 2 for this course (migration `0040_content_version`). A completed progress row counts toward the current certificate only when `completed_content_version` is at least the lesson version. A null completed version is historical version 1: XP and the attempt stay, the course page marks `historicalCompletion`, and the new certificate is not issued.
+
+Seed update does not set `courses.status`. A sync cannot republish a course that was moved back to draft.
+
+Canonical circuit exercise fields are `circuit`, `analysis`, `constraints`, and `criteria`. The learner answer is `{ circuit }`. `POST /circuits/simulate` is authenticated and returns `{ ok: true, result }`. Project routes return `{ projects }` and `{ project }`. Guest preview stays in the browser; guest lesson submit still uses the limited server path.
+
+Electrical connectivity comes from wires and junctions. Coordinates are display only. An open pin is floating. Measurements distinguish signed, magnitude, RMS, average, and peak-to-peak values. DC power is the signed product. AC gain is the complex ratio. Structural checks run before SPICE. Client flags do not grade a lab.
+
+Exams store form A and form B, ten items each, at most four multiple-choice items, and no concept or explain cards. The server selects one form from the learner and the attempt, and hides worked solutions until that form is mastered. Project exams (units 58–60) use `passThreshold: 1.0`.
+
+## Lesson standard
+
+Each instructional lesson states a question, a physical model, the mathematics before it is applied, one fully worked example, at least three checks of two different kinds, a characteristic mistake with the model limit, and an explain-in-your-own-words close. Module `ee-01-matter-charge` does not use Ohm or Kirchhoff. Numeric targets are base-SI values with an explicit tolerance. Generators may convert units of a written problem. They do not invent the explanation from the lesson title.
+
+## Capstone checks
+
+Unit 58: 5 V bridge, sensor 990/1000/1010 Ω against 1 kΩ arms, differential gain near 100, 1.65 V output bias, first-order low-pass at 1 kHz, output inside 0–3.3 V. The ideal differential voltage at 1010 Ω is about 12.4 mV before gain. The simulator result sits a few millivolts away because the 100 kΩ input resistors load the bridge. Criteria use an absolute tolerance that covers that loading. A forced voltage source on the output node is rejected.
+
+Unit 59: buck 18–24 V to 5 V at 0.1–1 A. Ideal duty at 24 V is 5/24. The lab source is that average voltage, not a pulse. Ripple and the 10 µs load-step sag are numeric estimates. A restarted DC solve is not an in-run step.
+
+Unit 60: 400 V line, 50 Hz, 3 kW electrical input at power factor 0.75, star capacitor bank aimed at 0.95. The per-phase impedance is an electrical equivalent. It does not predict breakdown torque or starting. The lab grades the voltage on the 30 Ω resistor of one phase.
+
+Module passports for the generated units are in `SPEC/courses/electrical-engineering-passports.md`. Units ee-01 through ee-08 and ee-37 are hand-authored in the stage sources and recorded in `SPEC/courses/electrical-engineering-hand-passports.md`. `ee-emit.mjs` appends that file when it rewrites the generated passports.
+
+## Verification sources
+
+Unit definitions follow the SI Brochure (BIPM): the ampere, second, metre, and kilogram are base units; the volt and ohm are derived. Classroom numbers are ideal lumped models. A lesson that uses a datasheet value or a cable resistance says that it is an assumption. SPICE grading uses the pinned `eecircuit-engine` 1.9.0 build recorded in `packages/circuit-engine/ENGINE-PIN.json`. The process timeout and the point cap bound a run. The pin does not by itself prove a 256 MiB linear-memory limit inside the vendor binary.

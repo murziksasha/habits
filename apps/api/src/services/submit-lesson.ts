@@ -41,6 +41,8 @@ import { logActivity, notifyUser } from "../engagement.js";
 import { gradeExercise, gradeCodeJudgeText } from "../grade.js";
 import { runJudge, getJudgeMode, type JudgeTest, type JudgeLang } from "@eduforge/judge";
 import { evaluateCircuitLab } from "@eduforge/circuit-engine";
+import { gradeCircuitServerEvaluation, selectExamVariantExercises } from "@eduforge/shared";
+import { CircuitQueueFull, withCircuitSlot } from "./circuit-queue.js";
 import { log } from "../logger.js";
 import { buildXpPatch } from "./character-progression.js";
 import { applyLootDrop } from "./loot-apply.js";
@@ -145,6 +147,7 @@ export async function gradeLessonAttemptAsync(
   answers: SubmitAnswer[],
   isExam: boolean,
   passThreshold?: number | null,
+  userId?: string | null,
 ): Promise<
   | { ok: true; grading: LessonGradingResult }
   | { ok: false; error: "judge_unavailable" | "circuit_engine_unavailable"; exerciseId: string }
@@ -161,20 +164,22 @@ export async function gradeLessonAttemptAsync(
         circuitDoc = (rawAns as any).circuit;
       }
       try {
-        const evalRes = await evaluateCircuitLab(circuitDoc, ex as any);
-        if (!evalRes.ok && evalRes.error && evalRes.error.startsWith("simulation_timeout")) {
+        const evalRes = await withCircuitSlot(userId ?? null, () => evaluateCircuitLab(circuitDoc, ex as any));
+        if (evalRes.error && evalRes.error.includes("circuit_engine_unavailable")) {
           return { ok: false, error: "circuit_engine_unavailable", exerciseId: ex.id };
         }
-        const graded = gradeExercise(ex, {
-          _serverVerified: true,
+        const graded = gradeCircuitServerEvaluation({
           ok: evalRes.ok,
           criteriaPassed: evalRes.criteriaPassed,
           criteriaTotal: evalRes.criteriaTotal,
-          results: evalRes.criteriaResults,
+          criteriaResults: evalRes.criteriaResults,
           error: evalRes.error,
         });
         results.push({ exerciseId: ex.id, type: ex.type, ...graded });
-      } catch {
+      } catch (err) {
+        if (err instanceof CircuitQueueFull || (err instanceof Error && err.message.includes("circuit_engine_unavailable"))) {
+          return { ok: false, error: "circuit_engine_unavailable", exerciseId: ex.id };
+        }
         return { ok: false, error: "circuit_engine_unavailable", exerciseId: ex.id };
       }
     } else if (ex.type === "code_judge") {
@@ -234,6 +239,12 @@ export async function gradeLessonAttemptAsync(
       const graded = gradeExercise(ex, a?.answer);
       results.push({ exerciseId: ex.id, type: ex.type, ...graded });
     }
+  }
+
+  for (const row of results) {
+    const ex = exercises.find((item) => item.id === row.exerciseId);
+    const version = ex?.contentVersion ?? ex?.exerciseVersion;
+    row.exerciseVersion = version === undefined || version === null || version === "" ? "1" : String(version);
   }
 
   const correctCount = results.filter((r) => r.correct).length;
@@ -452,13 +463,25 @@ export async function submitLesson(
   const course = await db.query.courses.findFirst({ where: eq(courses.id, lesson.courseId) });
   if (!course) return { ok: false, status: 404, error: "not_found" };
 
-  const exercises =
-    (lesson.exercises as { id: string; type: string; [k: string]: unknown }[]) ?? [];
+  const storedExercises =
+    (lesson.exercises as { id: string; type: string; examVariant?: string; [k: string]: unknown }[]) ?? [];
+  const priorProgress = lesson.isExam
+    ? await db.query.userLessonProgress.findFirst({
+        where: and(eq(userLessonProgress.userId, user.id), eq(userLessonProgress.lessonId, lesson.id)),
+      })
+    : null;
+  const exercises = lesson.isExam
+    ? selectExamVariantExercises(
+        storedExercises,
+        resolveExamVariantId(user.id, lesson.id, priorProgress?.attempts ?? 0),
+      )
+    : storedExercises;
   const gradingResult = await gradeLessonAttemptAsync(
     exercises,
     answers,
     Boolean(lesson.isExam),
     lesson.passThreshold,
+    user.id,
   );
   if (!gradingResult.ok) {
     return {
@@ -557,6 +580,9 @@ export async function submitLesson(
         evidenceLevel,
         lastSelfVerifiedAt: updatedLastSelfVerifiedAt,
         completedAt: passed ? prevLp.completedAt ?? new Date() : prevLp.completedAt,
+        completedContentVersion: passed
+          ? Math.max(prevLp.completedContentVersion ?? 0, lesson.contentVersion ?? 1)
+          : prevLp.completedContentVersion,
       })
       .where(eq(userLessonProgress.id, prevLp.id));
   } else {
@@ -570,6 +596,7 @@ export async function submitLesson(
       evidenceLevel,
       lastSelfVerifiedAt: updatedLastSelfVerifiedAt,
       completedAt: passed ? new Date() : null,
+      completedContentVersion: passed ? (lesson.contentVersion ?? 1) : null,
     });
   }
 

@@ -11,7 +11,7 @@ import { randomBytes } from "node:crypto";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 import { logActivity, notifyUser } from "../engagement.js";
-import { isFullCourseComplete } from "../services/certificate-rules.js";
+import { isFullCourseComplete, lessonCountsAsCurrentMastery } from "../services/certificate-rules.js";
 
 export { isFullCourseComplete };
 
@@ -27,7 +27,7 @@ function certCode() {
 export async function isCourseFullyCompleted(userId: string, courseId: string) {
   const allLessons = await db.query.lessons.findMany({
     where: eq(lessons.courseId, courseId),
-    columns: { id: true, isExam: true },
+    columns: { id: true, isExam: true, contentVersion: true },
   });
   if (allLessons.length === 0) return { complete: false, total: 0, completed: 0 };
 
@@ -37,9 +37,19 @@ export async function isCourseFullyCompleted(userId: string, courseId: string) {
       eq(userLessonProgress.courseId, courseId),
       eq(userLessonProgress.status, "completed"),
     ),
-    columns: { lessonId: true },
+    columns: { lessonId: true, status: true, completedContentVersion: true },
   });
-  const completedIds = completed.map((r) => r.lessonId);
+  const byLesson = new Map(completed.map((r) => [r.lessonId, r]));
+  const completedIds = allLessons
+    .filter((lesson) => {
+      const row = byLesson.get(lesson.id);
+      return lessonCountsAsCurrentMastery({
+        status: row?.status ?? "",
+        lessonContentVersion: lesson.contentVersion ?? 1,
+        completedContentVersion: row?.completedContentVersion ?? null,
+      });
+    })
+    .map((lesson) => lesson.id);
   // Exam lessons are part of allLessons; "completed" already required exam pass bar.
   return {
     complete: isFullCourseComplete(

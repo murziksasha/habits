@@ -1,6 +1,11 @@
-import type { CircuitDocument, CircuitAnalysis, CircuitCriterion } from "@eduforge/shared";
+import type {
+  CircuitDocument,
+  CircuitAnalysis,
+  CircuitCriterion,
+  CircuitConstraints,
+} from "@eduforge/shared";
 
-export type Exercise =
+type ExerciseBody =
   | {
       id: string;
       type: "mcq";
@@ -27,6 +32,7 @@ export type Exercise =
       promptUk: string;
       promptEn?: string;
       pairs: { left: string; right: string }[];
+      pairsEn?: { left: string; right: string }[];
       explanationUk?: string;
       explanationEn?: string;
     }
@@ -309,7 +315,21 @@ export type Exercise =
       hintsEn?: string[];
       explanationUk?: string;
       explanationEn?: string;
+      circuit?: CircuitDocument;
+      constraints?: CircuitConstraints;
+      scenarios?: {
+        id: string;
+        overrides?: Record<string, string>;
+        faults?: string[];
+        criteria: CircuitCriterion[];
+      }[];
+      rejectOutputSubstitution?: boolean;
     };
+
+export type Exercise = ExerciseBody & {
+  contentVersion?: string;
+  examVariant?: "A" | "B" | "C";
+};
 
 export type LessonContent = {
   slug: string;
@@ -326,6 +346,8 @@ export type LessonContent = {
   isExam?: boolean;
   /** 0..1 accuracy required when isExam (default 0.7 in app) */
   passThreshold?: number;
+  /** 2 for the rewritten electrical engineering course. */
+  contentVersion?: number;
   exercises: Exercise[];
 };
 

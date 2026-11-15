@@ -69,6 +69,51 @@ const doc = {
         },
       },
     },
+    "/circuits/projects": {
+      get: {
+        tags: ["circuits"],
+        summary: "List the caller's circuit projects as { projects }",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "{ projects }" } },
+      },
+      post: {
+        tags: ["circuits"],
+        summary: "Create a project. Body is a canonical CircuitDocument. Returns { project }",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "201": { description: "{ project }" },
+          "400": { description: "project_limit_reached or invalid_circuit" },
+        },
+      },
+    },
+    "/circuits/projects/{id}": {
+      get: {
+        tags: ["circuits"],
+        summary: "Load one project document as { project }",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "{ project }" } },
+      },
+      patch: {
+        tags: ["circuits"],
+        summary: "Update by owner, id, and expectedRevision. Revision increments in SQL",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "{ project }" },
+          "409": { description: "project_conflict" },
+        },
+      },
+    },
+    "/circuits/simulate": {
+      post: {
+        tags: ["circuits"],
+        summary: "Authenticated preview. Body { circuit, analysis }. Success { ok: true, result }",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "{ ok: true, result }" },
+          "503": { description: "circuit_engine_unavailable" },
+        },
+      },
+    },
     "/me/home": {
       get: {
         tags: ["me"],

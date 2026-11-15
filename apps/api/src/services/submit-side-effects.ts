@@ -28,6 +28,7 @@ export type SubmitSideEffectCtx = {
     correct: boolean;
     partial?: number;
     meta?: Record<string, unknown>;
+    exerciseVersion?: string;
   }[];
   /** Raw answers (wrongAttempts / confidence for exercise-level learning, SPEC 92) */
   answers?: { exerciseId: string; wrongAttempts?: number; confidence?: number | null }[];
@@ -82,6 +83,7 @@ export async function runSubmitSideEffects(
         correct: r.correct,
         wrongAttempts: byId.get(r.exerciseId)?.wrongAttempts,
         confidence: byId.get(r.exerciseId)?.confidence ?? null,
+        exerciseVersion: typeof r.exerciseVersion === "string" ? r.exerciseVersion : undefined,
       })),
       "lesson",
     );

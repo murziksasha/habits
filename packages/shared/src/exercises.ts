@@ -66,8 +66,10 @@ export function isKnownExerciseType(type: string): type is ExerciseType {
 
 const base = {
   id: z.string().min(1).max(128),
-  promptUk: z.string().min(1).max(4000),
-  promptEn: z.string().max(4000).optional(),
+  promptUk: z.string().min(1).max(8000),
+  promptEn: z.string().max(8000).optional(),
+  contentVersion: z.string().max(16).optional(),
+  examVariant: z.enum(["A", "B", "C"]).optional(),
 };
 
 /** Zod schemas for exercise payloads (admin publish + soft validation). */
@@ -170,10 +172,10 @@ export const exerciseSchema = z.discriminatedUnion("type", [
   z.object({
     ...base,
     type: z.literal("concept"),
-    bodyUk: z.string().min(1).max(6000),
-    bodyEn: z.string().max(6000).optional(),
-    keyPointsUk: z.array(z.string().max(400)).max(8).optional(),
-    keyPointsEn: z.array(z.string().max(400)).max(8).optional(),
+    bodyUk: z.string().min(1).max(16000),
+    bodyEn: z.string().max(16000).optional(),
+    keyPointsUk: z.array(z.string().max(500)).max(8).optional(),
+    keyPointsEn: z.array(z.string().max(500)).max(8).optional(),
     code: z.string().max(4000).optional(),
     language: z.string().optional(),
     check: z
@@ -391,6 +393,27 @@ export const exerciseSchema = z.discriminatedUnion("type", [
       params: z.record(z.union([z.string(), z.number()])).optional(),
     }),
     criteria: z.array(z.record(z.unknown())).min(1),
+    constraints: z
+      .object({
+        canAddComponents: z.boolean().optional(),
+        canRemoveComponents: z.boolean().optional(),
+        canChangeValues: z.boolean().optional(),
+        allowedComponentTypes: z.array(z.string()).optional(),
+        editableComponentIds: z.array(z.string()).optional(),
+        maxComponents: z.number().int().positive().optional(),
+      })
+      .optional(),
+    scenarios: z
+      .array(
+        z.object({
+          id: z.string(),
+          overrides: z.record(z.string()).optional(),
+          faults: z.array(z.string()).optional(),
+          criteria: z.array(z.record(z.unknown())).min(1),
+        }),
+      )
+      .optional(),
+    rejectOutputSubstitution: z.boolean().optional(),
     starterNetlist: z.string().optional(),
     solutionNetlist: z.string().optional(),
     hintUk: z.string().optional(),

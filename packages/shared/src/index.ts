@@ -45,3 +45,5 @@ export * from "./feedback-contract.js";
 export * from "./attempts.js";
 export * from "./numeric.js";
 export * from "./circuit-types.js";
+export * from "./circuit-registry.js";
+export * from "./circuit-document.js";

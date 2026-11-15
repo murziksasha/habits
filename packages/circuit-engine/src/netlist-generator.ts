@@ -1,245 +1,167 @@
 /**
- * Generates standard SPICE netlists from CircuitDocument structures
- * and analysis configurations.
+ * Generates SPICE netlists from CircuitDocument version 2.
+ * Electrical nets come from wires and junctions. Open pins stay open.
  */
 
-import type { CircuitAnalysis, CircuitDocument } from "@eduforge/shared";
+import {
+  getCircuitComponentDef,
+  resolveElectricalNets,
+  type CircuitAnalysis,
+  type CircuitDocument,
+  type ResolveNetsResult,
+} from "@eduforge/shared";
 import { STANDARD_SPICE_MODELS, getModelDefForComponent } from "./models.js";
 
-/**
- * Normalizes SPICE node name:
- * "gnd", "ground", "0" -> "0"
- * strips invalid characters
- */
 export function normalizeNodeName(name: string): string {
   const norm = name.trim().toLowerCase();
   if (norm === "0" || norm === "gnd" || norm === "ground") return "0";
   return name.trim().replace(/[^a-zA-Z0-9_]/g, "_");
 }
 
-/**
- * Converts a CircuitDocument into an ngspice netlist string.
- */
-export function generateNetlist(
-  doc: CircuitDocument,
-  analysis?: CircuitAnalysis,
-): string {
-  // If document was authored in raw netlist mode, use it directly
+export type CompileNetlistResult =
+  | { ok: true; netlist: string; floatingPins: string[] }
+  | { ok: false; errors: string[]; floatingPins: string[] };
+
+function spiceName(id: string, prefix: string): string {
+  return id.toUpperCase().startsWith(prefix) ? id : `${prefix}${id}`;
+}
+
+function pinNet(resolved: ResolveNetsResult, componentId: string, pin: string): string | null {
+  const net = resolved.pinNet.get(`${componentId}.${pin}`);
+  return net ? normalizeNodeName(net) : null;
+}
+
+export function compileNetlist(doc: CircuitDocument, analysis?: CircuitAnalysis): CompileNetlistResult {
   if (doc.mode === "netlist" && doc.netlist && doc.netlist.trim().length > 0) {
     let raw = doc.netlist.trim();
-    // Append standard models if not already present
     if (!raw.includes("STANDARD_MODELS_INCLUDED")) {
       raw = `${raw}\n* --- Included Models ---\n${STANDARD_SPICE_MODELS}\n`;
     }
-    // Append analysis card if provided and not already present
     if (analysis && !hasAnalysisDirective(raw, analysis.type)) {
       raw = `${raw}\n${formatAnalysisCard(analysis)}\n`;
     }
-    return raw;
+    return { ok: true, netlist: raw, floatingPins: [] };
   }
 
-  const lines: string[] = [];
-  lines.push(`* EduForge Schematic: ${doc.title ?? "Untitled Circuit"}`);
-
-  // Ground alias mapping: find any ground component and record its connected node
-  const groundNodes = new Set<string>();
-  groundNodes.add("0");
-  groundNodes.add("gnd");
-  groundNodes.add("ground");
-
-  for (const comp of doc.components) {
-    if (comp.type.toLowerCase() === "ground" || comp.id.toLowerCase().startsWith("gnd")) {
-      for (const n of comp.nodes) {
-        if (n) groundNodes.add(n);
-      }
-    }
+  const resolved = resolveElectricalNets(doc);
+  if (!resolved.ok) {
+    return { ok: false, errors: resolved.errors, floatingPins: resolved.floatingPins };
+  }
+  if (resolved.floatingPins.length > 0) {
+    return {
+      ok: false,
+      errors: resolved.floatingPins.map((pin) => `floating_pin:${pin}`),
+      floatingPins: resolved.floatingPins,
+    };
   }
 
-  // Node alias resolver
-  const resolveNode = (n: string | undefined): string => {
-    if (!n) return "0";
-    if (groundNodes.has(n)) return "0";
-    return normalizeNodeName(n);
-  };
+  const lines: string[] = [`* EduForge Schematic: ${doc.title ?? "Untitled Circuit"}`];
+  const errors: string[] = [];
 
-  // Convert components to SPICE lines
   for (const comp of doc.components) {
     const type = comp.type.toLowerCase();
-    const id = comp.id.trim();
-
-    // Skip standalone ground components as they are handled via node resolution
-    if (type === "ground" || id.toLowerCase().startsWith("gnd")) {
+    const defn = getCircuitComponentDef(type);
+    if (!defn || type === "ground") continue;
+    const nets = defn.pins.map((pin) => pinNet(resolved, comp.id, pin.id));
+    const missing = defn.pins.filter((pin, i) => pin.required && !nets[i]);
+    if (missing.length > 0) {
+      errors.push(`floating_pin:${comp.id}.${missing.map((p) => p.id).join(",")}`);
       continue;
     }
-
-    const nodes = (comp.nodes || []).map(resolveNode);
+    const n = (index: number): string => nets[index] ?? `open_${comp.id}_${defn.pins[index]?.id ?? index}`;
     const val = (comp.value || "").trim();
     const props = comp.properties || {};
+    const model = getModelDefForComponent(type, val || defn.modelKey);
 
     switch (type) {
-      case "resistor": {
-        const n1 = nodes[0] ?? "0";
-        const n2 = nodes[1] ?? "0";
-        const name = id.toUpperCase().startsWith("R") ? id : `R${id}`;
-        lines.push(`${name} ${n1} ${n2} ${val || "1k"}`);
+      case "resistor":
+        lines.push(`${spiceName(comp.id, "R")} ${n(0)} ${n(1)} ${val || "1k"}`);
         break;
-      }
-      case "capacitor": {
-        const n1 = nodes[0] ?? "0";
-        const n2 = nodes[1] ?? "0";
-        const name = id.toUpperCase().startsWith("C") ? id : `C${id}`;
-        lines.push(`${name} ${n1} ${n2} ${val || "1u"}`);
+      case "capacitor":
+        lines.push(`${spiceName(comp.id, "C")} ${n(0)} ${n(1)} ${val || "1u"}`);
         break;
-      }
-      case "inductor": {
-        const n1 = nodes[0] ?? "0";
-        const n2 = nodes[1] ?? "0";
-        const name = id.toUpperCase().startsWith("L") ? id : `L${id}`;
-        lines.push(`${name} ${n1} ${n2} ${val || "1m"}`);
+      case "inductor":
+        lines.push(`${spiceName(comp.id, "L")} ${n(0)} ${n(1)} ${val || "1m"}`);
         break;
-      }
       case "dc_voltage":
-      case "voltage_source": {
-        const n1 = nodes[0] ?? "1";
-        const n2 = nodes[1] ?? "0";
-        const name = id.toUpperCase().startsWith("V") ? id : `V${id}`;
-        lines.push(`${name} ${n1} ${n2} dc ${val || "5"}`);
+      case "voltage_source":
+        lines.push(`${spiceName(comp.id, "V")} ${n(0)} ${n(1)} dc ${val || "5"}`);
         break;
-      }
-      case "ac_voltage": {
-        const n1 = nodes[0] ?? "1";
-        const n2 = nodes[1] ?? "0";
-        const name = id.toUpperCase().startsWith("V") ? id : `V${id}`;
-        const acAmp = props.acAmplitude ?? val ?? "1";
-        const acPhase = props.acPhase ?? "0";
-        lines.push(`${name} ${n1} ${n2} dc 0 ac ${acAmp} ${acPhase}`);
+      case "ac_voltage":
+        lines.push(`${spiceName(comp.id, "V")} ${n(0)} ${n(1)} dc 0 ac ${props.acAmplitude ?? val ?? "1"} ${props.acPhase ?? "0"}`);
         break;
-      }
-      case "pulse_voltage": {
-        const n1 = nodes[0] ?? "1";
-        const n2 = nodes[1] ?? "0";
-        const name = id.toUpperCase().startsWith("V") ? id : `V${id}`;
-        const v1 = props.v1 ?? "0";
-        const v2 = props.v2 ?? val ?? "5";
-        const td = props.td ?? "0";
-        const tr = props.tr ?? "1n";
-        const tf = props.tf ?? "1n";
-        const pw = props.pw ?? "50u";
-        const per = props.per ?? "100u";
-        lines.push(`${name} ${n1} ${n2} pulse(${v1} ${v2} ${td} ${tr} ${tf} ${pw} ${per})`);
+      case "pulse_voltage":
+        lines.push(
+          `${spiceName(comp.id, "V")} ${n(0)} ${n(1)} pulse(${props.v1 ?? "0"} ${props.v2 ?? val ?? "5"} ${props.td ?? "0"} ${props.tr ?? "1n"} ${props.tf ?? "1n"} ${props.pw ?? "50u"} ${props.per ?? "100u"})`,
+        );
         break;
-      }
-      case "sine_voltage": {
-        const n1 = nodes[0] ?? "1";
-        const n2 = nodes[1] ?? "0";
-        const name = id.toUpperCase().startsWith("V") ? id : `V${id}`;
-        const voff = props.vOffset ?? "0";
-        const vamp = props.vAmplitude ?? val ?? "5";
-        const freq = props.frequency ?? "50";
-        lines.push(`${name} ${n1} ${n2} sin(${voff} ${vamp} ${freq})`);
+      case "sine_voltage":
+        lines.push(
+          `${spiceName(comp.id, "V")} ${n(0)} ${n(1)} sin(${props.vOffset ?? "0"} ${props.vAmplitude ?? val ?? "5"} ${props.frequency ?? "50"})`,
+        );
         break;
-      }
       case "dc_current":
-      case "current_source": {
-        const n1 = nodes[0] ?? "1";
-        const n2 = nodes[1] ?? "0";
-        const name = id.toUpperCase().startsWith("I") ? id : `I${id}`;
-        lines.push(`${name} ${n1} ${n2} dc ${val || "1m"}`);
+      case "current_source":
+        lines.push(`${spiceName(comp.id, "I")} ${n(0)} ${n(1)} dc ${val || "1m"}`);
         break;
-      }
       case "diode":
       case "led":
-      case "zener": {
-        const anode = nodes[0] ?? "1";
-        const cathode = nodes[1] ?? "0";
-        const name = id.toUpperCase().startsWith("D") ? id : `D${id}`;
-        const model = getModelDefForComponent(type, val);
-        lines.push(`${name} ${anode} ${cathode} ${model}`);
+      case "zener":
+        lines.push(`${spiceName(comp.id, "D")} ${n(0)} ${n(1)} ${model}`);
         break;
-      }
       case "bjt_npn":
-      case "bjt_pnp": {
-        const c = nodes[0] ?? "1";
-        const b = nodes[1] ?? "2";
-        const e = nodes[2] ?? "0";
-        const name = id.toUpperCase().startsWith("Q") ? id : `Q${id}`;
-        const model = getModelDefForComponent(type, val);
-        lines.push(`${name} ${c} ${b} ${e} ${model}`);
+      case "bjt_pnp":
+        lines.push(`${spiceName(comp.id, "Q")} ${n(0)} ${n(1)} ${n(2)} ${model}`);
         break;
-      }
       case "mosfet_n":
-      case "mosfet_p": {
-        const d = nodes[0] ?? "1";
-        const g = nodes[1] ?? "2";
-        const s = nodes[2] ?? "0";
-        const name = id.toUpperCase().startsWith("M") ? id : `M${id}`;
-        const model = getModelDefForComponent(type, val);
-        lines.push(`${name} ${d} ${g} ${s} ${s} ${model}`);
+      case "mosfet_p":
+        lines.push(`${spiceName(comp.id, "M")} ${n(0)} ${n(1)} ${n(2)} ${n(2)} ${model}`);
         break;
-      }
-      case "opamp": {
-        const name = id.toUpperCase().startsWith("X") ? id : `X${id}`;
-        const model = getModelDefForComponent(type, val);
-        if (nodes.length >= 5) {
-          // 5-terminal opamp: in+ in- v+ v- out
-          const [inP, inM, vP, vM, out] = nodes;
-          lines.push(`${name} ${inP} ${inM} ${vP} ${vM} ${out} ${model}`);
+      case "opamp":
+        if (nets[3] && nets[4]) {
+          lines.push(`${spiceName(comp.id, "X")} ${n(0)} ${n(1)} ${n(3)} ${n(4)} ${n(2)} ${model === "OPAMP_IDEAL" ? "OPAMP_RAIL" : model}`);
         } else {
-          // 3-terminal ideal opamp: in+ in- out
-          const inP = nodes[0] ?? "1";
-          const inM = nodes[1] ?? "2";
-          const out = nodes[2] ?? "3";
-          lines.push(`${name} ${inP} ${inM} ${out} OPAMP_IDEAL`);
+          lines.push(`${spiceName(comp.id, "X")} ${n(0)} ${n(1)} ${n(2)} OPAMP_IDEAL`);
         }
         break;
-      }
-      case "switch": {
-        const n1 = nodes[0] ?? "1";
-        const n2 = nodes[1] ?? "2";
-        const cp = nodes[2] ?? "3";
-        const cm = nodes[3] ?? "0";
-        const name = id.toUpperCase().startsWith("S") ? id : `S${id}`;
-        lines.push(`${name} ${n1} ${n2} ${cp} ${cm} SW_IDEAL`);
-        lines.push(".model SW_IDEAL VSWITCH (Ron=0.01 Roff=1Meg Von=2.5 Voff=0.5)");
+      case "switch":
+        if (nets[2] && nets[3]) {
+          lines.push(`${spiceName(comp.id, "S")} ${n(0)} ${n(1)} ${n(2)} ${n(3)} SW_IDEAL`);
+          lines.push(".model SW_IDEAL VSWITCH (Ron=0.01 Roff=1Meg Von=2.5 Voff=0.5)");
+        } else {
+          const closed = props.closed === undefined || props.closed === 1 || props.closed === "1" || props.closed === "true";
+          lines.push(`${spiceName(comp.id, "R")} ${n(0)} ${n(1)} ${closed ? "0.01" : "100Meg"}`);
+        }
         break;
-      }
-      default: {
-        // Fallback for custom or raw components
-        const prefix = id[0]?.toUpperCase() ?? "X";
-        const name = id.toUpperCase().startsWith(prefix) ? id : `${prefix}${id}`;
-        lines.push(`${name} ${nodes.join(" ")} ${val}`);
-        break;
-      }
+      default:
+        errors.push(`unsupported_element:${type}`);
     }
   }
 
-  // Include custom user models if defined
+  if (errors.length > 0) return { ok: false, errors, floatingPins: resolved.floatingPins };
+
   if (doc.customModels && doc.customModels.length > 0) {
     lines.push("* --- Custom Models ---");
-    for (const cm of doc.customModels) {
-      lines.push(cm.content);
-    }
+    for (const model of doc.customModels) lines.push(model.content);
   }
-
-  // Include standard built-in models
-  lines.push("* --- Standard Models Included ---");
+  lines.push("* STANDARD_MODELS_INCLUDED");
   lines.push(STANDARD_SPICE_MODELS);
-
-  // Append analysis directive
-  if (analysis) {
-    lines.push(formatAnalysisCard(analysis));
-  }
-
+  if (analysis) lines.push(formatAnalysisCard(analysis));
   lines.push(".end");
-  return lines.join("\n");
+  return { ok: true, netlist: lines.join("\n"), floatingPins: [] };
+}
+
+export function generateNetlist(doc: CircuitDocument, analysis?: CircuitAnalysis): string {
+  const compiled = compileNetlist(doc, analysis);
+  if (compiled.ok) return compiled.netlist;
+  return `* compile_error: ${compiled.errors.join("; ")}\n.end`;
 }
 
 function hasAnalysisDirective(netlist: string, type: string): boolean {
-  const regex = new RegExp(`^\\s*\\.${type}\\b`, "im");
-  return regex.test(netlist);
+  return new RegExp(`^\\s*\\.${type}\\b`, "im").test(netlist);
 }
 
-function formatAnalysisCard(analysis: CircuitAnalysis): string {
+export function formatAnalysisCard(analysis: CircuitAnalysis): string {
   switch (analysis.type) {
     case "op":
       return ".op";
@@ -275,4 +197,28 @@ function formatAnalysisCard(analysis: CircuitAnalysis): string {
       return `.noise ${out} ${ref} ${varType} ${pts} ${f1} ${f2}`;
     }
   }
+}
+
+export function estimateAnalysisPoints(analysis: CircuitAnalysis | undefined): number {
+  if (!analysis) return 1;
+  if (analysis.type === "op") return 1;
+  if (analysis.type === "dc" && analysis.dc) {
+    const span = Math.abs(analysis.dc.stop - analysis.dc.start);
+    const step = Math.abs(analysis.dc.step);
+    if (step <= 0) return Number.POSITIVE_INFINITY;
+    return Math.floor(span / step) + 1;
+  }
+  if (analysis.type === "ac" && analysis.ac) {
+    const points = analysis.ac.points;
+    if (analysis.ac.variation === "lin") return points;
+    const decades = Math.log10(analysis.ac.fStop / analysis.ac.fStart);
+    return Math.ceil(Math.abs(decades) * points) + 1;
+  }
+  if (analysis.type === "tran" && analysis.tran) {
+    const span = analysis.tran.tStop - (analysis.tran.tStart ?? 0);
+    if (analysis.tran.tStep <= 0) return Number.POSITIVE_INFINITY;
+    return Math.floor(span / analysis.tran.tStep) + 1;
+  }
+  if (analysis.type === "noise" && analysis.noise) return analysis.noise.points * 20;
+  return 1;
 }

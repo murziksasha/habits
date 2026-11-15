@@ -6,6 +6,7 @@ import {
   normalizeNumericString,
   parseComplexQuantity,
   parseQuantity,
+  parseSpiceValue,
 } from "./numeric.js";
 
 describe("numeric engine & parser", () => {
@@ -103,6 +104,64 @@ describe("numeric engine & parser", () => {
       relTolerance: 0.05,
     });
     expect(resPolar.correct).toBe(true);
+  });
+
+  it("grades charge, energy, force, field, torque, and a count", () => {
+    expect(gradeSingleNumeric("3 nC", { target: 3, unit: "nC" }).correct).toBe(true);
+    expect(gradeSingleNumeric("3", { target: 3, unit: "nC" }).correct).toBe(true);
+    expect(gradeSingleNumeric("3 C", { target: 3, unit: "nC" }).correct).toBe(false);
+    expect(gradeSingleNumeric("2 J", { target: 2, unit: "J" }).correct).toBe(true);
+    expect(gradeSingleNumeric("4 N", { target: 4, unit: "N" }).correct).toBe(true);
+    expect(gradeSingleNumeric("2000 N/C", { target: 2000, unit: "N/C" }).correct).toBe(true);
+    expect(gradeSingleNumeric("2 Nm", { target: 2, unit: "Nm" }).correct).toBe(true);
+    expect(gradeSingleNumeric("1440 rpm", { target: 1440, unit: "rpm" }).correct).toBe(true);
+    expect(gradeSingleNumeric("12", { target: 12, unit: "1" }).correct).toBe(true);
+  });
+
+  it("grades tesla, weber, a kelvin interval, and the metre", () => {
+    expect(parseQuantity("0.3 T")?.dimension).toBe("magnetic_flux_density");
+    expect(parseQuantity("0.3 T")?.scaledValue).toBeCloseTo(0.3);
+    expect(parseQuantity("300 mT")?.scaledValue).toBeCloseTo(0.3);
+    expect(parseQuantity("1 THz")?.dimension).toBe("frequency");
+    expect(parseQuantity("1 THz")?.scaledValue).toBeCloseTo(1e12);
+    expect(parseQuantity("1 TV")?.scaledValue).toBeCloseTo(1e12);
+    expect(parseQuantity("6 uWb")?.scaledValue).toBeCloseTo(6e-6);
+    expect(parseQuantity("12.8 K")?.dimension).toBe("temperature");
+    expect(gradeSingleNumeric("12.8 °C", { target: 12.8, unit: "K", relTolerance: 0.01 }).correct).toBe(true);
+    expect(parseQuantity("1 ms")?.dimension).toBe("time");
+    expect(parseQuantity("1 ms")?.scaledValue).toBeCloseTo(1e-3);
+    expect(parseQuantity("1 mV")?.scaledValue).toBeCloseTo(1e-3);
+    expect(parseQuantity("1 m")?.dimension).toBe("length");
+    expect(parseQuantity("0.209 mm")?.scaledValue).toBeCloseTo(2.09e-4);
+    expect(parseSpiceValue("1T")).toBe(1e12);
+    expect(gradeSingleNumeric("0.3 T", { target: 0.3, unit: "T" }).correct).toBe(true);
+    expect(gradeSingleNumeric("0.3 mT", { target: 0.3, unit: "T" }).correct).toBe(false);
+  });
+
+  it("rejects unknown units, extra text, and non-finite values", () => {
+    expect(parseQuantity("5 bananas")).toBeNull();
+    expect(gradeSingleNumeric("5 bananas", { target: 5, unit: "V" }).error).toBe("unknown_unit");
+    expect(parseQuantity("12 V extra")).toBeNull();
+    expect(parseQuantity("Infinity V")).toBeNull();
+    expect(gradeNumericAnswer("{", { target: 1 }).error).toBe("invalid_number_format");
+    expect(gradeSingleNumeric("1", { target: 1, absTolerance: -1 }).error).toBe("invalid_tolerance");
+  });
+
+  it("keeps s/S and m/M distinct and scales a whole complex value", () => {
+    expect(parseQuantity("1 s")?.dimension).toBe("time");
+    expect(parseQuantity("1 S")?.dimension).toBe("conductance");
+    expect(parseQuantity("1 ms")?.scaledValue).toBeCloseTo(1e-3);
+    expect(parseQuantity("1 MS")?.scaledValue).toBeCloseTo(1e6);
+    const scaled = parseComplexQuantity("3 + j4 kΩ");
+    expect(scaled?.scaledReal).toBeCloseTo(3000);
+    expect(scaled?.scaledImag).toBeCloseTo(4000);
+    expect(parseComplexQuantity("3 + j4")?.imag).toBeCloseTo(4);
+    const graded = gradeSingleNumeric("3 + j4 kΩ", {
+      target: { real: 3000, imag: 4000 },
+      unit: "ohm",
+      relTolerance: 0.01,
+    });
+    expect(graded.correct).toBe(true);
   });
 
   it("grades multi-field numeric answers", () => {

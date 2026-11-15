@@ -11,6 +11,7 @@ import {
   gradeNumericAnswer,
   localizeExerciseOptions,
   localizeMatchPairs,
+  getUI,
   UI,
   type ExplainKeyIdea,
   type CircuitDocument,
@@ -40,7 +41,7 @@ import {
 import { hasOpenDialog, isTypingTarget, optionIndexFromKey } from "@/lib/answer-keys";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
-import { KaTeXMath } from "@/components/circuit/katex-math";
+import { FormattedFormulaText, KaTeXMath } from "@/components/circuit/katex-math";
 import { CircuitEditor } from "@/components/circuit/circuit-editor";
 import type { RunSimOutput } from "@eduforge/circuit-engine";
 
@@ -1818,7 +1819,7 @@ function ConceptExercise({
       <div className="space-y-3 rounded-2xl bg-slate-100 p-4 leading-relaxed dark:bg-slate-800">
         {paragraphs.map((p, i) => (
           <p key={i} className="whitespace-pre-line">
-            {p}
+            <FormattedFormulaText text={p} />
           </p>
         ))}
       </div>
@@ -2617,12 +2618,15 @@ function CircuitLabExerciseComponent({
   const hint = useExerciseHint(exercise);
   const soft = useSoftAttempts(hint.setOpen);
 
-  const initialDoc = (exercise.circuitDocument as CircuitDocument) || {
-    version: 1,
+  const t = getUI(locale === "en" ? "en" : "uk");
+  const seeded = (exercise.circuit as CircuitDocument) || (exercise.circuitDocument as CircuitDocument);
+  const initialDoc = seeded || {
+    version: 2,
     title: (exercise.title as string) || "Lab Circuit",
     components: [],
     wires: [],
-    mode: "schematic",
+    junctions: [],
+    mode: "schematic" as const,
   };
 
   const [currentDoc, setCurrentDoc] = useState<CircuitDocument>(initialDoc);
@@ -2631,26 +2635,12 @@ function CircuitLabExerciseComponent({
   const criteria = (exercise.criteria as CircuitCriterion[]) || [];
   const analysis = (exercise.analysis as CircuitAnalysis) || {
     type: "tran",
-    tran: { tstep: "10u", tstop: "5m" },
+    tran: { tStep: 1e-5, tStop: 5e-3 },
   };
 
   const handleSubmit = () => {
-    // If simulation failed, warn
-    if (simOutput && !simOutput.ok) {
-      soft.registerFail(
-        locale === "en"
-          ? "Simulation failed with errors. Check circuit wiring and ground."
-          : "Помилка симуляції. Перевірте з'єднання та наявність землі."
-      );
-      return;
-    }
-
     soft.markOk();
-    onAnswer({
-      document: currentDoc,
-      netlist: currentDoc.netlist,
-      simulationPassed: simOutput?.ok ?? false,
-    });
+    onAnswer({ circuit: currentDoc });
   };
 
   return (
@@ -2658,7 +2648,7 @@ function CircuitLabExerciseComponent({
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
           <span className="px-2.5 py-0.5 rounded-full bg-cyan-950 border border-cyan-800 text-cyan-300 text-xs font-bold uppercase tracking-wider">
-            {locale === "en" ? "SPICE Laboratory" : "SPICE Лабораторія"}
+            {t.circuitLab.title}
           </span>
         </div>
         <h2 className="text-xl font-black text-slate-100" id={`ex-prompt-${exercise.id}`}>
@@ -2689,29 +2679,28 @@ function CircuitLabExerciseComponent({
         mentorRank={soft.mentorRank}
       />
 
-      {/* Bottom Actions */}
+      {simOutput && !simOutput.ok ? (
+        <p className="text-sm font-bold text-amber-300">{t.circuitLab.simFailed}</p>
+      ) : null}
+
       <div className="flex items-center gap-3 pt-3">
         <button
           type="button"
           onClick={handleSubmit}
           className="btn-primary"
         >
-          {locale === "en" ? "Submit Circuit Solution" : "Здати розв'язок схеми"}
+          {t.circuitLab.submitSolution}
         </button>
 
         {soft.canSkip && (
           <button
             type="button"
             onClick={() =>
-              onAnswer({
-                document: currentDoc,
-                netlist: currentDoc.netlist,
-                skipped: true,
-              })
+              onAnswer({ circuit: currentDoc, skipped: true })
             }
             className="text-xs font-bold text-slate-400 hover:text-slate-200 underline"
           >
-            {locale === "en" ? "Skip exercise" : "Пропустити завдання"}
+            {t.circuitLab.skipExercise}
           </button>
         )}
       </div>

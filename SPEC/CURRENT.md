@@ -26,6 +26,8 @@ Primary journeys:
 
 Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, `react_*`, `sql_*`, `node_*`, `express_*`) are **Core content** but **not** primary nav entries — reach via `/learn`, `/courses`, `/programming`.
 
+`electrical_engineering` stays one course at `/courses/electrical_engineering`. The lab is `/courses/electrical_engineering/lab` and is linked from the course page. It is not a new primary-nav slot. Version 2 of that course is specified in `SPEC/courses/electrical_engineering.md`. The course stays unpublished until a reviewed sync. Seed update does not set `courses.status`.
+
 Skill tracks `sysadmin` and `devops` are accessed via `/learn` and `/courses`, not a new primary-nav slot. `sysadmin` covers workstation and SOHO administration, Linux console, local service troubleshooting, and local container operations (Podman/rootless Docker, systemd unit integration). `devops` owns the delivery pipeline, CI/CD, registries, infrastructure-as-code, orchestration (Kubernetes, AWS), observability, and on-call reliability runbooks. Per-course depth is `SPEC/courses/`.
 
 `devops` is still reached from `/learn` and `/courses`; Stay up and On call are more units on that course page, not a new nav slot.

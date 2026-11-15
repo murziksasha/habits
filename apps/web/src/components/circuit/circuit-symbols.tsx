@@ -196,6 +196,52 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDef> = {
     ),
   },
 
+  pulse_voltage: {
+    type: "pulse_voltage",
+    label: "Імпульсне джерело",
+    defaultPrefix: "V",
+    defaultValue: "PULSE(0 5 0 1u 1u 1m 2m)",
+    width: 40,
+    height: 60,
+    pins: [
+      { id: "1", name: "+", x: 20, y: 0 },
+      { id: "2", name: "-", x: 20, y: 60 },
+    ],
+    renderSvg: ({ value, id, selected }) => (
+      <g>
+        <line x1="20" y1="0" x2="20" y2="12" stroke={selected ? "#38bdf8" : "#94a3b8"} strokeWidth="2" />
+        <circle cx="20" cy="30" r="18" fill="#0f172a" stroke={selected ? "#38bdf8" : "#f8fafc"} strokeWidth="2.5" />
+        <path d="M 10 36 H 16 V 24 H 24 V 36 H 30" fill="none" stroke={selected ? "#38bdf8" : "#f8fafc"} strokeWidth="2" />
+        <line x1="20" y1="48" x2="20" y2="60" stroke={selected ? "#38bdf8" : "#94a3b8"} strokeWidth="2" />
+        <text x="44" y="26" fill="#cbd5e1" fontSize="11" fontWeight="600">{id}</text>
+        <text x="44" y="40" fill="#38bdf8" fontSize="10">{value}</text>
+      </g>
+    ),
+  },
+
+  sine_voltage: {
+    type: "sine_voltage",
+    label: "Синусоїдне джерело",
+    defaultPrefix: "V",
+    defaultValue: "SIN(0 1 1k)",
+    width: 40,
+    height: 60,
+    pins: [
+      { id: "1", name: "+", x: 20, y: 0 },
+      { id: "2", name: "-", x: 20, y: 60 },
+    ],
+    renderSvg: ({ value, id, selected }) => (
+      <g>
+        <line x1="20" y1="0" x2="20" y2="12" stroke={selected ? "#38bdf8" : "#94a3b8"} strokeWidth="2" />
+        <circle cx="20" cy="30" r="18" fill="#0f172a" stroke={selected ? "#38bdf8" : "#f8fafc"} strokeWidth="2.5" />
+        <path d="M 12 30 Q 16 22, 20 30 T 28 30" fill="none" stroke={selected ? "#38bdf8" : "#f8fafc"} strokeWidth="2" />
+        <line x1="20" y1="48" x2="20" y2="60" stroke={selected ? "#38bdf8" : "#94a3b8"} strokeWidth="2" />
+        <text x="44" y="26" fill="#cbd5e1" fontSize="11" fontWeight="600">{id}</text>
+        <text x="44" y="40" fill="#38bdf8" fontSize="10">{value}</text>
+      </g>
+    ),
+  },
+
   ground: {
     type: "ground",
     label: "Заземлення (Земля 0)",

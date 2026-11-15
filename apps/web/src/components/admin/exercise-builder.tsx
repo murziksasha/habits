@@ -38,6 +38,8 @@ const TYPES = [
   "code_project",
   "concept",
   "explain",
+  "numeric",
+  "circuit_lab",
 ] as const;
 
 function newId() {
@@ -198,6 +200,35 @@ function blankExercise(type: string): BuilderExercise {
         bodyEn: "Concept explanation.",
         keyPointsUk: ["Головна думка"],
         keyPointsEn: ["Key idea"],
+      };
+    case "numeric":
+      return {
+        id,
+        type,
+        promptUk: "Обчисліть величину в базових одиницях СІ.",
+        promptEn: "Calculate the quantity in base SI units.",
+        target: 1,
+        unit: "V",
+        absTolerance: 0.01,
+        relTolerance: 0.02,
+        contentVersion: "2",
+      };
+    case "circuit_lab":
+      return {
+        id,
+        type,
+        promptUk: "Побудуйте схему і здайте документ.",
+        promptEn: "Build the circuit and submit the document.",
+        contentVersion: "2",
+        circuit: {
+          version: 2,
+          components: [],
+          wires: [],
+          junctions: [],
+          mode: "schematic",
+        },
+        analysis: { type: "op" },
+        criteria: [{ type: "node_voltage", node: "out", target: 0, unit: "V", absTolerance: 0.05 }],
       };
     case "code_project":
       return {

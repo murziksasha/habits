@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isFullCourseComplete } from "./certificate-rules.js";
+import { isFullCourseComplete, lessonCountsAsCurrentMastery } from "./certificate-rules.js";
 
 describe("isFullCourseComplete", () => {
   it("rejects empty course", () => {
@@ -21,5 +21,12 @@ describe("isFullCourseComplete", () => {
 
   it("ignores extra completed ids not in course", () => {
     expect(isFullCourseComplete(["a", "b"], ["a", "b", "other"])).toBe(true);
+  });
+
+  it("requires the current content version for rewritten lessons", () => {
+    expect(lessonCountsAsCurrentMastery({ status: "completed", lessonContentVersion: 1, completedContentVersion: null })).toBe(true);
+    expect(lessonCountsAsCurrentMastery({ status: "completed", lessonContentVersion: 2, completedContentVersion: null })).toBe(false);
+    expect(lessonCountsAsCurrentMastery({ status: "completed", lessonContentVersion: 2, completedContentVersion: 2 })).toBe(true);
+    expect(lessonCountsAsCurrentMastery({ status: "available", lessonContentVersion: 2, completedContentVersion: 2 })).toBe(false);
   });
 });

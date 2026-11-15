@@ -3,7 +3,12 @@ import type {
   LessonContent,
   UnitContent,
 } from "../types.js";
-import type { CircuitDocument, CircuitAnalysis, CircuitCriterion } from "@eduforge/shared";
+import type {
+  CircuitDocument,
+  CircuitAnalysis,
+  CircuitCriterion,
+  CircuitConstraints,
+} from "@eduforge/shared";
 
 export function createConcept(params: {
   id: string;
@@ -19,6 +24,7 @@ export function createConcept(params: {
   return {
     id: params.id,
     type: "concept",
+    contentVersion: "2",
     promptUk: params.promptUk,
     promptEn: params.promptEn,
     bodyUk: params.bodyUk || params.explanationUk || params.promptUk,
@@ -41,6 +47,7 @@ export function createExplain(params: {
   return {
     id: params.id,
     type: "explain",
+    contentVersion: "2",
     promptUk: params.promptUk,
     promptEn: params.promptEn,
     keyIdeas: params.keyIdeas,
@@ -62,10 +69,13 @@ export function createNumeric(params: {
   relTolerance?: number;
   explanationUk?: string;
   explanationEn?: string;
+  examVariant?: "A" | "B" | "C";
 }): Exercise {
   return {
     id: params.id,
     type: "numeric",
+    contentVersion: "2",
+    examVariant: params.examVariant,
     promptUk: params.promptUk,
     promptEn: params.promptEn,
     target: params.target,
@@ -95,10 +105,13 @@ export function createNumericMulti(params: {
   formula?: string;
   explanationUk?: string;
   explanationEn?: string;
+  examVariant?: "A" | "B" | "C";
 }): Exercise {
   return {
     id: params.id,
     type: "numeric",
+    contentVersion: "2",
+    examVariant: params.examVariant,
     promptUk: params.promptUk,
     promptEn: params.promptEn,
     fields: params.fields.map((f) => ({
@@ -126,14 +139,25 @@ export function createCircuitLab(params: {
   hintsEn?: string[];
   explanationUk?: string;
   explanationEn?: string;
+  examVariant?: "A" | "B" | "C";
+  constraints?: CircuitConstraints;
+  scenarios?: {
+    id: string;
+    overrides?: Record<string, string>;
+    faults?: string[];
+    criteria: CircuitCriterion[];
+  }[];
+  rejectOutputSubstitution?: boolean;
 }): Exercise {
   return {
     id: params.id,
     type: "circuit_lab",
+    examVariant: params.examVariant,
     promptUk: params.promptUk,
     promptEn: params.promptEn,
     title: params.title,
-    circuitDocument: params.circuitDocument,
+    circuit: params.circuitDocument,
+    contentVersion: "2",
     netlist: params.netlist,
     analysis: params.analysis,
     criteria: params.criteria,
@@ -141,6 +165,9 @@ export function createCircuitLab(params: {
     hintsEn: params.hintsEn,
     explanationUk: params.explanationUk,
     explanationEn: params.explanationEn,
+    constraints: params.constraints,
+    scenarios: params.scenarios,
+    rejectOutputSubstitution: params.rejectOutputSubstitution,
   };
 }
 
@@ -153,10 +180,13 @@ export function createMcq(params: {
   correctIndex: number;
   explanationUk: string;
   explanationEn: string;
+  examVariant?: "A" | "B" | "C";
 }): Exercise {
   return {
     id: params.id,
     type: "mcq",
+    contentVersion: "2",
+    examVariant: params.examVariant,
     promptUk: params.promptUk,
     promptEn: params.promptEn,
     options: params.options,
@@ -172,15 +202,20 @@ export function createMatch(params: {
   promptUk: string;
   promptEn: string;
   pairs: { left: string; right: string }[];
+  pairsEn?: { left: string; right: string }[];
   explanationUk: string;
   explanationEn: string;
+  examVariant?: "A" | "B" | "C";
 }): Exercise {
   return {
     id: params.id,
     type: "match",
+    contentVersion: "2",
+    examVariant: params.examVariant,
     promptUk: params.promptUk,
     promptEn: params.promptEn,
     pairs: params.pairs,
+    pairsEn: params.pairsEn,
     explanationUk: params.explanationUk,
     explanationEn: params.explanationEn,
   };
@@ -195,9 +230,11 @@ export function createLesson(params: {
   exercises: Exercise[];
   isExam?: boolean;
   passThreshold?: number;
+  contentVersion?: number;
 }): LessonContent {
   return {
     slug: params.slug,
+    contentVersion: params.contentVersion ?? 2,
     titleUk: params.titleUk,
     titleEn: params.titleEn,
     difficulty: params.difficulty,

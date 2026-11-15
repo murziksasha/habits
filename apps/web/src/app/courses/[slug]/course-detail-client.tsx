@@ -36,6 +36,8 @@ type Lesson = {
   baseXp?: number;
   hasLocalLab?: boolean;
   localLabId?: string | null;
+  historicalCompletion?: boolean;
+  masteryCurrent?: boolean;
 };
 
 type Unit = { id: string; slug: string; titleUk: string; titleEn?: string; lessons: Lesson[] };
@@ -169,6 +171,14 @@ export function CourseDetailClient() {
           <p className="text-ink-muted">
             {pickLocale(locale, data.course.descriptionUk, data.course.descriptionEn)}
           </p>
+          {slug === "electrical_engineering" ? (
+            <Link
+              href="/courses/electrical_engineering/lab"
+              className="mt-3 inline-flex rounded-xl bg-sky px-4 py-2 text-sm font-black text-white"
+            >
+              {t.circuitLab.labLink}
+            </Link>
+          ) : null}
           {(() => {
             const prereqs = getCoursePrerequisites(slug);
             const nextSteps = getCourseNextSteps(slug);
@@ -377,6 +387,11 @@ export function CourseDetailClient() {
                           {lesson.isExam ? (
                             <span className="ml-2 rounded-full bg-grape/15 px-2 py-0.5 text-[10px] font-black text-grape">
                               {locale === "en" ? "Exam" : "Контрольна"}
+                            </span>
+                          ) : null}
+                          {lesson.historicalCompletion ? (
+                            <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-black text-amber-800 dark:bg-amber-950 dark:text-amber-200">
+                              {t.circuitLab.historicalResult}
                             </span>
                           ) : null}
                           {lesson.hasLocalLab ? (

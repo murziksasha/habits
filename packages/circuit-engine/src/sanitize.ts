@@ -23,9 +23,17 @@ const FORBIDDEN_DIRECTIVES = [
   /^\s*\.exec\b/i,
   /^\s*\.system\b/i,
   /^\s*\.shell\b/i,
+  /^\s*\.control\b/i,
+  /^\s*\.endc\b/i,
   /^\s*\.save\s+file\b/i,
   /^\s*\.open\b/i,
+  /^\s*\.write\b/i,
+  /^\s*\.cd\b/i,
 ];
+
+const ALLOWED_DOT = /^\s*\.(model|subckt|ends|param|op|dc|ac|tran|noise|end|probe|print|save|options|ic|nodeset|temp|global|title|plot|four|measure|func)\b/i;
+const COMPONENT_LINE = /^[RCLVIDQMXSKEFGHB]\w*/i;
+const INTERPRETER = /\b(while|repeat|dowhile|foreach|shell|system|fopen|wrdata|echo)\b/i;
 
 /**
  * Validates and sanitizes SPICE netlist text.
@@ -66,11 +74,28 @@ export function sanitizeNetlist(rawNetlist: string): SanitizeResult {
       continue;
     }
 
+    if (INTERPRETER.test(line) || /[`]/.test(line) || /\b(sh|cmd)\s/i.test(line)) {
+      errors.push(`disallowed_directive: Line ${i + 1} contains an interpreter or shell command`);
+    }
+
     // Check forbidden directives
     for (const forbidden of FORBIDDEN_DIRECTIVES) {
       if (forbidden.test(line)) {
         errors.push(`disallowed_directive: Line ${i + 1} contains unsafe directive: "${line}"`);
       }
+    }
+
+    if (line.startsWith(".") && !ALLOWED_DOT.test(line) && !FORBIDDEN_DIRECTIVES.some((re) => re.test(line))) {
+      errors.push(`disallowed_directive: Line ${i + 1} is not in the allowed netlist grammar`);
+    }
+
+    if (line.startsWith("+")) {
+      cleanLines.push(rawLine);
+      continue;
+    }
+
+    if (!line.startsWith(".") && !line.startsWith("*") && !COMPONENT_LINE.test(line)) {
+      errors.push(`disallowed_directive: Line ${i + 1} is not a supported element`);
     }
 
     // Detect components (lines starting with R, C, L, V, I, D, Q, M, X, S, K, E, F, G, H)

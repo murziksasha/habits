@@ -191,7 +191,7 @@ export function PracticeSession({
                   <span className={ok ? "font-black text-green-600" : "font-black text-orange-500"}>
                     {ok ? "✓" : "↺"}
                   </span>
-                  {!ok && (
+                  {(!ok || it.exercise.type === "circuit_lab" || it.exercise.type === "numeric") && (
                     <Link
                       href={`/courses/${it.courseSlug}/lessons/${it.lessonId}`}
                       className="text-sm font-bold text-sky hover:underline"

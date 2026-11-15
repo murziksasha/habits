@@ -81,34 +81,53 @@ export function downsampleSeries(
   const count = series[0]!.values.length;
   if (count <= maxPoints) return series;
 
+  const indexes = new Set<number>([0, count - 1]);
   const step = Math.ceil(count / maxPoints);
-  return series.map((s) => {
-    const downsampled: (number | { real: number; imag: number })[] = [];
-    for (let i = 0; i < count; i += step) {
-      downsampled.push(s.values[i]!);
-    }
-    // Always include the final point for accuracy
-    if ((count - 1) % step !== 0 && count > 0) {
-      downsampled.push(s.values[count - 1]!);
-    }
-    return {
-      ...s,
-      values: downsampled as any,
-    };
-  });
+  for (let i = 0; i < count; i += step) indexes.add(i);
+  const probe = series[0]!.values.map((v) => (typeof v === "number" ? v : Math.hypot(v.real, v.imag)));
+  for (let i = 1; i < count - 1; i++) {
+    const v = probe[i] ?? 0;
+    const prev = probe[i - 1] ?? 0;
+    const next = probe[i + 1] ?? 0;
+    if ((v >= prev && v >= next) || (v <= prev && v <= next)) indexes.add(i);
+  }
+  let ordered = [...indexes].sort((a, b) => a - b);
+  if (ordered.length > maxPoints) {
+    const thin = Math.ceil(ordered.length / maxPoints);
+    ordered = ordered.filter((_, i) => i % thin === 0 || i === ordered.length - 1);
+  }
+  return series.map((s) => ({
+    ...s,
+    values: ordered.map((i) => s.values[i]!) as typeof s.values,
+  }));
 }
 
 /**
  * Executes a sanitized SPICE netlist with timeout and safety boundaries.
  */
-export async function executeSpiceNetlist(
+export async function executeSpiceInProcess(
   netlist: string,
   options?: RunSimOptions,
 ): Promise<RunSimOutput> {
   const timeoutMs = options?.timeoutMs ?? SIMULATION_TIMEOUT_MS;
-  const maxPoints = options?.maxPoints ?? MAX_RETURN_POINTS;
 
   // 1. Sanitize and validate netlist
+  const tran = netlist.match(/\.tran\s+([0-9eE.+-]+)\s+([0-9eE.+-]+)/);
+  if (tran) {
+    const step = Number(tran[1]);
+    const stop = Number(tran[2]);
+    if (Number.isFinite(step) && step > 0 && Number.isFinite(stop) && Math.floor(stop / step) + 1 > MAX_SIM_POINTS) {
+      return {
+        ok: false,
+        dataType: "real",
+        variableNames: [],
+        numPoints: 0,
+        data: [],
+        error: `max_points_exceeded: Requested transient points exceed ${MAX_SIM_POINTS}`,
+      };
+    }
+  }
+
   const sanitizeRes = sanitizeNetlist(netlist);
   if (!sanitizeRes.valid) {
     return {
@@ -195,15 +214,12 @@ export async function executeSpiceNetlist(
       };
     }
 
-    // 5. Downsample for output
-    const downsampled = downsampleSeries(mappedSeries, maxPoints);
-
     return {
       ok: true,
       dataType: result.dataType,
       variableNames: result.variableNames,
-      numPoints: downsampled[0]?.values.length ?? 0,
-      data: downsampled,
+      numPoints,
+      data: mappedSeries,
       info,
     };
   } catch (err: any) {
@@ -220,4 +236,18 @@ export async function executeSpiceNetlist(
       info: sim.getInfo(),
     };
   }
+}
+
+/**
+ * Production runs SPICE in a child process so a timeout can kill it.
+ * Unit tests stay in-process unless CIRCUIT_ENGINE_PROCESS=1.
+ */
+export async function executeSpiceNetlist(
+  netlist: string,
+  options?: RunSimOptions,
+): Promise<RunSimOutput> {
+  const isolate = process.env.CIRCUIT_ENGINE_PROCESS === "1" || process.env.NODE_ENV === "production";
+  if (!isolate) return executeSpiceInProcess(netlist, options);
+  const { runSpiceChild } = await import("./process-pool.js");
+  return runSpiceChild(netlist, options?.timeoutMs ?? SIMULATION_TIMEOUT_MS);
 }
