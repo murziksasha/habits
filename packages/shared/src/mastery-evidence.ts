@@ -85,6 +85,70 @@ export function evaluateMasteryEvidence(input: EvaluateEvidenceInput): MasteryEv
   return "self_verified";
 }
 
+/**
+ * Lesson submit evidence. Acknowledged theory cards do not prove a skill.
+ * Hints, a revealed solution, and earlier wrong tries cap the result at assisted.
+ */
+export function evidenceForLessonSubmit(input: {
+  exercises: { id: string; type: string; check?: unknown }[];
+  results: { exerciseId: string; type: string; correct: boolean; partial?: number }[];
+  answers: {
+    exerciseId: string;
+    hintsUsed?: number;
+    solutionRevealed?: boolean;
+    wrongAttempts?: number;
+  }[];
+  passed: boolean;
+  passThreshold: number;
+  isExam: boolean;
+  isFirstAttempt: boolean;
+  daysSinceFirstVerification?: number;
+  priorEvidenceLevel?: MasteryEvidenceLevel;
+  usedHint?: boolean;
+}): MasteryEvidenceLevel {
+  const skill = input.exercises.filter((exercise) => {
+    const type = exercise.type.toLowerCase();
+    if (NON_EVALUATIVE_EXERCISE_KINDS.has(type)) return false;
+    if (type === "concept" && exercise.check == null) return false;
+    return true;
+  });
+  const prior = input.priorEvidenceLevel ?? "insufficient_data";
+  if (skill.length === 0) return prior;
+
+  const byId = new Map(input.results.map((row) => [row.exerciseId, row]));
+  let score = 0;
+  for (const exercise of skill) {
+    const row = byId.get(exercise.id);
+    if (!row) continue;
+    if (typeof row.partial === "number") score += Math.min(1, Math.max(0, row.partial));
+    else if (row.correct) score += 1;
+  }
+  const accuracy = score / skill.length;
+  const skillIds = new Set(skill.map((exercise) => exercise.id));
+  const answers = input.answers.filter((answer) => skillIds.has(answer.exerciseId));
+  const hintsUsed =
+    answers.reduce((sum, answer) => sum + Math.max(0, Math.floor(answer.hintsUsed ?? 0)), 0) +
+    (input.usedHint ? 1 : 0);
+  const solutionRevealed = answers.some((answer) => Boolean(answer.solutionRevealed));
+  const wrongAttempts = answers.reduce(
+    (sum, answer) => sum + Math.max(0, Math.floor(answer.wrongAttempts ?? 0)),
+    0,
+  );
+  const skillPassed = accuracy + 1e-9 >= input.passThreshold;
+
+  return evaluateMasteryEvidence({
+    exerciseKind: input.isExam ? "unit_exam" : "practice",
+    isFirstAttempt: input.isFirstAttempt,
+    firstCheckPassed: skillPassed && wrongAttempts === 0,
+    hintsUsed,
+    solutionRevealed,
+    verificationMethod: input.isExam ? "unit_exam" : "lesson",
+    daysSinceFirstVerification: input.daysSinceFirstVerification ?? 0,
+    priorEvidenceLevel: prior,
+    correct: input.passed && skillPassed,
+  });
+}
+
 /** Rank mastery evidence levels numerically for comparison. */
 export function masteryEvidenceRank(level: MasteryEvidenceLevel): number {
   switch (level) {

@@ -28,6 +28,8 @@ type LessonAnswer = {
   answer: unknown;
   wrongAttempts?: number;
   confidence?: ConfidenceLevel | null;
+  hintsUsed?: number;
+  solutionRevealed?: boolean;
 };
 import { HeartsBar } from "@/components/hearts";
 import { Celebration } from "@/components/celebration";
@@ -86,6 +88,8 @@ export function LessonClient() {
     };
   }, []);
   const wrongAttemptsRef = useRef(0);
+  const hintsRef = useRef(0);
+  const solutionRef = useRef(false);
   const [feedback, setFeedback] = useState<"ok" | "bad" | null>(null);
   const [feedbackExplain, setFeedbackExplain] = useState("");
   const [showCoach, setShowCoach] = useState(false);
@@ -357,10 +361,14 @@ export function LessonClient() {
         exerciseId: ex.id,
         answer,
         wrongAttempts: wrongAttemptsRef.current,
+        hintsUsed: hintsRef.current,
+        solutionRevealed: solutionRef.current,
         confidence,
       },
     ];
     wrongAttemptsRef.current = 0;
+    hintsRef.current = 0;
+    solutionRef.current = false;
     setConfidence(null);
     setAnswers(nextAnswers);
     if (typeof window !== "undefined") {
@@ -1182,6 +1190,12 @@ export function LessonClient() {
             examMode={Boolean(lesson.isExam)}
             onWrongAttempt={() => {
               wrongAttemptsRef.current += 1;
+            }}
+            onHintUsed={() => {
+              hintsRef.current += 1;
+            }}
+            onSolutionRevealed={() => {
+              solutionRef.current = true;
             }}
             lessonId={lessonId}
           />

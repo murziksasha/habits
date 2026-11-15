@@ -512,6 +512,16 @@ export type GradeNumericResult = {
   fieldResults?: Record<string, { correct: boolean; error?: string; actual?: unknown; expected?: unknown }>;
 };
 
+/**
+ * Float slack that scales with the values being compared.
+ * A fixed 1e-12 is larger than an elementary charge (~1e-19 C), so it used to
+ * accept a wrong sign. A few units in the last place still cover binary noise.
+ */
+export function toleranceSlack(actual: number, expected: number): number {
+  const scale = Math.max(Math.abs(actual), Math.abs(expected));
+  return scale * Number.EPSILON * 32;
+}
+
 export function isWithinTolerance(
   actual: number,
   expected: number,
@@ -523,7 +533,7 @@ export function isWithinTolerance(
   if (actual === expected) return true;
   const diff = Math.abs(actual - expected);
   const maxAllowed = Math.max(absTol, relTol * Math.abs(expected));
-  return diff <= maxAllowed + 1e-12;
+  return diff <= maxAllowed + toleranceSlack(actual, expected);
 }
 
 function toleranceError(absTol: number, relTol: number): string | null {
@@ -577,7 +587,7 @@ export function gradeSingleNumeric(
       const expImag = parsed.dimension || !targetSpec.unit ? expected.imag : (targetSpec.target as { imag: number }).imag;
       const errMag = Math.hypot(compareReal - expReal, compareImag - expImag);
       const limit = Math.max(absTol, relTol * Math.hypot(expReal, expImag));
-      const correct = errMag <= limit + 1e-12;
+      const correct = errMag <= limit + toleranceSlack(errMag, Math.hypot(expReal, expImag));
       return {
         correct,
         actual: { real: compareReal, imag: compareImag },

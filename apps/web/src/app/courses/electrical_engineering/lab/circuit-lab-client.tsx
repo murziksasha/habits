@@ -194,6 +194,7 @@ export function CircuitLabClient() {
   const [statusMsg, setStatusMsg] = useState<{ text: string; error?: boolean } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [conflict, setConflict] = useState(false);
+  const [docEpoch, setDocEpoch] = useState(0);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const savingRef = useRef(false);
 
@@ -222,6 +223,7 @@ export function CircuitLabClient() {
     setActiveProjectId(draft.projectId);
     setActiveRevision(draft.revision || 1);
     if (draft.document.analysis) setCurrentAnalysis(draft.document.analysis);
+    setDocEpoch((epoch) => epoch + 1);
     setStatusMsg({ text: t.circuitLab.draftRestored });
   }, [t.circuitLab.draftRestored]);
 
@@ -230,8 +232,9 @@ export function CircuitLabClient() {
     if (!tpl) return;
     setSelectedTemplate(key);
     setActiveProjectId(null);
-    setCurrentDoc(tpl.doc);
+    setCurrentDoc({ ...tpl.doc, analysis: tpl.analysis });
     setCurrentAnalysis(tpl.analysis);
+    setDocEpoch((epoch) => epoch + 1);
     setStatusMsg({
       text: locale === "en" ? `Loaded template: ${tpl.titleEn}` : `Завантажено шаблон: ${tpl.titleUk}`,
     });
@@ -243,6 +246,7 @@ export function CircuitLabClient() {
     setActiveRevision(project.revision);
     setCurrentDoc(project.document);
     if (project.document.analysis) setCurrentAnalysis(project.document.analysis);
+    setDocEpoch((epoch) => epoch + 1);
     rememberDraft(project.document, project.id, project.revision);
     setStatusMsg({
       text: locale === "en" ? `Loaded project: ${project.title}` : `Завантажено проєкт: ${project.title}`,
@@ -266,7 +270,7 @@ export function CircuitLabClient() {
     ...currentDoc,
     version: 2,
     junctions: currentDoc.junctions ?? [],
-    analysis: currentAnalysis,
+    analysis: currentDoc.analysis ?? currentAnalysis,
   });
 
   const saveProject = async () => {
@@ -339,7 +343,7 @@ export function CircuitLabClient() {
 
   useEffect(() => {
     rememberDraft(payloadDocument(), activeProjectId, activeRevision);
-    if (!user || !activeProjectId) return;
+    if (!user || !activeProjectId || conflict) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
       void saveProject();
@@ -349,7 +353,43 @@ export function CircuitLabClient() {
     };
     // Autosave follows the document. saveProject closes over the latest state.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentDoc, currentAnalysis, user, activeProjectId]);
+  }, [currentDoc, currentAnalysis, user, activeProjectId, conflict]);
+
+  const saveCopy = async () => {
+    const document = payloadDocument();
+    rememberDraft(document, null, 1);
+    if (!user) {
+      setStatusMsg({
+        text: locale === "en" ? "Log in to save circuit projects" : "Увійдіть в акаунт, щоб зберігати схеми",
+        error: true,
+      });
+      return;
+    }
+    if (savingRef.current) return;
+    savingRef.current = true;
+    setIsSaving(true);
+    try {
+      const res = await api<{ project: StoredProject }>("/circuits/projects", {
+        method: "POST",
+        body: {
+          title: `${document.title || "Untitled Circuit"} (copy)`,
+          document,
+        },
+      });
+      setActiveProjectId(res.project.id);
+      setActiveRevision(res.project.revision);
+      setConflict(false);
+      rememberDraft(document, res.project.id, res.project.revision);
+      setStatusMsg({ text: t.circuitLab.copySaved });
+      void fetchProjects();
+    } catch (err: unknown) {
+      const code = (err as { data?: { error?: string } })?.data?.error ?? "request_failed";
+      setStatusMsg({ text: code, error: true });
+    } finally {
+      savingRef.current = false;
+      setIsSaving(false);
+    }
+  };
 
   const loadServerVersion = async () => {
     if (!activeProjectId) return;
@@ -490,7 +530,7 @@ export function CircuitLabClient() {
           <button type="button" className="btn-primary !py-1.5 text-xs" onClick={() => void loadServerVersion()}>
             {t.circuitLab.loadServer}
           </button>
-          <button type="button" className="btn-secondary !py-1.5 text-xs" onClick={() => setConflict(false)}>
+          <button type="button" className="btn-secondary !py-1.5 text-xs" disabled={isSaving} onClick={() => void saveCopy()}>
             {t.circuitLab.keepLocal}
           </button>
           <button type="button" className="btn-secondary !py-1.5 text-xs" onClick={() => downloadJson(payloadDocument())}>
@@ -501,10 +541,13 @@ export function CircuitLabClient() {
 
       {/* Full-featured Circuit Editor Island */}
       <CircuitEditor
-        key={`${activeProjectId ?? selectedTemplate}-${currentDoc.version}`}
+        key={docEpoch}
         initialDoc={currentDoc}
-        onChange={setCurrentDoc}
-        initialAnalysis={currentAnalysis}
+        onChange={(next) => {
+          setCurrentDoc(next);
+          if (next.analysis) setCurrentAnalysis(next.analysis);
+        }}
+        initialAnalysis={currentDoc.analysis ?? currentAnalysis}
       />
     </div>
   );

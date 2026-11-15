@@ -8,6 +8,8 @@ const state = vi.hoisted(() => ({
   cp: null as Record<string, unknown> | null,
   character: null as Record<string, unknown> | null,
   nextLesson: null as Record<string, unknown> | null,
+  unitLessons: [] as Record<string, unknown>[],
+  unitProgress: [] as Record<string, unknown>[],
   characterUpdatePayloads: [] as Record<string, unknown>[],
   skillAttemptInserts: [] as Record<string, unknown>[],
   activityLogs: [] as { kind: string; payload: Record<string, unknown> }[],
@@ -30,12 +32,14 @@ vi.mock("../db.js", () => {
             }
             return state.lesson;
           }),
+          findMany: vi.fn(async () => state.unitLessons),
         },
         courses: {
           findFirst: vi.fn(async () => state.course),
         },
         userLessonProgress: {
           findFirst: vi.fn(async () => state.prevLp),
+          findMany: vi.fn(async () => state.unitProgress),
         },
         userCourseProgress: {
           findFirst: vi.fn(async () => state.cp),
@@ -152,6 +156,8 @@ const englishCourse = {
   slug: "english",
   titleUk: "Англійська",
   titleEn: "English",
+  status: "published",
+  isVisible: true,
 };
 
 describe("submitLesson progression, daily cap, and reward failures", () => {
@@ -192,6 +198,8 @@ describe("submitLesson progression, daily cap, and reward failures", () => {
       },
     };
     state.nextLesson = null;
+    state.unitLessons = [];
+    state.unitProgress = [];
     state.characterUpdatePayloads = [];
     state.skillAttemptInserts = [];
     state.activityLogs = [];
@@ -438,5 +446,66 @@ describe("submitLesson progression, daily cap, and reward failures", () => {
       // If local judge ran, accuracy must NOT be 1 from client's spoofed ok: true!
       expect(res.body.accuracy).toBe(0);
     }
+  });
+
+  it("records assisted evidence when the answer used a hint", async () => {
+    const res = await submitLesson({
+      user,
+      lessonId: "lesson-1",
+      answers: [{ exerciseId: "e1", answer: 0, hintsUsed: 1 }],
+    });
+    expect(res.ok).toBe(true);
+    if (!res.ok) return;
+    expect(res.body.evidenceLevel).toBe("assisted");
+  });
+
+  it("does not mark a theory-only lesson as self-verified", async () => {
+    state.lesson!.exercises = [{ id: "c1", type: "concept", promptUk: "Theory" }];
+    const res = await submitLesson({
+      user,
+      lessonId: "lesson-1",
+      answers: [{ exerciseId: "c1", answer: { acknowledged: true } }],
+    });
+    expect(res.ok).toBe(true);
+    if (!res.ok) return;
+    expect(res.body.passed).toBe(true);
+    expect(res.body.evidenceLevel).toBe("insufficient_data");
+  });
+
+  it("hides an unpublished course and a lesson from another slug", async () => {
+    state.course!.status = "draft";
+    const hidden = await submitLesson({ user, lessonId: "lesson-1", answers: [{ exerciseId: "e1", answer: 0 }] });
+    expect(hidden.ok).toBe(false);
+    if (hidden.ok) return;
+    expect(hidden.status).toBe(404);
+    expect(hidden.error).toBe("not_found");
+
+    state.course!.status = "published";
+    const mismatch = await submitLesson({
+      user,
+      lessonId: "lesson-1",
+      courseSlug: "electrical_engineering",
+      answers: [{ exerciseId: "e1", answer: 0 }],
+    });
+    expect(mismatch.ok).toBe(false);
+    if (mismatch.ok) return;
+    expect(mismatch.error).toBe("not_found");
+  });
+
+  it("rejects an exam until the current unit lessons are complete", async () => {
+    state.lesson!.isExam = true;
+    state.unitLessons = [
+      { id: "taught", isExam: false, contentVersion: 2 },
+    ];
+    state.unitProgress = [{ lessonId: "taught", status: "completed", completedContentVersion: 1 }];
+    const res = await submitLesson({
+      user,
+      lessonId: "lesson-1",
+      answers: [{ exerciseId: "e1", answer: 0 }],
+    });
+    expect(res.ok).toBe(false);
+    if (res.ok) return;
+    expect(res.status).toBe(403);
+    expect(res.error).toBe("exam_locked");
   });
 });

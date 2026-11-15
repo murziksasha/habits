@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { eq, ilike, or } from "drizzle-orm";
+import { and, eq, ilike, or } from "drizzle-orm";
 import { characters, courses, users } from "@eduforge/db";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
@@ -25,11 +25,15 @@ searchRoutes.get("/", authMiddleware, async (c) => {
     })
     .from(courses)
     .where(
-      or(
-        ilike(courses.titleUk, pattern),
-        ilike(courses.titleEn, pattern),
-        ilike(courses.descriptionUk, pattern),
-        ilike(courses.descriptionEn, pattern),
+      and(
+        eq(courses.status, "published"),
+        eq(courses.isVisible, true),
+        or(
+          ilike(courses.titleUk, pattern),
+          ilike(courses.titleEn, pattern),
+          ilike(courses.descriptionUk, pattern),
+          ilike(courses.descriptionEn, pattern),
+        ),
       ),
     )
     .limit(10);

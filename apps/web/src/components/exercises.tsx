@@ -39,6 +39,7 @@ import {
   getApplyableAnswer,
 } from "@/lib/exercise-solution";
 import { hasOpenDialog, isTypingTarget, optionIndexFromKey } from "@/lib/answer-keys";
+import { stableOptionOrder } from "@/lib/option-order";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { FormattedFormulaText, KaTeXMath } from "@/components/circuit/katex-math";
@@ -56,6 +57,10 @@ export type Exercise = {
 const ExamModeCtx = createContext(false);
 /** Reports wrong soft attempts to the session (SPEC 92: first-try / mistake notebook). */
 const WrongAttemptCtx = createContext<(() => void) | null>(null);
+const AssistanceCtx = createContext<{
+  onHintUsed?: () => void;
+  onSolutionRevealed?: () => void;
+}>({});
 /** Lesson id for server-side helpers (explain tutor feedback). */
 const LessonIdCtx = createContext<string | null>(null);
 
@@ -69,6 +74,8 @@ export function ExercisePlayer({
   onAnswer,
   examMode = false,
   onWrongAttempt,
+  onHintUsed,
+  onSolutionRevealed,
   lessonId,
 }: {
   exercise: Exercise;
@@ -77,6 +84,10 @@ export function ExercisePlayer({
   examMode?: boolean;
   /** Called on each wrong soft attempt (client check) */
   onWrongAttempt?: () => void;
+  /** Called when the learner opens or deepens a hint. */
+  onHintUsed?: () => void;
+  /** Called when the learner opens the worked solution. */
+  onSolutionRevealed?: () => void;
   /** Lesson id (enables tutor feedback on explain exercises) */
   lessonId?: string;
 }) {
@@ -141,7 +152,9 @@ export function ExercisePlayer({
   return (
     <ExamModeCtx.Provider value={examMode}>
       <WrongAttemptCtx.Provider value={onWrongAttempt ?? null}>
-        <LessonIdCtx.Provider value={lessonId ?? null}>{body}</LessonIdCtx.Provider>
+        <AssistanceCtx.Provider value={{ onHintUsed, onSolutionRevealed }}>
+          <LessonIdCtx.Provider value={lessonId ?? null}>{body}</LessonIdCtx.Provider>
+        </AssistanceCtx.Provider>
       </WrongAttemptCtx.Provider>
     </ExamModeCtx.Provider>
   );
@@ -163,6 +176,7 @@ function CodeBlock({ code }: { code: string; language?: string }) {
 function useExerciseHint(exercise: Exercise) {
   const { locale, t } = useLocale();
   const { character } = useAuth();
+  const assistance = useContext(AssistanceCtx);
   const mentorRank = Math.min(
     3,
     Math.max(0, Number(character?.progression?.talents?.mentor) || 0),
@@ -173,6 +187,13 @@ function useExerciseHint(exercise: Exercise) {
   const autoOpenLevel = Math.min(maxLevel, 1 + Math.floor(mentorRank / 2));
 
   const [level, setLevel] = useState(0); // 0 = closed
+  function changeLevel(next: number | ((current: number) => number)) {
+    setLevel((current) => {
+      const resolved = typeof next === "function" ? next(current) : next;
+      if (resolved > current && resolved > 0) assistance.onHintUsed?.();
+      return resolved;
+    });
+  }
   const base =
     locale === "en"
       ? String(exercise.hintEn || exercise.explanationEn || exercise.hintUk || exercise.explanationUk || "")
@@ -209,7 +230,7 @@ function useExerciseHint(exercise: Exercise) {
 
   function setOpen(v: boolean | ((b: boolean) => boolean)) {
     const next = typeof v === "function" ? v(level > 0) : v;
-    setLevel(next ? Math.max(autoOpenLevel, level || autoOpenLevel) : 0);
+    changeLevel(next ? Math.max(autoOpenLevel, level || autoOpenLevel) : 0);
   }
 
   return {
@@ -225,7 +246,7 @@ function useExerciseHint(exercise: Exercise) {
           <button
             type="button"
             className="text-xs font-bold text-grape hover:underline"
-            onClick={() => setLevel((l) => (l > 0 ? 0 : autoOpenLevel))}
+            onClick={() => changeLevel((l) => (l > 0 ? 0 : autoOpenLevel))}
           >
             💡 {level > 0 ? t.lesson.hideHint : t.lesson.showHint}
             {level === 1
@@ -243,7 +264,7 @@ function useExerciseHint(exercise: Exercise) {
             <button
               type="button"
               className="text-xs font-bold text-sky hover:underline"
-              onClick={() => setLevel((l) => Math.min(maxLevel, l + 1))}
+              onClick={() => changeLevel((l) => Math.min(maxLevel, l + 1))}
             >
               {locale === "en" ? "Deeper hint" : "Глибша підказка"} →
             </button>
@@ -380,6 +401,7 @@ function DrillFooter({
   onApplySolution?: (answer: unknown) => void;
 }) {
   const { t, locale } = useLocale();
+  const assistance = useContext(AssistanceCtx);
   const [showSol, setShowSol] = useState(false);
   const solution =
     exercise && soft.canSkip
@@ -419,7 +441,12 @@ function DrillFooter({
           <button
             type="button"
             className="btn-secondary"
-            onClick={() => setShowSol((v) => !v)}
+            onClick={() =>
+              setShowSol((open) => {
+                if (!open) assistance.onSolutionRevealed?.();
+                return !open;
+              })
+            }
           >
             {showSol ? t.lesson.hideSolution : t.lesson.showSolution}
           </button>
@@ -484,13 +511,14 @@ function McqExercise({
   const { locale } = useLocale();
   const prompt = usePrompt(exercise);
   const options = localizeExerciseOptions(locale, exercise as { options?: string[]; optionsEn?: string[] });
+  const order = useMemo(
+    () => stableOptionOrder(String(exercise.id), options.length),
+    [exercise.id, options.length],
+  );
   const [selected, setSelected] = useState<number | null>(null);
   const hint = useExerciseHint(exercise);
   const soft = useSoftAttempts(hint.setOpen);
-  const speakSrc =
-    typeof exercise.source === "string"
-      ? String(exercise.source)
-      : options[0] ?? prompt;
+  const speakSrc = typeof exercise.source === "string" ? String(exercise.source) : prompt;
   const code = typeof exercise.code === "string" ? String(exercise.code) : "";
   const correctIndex =
     typeof exercise.correctIndex === "number" ? exercise.correctIndex : null;
@@ -517,28 +545,34 @@ function McqExercise({
       const optIdx = optionIndexFromKey(e);
       if (optIdx !== null) {
         e.preventDefault();
-        if (optIdx < options.length) {
-          setSelected(optIdx);
+        const original = order[optIdx];
+        if (original !== undefined) {
+          setSelected(original);
           soft.resetSoft();
         }
         return;
       }
 
-      const n = options.length;
+      const n = order.length;
       if (!n) return;
 
       const target = e.target as HTMLElement | null;
       const isButtonOrLink = Boolean(target?.closest?.("button, a"));
       if (isButtonOrLink) return;
 
+      const currentDisplay = selected === null ? -1 : order.indexOf(selected);
       if (e.key === "ArrowDown" || e.key === "ArrowRight") {
         e.preventDefault();
-        setSelected((s) => (s === null ? 0 : Math.min(n - 1, s + 1)));
+        const next = currentDisplay < 0 ? 0 : Math.min(n - 1, currentDisplay + 1);
+        const original = order[next];
+        if (original !== undefined) setSelected(original);
         return;
       }
       if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
         e.preventDefault();
-        setSelected((s) => (s === null ? 0 : Math.max(0, s - 1)));
+        const next = currentDisplay < 0 ? 0 : Math.max(0, currentDisplay - 1);
+        const original = order[next];
+        if (original !== undefined) setSelected(original);
         return;
       }
       if (e.key === "Enter" && selected !== null) {
@@ -549,7 +583,7 @@ function McqExercise({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [options.length, selected, correctIndex, soft, onAnswer]);
+  }, [order, selected, correctIndex, soft, onAnswer]);
 
   const keysHint =
     locale === "en"
@@ -573,25 +607,25 @@ function McqExercise({
         role="radiogroup"
         aria-labelledby={`ex-prompt-${exercise.id}`}
       >
-        {options.map((opt, i) => (
+        {order.map((original, displayIndex) => (
           <button
-            key={i}
+            key={original}
             type="button"
             role="radio"
-            aria-checked={selected === i}
+            aria-checked={selected === original}
             className={clsx(
               "rounded-2xl border-2 px-4 py-3 text-left font-bold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
-              selected === i ? "border-sky bg-sky/10" : "border-slate-200 hover:bg-slate-50",
+              selected === original ? "border-sky bg-sky/10" : "border-slate-200 hover:bg-slate-50",
             )}
             onClick={() => {
-              setSelected(i);
+              setSelected(original);
               soft.resetSoft();
             }}
           >
-            {i < 9 && (
-              <span className="mr-2 text-xs text-ink-muted">{i + 1}.</span>
+            {displayIndex < 9 && (
+              <span className="mr-2 text-xs text-ink-muted">{displayIndex + 1}.</span>
             )}
-            {opt}
+            {options[original]}
           </button>
         ))}
       </div>
@@ -1591,6 +1625,10 @@ function ComprehensionExercise({
   onAnswer: (a: unknown) => void;
 }) {
   const questions = (exercise.questions as { q: string; options: string[] }[]) ?? [];
+  const optionOrders = useMemo(
+    () => questions.map((q, qi) => stableOptionOrder(`${String(exercise.id)}:${qi}`, q.options.length)),
+    [exercise.id, questions],
+  );
   const [answers, setAnswers] = useState<(number | null)[]>(questions.map(() => null));
   const [showQs, setShowQs] = useState(false);
 
@@ -1607,19 +1645,19 @@ function ComprehensionExercise({
           {questions.map((q, qi) => (
             <div key={qi} className="space-y-2">
               <p className="font-bold">{q.q}</p>
-              {q.options.map((opt, oi) => (
+              {(optionOrders[qi] ?? []).map((original) => (
                 <button
-                  key={oi}
+                  key={original}
                   type="button"
                   className={clsx(
                     "block w-full rounded-xl border-2 px-3 py-2 text-left font-semibold",
-                    answers[qi] === oi ? "border-sky bg-sky/10" : "border-slate-200",
+                    answers[qi] === original ? "border-sky bg-sky/10" : "border-slate-200",
                   )}
                   onClick={() =>
-                    setAnswers((a) => a.map((v, i) => (i === qi ? oi : v)))
+                    setAnswers((a) => a.map((v, i) => (i === qi ? original : v)))
                   }
                 >
-                  {opt}
+                  {q.options[original]}
                 </button>
               ))}
             </div>
@@ -1726,6 +1764,10 @@ function ChessLessonExercise({
   onAnswer: (a: unknown) => void;
 }) {
   const quiz = exercise.quiz as { q: string; options: string[]; correctIndex: number } | undefined;
+  const order = useMemo(
+    () => stableOptionOrder(`${String(exercise.id)}:quiz`, quiz?.options.length ?? 0),
+    [exercise.id, quiz?.options.length],
+  );
   const [selected, setSelected] = useState<number | null>(null);
   const fen = String(exercise.fen);
   const viewer = useMemo(() => {
@@ -1754,17 +1796,17 @@ function ChessLessonExercise({
         <>
           <p className="font-bold">{quiz.q}</p>
           <div className="grid gap-2">
-            {quiz.options.map((opt, i) => (
+            {order.map((original) => (
               <button
-                key={i}
+                key={original}
                 type="button"
                 className={clsx(
                   "rounded-2xl border-2 px-4 py-3 text-left font-bold",
-                  selected === i ? "border-sky bg-sky/10" : "border-slate-200",
+                  selected === original ? "border-sky bg-sky/10" : "border-slate-200",
                 )}
-                onClick={() => setSelected(i)}
+                onClick={() => setSelected(original)}
               >
-                {opt}
+                {quiz.options[original]}
               </button>
             ))}
           </div>
@@ -1807,6 +1849,10 @@ function ConceptExercise({
   const check = exercise.check as
     | { qUk: string; qEn?: string; options: string[]; correctIndex: number }
     | undefined;
+  const order = useMemo(
+    () => stableOptionOrder(`${String(exercise.id)}:check`, check?.options.length ?? 0),
+    [exercise.id, check?.options.length],
+  );
   const [selected, setSelected] = useState<number | null>(null);
   const paragraphs = body.split(/\n{2,}/).filter((p) => p.trim());
 
@@ -1843,17 +1889,17 @@ function ConceptExercise({
             {en ? check.qEn || check.qUk : check.qUk}
           </p>
           <div className="grid gap-2">
-            {check.options.map((opt, i) => (
+            {order.map((original) => (
               <button
-                key={i}
+                key={original}
                 type="button"
                 className={clsx(
                   "rounded-2xl border-2 px-4 py-3 text-left font-bold",
-                  selected === i ? "border-sky bg-sky/10" : "border-slate-200",
+                  selected === original ? "border-sky bg-sky/10" : "border-slate-200",
                 )}
-                onClick={() => setSelected(i)}
+                onClick={() => setSelected(original)}
               >
-                {opt}
+                {check.options[original]}
               </button>
             ))}
           </div>

@@ -73,6 +73,45 @@ describe("numeric engine & parser", () => {
     expect(isWithinTolerance(0.02, 0, 0.01, 0.02)).toBe(false);
   });
 
+  it("rejects a wrong sign and a zero at charge scale", () => {
+    const electrons = 3.204e-9;
+    const electronAbs = electrons * 0.01;
+    expect(isWithinTolerance(electrons, electrons, electronAbs, 0.02)).toBe(true);
+    expect(isWithinTolerance(0, electrons, electronAbs, 0.02)).toBe(false);
+    expect(isWithinTolerance(electrons * 1e3, electrons, electronAbs, 0.02)).toBe(false);
+
+    const ion = -3.204e-19;
+    const ionAbs = Math.abs(ion) * 0.01;
+    expect(isWithinTolerance(ion, ion, ionAbs, 0.02)).toBe(true);
+    expect(isWithinTolerance(Math.abs(ion), ion, ionAbs, 0.02)).toBe(false);
+    expect(isWithinTolerance(0, ion, ionAbs, 0.02)).toBe(false);
+
+    expect(
+      gradeSingleNumeric("0", {
+        target: electrons,
+        unit: "C",
+        absTolerance: electronAbs,
+        relTolerance: 0.02,
+      }).correct,
+    ).toBe(false);
+    expect(
+      gradeSingleNumeric("3.204e-19", {
+        target: ion,
+        unit: "C",
+        absTolerance: ionAbs,
+        relTolerance: 0.02,
+      }).correct,
+    ).toBe(false);
+    expect(
+      gradeSingleNumeric("-3.204e-19", {
+        target: ion,
+        unit: "C",
+        absTolerance: ionAbs,
+        relTolerance: 0.02,
+      }).correct,
+    ).toBe(true);
+  });
+
   it("grades single numeric values with unit conversions and dimensional checks", () => {
     // Expected 12 V
     const res1 = gradeSingleNumeric("12", { target: 12, unit: "V" });

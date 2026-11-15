@@ -34,7 +34,7 @@ function num(id: string, promptUk: string, promptEn: string, target: number, uni
     promptEn,
     target,
     unit,
-    absTolerance: Math.max(1e-6, Math.abs(target) * 0.01),
+    absTolerance: Math.abs(target) === 0 ? 1e-9 : Math.abs(target) * 0.01,
     relTolerance: 0.02,
     explanationUk: "Відповідь отримано прямим підставленням у щойно виведену залежність.",
     explanationEn: "The value comes from substituting the given data into the relation just derived.",

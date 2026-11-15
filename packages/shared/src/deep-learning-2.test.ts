@@ -150,4 +150,13 @@ describe("explain in your own words", () => {
     expect(g.correct).toBe(false);
     expect((g.meta?.missing as string[]).length).toBeGreaterThan(0);
   });
+
+  it("does not pass when one keyword is repeated to fill the word count", () => {
+    const stuffed = gradeExplanation("electron ".repeat(20), {
+      minWords: 20,
+      keyIdeas: [{ labelUk: "електрон", labelEn: "electron", anyOf: ["electron", "електрон"] }],
+    });
+    expect(stuffed.correct).toBe(false);
+    expect(stuffed.tooShort).toBe(true);
+  });
 });

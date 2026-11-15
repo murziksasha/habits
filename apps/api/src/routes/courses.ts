@@ -423,6 +423,7 @@ courseRoutes.post("/:slug/lessons/:lessonId/submit", optionalAuth, async (c) => 
     const result = await submitLesson({
       user,
       lessonId,
+      courseSlug: slug,
       answers,
       usedHint: Boolean(body?.usedHint),
     });

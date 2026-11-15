@@ -26,7 +26,7 @@ import {
   rollLevelUpLoot,
   typingXpAward,
   utcDateKey,
-  evaluateMasteryEvidence,
+  evidenceForLessonSubmit,
   resolveExamVariantId,
   isTransferCheckDue,
   type MasteryEvidenceLevel,
@@ -44,6 +44,7 @@ import { evaluateCircuitLab } from "@eduforge/circuit-engine";
 import { gradeCircuitServerEvaluation, selectExamVariantExercises } from "@eduforge/shared";
 import { CircuitQueueFull, withCircuitSlot } from "./circuit-queue.js";
 import { log } from "../logger.js";
+import { lessonCountsAsCurrentMastery } from "./certificate-rules.js";
 import { buildXpPatch } from "./character-progression.js";
 import { applyLootDrop } from "./loot-apply.js";
 import { runSubmitSideEffects } from "./submit-side-effects.js";
@@ -55,6 +56,10 @@ export type SubmitAnswer = {
   wrongAttempts?: number;
   /** 1 guess · 2 unsure · 3 sure (optional, SPEC 92) */
   confidence?: number | null;
+  /** Hint levels opened before this answer. */
+  hintsUsed?: number;
+  /** The learner opened the worked solution before this answer. */
+  solutionRevealed?: boolean;
 };
 
 export type GradedExerciseResult = {
@@ -413,14 +418,15 @@ export async function buildGuestSubmitResultAsync(opts: {
 export type SubmitLessonInput = {
   user: AuthedUser;
   lessonId: string;
+  courseSlug?: string;
   answers: SubmitAnswer[];
   usedHint?: boolean;
 };
 
 export type SubmitLessonError = {
   ok: false;
-  status: 404;
-  error: "not_found";
+  status: 404 | 403;
+  error: "not_found" | "exam_locked";
 };
 
 export type SubmitLessonSuccess = {
@@ -456,12 +462,36 @@ export type SubmitLessonResult =
 export async function submitLesson(
   input: SubmitLessonInput,
 ): Promise<SubmitLessonResult> {
-  const { user, lessonId, answers, usedHint } = input;
+  const { user, lessonId, courseSlug, answers, usedHint } = input;
 
   const lesson = await db.query.lessons.findFirst({ where: eq(lessons.id, lessonId) });
   if (!lesson) return { ok: false, status: 404, error: "not_found" };
   const course = await db.query.courses.findFirst({ where: eq(courses.id, lesson.courseId) });
   if (!course) return { ok: false, status: 404, error: "not_found" };
+  if (courseSlug && course.slug !== courseSlug) return { ok: false, status: 404, error: "not_found" };
+  if ((course.status !== "published" || !course.isVisible) && user.role !== "admin") {
+    return { ok: false, status: 404, error: "not_found" };
+  }
+
+  if (lesson.isExam) {
+    const unitLessons = await db.query.lessons.findMany({
+      where: eq(lessons.unitId, lesson.unitId),
+    });
+    const unitProgress = await db.query.userLessonProgress.findMany({
+      where: and(eq(userLessonProgress.userId, user.id), eq(userLessonProgress.courseId, course.id)),
+    });
+    const progressByLesson = new Map(unitProgress.map((row) => [row.lessonId, row]));
+    const unitReady = unitLessons
+      .filter((row) => !row.isExam)
+      .every((row) =>
+        lessonCountsAsCurrentMastery({
+          status: progressByLesson.get(row.id)?.status ?? "",
+          lessonContentVersion: row.contentVersion ?? 1,
+          completedContentVersion: progressByLesson.get(row.id)?.completedContentVersion ?? null,
+        }),
+      );
+    if (!unitReady) return { ok: false, status: 403, error: "exam_locked" };
+  }
 
   const storedExercises =
     (lesson.exercises as { id: string; type: string; examVariant?: string; [k: string]: unknown }[]) ?? [];
@@ -553,16 +583,17 @@ export async function submitLesson(
     ? Math.max(0, Math.floor((Date.now() - new Date(prevLp.lastSelfVerifiedAt).getTime()) / 86_400_000))
     : 0;
 
-  const evidenceLevel = evaluateMasteryEvidence({
-    exerciseKind: isExam ? "unit_exam" : "lesson",
+  const evidenceLevel = evidenceForLessonSubmit({
+    exercises,
+    results,
+    answers,
+    passed,
+    passThreshold: completeBar,
+    isExam,
     isFirstAttempt: !prevLp || prevLp.attempts === 0,
-    firstCheckPassed: accuracy >= 0.8,
-    hintsUsed: 0,
-    solutionRevealed: false,
-    verificationMethod: isExam ? "unit_exam" : "lesson",
     daysSinceFirstVerification: daysSinceFirst,
     priorEvidenceLevel: prevEvidence,
-    correct: passed,
+    usedHint,
   });
 
   const updatedLastSelfVerifiedAt =

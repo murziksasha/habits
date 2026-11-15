@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   evaluateMasteryEvidence,
+  evidenceForLessonSubmit,
   getEvidenceLevelLabels,
   masteryEvidenceRank,
   NON_EVALUATIVE_EXERCISE_KINDS,
@@ -83,6 +84,40 @@ describe("mastery-evidence", () => {
       verificationMethod: "transfer_check",
     });
     expect(retainedTransferCheck).toBe("retained_verified");
+  });
+
+  it("does not treat an acknowledged theory card as self-verified", () => {
+    const level = evidenceForLessonSubmit({
+      exercises: [{ id: "c1", type: "concept" }],
+      results: [{ exerciseId: "c1", type: "concept", correct: true }],
+      answers: [{ exerciseId: "c1" }],
+      passed: true,
+      passThreshold: 0.8,
+      isExam: false,
+      isFirstAttempt: true,
+    });
+    expect(level).toBe("insufficient_data");
+  });
+
+  it("caps a passed lesson at assisted when a hint, solution, or earlier miss was used", () => {
+    const base = {
+      exercises: [{ id: "q1", type: "mcq" }],
+      results: [{ exerciseId: "q1", type: "mcq", correct: true }],
+      passed: true,
+      passThreshold: 0.8,
+      isExam: false,
+      isFirstAttempt: true,
+    };
+    expect(
+      evidenceForLessonSubmit({ ...base, answers: [{ exerciseId: "q1", hintsUsed: 1 }] }),
+    ).toBe("assisted");
+    expect(
+      evidenceForLessonSubmit({ ...base, answers: [{ exerciseId: "q1", solutionRevealed: true }] }),
+    ).toBe("assisted");
+    expect(
+      evidenceForLessonSubmit({ ...base, answers: [{ exerciseId: "q1", wrongAttempts: 2 }] }),
+    ).toBe("assisted");
+    expect(evidenceForLessonSubmit({ ...base, answers: [{ exerciseId: "q1" }] })).toBe("self_verified");
   });
 
   it("ranks evidence levels in strict ascending order", () => {
