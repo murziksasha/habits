@@ -6,6 +6,7 @@ import { Fragment, useEffect, useState } from "react";
 import {
   COURSE_HUB_HREF,
   COURSE_META,
+  EE_MILESTONES,
   getCourseNextSteps,
   getCourseParts,
   getCoursePrerequisites,
@@ -25,11 +26,13 @@ import clsx from "clsx";
 
 type Lesson = {
   id: string;
+  slug?: string;
   titleUk: string;
   titleEn?: string;
   locked: boolean;
   status: string;
   bestScore: number;
+  masteryCurrent?: boolean;
   isExam?: boolean;
   examLocked?: boolean;
   passThreshold?: number | null;
@@ -37,7 +40,6 @@ type Lesson = {
   hasLocalLab?: boolean;
   localLabId?: string | null;
   historicalCompletion?: boolean;
-  masteryCurrent?: boolean;
 };
 
 type Unit = { id: string; slug: string; titleUk: string; titleEn?: string; lessons: Lesson[] };
@@ -49,6 +51,7 @@ export function CourseDetailClient() {
   const [section, setSection] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [openUnits, setOpenUnits] = useState<Record<string, boolean>>({});
+  const [showProgram, setShowProgram] = useState(false);
   const [data, setData] = useState<{
     course: {
       titleUk: string;
@@ -149,11 +152,23 @@ export function CourseDetailClient() {
         })
         .filter((u) => u.lessons.length > 0)
     : baseUnits;
+  const lessonDone = (lesson: Lesson) =>
+    lesson.masteryCurrent === true || (lesson.masteryCurrent == null && lesson.status === "completed");
+  const lessonOpen = (lesson: Lesson) => !lesson.locked && !lessonDone(lesson);
   const allLessons = baseUnits.flatMap((u) => u.lessons);
-  const continueLesson =
-    allLessons.find((l) => !l.locked && l.status !== "completed") ??
-    allLessons.find((l) => !l.locked) ??
-    null;
+  const continueLesson = allLessons.find(lessonOpen) ?? allLessons.find((l) => !l.locked) ?? null;
+  const currentUnit =
+    data.units.find((unit) => unit.lessons.some(lessonOpen)) ?? data.units[data.units.length - 1] ?? null;
+  const stageIndex = currentUnit ? data.units.findIndex((unit) => unit.id === currentUnit.id) : 0;
+  const milestones = EE_MILESTONES.map((milestone) => {
+    const lesson = data.units.flatMap((unit) => unit.lessons).find((item) => item.slug === milestone.lessonSlug);
+    return lesson ? { ...milestone, lesson, done: lessonDone(lesson) } : null;
+  }).filter((item): item is NonNullable<typeof item> => item !== null);
+  const nearestPractice = milestones.find((item) => !item.done) ?? null;
+  const programUnits =
+    slug === "electrical_engineering" && !q && !showProgram && currentUnit
+      ? visibleUnits.filter((unit) => unit.id === currentUnit.id)
+      : visibleUnits;
   const completedCount = allLessons.filter((l) => l.status === "completed").length;
   const totalCount = allLessons.length || 1;
   const parts = getCourseParts(slug);
@@ -212,7 +227,7 @@ export function CourseDetailClient() {
               </div>
             );
           })()}
-          {continueLesson ? (
+          {continueLesson && slug !== "electrical_engineering" ? (
             <Link
               href={`/courses/${slug}/lessons/${continueLesson.id}`}
               className="btn-primary mt-4 inline-flex min-h-11"
@@ -262,6 +277,30 @@ export function CourseDetailClient() {
         </div>
       </div>
 
+      {slug === "electrical_engineering" && currentUnit ? (
+        <section className="card space-y-3 border-brand/40" aria-label={t.coursePage.currentStage}>
+          <p className="text-xs font-black uppercase text-brand-dark">
+            {t.coursePage.currentStage} {stageIndex + 1} / {data.units.length}
+          </p>
+          <h2 className="text-2xl font-black">
+            {pickLocale(locale, currentUnit.titleUk, currentUnit.titleEn)}
+          </h2>
+          {nearestPractice ? (
+            <p className="text-sm font-bold text-ink-muted">
+              {t.coursePage.nearestPractice}: {pickLocale(locale, nearestPractice.outcomeUk, nearestPractice.outcomeEn)}
+            </p>
+          ) : null}
+          {continueLesson ? (
+            <Link
+              href={`/courses/${slug}/lessons/${continueLesson.id}`}
+              className="btn-primary inline-flex min-h-11"
+            >
+              {t.coursePage.continue}: {pickLocale(locale, continueLesson.titleUk, continueLesson.titleEn)} →
+            </Link>
+          ) : null}
+        </section>
+      ) : null}
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-xl font-black">{t.coursePage.outline}</h2>
@@ -283,11 +322,20 @@ export function CourseDetailClient() {
             />
             <span className="pointer-events-none absolute left-2.5 top-2 text-xs text-ink-muted">🔍</span>
           </div>
+          {slug === "electrical_engineering" && !q ? (
+            <button
+              type="button"
+              className="btn-secondary !px-2.5 !py-1.5 text-xs"
+              onClick={() => setShowProgram((open) => !open)}
+            >
+              {showProgram ? t.coursePage.hideProgram : t.coursePage.showProgram}
+            </button>
+          ) : null}
           <button
             type="button"
             className="btn-secondary !px-2.5 !py-1.5 text-xs"
             onClick={() =>
-              setOpenUnits(Object.fromEntries(visibleUnits.map((u) => [u.id, true])))
+              setOpenUnits(Object.fromEntries(programUnits.map((u) => [u.id, true])))
             }
           >
             {t.coursePage.expandAll}
@@ -296,7 +344,7 @@ export function CourseDetailClient() {
             type="button"
             className="btn-secondary !px-2.5 !py-1.5 text-xs"
             onClick={() =>
-              setOpenUnits(Object.fromEntries(visibleUnits.map((u) => [u.id, false])))
+              setOpenUnits(Object.fromEntries(programUnits.map((u) => [u.id, false])))
             }
           >
             {t.coursePage.collapseAll}
@@ -305,13 +353,13 @@ export function CourseDetailClient() {
       </div>
       {oracle ? <OracleSectionBar units={data.units} value={section} onChange={setSection} /> : null}
 
-      {visibleUnits.map((unit, ui) => {
+      {programUnits.map((unit, ui) => {
         const part = parts.find((part) => part.unitSlugs.includes(unit.slug));
-        const previousPart = parts.find((part) => part.unitSlugs.includes(visibleUnits[ui - 1]?.slug ?? ""));
+        const previousPart = parts.find((part) => part.unitSlugs.includes(programUnits[ui - 1]?.slug ?? ""));
         const showPartHeading = part && part.id !== previousPart?.id;
         const defaultOpenId =
-          visibleUnits.find((u) => u.lessons.some((l) => l.status !== "completed"))?.id ??
-          visibleUnits[0]?.id;
+          programUnits.find((u) => u.lessons.some(lessonOpen))?.id ??
+          programUnits[0]?.id;
         const open = q ? true : (openUnits[unit.id] ?? unit.id === defaultOpenId);
         const prereq = prerequisiteLabels(unit.slug, data.units, locale);
         const unitDone = unit.lessons.filter((l) => l.status === "completed").length;

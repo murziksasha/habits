@@ -165,7 +165,7 @@ export function LearnClient() {
           </div>
         ) : null}
 
-      {user ? <PrimaryMission showSecondary={false} /> : (
+      {user ? <PrimaryMission showSecondary={false} minutes={sessionDuration} /> : (
         <Link href="/courses" className="btn-primary inline-flex min-h-11">
           {t.coursePage.continue} →
         </Link>

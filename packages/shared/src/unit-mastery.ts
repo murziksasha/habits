@@ -15,6 +15,9 @@ export type MasteryLessonInput = {
     bestScore?: number | null;
     attempts?: number | null;
     completedAt?: Date | string | null;
+    /** Latest successful pass. Falls back to the first completion when absent. */
+    lastPracticedAt?: Date | string | null;
+    evidenceLevel?: string | null;
   } | null;
 };
 
@@ -37,6 +40,8 @@ export type MasteryLesson = {
   bestScorePct: number;
   retentionPct: number | null;
   dueInDays: number | null;
+  lastPracticedAt: string | null;
+  evidenceLevel: string | null;
 };
 
 export type MasteryUnit = {
@@ -68,6 +73,12 @@ export function lessonMasteryState(
   return "learning";
 }
 
+function practiceIso(value: Date | string | null | undefined): string | null {
+  if (!value) return null;
+  const date = typeof value === "string" ? new Date(value) : value;
+  return Number.isFinite(date.getTime()) ? date.toISOString() : null;
+}
+
 export function buildUnitMasteryMap(units: MasteryUnitInput[], now: Date = new Date()): MasteryUnit[] {
   return units.map((u) => {
     const lessons: MasteryLesson[] = u.lessons.map((l) => {
@@ -78,7 +89,7 @@ export function buildUnitMasteryMap(units: MasteryUnitInput[], now: Date = new D
               {
                 bestScore: p.bestScore ?? 0,
                 attempts: p.attempts ?? 0,
-                lastPracticedAt: p.completedAt,
+                lastPracticedAt: p.lastPracticedAt ?? p.completedAt,
               },
               now,
             )
@@ -93,6 +104,8 @@ export function buildUnitMasteryMap(units: MasteryUnitInput[], now: Date = new D
         bestScorePct: Math.round((p?.bestScore ?? 0) * 100),
         retentionPct: mem?.retentionPct ?? null,
         dueInDays: mem?.dueInDays ?? null,
+        lastPracticedAt: practiceIso(p?.lastPracticedAt ?? p?.completedAt),
+        evidenceLevel: p?.evidenceLevel ?? null,
       };
     });
     const done = lessons.filter((l) => l.retentionPct != null);

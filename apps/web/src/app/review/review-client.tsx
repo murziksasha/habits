@@ -32,6 +32,8 @@ type Item = {
   reasons?: ReviewReason[];
   primaryReasonUk?: string;
   primaryReasonEn?: string;
+  isExam?: boolean;
+  lessonTitleEn?: string;
 };
 
 type Calibration = {
@@ -50,6 +52,7 @@ const CONF_LABEL: Record<string, [string, string]> = {
 
 type ExamContext = {
   courseSlug?: string;
+  lessonId?: string;
   wrongTypes?: string[];
   accuracy?: number;
 };
@@ -67,10 +70,13 @@ function ReviewBody() {
   const [dataLoading, setDataLoading] = useState(true);
   const [mistakes, setMistakes] = useState({ due: 0, total: 0, graduated: 0 });
   const [calibration, setCalibration] = useState<Calibration | null>(null);
+  const [queueError, setQueueError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (!token) return;
     setDataLoading(true);
+    setQueueError(false);
     const q = fromExam ? "?from=exam" : "";
     Promise.all([
       api<{ items: Item[]; examContext?: ExamContext | null }>(`/review${q}`, {
@@ -79,8 +85,13 @@ function ReviewBody() {
         .then((d) => {
           setItems(d.items);
           setExamContext(d.examContext ?? null);
+          setQueueError(false);
         })
-        .catch(() => setItems([])),
+        .catch(() => {
+          setItems([]);
+          setExamContext(null);
+          setQueueError(true);
+        }),
       api<{ total: number; mastered: number; weak: number }>("/review/stats", {
         token,
       })
@@ -103,7 +114,7 @@ function ReviewBody() {
         .then(setCalibration)
         .catch(() => setCalibration(null)),
     ]).finally(() => setDataLoading(false));
-  }, [token, fromExam]);
+  }, [token, fromExam, reloadKey]);
 
   if (loading || !ready || dataLoading) return <PageLoading label={t.common.loading} />;
 
@@ -122,7 +133,20 @@ function ReviewBody() {
           : "Єдиний інбокс: слабкі уроки + картки до повторення."}
       </p>
 
-      {!items.length && dueCards === 0 && (
+      {queueError ? (
+        <div className="card space-y-3 border-orange-400">
+          <p className="font-black">{t.review.loadError}</p>
+          <button
+            type="button"
+            className="btn-secondary !py-2 text-sm"
+            onClick={() => setReloadKey((key) => key + 1)}
+          >
+            {t.review.retry}
+          </button>
+        </div>
+      ) : null}
+
+      {!queueError && !items.length && dueCards === 0 && (
         <EmptyState
           title={t.onboarding.emptyReview}
           description={
@@ -233,35 +257,42 @@ function ReviewBody() {
       )}
 
       {fromExam && (
-        <div className="card border-grape/40 bg-grape/10 space-y-2">
-          <p className="text-sm font-black text-grape">
-            {locale === "en"
-              ? "After exam — focus weak skills"
-              : "Після контрольної — фокус на слабких місцях"}
+        <div className="card border-grape/40 bg-grape/10 space-y-3">
+          <p className="text-sm font-black text-grape">{t.review.recoveryTitle}</p>
+          <p className="text-sm font-bold">
+            {t.review.recoverySkill}:{" "}
+            {examContext?.wrongTypes?.length
+              ? examContext.wrongTypes.join(", ")
+              : locale === "en"
+                ? "the missed skill from this exam"
+                : "навичка, яку ця контрольна не зарахувала"}
+            {examContext?.accuracy != null ? ` · ${Math.round(examContext.accuracy * 100)}%` : ""}
           </p>
-          {examContext?.wrongTypes?.length ? (
-            <p className="text-sm font-bold">
-              {locale === "en" ? "Missed types:" : "Типи з помилками:"}{" "}
-              {examContext.wrongTypes.join(", ")}
-              {examContext.accuracy != null
-                ? ` · ${Math.round(examContext.accuracy * 100)}%`
-                : ""}
-            </p>
-          ) : (
-            <p className="text-sm font-bold text-ink-muted">
-              {locale === "en"
-                ? "Review low-mastery lessons below, then retry the exam."
-                : "Повторіть уроки з низькою майстерністю нижче, потім спробуйте контрольну знову."}
-            </p>
-          )}
-          {examContext?.courseSlug && (
-            <Link
-              href={`/courses/${examContext.courseSlug}`}
-              className="text-sm font-bold text-sky hover:underline"
-            >
-              {locale === "en" ? "Back to course" : "До курсу"} →
-            </Link>
-          )}
+          <p className="text-sm font-bold text-ink-muted">{t.review.recoveryHint}</p>
+          <div className="flex flex-wrap gap-2">
+            {(() => {
+              const practice =
+                sortedItems.find((item) => item.courseSlug === examContext?.courseSlug && !item.isExam) ??
+                sortedItems.find((item) => !item.isExam);
+              if (!practice) return null;
+              return (
+                <Link
+                  href={`/courses/${practice.courseSlug}/lessons/${practice.lessonId}`}
+                  className="btn-primary !py-2 text-sm"
+                >
+                  {t.review.recoveryPractice} →
+                </Link>
+              );
+            })()}
+            {examContext?.courseSlug && examContext.lessonId ? (
+              <Link
+                href={`/courses/${examContext.courseSlug}/lessons/${examContext.lessonId}`}
+                className="btn-secondary !py-2 text-sm"
+              >
+                {t.review.recoveryReturn} →
+              </Link>
+            ) : null}
+          </div>
         </div>
       )}
 
@@ -281,7 +312,7 @@ function ReviewBody() {
       </div>
 
       {sortedItems.length === 0 ? (
-        <p className="card text-ink-muted font-bold">{t.review.empty}</p>
+        queueError ? null : <p className="card text-ink-muted font-bold">{t.review.empty}</p>
       ) : (
         <div className="space-y-3">
           {sortedItems.map((it) => (

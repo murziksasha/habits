@@ -1,4 +1,5 @@
 import type { CourseContent } from "../types.js";
+import { enrichExplain } from "./explain-ideas.js";
 import { stage1Units } from "./stage1.js";
 import { stage2Units } from "./stage2.js";
 import { stage3Units } from "./stage3.js";
@@ -35,5 +36,13 @@ export const electricalEngineeringContent: CourseContent = {
     ...stage8Units,
     ...stage9Units,
     ...stage10Units,
-  ],
+  ].map((unit) => ({
+    ...unit,
+    lessons: unit.lessons.map((lesson) => ({
+      ...lesson,
+      exercises: lesson.exercises.map((exercise) =>
+        exercise.type === "explain" ? enrichExplain(exercise) : exercise,
+      ),
+    })),
+  })),
 };

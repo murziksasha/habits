@@ -55,7 +55,7 @@ export function CircuitEditor({
   className,
 }: CircuitEditorProps) {
   // Document state
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const { user } = useAuth();
   const workerRef = useRef<Worker | null>(null);
   const runSeq = useRef(0);
@@ -575,7 +575,7 @@ export function CircuitEditor({
                   : "text-slate-400 hover:text-slate-200"
               )}
             >
-              Схема (GUI)
+              {t.circuitLab.schematic}
             </button>
             <button
               type="button"
@@ -600,7 +600,7 @@ export function CircuitEditor({
             disabled={readOnly}
             value={doc.title ?? ""}
             onChange={(e) => updateDoc((prev) => ({ ...prev, title: e.target.value }))}
-            placeholder="Назва схеми..."
+            placeholder={t.circuitLab.titlePlaceholder}
             className="px-2.5 py-1 text-xs font-medium bg-slate-950 border border-slate-800 rounded-md text-slate-200 focus:outline-none focus:border-cyan-500 w-48"
           />
         </div>
@@ -668,7 +668,7 @@ export function CircuitEditor({
           <button
             type="button"
             onClick={handleExportNetlist}
-            title="Експорт Netlist"
+            title={t.circuitLab.exportNetlist}
             className="px-2.5 py-1.5 text-xs font-medium rounded-md border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 transition"
           >
             .CIR
@@ -676,7 +676,7 @@ export function CircuitEditor({
           <button
             type="button"
             onClick={handleExportJson}
-            title="Експорт JSON"
+            title={t.circuitLab.exportJson}
             className="px-2.5 py-1.5 text-xs font-medium rounded-md border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 transition"
           >
             .JSON
@@ -691,7 +691,7 @@ export function CircuitEditor({
             <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
           </svg>
           <span>
-            Увага: у схемі немає підключення до <strong>GND (вузол 0)</strong>. Для розрахунку SPICE наявність опорного вузла землі обов&apos;язкова.
+            {t.circuitLab.groundMissing}
           </span>
         </div>
       )}
@@ -700,7 +700,7 @@ export function CircuitEditor({
       {criteria && criteria.length > 0 && (
         <div className="p-3 bg-slate-900/80 border border-slate-800 rounded-xl flex flex-col gap-2">
           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-            Вимоги до схеми (Критерії оцінювання):
+            {t.circuitLab.criteria}
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {criteria.map((c, i) => {
@@ -731,11 +731,13 @@ export function CircuitEditor({
                     >
                       {res ? (passed ? "✓" : "✕") : i + 1}
                     </span>
-                    <span>{c.labelUk || c.labelEn || c.type}</span>
+                    <span>
+                      {(locale === "en" ? c.labelEn || c.labelUk : c.labelUk || c.labelEn) || c.type}
+                    </span>
                   </div>
                   {res && res.actualValue !== undefined && (
                     <span className="text-[11px] opacity-80">
-                      Фактично: {res.actualValue.toPrecision(4)}
+                      {t.circuitLab.actual}: {res.actualValue.toPrecision(4)}
                     </span>
                   )}
                 </div>
@@ -752,7 +754,7 @@ export function CircuitEditor({
           {!readOnly && (
             <div className="flex lg:flex-col flex-wrap gap-1.5 p-2 bg-slate-900 border border-slate-800 rounded-xl lg:w-44 shrink-0 overflow-y-auto max-h-[500px]">
               <span className="text-[10px] uppercase font-bold text-slate-400 px-1 py-0.5">
-                Компоненти
+                {t.circuitLab.components}
               </span>
               {paletteKeys.map((key) => {
                 const def = COMPONENT_REGISTRY[key];
@@ -776,9 +778,9 @@ export function CircuitEditor({
 
               {/* Instructions */}
               <div className="text-[11px] text-slate-400 px-1 space-y-1">
-                <p>• Клік по виводу — почати провідник</p>
-                <p>• Клавіша &apos;R&apos; — обертання</p>
-                <p>• &apos;Del&apos; — видалення</p>
+                <p>• {t.circuitLab.helpPin}</p>
+                <p>• {t.circuitLab.helpRotate}</p>
+                <p>• {t.circuitLab.helpDelete}</p>
               </div>
             </div>
           )}
@@ -957,7 +959,7 @@ export function CircuitEditor({
                 </span>
 
                 <div className="flex items-center gap-1.5 text-xs">
-                  <span className="text-slate-400">Номінал:</span>
+                  <span className="text-slate-400">{t.circuitLab.value}:</span>
                   <input
                     type="text"
                     value={selectedComp.value}
@@ -978,18 +980,18 @@ export function CircuitEditor({
                   <button
                     type="button"
                     onClick={handleRotateSelected}
-                    title="Обертати (R)"
+                    title={t.circuitLab.rotate}
                     className="px-2.5 py-1 text-xs font-medium rounded border border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 transition"
                   >
-                    ⟳ Обернути
+                    ⟳ {t.circuitLab.rotate}
                   </button>
                   <button
                     type="button"
                     onClick={handleDeleteSelected}
-                    title="Видалити (Del)"
+                    title={t.circuitLab.delete}
                     className="px-2.5 py-1 text-xs font-medium rounded border border-red-900/60 bg-red-950/40 text-red-300 hover:bg-red-900/60 transition"
                   >
-                    ✕ Видалити
+                    ✕ {t.circuitLab.delete}
                   </button>
                 </div>
               </div>

@@ -20,8 +20,9 @@
 | `node_fundamentals` | Node.js deep track | runtime, modules, fs, env, http, npm, async + exams |
 | `express_fundamentals` | Express deep track | app, routes, middleware, REST, errors, Router + exams |
 | `embedded_cpp` | Embedded C++ · MilTech | memory, CMake, net, RTOS, MAVLink, safety, datalink, mission + labs/exams |
+| `electrical_engineering` | Electrical engineering + SPICE | Charge and fields → DC/AC → electronics → power systems and machines → three capstones; 60 units, 360 lessons including 60 exams |
 
-Full canonical list of all **35 courses** (498 units, 2,153 lessons, 453 exams, 13 ForgeBoard labs) lives in **[SPEC/courses/README.md](./courses/README.md)** and **[SPEC/COURSE-REGISTRY.md](./COURSE-REGISTRY.md)**. All courses and lessons are free for all accounts.
+Full canonical list of all **36 registered courses** (558 units, 2,513 lessons including 513 exams, 13 ForgeBoard labs) lives in **[SPEC/courses/README.md](./courses/README.md)** and **[SPEC/COURSE-REGISTRY.md](./COURSE-REGISTRY.md)**. Counts include unpublished content. All published courses and lessons are free for all accounts. The in-app SPICE laboratory is separate from ForgeBoard packs.
 
 ## Content pipeline
 
@@ -71,9 +72,13 @@ CMS-owned courses are not overwritten. See SPEC 72 for publish gates and SPEC 93
 | `video` | watch ratio ≥ `minWatchRatio` | MDX `videoUrl` lessons |
 | `code_judge` | Server Docker isolated execution or static text mode (SPEC 93) | Judge-enabled drills |
 | `concept` | acknowledged, or optional `check` MCQ | Theory card first in deep lessons (SPEC 91) |
-| `explain` | rubric: ≥ `minWords` words and ≥ `passRatio` of `keyIdeas` stems | Self-explanation; optional tutor feedback (SPEC 92) |
+| `explain` | Rubric stem matches plus repetition-capped word count and non-keyword vocabulary checks | Self-explanation; optional tutor feedback (SPEC 92) |
+| `numeric` | SI-aware scalar or complex answer with explicit absolute/relative tolerance and magnitude-scaled floating-point slack | Electrical engineering calculations |
+| `circuit_lab` | Server structural checks and SPICE evaluation against authored criteria | Electrical engineering circuit exercises |
 
 See also [23-programming-track.md](./23-programming-track.md), [93-clear-tasks-robust-grading.md](./93-clear-tasks-robust-grading.md), and SPECs 33–54 (playground, minis, race).
+
+Choice-based exercises may shuffle their display order deterministically; submitted indices remain the original content indices. Explanation grading counts each normalized token at most twice and requires non-keyword vocabulary as well as rubric matches. This reduces repetition padding but remains a lexical check, not semantic verification. Authoring guidance is in [CONTENT-DX](./CONTENT-DX.md).
 
 Normalization for text and code answers:
 - Text: trim, lowercase, unify Ukrainian apostrophes (`’`, `‘`, `ʼ`, `'`) and quotes (`«`, `»`, `“`, `”`, `"`), collapse spaces, strip trailing punctuation.
@@ -81,7 +86,7 @@ Normalization for text and code answers:
 
 ## Access
 
-Every lesson is open to every account. `lesson.isFree` is leftover content metadata and does not lock the player.
+Published lessons are free for every account. `lesson.isFree` is leftover content metadata and does not lock the player. Authenticated unit exam opening and submission require completion of the current content version of the unit's non-exam lessons; the server returns `403 exam_locked` otherwise. Draft and hidden content is unavailable to non-admin users. See [API contracts](./04-api-reference.md#courses-courses).
 
 Hearts are a shared practice counter (5, then regen). Running out of hearts does not block opening or submitting a lesson.
 

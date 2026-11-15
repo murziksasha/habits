@@ -1,6 +1,8 @@
 # Course depth
 
-One file per course slug. Programs reflect seeded units/lessons plus linked `ForgeBoard` local practice packs (`LOCAL_LAB_MANIFESTS`, `assessmentMode: "local_practice"`).
+One file per course slug. Programs reflect seeded units/lessons plus linked `ForgeBoard` local practice packs (`LOCAL_LAB_MANIFESTS`, `assessmentMode: "local_practice"`). There are 36 registered courses, 558 units, 2,513 lessons including 513 exams, and 13 ForgeBoard packs. These content totals include unpublished courses and do not describe the currently published catalog of an instance.
+
+Electrical engineering also has an in-app SPICE laboratory and seven graded circuit exercise cards; these are not ForgeBoard packs and are not counted in the Local Lab column.
 
 Update in the same change as `packages/content`. See `SPEC/CONTENT-DX.md`.
 

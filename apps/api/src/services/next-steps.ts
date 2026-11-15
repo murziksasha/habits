@@ -22,6 +22,7 @@ import {
 import { db } from "../db.js";
 import { lessonCountsAsCurrentMastery } from "./certificate-rules.js";
 import { pickContinueLessonId } from "./continue-target.js";
+import { applyFocusPriority, focusCourseSlug } from "./recommendation-rank.js";
 import { getSpacedReviewLessons, getWeakLessons, masteryPriority } from "./mastery.js";
 
 export type NextRecommendation = {
@@ -188,7 +189,7 @@ export async function buildNextRecommendations(
       titleEn: `🩸 Leech: ${w.titleEn}`,
       href: `/courses/${w.courseSlug}/lessons/${w.lessonId}`,
       priority: masteryPriority(w.bestScore, w.attempts) + 2,
-      meta: { leech: true, attempts: w.attempts, bestScore: w.bestScore },
+      meta: { leech: true, attempts: w.attempts, bestScore: w.bestScore, courseSlug: w.courseSlug },
     });
   }
 
@@ -201,7 +202,7 @@ export async function buildNextRecommendations(
       titleEn: `📅 Spaced review: ${s.titleEn}`,
       href: `/courses/${s.courseSlug}/lessons/${s.lessonId}`,
       priority: 12 + (1 - s.bestScore) * 4,
-      meta: { spaced: true, bestScore: s.bestScore },
+      meta: { spaced: true, bestScore: s.bestScore, courseSlug: s.courseSlug },
     });
   }
 
@@ -483,9 +484,23 @@ export async function buildNextRecommendations(
     });
   }
 
+  const focusSlug = focusCourseSlug(
+    visibleProgress.map((row) => ({
+      slug: row.slug,
+      courseId: row.courseId,
+      lastLessonId: row.lastLessonId,
+      completedLessons: row.completedLessons,
+    })),
+    continueProgress.map((item) => ({
+      courseId: item.courseId,
+      completedAt: item.completedAt,
+    })),
+  );
+  const focused = applyFocusPriority(recommendations, focusSlug);
+
   // ML-lite adaptive re-rank (feature blend; weights via ADAPTIVE_WEIGHTS_JSON)
   const weights = loadAdaptiveWeights(process.env as Record<string, string | undefined>);
-  const scored = recommendations.map((r) => {
+  const scored = focused.map((r) => {
     const meta = r.meta ?? {};
     const score = adaptiveScore(
       {

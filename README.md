@@ -1,8 +1,8 @@
 # EduForge
 
-Освітній SaaS: **англійська**, **шахи** (уроки + online PvP), **друк**, **швидкочитання**, **логіка**, **програмування** (Mimo-style path + playground + mini-projects).
+Освітній SaaS: **англійська**, **шахи** (уроки + online PvP), **друк**, **швидкочитання**, **логіка**, **програмування** (Mimo-style path + playground + mini-projects), **електротехніка** (кола, електроніка, електричні машини та SPICE-лабораторія).
 
-UI: **українська + англійська** · повна технічна документація: [`SPEC/`](./SPEC/) (English, 01–91 + CURRENT) · surface freeze: [`SPEC/CURRENT.md`](./SPEC/CURRENT.md).
+UI: **українська + англійська** · повна технічна документація: [`SPEC/`](./SPEC/) (English, 01–93 + CURRENT) · поточний стан і відкриті задачі: [`SPEC/CURRENT.md`](./SPEC/CURRENT.md).
 
 - Monorepo: **pnpm + Turborepo**
 - Apps: `web` (Next.js), `api` (Hono), `realtime` (Socket.IO)
@@ -61,7 +61,8 @@ docker compose --profile tools run --rm migrate
 
 | Область | Що є |
 |---------|------|
-| Курси | 35 курсів (uk+en): навички, код, deep tracks (JS/TS/React/Node/Express/SQL, AI, DevOps, …) плюс **Go**, **веб-доступність**, **дизайн REST API**, **продуктивність фронтенду**, **веб-API браузера**. Глибокі треки англійської (248 уроків) і шахів (188). **2153** уроки. Як додавати: [`SPEC/CONTENT-DX.md`](./SPEC/CONTENT-DX.md), лічильник: [`SPEC/CONTENT-EXPANSION.md`](./SPEC/CONTENT-EXPANSION.md) |
+| Курси | 36 зареєстрованих курсів (uk+en): навички, код, deep tracks (JS/TS/React/Node/Express/SQL, AI, DevOps, …), Go, веб-доступність, REST API, продуктивність фронтенду, браузерні API та електротехніка. **2513 уроків**, включно з 513 іспитами; кількість охоплює й неопублікований контент. Програми й точні лічильники: [`SPEC/courses/`](./SPEC/courses/README.md). Як додавати: [`SPEC/CONTENT-DX.md`](./SPEC/CONTENT-DX.md) |
+| Електротехніка | Один курс `electrical_engineering`: 10 етапів, 60 модулів, 360 уроків включно з 60 іспитами, сім оцінюваних SPICE-завдань і три підсумкові проєкти. Лабораторія: `/courses/electrical_engineering/lab`. Публікація потребує перевірки; синхронізація не публікує чернетку. Програма й межі моделей: [`SPEC/courses/electrical_engineering.md`](./SPEC/courses/electrical_engineering.md) |
 | Programming | path units, Monaco drills, mini-projects, weekly race, stack hubs |
 | Deep tracks | HTML semantics, CSS Flex/Grid, QA theory (+ unit exams) |
 | Deep learning | **concept cards** (теорія перед практикою), **крива забування** (`/review` памʼять ≈ %), **змішана практика** `/review/mixed` — [SPEC/91](./SPEC/91-deep-learning-features.md) |
@@ -155,7 +156,7 @@ packages/content  Seed-уроки + MDX pipeline
 packages/shared   XP, Elo, entitlements, i18n, minis race
 packages/judge    Multi-lang judge + job queue
 packages/chess-core
-SPEC/             Product & technical docs (English) 01–91 + CURRENT
+SPEC/             Product & technical docs (English) 01–93 + CURRENT
 ```
 
 ## Documentation

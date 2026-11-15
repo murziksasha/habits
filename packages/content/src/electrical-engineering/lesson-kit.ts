@@ -11,6 +11,7 @@ import {
 } from "./helpers.js";
 
 export { analogProjectLab, buckProjectLab, filterProjectLab, phaseProjectLab } from "./project-labs.js";
+export { fixEquivalentLab, loadedDividerLab, rcChargeLab } from "./practice-labs.js";
 
 export function concept(
   id: string,

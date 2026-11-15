@@ -13,7 +13,6 @@ import { PrimaryMission } from "@/components/primary-mission";
 import { EmptyState, Skeleton } from "@/components/ui";
 import { OnboardingWizard } from "@/components/onboarding-wizard";
 import { StreakCalendar } from "@/components/streak-calendar";
-import { ContinueCta } from "@/components/continue-cta";
 import { WeeklyRecapCard } from "@/components/weekly-recap-card";
 import type { LearningWeeklyRecap } from "@eduforge/shared";
 
@@ -222,13 +221,7 @@ export function DashboardClient() {
         </div>
       </section>
 
-      {user ? (
-        <section aria-label={t.dashboard.continueWhere}>
-          <ContinueCta variant="card" />
-        </section>
-      ) : null}
-
-      {/* Primary mission — daily/weekly quests live on /learn only */}
+      {/* One learning action. Daily quests stay on /learn. */}
       <PrimaryMission showSecondary />
 
       {home?.progress && home.progress.length > 0 && (

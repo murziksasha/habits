@@ -47,3 +47,5 @@ export * from "./numeric.js";
 export * from "./circuit-types.js";
 export * from "./circuit-registry.js";
 export * from "./circuit-document.js";
+export * from "./ee-milestones.js";
+export * from "./session-plan.js";

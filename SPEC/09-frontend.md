@@ -26,6 +26,7 @@
 | `/learn` | Learning map: recommended, exams, groups, toolkit |
 | `/courses`, `/courses/[slug]` | Catalog + path map |
 | `/courses/[slug]/lessons/[lessonId]` | Lesson player (soft-grade, skip, solution, course/character level-up & rewards summary) |
+| `/courses/electrical_engineering/lab` | SPICE circuit editor, local guest preview, authenticated server preview and personal cloud projects |
 | `/programming`, `/programming/[stack]` | Programming hub + stack filter |
 | `/typescript` | TypeScript course hub |
 | `/html-semantics` | HTML Semantics deep hub |
@@ -71,6 +72,7 @@
 | `PrimaryMission` | Single next-step CTA |
 | `ContextualToolkit` | Max 3 contextual tools on Learn |
 | `ExercisePlayer` | All exercise types + soft-grade / solution |
+| `CircuitEditor` | Schematic/netlist editing, analysis configuration, simulation output and waveforms |
 | `MonacoEditor` | Code editor |
 | `HeartsBar` | Lives display |
 | `XpBar` | Level progress bar |
@@ -87,6 +89,15 @@
 | `SpeakButton` | Pronunciation (Web Speech) |
 | `PushToggle` | Web push subscription |
 | `NotificationsBell` | In-app notifications |
+
+## Learning-quality behavior (2026-11-15)
+
+- Choice exercises display a deterministic permutation keyed by exercise id (and nested question id where needed). Mouse and keyboard selection submit the original content index. Reload does not change the order for the same exercise.
+- `ExercisePlayer` reports hint use, solution reveal, and wrong soft attempts to the lesson/practice session. Lesson submission includes these signals per answer; they are currently held in memory and do not survive lesson reload.
+- Global Continue uses the server's unfinished current-version target; a learner is not automatically sent back to the last completed lesson.
+- The electrical laboratory replaces the editor instance when loading a template, restoring a draft, or loading a server version. Analysis settings follow the document. A save conflict pauses autosave and offers load-server, save-as-copy, and JSON export.
+
+The stale saved-revision issue, account-scoped drafts, duplicate main CTAs, cosmetic duration selector, review error states, and remaining EN copy are tracked in [CURRENT](./CURRENT.md#learning-quality-follow-up). These behaviors still require browser validation on desktop and mobile.
 
 ## Auth context
 

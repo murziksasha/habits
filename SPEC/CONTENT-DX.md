@@ -27,7 +27,7 @@ How to add courses and lessons without fighting the monorepo.
 - [ ] Exercises: `id`, known `type`, `promptUk` + `promptEn` (EN gate in content tests)
 - [ ] `isFree` on early lessons is content metadata only; it does not lock the lesson
 - [ ] Unit exams (`isExam`) if track has control tests
-- [ ] Rebuild: `pnpm --filter @eduforge/content build && pnpm db:seed`
+- [ ] Build shared/content packages, then use `pnpm content:sync` for an existing instance; reserve `pnpm db:seed` for fresh local development. Review publication separately; sync does not republish a draft
 - [ ] Optional: hub page reusing `DeepCourseHub` (not primary nav)
 - [ ] Update `SPEC/courses/<slug>.md` and the index row in `SPEC/courses/README.md` so the program matches the seed
 
@@ -48,7 +48,16 @@ Start every new deep lesson with a `concept(...)` card from `builders.ts` (theor
 
 ### Explain steps
 
-Add an `explain(id, promptUk, promptEn, keyIdeas, { minWords, sampleAnswerUk, sampleAnswerEn })` after the retrieval exercises: each key idea has `labelUk`, `labelEn`, `anyOf` stems (lowercase word starts, UK + EN). Always provide sample answers — the content test checks that they pass their own rubric. Details: [SPEC/92](./92-deep-learning-2.md).
+Add an `explain(id, promptUk, promptEn, keyIdeas, { minWords, sampleAnswerUk, sampleAnswerEn })` after the retrieval exercises: each key idea has `labelUk`, `labelEn`, `anyOf` stems or phrases (UK + EN). Always provide sample answers — the content test checks that they pass their own rubric. Details: [SPEC/92](./92-deep-learning-2.md).
+
+Current grading matches normalized substrings, rather than enforcing word boundaries. Each normalized token contributes at most twice toward `minWords`; with rubric ideas, at least `max(4, ceil(minWords * 0.45))` counted tokens must also be outside the rubric's normalized stem-token set. This rejects repeated-keyword padding but does not establish semantic correctness. Prefer multiple independent ideas and negative examples; electrical course helpers currently author one idea per explanation, an [open learning-quality issue](./CURRENT.md#learning-quality-follow-up).
+
+### Numeric and circuit checks
+
+- Store numeric targets in base SI units and specify absolute/relative tolerances appropriate to the quantity. Shared grading compares against `max(absTolerance, relTolerance * abs(target))` with magnitude-scaled floating-point slack. Avoid a universal absolute floor for tiny quantities such as atomic charge.
+- Check correct values, zero for nonzero targets, wrong signs, wrong orders of magnitude, equivalent unit prefixes, and tolerance boundaries. The first-stage electrical regressions are in `electrical-engineering/stage1-tolerance.test.ts`.
+- Keep choice answers in canonical content order with a valid `correctIndex`; the web player performs deterministic display shuffling and maps answers back to the original indices. Shuffling does not replace good distractors or varied independent tasks.
+- Author circuit exercises with `circuit`, `analysis`, `constraints`, and `criteria`; the submitted answer is `{ circuit }`. Structural and SPICE grading run on the server. Describe the model's limits explicitly; use the [electrical course specification](./courses/electrical_engineering.md) for current lab and capstone coverage.
 
 Grading: `@eduforge/shared` `gradeExercise` (API + client soft-grade).
 
@@ -56,6 +65,8 @@ Grading: `@eduforge/shared` `gradeExercise` (API + client soft-grade).
 
 - All courses: exercise with `promptUk` must have `promptEn` after normalize
 - Skill map regen: `node scripts/gen-skill-prompt-en.mjs` (after dumping missing prompts)
+
+Prompt completeness alone does not prove full locale parity. Review translated choices (`optionsEn`, `pairsEn`), hints, explanations, and shared UI/error keys. Electrical matching choices and laboratory UI still have [known gaps](./CURRENT.md#learning-quality-follow-up).
 
 ## Access
 

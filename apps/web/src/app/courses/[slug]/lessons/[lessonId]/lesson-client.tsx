@@ -10,6 +10,7 @@ import {
   LESSON_MATE_RESULT_MS,
   LESSON_RESULT_SHEET_MS,
   getEvidenceLevelLabels,
+  pickLocale,
   type MasteryEvidenceLevel,
   type GrantedRewardItem,
   type LocalLabManifest,
@@ -59,6 +60,60 @@ function getDraftKey(userId: string | undefined, slug: string, lessonId: string,
   return `draft:${userId || "guest"}:${slug}:${lessonId}:${exId}:1`;
 }
 
+type AssistanceMark = {
+  wrongAttempts: number;
+  hintsUsed: number;
+  solutionRevealed: boolean;
+};
+
+function assistanceKey(userId: string | undefined, slug: string, lessonId: string, exId: string) {
+  return `assist:${userId || "guest"}:${slug}:${lessonId}:${exId}:1`;
+}
+
+function readAssistance(
+  userId: string | undefined,
+  slug: string,
+  lessonId: string,
+  exId: string,
+): AssistanceMark {
+  const empty: AssistanceMark = { wrongAttempts: 0, hintsUsed: 0, solutionRevealed: false };
+  if (typeof window === "undefined") return empty;
+  try {
+    const raw = localStorage.getItem(assistanceKey(userId, slug, lessonId, exId));
+    if (!raw) return empty;
+    const parsed = JSON.parse(raw) as Partial<AssistanceMark>;
+    return {
+      wrongAttempts: Math.max(0, Math.floor(Number(parsed.wrongAttempts) || 0)),
+      hintsUsed: Math.max(0, Math.floor(Number(parsed.hintsUsed) || 0)),
+      solutionRevealed: Boolean(parsed.solutionRevealed),
+    };
+  } catch {
+    return empty;
+  }
+}
+
+function writeAssistance(
+  userId: string | undefined,
+  slug: string,
+  lessonId: string,
+  exId: string,
+  mark: AssistanceMark,
+) {
+  try {
+    localStorage.setItem(assistanceKey(userId, slug, lessonId, exId), JSON.stringify(mark));
+  } catch {
+    /* private mode */
+  }
+}
+
+function clearAssistance(userId: string | undefined, slug: string, lessonId: string, exId: string) {
+  try {
+    localStorage.removeItem(assistanceKey(userId, slug, lessonId, exId));
+  } catch {
+    /* private mode */
+  }
+}
+
 export function LessonClient() {
   const { slug, lessonId } = useParams<{ slug: string; lessonId: string }>();
   const { token, user, loading, setCharacter } = useAuth();
@@ -67,6 +122,7 @@ export function LessonClient() {
   const [lesson, setLesson] = useState<{
     id: string;
     titleUk: string;
+    titleEn?: string | null;
     exercises: Exercise[];
     isExam?: boolean;
     passThreshold?: number | null;
@@ -90,6 +146,15 @@ export function LessonClient() {
   const wrongAttemptsRef = useRef(0);
   const hintsRef = useRef(0);
   const solutionRef = useRef(false);
+
+  useEffect(() => {
+    const exercise = lesson?.exercises[idx];
+    if (!exercise || !slug || !lessonId) return;
+    const mark = readAssistance(user?.id, slug, lessonId, exercise.id);
+    wrongAttemptsRef.current = mark.wrongAttempts;
+    hintsRef.current = mark.hintsUsed;
+    solutionRef.current = mark.solutionRevealed;
+  }, [idx, lesson, lessonId, slug, user?.id]);
   const [feedback, setFeedback] = useState<"ok" | "bad" | null>(null);
   const [feedbackExplain, setFeedbackExplain] = useState("");
   const [showCoach, setShowCoach] = useState(false);
@@ -480,6 +545,7 @@ export function LessonClient() {
         for (const exercise of lesson.exercises) {
           try {
             localStorage.removeItem(getDraftKey(user?.id, slug, lessonId, exercise.id));
+            clearAssistance(user?.id, slug, lessonId, exercise.id);
           } catch {}
         }
       }
@@ -582,6 +648,7 @@ export function LessonClient() {
 
   function handleResetDraft(exerciseId: string) {
     localStorage.removeItem(getDraftKey(user?.id, slug, lessonId, exerciseId));
+    clearAssistance(user?.id, slug, lessonId, exerciseId);
     setConfirmResetOpen(false);
     window.location.reload();
   }
@@ -1176,7 +1243,9 @@ export function LessonClient() {
         </div>
       )}
       <div className="card relative">
-        <p className="mb-4 text-sm font-bold text-ink-muted">{lesson.titleUk}</p>
+        <p className="mb-4 text-sm font-bold text-ink-muted">
+          {pickLocale(locale, lesson.titleUk, lesson.titleEn)}
+        </p>
         <div className={feedback === "ok" ? (isMateHold ? "pointer-events-none" : "pointer-events-none opacity-60") : undefined}>
           {isConfidenceRateable(ex.type) && (
             <div className="mb-3">
@@ -1190,12 +1259,27 @@ export function LessonClient() {
             examMode={Boolean(lesson.isExam)}
             onWrongAttempt={() => {
               wrongAttemptsRef.current += 1;
+              writeAssistance(user?.id, slug, lessonId, ex.id, {
+                wrongAttempts: wrongAttemptsRef.current,
+                hintsUsed: hintsRef.current,
+                solutionRevealed: solutionRef.current,
+              });
             }}
             onHintUsed={() => {
               hintsRef.current += 1;
+              writeAssistance(user?.id, slug, lessonId, ex.id, {
+                wrongAttempts: wrongAttemptsRef.current,
+                hintsUsed: hintsRef.current,
+                solutionRevealed: solutionRef.current,
+              });
             }}
             onSolutionRevealed={() => {
               solutionRef.current = true;
+              writeAssistance(user?.id, slug, lessonId, ex.id, {
+                wrongAttempts: wrongAttemptsRef.current,
+                hintsUsed: hintsRef.current,
+                solutionRevealed: true,
+              });
             }}
             lessonId={lessonId}
           />

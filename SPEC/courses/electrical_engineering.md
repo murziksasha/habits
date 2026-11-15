@@ -9,7 +9,11 @@ Recommended next: `embedded_cpp`, `programming`
 
 ## What this course is
 
-A comprehensive, fully bilingual (Ukrainian and English) professional course in electrical engineering covering 10 sequential stages, 60 modules (units), 360 lessons, integrated SPICE circuit laboratory simulations (powered by ngspice WebAssembly), project cloud persistence, and three independent capstone projects:
+A course in electrical engineering for independent study, with Ukrainian and English lesson text, covering 10 stages, 60 modules (units), and 360 lessons including 60 unit exams. Electrical machines and electromechanics are part of the wider electrical engineering curriculum, not a separate registered course. No prior course is required; the curriculum introduces the mathematics used later.
+
+The course includes an ngspice WebAssembly laboratory, personal cloud projects, and ten graded `circuit_lab` exercise cards across the current curriculum. Intermediate cards cover a loaded divider (`ee-12-l2`), a wrong Thévenin resistance the learner must correct (`ee-12-l5`), and an RC charge near one time constant (`ee-17-l1`). The buck card states that it checks the averaged regime, and the phase card states that it is one phase of the machine equivalent. Single-keyword explanations also require a second point taken from the sample's own check. These cards are separate from the 13 ForgeBoard downloadable local practice packs. Most lessons use numeric, multiple-choice, matching, and explanation checks; not every module contains a graded simulation. English localization still has gaps in matching choices and laboratory UI; see [current follow-up work](../CURRENT.md#learning-quality-follow-up).
+
+Three capstone projects conclude the course:
 1. **Capstone Project 1 (Unit 58)**: Analog sensor front-end. A 5 V Wheatstone bridge, differential gain near 100, 1.65 V bias, and a separate first-order RC low-pass at 1 kHz. The graded lab is an operating-point card plus an AC card. It is not a Sallen-Key stage, and the ideal op-amp model has no supply rails.
 2. **Capstone Project 2 (Unit 59)**: Buck converter from 18–24 V to 5 V at 0.1–1 A. The graded schematic is the DC average model (duty times input, inductor DCR, load). Ripple, CCM boundary, loss, and the load-step estimate are numeric checks. The lab does not run a switching transient.
 3. **Capstone Project 3 (Unit 60)**: Three-phase installation at 400 V, 50 Hz. Line impedance, compensation to a power factor of at least 0.95, and unbalance are calculated. The graded schematic is one phase of the electrical motor equivalent. It is not a mechanical machine model.
@@ -109,6 +113,18 @@ Canonical circuit exercise fields are `circuit`, `analysis`, `constraints`, and 
 Electrical connectivity comes from wires and junctions. Coordinates are display only. An open pin is floating. Measurements distinguish signed, magnitude, RMS, average, and peak-to-peak values. DC power is the signed product. AC gain is the complex ratio. Structural checks run before SPICE. Client flags do not grade a lab.
 
 Exams store form A and form B, ten items each, at most four multiple-choice items, and no concept or explain cards. The server selects one form from the learner and the attempt, and hides worked solutions until that form is mastered. Project exams (units 58–60) use `passThreshold: 1.0`.
+
+Opening or submitting a unit exam as an authenticated learner requires current-version completion of all non-exam lessons in that unit. The exam board uses the same content-version completion rule. Course prerequisites remain guidance; these unit exam readiness checks are separate from prerequisite advice and from payment access.
+
+## Implemented learning-quality fixes (2026-11-15)
+
+- Numeric checks use tolerances scaled to the expected quantity. The first-stage helper no longer applies a `1e-6` absolute floor, and shared numeric grading uses magnitude-scaled floating-point slack instead of a fixed `1e-12`. Charge checks reject zero and the wrong sign for nonzero targets.
+- Multiple-choice options use a deterministic display order derived from the exercise id. Answers retain their original content indices, including keyboard selection and after reload; authored `correctIndex` values are not rewritten.
+- Lesson submission consumes reported hint use, solution views, and wrong attempts when calculating mastery evidence. Theory-only acknowledgements do not establish independent mastery. These signals are client-reported and currently do not survive a lesson reload.
+- Global Continue selects an unfinished current-version lesson and skips locked exams. Completed courses do not receive a repeat lesson as their Continue target.
+- The laboratory remounts its editor when restoring or replacing a document, preserves document analysis settings, pauses autosave on a conflict, and offers save-as-copy alongside loading the server version and JSON export.
+
+Known recovery, evidence, recommendation, and localization limitations are tracked in [CURRENT](../CURRENT.md#learning-quality-follow-up). These fixes do not mean that the entire learning-flow improvement plan is complete.
 
 ## Lesson standard
 

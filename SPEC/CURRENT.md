@@ -1,6 +1,7 @@
 # CURRENT — Product surface freeze & IA map
 
-**Status:** Active (2026-07)  
+**Status:** Active; learning-quality review updated 2026-11-15
+
 **Access:** EduForge is free. There is no subscription, Stripe checkout, trial, or premium unlock.  
 **Scope:** Consolidation after SPECs 01–71. Prefer quality, IA, and platform over new surface area.
 
@@ -26,7 +27,7 @@ Primary journeys:
 
 Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, `react_*`, `sql_*`, `node_*`, `express_*`) are **Core content** but **not** primary nav entries — reach via `/learn`, `/courses`, `/programming`.
 
-`electrical_engineering` stays one course at `/courses/electrical_engineering`. The lab is `/courses/electrical_engineering/lab` and is linked from the course page. It is not a new primary-nav slot. Version 2 of that course is specified in `SPEC/courses/electrical_engineering.md`. The course stays unpublished until a reviewed sync. Seed update does not set `courses.status`.
+`electrical_engineering` stays one course at `/courses/electrical_engineering`: 10 stages, 60 units, 360 lessons including 60 exams, seven graded circuit lab cards, and three capstones. Electrical machines are part of this course, not a separate electromechanics slug. The lab is `/courses/electrical_engineering/lab` and is linked from the course page. It is not a new primary-nav slot. Version 2, its model boundaries, and publication policy are specified in [the course document](./courses/electrical_engineering.md). Publication requires review; seed/content sync does not republish a course moved back to draft. This document does not assert the live publication state of any instance.
 
 Skill tracks `sysadmin` and `devops` are accessed via `/learn` and `/courses`, not a new primary-nav slot. `sysadmin` covers workstation and SOHO administration, Linux console, local service troubleshooting, and local container operations (Podman/rootless Docker, systemd unit integration). `devops` owns the delivery pipeline, CI/CD, registries, infrastructure-as-code, orchestration (Kubernetes, AWS), observability, and on-call reliability runbooks. Per-course depth is `SPEC/courses/`.
 
@@ -301,7 +302,7 @@ Skill tracks `sysadmin` and `devops` are accessed via `/learn` and `/courses`, n
    - **CMS builder & safe synchronization:** CMS exercise builder supports `code_judge` authoring; `pnpm content:sync` updates `seed` courses safely without touching accounts, progress, or CMS materials.
 181. **Comprehensive Learning Quality & Mastery Verification Program (Waves 0–10):**
    - **Canonical skill objectives for all 35 courses:** `packages/shared/src/skills.ts` defines explicit Bloom-level taxonomies, bilingual descriptions, criteria, outcomes, and common learner remediation errors across all 35 courses in the registry. Enforced by automated test gate `verifyAllCoursesHaveObjectives()`.
-   - **Four-tier mastery evidence model:** `MasteryEvidenceLevel` (`insufficient_data`, `assisted`, `self_verified`, `retained_verified`) decoupled from raw completion counts. Evaluative integrity enforced: non-evaluative formats (theory, video, rsvp) never award mastery; hint usage or solution views cap at `assisted`; unassisted first-attempt passes grant `self_verified`.
+   - **Four-tier mastery evidence model:** `MasteryEvidenceLevel` (`insufficient_data`, `assisted`, `self_verified`, `retained_verified`) is separate from completion counts. Lesson evidence now excludes non-evaluative formats and theory-only concept acknowledgements and consumes reported hint use, solution views, and wrong attempts. Assistance caps newly earned evidence at `assisted`; prior verified evidence is retained. Persistence and mastery-map inconsistencies remain in the follow-up list below.
    - **Structured feedback contract & environment waiver:** `DetailedFeedback` categorizes errors (`knowledge_gap`, `incomplete`, `accepted_alternative`, `environment_error`). Environment and judge runner failures (`environment_error`) strictly waive heart deductions (`penaltyWaived: true`).
    - **High-signal exercise formats:** Added `composite_artifact` (multi-file projects), `dataset_query` (analytical database queries), and `incident_step` (production incident triage ordering) to the assessment bank.
    - **Deterministic unit exam variants:** `resolveExamVariantId` deterministically hashes `(userId, lessonId, attemptNumber)` across `variant_A`, `variant_B`, and `variant_C` preventing browser-refresh exploitation while rotating across re-takes.
@@ -320,6 +321,29 @@ Skill tracks `sysadmin` and `devops` are accessed via `/learn` and `/courses`, n
    - **Fail-closed judge integrity:** Docker runner isolates student code; production mode strictly enforces fail-closed without silent local fallback.
 
 **What not to build next:** native store apps, full multi-worker judge pool, trained ML ranking, new deep track without CONTENT-DX + IA justification, extra primary nav slots.
+
+### Learning-quality fixes reviewed on 2026-11-15
+
+Commit `2bc27f6` implements numeric tolerances scaled to the quantity, deterministic choice display order with canonical answer indices, assistance-aware lesson evidence, current-version Continue targets, and authenticated submit checks for course visibility, matching slug, and unit exam readiness. Search and the exam board filter unpublished/hidden courses; the board checks current content versions. Laboratory document replacement, analysis settings, and conflict save-as-copy are implemented. Course-specific details are in [Electrical Engineering](./courses/electrical_engineering.md); verification is recorded in [Testing](./11-testing.md#learning-quality-review-2026-11-15).
+
+### Learning-quality follow-up
+
+Delivered after the review of `2bc27f6`:
+
+- **Last practice:** `user_lesson_progress.last_practiced_at` (migration `0041`) records a successful pass and does not overwrite the first `completedAt`. The mastery map, `/review` retention, and spaced-review due dates use that timestamp when it exists. The map also shows the evidence label.
+- **Sessions:** the 5/10/20 control on `/learn` builds the mission from the existing recommendation list: one review, review plus a new lesson, or those plus a close.
+- **Review queue:** a failed `/review` request shows a retry state. `?from=exam` names the missed skill, links one short practice, and returns to the interrupted exam. The queue and mixed practice skip unpublished or hidden courses.
+- **Lab draft:** a successful project save writes the returned revision into the account-scoped local draft. Logout clears the project list and does not restore another account's draft.
+- **Attempt marks:** hint, solution, and wrong-attempt counts are stored with the lesson and restored into the submit payload after reload.
+- **Locale:** electrical match cards have `pairsEn`. Laboratory chrome, criterion labels, and save errors use the shared `circuitLab` strings.
+
+Still open:
+
+- A graded lab in every module.
+- A grader that accepts a paraphrase without the sample's wording.
+- Browser walkthrough of the full lesson and lab flow in UK and EN on desktop and mobile. Unit tests do not replace that check.
+
+Run migration `0041_last_practiced_at` before the new column is read in a live database.
 
 ### P2 strategic foundations (scaffolds live — see SPEC/P2-STRATEGIC.md)
 

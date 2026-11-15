@@ -19,8 +19,6 @@ type ProjectItem = {
 
 type StoredProject = ProjectItem & { document: CircuitDocument };
 
-const DRAFT_KEY = "eduforge.circuit.draft.v2";
-
 type LocalDraft = {
   document: CircuitDocument;
   projectId: string | null;
@@ -28,10 +26,14 @@ type LocalDraft = {
   savedAt: string;
 };
 
-function readDraft(): LocalDraft | null {
+function draftStorageKey(userId: string | null | undefined): string {
+  return `eduforge.circuit.draft.v2:${userId || "guest"}`;
+}
+
+function readDraft(userId: string | null | undefined): LocalDraft | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = window.localStorage.getItem(DRAFT_KEY);
+    const raw = window.localStorage.getItem(draftStorageKey(userId));
     if (!raw) return null;
     const parsed = JSON.parse(raw) as LocalDraft;
     if (!parsed?.document || parsed.document.version == null) return null;
@@ -41,9 +43,9 @@ function readDraft(): LocalDraft | null {
   }
 }
 
-function writeDraft(draft: LocalDraft) {
+function writeDraft(userId: string | null | undefined, draft: LocalDraft) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+  window.localStorage.setItem(draftStorageKey(userId), JSON.stringify(draft));
 }
 
 function downloadJson(circuit: CircuitDocument) {
@@ -180,7 +182,7 @@ const TEMPLATES: Record<
 };
 
 export function CircuitLabClient() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { locale, t } = useLocale();
 
   const [currentDoc, setCurrentDoc] = useState<CircuitDocument>(TEMPLATES.divider!.doc);
@@ -197,13 +199,19 @@ export function CircuitLabClient() {
   const [docEpoch, setDocEpoch] = useState(0);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const savingRef = useRef(false);
+  const revisionRef = useRef(1);
+  revisionRef.current = activeRevision;
+  const seenAccount = useRef<string | undefined>(undefined);
 
   const rememberDraft = useCallback((document: CircuitDocument, projectId: string | null, revision: number) => {
-    writeDraft({ document, projectId, revision, savedAt: new Date().toISOString() });
-  }, []);
+    writeDraft(user?.id, { document, projectId, revision, savedAt: new Date().toISOString() });
+  }, [user?.id]);
 
   const fetchProjects = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      setProjects([]);
+      return;
+    }
     try {
       const res = await api<{ projects: ProjectItem[] }>("/circuits/projects");
       setProjects(res.projects ?? []);
@@ -217,21 +225,41 @@ export function CircuitLabClient() {
   }, [fetchProjects]);
 
   useEffect(() => {
-    const draft = readDraft();
-    if (!draft) return;
+    if (authLoading) return;
+    const account = user?.id ?? "";
+    const switched = seenAccount.current !== undefined && seenAccount.current !== account;
+    seenAccount.current = account;
+    if (!user) setProjects([]);
+    const draft = readDraft(user?.id);
+    if (!draft) {
+      if (switched) {
+        const tpl = TEMPLATES.divider!;
+        setActiveProjectId(null);
+        setActiveRevision(1);
+        revisionRef.current = 1;
+        setConflict(false);
+        setCurrentDoc(tpl.doc);
+        setCurrentAnalysis(tpl.analysis);
+        setDocEpoch((epoch) => epoch + 1);
+      }
+      return;
+    }
     setCurrentDoc(draft.document);
     setActiveProjectId(draft.projectId);
     setActiveRevision(draft.revision || 1);
+    revisionRef.current = draft.revision || 1;
     if (draft.document.analysis) setCurrentAnalysis(draft.document.analysis);
     setDocEpoch((epoch) => epoch + 1);
     setStatusMsg({ text: t.circuitLab.draftRestored });
-  }, [t.circuitLab.draftRestored]);
+  }, [authLoading, user?.id, t.circuitLab.draftRestored]);
 
   const loadTemplate = (key: string) => {
     const tpl = TEMPLATES[key];
     if (!tpl) return;
     setSelectedTemplate(key);
     setActiveProjectId(null);
+    setActiveRevision(1);
+    revisionRef.current = 1;
     setCurrentDoc({ ...tpl.doc, analysis: tpl.analysis });
     setCurrentAnalysis(tpl.analysis);
     setDocEpoch((epoch) => epoch + 1);
@@ -244,6 +272,7 @@ export function CircuitLabClient() {
     setConflict(false);
     setActiveProjectId(project.id);
     setActiveRevision(project.revision);
+    revisionRef.current = project.revision;
     setCurrentDoc(project.document);
     if (project.document.analysis) setCurrentAnalysis(project.document.analysis);
     setDocEpoch((epoch) => epoch + 1);
@@ -278,7 +307,7 @@ export function CircuitLabClient() {
     rememberDraft(document, activeProjectId, activeRevision);
     if (!user) {
       setStatusMsg({
-        text: locale === "en" ? "Log in to save circuit projects" : "Увійдіть в акаунт, щоб зберігати схеми",
+        text: t.circuitLab.loginToSave,
         error: true,
       });
       return;
@@ -296,11 +325,13 @@ export function CircuitLabClient() {
           body: {
             title: document.title || "Untitled Circuit",
             document,
-            expectedRevision: activeRevision,
+            expectedRevision: revisionRef.current,
           },
         });
+        revisionRef.current = res.project.revision;
         setActiveRevision(res.project.revision);
         setConflict(false);
+        rememberDraft(payloadDocument(), activeProjectId, res.project.revision);
         setStatusMsg({ text: t.circuitLab.projectSaved });
         void fetchProjects();
       } else {
@@ -312,7 +343,9 @@ export function CircuitLabClient() {
           },
         });
         setActiveProjectId(res.project.id);
+        revisionRef.current = res.project.revision;
         setActiveRevision(res.project.revision);
+        rememberDraft(payloadDocument(), res.project.id, res.project.revision);
         setStatusMsg({ text: t.circuitLab.projectSaved });
         void fetchProjects();
       }
@@ -328,10 +361,8 @@ export function CircuitLabClient() {
             errCode === "project_conflict"
               ? t.circuitLab.conflictError
               : errCode === "project_limit_reached"
-                ? locale === "en"
-                  ? "Limit of 100 projects reached"
-                  : "Досягнуто ліміт у 100 збережених проєктів"
-                : `Помилка збереження: ${errCode}`,
+                ? t.circuitLab.projectLimit
+                : `${t.circuitLab.saveFailed}: ${errCode}`,
           error: true,
         });
       }
@@ -342,7 +373,7 @@ export function CircuitLabClient() {
   };
 
   useEffect(() => {
-    rememberDraft(payloadDocument(), activeProjectId, activeRevision);
+    rememberDraft(payloadDocument(), activeProjectId, revisionRef.current);
     if (!user || !activeProjectId || conflict) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
@@ -360,7 +391,7 @@ export function CircuitLabClient() {
     rememberDraft(document, null, 1);
     if (!user) {
       setStatusMsg({
-        text: locale === "en" ? "Log in to save circuit projects" : "Увійдіть в акаунт, щоб зберігати схеми",
+        text: t.circuitLab.loginToSave,
         error: true,
       });
       return;
@@ -377,6 +408,7 @@ export function CircuitLabClient() {
         },
       });
       setActiveProjectId(res.project.id);
+      revisionRef.current = res.project.revision;
       setActiveRevision(res.project.revision);
       setConflict(false);
       rememberDraft(document, res.project.id, res.project.revision);

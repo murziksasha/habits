@@ -42,7 +42,7 @@ App-level map of course slug → group → hub → prerequisites and progression
 | `logic` | skill | `/courses/logic` | none | none | Sequences, invariants, counterexamples, De Morgan bug triage |
 | `sysadmin` | skill | `/courses/sysadmin` | none | `devops` | Workstation & SOHO troubleshooting (`ss`, `journalctl`, perms, restore) + local container operation (Podman/rootless Docker) |
 | `devops` | skill | `/courses/devops` | `sysadmin`, `express_fundamentals`, `postgresql_apps`, `software_testing` | `applied_algorithms` | Continuous delivery, CI/CD, registries, IaC, Kubernetes, observability, and on-call reliability + ForgeBoard M13 (`forgeboard-m13-devops`) |
-| `electrical_engineering` | skill | `/courses/electrical_engineering` | none | `embedded_cpp`, `programming` | Full engineering course: 10 stages, 60 modules, 360 lessons, SPICE lab & 3 capstone projects |
+| `electrical_engineering` | skill | `/courses/electrical_engineering` | none | `embedded_cpp`, `programming` | Electrical engineering v2: 10 stages, 60 modules, 360 lessons including 60 exams, seven graded SPICE lab cards, three capstones. Lab: `/courses/electrical_engineering/lab`. Publication requires reviewed content; sync does not republish drafts |
 | `chess` | chess | `/play` | none | none | Theory, puzzles, endgame accuracy review, bot sparring, and live rated chess |
 
 ## Rules
@@ -50,7 +50,7 @@ App-level map of course slug → group → hub → prerequisites and progression
 1. **No new root nav entry** per deep track — link from `/learn`, `/courses`, `/programming`.
 2. **No Postgres ENUM migration** for new slug — add to `COURSE_SLUGS` + content seed.
 3. **Hub** for code deep tracks is `/programming` (stack tree), not a top-level nav item.
-4. **Prerequisites are guidance**, not hard locks. Learners can open and complete any lesson or exam in any order.
+4. **Course prerequisites are guidance**, not hard locks. Unit exams require current-version completion of their non-exam unit lessons for authenticated opening and submission. This readiness rule is not a payment gate.
 
 ## Adding a course
 

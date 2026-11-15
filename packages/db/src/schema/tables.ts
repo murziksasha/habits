@@ -299,6 +299,8 @@ export const userLessonProgress = pgTable(
     evidenceLevel: varchar("evidence_level", { length: 32 }).notNull().default("insufficient_data"),
     lastSelfVerifiedAt: timestamp("last_self_verified_at", { withTimezone: true }),
     completedAt: timestamp("completed_at", { withTimezone: true }),
+    /** Latest successful pass. The first completion stays in completedAt. */
+    lastPracticedAt: timestamp("last_practiced_at", { withTimezone: true }),
     /** Content version recorded when the learner passed. Null is historical version 1. */
     completedContentVersion: integer("completed_content_version"),
   },

@@ -601,6 +601,7 @@ export async function submitLesson(
       ? prevLp?.lastSelfVerifiedAt ?? new Date()
       : prevLp?.lastSelfVerifiedAt ?? null;
 
+  const practicedAt = passed ? new Date() : null;
   if (prevLp) {
     await db
       .update(userLessonProgress)
@@ -610,7 +611,8 @@ export async function submitLesson(
         attempts: prevLp.attempts + 1,
         evidenceLevel,
         lastSelfVerifiedAt: updatedLastSelfVerifiedAt,
-        completedAt: passed ? prevLp.completedAt ?? new Date() : prevLp.completedAt,
+        completedAt: passed ? prevLp.completedAt ?? practicedAt : prevLp.completedAt,
+        lastPracticedAt: passed ? practicedAt : prevLp.lastPracticedAt,
         completedContentVersion: passed
           ? Math.max(prevLp.completedContentVersion ?? 0, lesson.contentVersion ?? 1)
           : prevLp.completedContentVersion,
@@ -626,7 +628,8 @@ export async function submitLesson(
       attempts: 1,
       evidenceLevel,
       lastSelfVerifiedAt: updatedLastSelfVerifiedAt,
-      completedAt: passed ? new Date() : null,
+      completedAt: practicedAt,
+      lastPracticedAt: practicedAt,
       completedContentVersion: passed ? (lesson.contentVersion ?? 1) : null,
     });
   }
