@@ -11,7 +11,6 @@ import {
   getCourseParts,
   getCoursePrerequisites,
   pickLocale,
-  UI,
 } from "@eduforge/shared";
 import { OracleSectionBar, prerequisiteLabels, unitInOracleSection } from "@/components/oracle-sections";
 import { useAuth } from "@/lib/auth-context";
@@ -117,7 +116,7 @@ export function CourseDetailClient() {
         <Skeleton className="h-28 w-full" />
         <Skeleton className="h-16 w-full" />
         <Skeleton className="h-16 w-full" />
-        <p className="sr-only">{UI.common.loading}</p>
+        <p className="sr-only">{t.common.loading}</p>
       </div>
     );
   }
@@ -259,7 +258,7 @@ export function CourseDetailClient() {
               <XpBar
                 xp={data.progress.xp}
                 color={data.course.color}
-                label={`${UI.dashboard.level} ${data.progress.level}`}
+                label={`${t.dashboard.level} ${data.progress.level}`}
               />
             </>
           ) : null}

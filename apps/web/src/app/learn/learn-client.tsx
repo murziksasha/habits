@@ -139,7 +139,7 @@ export function LearnClient() {
             </div>
             <div className="flex items-center gap-1.5 rounded-2xl border border-slate-200 bg-white p-1 text-xs font-bold dark:border-slate-800 dark:bg-slate-900">
               <span className="px-2 text-ink-muted">
-                ⏱️ {locale === "en" ? "Session:" : "Час:"}
+                ⏱️ {t.learn.sessionTime}
               </span>
               {([5, 10, 20] as const).map((mins) => (
                 <button
@@ -158,7 +158,7 @@ export function LearnClient() {
                   }`}
                   aria-pressed={sessionDuration === mins}
                 >
-                  {mins} {locale === "en" ? "min" : "хв"}
+                  {mins} {t.learn.minutesUnit}
                 </button>
               ))}
             </div>

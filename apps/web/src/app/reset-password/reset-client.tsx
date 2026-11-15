@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { UI } from "@eduforge/shared";
+import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
 
 function ResetForm() {
+  const { t } = useLocale();
   const params = useSearchParams();
   const router = useRouter();
   const token = params.get("token") ?? "";
@@ -38,7 +39,7 @@ function ResetForm() {
       <div className="card mx-auto max-w-md text-center space-y-3">
         <p className="font-bold">Немає токена скидання</p>
         <Link href="/forgot-password" className="btn-primary">
-          {UI.password.forgotTitle}
+          {t.password.forgotTitle}
         </Link>
       </div>
     );
@@ -46,13 +47,13 @@ function ResetForm() {
 
   return (
     <div className="mx-auto max-w-md card space-y-4">
-      <h1 className="text-2xl font-black">{UI.password.resetTitle}</h1>
+      <h1 className="text-2xl font-black">{t.password.resetTitle}</h1>
       {ok ? (
-        <p className="font-bold text-brand-dark">{UI.password.success}</p>
+        <p className="font-bold text-brand-dark">{t.password.success}</p>
       ) : (
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
-            <label className="label">{UI.password.newPassword}</label>
+            <label className="label">{t.password.newPassword}</label>
             <input
               className="input"
               type="password"
@@ -64,7 +65,7 @@ function ResetForm() {
           </div>
           {error && <p className="text-sm font-bold text-red-500">{error}</p>}
           <button className="btn-primary w-full" disabled={loading}>
-            {UI.password.submitReset}
+            {t.password.submitReset}
           </button>
         </form>
       )}
@@ -73,8 +74,9 @@ function ResetForm() {
 }
 
 export function ResetPasswordClient() {
+  const { t } = useLocale();
   return (
-    <Suspense fallback={<p>{UI.common.loading}</p>}>
+    <Suspense fallback={<p>{t.common.loading}</p>}>
       <ResetForm />
     </Suspense>
   );

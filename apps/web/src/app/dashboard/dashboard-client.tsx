@@ -67,6 +67,13 @@ export function DashboardClient() {
   } = useApiQuery<HomePayload>("/me/home");
   const homeError = Boolean(homeErrorMsg);
   const [loginBonus, setLoginBonus] = useState<number | null>(null);
+  const [sessionDuration, setSessionDuration] = useState<5 | 10 | 20>(() => {
+    if (typeof window !== "undefined") {
+      const saved = Number(localStorage.getItem("eduforge_session_duration"));
+      if (saved === 5 || saved === 10 || saved === 20) return saved;
+    }
+    return 10;
+  });
 
   const persona = resolvePersona(character?.onboarding);
 
@@ -222,7 +229,37 @@ export function DashboardClient() {
       </section>
 
       {/* One learning action. Daily quests stay on /learn. */}
-      <PrimaryMission showSecondary />
+      <section className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-sm font-black uppercase text-ink-muted">
+            {t.learn.sessionTitle}
+          </h2>
+          <div className="flex items-center gap-1.5 rounded-2xl border border-slate-200 bg-white p-1 text-xs font-bold dark:border-slate-800 dark:bg-slate-900">
+            <span className="px-2 text-ink-muted">⏱️ {t.learn.sessionTime}</span>
+            {([5, 10, 20] as const).map((mins) => (
+              <button
+                key={mins}
+                type="button"
+                onClick={() => {
+                  setSessionDuration(mins);
+                  if (typeof window !== "undefined") {
+                    localStorage.setItem("eduforge_session_duration", String(mins));
+                  }
+                }}
+                className={`rounded-xl px-2.5 py-1 transition ${
+                  sessionDuration === mins
+                    ? "bg-brand text-white font-black shadow-sm"
+                    : "text-ink-muted hover:text-ink hover:bg-slate-100 dark:hover:bg-slate-800"
+                }`}
+                aria-pressed={sessionDuration === mins}
+              >
+                {mins} {t.learn.minutesUnit}
+              </button>
+            ))}
+          </div>
+        </div>
+        <PrimaryMission minutes={sessionDuration} showSecondary={false} />
+      </section>
 
       {home?.progress && home.progress.length > 0 && (
         <section className="space-y-2">

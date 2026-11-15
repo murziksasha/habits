@@ -12,7 +12,6 @@ import {
   localizeExerciseOptions,
   localizeMatchPairs,
   getUI,
-  UI,
   type ExplainKeyIdea,
   type CircuitDocument,
   type CircuitAnalysis,
@@ -91,6 +90,7 @@ export function ExercisePlayer({
   /** Lesson id (enables tutor feedback on explain exercises) */
   lessonId?: string;
 }) {
+  const { t } = useLocale();
   const body = (() => {
     switch (exercise.type) {
       case "mcq":
@@ -145,7 +145,7 @@ export function ExercisePlayer({
       case "circuit_lab":
         return <CircuitLabExerciseComponent exercise={exercise} onAnswer={onAnswer} />;
       default:
-        return <p>Невідомий тип: {exercise.type}</p>;
+        return <p>{t.lesson.unknownExerciseType}: {exercise.type}</p>;
     }
   })();
 
@@ -426,7 +426,7 @@ function DrillFooter({
           disabled={!canCheck}
           onClick={onCheck}
         >
-          {UI.lesson.check}
+          {t.lesson.check}
         </button>
         {soft.canSkip ? (
           <button
@@ -652,7 +652,7 @@ function TextExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const prompt = usePrompt(exercise);
   const [value, setValue] = useState("");
   const source =
@@ -696,7 +696,7 @@ function TextExercise({
         disabled={!value.trim()}
         onClick={() => onAnswer(value)}
       >
-        {UI.lesson.check}
+        {t.lesson.check}
       </button>
     </div>
   );
@@ -709,7 +709,7 @@ function MatchExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const prompt = usePrompt(exercise);
   const pairs = useMemo(
     () =>
@@ -853,7 +853,7 @@ function MatchExercise({
         disabled={matched.length !== pairs.length}
         onClick={() => onAnswer(matched)}
       >
-        {UI.lesson.check}
+        {t.lesson.check}
       </button>
     </div>
   );
@@ -1500,6 +1500,7 @@ function TypingExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
+  const { locale, t } = useLocale();
   const text = String(exercise.text ?? "");
   const [value, setValue] = useState("");
   const [started, setStarted] = useState<number | null>(null);
@@ -1542,14 +1543,14 @@ function TypingExercise({
           if (!started) setStarted(Date.now());
           setValue(e.target.value);
         }}
-        placeholder="Почніть друкувати…"
+        placeholder={locale === "en" ? "Start typing…" : "Почніть друкувати…"}
       />
       <div className="flex gap-4 text-sm font-bold">
         <span>
-          {UI.typing.wpm}: {wpm}
+          {t.typing.wpm}: {wpm}
         </span>
         <span>
-          {UI.typing.accuracy}: {Math.round(accuracy * 100)}%
+          {t.typing.accuracy}: {Math.round(accuracy * 100)}%
         </span>
       </div>
       <button
@@ -1557,7 +1558,7 @@ function TypingExercise({
         disabled={!done}
         onClick={() => onAnswer({ wpm, accuracy, completed: true })}
       >
-        {UI.lesson.check}
+        {t.lesson.check}
       </button>
     </div>
   );
@@ -1570,6 +1571,7 @@ function RsvpExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
+  const { t } = useLocale();
   const words = String(exercise.text ?? "").split(/\s+/).filter(Boolean);
   const wpm = Number(exercise.wpm ?? 240);
   const [i, setI] = useState(-1);
@@ -1595,7 +1597,7 @@ function RsvpExercise({
         {i < 0 ? "…" : finished ? "✓" : words[i]}
       </div>
       <p className="text-sm font-bold text-ink-muted">
-        {UI.reading.wpm}: {wpm}
+        {t.reading.wpm}: {wpm}
       </p>
       {!running && !finished && (
         <button
@@ -1605,12 +1607,12 @@ function RsvpExercise({
             setRunning(true);
           }}
         >
-          {UI.reading.startRsvp}
+          {t.reading.startRsvp}
         </button>
       )}
       {finished && (
         <button className="btn-primary" onClick={() => onAnswer({ completed: true })}>
-          {UI.lesson.continue}
+          {t.lesson.continue}
         </button>
       )}
     </div>
@@ -1624,6 +1626,7 @@ function ComprehensionExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
+  const { locale, t } = useLocale();
   const questions = (exercise.questions as { q: string; options: string[] }[]) ?? [];
   const optionOrders = useMemo(
     () => questions.map((q, qi) => stableOptionOrder(`${String(exercise.id)}:${qi}`, q.options.length)),
@@ -1638,7 +1641,7 @@ function ComprehensionExercise({
       <div className="rounded-2xl bg-slate-100 p-4 leading-relaxed">{String(exercise.passage)}</div>
       {!showQs ? (
         <button className="btn-primary" onClick={() => setShowQs(true)}>
-          До питань
+          {locale === "en" ? "To questions" : "До питань"}
         </button>
       ) : (
         <>
@@ -1667,7 +1670,7 @@ function ComprehensionExercise({
             disabled={answers.some((a) => a === null)}
             onClick={() => onAnswer(answers)}
           >
-            {UI.lesson.check}
+            {t.lesson.check}
           </button>
         </>
       )}
@@ -1682,6 +1685,7 @@ function ChessPuzzleExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
+  const { t } = useLocale();
   const fen = String(exercise.fen);
   const solution = (exercise.solutionSans as string[]) ?? [];
   const [game, setGame] = useState(() => new Chess(fen));
@@ -1707,7 +1711,7 @@ function ChessPuzzleExercise({
       const expected = solution[nextSans.length - 1];
       const norm = (s: string) => s.replace(/[+#]/g, "");
       if (expected && norm(move.san) !== norm(expected)) {
-        setMsg("Не той хід — спробуйте ще");
+        setMsg(t.chess.wrongMove);
         setTimeout(() => {
           setGame(new Chess(fen));
           setSans([]);
@@ -1719,7 +1723,7 @@ function ChessPuzzleExercise({
       setSans(nextSans);
       setGame(g);
       if (nextSans.length >= solution.length) {
-        setMsg(UI.lesson.correct);
+        setMsg(t.lesson.correct);
         if (g.isCheckmate()) {
           setEndReason("checkmate");
           onAnswer({ solved: true, sans: nextSans, mate: true });
@@ -1747,7 +1751,7 @@ function ChessPuzzleExercise({
           viewer={viewer}
           onMove={onDrop}
           endReason={endReason}
-          endLine={UI.chess.puzzleSolved}
+          endLine={t.chess.puzzleSolved}
           boardWidth={360}
         />
       </div>
@@ -1763,6 +1767,7 @@ function ChessLessonExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
+  const { t } = useLocale();
   const quiz = exercise.quiz as { q: string; options: string[]; correctIndex: number } | undefined;
   const order = useMemo(
     () => stableOptionOrder(`${String(exercise.id)}:quiz`, quiz?.options.length ?? 0),
@@ -1815,12 +1820,12 @@ function ChessLessonExercise({
             disabled={selected === null}
             onClick={() => selected !== null && onAnswer(selected)}
           >
-            {UI.lesson.check}
+            {t.lesson.check}
           </button>
         </>
       ) : (
         <button className="btn-primary" onClick={() => onAnswer(true)}>
-          {UI.lesson.continue}
+          {t.lesson.continue}
         </button>
       )}
     </div>
@@ -1838,7 +1843,7 @@ function ConceptExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const en = locale === "en";
   const body = String(
     (en ? exercise.bodyEn || exercise.bodyUk : exercise.bodyUk || exercise.bodyEn) ?? "",
@@ -1908,7 +1913,7 @@ function ConceptExercise({
             disabled={selected === null}
             onClick={() => selected !== null && onAnswer(selected)}
           >
-            {UI.lesson.check}
+            {t.lesson.check}
           </button>
         </>
       ) : (
@@ -1931,7 +1936,7 @@ function ExplainExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const en = locale === "en";
   const { token } = useAuth();
   const lessonId = useContext(LessonIdCtx);
@@ -2023,7 +2028,7 @@ function ExplainExercise({
       )}
       <div className="flex flex-wrap gap-2">
         <button className="btn-primary" disabled={!text.trim()} onClick={check}>
-          {UI.lesson.check}
+          {t.lesson.check}
         </button>
         {lessonId && !examMode && (
           <button
@@ -2061,7 +2066,7 @@ function VideoExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const url = String(exercise.videoUrl ?? "");
   const durationSec = Number(exercise.durationSec ?? exercise.videoDurationSec ?? 60);
   const minRatio = Number(exercise.minWatchRatio ?? 0.8);
@@ -2125,7 +2130,7 @@ function VideoExercise({
         }
       >
         {done || ratio >= minRatio
-          ? UI.lesson.continue
+          ? t.lesson.continue
           : locale === "en"
             ? "Keep watching…"
             : "Дивіться далі…"}
@@ -2482,7 +2487,7 @@ function NumericExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const prompt = usePrompt(exercise);
   const hint = useExerciseHint(exercise);
   const soft = useSoftAttempts(hint.setOpen);
@@ -2635,7 +2640,7 @@ function NumericExercise({
           onClick={handleSubmit}
           className="btn-primary"
         >
-          {UI.lesson.check}
+          {t.lesson.check}
         </button>
 
         {soft.canSkip && (

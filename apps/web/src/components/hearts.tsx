@@ -1,6 +1,6 @@
 "use client";
 
-import { UI } from "@eduforge/shared";
+import { useLocale } from "@/lib/locale-context";
 import clsx from "clsx";
 
 export function HeartsBar({
@@ -12,6 +12,7 @@ export function HeartsBar({
   max?: number;
   compact?: boolean;
 }) {
+  const { t } = useLocale();
   const shown = Math.min(max, Math.max(0, hearts));
   const unlimited = hearts >= 100;
 
@@ -22,7 +23,7 @@ export function HeartsBar({
           "inline-flex items-center gap-1 rounded-full bg-red-50 px-3 py-1 font-bold text-red-500",
           compact ? "text-xs" : "text-sm",
         )}
-        title={UI.hearts.label}
+        title={t.hearts.label}
       >
         ❤️ ∞
       </div>
@@ -35,7 +36,7 @@ export function HeartsBar({
         "inline-flex items-center gap-0.5 rounded-full bg-red-50 px-2 py-1",
         compact ? "text-sm" : "text-base",
       )}
-      title={`${UI.hearts.label}: ${shown}/${max}`}
+      title={`${t.hearts.label}: ${shown}/${max}`}
     >
       {Array.from({ length: max }).map((_, i) => (
         <span key={i} className={i < shown ? "opacity-100" : "opacity-25 grayscale"}>

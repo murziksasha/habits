@@ -13,6 +13,7 @@ import {
   type SubjectId,
 } from "@eduforge/shared";
 import { useLocale } from "@/lib/locale-context";
+import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api";
 
 type ApiCourse = {
@@ -38,7 +39,12 @@ export function SubjectCatalog({
   showChessBot?: boolean;
 }) {
   const { t, locale } = useLocale();
+  const { token, user } = useAuth();
   const [courses, setCourses] = useState<ApiCourse[] | null>(null);
+  const [userProgress, setUserProgress] = useState<
+    Record<string, { completedLessons: number; level: number; xp: number }>
+  >({});
+  const [filterMyCourses, setFilterMyCourses] = useState(false);
   const [error, setError] = useState(false);
   const [query, setQuery] = useState("");
   const [subject, setSubject] = useState<SubjectId | "all">("all");
@@ -52,15 +58,42 @@ export function SubjectCatalog({
       .catch(() => {
         if (!cancelled) setError(true);
       });
+
+    if (token && user) {
+      void api<{
+        progress?: Array<{ slug: string; completedLessons: number; level: number; xp: number }>;
+      }>("/courses/progress/me", { token })
+        .then((d) => {
+          if (cancelled || !d.progress) return;
+          const map: Record<string, { completedLessons: number; level: number; xp: number }> = {};
+          for (const row of d.progress) {
+            map[row.slug] = {
+              completedLessons: row.completedLessons ?? 0,
+              level: row.level ?? 1,
+              xp: row.xp ?? 0,
+            };
+          }
+          setUserProgress(map);
+        })
+        .catch(() => undefined);
+    } else {
+      setUserProgress({});
+    }
+
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [token, user]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return (courses ?? [])
       .filter((c) => (subject === "all" ? true : subjectForCourse(c.slug) === subject))
+      .filter((c) => {
+        if (!filterMyCourses) return true;
+        const p = userProgress[c.slug];
+        return Boolean(p && p.completedLessons > 0);
+      })
       .filter((c) => {
         if (!q) return true;
         const hay = `${c.titleUk} ${c.titleEn ?? ""} ${c.descriptionUk ?? ""} ${c.descriptionEn ?? ""}`.toLowerCase();
@@ -71,7 +104,7 @@ export function SubjectCatalog({
         if (as !== 0) return as;
         return pickLocale(locale, a.titleUk, a.titleEn).localeCompare(pickLocale(locale, b.titleUk, b.titleEn));
       });
-  }, [courses, query, subject, locale]);
+  }, [courses, query, subject, locale, filterMyCourses, userProgress]);
 
   if (error) {
     return (
@@ -105,11 +138,24 @@ export function SubjectCatalog({
         />
       </label>
       <div className="flex flex-wrap gap-2" role="group" aria-label={t.catalog.all}>
+        {user ? (
+          <button
+            type="button"
+            className={filterMyCourses ? "btn-primary !px-3 !py-2 text-sm" : "btn-secondary !px-3 !py-2 text-sm"}
+            aria-pressed={filterMyCourses}
+            onClick={() => setFilterMyCourses((prev) => !prev)}
+          >
+            ⭐ {t.catalog.myCourses}
+          </button>
+        ) : null}
         <button
           type="button"
-          className={subject === "all" ? "btn-primary !px-3 !py-2 text-sm" : "btn-secondary !px-3 !py-2 text-sm"}
-          aria-pressed={subject === "all"}
-          onClick={() => setSubject("all")}
+          className={!filterMyCourses && subject === "all" ? "btn-primary !px-3 !py-2 text-sm" : "btn-secondary !px-3 !py-2 text-sm"}
+          aria-pressed={!filterMyCourses && subject === "all"}
+          onClick={() => {
+            setSubject("all");
+            if (filterMyCourses) setFilterMyCourses(false);
+          }}
         >
           {t.catalog.all}
         </button>
@@ -117,9 +163,12 @@ export function SubjectCatalog({
           <button
             key={id}
             type="button"
-            className={subject === id ? "btn-primary !px-3 !py-2 text-sm" : "btn-secondary !px-3 !py-2 text-sm"}
-            aria-pressed={subject === id}
-            onClick={() => setSubject(id)}
+            className={!filterMyCourses && subject === id ? "btn-primary !px-3 !py-2 text-sm" : "btn-secondary !px-3 !py-2 text-sm"}
+            aria-pressed={!filterMyCourses && subject === id}
+            onClick={() => {
+              setSubject(id);
+              if (filterMyCourses) setFilterMyCourses(false);
+            }}
           >
             {pickLocale(locale, SUBJECT_META[id].titleUk, SUBJECT_META[id].titleEn)}
           </button>
@@ -129,29 +178,48 @@ export function SubjectCatalog({
     </div>
   );
 
-  const card = (c: ApiCourse) => (
-    <Link
-      key={c.slug}
-      href={hubHref(c.slug)}
-      className="card flex min-h-11 flex-col gap-2 border-l-4 hover:border-brand/40"
-      style={{ borderLeftColor: c.color }}
-    >
-      <span className="text-2xl" aria-hidden>
-        {c.icon}
-      </span>
-      <span className="font-black">{pickLocale(locale, c.titleUk, c.titleEn)}</span>
-      <span className="text-sm text-ink-muted line-clamp-2">
-        {pickLocale(locale, c.descriptionUk ?? "", c.descriptionEn)}
-      </span>
-      <span className="text-xs font-bold text-ink-muted">
-        {pickLocale(
-          locale,
-          SUBJECT_META[subjectForCourse(c.slug)].titleUk,
-          SUBJECT_META[subjectForCourse(c.slug)].titleEn,
-        )}
-      </span>
-    </Link>
-  );
+  const card = (c: ApiCourse) => {
+    const prog = userProgress[c.slug];
+    const isEnrolled = Boolean(prog && prog.completedLessons > 0);
+
+    return (
+      <Link
+        key={c.slug}
+        href={hubHref(c.slug)}
+        className="card flex min-h-11 flex-col gap-2 border-l-4 hover:border-brand/40"
+        style={{ borderLeftColor: c.color }}
+      >
+        <div className="flex items-center justify-between">
+          <span className="text-2xl" aria-hidden>
+            {c.icon}
+          </span>
+          {isEnrolled ? (
+            <span className="rounded-full bg-brand-soft px-2 py-0.5 text-xs font-bold text-brand-dark dark:bg-brand-soft/20 dark:text-brand-light">
+              ✓ {prog.completedLessons} {t.catalog.lessonsCount}
+            </span>
+          ) : null}
+        </div>
+        <span className="font-black">{pickLocale(locale, c.titleUk, c.titleEn)}</span>
+        <span className="text-sm text-ink-muted line-clamp-2">
+          {pickLocale(locale, c.descriptionUk ?? "", c.descriptionEn)}
+        </span>
+        <div className="mt-auto flex items-center justify-between text-xs font-bold text-ink-muted">
+          <span>
+            {pickLocale(
+              locale,
+              SUBJECT_META[subjectForCourse(c.slug)].titleUk,
+              SUBJECT_META[subjectForCourse(c.slug)].titleEn,
+            )}
+          </span>
+          {isEnrolled ? (
+            <span className="text-brand font-bold">
+              {t.dashboard.level} {prog.level}
+            </span>
+          ) : null}
+        </div>
+      </Link>
+    );
+  };
 
   const featuredCourses = (courses ?? []).filter((c) =>
     (FEATURED_COURSE_SLUGS as readonly string[]).includes(c.slug),

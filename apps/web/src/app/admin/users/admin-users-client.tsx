@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { UI } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
@@ -174,12 +173,12 @@ export function AdminUsersClient() {
   }
 
   if (loading || user?.role !== "admin") {
-    return <PageLoading label={UI.common.loading} />;
+    return <PageLoading label={t.common.loading} />;
   }
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-black">{UI.admin.users}</h1>
+      <h1 className="text-3xl font-black">{t.admin.users}</h1>
       {msg && <p className="text-sm font-bold text-red-500">{msg}</p>}
       <input
         className="input max-w-md"
@@ -194,7 +193,7 @@ export function AdminUsersClient() {
               <th className="pb-2">Email</th>
               <th className="pb-2">Ім&apos;я</th>
               <th className="pb-2">XP</th>
-              <th className="pb-2">{UI.admin.role}</th>
+              <th className="pb-2">{t.admin.role}</th>
               <th className="pb-2">Created</th>
               <th className="pb-2">{t.admin.actions}</th>
             </tr>

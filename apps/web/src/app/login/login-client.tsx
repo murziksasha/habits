@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { safeNextPath, UI } from "@eduforge/shared";
+import { safeNextPath } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { API_URL } from "@/lib/api";
@@ -85,7 +85,7 @@ function LoginForm() {
 
   return (
     <div className="mx-auto max-w-md card">
-      <h1 className="text-2xl font-black">{UI.auth.loginTitle}</h1>
+      <h1 className="text-2xl font-black">{t.auth.loginTitle}</h1>
       {(restored || undone) && (
         <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-sm font-bold text-amber-950" role="status">
           {restored ? t.admin.backupSignedOut : t.admin.backupUndoneLogin}
@@ -100,7 +100,7 @@ function LoginForm() {
         {!mfaToken ? (
           <>
             <div>
-              <label className="label">{UI.auth.email}</label>
+              <label className="label">{t.auth.email}</label>
               <input
                 className="input"
                 type="email"
@@ -110,7 +110,7 @@ function LoginForm() {
               />
             </div>
             <div>
-              <label className="label">{UI.auth.password}</label>
+              <label className="label">{t.auth.password}</label>
               <input
                 className="input"
                 type="password"
@@ -143,7 +143,7 @@ function LoginForm() {
           </p>
         )}
         <button type="submit" className="btn-primary w-full min-h-11" disabled={loading}>
-          {mfaToken ? "Підтвердити 2FA" : UI.auth.submitLogin}
+          {mfaToken ? "Підтвердити 2FA" : t.auth.submitLogin}
         </button>
       </form>
       {!mfaToken && (
@@ -168,16 +168,16 @@ function LoginForm() {
       )}
       <p className="mt-3 text-center text-sm">
         <Link href="/forgot-password" className="font-bold text-sky">
-          {UI.password.forgot}
+          {t.password.forgot}
         </Link>
       </p>
       <p className="mt-2 text-center text-sm text-ink-muted">
-        {UI.auth.noAccount}{" "}
+        {t.auth.noAccount}{" "}
         <Link
           href={hasFriendInvite && friendId ? `/register?friend=${friendId}` : "/register"}
           className="font-bold text-sky"
         >
-          {UI.nav.register}
+          {t.nav.register}
         </Link>
       </p>
     </div>
@@ -185,8 +185,9 @@ function LoginForm() {
 }
 
 export function LoginClient() {
+  const { t } = useLocale();
   return (
-    <Suspense fallback={<p>{UI.common.loading}</p>}>
+    <Suspense fallback={<p>{t.common.loading}</p>}>
       <LoginForm />
     </Suspense>
   );
