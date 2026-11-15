@@ -1,16 +1,50 @@
-import type { CourseContent } from "./types.js";
+import type { CourseContent, UnitContent } from "./types.js";
 import {
   codeFill,
   codeOrder,
+  codeOrderAuto,
+  codeOutputMcq,
   codeRead,
   exam,
   lesson,
   matchEx,
   mcq,
   unit,
+  why,
 } from "./builders.js";
+import {
+  accessUnit,
+  aggDepthLessons,
+  capstoneOracleExercises,
+  conversionUnit,
+  ddlDepthLessons,
+  dmlDepthLessons,
+  joinDepthLessons,
+  restrictDepthLessons,
+  schemaUnit,
+  selectDepthLessons,
+  selectIntroLessons,
+  setOpsUnit,
+  singleRowUnit,
+  subqueriesUnit,
+} from "./sql-oracle-track.js";
+import { sqlCtePerformanceUnit } from "./deep-units.js";
+import { rebalanceExamLessons } from "./sql-exam-balance.js";
+import { modernSqlUnits } from "./sql-expansion.js";
+import { modernSqlUnitsB } from "./sql-expansion-b.js";
+import { modernSqlUnitsC } from "./sql-expansion-c.js";
+import { plsqlUnitsA } from "./sql-plsql-units.js";
+import { plsqlUnitsB } from "./sql-plsql-units-b.js";
+import { plsqlUnitsC } from "./sql-plsql-units-c.js";
+import { dbaUnitsA } from "./sql-dba-units.js";
+import { dbaUnitsB } from "./sql-dba-units-b.js";
 
-const selectU = unit("select", "SELECT basics", "SELECT basics", [
+function withBalancedExams(units: UnitContent[]): UnitContent[] {
+  return units.map((u) => ({ ...u, lessons: rebalanceExamLessons(u.lessons) }));
+}
+
+const selectU = unit("select", "SELECT і модель", "SELECT and the model", [
+  ...selectIntroLessons,
   lesson(
     "sqlf-select",
     "SELECT / FROM",
@@ -23,6 +57,7 @@ const selectU = unit("select", "SELECT basics", "SELECT basics", [
       mcq("sqlf-s3", "SELECT повертає:", "SELECT returns:", ["рядки (result set)", "лише schema", "git log", "CSS"], 0),
     ],
   ),
+  ...selectDepthLessons,
   lesson(
     "sqlf-where",
     "WHERE filters",
@@ -43,7 +78,7 @@ const selectU = unit("select", "SELECT basics", "SELECT basics", [
   ]),
 ]);
 
-const orderLimit = unit("order-limit", "ORDER BY / LIMIT", "ORDER BY / LIMIT", [
+const orderLimit = unit("order-limit", "Фільтри і сортування", "Filters and sorting", [
   lesson(
     "sqlf-order",
     "Sorting",
@@ -58,28 +93,57 @@ const orderLimit = unit("order-limit", "ORDER BY / LIMIT", "ORDER BY / LIMIT", [
   ),
   lesson(
     "sqlf-limit",
-    "LIMIT / OFFSET",
-    "LIMIT / OFFSET",
+    "OFFSET і FETCH",
+    "OFFSET and FETCH",
     2,
     false,
     [
-      codeFill("sqlf-o4", "limit", "limit", "sql", "SELECT * FROM t LIMIT ___;", ["10", "1", "100"], false),
-      mcq("sqlf-o5", "OFFSET used for:", "OFFSET used for:", ["pagination skip", "delete all", "create table", "grant"], 0),
+      codeFill(
+        "sqlf-o4",
+        "Перші рядки в Oracle 12c і новіше",
+        "First rows on Oracle 12c and later",
+        "sql",
+        "SELECT * FROM t ORDER BY id ___ FIRST 10 ROWS ONLY;",
+        ["FETCH", "fetch"],
+        false,
+      ),
+      mcq(
+        "sqlf-o5",
+        "OFFSET … ROWS у Oracle означає:",
+        "OFFSET … ROWS in Oracle means:",
+        ["видалення всіх рядків", "пропуск рядків сторінки", "створення таблиці", "видачу права"],
+        1,
+      ),
       codeOrder(
         "sqlf-o6",
-        "Typical page query order",
-        "Typical page query order",
+        "Порядок сторінки: пропустити 40, взяти 20",
+        "Page order: skip 40, take 20",
         "sql",
-        ["LIMIT 20;", "SELECT * FROM posts", "ORDER BY id DESC", "OFFSET 40;"],
-        ["SELECT * FROM posts", "ORDER BY id DESC", "LIMIT 20;", "OFFSET 40;"],
+        ["FETCH NEXT 20 ROWS ONLY;", "SELECT * FROM posts", "ORDER BY id DESC", "OFFSET 40 ROWS"],
+        ["SELECT * FROM posts", "ORDER BY id DESC", "OFFSET 40 ROWS", "FETCH NEXT 20 ROWS ONLY;"],
       ),
     ],
   ),
+  ...restrictDepthLessons,
   exam("sqlf-order-exam", "Контрольна: order/limit", "Exam: order/limit", 2, [
     codeFill("sqlf-oe1", "ORDER BY", "ORDER BY", "sql", "SELECT * FROM t ___ name;", ["ORDER BY", "order by"], false),
     codeFill("sqlf-oe2", "DESC", "DESC", "sql", "ORDER BY n ___;", ["DESC", "desc"], false),
-    codeFill("sqlf-oe3", "LIMIT", "LIMIT", "sql", "SELECT * FROM t ___ 5;", ["LIMIT", "limit"], false),
-    mcq("sqlf-oe4", "OFFSET:", "OFFSET:", ["skip rows", "sort only", "group only", "DDL"], 0),
+    codeFill(
+      "sqlf-oe3",
+      "Перші 5 рядків",
+      "First 5 rows",
+      "sql",
+      "SELECT * FROM t ORDER BY id ___ FIRST 5 ROWS ONLY;",
+      ["FETCH", "fetch"],
+      false,
+    ),
+    mcq(
+      "sqlf-oe4",
+      "OFFSET … ROWS:",
+      "OFFSET … ROWS:",
+      ["лише сортування", "пропуск рядків перед FETCH", "лише групування", "команда DDL"],
+      1,
+    ),
   ]),
 ]);
 
@@ -153,6 +217,7 @@ const joins = unit("joins", "JOINs", "JOINs", [
       ),
     ],
   ),
+  ...joinDepthLessons,
   exam("sqlf-join-exam", "Контрольна: JOINs", "Exam: JOINs", 2, [
     codeFill("sqlf-je1", "JOIN", "JOIN", "sql", "a ___ JOIN b ON …", ["INNER", "LEFT", "inner", "left"], false),
     codeFill("sqlf-je2", "ON", "ON", "sql", "JOIN b ___ a.id = b.a_id", ["ON", "on"], false),
@@ -208,6 +273,7 @@ const aggregates = unit("aggregates", "Aggregates", "Aggregates", [
       ),
     ],
   ),
+  ...aggDepthLessons,
   exam("sqlf-agg-exam", "Контрольна: aggregates", "Exam: aggregates", 2, [
     codeFill("sqlf-ae1", "COUNT", "COUNT", "sql", "SELECT ___(*) FROM t;", ["COUNT", "count"], false),
     codeFill("sqlf-ae2", "GROUP BY", "GROUP BY", "sql", "SELECT a, COUNT(*) FROM t ___ a;", ["GROUP BY", "group by"], false),
@@ -270,6 +336,7 @@ const dml = unit("dml", "INSERT / UPDATE / DELETE", "INSERT / UPDATE / DELETE", 
       ),
     ],
   ),
+  ...dmlDepthLessons,
   exam("sqlf-dml-exam", "Контрольна: DML", "Exam: DML", 2, [
     codeFill("sqlf-de1", "INSERT", "INSERT", "sql", "___ INTO t (a) VALUES (1);", ["INSERT", "insert"], false),
     codeFill("sqlf-de2", "SET", "SET", "sql", "UPDATE t ___ a = 2;", ["SET", "set"], false),
@@ -344,6 +411,7 @@ const modeling = unit("modeling", "Keys & modeling", "Keys & modeling", [
       ),
     ],
   ),
+  ...ddlDepthLessons,
   exam("sqlf-model-exam", "Контрольна: modeling", "Exam: modeling", 2, [
     mcq("sqlf-me1", "PK:", "PK:", ["unique row id", "optional dupes", "join type", "limit"], 0),
     mcq("sqlf-me2", "FK:", "FK:", ["reference other table", "sort", "CSS", "HTTP"], 0),
@@ -351,6 +419,212 @@ const modeling = unit("modeling", "Keys & modeling", "Keys & modeling", [
     mcq("sqlf-me4", "NOT NULL:", "NOT NULL:", ["required column", "optional", "join", "aggregate"], 0),
   ]),
 ]);
+
+const queryRepairScenarios = unit(
+  "query_repair_scenarios",
+  "Scenario: дебаг та виправлення SQL-запитів",
+  "Scenario: Query Repair & Debugging",
+  [
+    lesson(
+      "sql-repair-group-having",
+      "Виправлення помилок GROUP BY та HAVING",
+      "Repairing GROUP BY & HAVING errors",
+      3,
+      false,
+      [
+        codeRead(
+          "sql-rep-1",
+          "Чому цей запит викликає помилку ORA-00979 / SQL syntax error?",
+          "Why does this query trigger GROUP BY error?",
+          "sql",
+          "SELECT dept_id, job_title, AVG(salary)\nFROM employees\nGROUP BY dept_id; -- job_title missing in GROUP BY!",
+          [
+            "job_title є в SELECT, але відсутній у списку GROUP BY і не загорнутий в агрегатну функцію",
+            "AVG() не працює з числами",
+            "dept_id має бути в лапках",
+            "FROM має йти після GROUP BY",
+          ],
+          0,
+        ),
+        codeFill(
+          "sql-rep-2",
+          "Фільтрація агрегованих груп: виправлення WHERE на HAVING",
+          "Filter aggregated groups using HAVING instead of WHERE",
+          "sql",
+          "SELECT dept_id, COUNT(*)\nFROM employees\nGROUP BY dept_id\n___ COUNT(*) >= 5;",
+          ["HAVING", "having"],
+          false,
+        ),
+        codeOrder(
+          "sql-rep-3",
+          "Логічний порядок виконання запиту СУБД (SQL execution order)",
+          "Logical SQL execution order in RDBMS",
+          "sql",
+          [
+            "3. GROUP BY (групування рядків)",
+            "1. FROM / JOIN (визначення джерел таблиць)",
+            "5. SELECT (проекція стовпців)",
+            "2. WHERE (рядкова фільтрація)",
+            "6. ORDER BY (сортування фінального результату)",
+            "4. HAVING (фільтрація агрегованих груп)",
+          ],
+          [
+            "1. FROM / JOIN (визначення джерел таблиць)",
+            "2. WHERE (рядкова фільтрація)",
+            "3. GROUP BY (групування рядків)",
+            "4. HAVING (фільтрація агрегованих груп)",
+            "5. SELECT (проекція стовпців)",
+            "6. ORDER BY (сортування фінального результату)",
+          ],
+          why(
+            "WHERE виконується до GROUP BY, тому агрегати доступні лише починаючи з HAVING / SELECT.",
+            "WHERE executes before GROUP BY, so aggregates can only be filtered in HAVING.",
+          ),
+        ),
+      ],
+    ),
+    lesson(
+      "sql-repair-join-pitfalls",
+      "Виправлення декартового добутку та кривих JOIN",
+      "Repairing Cartesian joins & predicate traps",
+      3,
+      false,
+      [
+        codeRead(
+          "sql-rep-4",
+          "Виправлення випадкового перетворення LEFT JOIN на INNER JOIN через фільтр у WHERE",
+          "Fix LEFT JOIN turning into INNER JOIN via WHERE clause",
+          "sql",
+          "SELECT c.name, o.id\nFROM customers c\nLEFT JOIN orders o ON c.id = o.customer_id\nWHERE o.status = 'COMPLETED'; -- ламає LEFT JOIN для користувачів без замовлень!",
+          [
+            "Умова o.status = 'COMPLETED' відсікає NULL-рядки. Її слід перенести в умову ON c.id = o.customer_id AND o.status = 'COMPLETED'",
+            "LEFT JOIN не підтримує WHERE",
+            "customers обов'язково має бути праворуч",
+            "Запит видає синтаксичну помилку",
+          ],
+          0,
+        ),
+        codeFill(
+          "sql-rep-5",
+          "Запобігання декартовому добутку (Cartesian product): додавання умови з'єднання",
+          "Prevent Cartesian product by adding join condition",
+          "sql",
+          "SELECT e.name, d.dept_name\nFROM employees e\nJOIN departments d ___ e.dept_id = d.id;",
+          ["ON", "on"],
+          false,
+        ),
+        mcq(
+          "sql-rep-6",
+          "Скільки рядків поверне декартове з'єднання таблиці з 100 рядків і таблиці з 50 рядків?",
+          "How many rows returned by Cartesian product of 100 rows and 50 rows?",
+          ["100 * 50 = 5000 рядків", "150 рядків", "100 рядків", "50 рядків"],
+          0,
+        ),
+      ],
+    ),
+    lesson(
+      "sql-repair-null-subqueries",
+      "Виправлення пасток з NULL та підзапитами",
+      "Repairing NULL traps in NOT IN subqueries",
+      3,
+      false,
+      [
+        codeRead(
+          "sql-rep-7",
+          "Пастка NOT IN з NULL: чому цей запит повертає 0 рядків?",
+          "NOT IN with NULL trap: why does it return 0 rows?",
+          "sql",
+          "-- Якщо subquery повертає хоча б один NULL, весь NOT IN повертає UNKNOWN\nSELECT * FROM clients\nWHERE id NOT IN (SELECT client_id FROM churned_clients);",
+          [
+            "Порівняння x != NULL дає UNKNOWN (трьохзначна логіка). Безпечно замінити на NOT EXISTS або додати WHERE client_id IS NOT NULL",
+            "NOT IN заборонено стандартом SQL",
+            "clients не має поля id",
+            "churned_clients заблокована",
+          ],
+          0,
+        ),
+        codeFill(
+          "sql-rep-8",
+          "Безпечний еквівалент підзапиту через NOT EXISTS",
+          "Safe subquery rewrite with NOT EXISTS",
+          "sql",
+          "SELECT c.* FROM clients c\nWHERE NOT ___(SELECT 1 FROM churned_clients ch WHERE ch.client_id = c.id);",
+          ["EXISTS", "exists"],
+          false,
+        ),
+        mcq(
+          "sql-rep-9",
+          "Яка функція замінює значення NULL першим непорожнім аргументом?",
+          "Which function returns the first non-null argument?",
+          ["COALESCE()", "NULLIF()", "ISNULL_OR()", "FIRST_VALUE()"],
+          0,
+        ),
+      ],
+    ),
+    exam(
+      "sql-rep-exam",
+      "Екзамен: виправлення SQL-запитів",
+      "Exam: query repair",
+      3,
+      [
+        mcq(
+          "sql-rep-10",
+          "Як правильно перевірити, чи містить колонка порожнє значення NULL?",
+          "How to correctly test if a column is NULL in SQL?",
+          ["WHERE column IS NULL", "WHERE column = NULL", "WHERE column == NULL", "WHERE column ISEMPTY"],
+          0,
+        ),
+        codeRead(
+          "sql-rep-11",
+          "Що поверне запит із віконною функцією ROW_NUMBER()?",
+          "What does ROW_NUMBER() OVER (PARTITION BY dept_id ORDER BY salary DESC) do?",
+          "sql",
+          "SELECT name, dept_id, ROW_NUMBER() OVER (PARTITION BY dept_id ORDER BY salary DESC) as rk\nFROM employees;",
+          [
+            "Нумерує співробітників від 1 всередині кожного департаменту за спаданням зарплати",
+            "Повертає лише першого співробітника компанії",
+            "Сортує департаменти за алфавітом",
+            "Видаляє дублікати з таблиці",
+          ],
+          0,
+        ),
+        codeFill(
+          "sql-rep-12",
+          "Команда для виправлення даних: модифікація значень існуючих рядків",
+          "Command to modify existing table rows",
+          "sql",
+          "___ employees SET salary = salary * 1.1 WHERE dept_id = 10;",
+          ["UPDATE", "update"],
+          false,
+        ),
+        codeOrder(
+          "sql-rep-13",
+          "Порядок підготовки транзакції зі збереженням точок відкату (Oracle vs PostgreSQL BEGIN)",
+          "Transaction control statements order (Oracle implicit vs PostgreSQL BEGIN)",
+          "sql",
+          [
+            "SAVEPOINT sp1;",
+            "BEGIN TRANSACTION;",
+            "UPDATE accounts SET balance = balance + 100 WHERE id = 2;",
+            "COMMIT;",
+            "UPDATE accounts SET balance = balance - 100 WHERE id = 1;",
+          ],
+          [
+            "BEGIN TRANSACTION;",
+            "UPDATE accounts SET balance = balance - 100 WHERE id = 1;",
+            "SAVEPOINT sp1;",
+            "UPDATE accounts SET balance = balance + 100 WHERE id = 2;",
+            "COMMIT;",
+          ],
+          why(
+            "Діалект: у PostgreSQL транзакцію відкривають явно через BEGIN; в Oracle DML стартує транзакцію автоматично без BEGIN.",
+            "Dialect note: PostgreSQL starts explicit transactions with BEGIN; Oracle starts one implicitly on the first DML.",
+          ),
+        ),
+      ],
+    ),
+  ],
+);
 
 const capstone = unit("capstone", "Capstone", "Capstone", [
   lesson(
@@ -362,10 +636,26 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
     [
       mcq(
         "sqlf-c1",
-        "Список імен + total orders:",
-        "Names + order totals:",
-        ["JOIN + GROUP BY SUM", "only DELETE", "only DROP", "only LIMIT without FROM"],
-        0,
+        "Імена користувачів і сума їхніх замовлень:",
+        "User names and the sum of their orders:",
+        ["лише DROP", "JOIN і GROUP BY SUM", "лише DELETE", "EXPLAIN ANALYZE"],
+        1,
+      ),
+      codeRead(
+        "sqlf-c5",
+        "Друга сторінка стрічки по 20 рядків на Oracle 12c і новіше:",
+        "Second page of a feed, 20 rows, on Oracle 12c and later:",
+        "sql",
+        "SELECT * FROM posts\nORDER BY id DESC\nOFFSET 20 ROWS\nFETCH NEXT 20 ROWS ONLY",
+        ["LIMIT 20 OFFSET 20", "OFFSET і FETCH NEXT", "WITH RECURSIVE", "EXPLAIN ANALYZE"],
+        1,
+      ),
+      mcq(
+        "sqlf-c6",
+        "Відібрати rn = 1 після ROW_NUMBER у тому самому SELECT. На Oracle 26ai це:",
+        "Keep rn = 1 after ROW_NUMBER in the same SELECT. On Oracle 26ai that is:",
+        ["WHERE rn = 1, бо аналітика вже відома в WHERE", "QUALIFY", "обов’язкове слово RECURSIVE", "GRANT SELECT"],
+        1,
       ),
       codeFill(
         "sqlf-c2",
@@ -402,19 +692,296 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
     codeFill("sqlf-ce3", "JOIN ON", "JOIN ON", "sql", "JOIN b ___ a.id = b.a_id", ["ON", "on"], false),
     codeFill("sqlf-ce4", "GROUP BY", "GROUP BY", "sql", "SELECT a, COUNT(*) FROM t ___ a;", ["GROUP BY", "group by"], false),
     codeFill("sqlf-ce5", "COUNT", "COUNT", "sql", "SELECT ___(*) FROM t;", ["COUNT", "count"], false),
-    mcq("sqlf-ce6", "LEFT JOIN keeps:", "LEFT JOIN keeps:", ["left rows", "only matches", "no left", "DDL"], 0),
+    mcq("sqlf-ce6", "LEFT JOIN keeps:", "LEFT JOIN keeps:", ["only matches", "left rows", "no left", "DDL"], 1),
+    mcq(
+      "sqlf-ce7",
+      "Фільтр аналітики QUALIFY належить до:",
+      "The QUALIFY analytic filter belongs to:",
+      ["Oracle 11g", "Oracle 19c як єдина форма", "Oracle 26ai; раніше потрібен зовнішній запит", "лише PL/SQL"],
+      2,
+    ),
+    mcq(
+      "sqlf-ce8",
+      "now() і INTERVAL у діалекті Oracle замінюють на:",
+      "In Oracle dialect, now() and INTERVAL are replaced by:",
+      ["EXPLAIN ANALYZE", "WITH RECURSIVE", "LIMIT", "SYSDATE і арифметику днів"],
+      3,
+    ),
+    ...capstoneOracleExercises,
   ]),
 ]);
 
+const windowsU = unit("windows", "NULL і віконні функції", "NULL and window functions", [
+  lesson(
+    "sqlf-null-coalesce",
+    "NULL & COALESCE",
+    "NULL & COALESCE",
+    2,
+    true,
+    [
+      mcq(
+        "sqlf-nc1",
+        "NULL means:",
+        "NULL means:",
+        ["unknown / missing value", "always zero", "empty string always", "boolean false only"],
+        0,
+      ),
+      codeFill(
+        "sqlf-nc2",
+        "IS NULL",
+        "IS NULL",
+        "sql",
+        "SELECT * FROM t WHERE email ___ NULL;",
+        ["IS", "is"],
+        false,
+      ),
+      codeFill(
+        "sqlf-nc3",
+        "COALESCE",
+        "COALESCE",
+        "sql",
+        "SELECT ___(nickname, 'anon') FROM users;",
+        ["COALESCE", "coalesce"],
+        false,
+      ),
+      mcq(
+        "sqlf-nc4",
+        "1 = NULL evaluates to:",
+        "1 = NULL evaluates to:",
+        ["NULL (unknown), not TRUE", "TRUE always", "FALSE always", "syntax error always"],
+        0,
+      ),
+    ],
+  ),
+  lesson(
+    "sqlf-window-row",
+    "ROW_NUMBER / OVER",
+    "ROW_NUMBER / OVER",
+    3,
+    false,
+    [
+      mcq(
+        "sqlf-w1",
+        "Window functions keep:",
+        "Window functions keep:",
+        ["row detail + analytic value", "only aggregate one row", "drop table", "indexes only"],
+        0,
+      ),
+      codeFill(
+        "sqlf-w2",
+        "row number",
+        "row number",
+        "sql",
+        "SELECT ___() OVER (ORDER BY created_at) AS rn FROM t;",
+        ["ROW_NUMBER", "row_number"],
+        false,
+      ),
+      codeFill(
+        "sqlf-w3",
+        "partition",
+        "partition",
+        "sql",
+        "… OVER (___ BY user_id ORDER BY ts)",
+        ["PARTITION", "partition"],
+        false,
+      ),
+    ],
+  ),
+  lesson(
+    "sqlf-window-rank",
+    "RANK vs DENSE_RANK",
+    "RANK vs DENSE_RANK",
+    3,
+    false,
+    [
+      mcq(
+        "sqlf-w4",
+        "RANK after ties 1,1 next is:",
+        "RANK after ties 1,1 next is:",
+        ["3 (skips)", "2 always", "0", "null"],
+        0,
+      ),
+      mcq(
+        "sqlf-w5",
+        "DENSE_RANK after ties 1,1 next is:",
+        "DENSE_RANK after ties 1,1 next is:",
+        ["2 (no skip)", "3", "1 only", "error"],
+        0,
+      ),
+      codeFill(
+        "sqlf-w6",
+        "dense",
+        "dense",
+        "sql",
+        "SELECT ___(score) OVER (ORDER BY score DESC) FROM t;",
+        ["DENSE_RANK", "dense_rank"],
+        false,
+      ),
+    ],
+  ),
+  exam("sqlf-window-exam", "Контрольна: windows", "Exam: windows", 3, [
+    mcq("sqlf-we1", "OVER is used with:", "OVER is used with:", ["window funcs", "only DELETE", "only GRANT", "CSS"], 0),
+    codeFill("sqlf-we2", "ROW_NUMBER", "ROW_NUMBER", "sql", "___() OVER (ORDER BY id)", ["ROW_NUMBER", "row_number"], false),
+    mcq("sqlf-we3", "PARTITION BY:", "PARTITION BY:", ["groups window", "drops table", "renames DB", "locks only"], 0),
+    codeFill("sqlf-we4", "ORDER in window", "ORDER in window", "sql", "OVER (PARTITION BY u ___ BY ts)", ["ORDER", "order"], false),
+  ]),
+]);
+
+const datasetDiagnosisU = unit(
+  "dataset_diagnosis",
+  "Діагностика результатів і діалекти (Oracle vs PostgreSQL)",
+  "Dataset Result Diagnosis & Dialect Notes",
+  [
+    lesson(
+      "sqlf-dataset-predict",
+      "Передбачення результату на датасеті: JOIN + NULL + агрегація",
+      "Predict query output on a sample dataset (JOIN, NULL, COUNT)",
+      3,
+      false,
+      [
+        codeRead(
+          "sqlf-ds1",
+          "Дано: `users` = [(1, 'Ada'), (2, 'Bohdan')], `orders` = [(10, 1, 100), (11, 1, NULL)]. Що поверне цей запит?",
+          "Dataset: `users` = [(1, 'Ada'), (2, 'Bohdan')], `orders` = [(10, 1, 100), (11, 1, NULL)]. What does this return?",
+          "sql",
+          "SELECT u.name, COUNT(o.id) AS total_orders, COUNT(o.amount) AS priced_orders\nFROM users u\nLEFT JOIN orders o ON o.user_id = u.id\nGROUP BY u.id, u.name\nORDER BY u.id;",
+          [
+            "('Ada', 2, 1) та ('Bohdan', 0, 0) — COUNT(o.id) рахує 2 замовлення, COUNT(o.amount) пропускає NULL",
+            "('Ada', 2, 2) та ('Bohdan', 1, 1)",
+            "Лише ('Ada', 2, 1), бо Bohdan відсіюється LEFT JOIN",
+            "('Ada', 1, 1) та ('Bohdan', 0, 0)",
+          ],
+          0,
+          why(
+            "COUNT(column) ігнорує NULL (однак LEFT JOIN зберігає Bohdan із 0 замовлень, бо o.id є NULL).",
+            "COUNT(column) ignores NULLs; LEFT JOIN keeps Bohdan with o.id = NULL so both counts are 0.",
+          ),
+        ),
+        codeOutputMcq(
+          "sqlf-ds2",
+          "Діагностуйте хибне підсумовування: `users` має 1 рядок (Ada), `tasks` — 3 задачі, `comments` — 2 коментарі. Чому сума оцінок завищена вдвічі?",
+          "Diagnose inflated totals: 1 user, 3 tasks (10 pts each), 2 comments. Why does this return 60 instead of 30?",
+          "sql",
+          "SELECT u.id, SUM(t.points) AS pts\nFROM users u\nJOIN tasks t ON t.user_id = u.id\nJOIN comments c ON c.user_id = u.id\nGROUP BY u.id;",
+          [
+            "Кросможливе множення двох зв'язків 1:N (3 tasks × 2 comments = 6 рядків до SUM)",
+            "SUM() у SQL рахує кожен рядок двічі за замовчуванням",
+            "JOIN повернув NULL",
+            "GROUP BY u.id видалив дублікати неправильно",
+          ],
+          0,
+          why(
+            "Дві незалежні таблиці 1:N в одному JOIN породжують декартове розмноження; агрегуйте одну гілку в CTE або підзапиті.",
+            "Joining two independent 1:N tables multiplies rows before SUM; pre-aggregate one branch in a subquery or CTE.",
+          ),
+        ),
+        mcq(
+          "sqlf-ds3",
+          "Яка відповідність між Oracle SQL (1Z0-071) та PostgreSQL коректна?",
+          "Which Oracle SQL (1Z0-071) to PostgreSQL dialect mapping is accurate?",
+          [
+            "Oracle `NVL(a, b)` / `MINUS` / `FROM DUAL` ↔ PostgreSQL `COALESCE(a, b)` / `EXCEPT` / `SELECT ...` без DUAL",
+            "Oracle `VARCHAR2` швидший за PostgreSQL `TEXT`, бо Postgres не підтримує індекси",
+            "PostgreSQL не підтримує `LEFT JOIN` і `ROW_NUMBER()`",
+            "Oracle і PostgreSQL мають ідентичні `SYSDATE` і `LIMIT`",
+          ],
+          0,
+          why(
+            "Знання діалектів дозволяє перенести реляційну теорію з Oracle на продакшн-PostgreSQL.",
+            "Knowing exact dialect mappings transfers Oracle fundamentals cleanly to PostgreSQL apps.",
+          ),
+        ),
+      ],
+    ),
+    exam("sqlf-ds-exam", "Контрольна: діагностика запитів і діалекти", "Exam: dataset diagnosis & SQL dialects", 3, [
+      mcq(
+        "sqlf-dse1",
+        "У наборі рядків `[10, NULL, 20]` значення `COUNT(*)` та `COUNT(col)` дорівнюють:",
+        "For column values `[10, NULL, 20]`, `COUNT(*)` and `COUNT(col)` evaluate to:",
+        ["3 і 2", "3 і 3", "2 і 2", "2 і 1"],
+        0,
+        why("COUNT(*) рахує всі рядки; COUNT(col) пропускає NULL.", "COUNT(*) counts rows; COUNT(col) skips NULLs."),
+      ),
+      codeFill(
+        "sqlf-dse2",
+        "PostgreSQL-еквівалент Oracle `MINUS` (різниця множин)",
+        "Standard / PostgreSQL equivalent of Oracle `MINUS`",
+        "sql",
+        "SELECT id FROM a ___ SELECT id FROM b;",
+        ["EXCEPT", "except"],
+        false,
+        why("Oracle використовує MINUS, стандарт і PostgreSQL — EXCEPT.", "Oracle uses MINUS; ANSI SQL and PostgreSQL use EXCEPT."),
+      ),
+      codeRead(
+        "sqlf-dse3",
+        "Яка причина, що `WHERE col != 'done'` приховує рядки з `col IS NULL`?",
+        "Why does `WHERE col != 'done'` omit rows where `col` is `NULL`?",
+        "sql",
+        "SELECT * FROM tasks WHERE status != 'done';",
+        [
+          "Порівняння `NULL != 'done'` дає `UNKNOWN`, а `WHERE` пропускає лише `TRUE`",
+          "SQL приводить NULL до рядка 'done'",
+          "!= працює лише для чисел",
+          "Потрібно використати HAVING",
+        ],
+        0,
+        why("Для збереження NULL використовуйте `WHERE status IS DISTINCT FROM 'done'` (PostgreSQL) або `(status != 'done' OR status IS NULL)`.", "Use `IS DISTINCT FROM` (Postgres) or explicit `OR status IS NULL`."),
+      ),
+      codeOrderAuto(
+        "sqlf-dse4",
+        "Безпечний шаблон уникнення розмноження рядків при сумуванні двох гілок",
+        "Pattern to avoid fan-out row multiplication across two 1:N tables",
+        "sql",
+        [
+          "WITH task_totals AS (",
+          "  SELECT user_id, SUM(points) AS pts FROM tasks GROUP BY user_id",
+          ")",
+          "SELECT u.id, COALESCE(tt.pts, 0) FROM users u LEFT JOIN task_totals tt ON tt.user_id = u.id;",
+        ],
+        why(
+          "Попередня агрегація в CTE гарантує 1 рядок на користувача до об'єднання.",
+          "Pre-aggregating in a CTE guarantees one row per parent before joining.",
+        ),
+      ),
+    ]),
+  ],
+);
+
 export const sqlFundamentalsContent: CourseContent = {
   slug: "sql_fundamentals",
-  titleUk: "SQL: fundamentals",
-  titleEn: "SQL Fundamentals",
+  titleUk: "SQL і Oracle Database",
+  titleEn: "SQL & Oracle Database",
   descriptionUk:
-    "SELECT, WHERE, ORDER/LIMIT, JOINs, aggregates, DML, keys/indexes + контрольні.",
+    "Три розділи одного курсу: SQL і сучасний Oracle, PL/SQL, адміністрування. Запити, JSON, вектори, блоки, резервні копії. Нові можливості позначені версією. Приклади звірені з документацією Oracle Database 26, не з живим сервером.",
   descriptionEn:
-    "SELECT, WHERE, ORDER/LIMIT, JOINs, aggregates, DML, keys/indexes + unit exams.",
+    "Three sections of one course: SQL and modern Oracle, PL/SQL, and administration. Queries, JSON, vectors, blocks, and backups. Newer features are labeled with a version. Examples follow the Oracle Database 26 documentation and were not executed on a live server.",
   icon: "🗄️",
   color: "#336791",
-  units: [selectU, orderLimit, joins, aggregates, dml, modeling, capstone],
+  units: withBalancedExams([
+    selectU,
+    orderLimit,
+    singleRowUnit,
+    conversionUnit,
+    aggregates,
+    joins,
+    subqueriesUnit,
+    setOpsUnit,
+    dml,
+    modeling,
+    schemaUnit,
+    accessUnit,
+    windowsU,
+    queryRepairScenarios,
+    datasetDiagnosisU,
+    sqlCtePerformanceUnit,
+    ...modernSqlUnits,
+    ...modernSqlUnitsB,
+    ...modernSqlUnitsC,
+    capstone,
+    ...plsqlUnitsA,
+    ...plsqlUnitsB,
+    ...plsqlUnitsC,
+    ...dbaUnitsA,
+    ...dbaUnitsB,
+  ]),
 };

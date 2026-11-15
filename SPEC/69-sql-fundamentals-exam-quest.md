@@ -2,7 +2,7 @@
 
 ## Course `sql_fundamentals`
 
-Deep track: SELECT, ORDER/LIMIT, JOINs, aggregates, DML, keys/indexes, capstone + unit exams.
+Deep track aligned with the public Oracle Database SQL 1Z0-071 checklist: SELECT, filters and sorting, single-row functions, conversion and CASE, aggregates, joins, subqueries, set operators, DML and transactions, DDL, sequences/views/synonyms, privileges and the data dictionary, window functions, capstone. Practice is original; it does not copy a video course.
 
 - Hub: `/sql-fundamentals`
 - Migration: `0019_sql_fundamentals`
@@ -15,7 +15,7 @@ Deep track: SELECT, ORDER/LIMIT, JOINs, aggregates, DML, keys/indexes, capstone 
 
 ## Profile
 
-- Shows plan + `planExpiresAt` when premium trial/demo
+- Profile does not show a subscription or trial. The app is free.
 
 ## Related
 

@@ -15,11 +15,13 @@
     "@eduforge/chess-core": "workspace:*",
     "@eduforge/db": "workspace:*",
     "@eduforge/shared": "workspace:*",
+    "@socket.io/redis-adapter": "^8.3.0",
     "chess.js": "^1.1.0",
     "cors": "^2.8.5",
     "drizzle-orm": "^0.41.0",
     "express": "^4.21.2",
     "ioredis": "^5.6.0",
+    "redis": "^4.7.1",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {

@@ -64,6 +64,26 @@ export const COURSE_GLOBAL_WEIGHT: Record<string, number> = {
   sql_fundamentals: 1,
   node_fundamentals: 1.05,
   express_fundamentals: 1.05,
+  embedded_cpp: 1.1,
+  sysadmin: 1,
+  devops: 1,
+  software_testing: 1.05,
+  postgresql_apps: 1.05,
+  git_workflows: 1,
+  web_security: 1.1,
+  ai_development: 1.05,
+  python_for_ai: 1.05,
+  agentic_systems: 1.05,
+  llmops: 1.05,
+  ai_security: 1.1,
+  ai_product: 1.05,
+  nextjs_fullstack: 1.1,
+  applied_algorithms: 1.1,
+  go_fundamentals: 1.05,
+  web_accessibility: 1.05,
+  rest_api_design: 1.05,
+  frontend_performance: 1.05,
+  browser_web_apis: 1.05,
 };
 
 export function typingXpAward(wpm: number, accuracy: number): number {
@@ -91,4 +111,16 @@ export function chessGameXpAward(result: "win" | "loss" | "draw", rated: boolean
   const table = { win: 25, draw: 12, loss: 5 } as const;
   const base = table[result];
   return rated ? base + 5 : base;
+}
+
+/** Soft daily cap to stop XP farming via lesson repeats. */
+export const DAILY_XP_CAP = 400;
+
+export function clampDailyXpGain(
+  alreadyToday: number,
+  gain: number,
+  cap = DAILY_XP_CAP,
+): number {
+  const remaining = cap - Math.max(0, alreadyToday);
+  return Math.max(0, Math.min(Math.round(gain), remaining));
 }

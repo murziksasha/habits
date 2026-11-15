@@ -1,0 +1,11 @@
+{
+  "service": "forgeboard-api",
+  "image": "ghcr.io/eduforge/forgeboard-api:latest",
+  "env": {
+    "API_PORT": 4000
+  },
+  "readinessProbe": {
+    "path": "/ready",
+    "port": 4000
+  }
+}

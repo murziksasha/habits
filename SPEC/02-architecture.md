@@ -50,7 +50,7 @@ chess-core  (leaf)
 ## Design principles
 
 1. **Server authority** — lesson grading and chess moves validated on the server; clients never declare raw XP.  
-2. **Shared domain math** — level curves, Elo, freemium gates live in `@eduforge/shared`.  
+2. **Shared domain math** — level curves, Elo, and access rules live in `@eduforge/shared`.  
 3. **Content as data** — lessons/exercises are JSON in DB (seeded from `packages/content`).  
 4. **Separation of realtime** — long-lived chess sockets are not mixed into the REST process.  
 5. **Self-host ready** — Docker Compose for Postgres, Redis, api, realtime, web.  
@@ -60,7 +60,7 @@ chess-core  (leaf)
 | Process | Responsibility |
 |---------|----------------|
 | `web` | SSR/CSR UI, static marketing, lesson players |
-| `api` | Auth, courses, billing, leaderboards, admin |
+| `api` | Auth, courses, leaderboards, admin |
 | `realtime` | Chess matchmaking + game rooms |
 | `postgres` | Durable state |
 | `redis` | Available for queues/rate limits (matchmaking in-memory MVP with Redis present) |

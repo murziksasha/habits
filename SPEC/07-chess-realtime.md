@@ -24,8 +24,15 @@ Other events: `cancel_seek`, `join_game`, `resign`.
 
 ### Bot practice (client-side)
 
-- UI path `/play` starts local game vs simple random/capture-preferring bot  
-- No DB game, no Elo, onboarding flag `triedChess` still set  
+- UI path `/play` supports three engine levels via `@eduforge/chess-core` `chooseBotMove(fen, level)`:
+  - **Learner**: 1-ply search scoring hanging pieces/safe captures and development; ~25% random legal moves.
+  - **Club**: Depth-2 alpha-beta search with MVV-LVA capture ordering, piece-square tables (development, center control, castling), and occasional second-best move selection among moves within 35 cp.
+  - **Strong**: Depth-3 alpha-beta search with near-zero noise, executed off the main thread in a Web Worker (`chess-bot-worker.ts`) with automatic Club fallback.
+- Natural opening book for move 1 for all levels.
+- Pre-game selector for level and color (White or Black). Bot plays White from move 1 when user chooses Black.
+- Shows level name (no fake Elo).
+- Preserved invariants: No DB `chess_games` row, no Elo updates. Onboarding flag `triedChess` is recorded.
+- Deep-linkable via `/play?level=club|learner|strong`.
 
 ## Time controls
 
@@ -42,6 +49,24 @@ Server drains clocks using elapsed time between moves; timeout decides winner.
 - Library: `chess.js`  
 - Illegal moves rejected with `illegal_move`  
 - Puzzle helper: SAN compare ignoring check/mate markers  
+
+## Board learning hints
+
+Layered UI feedback rendered via `ChessBoardFrame` on top of `@eduforge/chess-core`:
+
+- **Check chip**: Sits above the board (`role="status"`). Identifies attacker (`Шах · ферзь` / `Check · queen`), or `Шах · подвійний` / `Check · double`. King gets a red inset ring; attacker(s) get a thinner red ring.
+- **Center cards**:
+  - Checkmate: Compact card with `Мат` and `[attacker] · [you won/lost]` (or `Задачу розв’язано` in puzzles). Dismissable on click in `/play`; king and attacker rings remain visible for study.
+  - Stalemate: Quiet card with `Пат · нічия` (no rings).
+- **Move indicators**:
+  - Green radial dots on empty legal destination squares.
+  - Amber inset ring on legal capture squares (including en passant).
+  - Selected square receives brand tint.
+  - Selected piece with no legal moves shows `Немає ходу` / `No legal move`.
+- **Surfaces**:
+  - `/play` (bot, seek, invite): full treatment (check chip, mate/stalemate cards, move dots, click-to-move and drag).
+  - Puzzles: side to move play; mate/stalemate card on solved terminal move (`Задачу розв’язано`); 2.5s hold (`LESSON_MATE_RESULT_MS`).
+  - Lesson diagrams: explore mode allowing pieces of either color to preview legal dots only; no check chip, cards, or move execution.
 
 ## Freemium rated games
 

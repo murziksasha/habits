@@ -1,0 +1,278 @@
+import { unit } from "../builders.js";
+import { quiz, teach, why } from "./kit.js";
+
+export const linuxBase = unit("linux-base", "Основи Linux", "Linux base", [
+  teach("do-distro", "Дистрибутив і FHS", "Distro and FHS", 2, "do-distro", [
+    {
+      t: "mcq",
+      uk: "Для навчальної VM під forge-status у цьому курсі беріть:",
+      en: "For the forge-status lab VM in this course, pick:",
+      o: [
+        "Ubuntu Server: знайомі apt і гайди",
+        "Випадковий десктоп із графічним офісом",
+        "Дистрибутив без пакетного менеджера",
+        "Лише образ Windows на сервері",
+      ],
+      i: 0,
+      note: why(
+        "Alpine доречний у малому образі контейнера. RHEL-родина — коли продакшен уже на ній. Навчальну VM простіше тримати на Ubuntu Server.",
+        "Alpine fits a small container image. The RHEL family fits a fleet that already runs it. A learning VM is simpler on Ubuntu Server.",
+      ),
+    },
+    {
+      t: "match",
+      uk: "Куди класти речі за FHS.",
+      en: "Where FHS puts things.",
+      pairs: [
+        { left: "/etc", right: "Конфігурація хоста" },
+        { left: "/var", right: "Логи і дані, що змінюються" },
+        { left: "/usr", right: "Програми з пакетів" },
+        { left: "/opt", right: "Окремий сторонній додаток" },
+      ],
+    },
+    {
+      t: "mcq",
+      uk: "Симлінк відрізняється від жорсткого посилання тим, що:",
+      en: "A symlink differs from a hard link because:",
+      o: [
+        "Він зберігає шлях і може вказувати на іншу файлову систему",
+        "Він копіює байти файлу в inode сусіда",
+        "Його не видно в ls",
+        "Він замінює права chmod",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "df і du відповідають на різні питання:",
+      en: "df and du answer different questions:",
+      o: [
+        "df — вільно на файловій системі, du — розмір теки",
+        "Обидва показують лише inode",
+        "df рахує RAM",
+        "du монтує диск",
+      ],
+      i: 0,
+    },
+  ]),
+  teach("do-users", "Користувачі і sudo", "Users and sudo", 2, "do-users", [
+    {
+      t: "mcq",
+      uk: "Сервіс forge-status на хості має працювати як:",
+      en: "The forge-status service on a host should run as:",
+      o: [
+        "Окремий користувач без загального shell root",
+        "root, бо так менше файлів",
+        "Користувач з паролем у unit-файлі",
+        "Той самий акаунт, що й ваш SSH-логін адміністратора",
+      ],
+      i: 0,
+      note: why(
+        "sudo дає одну команду від root і лишає запис. Постійний root для додатка не потрібен.",
+        "sudo runs one command as root and leaves a log. The app does not need a standing root login.",
+      ),
+    },
+    {
+      t: "fill",
+      uk: "Безпечний редактор sudoers.",
+      en: "The safe sudoers editor.",
+      lang: "bash",
+      code: "___",
+      ok: ["visudo"],
+    },
+    {
+      t: "mcq",
+      uk: "setuid-біт на виконуваному файлі:",
+      en: "The setuid bit on an executable:",
+      o: [
+        "Запускає процес із правами власника файлу",
+        "Робить теку спільною для групи",
+        "Забороняє видаляти чужі файли в теці",
+        "Вмикає SSH",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "Sticky bit на теці /tmp потрібен, щоб:",
+      en: "The sticky bit on /tmp exists so that:",
+      o: [
+        "Кожен видаляв лише свої файли, хоча тека спільна на запис",
+        "Усі процеси ставали root",
+        "Диск монтувався лише для читання",
+        "Логи не росли",
+      ],
+      i: 0,
+    },
+  ]),
+  teach("do-systemd", "Свій unit", "Your own unit", 2, "do-systemd", [
+    {
+      t: "order",
+      uk: "Увімкнути unit forge-status і подивитись, чому він упав.",
+      en: "Enable the forge-status unit and see why it failed.",
+      lang: "bash",
+      correct: [
+        "systemctl daemon-reload",
+        "systemctl enable --now forge-status",
+        "systemctl status forge-status",
+        "journalctl -u forge-status -b -p err",
+      ],
+    },
+    {
+      t: "mcq",
+      uk: "enable і start відрізняються так:",
+      en: "enable and start differ like this:",
+      o: [
+        "enable лишає автозапуск після reboot, start пускає зараз",
+        "Це одна команда з двома іменами",
+        "enable дивиться логи",
+        "start редагує sudoers",
+      ],
+      i: 0,
+      note: why(
+        "Unit лежить у /etc/systemd/system, якщо це ваш файл, не пакетний.",
+        "Your unit file belongs in /etc/systemd/system, not in a package path you do not own.",
+      ),
+    },
+    {
+      t: "read",
+      uk: "Що робить цей фрагмент unit?",
+      en: "What does this unit fragment do?",
+      lang: "ini",
+      code: "[Service]\nUser=forge\nExecStart=/usr/local/bin/forge-status\nRestart=on-failure",
+      o: [
+        "Процес іде від користувача forge і systemd підніме його після збою",
+        "Процес іде від root і ніколи не перезапускається",
+        "Це cron щоп'ять хвилин",
+        "Це правило firewall",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "cgroups у цьому курсі достатньо розуміти як:",
+      en: "For this course, cgroups are enough to understand as:",
+      o: [
+        "Облік CPU і пам'яті групи процесів, яким користується systemd",
+        "Файлову систему для /home",
+        "Заміну SSH",
+        "Формат образів Docker",
+      ],
+      i: 0,
+    },
+  ]),
+  teach("do-lvm", "Пакети і LVM оглядом", "Packages and an LVM sketch", 2, "do-lvm", [
+    {
+      t: "mcq",
+      uk: "Репозиторій apt варто додавати так:",
+      en: "Add an apt repository like this:",
+      o: [
+        "Окремий файл у sources плюс ключ, якому ви довіряєте",
+        "Вставити випадковий PPA без перевірки підпису",
+        "Скопіювати .deb у /etc",
+        "Тримати пакети лише в snap на сервері",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "LVM у цьому курсі — одна дія, яку треба вміти назвати:",
+      en: "LVM in this course is one action you must be able to name:",
+      o: [
+        "Розширити логічний том після того, як з'явилось місце у групі",
+        "Замінити резервну копію дзеркалом",
+        "Зашифрувати Git",
+        "Поставити Kubernetes",
+      ],
+      i: 0,
+      note: why(
+        "Глибина RAID 0/1/5/10 і відновлення офісу — у курсі sysadmin. Тут достатньо не плутати том LVM із бекапом.",
+        "RAID 0/1/5/10 depth and office recovery live in the sysadmin course. Here, do not confuse an LVM volume with a backup.",
+      ),
+    },
+    {
+      t: "order",
+      uk: "Порядок, коли диск уже бачить ядро і група томів існує.",
+      en: "Order, once the kernel sees the disk and the volume group exists.",
+      lang: "bash",
+      correct: ["pvcreate /dev/sdb1", "vgextend vg0 /dev/sdb1", "lvextend -r -l +100%FREE vg0/data"],
+    },
+    {
+      t: "mcq",
+      uk: "Рядок у fstab без nofail для необов'язкового диска:",
+      en: "An fstab line without nofail for an optional disk:",
+      o: [
+        "Може зупинити завантаження, якщо диска немає",
+        "Автоматично росте разом із LVM",
+        "Замінює journalctl",
+        "Вмикає sudo",
+      ],
+      i: 0,
+    },
+  ]),
+  quiz("do-linux-exam", "Контроль: Linux", "Check: Linux", 2, "do-linux-exam", [
+    {
+      t: "mcq",
+      uk: "Логи демона найчастіше шукають у:",
+      en: "A daemon's logs usually live under:",
+      o: ["/var/log або journald", "/usr/bin", "/opt/bin", "/etc/skel"],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "chmod 750 на теці означає:",
+      en: "chmod 750 on a directory means:",
+      o: [
+        "Власник усе, група читає і входить, інші нічого",
+        "Усі можуть писати",
+        "Лише sticky bit",
+        "Файл став симлінком",
+      ],
+      i: 0,
+    },
+    {
+      t: "fill",
+      uk: "Хто власник файлу.",
+      en: "Change the file owner.",
+      lang: "bash",
+      code: "___ forge:forge /var/lib/forge-status",
+      ok: ["chown"],
+    },
+    {
+      t: "mcq",
+      uk: "nice знижує пріоритет CPU, щоб:",
+      en: "nice lowers CPU priority so that:",
+      o: [
+        "Фонова задача не душила інтерактивну",
+        "Процес став root",
+        "Диск відмонтувався",
+        "Пакет підписався іншим ключем",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "Alpine на хості навчальної VM гірший за Ubuntu Server, бо:",
+      en: "Alpine as the learning VM host is a weaker pick than Ubuntu Server because:",
+      o: [
+        "Інший користувацький простір, менше звичних гайдів для перших тижнів",
+        "Він не вміє SSH",
+        "У ньому немає ядра",
+        "Він не бачить диски",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "Після lvextend без зростання файлової системи:",
+      en: "After lvextend without growing the filesystem:",
+      o: [
+        "Том більший, а файлова система ще старого розміру, якщо не було -r або resize",
+        "Дані самі дублюються на другий диск",
+        "fstab більше не читається",
+        "apt перестає працювати",
+      ],
+      i: 0,
+    },
+  ]),
+]);

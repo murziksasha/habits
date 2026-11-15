@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
+import { PopoverLayer } from "@/components/popover-layer";
 
 type Notif = {
   id: string;
@@ -23,6 +24,7 @@ export function NotificationsBell() {
   const [open, setOpen] = useState(false);
   const [unread, setUnread] = useState(0);
   const [items, setItems] = useState<Notif[]>([]);
+  const bellRef = useRef<HTMLButtonElement | null>(null);
 
   async function load() {
     if (!token) return;
@@ -46,13 +48,16 @@ export function NotificationsBell() {
   return (
     <div className="relative">
       <button
+        ref={bellRef}
         type="button"
-        className="relative grid h-10 w-10 place-items-center rounded-xl border-2 border-slate-200 text-lg"
+        className="relative grid h-10 w-10 place-items-center rounded-xl border-2 border-slate-200 text-lg dark:border-slate-700"
         onClick={() => {
           setOpen((v) => !v);
           if (!open) void load();
         }}
         aria-label={t.engagement.notifications}
+        aria-expanded={open}
+        aria-controls="notifications-panel"
       >
         🔔
         {unread > 0 && (
@@ -61,8 +66,14 @@ export function NotificationsBell() {
           </span>
         )}
       </button>
-      {open && (
-        <div className="absolute right-0 z-50 mt-2 w-80 max-h-96 overflow-auto rounded-2xl border-2 border-slate-100 bg-white p-3 shadow-lg">
+      <PopoverLayer
+        open={open}
+        anchorRef={bellRef}
+        onClose={() => setOpen(false)}
+        label={t.engagement.notifications}
+        id="notifications-panel"
+      >
+        <div className="max-h-96 w-full overflow-auto rounded-2xl border-2 border-slate-100 bg-white p-3 shadow-lg dark:border-slate-800 dark:bg-slate-900">
           <div className="mb-2 flex items-center justify-between">
             <p className="font-black text-sm">{t.engagement.notifications}</p>
             <button
@@ -85,7 +96,7 @@ export function NotificationsBell() {
             {items.map((n) => (
               <li
                 key={n.id}
-                className={`rounded-xl p-2 text-xs ${n.readAt ? "bg-slate-50" : "bg-brand-soft/40"}`}
+                className={`rounded-xl p-2 text-xs ${n.readAt ? "bg-slate-50 dark:bg-slate-800/50" : "bg-brand-soft/40"}`}
               >
                 {n.href ? (
                   <Link
@@ -113,7 +124,7 @@ export function NotificationsBell() {
             ))}
           </ul>
         </div>
-      )}
+      </PopoverLayer>
     </div>
   );
 }

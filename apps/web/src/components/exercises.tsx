@@ -1,9 +1,17 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { Chessboard } from "react-chessboard";
-import { Chess } from "chess.js";
-import { exercisePrompt, UI } from "@eduforge/shared";
+import { ChessBoardFrame } from "@/components/chess-board-frame";
+import { Chess } from "@eduforge/chess-core";
+import {
+  countWords,
+  exercisePrompt,
+  gradeExplanation,
+  localizeExerciseOptions,
+  localizeMatchPairs,
+  UI,
+  type ExplainKeyIdea,
+} from "@eduforge/shared";
 import clsx from "clsx";
 import { useLocale } from "@/lib/locale-context";
 import { SpeakButton } from "@/components/speak-button";
@@ -16,12 +24,17 @@ import {
   softGradeCodeFill,
   softGradeCodeOrder,
   softGradeCodeProject,
+  softGradeCodeRunSource,
   softGradeMcq,
 } from "@/lib/client-grade";
+import { runCppTests } from "@/lib/cpp-runner";
 import {
   formatExerciseSolution,
   getApplyableAnswer,
 } from "@/lib/exercise-solution";
+import { hasOpenDialog, isTypingTarget, optionIndexFromKey } from "@/lib/answer-keys";
+import { api } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 
 export type Exercise = {
   id: string;
@@ -32,6 +45,10 @@ export type Exercise = {
 };
 
 const ExamModeCtx = createContext(false);
+/** Reports wrong soft attempts to the session (SPEC 92: first-try / mistake notebook). */
+const WrongAttemptCtx = createContext<(() => void) | null>(null);
+/** Lesson id for server-side helpers (explain tutor feedback). */
+const LessonIdCtx = createContext<string | null>(null);
 
 function usePrompt(exercise: Exercise) {
   const { locale } = useLocale();
@@ -42,11 +59,17 @@ export function ExercisePlayer({
   exercise,
   onAnswer,
   examMode = false,
+  onWrongAttempt,
+  lessonId,
 }: {
   exercise: Exercise;
   onAnswer: (answer: unknown) => void;
   /** Unit exams: no skip / solution reveal */
   examMode?: boolean;
+  /** Called on each wrong soft attempt (client check) */
+  onWrongAttempt?: () => void;
+  /** Lesson id (enables tutor feedback on explain exercises) */
+  lessonId?: string;
 }) {
   const body = (() => {
     switch (exercise.type) {
@@ -64,6 +87,8 @@ export function ExercisePlayer({
         return <OrderWordsExercise exercise={exercise} onAnswer={onAnswer} />;
       case "code_project":
         return <CodeProjectExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "code_run":
+        return <CodeRunExercise exercise={exercise} onAnswer={onAnswer} />;
       case "translate":
       case "fill_blank":
         return <TextExercise exercise={exercise} onAnswer={onAnswer} />;
@@ -81,52 +106,129 @@ export function ExercisePlayer({
         return <ChessPuzzleExercise exercise={exercise} onAnswer={onAnswer} />;
       case "chess_lesson":
         return <ChessLessonExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "video":
+        return <VideoExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "code_judge":
+        return <CodeJudgeExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "concept":
+        return <ConceptExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "explain":
+        return <ExplainExercise exercise={exercise} onAnswer={onAnswer} />;
       default:
         return <p>Невідомий тип: {exercise.type}</p>;
     }
   })();
 
-  return <ExamModeCtx.Provider value={examMode}>{body}</ExamModeCtx.Provider>;
-}
-
-function CodeBlock({ code, language }: { code: string; language?: string }) {
-  if (!code) return null;
   return (
-    <MonacoCodeEditor
-      value={code}
-      onChange={() => undefined}
-      language={language || "javascript"}
-      height="200px"
-      readOnly
-    />
+    <ExamModeCtx.Provider value={examMode}>
+      <WrongAttemptCtx.Provider value={onWrongAttempt ?? null}>
+        <LessonIdCtx.Provider value={lessonId ?? null}>{body}</LessonIdCtx.Provider>
+      </WrongAttemptCtx.Provider>
+    </ExamModeCtx.Provider>
   );
 }
 
+function CodeBlock({ code }: { code: string; language?: string }) {
+  if (!code) return null;
+  return (
+    <pre className="overflow-x-auto rounded-2xl border border-slate-700 bg-slate-950 p-4 font-mono text-[15px] leading-7 text-slate-50 shadow-card">
+      <code>{code}</code>
+    </pre>
+  );
+}
+
+/**
+ * Progressive hints (Tier C): level 1 nudge → level 2 fuller hint → level 3 near-answer.
+ * Mentor talent: +1 max depth per rank (cap 4) and auto-opens at higher starting tier on fail.
+ */
 function useExerciseHint(exercise: Exercise) {
   const { locale, t } = useLocale();
-  const [open, setOpen] = useState(false);
-  const text =
+  const { character } = useAuth();
+  const mentorRank = Math.min(
+    3,
+    Math.max(0, Number(character?.progression?.talents?.mentor) || 0),
+  );
+  /** Base depth 3; mentor adds +1 per rank up to 4 */
+  const maxLevel = Math.min(4, 3 + Math.min(1, mentorRank));
+  /** On fail, open at least this level (mentor rank 2+ starts deeper) */
+  const autoOpenLevel = Math.min(maxLevel, 1 + Math.floor(mentorRank / 2));
+
+  const [level, setLevel] = useState(0); // 0 = closed
+  const base =
     locale === "en"
       ? String(exercise.hintEn || exercise.explanationEn || exercise.hintUk || exercise.explanationUk || "")
       : String(exercise.hintUk || exercise.explanationUk || exercise.hintEn || exercise.explanationEn || "");
-  const has = Boolean(text.trim());
+  const has = Boolean(base.trim());
+
+  const level1 = has
+    ? locale === "en"
+      ? "Think about the core concept in the prompt — one careful re-read often helps."
+      : "Подумайте про ключову ідею в завданні — часто допомагає уважно перечитати."
+    : "";
+  const level2 = base;
+  const level3 = has
+    ? locale === "en"
+      ? `${base}\n\nAlmost there: eliminate options that contradict the prompt wording.`
+      : `${base}\n\nМайже: відкиньте варіанти, що суперечать формулюванню.`
+    : "";
+  const level4 = has
+    ? locale === "en"
+      ? `${base}\n\nMentor tip: focus on the exact keyword or operator the prompt asks for.`
+      : `${base}\n\nМентор: зосередьтесь на ключовому слові/операторі з умови.`
+    : "";
+
+  const text =
+    level === 1
+      ? level1
+      : level === 2
+        ? level2
+        : level === 3
+          ? level3
+          : level === 4
+            ? level4
+            : "";
+
+  function setOpen(v: boolean | ((b: boolean) => boolean)) {
+    const next = typeof v === "function" ? v(level > 0) : v;
+    setLevel(next ? Math.max(autoOpenLevel, level || autoOpenLevel) : 0);
+  }
+
   return {
     has,
-    open,
+    open: level > 0,
     setOpen,
+    level,
     text,
     t,
     panel: has ? (
       <div className="space-y-1">
-        <button
-          type="button"
-          className="text-xs font-bold text-grape hover:underline"
-          onClick={() => setOpen((v) => !v)}
-        >
-          💡 {open ? t.lesson.hideHint : t.lesson.showHint}
-        </button>
-        {open ? (
-          <p className="rounded-xl bg-grape/10 px-3 py-2 text-sm font-bold text-ink">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            className="text-xs font-bold text-grape hover:underline"
+            onClick={() => setLevel((l) => (l > 0 ? 0 : autoOpenLevel))}
+          >
+            💡 {level > 0 ? t.lesson.hideHint : t.lesson.showHint}
+            {level > 0 ? ` · L${level}` : ""}
+            {mentorRank > 0 ? " 🎓" : ""}
+          </button>
+          {level > 0 && level < maxLevel && (
+            <button
+              type="button"
+              className="text-xs font-bold text-sky hover:underline"
+              onClick={() => setLevel((l) => Math.min(maxLevel, l + 1))}
+            >
+              {locale === "en" ? "Deeper hint" : "Глибша підказка"} →
+            </button>
+          )}
+          {mentorRank > 0 && level === 0 ? (
+            <span className="text-[10px] font-bold text-ink-muted">
+              {locale === "en" ? `Mentor L${mentorRank}` : `Ментор L${mentorRank}`}
+            </span>
+          ) : null}
+        </div>
+        {level > 0 ? (
+          <p className="whitespace-pre-wrap rounded-xl bg-grape/10 px-3 py-2 text-sm font-bold text-ink">
             {text}
           </p>
         ) : null}
@@ -139,11 +241,20 @@ const SOFT_MAX_ATTEMPTS = 3;
 
 function useSoftAttempts(hintOpen: (v: boolean | ((b: boolean) => boolean)) => void) {
   const examMode = useContext(ExamModeCtx);
+  const reportWrong = useContext(WrongAttemptCtx);
+  const { character } = useAuth();
+  const mentorRank = Math.min(
+    3,
+    Math.max(0, Number(character?.progression?.talents?.mentor) || 0),
+  );
+  /** Mentor grants extra soft attempts before skip (+1 per rank, cap +2). */
+  const maxAttempts = SOFT_MAX_ATTEMPTS + Math.min(2, mentorRank);
   const [attempts, setAttempts] = useState(0);
   const [wrong, setWrong] = useState(false);
   const [detail, setDetail] = useState<string | null>(null);
 
   function registerFail(msg?: string | null) {
+    reportWrong?.();
     setWrong(true);
     setDetail(msg ?? null);
     setAttempts((a) => {
@@ -158,14 +269,15 @@ function useSoftAttempts(hintOpen: (v: boolean | ((b: boolean) => boolean)) => v
     setDetail(null);
   }
 
-  const canSkip = !examMode && attempts >= SOFT_MAX_ATTEMPTS;
+  const canSkip = !examMode && attempts >= maxAttempts;
 
   return {
     attempts,
     wrong,
     detail,
     canSkip,
-    max: SOFT_MAX_ATTEMPTS,
+    max: maxAttempts,
+    mentorRank,
     registerFail,
     resetSoft,
     markOk: () => {
@@ -180,16 +292,18 @@ function SoftFeedback({
   detail,
   attempts,
   max,
+  mentorRank,
 }: {
   wrong: boolean;
   detail?: string | null;
   attempts?: number;
   max?: number;
+  mentorRank?: number;
 }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   if (!wrong && !attempts) return null;
   return (
-    <div className="space-y-1">
+    <div className="space-y-1" role="status" aria-live="assertive">
       {wrong ? (
         <div className="rounded-xl border-2 border-red-200 bg-red-50 px-3 py-2 text-sm font-bold text-red-600 dark:border-red-900 dark:bg-red-950/40">
           {t.lesson.wrong} · {t.lesson.tryAgain}
@@ -198,12 +312,21 @@ function SoftFeedback({
               {t.lesson.missingParts}: {detail}
             </p>
           ) : null}
+          {(mentorRank ?? 0) > 0 ? (
+            <p className="mt-1 text-xs font-semibold text-grape">
+              🎓{" "}
+              {locale === "en"
+                ? "Mentor: re-read the hint, then try a smaller change."
+                : "Ментор: перечитайте підказку, змініть лише один крок."}
+            </p>
+          ) : null}
         </div>
       ) : null}
       {typeof attempts === "number" && attempts > 0 ? (
         <p className="text-xs font-bold text-ink-muted">
           {t.lesson.attempts}: {attempts}/{max ?? SOFT_MAX_ATTEMPTS}
           {attempts >= (max ?? SOFT_MAX_ATTEMPTS) ? ` · ${t.lesson.skipHint}` : ""}
+          {(mentorRank ?? 0) > 0 ? " 🎓" : ""}
         </p>
       ) : null}
     </div>
@@ -245,11 +368,12 @@ function DrillFooter({
         detail={soft.detail}
         attempts={soft.attempts}
         max={soft.max}
+        mentorRank={soft.mentorRank}
       />
-      <div className="flex flex-wrap gap-2">
+      <div className="lesson-check-bar flex flex-wrap gap-2">
         <button
           type="button"
-          className="btn-primary"
+          className="btn-primary min-h-11"
           disabled={!canCheck}
           onClick={onCheck}
         >
@@ -330,8 +454,9 @@ function McqExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
+  const { locale } = useLocale();
   const prompt = usePrompt(exercise);
-  const options = (exercise.options as string[]) ?? [];
+  const options = localizeExerciseOptions(locale, exercise as { options?: string[]; optionsEn?: string[] });
   const [selected, setSelected] = useState<number | null>(null);
   const hint = useExerciseHint(exercise);
   const soft = useSoftAttempts(hint.setOpen);
@@ -357,22 +482,78 @@ function McqExercise({
     onAnswer(selected);
   }
 
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (isTypingTarget(e.target)) return;
+      if (hasOpenDialog()) return;
+
+      const optIdx = optionIndexFromKey(e);
+      if (optIdx !== null) {
+        e.preventDefault();
+        if (optIdx < options.length) {
+          setSelected(optIdx);
+          soft.resetSoft();
+        }
+        return;
+      }
+
+      const n = options.length;
+      if (!n) return;
+
+      const target = e.target as HTMLElement | null;
+      const isButtonOrLink = Boolean(target?.closest?.("button, a"));
+      if (isButtonOrLink) return;
+
+      if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+        e.preventDefault();
+        setSelected((s) => (s === null ? 0 : Math.min(n - 1, s + 1)));
+        return;
+      }
+      if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+        e.preventDefault();
+        setSelected((s) => (s === null ? 0 : Math.max(0, s - 1)));
+        return;
+      }
+      if (e.key === "Enter" && selected !== null) {
+        e.preventDefault();
+        check();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [options.length, selected, correctIndex, soft, onAnswer]);
+
+  const keysHint =
+    locale === "en"
+      ? "Keys: 1–9 (top row and numpad) select · arrows move · Enter check"
+      : "Клавіші: 1–9 (верхній ряд і numpad) вибір · стрілки · Enter перевірка";
+
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-black">{prompt}</h2>
+      <h2 className="text-xl font-black" id={`ex-prompt-${exercise.id}`}>
+        {prompt}
+      </h2>
+      <p className="text-xs font-bold text-ink-muted">{keysHint}</p>
       {code ? (
         <CodeBlock code={code} language={String(exercise.language ?? "")} />
       ) : (
         <SpeakButton text={speakSrc} lang="en-US" showPractice />
       )}
       {hint.panel}
-      <div className="grid gap-2">
+      <div
+        className="grid gap-2"
+        role="radiogroup"
+        aria-labelledby={`ex-prompt-${exercise.id}`}
+      >
         {options.map((opt, i) => (
           <button
             key={i}
             type="button"
+            role="radio"
+            aria-checked={selected === i}
             className={clsx(
-              "rounded-2xl border-2 px-4 py-3 text-left font-bold transition",
+              "rounded-2xl border-2 px-4 py-3 text-left font-bold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
               selected === i ? "border-sky bg-sky/10" : "border-slate-200 hover:bg-slate-50",
             )}
             onClick={() => {
@@ -380,6 +561,9 @@ function McqExercise({
               soft.resetSoft();
             }}
           >
+            {i < 9 && (
+              <span className="mr-2 text-xs text-ink-muted">{i + 1}.</span>
+            )}
             {opt}
           </button>
         ))}
@@ -407,6 +591,7 @@ function TextExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
+  const { locale } = useLocale();
   const prompt = usePrompt(exercise);
   const [value, setValue] = useState("");
   const source =
@@ -417,7 +602,12 @@ function TextExercise({
         : prompt;
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-black">{prompt}</h2>
+      <h2 className="text-xl font-black" id={`ex-prompt-${exercise.id}`}>
+        {prompt}
+      </h2>
+      <p className="text-xs font-bold text-ink-muted">
+        {locale === "en" ? "Press Enter to check" : "Enter — перевірити"}
+      </p>
       <SpeakButton text={source} lang="en-US" showPractice />
       {exercise.source ? (
         <p className="rounded-2xl bg-slate-100 px-4 py-3 font-bold dark:bg-slate-900">
@@ -427,8 +617,24 @@ function TextExercise({
       {exercise.sentence ? (
         <p className="rounded-2xl bg-slate-100 px-4 py-3 font-bold">{String(exercise.sentence)}</p>
       ) : null}
-      <input className="input" value={value} onChange={(e) => setValue(e.target.value)} />
-      <button className="btn-primary" disabled={!value.trim()} onClick={() => onAnswer(value)}>
+      <input
+        className="input"
+        value={value}
+        aria-labelledby={`ex-prompt-${exercise.id}`}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && value.trim()) {
+            e.preventDefault();
+            onAnswer(value);
+          }
+        }}
+      />
+      <button
+        type="button"
+        className="btn-primary"
+        disabled={!value.trim()}
+        onClick={() => onAnswer(value)}
+      >
         {UI.lesson.check}
       </button>
     </div>
@@ -442,14 +648,26 @@ function MatchExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
-  const pairs = (exercise.pairs as { left: string; right: string }[]) ?? [];
+  const { locale } = useLocale();
+  const prompt = usePrompt(exercise);
+  const pairs = useMemo(
+    () =>
+      localizeMatchPairs(locale, {
+        pairs: exercise.pairs as { left: string; right: string }[] | undefined,
+        pairsEn: (exercise as { pairsEn?: { left: string; right: string }[] }).pairsEn,
+      }),
+    [exercise, locale],
+  );
   const rights = useMemo(
-    () => [...pairs.map((p) => p.right)].sort(() => Math.random() - 0.5),
+    () => [...pairs].sort(() => Math.random() - 0.5),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [exercise.id],
+    [exercise.id, locale],
   );
   const [selectedLeft, setSelectedLeft] = useState<string | null>(null);
   const [matched, setMatched] = useState<{ left: string; right: string }[]>([]);
+
+  const freeLefts = pairs.filter((p) => !matched.some((m) => m.left === p.left));
+  const freeRights = rights.filter((r) => !matched.some((m) => m.right === r.right));
 
   function pickRight(right: string) {
     if (!selectedLeft) return;
@@ -458,47 +676,292 @@ function MatchExercise({
     setSelectedLeft(null);
   }
 
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (isTypingTarget(e.target)) return;
+      if (hasOpenDialog()) return;
+
+      const optIdx = optionIndexFromKey(e);
+      if (optIdx !== null) {
+        e.preventDefault();
+        if (!selectedLeft) {
+          const left = freeLefts[optIdx]?.left;
+          if (left) setSelectedLeft(left);
+        } else {
+          const right = freeRights[optIdx]?.right;
+          if (right) pickRight(right);
+        }
+        return;
+      }
+
+      if (e.key === "Escape") {
+        if (selectedLeft) {
+          e.preventDefault();
+          setSelectedLeft(null);
+        }
+        return;
+      }
+
+      if (e.key === "Backspace" && matched.length) {
+        e.preventDefault();
+        setMatched((m) => m.slice(0, -1));
+        setSelectedLeft(null);
+        return;
+      }
+
+      if (e.key === "Enter" && matched.length === pairs.length) {
+        const target = e.target as HTMLElement | null;
+        const isButtonOrLink = Boolean(target?.closest?.("button, a"));
+        if (!isButtonOrLink) {
+          e.preventDefault();
+          onAnswer(matched);
+        }
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [freeLefts, freeRights, matched, pairs.length, selectedLeft, onAnswer]);
+
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
+      <h2 className="text-xl font-black" id={`ex-prompt-${exercise.id}`}>
+        {prompt}
+      </h2>
+      <p className="text-xs font-bold text-ink-muted">
+        {locale === "en"
+          ? "Keys: 1–9 left then right · Esc clear · Backspace undo · Enter check"
+          : "Клавіші: 1–9 ліво/право · Esc скинути · Backspace · Enter"}
+      </p>
       <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-2">
-          {pairs.map((p) => (
-            <button
-              key={p.left}
-              type="button"
-              disabled={matched.some((m) => m.left === p.left)}
-              className={clsx(
-                "w-full rounded-2xl border-2 px-3 py-2 font-bold",
-                selectedLeft === p.left ? "border-sky bg-sky/10" : "border-slate-200",
-              )}
-              onClick={() => setSelectedLeft(p.left)}
-            >
-              {p.left}
-            </button>
-          ))}
+        <div className="space-y-2" role="list" aria-label="left">
+          {pairs.map((p) => {
+            const freeIdx = freeLefts.findIndex((x) => x.left === p.left);
+            return (
+              <button
+                key={p.left}
+                type="button"
+                disabled={matched.some((m) => m.left === p.left)}
+                className={clsx(
+                  "w-full rounded-2xl border-2 px-3 py-2 font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky",
+                  selectedLeft === p.left ? "border-sky bg-sky/10" : "border-slate-200",
+                )}
+                onClick={() => setSelectedLeft(p.left)}
+              >
+                {freeIdx >= 0 && (
+                  <span className="mr-1 text-[10px] text-ink-muted">{freeIdx + 1}.</span>
+                )}
+                {p.labelLeft}
+              </button>
+            );
+          })}
         </div>
-        <div className="space-y-2">
-          {rights.map((r) => (
-            <button
-              key={r}
-              type="button"
-              disabled={matched.some((m) => m.right === r)}
-              className="w-full rounded-2xl border-2 border-slate-200 px-3 py-2 font-bold"
-              onClick={() => pickRight(r)}
-            >
-              {r}
-            </button>
-          ))}
+        <div className="space-y-2" role="list" aria-label="right">
+          {rights.map((r) => {
+            const freeIdx = freeRights.findIndex((x) => x.right === r.right);
+            return (
+              <button
+                key={r.right}
+                type="button"
+                disabled={matched.some((m) => m.right === r.right)}
+                className="w-full rounded-2xl border-2 border-slate-200 px-3 py-2 font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky"
+                onClick={() => pickRight(r.right)}
+              >
+                {freeIdx >= 0 && (
+                  <span className="mr-1 text-[10px] text-ink-muted">{freeIdx + 1}.</span>
+                )}
+                {r.labelRight}
+              </button>
+            );
+          })}
         </div>
       </div>
+      {matched.length > 0 && (
+        <p className="text-xs font-bold text-ink-muted">
+          {matched
+            .map((m) => {
+              const pair = pairs.find((p) => p.left === m.left);
+              return `${pair?.labelLeft ?? m.left}→${pair?.labelRight ?? m.right}`;
+            })
+            .join(" · ")}
+        </p>
+      )}
       <button
+        type="button"
         className="btn-primary"
         disabled={matched.length !== pairs.length}
         onClick={() => onAnswer(matched)}
       >
         {UI.lesson.check}
       </button>
+    </div>
+  );
+}
+
+function CodeRunExercise({
+  exercise,
+  onAnswer,
+}: {
+  exercise: Exercise;
+  onAnswer: (a: unknown) => void;
+}) {
+  const prompt = usePrompt(exercise);
+  const { locale } = useLocale();
+  const starter = String(exercise.starter ?? "");
+  const [source, setSource] = useState(starter);
+  const [busy, setBusy] = useState(false);
+  const [runMsg, setRunMsg] = useState("");
+  const [testsOk, setTestsOk] = useState(false);
+  const hint = useExerciseHint(exercise);
+  const soft = useSoftAttempts(hint.setOpen);
+  const tests =
+    (exercise.tests as { stdin?: string; stdout: string }[]) ?? [];
+  const required = (exercise.requiredSource as string[]) ?? [];
+  const forbidden = (exercise.forbiddenSource as string[]) ?? [
+    "system(",
+    "exec(",
+  ];
+  const lang = String(exercise.language ?? "cpp");
+  const cs = exercise.caseSensitive !== false;
+
+  async function runTests() {
+    setBusy(true);
+    setRunMsg(locale === "en" ? "Running…" : "Запуск…");
+    setTestsOk(false);
+    try {
+      const srcCheck = softGradeCodeRunSource(
+        source,
+        required,
+        forbidden,
+        cs,
+        lang,
+      );
+      if (!srcCheck.ok) {
+        setRunMsg(
+          locale === "en"
+            ? `Source check failed: missing ${srcCheck.missing.join(", ") || "—"} banned ${srcCheck.banned.join(", ") || "—"}`
+            : `Перевірка коду: бракує ${srcCheck.missing.join(", ") || "—"} заборонено ${srcCheck.banned.join(", ") || "—"}`,
+        );
+        soft.registerFail();
+        return;
+      }
+      if (lang === "cpp" && tests.length) {
+        const r = await runCppTests(
+          source,
+          tests,
+          Number(exercise.timeLimitMs ?? 3000),
+        );
+        if (!r.pass) {
+          setRunMsg(
+            locale === "en"
+              ? `Tests failed: ${r.firstError ?? "stdout mismatch"}`
+              : `Тести не пройшли: ${r.firstError ?? "stdout"}`,
+          );
+          soft.registerFail();
+          return;
+        }
+        setTestsOk(true);
+        setRunMsg(
+          locale === "en"
+            ? `All ${tests.length} test(s) passed`
+            : `Усі ${tests.length} тест(и) пройдено`,
+        );
+      } else {
+        setTestsOk(true);
+        setRunMsg(locale === "en" ? "Source checks OK" : "Перевірки коду OK");
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function check() {
+    if (!testsOk) {
+      soft.registerFail();
+      setRunMsg(
+        locale === "en"
+          ? "Run tests successfully before submit"
+          : "Спочатку успішно запусти тести",
+      );
+      return;
+    }
+    const srcCheck = softGradeCodeRunSource(
+      source,
+      required,
+      forbidden,
+      cs,
+      lang,
+    );
+    if (!srcCheck.ok) {
+      soft.registerFail();
+      return;
+    }
+    soft.markOk();
+    onAnswer({ source });
+  }
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-black">{prompt}</h2>
+      {hint.panel}
+      <p className="text-xs font-bold text-ink-muted">
+        {locale === "en"
+          ? "C++ lab — Run tests (client), then Check"
+          : "C++ lab — Запусти тести (у браузері), потім Перевірити"}
+      </p>
+      <MonacoCodeEditor
+        value={source}
+        onChange={(v) => {
+          setSource(v);
+          setTestsOk(false);
+          soft.resetSoft();
+        }}
+        language={lang === "cpp" ? "cpp" : lang}
+        height="320px"
+      />
+      {runMsg ? (
+        <pre
+          className={clsx(
+            "rounded-xl border-2 p-3 text-xs font-mono whitespace-pre-wrap",
+            testsOk
+              ? "border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-100"
+              : "border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100",
+          )}
+        >
+          {runMsg}
+        </pre>
+      ) : null}
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          className="btn-secondary"
+          disabled={busy}
+          onClick={() => void runTests()}
+        >
+          {busy
+            ? locale === "en"
+              ? "Running…"
+              : "…"
+            : locale === "en"
+              ? "▶ Run tests"
+              : "▶ Запустити тести"}
+        </button>
+      </div>
+      <DrillFooter
+        canCheck={testsOk && Boolean(source.trim())}
+        onCheck={check}
+        soft={soft}
+        skipAnswer={{ source }}
+        onAnswer={onAnswer}
+        tutorHref={tutorHelpHref(exercise, source)}
+        exercise={exercise}
+        onApplySolution={(a) => {
+          if (typeof a === "string") setSource(a);
+          else if (a && typeof a === "object" && "source" in (a as object)) {
+            setSource(String((a as { source: string }).source));
+          }
+        }}
+      />
     </div>
   );
 }
@@ -510,6 +973,7 @@ function CodeFillExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
+  const { locale } = useLocale();
   const prompt = usePrompt(exercise);
   const code = String(exercise.code ?? "");
   const [value, setValue] = useState("");
@@ -533,15 +997,30 @@ function CodeFillExercise({
       <h2 className="text-xl font-black">{prompt}</h2>
       <CodeBlock code={code} language={String(exercise.language ?? "")} />
       {hint.panel}
-      <p className="text-xs font-bold text-ink-muted">Your answer (fill ___)</p>
-      <MonacoCodeEditor
+      <label htmlFor={`code-fill-${exercise.id}`} className="block text-xs font-bold text-ink-muted">
+        {locale === "en" ? "Your answer (fill ___)" : "Ваша відповідь (заповніть ___)"}
+      </label>
+      <input
+        id={`code-fill-${exercise.id}`}
+        type="text"
+        className="input font-mono text-base font-bold"
         value={value}
-        onChange={(v) => {
-          setValue(v);
+        onChange={(e) => {
+          setValue(e.target.value);
           soft.resetSoft();
         }}
-        language={String(exercise.language ?? "javascript")}
-        height="100px"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && value.trim()) {
+            e.preventDefault();
+            check();
+          }
+        }}
+        placeholder={locale === "en" ? "Type the missing code…" : "Введіть код для ___…"}
+        autoFocus
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck={false}
       />
       <DrillFooter
         canCheck={Boolean(value.trim())}
@@ -565,6 +1044,18 @@ type ProjectFile = {
   language: string;
   starter: string;
 };
+
+function projectFileLanguage(lang?: string, name?: string): string {
+  if (name?.endsWith(".md") || lang === "markdown") return "Markdown";
+  if (name?.endsWith(".sql") || lang === "sql") return "SQL";
+  if (name?.endsWith(".html") || lang === "html") return "HTML";
+  if (name?.endsWith(".css") || lang === "css") return "CSS";
+  if (name?.endsWith(".ts") || lang === "typescript" || lang === "ts") return "TypeScript";
+  if (name?.endsWith(".js") || lang === "javascript" || lang === "js") return "JavaScript";
+  if (name?.endsWith(".json") || lang === "json") return "JSON";
+  if (lang) return lang.toUpperCase();
+  return "";
+}
 
 function CodeProjectExercise({
   exercise,
@@ -662,18 +1153,27 @@ function CodeProjectExercise({
           showPreview && previewable && "lg:grid-cols-2",
         )}
       >
-        <div>
+        <div className="min-w-0 w-full">
+          <div className="flex items-center justify-between rounded-t-2xl border-2 border-b-0 border-slate-200 bg-slate-100/90 px-3 py-1.5 text-xs font-mono font-bold dark:border-slate-700 dark:bg-slate-800/90">
+            <span className="text-ink dark:text-slate-100">{current?.name}</span>
+            <span className="text-[11px] font-semibold text-ink-muted">
+              {projectFileLanguage(current?.language, current?.name)}
+            </span>
+          </div>
           {current ? (
-            <MonacoCodeEditor
-              key={current.id}
-              value={contents[current.id] ?? ""}
-              onChange={(v) => {
-                setContents((c) => ({ ...c, [current.id]: v }));
-                soft.resetSoft();
-              }}
-              language={current.language || "javascript"}
-              height="280px"
-            />
+            <div className="[&>div]:rounded-t-none [&>div]:border-t-0">
+              <MonacoCodeEditor
+                key={current.id}
+                value={contents[current.id] ?? ""}
+                onChange={(v) => {
+                  setContents((c) => ({ ...c, [current.id]: v }));
+                  soft.resetSoft();
+                }}
+                language={current.language || "javascript"}
+                height="360px"
+                fileName={current.name}
+              />
+            </div>
           ) : null}
         </div>
         {showPreview && previewable ? (
@@ -685,7 +1185,7 @@ function CodeProjectExercise({
               key={previewKey}
               title="project-preview"
               sandbox="allow-scripts"
-              className="h-[280px] w-full bg-white"
+              className="h-[360px] w-full bg-white"
               srcDoc={srcDoc}
             />
           </div>
@@ -729,6 +1229,8 @@ function OrderWordsExercise({
   const [pool, setPool] = useState(words);
   const [built, setBuilt] = useState<string[]>([]);
   const isCode = exercise.type === "code_order" || Boolean(exercise.language);
+  const prompt = usePrompt(exercise);
+  const { locale } = useLocale();
   const hint = useExerciseHint(exercise);
   const soft = useSoftAttempts(hint.setOpen);
   const correct =
@@ -753,22 +1255,72 @@ function OrderWordsExercise({
     onAnswer(built);
   }
 
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (isTypingTarget(e.target)) return;
+      if (hasOpenDialog()) return;
+
+      const optIdx = optionIndexFromKey(e);
+      if (optIdx !== null) {
+        e.preventDefault();
+        if (optIdx < pool.length) {
+          const w = pool[optIdx]!;
+          setPool((p) => p.filter((_, j) => j !== optIdx));
+          setBuilt((b) => [...b, w]);
+          soft.resetSoft();
+        }
+        return;
+      }
+
+      if (e.key === "Backspace" && built.length) {
+        e.preventDefault();
+        const last = built[built.length - 1]!;
+        setBuilt((b) => b.slice(0, -1));
+        setPool((p) => [...p, last]);
+        soft.resetSoft();
+        return;
+      }
+
+      if (e.key === "Enter" && built.length) {
+        const target = e.target as HTMLElement | null;
+        const isButtonOrLink = Boolean(target?.closest?.("button, a"));
+        if (!isButtonOrLink) {
+          e.preventDefault();
+          check();
+        }
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [pool, built, soft, correct, onAnswer]);
+
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
+      <h2 className="text-xl font-black" id={`ex-prompt-${exercise.id}`}>
+        {prompt}
+      </h2>
+      <p className="text-xs font-bold text-ink-muted">
+        {locale === "en"
+          ? "Keys: 1–9 add from pool · Backspace undo · Enter check"
+          : "Клавіші: 1–9 з пулу · Backspace назад · Enter перевірка"}
+      </p>
       {isCode && (
         <p className="text-xs font-bold text-ink-muted font-mono">
           {String(exercise.language ?? "code")}
         </p>
       )}
       {hint.panel}
-      <div className="min-h-14 rounded-2xl border-2 border-dashed border-slate-300 p-3 flex flex-wrap gap-2">
+      <div
+        className="min-h-14 rounded-2xl border-2 border-dashed border-slate-300 p-3 flex flex-wrap gap-2"
+        aria-label="built"
+      >
         {built.map((w, i) => (
           <button
             key={`${w}-${i}`}
             type="button"
             className={clsx(
-              "rounded-xl bg-sky/15 px-3 py-1 font-bold",
+              "rounded-xl bg-sky/15 px-3 py-1 font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky",
               isCode && "font-mono text-sm",
             )}
             onClick={() => {
@@ -781,13 +1333,14 @@ function OrderWordsExercise({
           </button>
         ))}
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2" role="list" aria-label="word pool">
         {pool.map((w, i) => (
           <button
             key={`${w}-${i}`}
             type="button"
+            role="listitem"
             className={clsx(
-              "rounded-xl border-2 border-slate-200 px-3 py-1 font-bold dark:border-slate-700",
+              "rounded-xl border-2 border-slate-200 px-3 py-1 font-bold dark:border-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky",
               isCode && "font-mono text-sm",
             )}
             onClick={() => {
@@ -796,6 +1349,7 @@ function OrderWordsExercise({
               soft.resetSoft();
             }}
           >
+            <span className="mr-1 text-[10px] text-ink-muted">{i + 1}.</span>
             {w}
           </button>
         ))}
@@ -1009,6 +1563,16 @@ function ChessPuzzleExercise({
   const [game, setGame] = useState(() => new Chess(fen));
   const [sans, setSans] = useState<string[]>([]);
   const [msg, setMsg] = useState("");
+  const [endReason, setEndReason] = useState<"checkmate" | "stalemate" | null>(null);
+
+  const viewer = useMemo(() => {
+    try {
+      return (new Chess(fen)).turn();
+    } catch {
+      return "w";
+    }
+  }, [fen]);
+  const orientation = viewer === "b" ? "black" : "white";
 
   function onDrop(from: string, to: string) {
     const g = new Chess(game.fen());
@@ -1016,8 +1580,6 @@ function ChessPuzzleExercise({
       const move = g.move({ from, to, promotion: "q" });
       if (!move) return false;
       const nextSans = [...sans, move.san];
-      setSans(nextSans);
-      setGame(g);
       const expected = solution[nextSans.length - 1];
       const norm = (s: string) => s.replace(/[+#]/g, "");
       if (expected && norm(move.san) !== norm(expected)) {
@@ -1026,12 +1588,23 @@ function ChessPuzzleExercise({
           setGame(new Chess(fen));
           setSans([]);
           setMsg("");
+          setEndReason(null);
         }, 800);
         return true;
       }
+      setSans(nextSans);
+      setGame(g);
       if (nextSans.length >= solution.length) {
         setMsg(UI.lesson.correct);
-        onAnswer({ solved: true, sans: nextSans });
+        if (g.isCheckmate()) {
+          setEndReason("checkmate");
+          onAnswer({ solved: true, sans: nextSans, mate: true });
+        } else if (g.isStalemate()) {
+          setEndReason("stalemate");
+          onAnswer({ solved: true, sans: nextSans, stalemate: true });
+        } else {
+          onAnswer({ solved: true, sans: nextSans });
+        }
       }
       return true;
     } catch {
@@ -1043,7 +1616,16 @@ function ChessPuzzleExercise({
     <div className="space-y-4">
       <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
       <div className="mx-auto max-w-md">
-        <Chessboard position={game.fen()} onPieceDrop={onDrop} boardWidth={360} />
+        <ChessBoardFrame
+          fen={game.fen()}
+          mode="puzzle"
+          orientation={orientation}
+          viewer={viewer}
+          onMove={onDrop}
+          endReason={endReason}
+          endLine={UI.chess.puzzleSolved}
+          boardWidth={360}
+        />
       </div>
       {msg && <p className="font-bold text-center">{msg}</p>}
     </div>
@@ -1059,12 +1641,27 @@ function ChessLessonExercise({
 }) {
   const quiz = exercise.quiz as { q: string; options: string[]; correctIndex: number } | undefined;
   const [selected, setSelected] = useState<number | null>(null);
+  const fen = String(exercise.fen);
+  const viewer = useMemo(() => {
+    try {
+      return (new Chess(fen)).turn();
+    } catch {
+      return "w";
+    }
+  }, [fen]);
+  const orientation = viewer === "b" ? "black" : "white";
 
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
       <div className="mx-auto max-w-md">
-        <Chessboard position={String(exercise.fen)} arePiecesDraggable={false} boardWidth={360} />
+        <ChessBoardFrame
+          fen={fen}
+          mode="explore"
+          orientation={orientation}
+          viewer={viewer}
+          boardWidth={360}
+        />
       </div>
       <p className="rounded-2xl bg-slate-100 p-4 leading-relaxed">{String(exercise.notesUk)}</p>
       {quiz ? (
@@ -1097,6 +1694,423 @@ function ChessLessonExercise({
         <button className="btn-primary" onClick={() => onAnswer(true)}>
           {UI.lesson.continue}
         </button>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Concept card — theory / worked example before practice.
+ * Shows body paragraphs, key points, optional read-only code and an optional self-check.
+ */
+function ConceptExercise({
+  exercise,
+  onAnswer,
+}: {
+  exercise: Exercise;
+  onAnswer: (a: unknown) => void;
+}) {
+  const { locale } = useLocale();
+  const en = locale === "en";
+  const body = String(
+    (en ? exercise.bodyEn || exercise.bodyUk : exercise.bodyUk || exercise.bodyEn) ?? "",
+  );
+  const pointsRaw = (en
+    ? (exercise.keyPointsEn as string[] | undefined) ?? (exercise.keyPointsUk as string[] | undefined)
+    : (exercise.keyPointsUk as string[] | undefined) ?? (exercise.keyPointsEn as string[] | undefined)) ?? [];
+  const check = exercise.check as
+    | { qUk: string; qEn?: string; options: string[]; correctIndex: number }
+    | undefined;
+  const [selected, setSelected] = useState<number | null>(null);
+  const paragraphs = body.split(/\n{2,}/).filter((p) => p.trim());
+
+  return (
+    <div className="space-y-4">
+      <p className="text-xs font-black uppercase tracking-wide text-grape">
+        📘 {en ? "Concept" : "Теорія"}
+      </p>
+      <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
+      <div className="space-y-3 rounded-2xl bg-slate-100 p-4 leading-relaxed dark:bg-slate-800">
+        {paragraphs.map((p, i) => (
+          <p key={i} className="whitespace-pre-line">
+            {p}
+          </p>
+        ))}
+      </div>
+      {pointsRaw.length > 0 && (
+        <div className="rounded-2xl border-2 border-brand/30 p-4">
+          <p className="mb-2 text-sm font-black">{en ? "Key points" : "Головне"}</p>
+          <ul className="list-inside list-disc space-y-1 text-sm font-bold">
+            {pointsRaw.map((kp, i) => (
+              <li key={i}>{kp}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {exercise.code ? (
+        <CodeBlock code={String(exercise.code)} language={String(exercise.language ?? "")} />
+      ) : null}
+      {check ? (
+        <>
+          <p className="font-bold">
+            {en ? "Self-check: " : "Самоперевірка: "}
+            {en ? check.qEn || check.qUk : check.qUk}
+          </p>
+          <div className="grid gap-2">
+            {check.options.map((opt, i) => (
+              <button
+                key={i}
+                type="button"
+                className={clsx(
+                  "rounded-2xl border-2 px-4 py-3 text-left font-bold",
+                  selected === i ? "border-sky bg-sky/10" : "border-slate-200",
+                )}
+                onClick={() => setSelected(i)}
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
+          <button
+            className="btn-primary"
+            disabled={selected === null}
+            onClick={() => selected !== null && onAnswer(selected)}
+          >
+            {UI.lesson.check}
+          </button>
+        </>
+      ) : (
+        <button className="btn-primary" onClick={() => onAnswer({ acknowledged: true })}>
+          {en ? "Got it" : "Зрозуміло"} →
+        </button>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Explain in your own words (self-explanation). Client soft-grades with the shared rubric;
+ * optional tutor feedback via POST /deep/explain-feedback.
+ */
+function ExplainExercise({
+  exercise,
+  onAnswer,
+}: {
+  exercise: Exercise;
+  onAnswer: (a: unknown) => void;
+}) {
+  const { locale } = useLocale();
+  const en = locale === "en";
+  const { token } = useAuth();
+  const lessonId = useContext(LessonIdCtx);
+  const examMode = useContext(ExamModeCtx);
+  const hint = useExerciseHint(exercise);
+  const soft = useSoftAttempts(hint.setOpen);
+  const [text, setText] = useState("");
+  const [missing, setMissing] = useState<string[]>([]);
+  const [tutor, setTutor] = useState<string | null>(null);
+  const [tutorBusy, setTutorBusy] = useState(false);
+  const ideas = (exercise.keyIdeas as ExplainKeyIdea[]) ?? [];
+  const minWords = Number(exercise.minWords ?? 12);
+  const words = countWords(text);
+  const sample = String((en ? exercise.sampleAnswerEn || exercise.sampleAnswerUk : exercise.sampleAnswerUk) ?? "");
+
+  function check() {
+    const g = gradeExplanation(text, {
+      keyIdeas: ideas,
+      minWords,
+      passRatio: exercise.passRatio as number | undefined,
+    });
+    if (!g.correct) {
+      const labels = ideas
+        .filter((i) => g.missing.includes(i.labelEn || i.labelUk))
+        .map((i) => (en ? i.labelEn || i.labelUk : i.labelUk));
+      setMissing(labels);
+      soft.registerFail(
+        g.tooShort
+          ? en
+            ? `At least ${minWords} words (now ${g.words}).`
+            : `Щонайменше ${minWords} слів (зараз ${g.words}).`
+          : null,
+      );
+      return;
+    }
+    soft.markOk();
+    onAnswer({ text });
+  }
+
+  async function askTutor() {
+    if (!lessonId || !text.trim()) return;
+    setTutorBusy(true);
+    try {
+      const r = await api<{ feedback: string }>("/deep/explain-feedback", {
+        method: "POST",
+        token,
+        body: { lessonId, exerciseId: exercise.id, text, locale },
+      });
+      setTutor(r.feedback);
+    } catch {
+      setTutor(en ? "Tutor is unavailable right now." : "Репетитор зараз недоступний.");
+    } finally {
+      setTutorBusy(false);
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <p className="text-xs font-black uppercase tracking-wide text-grape">
+        ✍️ {en ? "Explain in your own words" : "Поясніть своїми словами"}
+      </p>
+      <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
+      <textarea
+        className="min-h-[140px] w-full rounded-2xl border-2 border-slate-200 p-3 font-bold dark:border-slate-700 dark:bg-slate-900"
+        value={text}
+        onChange={(e) => {
+          setText(e.target.value);
+          soft.resetSoft();
+        }}
+        aria-label={en ? "Your explanation" : "Ваше пояснення"}
+        placeholder={en ? "Explain as if to a friend…" : "Поясніть так, ніби другу…"}
+      />
+      <p className={clsx("text-xs font-bold", words >= minWords ? "text-green-600" : "text-ink-muted")}>
+        {words}/{minWords} {en ? "words" : "слів"}
+      </p>
+      {soft.wrong && (
+        <div className="rounded-2xl border-2 border-orange-300 bg-orange-50 p-3 text-sm font-bold dark:bg-orange-950/30">
+          {soft.detail ? <p>{soft.detail}</p> : null}
+          {missing.length > 0 && (
+            <p>
+              {en ? "Think about: " : "Подумайте про: "}
+              {missing.join(", ")}
+            </p>
+          )}
+        </div>
+      )}
+      {tutor && (
+        <p className="whitespace-pre-wrap rounded-2xl bg-sky/10 p-3 text-sm font-bold">🎓 {tutor}</p>
+      )}
+      <div className="flex flex-wrap gap-2">
+        <button className="btn-primary" disabled={!text.trim()} onClick={check}>
+          {UI.lesson.check}
+        </button>
+        {lessonId && !examMode && (
+          <button
+            type="button"
+            className="btn-secondary"
+            disabled={!text.trim() || tutorBusy}
+            onClick={() => void askTutor()}
+          >
+            🎓 {en ? "Tutor feedback" : "Відгук репетитора"}
+          </button>
+        )}
+        {soft.canSkip && sample && (
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={() => {
+              setText(sample);
+              setMissing([]);
+            }}
+          >
+            {en ? "Show sample answer" : "Показати приклад відповіді"}
+          </button>
+        )}
+      </div>
+      {hint.panel}
+    </div>
+  );
+}
+
+/** Video LMS block — track watch progress (min ratio). */
+function VideoExercise({
+  exercise,
+  onAnswer,
+}: {
+  exercise: Exercise;
+  onAnswer: (a: unknown) => void;
+}) {
+  const { locale } = useLocale();
+  const url = String(exercise.videoUrl ?? "");
+  const durationSec = Number(exercise.durationSec ?? exercise.videoDurationSec ?? 60);
+  const minRatio = Number(exercise.minWatchRatio ?? 0.8);
+  const [watched, setWatched] = useState(0);
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    if (done) return;
+    const tick = window.setInterval(() => {
+      setWatched((w) => {
+        const n = Math.min(durationSec, w + 1);
+        if (n / durationSec >= minRatio) {
+          window.clearInterval(tick);
+          setDone(true);
+        }
+        return n;
+      });
+    }, 1000);
+    return () => window.clearInterval(tick);
+  }, [durationSec, minRatio, done]);
+
+  const ratio = durationSec ? watched / durationSec : 0;
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
+      <div className="aspect-video w-full overflow-hidden rounded-2xl border-2 border-slate-200 bg-black dark:border-slate-700">
+        {url ? (
+          <iframe
+            title="lesson-video"
+            src={url}
+            className="h-full w-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        ) : (
+          <p className="grid h-full place-items-center text-white font-bold">No video URL</p>
+        )}
+      </div>
+      <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+        <div
+          className="h-full bg-brand transition-all"
+          style={{ width: `${Math.min(100, ratio * 100)}%` }}
+        />
+      </div>
+      <p className="text-sm font-bold text-ink-muted">
+        {locale === "en" ? "Watch progress" : "Перегляд"}: {Math.round(ratio * 100)}% · ≥
+        {Math.round(minRatio * 100)}%
+      </p>
+      <button
+        type="button"
+        className="btn-primary"
+        disabled={!done && ratio < minRatio}
+        onClick={() =>
+          onAnswer({
+            watchedSec: watched,
+            durationSec,
+            ratio,
+            completed: ratio >= minRatio,
+          })
+        }
+      >
+        {done || ratio >= minRatio
+          ? UI.lesson.continue
+          : locale === "en"
+            ? "Keep watching…"
+            : "Дивіться далі…"}
+      </button>
+      <button
+        type="button"
+        className="btn-secondary text-sm"
+        onClick={() => {
+          setWatched(durationSec);
+          setDone(true);
+        }}
+      >
+        {locale === "en" ? "Mark watched (dev)" : "Позначити переглянутим (dev)"}
+      </button>
+    </div>
+  );
+}
+
+/** Multi-lang Docker/local judge exercise */
+function CodeJudgeExercise({
+  exercise,
+  onAnswer,
+}: {
+  exercise: Exercise;
+  onAnswer: (a: unknown) => void;
+}) {
+  const { locale } = useLocale();
+  const { token } = useAuth();
+  const lang = String(exercise.language ?? "javascript") as
+    | "javascript"
+    | "typescript"
+    | "python"
+    | "bash";
+  const starter = String(exercise.starter ?? exercise.code ?? "");
+  const [code, setCode] = useState(starter);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const tests = (exercise.tests as { type: string; value: string | number }[]) ?? [];
+
+  async function run() {
+    setBusy(true);
+    setMsg("");
+    try {
+      const d = await api<{
+        result: {
+          ok: boolean;
+          stdout: string;
+          stderr: string;
+          tests: { pass: boolean; name: string }[];
+          mode: string;
+        };
+      }>("/judge/run", {
+        method: "POST",
+        token,
+        body: {
+          lang,
+          source: code,
+          tests: tests.map((t) => ({
+            type: t.type,
+            value: t.value,
+          })),
+          timeoutMs: Number(exercise.timeoutMs ?? 3000),
+        },
+      });
+      const passed = d.result.tests.filter((t) => t.pass).length;
+      const total = d.result.tests.length || (d.result.ok ? 1 : 0);
+      setMsg(
+        `${d.result.mode}: ${d.result.ok ? "OK" : "FAIL"}\n${d.result.stdout}\n${d.result.stderr}`,
+      );
+      if (d.result.ok) {
+        onAnswer({
+          ok: true,
+          testsPassed: passed || 1,
+          testsTotal: total || 1,
+          stdout: d.result.stdout,
+        });
+      } else {
+        onAnswer({
+          ok: false,
+          testsPassed: passed,
+          testsTotal: Math.max(total, 1),
+          stdout: d.result.stdout,
+        });
+      }
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : "judge_error");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
+      <p className="text-xs font-bold text-ink-muted">
+        Judge · {lang} ·{" "}
+        {locale === "en" ? "runs on API (local or Docker)" : "виконується на API (local/Docker)"}
+      </p>
+      <MonacoCodeEditor
+        value={code}
+        onChange={setCode}
+        language={lang === "python" ? "python" : lang === "bash" ? "shell" : "javascript"}
+        height="220px"
+      />
+      <button type="button" className="btn-primary" disabled={busy} onClick={() => void run()}>
+        {busy
+          ? locale === "en"
+            ? "Running…"
+            : "Виконуємо…"
+          : locale === "en"
+            ? "Run in judge"
+            : "Запустити в judge"}
+      </button>
+      {msg && (
+        <pre className="max-h-40 overflow-auto rounded-xl bg-slate-900 p-3 text-xs text-green-300">
+          {msg}
+        </pre>
       )}
     </div>
   );

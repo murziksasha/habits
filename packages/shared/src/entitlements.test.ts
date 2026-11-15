@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  accessMatrix,
   canAccessLesson,
   canPlayRatedChess,
   canStartLesson,
@@ -8,33 +9,30 @@ import {
 } from "./entitlements.js";
 
 describe("canAccessLesson", () => {
-  it("allows premium any index", () => {
-    expect(canAccessLesson({ plan: "premium", lessonIndexInCourse: 99 })).toBe(true);
-  });
-
-  it("allows free first 5 only", () => {
-    expect(canAccessLesson({ plan: "free", lessonIndexInCourse: 0 })).toBe(true);
-    expect(canAccessLesson({ plan: "free", lessonIndexInCourse: 4 })).toBe(true);
-    expect(canAccessLesson({ plan: "free", lessonIndexInCourse: 5 })).toBe(false);
+  it("allows all users at any lesson index", () => {
+    expect(canAccessLesson({ lessonIndexInCourse: 0 })).toBe(true);
+    expect(canAccessLesson({ lessonIndexInCourse: 4 })).toBe(true);
+    expect(canAccessLesson({ lessonIndexInCourse: 5 })).toBe(true);
+    expect(canAccessLesson({ lessonIndexInCourse: 99 })).toBe(true);
+    expect(canAccessLesson()).toBe(true);
   });
 });
 
 describe("hearts", () => {
-  it("max hearts by plan", () => {
-    expect(maxHearts("free")).toBe(5);
-    expect(maxHearts("premium")).toBe(999);
+  it("uses one heart cap for every account", () => {
+    expect(maxHearts()).toBe(5);
   });
 
-  it("blocks free users with zero hearts", () => {
-    expect(canStartLesson({ plan: "free", hearts: 0 })).toBe(false);
-    expect(canStartLesson({ plan: "free", hearts: 1 })).toBe(true);
-    expect(canStartLesson({ plan: "premium", hearts: 0 })).toBe(true);
+  it("canStartLesson always returns true", () => {
+    expect(canStartLesson({ hearts: 0 })).toBe(true);
+    expect(canStartLesson({ hearts: 1 })).toBe(true);
+    expect(canStartLesson({ hearts: 5 })).toBe(true);
+    expect(canStartLesson()).toBe(true);
   });
 
   it("regens about 1 heart per 30 minutes", () => {
     const past = new Date(Date.now() - 65 * 60 * 1000);
     const r = regenerateHearts({
-      plan: "free",
       hearts: 1,
       heartsUpdatedAt: past,
     });
@@ -45,7 +43,6 @@ describe("hearts", () => {
   it("does not exceed max", () => {
     const past = new Date(Date.now() - 10 * 60 * 60 * 1000);
     const r = regenerateHearts({
-      plan: "free",
       hearts: 4,
       heartsUpdatedAt: past,
     });
@@ -54,9 +51,21 @@ describe("hearts", () => {
 });
 
 describe("rated chess quota", () => {
-  it("limits free plan", () => {
-    expect(canPlayRatedChess({ plan: "free", ratedGamesToday: 4 })).toBe(true);
-    expect(canPlayRatedChess({ plan: "free", ratedGamesToday: 5 })).toBe(false);
-    expect(canPlayRatedChess({ plan: "premium", ratedGamesToday: 100 })).toBe(true);
+  it("always allows rated chess for every user", () => {
+    expect(canPlayRatedChess({ ratedGamesToday: 4 })).toBe(true);
+    expect(canPlayRatedChess({ ratedGamesToday: 5 })).toBe(true);
+    expect(canPlayRatedChess({ ratedGamesToday: 100 })).toBe(true);
+    expect(canPlayRatedChess()).toBe(true);
+  });
+});
+
+describe("access matrix", () => {
+  it("opens lessons and rated chess and keeps a shared heart cap", () => {
+    const m = accessMatrix();
+    expect(m.lessons).toBe("all");
+    expect(m.hearts).toBe(5);
+    expect(m.heartRegenMinutes).toBeGreaterThan(0);
+    expect(m.ratedChessPerDay).toBe("unlimited");
+    expect(m.hintsPerDay).toBe("unlimited");
   });
 });

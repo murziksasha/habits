@@ -25,7 +25,7 @@
 | `/dashboard` | Character, next steps, exams, programming/race teaser |
 | `/learn` | Learning map: recommended, exams, groups, toolkit |
 | `/courses`, `/courses/[slug]` | Catalog + path map |
-| `/courses/[slug]/lessons/[lessonId]` | Lesson player (soft-grade, skip, solution) |
+| `/courses/[slug]/lessons/[lessonId]` | Lesson player (soft-grade, skip, solution, course/character level-up & rewards summary) |
 | `/programming`, `/programming/[stack]` | Programming hub + stack filter |
 | `/typescript` | TypeScript course hub |
 | `/html-semantics` | HTML Semantics deep hub |
@@ -40,35 +40,50 @@
 | `/leaderboard` | Rankings |
 | `/friends` | Friends + minis + weekly race vs friends |
 | `/challenges` | Weekly XP challenge |
-| `/certificates`, `/certificates/[code]` | Certificates |
+| `/certificates`, `/certificates/[code]` | Certificates (branded art, PDF/PNG download, print) |
 | `/homework`, `/schools/*` | Classroom |
 | `/parents`, `/parents/child/[studentId]` | Parent portal + digest |
 | `/flashcards`, `/tutor`, `/review`, `/quests`, `/shop` | Learning tools |
-| `/calendar`, `/export`, `/reports`, `/focus`, `/notes` | Learning OS |
+| `/calendar`, `/export`, `/reports`, `/focus`, `/notes` | Learning OS (`/calendar` = My progress, linked from Dashboard, Learn, Profile) |
 | `/bookmarks`, `/search`, `/referrals` | Extra UX |
 | `/achievements`, `/u/[userId]` | Social profile |
 | `/pricing` | Freemium / Premium |
 | `/profile` | Character, push, minis, certificates |
-| `/admin/*` | CMS, users, metrics, ops |
+| `/admin/*` | Modular admin shell: CMS, appearance, security, metrics, ops (SPEC 72) |
 | `/tournaments/*` | Chess tournaments |
 
 ## Navigation
 
-- Desktop: **primary** links + **More** dropdown (SPEC 57)  
-- Mobile: hamburger + full list  
+- Desktop: **persona primary** (student / parent / teacher) + **More** dropdown (SPEC 57 + 79)  
+- Mobile: bottom 5 persona slots + hamburger drawer  
+- ⌘K / Ctrl+K command palette (`CommandPalette`)  
 - Admin link when `user.role === "admin"`  
 - Embed routes hide chrome  
+- School/family in More only for parent/teacher personas  
 
 ## Key components
 
 | Component | Role |
 |-----------|------|
-| `Nav` | Global navigation |
+| `Nav` | Global navigation + persona + ⌘K |
 | `OnboardingCard` | Checklist on dashboard |
+| `OnboardingWizard` | Role + track first-run |
+| `PrimaryMission` | Single next-step CTA |
+| `ContextualToolkit` | Max 3 contextual tools on Learn |
 | `ExercisePlayer` | All exercise types + soft-grade / solution |
 | `MonacoEditor` | Code editor |
 | `HeartsBar` | Lives display |
 | `XpBar` | Level progress bar |
+| `Celebration` / `StreakCalendar` | Reduced-motion delight + recorded study-date calendar |
+| `GuestTrial` | Landing no-auth MCQ |
+| `StickyContinueShell` | Sticky next-step on secondary routes |
+| `HeartsChrome` | Nav hearts + regen countdown |
+| `OnlineStatusWatcher` | Offline / online toasts |
+| `PageLoading` | Consistent loading skeleton |
+| `DeepCourseHub` | Deep track hubs + PageLoading |
+| `LessonShortcutsHelp` | Lesson `?` keyboard modal |
+| `NodeStudio` | WebContainers Node lab (`/studio/node`) |
+| Live classroom | Socket.IO collab (`/classroom/live/[classId]`) |
 | `SpeakButton` | Pronunciation (Web Speech) |
 | `PushToggle` | Web push subscription |
 | `NotificationsBell` | In-app notifications |

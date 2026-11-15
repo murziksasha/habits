@@ -4,7 +4,8 @@ import express from "express";
 import cors from "cors";
 import { Server } from "socket.io";
 import { and, eq, gt } from "drizzle-orm";
-import { applyMove } from "@eduforge/chess-core";
+import { applyFischerIncrement, applyMove } from "@eduforge/chess-core";
+import { allowSocketEvent } from "./event-rate-limit.js";
 import {
   characters,
   chessGames,
@@ -16,33 +17,37 @@ import {
 import {
   CHESS_TIME_CONTROLS,
   applyElo,
-  canPlayRatedChess,
+  clampElo,
   chessGameXpAward,
+  chessMoveSchema,
   globalXpFromCourseGain,
   levelFromXp,
-  type Plan,
+  seekGameSchema,
 } from "@eduforge/shared";
 import { Chess } from "chess.js";
-import {
-  assignColors,
-  findOpponentIndex,
-  removeSocketSeeks,
-  removeUserSeeks,
-  type SeekEntry,
-} from "./matchmaking.js";
+import { assignColors, type SeekEntry } from "./matchmaking.js";
+import { createRedisClient, SeekQueueStore } from "./redis-seek-queue.js";
 
 const PORT = Number(process.env.REALTIME_PORT ?? 4001);
 const WEB_ORIGIN = process.env.WEB_ORIGIN ?? "http://localhost:3000";
 const DATABASE_URL =
   process.env.DATABASE_URL ??
   "postgresql://eduforge:eduforge@localhost:5432/eduforge";
+const REDIS_URL = process.env.REDIS_URL;
 
 const db = createDb(DATABASE_URL);
+const redis = createRedisClient(REDIS_URL);
+const seekStore = new SeekQueueStore(redis);
 
 const app = express();
 app.use(cors({ origin: WEB_ORIGIN, credentials: true }));
 app.get("/health", (_req, res) => {
-  res.json({ ok: true, service: "realtime", locale: "uk" });
+  res.json({
+    ok: true,
+    service: "realtime",
+    locale: "uk",
+    matchmaking: seekStore.backend,
+  });
 });
 
 const httpServer = createServer(app);
@@ -50,7 +55,24 @@ const io = new Server(httpServer, {
   cors: { origin: WEB_ORIGIN, credentials: true },
 });
 
-let seekQueue: SeekEntry[] = [];
+// Multi-instance Socket.IO rooms when Redis is available
+async function setupSocketAdapter() {
+  if (!REDIS_URL) return;
+  try {
+    const { createAdapter } = await import("@socket.io/redis-adapter");
+    const { createClient } = await import("redis");
+    const pubClient = createClient({ url: REDIS_URL });
+    const subClient = pubClient.duplicate();
+    await Promise.all([pubClient.connect(), subClient.connect()]);
+    io.adapter(createAdapter(pubClient, subClient));
+    console.log("[realtime] socket.io redis adapter enabled");
+  } catch (e) {
+    console.warn(
+      "[realtime] redis adapter unavailable (install @socket.io/redis-adapter + redis):",
+      e instanceof Error ? e.message : e,
+    );
+  }
+}
 
 function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
@@ -86,6 +108,11 @@ async function authFromToken(token: string | undefined) {
 function timeControlMs(id: string) {
   const tc = CHESS_TIME_CONTROLS.find((t) => t.id === id);
   return tc?.initialMs ?? 300_000;
+}
+
+function timeControlIncrementMs(id: string) {
+  const tc = CHESS_TIME_CONTROLS.find((t) => t.id === id);
+  return tc?.incrementMs ?? 0;
 }
 
 async function finishGame(
@@ -138,7 +165,7 @@ async function finishGame(
     await db
       .update(chessRatings)
       .set({
-        elo: whiteRating.elo + whiteDelta,
+        elo: clampElo(whiteRating.elo + whiteDelta),
         gamesPlayed: whiteRating.gamesPlayed + 1,
         ...wStats,
       })
@@ -146,7 +173,7 @@ async function finishGame(
     await db
       .update(chessRatings)
       .set({
-        elo: blackRating.elo + blackDelta,
+        elo: clampElo(blackRating.elo + blackDelta),
         gamesPlayed: blackRating.gamesPlayed + 1,
         ...bStats,
       })
@@ -229,25 +256,21 @@ io.on("connection", (socket) => {
   socket.on(
     "seek",
     async (payload: { timeControl?: string; rated?: boolean }, cb?: (r: unknown) => void) => {
-      const timeControl = payload?.timeControl ?? "5+0";
-      const rated = payload?.rated !== false;
-
-      if (rated) {
-        const today = new Date().toISOString().slice(0, 10);
-        const r = auth.rating;
-        const ratedToday = r.ratedGamesDate === today ? r.ratedGamesToday : 0;
-        if (
-          !canPlayRatedChess({
-            plan: auth.user.plan as Plan,
-            ratedGamesToday: ratedToday,
-          })
-        ) {
-          cb?.({ error: "rated_limit" });
-          return;
-        }
+      if (!allowSocketEvent(socket.id, "seek", { limit: 8, windowMs: 10_000 })) {
+        cb?.({ error: "rate_limited" });
+        return;
       }
+      const parsed = seekGameSchema.safeParse({
+        timeControl: payload?.timeControl ?? "5+0",
+        rated: payload?.rated !== false,
+      });
+      if (!parsed.success) {
+        cb?.({ error: "invalid_time_control" });
+        return;
+      }
+      const timeControl = parsed.data.timeControl;
+      const rated = parsed.data.rated;
 
-      seekQueue = removeUserSeeks(seekQueue, auth.user.id);
 
       const me: SeekEntry = {
         userId: auth.user.id,
@@ -258,10 +281,9 @@ io.on("connection", (socket) => {
         socketId: socket.id,
       };
 
-      const opponentIdx = findOpponentIndex(seekQueue, me);
+      const opp = await seekStore.tryMatch(me);
 
-      if (opponentIdx >= 0) {
-        const opp = seekQueue.splice(opponentIdx, 1)[0];
+      if (opp) {
         const { white: w, black: b } = assignColors(opp, me);
         const white = {
           id: w.userId,
@@ -335,14 +357,13 @@ io.on("connection", (socket) => {
         return;
       }
 
-      seekQueue.push(me);
       cb?.({ seeking: true });
       socket.emit("seeking", { timeControl, rated });
     },
   );
 
-  socket.on("cancel_seek", (cb?: (r: unknown) => void) => {
-    seekQueue = removeUserSeeks(seekQueue, auth.user.id);
+  socket.on("cancel_seek", async (cb?: (r: unknown) => void) => {
+    await seekStore.removeUser(auth.user.id);
     cb?.({ ok: true });
   });
 
@@ -525,6 +546,16 @@ io.on("connection", (socket) => {
       payload: { gameId: string; from: string; to: string; promotion?: "q" | "r" | "b" | "n" },
       cb?: (r: unknown) => void,
     ) => {
+      if (!allowSocketEvent(socket.id, "move", { limit: 12, windowMs: 1000 })) {
+        cb?.({ error: "rate_limited" });
+        return;
+      }
+      const parsed = chessMoveSchema.safeParse(payload);
+      if (!parsed.success) {
+        cb?.({ error: "invalid_move" });
+        return;
+      }
+      payload = parsed.data;
       const game = await db.query.chessGames.findFirst({
         where: eq(chessGames.id, payload.gameId),
       });
@@ -567,6 +598,10 @@ io.on("connection", (socket) => {
         return;
       }
 
+      const inc = timeControlIncrementMs(game.timeControl);
+      if (turn === "w") whiteTime = applyFischerIncrement(whiteTime, inc);
+      else blackTime = applyFischerIncrement(blackTime, inc);
+
       const pgn = game.pgn ? `${game.pgn} ${applied.san}` : applied.san;
       await db
         .update(chessGames)
@@ -591,7 +626,11 @@ io.on("connection", (socket) => {
       io.to(`game:${game.id}`).emit("moved", movePayload);
 
       if (applied.over && applied.result) {
-        const finished = await finishGame(game.id, applied.result, "checkmate_or_draw");
+        const finished = await finishGame(
+          game.id,
+          applied.result,
+          applied.reason ?? "checkmate_or_draw",
+        );
         io.to(`game:${game.id}`).emit("game_over", finished);
       }
       cb?.({ ok: true, ...movePayload });
@@ -599,6 +638,10 @@ io.on("connection", (socket) => {
   );
 
   socket.on("resign", async (payload: { gameId: string }, cb?: (r: unknown) => void) => {
+    if (!allowSocketEvent(socket.id, "resign", { limit: 5, windowMs: 10_000 })) {
+      cb?.({ error: "rate_limited" });
+      return;
+    }
     const game = await db.query.chessGames.findFirst({
       where: eq(chessGames.id, payload.gameId),
     });
@@ -612,11 +655,121 @@ io.on("connection", (socket) => {
     cb?.({ ok: true, result });
   });
 
+  // ——— Live collaborative classroom (classId room) ———
+  socket.on(
+    "class_join",
+    (
+      payload: { classId: string; displayName?: string },
+      cb?: (r: unknown) => void,
+    ) => {
+      const classId = String(payload?.classId ?? "").slice(0, 64);
+      if (!classId) {
+        cb?.({ error: "invalid_class" });
+        return;
+      }
+      const room = `class:${classId}`;
+      socket.join(room);
+      socket.data.classId = classId;
+      socket.to(room).emit("class_presence", {
+        userId: auth.user.id,
+        displayName: payload.displayName ?? auth.character?.displayName ?? "Learner",
+        event: "join",
+      });
+      cb?.({ ok: true, room, userId: auth.user.id });
+    },
+  );
+
+  socket.on(
+    "class_chat",
+    (
+      payload: { classId: string; body: string },
+      cb?: (r: unknown) => void,
+    ) => {
+      if (!allowSocketEvent(socket.id, "class_chat", { limit: 8, windowMs: 5000 })) {
+        cb?.({ error: "rate_limited" });
+        return;
+      }
+      const classId = String(payload?.classId ?? "").slice(0, 64);
+      const body = String(payload?.body ?? "").trim().slice(0, 500);
+      if (!classId || !body) {
+        cb?.({ error: "invalid" });
+        return;
+      }
+      const msg = {
+        userId: auth.user.id,
+        displayName: auth.character?.displayName ?? "Learner",
+        body,
+        ts: Date.now(),
+      };
+      io.to(`class:${classId}`).emit("class_chat", msg);
+      cb?.({ ok: true });
+    },
+  );
+
+  socket.on(
+    "class_code",
+    (
+      payload: { classId: string; code: string; lang?: string; cursor?: number },
+      cb?: (r: unknown) => void,
+    ) => {
+      if (!allowSocketEvent(socket.id, "class_code", { limit: 10, windowMs: 1000 })) {
+        cb?.({ error: "rate_limited" });
+        return;
+      }
+      const classId = String(payload?.classId ?? "").slice(0, 64);
+      const code = String(payload?.code ?? "").slice(0, 40_000);
+      if (!classId) {
+        cb?.({ error: "invalid" });
+        return;
+      }
+      // Broadcast collaborative buffer (last-write-wins; CRDT later)
+      socket.to(`class:${classId}`).emit("class_code", {
+        userId: auth.user.id,
+        displayName: auth.character?.displayName ?? "Learner",
+        code,
+        lang: payload.lang ?? "javascript",
+        cursor: payload.cursor,
+        ts: Date.now(),
+      });
+      cb?.({ ok: true });
+    },
+  );
+
+  socket.on(
+    "class_raise_hand",
+    (payload: { classId: string; up?: boolean }, cb?: (r: unknown) => void) => {
+      const classId = String(payload?.classId ?? "").slice(0, 64);
+      if (!classId) {
+        cb?.({ error: "invalid" });
+        return;
+      }
+      io.to(`class:${classId}`).emit("class_raise_hand", {
+        userId: auth.user.id,
+        displayName: auth.character?.displayName ?? "Learner",
+        up: payload.up !== false,
+        ts: Date.now(),
+      });
+      cb?.({ ok: true });
+    },
+  );
+
   socket.on("disconnect", () => {
-    seekQueue = removeSocketSeeks(seekQueue, socket.id);
+    const classId = socket.data.classId as string | undefined;
+    if (classId) {
+      socket.to(`class:${classId}`).emit("class_presence", {
+        userId: auth.user.id,
+        displayName: auth.character?.displayName ?? "Learner",
+        event: "leave",
+      });
+    }
+    void seekStore.removeSocket(socket.id);
   });
 });
 
-httpServer.listen(PORT, () => {
-  console.log(`Realtime listening on http://localhost:${PORT}`);
+void setupSocketAdapter().finally(() => {
+  httpServer.listen(PORT, "0.0.0.0", () => {
+    console.log(
+      `Realtime listening on http://0.0.0.0:${PORT} (matchmaking=${seekStore.backend})`,
+    );
+  });
 });

@@ -1,17 +1,17 @@
 import { Hono } from "hono";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import {
   characters,
-  courses,
   shopPurchases,
-  userCourseProgress,
 } from "@eduforge/db";
 import {
-  addStreakFreezes,
+  avatarShopDiscount,
   DEFAULT_AVATARS,
   levelFromXp,
-  maxHearts,
   MAX_STREAK_FREEZES,
+  normalizeProgression,
+  applyLevelUps,
+  rollShopMystery,
   SHOP_CATALOG,
   shopItemById,
 } from "@eduforge/shared";
@@ -19,6 +19,8 @@ import { z } from "zod";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 import { logActivity, notifyUser } from "../engagement.js";
+import { effectiveMaxStreakFreezes, readProgression } from "../services/character-progression.js";
+import { applyLootDrop } from "../services/loot-apply.js";
 
 type Vars = { user: AuthedUser };
 
@@ -36,22 +38,32 @@ shopRoutes.get("/", authMiddleware, async (c) => {
     ...(ch.unlockedAvatars ?? []),
   ]);
 
+  const progression = applyLevelUps(readProgression(ch), ch.globalLevel);
+  const maxFreezes = effectiveMaxStreakFreezes(MAX_STREAK_FREEZES, ch);
+  const discount = avatarShopDiscount(progression);
   const freezes = ch.streakFreezes ?? 0;
   return c.json({
     balanceXp: ch.globalXp,
     streakFreezes: freezes,
-    maxStreakFreezes: MAX_STREAK_FREEZES,
+    maxStreakFreezes: maxFreezes,
     unlockedAvatars: [...unlocked],
+    progression,
     items: SHOP_CATALOG.map((item) => {
+      const costXp =
+        item.kind === "avatar"
+          ? Math.max(1, Math.round(item.costXp * (1 - discount)))
+          : item.costXp;
       const freezeFull =
-        item.kind === "streak_freeze" && freezes >= MAX_STREAK_FREEZES;
+        item.kind === "streak_freeze" && freezes >= maxFreezes;
       return {
         ...item,
+        costXp,
+        baseCostXp: item.costXp,
         owned:
           item.kind === "avatar" && item.avatarKey
             ? unlocked.has(item.avatarKey)
             : false,
-        canAfford: ch.globalXp >= item.costXp && !freezeFull,
+        canAfford: ch.globalXp >= costXp && !freezeFull,
         freezeFull,
       };
     }),
@@ -70,6 +82,10 @@ shopRoutes.post("/buy", authMiddleware, async (c) => {
   const parsed = buySchema.safeParse(body);
   if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
 
+  if (parsed.data.itemId === "heart_one" || parsed.data.itemId === "hearts_full") {
+    return c.json({ error: "unknown_item" }, 404);
+  }
+
   const item = shopItemById(parsed.data.itemId);
   if (!item) return c.json({ error: "unknown_item" }, 404);
 
@@ -77,7 +93,16 @@ shopRoutes.post("/buy", authMiddleware, async (c) => {
     where: eq(characters.userId, user.id),
   });
   if (!ch) return c.json({ error: "no_character" }, 404);
-  if (ch.globalXp < item.costXp) {
+
+  const progression = applyLevelUps(normalizeProgression(ch.progression), ch.globalLevel);
+  const discount = avatarShopDiscount(progression);
+  const costXp =
+    item.kind === "avatar"
+      ? Math.max(1, Math.round(item.costXp * (1 - discount)))
+      : item.costXp;
+  const maxFreezes = effectiveMaxStreakFreezes(MAX_STREAK_FREEZES, ch);
+
+  if (ch.globalXp < costXp) {
     return c.json({ error: "insufficient_xp", balanceXp: ch.globalXp }, 402);
   }
 
@@ -90,19 +115,20 @@ shopRoutes.post("/buy", authMiddleware, async (c) => {
     return c.json({ error: "already_owned" }, 409);
   }
 
-  const newXp = ch.globalXp - item.costXp;
+  const newXp = ch.globalXp - costXp;
   const patch: Partial<typeof characters.$inferInsert> = {
     globalXp: newXp,
     globalLevel: levelFromXp(newXp),
+    progression,
   };
 
   if (item.kind === "streak_freeze") {
     const current = ch.streakFreezes ?? 0;
-    if (current >= MAX_STREAK_FREEZES) {
-      return c.json({ error: "freezes_full", max: MAX_STREAK_FREEZES }, 409);
+    if (current >= maxFreezes) {
+      return c.json({ error: "freezes_full", max: maxFreezes }, 409);
     }
     const add = item.freezes ?? 1;
-    patch.streakFreezes = addStreakFreezes(current, add);
+    patch.streakFreezes = Math.min(maxFreezes, Math.max(0, current) + Math.max(0, add));
   }
 
   if (item.kind === "avatar" && item.avatarKey) {
@@ -110,68 +136,54 @@ shopRoutes.post("/buy", authMiddleware, async (c) => {
     patch.unlockedAvatars = [...unlocked];
   }
 
-  if (item.kind === "heart_one" || item.kind === "hearts_full") {
-    const plan = user.plan as "free" | "premium";
-    const allCourses = await db.query.courses.findMany();
-    const targetSlug = parsed.data.courseSlug;
-    const targets = targetSlug
-      ? allCourses.filter((x) => x.slug === targetSlug)
-      : allCourses;
-
-    for (const course of targets) {
-      let prog = await db.query.userCourseProgress.findFirst({
-        where: and(
-          eq(userCourseProgress.userId, user.id),
-          eq(userCourseProgress.courseId, course.id),
-        ),
-      });
-      if (!prog) {
-        const [created] = await db
-          .insert(userCourseProgress)
-          .values({
-            userId: user.id,
-            courseId: course.id,
-            hearts: maxHearts(plan),
-          })
-          .returning();
-        prog = created;
-      }
-      const max = maxHearts(plan);
-      const next =
-        item.kind === "hearts_full"
-          ? max
-          : Math.min(max, prog.hearts + (item.hearts ?? 1));
-      await db
-        .update(userCourseProgress)
-        .set({ hearts: next, heartsUpdatedAt: new Date() })
-        .where(eq(userCourseProgress.id, prog.id));
-    }
+  if (item.kind === "skill_point") {
+    const pts = item.skillPoints ?? 1;
+    progression.skillPoints = (progression.skillPoints ?? 0) + pts;
+    patch.progression = progression;
   }
 
-  const [updated] = await db
+  // Deduct XP first (mystery may re-grant XP via loot)
+  let [updated] = await db
     .update(characters)
     .set(patch)
     .where(eq(characters.id, ch.id))
     .returning();
 
+  let loot = null as Awaited<ReturnType<typeof applyLootDrop>> | null;
+  if (item.kind === "mystery") {
+    const drop = rollShopMystery();
+    loot = await applyLootDrop(user.id, drop, { notify: true });
+    if (loot?.character) updated = loot.character;
+  }
+
   await db.insert(shopPurchases).values({
     userId: user.id,
     itemId: item.id,
-    costXp: item.costXp,
+    costXp,
   });
 
   await logActivity(db, user.id, "shop_purchase", {
     itemId: item.id,
-    costXp: item.costXp,
+    costXp,
+    loot: loot?.drop ?? null,
   });
   await notifyUser(db, user.id, {
     type: "shop",
     titleUk: "Покупка в магазині",
     titleEn: "Shop purchase",
-    bodyUk: `Куплено: ${item.id} (−${item.costXp} XP)`,
-    bodyEn: `Bought: ${item.id} (−${item.costXp} XP)`,
+    bodyUk: loot
+      ? `Куплено: ${item.id} (−${costXp} XP) → ${loot.drop.labelUk}`
+      : `Куплено: ${item.id} (−${costXp} XP)`,
+    bodyEn: loot
+      ? `Bought: ${item.id} (−${costXp} XP) → ${loot.drop.labelEn}`
+      : `Bought: ${item.id} (−${costXp} XP)`,
     href: "/shop",
   });
 
-  return c.json({ ok: true, character: updated, item });
+  return c.json({
+    ok: true,
+    character: updated,
+    item: { ...item, costXp },
+    loot: loot?.drop ?? null,
+  });
 });

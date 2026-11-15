@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import {
   chessContent,
@@ -14,13 +15,34 @@ import {
   sqlFundamentalsContent,
   nodeFundamentalsContent,
   expressFundamentalsContent,
+  embeddedCppContent,
+  sysadminContent,
+  devopsContent,
   typingContent,
   typescriptContent,
+  softwareTestingContent,
+  postgresqlAppsContent,
+  gitWorkflowsContent,
+  webSecurityContent,
+  aiDevelopmentContent,
+  pythonForAiContent,
+  agenticSystemsContent,
+  llmopsContent,
+  aiSecurityContent,
+  aiProductContent,
+  nextjsFullstackContent,
+  appliedAlgorithmsContent,
+  goFundamentalsContent,
+  webAccessibilityContent,
+  restApiDesignContent,
+  frontendPerformanceContent,
+  browserWebApisContent,
   type CourseContent,
 } from "@eduforge/content";
 import bcrypt from "bcryptjs";
 import { createDb } from "./client.js";
-import { ACHIEVEMENT_CATALOG } from "@eduforge/shared";
+import { selectFlashcardInserts } from "./seed-flashcards.js";
+import { ACHIEVEMENT_CATALOG, resolveCourseGroup, seedAllowed } from "@eduforge/shared";
 import {
   achievements,
   characters,
@@ -49,9 +71,29 @@ const allCourses: CourseContent[] = [
   sqlFundamentalsContent,
   nodeFundamentalsContent,
   expressFundamentalsContent,
+  embeddedCppContent,
+  sysadminContent,
+  devopsContent,
+  softwareTestingContent,
+  postgresqlAppsContent,
+  gitWorkflowsContent,
+  webSecurityContent,
+  aiDevelopmentContent,
+  pythonForAiContent,
+  agenticSystemsContent,
+  llmopsContent,
+  aiSecurityContent,
+  aiProductContent,
+  nextjsFullstackContent,
+  appliedAlgorithmsContent,
+  goFundamentalsContent,
+  webAccessibilityContent,
+  restApiDesignContent,
+  frontendPerformanceContent,
+  browserWebApisContent,
 ];
 
-async function seedCourse(
+export async function seedCourse(
   db: ReturnType<typeof createDb>,
   content: CourseContent,
   sortOrder: number,
@@ -59,6 +101,8 @@ async function seedCourse(
   let course = await db.query.courses.findFirst({
     where: eq(courses.slug, content.slug),
   });
+
+  const category = resolveCourseGroup(content.slug);
 
   if (!course) {
     const [created] = await db
@@ -72,10 +116,17 @@ async function seedCourse(
         icon: content.icon,
         color: content.color,
         sortOrder,
+        status: "published",
+        category,
+        contentSource: "seed",
+        publishedAt: new Date(),
       })
       .returning();
     course = created;
     console.log(`Created course ${content.slug}`);
+  } else if (course.contentSource === "cms") {
+    console.log(`Skip seed overwrite for CMS course ${content.slug}`);
+    return;
   } else {
     await db
       .update(courses)
@@ -87,6 +138,10 @@ async function seedCourse(
         icon: content.icon,
         color: content.color,
         sortOrder,
+        status: "published",
+        category,
+        contentSource: "seed",
+        publishedAt: course.publishedAt ?? new Date(),
       })
       .where(eq(courses.id, course.id));
   }
@@ -205,18 +260,19 @@ async function seedFlashcards(db: ReturnType<typeof createDb>) {
     const existingCards = await db.query.flashcards.findMany({
       where: eq(flashcards.deckId, d.id),
     });
-    if (existingCards.length === 0) {
-      for (const [i, card] of deck.cards.entries()) {
+    const missingCards = selectFlashcardInserts(deck, existingCards);
+    if (missingCards.length > 0) {
+      for (const card of missingCards) {
         await db.insert(flashcards).values({
           deckId: d.id,
           front: card.front,
           back: card.back,
           hint: card.hint ?? "",
           tags: card.tags ?? [],
-          sortOrder: i,
+          sortOrder: card.sortOrder,
         });
       }
-      console.log(`  + ${deck.cards.length} cards in ${deck.slug}`);
+      console.log(`  + ${missingCards.length} cards in ${deck.slug}`);
     }
   }
 }
@@ -229,7 +285,12 @@ async function seedAdmin(db: ReturnType<typeof createDb>) {
     const passwordHash = await bcrypt.hash(password, 10);
     const [created] = await db
       .insert(users)
-      .values({ email, passwordHash, role: "admin", plan: "premium" })
+      .values({
+        email,
+        passwordHash,
+        role: "admin",
+        emailVerifiedAt: new Date(),
+      })
       .returning();
     user = created;
     await db.insert(characters).values({
@@ -240,37 +301,54 @@ async function seedAdmin(db: ReturnType<typeof createDb>) {
     await db.insert(chessRatings).values({ userId: user.id });
     console.log(`Admin created: ${email} / ${password}`);
   } else if (user.role !== "admin") {
-    await db.update(users).set({ role: "admin", plan: "premium" }).where(eq(users.id, user.id));
+    await db.update(users).set({ role: "admin" }).where(eq(users.id, user.id));
     console.log(`Promoted ${email} to admin`);
   } else {
     console.log(`Admin exists: ${email}`);
   }
-}
 
-/** Demo premium user for local / Docker testing (not admin). */
-async function seedPremiumTestUser(db: ReturnType<typeof createDb>) {
-  const email = process.env.TEST_USER_EMAIL ?? "premium@eduforge.ua";
-  const password = process.env.TEST_USER_PASSWORD ?? "premium12345";
-  let user = await db.query.users.findFirst({ where: eq(users.email, email) });
-  if (!user) {
-    const passwordHash = await bcrypt.hash(password, 10);
-    const [created] = await db
-      .insert(users)
-      .values({ email, passwordHash, role: "user", plan: "premium" })
-      .returning();
-    user = created;
-    await db.insert(characters).values({
-      userId: user.id,
-      displayName: "Premium Test",
-      avatarKey: "default",
-    });
-    await db.insert(chessRatings).values({ userId: user.id });
-    console.log(`Premium test user created: ${email} / ${password}`);
-  } else if (user.plan !== "premium") {
-    await db.update(users).set({ plan: "premium" }).where(eq(users.id, user.id));
-    console.log(`Upgraded ${email} to premium`);
-  } else {
-    console.log(`Premium test user exists: ${email}`);
+  // Optional: pre-enroll admin TOTP for local/e2e (base32 secret)
+  // Default test secret is well-known; set SEED_ADMIN_TOTP_SECRET empty to skip.
+  const totpSecret =
+    process.env.SEED_ADMIN_TOTP_SECRET ??
+    (process.env.NODE_ENV === "production" ? "" : "JBSWY3DPEHPK3PXP");
+  if (totpSecret && user) {
+    // Known backup code for e2e: SEED_ADMIN_BACKUP_CODE or AAAA-BBBB
+    const backupPlain = process.env.SEED_ADMIN_BACKUP_CODE ?? "AAAA-BBBB";
+    const backupHash = createHash("sha256")
+      .update(`backup:${backupPlain.replace(/[\s-]/g, "").toUpperCase()}`)
+      .digest("hex");
+    if (!user.totpEnabled) {
+      await db
+        .update(users)
+        .set({
+          totpSecretEnc: `plain:${totpSecret}`,
+          totpEnabled: true,
+          totpVerifiedAt: new Date(),
+          mfaBackupCodeHashes: [backupHash],
+        })
+        .where(eq(users.id, user.id));
+      console.log(
+        `Admin TOTP seeded (secret default/test); backup code: ${backupPlain}`,
+      );
+    } else {
+      // Dev/docker: always restore the known backup code (consumed codes leave empty/missing hash)
+      const hashes = Array.isArray(user.mfaBackupCodeHashes)
+        ? (user.mfaBackupCodeHashes as string[])
+        : [];
+      if (!hashes.includes(backupHash)) {
+        await db
+          .update(users)
+          .set({
+            mfaBackupCodeHashes: [...hashes, backupHash],
+            updatedAt: new Date(),
+          })
+          .where(eq(users.id, user.id));
+        console.log(`Admin backup code seeded: ${backupPlain}`);
+      } else {
+        console.log(`Admin TOTP already enrolled; backup code: ${backupPlain}`);
+      }
+    }
   }
 }
 
@@ -287,10 +365,17 @@ async function seedAchievements(db: ReturnType<typeof createDb>) {
 }
 
 async function main() {
+  const { loadRootEnv } = await import("./load-env.js");
+  loadRootEnv();
+  if (!seedAllowed(process.env)) {
+    console.error(
+      "Refusing to seed production (demo admin passwords). Set ALLOW_PROD_SEED=1 to override.",
+    );
+    process.exit(1);
+  }
   const db = createDb();
   // Users first so accounts exist even if a course seed fails (e.g. missing enum value).
   await seedAdmin(db);
-  await seedPremiumTestUser(db);
   for (const [i, c] of allCourses.entries()) {
     await seedCourse(db, c, i);
   }
@@ -300,7 +385,12 @@ async function main() {
   process.exit(0);
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+const seedEntrypoint = process.argv[1]?.replace(/\\/g, "/") ?? "";
+const launchedAsCli = seedEntrypoint.endsWith("/seed.ts") || seedEntrypoint.endsWith("/seed.js");
+
+if (launchedAsCli) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

@@ -1,0 +1,283 @@
+import { unit } from "../builders.js";
+import { quiz, teach, why } from "./kit.js";
+
+export const containers = unit("containers", "Контейнери", "Containers", [
+  teach("do-image", "Образ і процес", "Image and process", 3, "do-image", [
+    {
+      t: "mcq",
+      uk: "Контейнер forge-status від VM відрізняється тим, що:",
+      en: "The forge-status container differs from a VM because:",
+      o: [
+        "Ділить ядро хоста. Ізоляція — namespaces і cgroups, не окреме ядро",
+        "Має своє ядро Linux у кожному запуску",
+        "Не може слухати порт",
+        "Завжди працює від root і це правильно",
+      ],
+      i: 0,
+      note: why(
+        "Шари образу — union FS. Зміна верхнього шару не переписує нижні. Тому кеш збірки тримається, поки рядок Dockerfile вище не змінився.",
+        "Image layers are a union filesystem. The top layer does not rewrite the ones under it, so the build cache holds until a Dockerfile line above it changes.",
+      ),
+    },
+    {
+      t: "mcq",
+      uk: "docker history показує:",
+      en: "docker history shows:",
+      o: ["Шари образу і команду, яка їх створила", "Логи працюючого контейнера", "Правила iptables", "Стан Terraform"],
+      i: 0,
+    },
+    {
+      t: "match",
+      uk: "Мережа Docker.",
+      en: "Docker networking.",
+      pairs: [
+        { left: "bridge", right: "Своя мережа контейнерів на хості" },
+        { left: "host", right: "Контейнер бачить порти хоста напряму" },
+        { left: "none", right: "Без мережі" },
+      ],
+    },
+    {
+      t: "mcq",
+      uk: "Іменований volume проти bind mount:",
+      en: "A named volume versus a bind mount:",
+      o: [
+        "Volume керує Docker і він переживає видалення контейнера. Bind — це тека хоста, яку ви самі обрали",
+        "Це одне і те саме",
+        "Bind зникає разом із контейнером завжди",
+        "Volume лежить у Git",
+      ],
+      i: 0,
+    },
+  ]),
+  teach("do-dockerfile", "Multi-stage для forge-status", "Multi-stage forge-status", 3, "do-dockerfile", [
+    {
+      t: "read",
+      uk: "Що потрапить у фінальний образ?",
+      en: "What lands in the final image?",
+      lang: "dockerfile",
+      code: "FROM node:22 AS build\nWORKDIR /src\nCOPY package.json .\nRUN npm ci && npm run build\nFROM nginx:1.27-alpine\nCOPY --from=build /src/dist /usr/share/nginx/html\nCOPY nginx.conf /etc/nginx/conf.d/default.conf",
+      o: [
+        "Лише зібрані файли і Nginx, без компілятора Node",
+        "Повний Node, npm і вихідні",
+        "Лише package.json",
+        "Хостова тека /src",
+      ],
+      i: 0,
+      note: why(
+        "Маленький фінальний образ менше тягне і менше містить інструментів для зловмисника.",
+        "A small final image pulls less and carries fewer tools for an attacker.",
+      ),
+    },
+    {
+      t: "mcq",
+      uk: "CMD і ENTRYPOINT:",
+      en: "CMD and ENTRYPOINT:",
+      o: [
+        "ENTRYPOINT — програма, CMD — її типові аргументи, які docker run може замінити",
+        "Вони завжди взаємозамінні без різниці",
+        "CMD виконується лише під час build",
+        "ENTRYPOINT пише шар FROM",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "COPY замість ADD, коли:",
+      en: "Prefer COPY over ADD when:",
+      o: [
+        "Треба покласти локальні файли. ADD ще вміє URL і розпакування, і це сюрприз",
+        "Треба завжди тягнути архів з інтернету під час build",
+        "COPY не існує",
+        "ADD заборонений у multi-stage",
+      ],
+      i: 0,
+    },
+    {
+      t: "fill",
+      uk: "Не копіювати сміття в контекст збірки.",
+      en: "Keep junk out of the build context.",
+      lang: "text",
+      code: "___",
+      ok: [".dockerignore"],
+    },
+  ]),
+  teach("do-compose", "Compose і healthcheck", "Compose and healthcheck", 3, "do-compose", [
+    {
+      t: "mcq",
+      uk: "depends_on без healthcheck означає:",
+      en: "depends_on without a healthcheck means:",
+      o: [
+        "Контейнер стартував, не те що /health уже відповідає",
+        "База точно прийняла міграції",
+        "TLS уже випущений",
+        "Образ просканований",
+      ],
+      i: 0,
+      note: why(
+        "condition: service_healthy чекає перевірки, яку ви описали. Інакше додаток стартує в порожнечу.",
+        "condition: service_healthy waits for the check you declared. Otherwise the app starts into nothing.",
+      ),
+    },
+    {
+      t: "read",
+      uk: "Коли Compose вважатиме api готовим?",
+      en: "When does Compose treat api as ready?",
+      lang: "yaml",
+      code: "healthcheck:\n  test: [\"CMD\", \"curl\", \"-fsS\", \"http://127.0.0.1:8080/health\"]\n  interval: 5s\n  retries: 5",
+      o: [
+        "Коли команда всередині контейнера повертає 0",
+        "Коли контейнер лише створений",
+        "Коли образ є в Hub",
+        "Коли відкритий порт 22",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "Змінна з .env у Compose:",
+      en: "A variable from a Compose .env file:",
+      o: [
+        "Підставляється в файл compose. У контейнер вона потрапить, лише якщо ви записали environment",
+        "Автоматично стає секретом Kubernetes",
+        "Комітиться як частина образу завжди",
+        "Замінює healthcheck",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "Ліміт mem_limit на api потрібен, щоб:",
+      en: "A memory limit on api exists so that:",
+      o: [
+        "Один процес не з'їв увесь хост. Далі його може вбити OOM killer",
+        "Диск став безмежним",
+        "Зникла потреба в healthcheck",
+        "Образ став меншим",
+      ],
+      i: 0,
+    },
+  ]),
+  teach("do-scan", "Не від root і скан", "Non-root and the scan", 3, "do-scan", [
+    {
+      t: "mcq",
+      uk: "USER nginx у фінальному образі:",
+      en: "USER nginx in the final image:",
+      o: [
+        "Процес не лишається root. Файли, які він пише, мають бути йому доступні",
+        "Вимикає порт 80",
+        "Замінює healthcheck",
+        "Підписує образ ключем хоста автоматично",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "Trivy у цьому модулі дивиться:",
+      en: "Trivy in this unit looks at:",
+      o: [
+        "Відомі вразливості в шарах образу до того, як ви його опублікуєте",
+        "Навантаження CPU продакшену",
+        "Правила route53",
+        "Текст postmortem",
+      ],
+      i: 0,
+      note: why(
+        "Read-only коренева файлова система і скинуті зайві capabilities зменшують шкоду, якщо процес зломлять. Повний розбір політик — у модулі DevSecOps.",
+        "A read-only root filesystem and dropped capabilities limit the damage if the process is compromised. The full policy pass is in the DevSecOps unit.",
+      ),
+    },
+    {
+      t: "order",
+      uk: "Тег образу forge-status.",
+      en: "Tag the forge-status image.",
+      lang: "bash",
+      correct: [
+        "docker build -t forge-status:1.4.0 .",
+        "docker tag forge-status:1.4.0 ghcr.io/edu/forge-status:1.4.0",
+        "docker push ghcr.io/edu/forge-status:1.4.0",
+      ],
+    },
+    {
+      t: "mcq",
+      uk: "Тег latest як єдине ім'я релізу:",
+      en: "latest as the only release name:",
+      o: [
+        "Не каже, який саме зліпок крутиться. Лишайте незмінний тег з версією",
+        "Це обов'язковий тег Kubernetes",
+        "Він підписує шари",
+        "Він замінює digest",
+      ],
+      i: 0,
+    },
+  ]),
+  quiz("do-docker-exam", "Контроль: Docker", "Check: Docker", 3, "do-docker-exam", [
+    {
+      t: "mcq",
+      uk: "Кеш шару ламається, коли:",
+      en: "The layer cache breaks when:",
+      o: [
+        "Змінився цей рядок Dockerfile або те, що він копіює, і все нижче перезбирається",
+        "Змінився лише коментар у Git поза контекстом",
+        "Контейнер перезапустили",
+        "Healthcheck спрацював",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "docker compose watch у цьому курсі — це:",
+      en: "docker compose watch in this course is:",
+      o: [
+        "Режим розробки, який підхоплює зміни файлів. Не опис продакшен-релізу",
+        "Заміна CI",
+        "Сканер CVE",
+        "Планувальник Kubernetes",
+      ],
+      i: 0,
+    },
+    {
+      t: "fill",
+      uk: "Зайти в уже запущений контейнер.",
+      en: "Enter a container that is already running.",
+      lang: "bash",
+      code: "docker ___ api sh",
+      ok: ["exec"],
+    },
+    {
+      t: "mcq",
+      uk: "json-file драйвер логів:",
+      en: "The json-file log driver:",
+      o: [
+        "Пише json на диск хоста і без ротації може його заповнити",
+        "Сам шифрує трафік",
+        "Замінює Loki назавжди",
+        "Вимикає stdout додатка",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "Rootless Docker:",
+      en: "Rootless Docker:",
+      o: [
+        "Демон іде без root на хості. Є обмеження мережі, про них треба знати",
+        "Забороняє USER в образі",
+        "Те саме, що контейнер від root",
+        "Вимикає volumes",
+      ],
+      i: 0,
+    },
+    {
+      t: "order",
+      uk: "Зібрати forge-status і переконатись, що він здоровий локально.",
+      en: "Build forge-status and see that it is healthy locally.",
+      lang: "text",
+      correct: [
+        "docker compose build",
+        "docker compose up -d",
+        "Дочекатись healthy",
+        "curl на /health через проксі",
+      ],
+    },
+  ]),
+]);

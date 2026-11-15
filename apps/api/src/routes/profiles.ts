@@ -12,13 +12,59 @@ import {
   userLessonProgress,
   users,
 } from "@eduforge/db";
-import { PROGRAMMING_MINI_LESSON_SLUGS } from "@eduforge/shared";
+import {
+  PATH_BADGE_CATALOG,
+  PROGRAMMING_MINI_LESSON_SLUGS,
+  applyLevelUps,
+  normalizeProgression,
+  titleLabel,
+} from "@eduforge/shared";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 
 type Vars = { user: AuthedUser };
 
 export const profileRoutes = new Hono<{ Variables: Vars }>();
+
+/**
+ * Public card for Open Graph / unfurl (no auth).
+ * Limited fields only — no email, friendship, or private progress detail.
+ */
+profileRoutes.get("/card/:userId", async (c) => {
+  const userId = c.req.param("userId") ?? "";
+  const u = await db.query.users.findFirst({ where: eq(users.id, userId) });
+  if (!u) return c.json({ error: "not_found" }, 404);
+  const ch = await db.query.characters.findFirst({
+    where: eq(characters.userId, userId),
+  });
+  if (!ch) return c.json({ error: "not_found" }, 404);
+
+  const [achCount] = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(userAchievements)
+    .where(eq(userAchievements.userId, userId));
+
+  const progression = applyLevelUps(normalizeProgression(ch.progression), ch.globalLevel);
+
+  const pathBadgeIds = progression.pathBadges ?? [];
+  return c.json({
+    card: {
+      userId,
+      displayName: ch.displayName,
+      avatarKey: ch.avatarKey,
+      globalLevel: ch.globalLevel,
+      globalXp: ch.globalXp,
+      streakDays: ch.streakDays,
+      achievementsUnlocked: achCount?.n ?? 0,
+      equippedTitle: progression.equippedTitle ?? "rookie",
+      equippedFrame: progression.equippedFrame ?? "none",
+      titleUk: titleLabel(progression.equippedTitle, "uk"),
+      titleEn: titleLabel(progression.equippedTitle, "en"),
+      pathBadgeCount: pathBadgeIds.length,
+      pathBadges: pathBadgeIds.slice(0, 8),
+    },
+  });
+});
 
 profileRoutes.get("/:userId", authMiddleware, async (c) => {
   const me = c.get("user");
@@ -118,6 +164,8 @@ profileRoutes.get("/:userId", authMiddleware, async (c) => {
     };
   }
 
+  const progression = applyLevelUps(normalizeProgression(ch.progression), ch.globalLevel);
+
   return c.json({
     profile: {
       userId,
@@ -126,10 +174,25 @@ profileRoutes.get("/:userId", authMiddleware, async (c) => {
       globalLevel: ch.globalLevel,
       globalXp: ch.globalXp,
       streakDays: ch.streakDays,
-      plan: u.plan,
       isSelf: me.id === userId,
       friendship,
       achievementsUnlocked: achCount?.n ?? 0,
+      equippedTitle: progression.equippedTitle ?? "rookie",
+      equippedFrame: progression.equippedFrame ?? "none",
+      titleUk: titleLabel(progression.equippedTitle, "uk"),
+      titleEn: titleLabel(progression.equippedTitle, "en"),
+      unlockedTitles: progression.unlockedTitles,
+      unlockedFrames: progression.unlockedFrames,
+      pathBadges: (progression.pathBadges ?? [])
+        .map((id) => PATH_BADGE_CATALOG.find((b) => b.id === id))
+        .filter(Boolean)
+        .map((b) => ({
+          id: b!.id,
+          icon: b!.icon,
+          titleUk: b!.titleUk,
+          titleEn: b!.titleEn,
+          courseSlug: b!.courseSlug,
+        })),
       certificates: certs.map((x) => ({
         code: x.code,
         titleUk: x.titleUk,

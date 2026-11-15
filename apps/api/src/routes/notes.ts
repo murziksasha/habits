@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { and, desc, eq } from "drizzle-orm";
 import { courses, lessons, studyNotes } from "@eduforge/db";
+import { sanitizeUserText } from "@eduforge/shared";
 import { z } from "zod";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
@@ -57,6 +58,8 @@ notesRoutes.post("/", authMiddleware, async (c) => {
   });
   if (!lesson) return c.json({ error: "not_found" }, 404);
 
+  const cleanBody = sanitizeUserText(parsed.data.body, 8000);
+
   const existing = await db.query.studyNotes.findFirst({
     where: and(
       eq(studyNotes.userId, user.id),
@@ -65,19 +68,19 @@ notesRoutes.post("/", authMiddleware, async (c) => {
   });
 
   if (existing) {
-    if (!parsed.data.body.trim()) {
+    if (!cleanBody) {
       await db.delete(studyNotes).where(eq(studyNotes.id, existing.id));
       return c.json({ note: null, deleted: true });
     }
     const [updated] = await db
       .update(studyNotes)
-      .set({ body: parsed.data.body, updatedAt: new Date() })
+      .set({ body: cleanBody, updatedAt: new Date() })
       .where(eq(studyNotes.id, existing.id))
       .returning();
     return c.json({ note: updated });
   }
 
-  if (!parsed.data.body.trim()) {
+  if (!cleanBody) {
     return c.json({ note: null });
   }
 
@@ -86,7 +89,7 @@ notesRoutes.post("/", authMiddleware, async (c) => {
     .values({
       userId: user.id,
       lessonId: parsed.data.lessonId,
-      body: parsed.data.body,
+      body: cleanBody,
     })
     .returning();
   return c.json({ note: created }, 201);

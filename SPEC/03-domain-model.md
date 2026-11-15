@@ -3,12 +3,16 @@
 ## Entities
 
 ### User
-- `id`, `email`, `passwordHash`, `role` (`user` | `admin`), `plan` (`free` | `premium`)  
-- Stripe fields optional: `stripeCustomerId`, `stripeSubscriptionId`, `planExpiresAt`  
+- `id`, `email`, `passwordHash`, `role` (`user` | `admin`)  
+- Admin MFA: `totpSecretEnc`, `totpEnabled`, `totpVerifiedAt` (SPEC 72)  
+- Sessions: `mfaVerifiedAt` for admin TOTP gate  
+- `platform_settings` key/value JSON (theme draft/published)  
+- Courses: free-form `slug` varchar, `status` draft|published|archived, `category`, `contentSource`  
 
 ### Character (1:1 with User)
 - `displayName`, `avatarKey`  
 - `globalXp`, `globalLevel`, `streakDays`, `lastActiveDate`  
+- `weeklyTarget` (nullable integer `1..1000` — recurring Mon–Sun UTC target of successful attempts; `null` uses automatic recommendation)  
 - `onboarding` JSON: flags for checklist steps / dismiss  
 
 ### Course hierarchy
@@ -24,7 +28,7 @@ Course slugs: `english` | `chess` | `typing` | `speed_reading` | `logic`.
 ### Progress
 - **UserCourseProgress** — per course: `xp`, `level`, `hearts`, `completedLessons`, `lastLessonId`  
 - **UserLessonProgress** — per lesson: `status`, `bestScore`, `attempts`, `completedAt`  
-- **SkillAttempt** — audit of submissions with metrics  
+- **SkillAttempt** — audit of submissions with `xpGained` and `metrics` JSON (`accuracy`, `lessonId`, `results`, plus `outcome`, `isExam`, `passThreshold`, `firstClear`, `characterXpGained`, `courseLevelBefore/After`, `characterLevelBefore/After`, `levelChangeTrigger`, `grantedRewards` on new attempts)  
 
 ### Chess
 - **ChessRating** — Elo, W/L/D, rated games today  
@@ -63,3 +67,4 @@ Located under `packages/db/drizzle/`:
 |-----------|---------|
 | `0000_init` | Core tables |
 | `0001_onboarding_reset` | Character onboarding JSON + password reset tokens |
+| `0031_weekly_learning_goal` | Nullable `characters.weekly_target` + `(user_id, created_at, id)` index on `skill_attempts` |

@@ -5,6 +5,7 @@ export type Exercise =
       promptUk: string;
       promptEn?: string;
       options: string[];
+      optionsEn?: string[];
       correctIndex: number;
       explanationUk?: string;
       explanationEn?: string;
@@ -24,6 +25,8 @@ export type Exercise =
       promptUk: string;
       promptEn?: string;
       pairs: { left: string; right: string }[];
+      explanationUk?: string;
+      explanationEn?: string;
     }
   | {
       id: string;
@@ -65,6 +68,8 @@ export type Exercise =
       promptEn?: string;
       passage: string;
       questions: { q: string; qEn?: string; options: string[]; correctIndex: number }[];
+      explanationUk?: string;
+      explanationEn?: string;
     }
   | {
       id: string;
@@ -95,7 +100,7 @@ export type Exercise =
       fen: string;
       notesUk: string;
       notesEn?: string;
-      quiz?: { q: string; qEn?: string; options: string[]; correctIndex: number };
+      quiz?: { q: string; qEn?: string; options: string[]; optionsEn?: string[]; correctIndex: number };
     }
   | {
       id: string;
@@ -167,6 +172,8 @@ export type Exercise =
         contains?: string[];
         /** Search all files joined (for multi-file HTML structures) */
         containsHtml?: string[];
+        /** Must not appear in the file */
+        forbidden?: string[];
         kind?: "source" | "dom";
         selector?: string;
         minCount?: number;
@@ -174,6 +181,80 @@ export type Exercise =
       caseSensitive?: boolean;
       hintUk?: string;
       hintEn?: string;
+      explanationUk?: string;
+      explanationEn?: string;
+    }
+  | {
+      id: string;
+      type: "code_run";
+      promptUk: string;
+      promptEn?: string;
+      language: string;
+      starter: string;
+      /** Client-run tests (e.g. C++ via JSCPP); all must match stdout */
+      tests: { stdin?: string; stdout: string }[];
+      /** Server-side source needles (anti-cheat / offline grade) */
+      requiredSource?: string[];
+      forbiddenSource?: string[];
+      timeLimitMs?: number;
+      caseSensitive?: boolean;
+      hintUk?: string;
+      hintEn?: string;
+      explanationUk?: string;
+      explanationEn?: string;
+      solutionUk?: string;
+      solutionEn?: string;
+    }
+  | {
+      id: string;
+      type: "video";
+      promptUk: string;
+      promptEn?: string;
+      videoUrl: string;
+      durationSec?: number;
+      minWatchRatio?: number;
+      explanationUk?: string;
+      explanationEn?: string;
+    }
+  | {
+      id: string;
+      /** Theory / worked-example card shown before practice (deep learning) */
+      type: "concept";
+      promptUk: string;
+      promptEn?: string;
+      bodyUk: string;
+      bodyEn?: string;
+      keyPointsUk?: string[];
+      keyPointsEn?: string[];
+      code?: string;
+      language?: string;
+      /** Optional 1-question self-check; without it the card is graded as acknowledged */
+      check?: { qUk: string; qEn?: string; options: string[]; correctIndex: number };
+    }
+  | {
+      id: string;
+      /** Self-explanation, graded by keyword rubric (+ optional tutor feedback) */
+      type: "explain";
+      promptUk: string;
+      promptEn?: string;
+      keyIdeas: { labelUk: string; labelEn?: string; anyOf: string[] }[];
+      minWords?: number;
+      passRatio?: number;
+      sampleAnswerUk?: string;
+      sampleAnswerEn?: string;
+    }
+  | {
+      id: string;
+      type: "code_judge";
+      promptUk: string;
+      promptEn?: string;
+      language: "javascript" | "typescript" | "python" | "bash";
+      starter: string;
+      tests: {
+        type: "stdout_contains" | "stdout_equals" | "exit_code" | "not_stdout_contains";
+        value: string | number;
+      }[];
+      timeoutMs?: number;
       explanationUk?: string;
       explanationEn?: string;
     };
@@ -200,22 +281,8 @@ export type UnitContent = {
 };
 
 export type CourseContent = {
-  slug:
-    | "english"
-    | "chess"
-    | "typing"
-    | "speed_reading"
-    | "logic"
-    | "programming"
-    | "typescript"
-    | "html_semantics"
-    | "css_layout"
-    | "qa_theory"
-    | "js_fundamentals"
-    | "react_fundamentals"
-    | "sql_fundamentals"
-    | "node_fundamentals"
-    | "express_fundamentals";
+  /** Seed-known or CMS free-form slug */
+  slug: string;
   titleUk: string;
   titleEn: string;
   descriptionUk: string;

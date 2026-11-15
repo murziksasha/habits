@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ForgeBoard — Broken A11y</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header>
+      <nav><a href="#task-board">Board</a></nav>
+    </header>
+    <main>
+      <form id="task-form">
+        <span>Task title</span>
+        <input id="task-title" name="title" />
+        <p id="title-error"></p>
+        <button type="submit">Add task</button>
+      </form>
+      <div id="board-status" role="status" aria-live="polite">0 tasks</div>
+      <div class="modal">Task details</div>
+    </main>
+    <footer>ForgeBoard</footer>
+  </body>
+</html>

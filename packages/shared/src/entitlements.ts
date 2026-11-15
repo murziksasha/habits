@@ -1,43 +1,52 @@
+import { FREE_HEARTS, HEART_REGEN_MINUTES } from './courses.js';
 import {
-  FREE_HEARTS,
-  FREE_LESSONS_PER_COURSE,
-  FREE_RATED_CHESS_PER_DAY,
-  HEART_REGEN_MINUTES,
-} from "./courses.js";
+  ironWillHeartsBonus,
+  type CharacterProgression,
+} from './character.js';
 
-export type Plan = "free" | "premium";
-
-export function canAccessLesson(opts: {
-  plan: Plan;
-  lessonIndexInCourse: number; // 0-based order among published lessons
+/** Every lesson is accessible to every user. */
+export function canAccessLesson(_opts?: {
+  lessonIndexInCourse?: number;
 }): boolean {
-  if (opts.plan === "premium") return true;
-  return opts.lessonIndexInCourse < FREE_LESSONS_PER_COURSE;
+  return true;
 }
 
-export function maxHearts(plan: Plan): number {
-  return plan === "premium" ? 999 : FREE_HEARTS;
+/** Shared heart cap for every account (+ Iron Will synergy). */
+export function maxHearts(
+  progression?: CharacterProgression | null,
+): number {
+  const bonus = progression ? ironWillHeartsBonus(progression) : 0;
+  return FREE_HEARTS + bonus;
 }
 
 /** Regen hearts based on elapsed time since last update */
 export function regenerateHearts(opts: {
-  plan: Plan;
   hearts: number;
   heartsUpdatedAt: Date | string | null | undefined;
   now?: Date;
+  /** Override interval minutes (e.g. vitality talent). Min 10. */
+  regenMinutes?: number;
+  progression?: CharacterProgression | null;
 }): { hearts: number; heartsUpdatedAt: Date; changed: boolean } {
   const now = opts.now ?? new Date();
-  const max = maxHearts(opts.plan);
-  if (opts.plan === "premium") {
-    return { hearts: max, heartsUpdatedAt: now, changed: opts.hearts !== max };
-  }
+  const max = maxHearts(opts.progression);
   let hearts = Math.min(max, Math.max(0, opts.hearts));
-  const updatedAt = opts.heartsUpdatedAt ? new Date(opts.heartsUpdatedAt) : now;
+  const updatedAt = opts.heartsUpdatedAt
+    ? new Date(opts.heartsUpdatedAt)
+    : now;
   if (hearts >= max) {
-    return { hearts: max, heartsUpdatedAt: updatedAt, changed: false };
+    return {
+      hearts: max,
+      heartsUpdatedAt: updatedAt,
+      changed: false,
+    };
   }
   const elapsedMs = now.getTime() - updatedAt.getTime();
-  const regenMs = HEART_REGEN_MINUTES * 60 * 1000;
+  const minutes = Math.max(
+    10,
+    opts.regenMinutes ?? HEART_REGEN_MINUTES,
+  );
+  const regenMs = minutes * 60 * 1000;
   const gained = Math.floor(elapsedMs / regenMs);
   if (gained <= 0) {
     return { hearts, heartsUpdatedAt: updatedAt, changed: false };
@@ -52,21 +61,44 @@ export function regenerateHearts(opts: {
   };
 }
 
-export function canStartLesson(opts: { plan: Plan; hearts: number }): boolean {
-  if (opts.plan === "premium") return true;
-  return opts.hearts > 0;
-}
-
-export function canPlayRatedChess(opts: {
-  plan: Plan;
-  ratedGamesToday: number;
+/** Starting a lesson is always allowed for all users. */
+export function canStartLesson(_opts?: {
+  hearts?: number;
 }): boolean {
-  if (opts.plan === "premium") return true;
-  return opts.ratedGamesToday < FREE_RATED_CHESS_PER_DAY;
+  return true;
 }
 
-export function canUseUnlimitedHints(plan: Plan): boolean {
-  return plan === "premium";
+/** Playing rated chess is always allowed for all users. */
+export function canPlayRatedChess(_opts?: {
+  ratedGamesToday?: number;
+}): boolean {
+  return true;
 }
 
-export const FREE_HINTS_PER_DAY = 3;
+export function canUseUnlimitedHints(): boolean {
+  return true;
+}
+
+export const FREE_HINTS_PER_DAY = Infinity;
+
+/** Shared access rules. There is no paid tier. */
+export type AccessMatrix = {
+  lessons: 'all';
+  hearts: number;
+  heartRegenMinutes: number;
+  ratedChessPerDay: 'unlimited';
+  hintsPerDay: 'unlimited';
+};
+
+export function accessMatrix(): AccessMatrix {
+  return {
+    lessons: 'all',
+    hearts: FREE_HEARTS,
+    heartRegenMinutes: HEART_REGEN_MINUTES,
+    ratedChessPerDay: 'unlimited',
+    hintsPerDay: 'unlimited',
+  };
+}
+
+/** Default child seats for a family group owner. */
+export const FAMILY_DEFAULT_SEATS = 4;

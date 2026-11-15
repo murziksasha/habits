@@ -36,6 +36,28 @@ describe("gradeExercise", () => {
     expect(gradeExercise(ex, [{ left: "a", right: "2" }]).correct).toBe(false);
   });
 
+  it("grades code_run by source needles", () => {
+    const ex = {
+      id: "cr1",
+      type: "code_run",
+      language: "cpp",
+      requiredSource: ["cout", "main"],
+      forbiddenSource: ["system("],
+    };
+    expect(
+      gradeExercise(ex, {
+        source: `#include <iostream>
+int main(){ cout << 1; return 0; }`,
+      }).correct,
+    ).toBe(true);
+    expect(
+      gradeExercise(ex, {
+        source: `int main(){ system("x"); return 0; }`,
+      }).correct,
+    ).toBe(false);
+    expect(gradeExercise(ex, { source: `void f(){}` }).correct).toBe(false);
+  });
+
   it("grades order_words", () => {
     const ex = {
       id: "4",

@@ -2,8 +2,16 @@
 
 ## Two-layer progression
 
-1. **Course XP / level** — independent per course (`UserCourseProgress`)  
-2. **Character global XP / level** — sum of contributions from course activity + chess games  
+1. **Course XP / level** — independent per course (`UserCourseProgress`); `levelUp` in lesson submit responses preserves its course-level meaning (`courseLevelAfter > courseLevelBefore`).
+2. **Character global XP / level** — sum of contributions from course activity + chess games (`characters.globalXp`, `characters.globalLevel`). Lesson-triggered changes record `characterXpGain`, `characterLevelBefore/After`, `characterLevelUp`, and `levelChangeTrigger: "lesson"`.
+
+Daily XP cap (`DAILY_XP_CAP = 400`) clamps character lesson XP **before** `applyLevelUps` and level-up loot drops so skill points, titles, frames, and loot only apply to the final post-cap level.
+
+## Weekly learning targets
+
+- Learners may configure a recurring weekly target of `1–1000` successful lesson/exam attempts (`Mon–Sun UTC`, all courses) via `PUT /learning/goal`.
+- Every successful submitted attempt counts (including repeats and exams); failures, unknown-outcome legacy rows, and idempotent replays do not count.
+- Completing a weekly target provides visual recognition only (no bonus XP or extra rewards). Removing the target (`null`) restores the top lesson/review recommendation as an automatic goal.
 
 Formula (shared package):
 
@@ -41,12 +49,11 @@ On successful activity day:
 
 ## Hearts (lives)
 
-| Plan | Max | On failed lesson (accuracy &lt; 0.5) | Regen |
-|------|-----|--------------------------------------|-------|
-| free | 5 | −1 heart | +1 every 30 minutes |
-| premium | 999 (∞ in UI) | no loss | always full |
+| Account | Max | On failed lesson (accuracy &lt; 0.5) | Regen |
+|---------|-----|--------------------------------------|-------|
+| every user | 5 | −1 heart | +1 every 30 minutes |
 
-Implemented via `regenerateHearts` + course progress timestamps.
+Implemented via `regenerateHearts` + course progress timestamps. Plan does not change the cap.
 
 ## Chess Elo
 
@@ -69,5 +76,4 @@ Flags on `character.onboarding`:
 - `triedChess`  
 - `triedTyping`  
 - `viewedLeaderboard`  
-- `exploredPricing`  
 - `dismissed`  

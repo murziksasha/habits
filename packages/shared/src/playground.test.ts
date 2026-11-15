@@ -19,9 +19,22 @@ import {
 
 describe("playground helpers", () => {
   it("has languages, examples, challenges", () => {
-    expect(PLAYGROUND_LANGS.length).toBeGreaterThanOrEqual(6);
+    expect(PLAYGROUND_LANGS.length).toBeGreaterThanOrEqual(7);
     expect(PLAYGROUND_EXAMPLES.length).toBeGreaterThanOrEqual(5);
     expect(PLAYGROUND_CHALLENGES.length).toBeGreaterThanOrEqual(18);
+    expect(PLAYGROUND_LANGS.some((l) => l.id === "cpp")).toBe(true);
+    expect(PLAYGROUND_EXAMPLES.some((e) => e.lang === "cpp")).toBe(true);
+    expect(PLAYGROUND_CHALLENGES.filter((c) => c.lang === "cpp").length).toBeGreaterThanOrEqual(3);
+    expect(PLAYGROUND_LANGS.some((l) => l.id === "react")).toBe(true);
+    expect(PLAYGROUND_EXAMPLES.some((e) => e.lang === "react")).toBe(true);
+    expect(PLAYGROUND_CHALLENGES.filter((c) => c.lang === "react").length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("exports external labs for Next/Playwright", async () => {
+    const { EXTERNAL_LABS, externalLabsForCourse } = await import("./playground.js");
+    expect(EXTERNAL_LABS.length).toBeGreaterThanOrEqual(2);
+    expect(EXTERNAL_LABS.some((l) => l.stack === "next")).toBe(true);
+    expect(externalLabsForCourse("react_fundamentals").length).toBeGreaterThanOrEqual(1);
   });
 
   it("includes html/css source challenges", () => {

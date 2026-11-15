@@ -2,7 +2,7 @@
 
 Освітній SaaS: **англійська**, **шахи** (уроки + online PvP), **друк**, **швидкочитання**, **логіка**, **програмування** (Mimo-style path + playground + mini-projects).
 
-UI: **українська + англійська** · повна технічна документація: [`SPEC/`](./SPEC/) (English, 01–58).
+UI: **українська + англійська** · повна технічна документація: [`SPEC/`](./SPEC/) (English, 01–91 + CURRENT) · surface freeze: [`SPEC/CURRENT.md`](./SPEC/CURRENT.md).
 
 - Monorepo: **pnpm + Turborepo**
 - Apps: `web` (Next.js), `api` (Hono), `realtime` (Socket.IO)
@@ -61,13 +61,20 @@ docker compose --profile tools run --rm migrate
 
 | Область | Що є |
 |---------|------|
-| Курси | english, chess, typing, speed_reading, logic, **programming**, **typescript**, **html_semantics**, **css_layout**, **qa_theory** |
+| Курси | 35 курсів (uk+en): навички, код, deep tracks (JS/TS/React/Node/Express/SQL, AI, DevOps, …) плюс **Go**, **веб-доступність**, **дизайн REST API**, **продуктивність фронтенду**, **веб-API браузера**. Глибокі треки англійської (248 уроків) і шахів (188). **2153** уроки. Як додавати: [`SPEC/CONTENT-DX.md`](./SPEC/CONTENT-DX.md), лічильник: [`SPEC/CONTENT-EXPANSION.md`](./SPEC/CONTENT-EXPANSION.md) |
 | Programming | path units, Monaco drills, mini-projects, weekly race, stack hubs |
 | Deep tracks | HTML semantics, CSS Flex/Grid, QA theory (+ unit exams) |
-| Playground | client sandbox, challenges, race, embed share |
+| Deep learning | **concept cards** (теорія перед практикою), **крива забування** (`/review` памʼять ≈ %), **змішана практика** `/review/mixed` — [SPEC/91](./SPEC/91-deep-learning-features.md) |
+| Deep learning 2 | **впевненість + калібрування**, **зошит помилок** `/review/mistakes` (SRS на рівні вправ), **карта майстерності** `/courses/[slug]/mastery`, вправа **«поясни своїми словами»** з відгуком тьютора — [SPEC/92](./SPEC/92-deep-learning-2.md) |
+| Playground | client sandbox (JS/TS/HTML/CSS + **React Studio** + **C++**), race |
+| Node Studio | **WebContainers** in-browser Node/npm/Express (`/studio/node`, flag `NEXT_PUBLIC_WEBCONTAINERS`) |
 | Соціальне | friends, minis vs friends, weekly race vs friends, certificates |
 | Клас / батьки | orgs, homework, gradebook CSV, parent digests |
 | Гейміфікація | XP, levels, hearts, streak shields, shop, quests, achievements |
+| Навчальні шляхи | вісім цілей на `/paths`: фронтенд, бекенд, QA, AI, DBA/SQL, DevOps, **англійська (A1–C1)** і **шахи** (від основ до майстерності); прогрес з пройдених уроків, посилання з хабів курсів |
+| Вхідний тест | опційний тест на старті курсу (`/placement/[slug]`), можна позначити вже відомі теми як пройдені (0 XP) |
+| Головна | картка «продовжити з того місця», підсумок тижня, серія днів; бейдж кількості карток до повторення |
+| Якість контенту | quality gate у `pnpm test:unit` і GitHub Actions (`content-gate`): переклади, унікальні slug/id, пояснення, форма вправ |
 | Ops | admin metrics CSV, cron digests, push, tutor (SpaceXAI) |
 
 ## Прокачка
@@ -78,21 +85,54 @@ docker compose --profile tools run --rm migrate
 | Персонаж | `globalXp` / `globalLevel` з усіх курсів + бонуси |
 | Шахи Elo | окремий рейтинг для online-партій |
 
-## Freemium
+## Access
 
-- Free: перші 5 уроків курсу, ліміт рейтингових партій, 5 ❤️
-- Premium: demo-кнопка на `/pricing` (або Stripe Checkout, якщо ключі задані)
+EduForge is free. Every account can open every lesson and play rated chess. Hearts (5, regen) are a shared practice limit, not a subscription.
+
+## Security (коротко)
+
+| Контроль | Поведінка |
+|----------|-----------|
+| Sessions | httpOnly cookie; Bearer у JSON лише non-prod / `X-Issue-Bearer` |
+| CSRF | Origin check **on** у production (`FEATURE_STRICT_CSRF=0` щоб вимкнути) |
+| Judge | Prod default **off**; `JUDGE_MODE=docker` для ізоляції; без fallback на host |
+| Email | Верифікація після register; банер + `/verify-email` |
+| Headers | CSP / nosniff / frame on web; security headers on API + nginx |
+| Privacy | Profile: change password, JSON export, account delete (`confirm: "DELETE"`) |
+| Continue | Post-lesson `nextLesson` + Learn «місія дня» |
+| OAuth | Google — `GOOGLE_CLIENT_ID` / `SECRET` → Continue with Google |
+| 2FA | TOTP для всіх акаунтів (профіль + challenge на login) |
+| Family | `/family` — free group, seats, invite codes |
+| Teacher | `/teacher` — heatmap домашки |
+| UX | Thin home, PageLoading floor, labs shells, visual baselines (Playwright) |
+
+Повний runbook: [`SPEC/OPS.md`](./SPEC/OPS.md) · surface: [`SPEC/CURRENT.md`](./SPEC/CURRENT.md) · [SPEC/87](./SPEC/87-studio-classroom-admin-visual.md)
+
+### Visual regression
+
+```bash
+pnpm --filter @eduforge/web test:e2e:visual:update   # write baselines
+pnpm --filter @eduforge/web test:e2e:visual          # compare
+```
+
+## Admin Platform (v2)
+
+Modular admin at `/admin` (sidebar): courses (draft→publish), content tree, appearance (CSS tokens), users, metrics, ops, feedback, audit, security (TOTP), plus read-only overviews (classroom, engagement, programming).
+
+- **2FA:** TOTP when enrolled (always challenged on login); backup codes; step-up via `X-Admin-StepUp`. Enforce enroll in production / `ADMIN_MFA_ENFORCE=true`.
+- **E2E MFA:** `loginAsAdmin()` generates live TOTP from seed secret (`JBSWY3DPEHPK3PXP`).
+- **Theming:** `GET /public/branding` + admin Appearance publish.
+- Spec: [SPEC/72-admin-platform-v2.md](./SPEC/72-admin-platform-v2.md)
 
 ## Admin CMS
 
 Після `pnpm db:seed` створюються акаунти:
 
-| Роль | Email | Password | Plan |
-|------|-------|----------|------|
-| Admin | `admin@eduforge.ua` | `admin12345` | premium |
-| Test user | `premium@eduforge.ua` | `premium12345` | premium |
+| Роль | Email | Password |
+|------|-------|----------|
+| Admin | `admin@eduforge.ua` | `admin12345` |
 
-Сторінки адміна: `/admin`, `/admin/users`, `/admin/content`, `/admin/metrics`
+Сторінки: `/admin`, `/admin/courses`, `/admin/content`, `/admin/appearance`, `/admin/users`, `/admin/metrics`, `/admin/security`, …
 
 ## Password reset
 
@@ -100,33 +140,61 @@ docker compose --profile tools run --rm migrate
 
 ## Onboarding
 
-Чекліст на `/dashboard` (уроки, шахи, друк, рейтинг, тарифи).
+Wizard (роль + трек) після першого входу → `/learn` (або `/parents` / `/teacher` / path за `?intent=`).  
+Чекліст secondary на `/dashboard`. Деталі: [SPEC/79](./SPEC/79-ux-user-improvements.md).
 
 ## Структура
 
 ```
 apps/web          Next.js UI (UK + EN)
-apps/api          REST API + OpenAPI 1.5
+apps/api          REST API + OpenAPI (see /docs)
 apps/realtime     Chess WebSocket
+apps/mobile       WebView shell scaffold (Expo install separately)
 packages/db       Drizzle schema / migrate / seed
-packages/content  Seed-уроки (incl. programming)
+packages/content  Seed-уроки + MDX pipeline
 packages/shared   XP, Elo, entitlements, i18n, minis race
+packages/judge    Multi-lang judge + job queue
 packages/chess-core
-SPEC/             Product & technical docs (English) 01–58
+SPEC/             Product & technical docs (English) 01–91 + CURRENT
 ```
 
 ## Documentation
 
 - [`SPEC/README.md`](./SPEC/README.md) — full index  
-- [`SPEC/58-docs-freeze.md`](./SPEC/58-docs-freeze.md) — completion status  
+- [`SPEC/CURRENT.md`](./SPEC/CURRENT.md) — product surface freeze & IA map  
+- [`SPEC/90-deep-improvements-plan.md`](./SPEC/90-deep-improvements-plan.md) — deep-learning analysis + step-by-step plan  
+- [`SPEC/91-deep-learning-features.md`](./SPEC/91-deep-learning-features.md) — concept cards, memory model, mixed practice  
+- [`SPEC/92-deep-learning-2.md`](./SPEC/92-deep-learning-2.md) — calibration, mistake notebook, mastery map, explain step  
+- [`SPEC/58-docs-freeze.md`](./SPEC/58-docs-freeze.md) — historical closeout 01–58  
 - [`.env.example`](./.env.example) — environment variables  
 
 ## Tests
 
+> pnpm 11 має вбудовану команду `pnpm ci` (clean install) — для нашого скрипта використовуйте **`pnpm run ci`**. Потрібен Node 22 (`.nvmrc`).
+
 ```bash
 pnpm --filter @eduforge/content test
 pnpm --filter @eduforge/shared test
+pnpm --filter @eduforge/judge test
 pnpm --filter @eduforge/api test
+pnpm --filter @eduforge/mobile test
 # e2e (stack running):
 # set SKIP_E2E=0  →  pnpm --filter @eduforge/web test:e2e
+# PR CI: unit + integration + content-gate
+# Push to main/master/dev also runs E2E smoke (landing/register/admin)
+```
+
+## Ops extras
+
+```bash
+# OTel collector (API: OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318)
+docker compose --profile otel up -d otel-collector
+
+# Product funnel (admin UI: /admin/metrics · API: GET /analytics/funnel?days=7)
+# Metrics: GET /metrics → productFunnel7d + judge.queue
+# Judge worker: POST /judge/worker/drain  (CRON_SECRET)
+
+# Visual baselines (commit e2e/__snapshots__ after first generate)
+pnpm --filter @eduforge/web test:e2e:visual:update   # local, stack up
+# GitHub: Actions → Visual regression → update_snapshots=true
 ```

@@ -1,0 +1,290 @@
+import { unit } from "../builders.js";
+import { quiz, teach, why } from "./kit.js";
+
+export const observability = unit("observability", "Спостережність", "Observability", [
+  teach("do-golden", "Чотири сигнали", "Four signals", 4, "do-golden", [
+    {
+      t: "match",
+      uk: "Golden signals для forge-status.",
+      en: "Golden signals for forge-status.",
+      pairs: [
+        { left: "Latency", right: "Скільки триває /health і звичайний запит" },
+        { left: "Traffic", right: "Скільки запитів приходить" },
+        { left: "Errors", right: "Частка відповідей 5xx" },
+        { left: "Saturation", right: "Наскільки близькі CPU, пам'ять, черга" },
+      ],
+    },
+    {
+      t: "mcq",
+      uk: "SLI — це:",
+      en: "An SLI is:",
+      o: [
+        "Вимірювана частка, наприклад успішні запити за хвилину",
+        "Договір із штрафом",
+        "Дашборд сам по собі",
+        "Ім'я pod",
+      ],
+      i: 0,
+      note: why(
+        "SLO — ціль на SLI. SLA — обіцянка зовні, часто з наслідками. Бюджет помилок рахують від SLO, це наступний модуль.",
+        "An SLO is the target for an SLI. An SLA is the outside promise, often with consequences. The error budget is counted from the SLO, and that is the next unit.",
+      ),
+    },
+    {
+      t: "mcq",
+      uk: "RED і USE ділять роботу так:",
+      en: "RED and USE split the work like this:",
+      o: [
+        "RED — запити сервісу (rate, errors, duration). USE — ресурс (utilization, saturation, errors)",
+        "Це синоніми",
+        "Обидва лише про логи",
+        "USE замінює трейси",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "Один екран для forge-status має показати:",
+      en: "One screen for forge-status should show:",
+      o: [
+        "Чотири сигнали і чи живий probe. Не двадцять графіків «про всяк випадок»",
+        "Усі логи за рік",
+        "Повний Terraform plan",
+        "Список зірок GitHub",
+      ],
+      i: 0,
+    },
+  ]),
+  teach("do-prom", "Prometheus і алерт", "Prometheus and the alert", 4, "do-prom", [
+    {
+      t: "mcq",
+      uk: "Prometheus забирає метрики так:",
+      en: "Prometheus collects metrics like this:",
+      o: [
+        "Сам ходить на цілі (pull) і кладе зразки в свою базу",
+        "Чекає, що кожен сервер поштовхне йому UDP без імені",
+        "Читає лише логи",
+        "Замінює Ingress",
+      ],
+      i: 0,
+    },
+    {
+      t: "read",
+      uk: "Що рахує цей запит?",
+      en: "What does this query count?",
+      lang: "promql",
+      code: "sum(rate(http_requests_total{job=\"forge-status\",code=~\"5..\"}[5m]))",
+      o: [
+        "Швидкість 5xx за п'ять хвилин, не сирий лічильник",
+        "Поточну температуру CPU",
+        "Кількість комітів",
+        "Вільне місце на диску в байтах без rate",
+      ],
+      i: 0,
+      note: why(
+        "Лічильник лише росте. rate перетворює його на швидкість. Порівнювати голий counter між подами безглуздо.",
+        "A counter only goes up. rate turns it into a speed. Comparing a raw counter across pods is meaningless.",
+      ),
+    },
+    {
+      t: "mcq",
+      uk: "Alertmanager потрібен, бо:",
+      en: "Alertmanager exists because:",
+      o: [
+        "Він групує, глушить повтори і вирішує, кому писати",
+        "Він малює графіки замість Grafana",
+        "Він зберігає логи",
+        "Він збирає образи",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "node_exporter і метрика додатка:",
+      en: "node_exporter and an application metric:",
+      o: [
+        "Перший бачить машину. Другу forge-status має віддати сам, інакше ви не знаєте про 5xx",
+        "Це одне і те саме",
+        "node_exporter читає /health за вас",
+        "Додатку метрики заборонені",
+      ],
+      i: 0,
+    },
+  ]),
+  teach("do-loki", "Логи", "Logs", 4, "do-loki", [
+    {
+      t: "mcq",
+      uk: "Рядок логу forge-status має бути:",
+      en: "A forge-status log line should be:",
+      o: [
+        "JSON з часом, рівнем і id запиту, одним рядком",
+        "Вільний абзац на кілька рядків без часу",
+        "Лише слово error",
+        "Бінарний дамп",
+      ],
+      i: 0,
+      note: why(
+        "Однаковий id у логу і в трасі дозволяє стрибнути з графіка на конкретний запит.",
+        "The same id on the log and the trace lets you jump from a graph to one request.",
+      ),
+    },
+    {
+      t: "match",
+      uk: "Шматки стеку логів.",
+      en: "Pieces of the log stack.",
+      pairs: [
+        { left: "Promtail", right: "Читає файли або pod і шле рядки" },
+        { left: "Loki", right: "Зберігає рядки за мітками, не повнотекстовий гігант" },
+        { left: "Grafana", right: "Місце, де рядок дивляться поруч із графіком" },
+      ],
+    },
+    {
+      t: "mcq",
+      uk: "Elasticsearch обирають замість Loki, коли:",
+      en: "Pick Elasticsearch instead of Loki when:",
+      o: [
+        "Потрібен важкий повнотекстовий пошук і ви готові за нього платити операціями",
+        "Треба найменший стек поруч із Grafana",
+        "Логів немає взагалі",
+        "Треба лише CPU хоста",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "Рівень debug усюди в кластері:",
+      en: "debug level everywhere in the cluster:",
+      o: [
+        "Заливає сховище і ховає справжні помилки. У звичайний день досить info",
+        "Обов'язковий для SLO",
+        "Замінює метрики",
+        "Безкоштовний, бо логи не займають місце",
+      ],
+      i: 0,
+    },
+  ]),
+  teach("do-otel", "Один трейс", "One trace", 4, "do-otel", [
+    {
+      t: "mcq",
+      uk: "Трейс запиту до forge-status — це:",
+      en: "A trace of a request to forge-status is:",
+      o: [
+        "Дерево span: проксі, api, звернення до кешу. Усі несуть один trace id",
+        "Середній CPU за день",
+        "Файл access.log цілком",
+        "План Terraform",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "OpenTelemetry у цьому курсі:",
+      en: "OpenTelemetry in this course:",
+      o: [
+        "Спосіб інструментувати код і віддати трейс колектору. Jaeger або Tempo його показують",
+        "Заміна Prometheus для всіх метрик обов'язково",
+        "Сертифікат TLS",
+        "Плагін Git",
+      ],
+      i: 0,
+      note: why(
+        "Контекст треба передати в наступний виклик. Інакше ви бачите три окремі уривки замість одного шляху.",
+        "The context has to ride along to the next call. Otherwise you see three scraps instead of one path.",
+      ),
+    },
+    {
+      t: "order",
+      uk: "Від симптому до рядка.",
+      en: "From a symptom to a line.",
+      lang: "text",
+      correct: [
+        "Алерт на частку 5xx",
+        "Графік latency цього сервісу",
+        "Трейс повільного запиту",
+        "Лог із тим самим id",
+      ],
+    },
+    {
+      t: "mcq",
+      uk: "kube-state-metrics відрізняється від node_exporter тим, що:",
+      en: "kube-state-metrics differs from node_exporter because:",
+      o: [
+        "Бачить об'єкти кластера: скільки pod не Ready. Не температуру диска",
+        "Бачить лише диск вузла",
+        "Пише логи",
+        "Замінює Alertmanager",
+      ],
+      i: 0,
+    },
+  ]),
+  quiz("do-obs-exam", "Контроль: спостережність", "Check: observability", 4, "do-obs-exam", [
+    {
+      t: "mcq",
+      uk: "rate на gauge CPU:",
+      en: "rate on a CPU gauge:",
+      o: [
+        "Майже завжди помилка. rate — для лічильників",
+        "Єдиний правильний спосіб",
+        "Те саме, що increase на гістограмі без потреби",
+        "Замінює recording rule завжди",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "Silence в Alertmanager:",
+      en: "A silence in Alertmanager:",
+      o: [
+        "Тимчасово не будити людей. Йому потрібен кінець, інакше він ховає аварію",
+        "Видаляє метрики",
+        "Зупиняє Prometheus",
+        "Міняє код додатка",
+      ],
+      i: 0,
+    },
+    {
+      t: "fill",
+      uk: "Поле JSON, за яким шукають один запит.",
+      en: "The JSON field you search to find one request.",
+      lang: "text",
+      code: "___",
+      ok: ["trace_id"],
+    },
+    {
+      t: "mcq",
+      uk: "Recording rule:",
+      en: "A recording rule:",
+      o: [
+        "Заздалегідь рахує важкий вираз, щоб дашборд не повторяв його на кожен піксель",
+        "Правило firewall",
+        "Тег Git",
+        "Ліміт пам'яті pod",
+      ],
+      i: 0,
+    },
+    {
+      t: "mcq",
+      uk: "Thanos або Mimir згадують, коли:",
+      en: "You mention Thanos or Mimir when:",
+      o: [
+        "Одного Prometheus уже мало на строк зберігання або на кілька кластерів",
+        "Треба перший дашборд на kind",
+        "Треба зібрати образ",
+        "Треба ключ SSH",
+      ],
+      i: 0,
+    },
+    {
+      t: "order",
+      uk: "Зібрати мінімальний стек навколо forge-status.",
+      en: "Assemble the small stack around forge-status.",
+      lang: "text",
+      correct: [
+        "Експортер хоста і метрики додатка",
+        "Prometheus збирає",
+        "Grafana показує чотири сигнали",
+        "Alertmanager пише, якщо 5xx тримаються",
+      ],
+    },
+  ]),
+]);

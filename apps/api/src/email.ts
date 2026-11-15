@@ -8,7 +8,14 @@ export type MailPayload = {
 };
 
 function smtpConfigured() {
-  return Boolean(process.env.SMTP_HOST && process.env.SMTP_FROM);
+  return Boolean(
+    process.env.SMTP_HOST?.trim() && process.env.SMTP_FROM?.trim() &&
+      (process.env.SMTP_PASS || !process.env.SMTP_USER),
+  );
+}
+
+export function webOrigin(): string {
+  return (process.env.WEB_ORIGIN ?? "http://localhost:3000").replace(/\/$/, "");
 }
 
 export async function sendMail(payload: MailPayload): Promise<{ sent: boolean; dev?: boolean }> {
@@ -41,6 +48,28 @@ export async function sendMail(payload: MailPayload): Promise<{ sent: boolean; d
   return { sent: true };
 }
 
+function ctaButton(href: string, label: string) {
+  return `<p style="margin:20px 0"><a href="${href}" style="display:inline-block;background:#58CC02;color:#fff;font-weight:700;text-decoration:none;padding:12px 20px;border-radius:12px">${label}</a></p>`;
+}
+
+export function emailVerifyEmail(opts: {
+  to: string;
+  verifyUrl: string;
+  locale?: string;
+}): MailPayload {
+  const uk = (opts.locale ?? "uk") === "uk";
+  return {
+    to: opts.to,
+    subject: uk ? "Підтвердіть email — EduForge" : "Confirm your email — EduForge",
+    text: uk
+      ? `Вітаємо!\n\nПідтвердіть email за посиланням (дійсне 30 днів):\n${opts.verifyUrl}\n\nБез підтвердження: через 7 днів акаунт стане неактивним, а через 30 днів буде видалений.\n`
+      : `Hello!\n\nConfirm your email (valid 30 days):\n${opts.verifyUrl}\n\nWithout confirmation: after 7 days the account becomes inactive, and after 30 days it is deleted.\n`,
+    html: uk
+      ? `<p>Вітаємо!</p>${ctaButton(opts.verifyUrl, "Підтвердити email")}<p>Посилання дійсне 30 днів.</p><p>Без підтвердження: через 7 днів акаунт стане неактивним, а через 30 днів буде видалений.</p>`
+      : `<p>Hello!</p>${ctaButton(opts.verifyUrl, "Confirm email")}<p>Link valid 30 days.</p><p>Without confirmation: after 7 days the account becomes inactive, and after 30 days it is deleted.</p>`,
+  };
+}
+
 export function passwordResetEmail(opts: {
   to: string;
   resetUrl: string;
@@ -59,6 +88,32 @@ export function passwordResetEmail(opts: {
   };
 }
 
+/** Welcome + email confirmation with unverified lifecycle policy (7d inactive / 30d delete). */
+export function registrationVerifyEmail(opts: {
+  to: string;
+  displayName: string;
+  verifyUrl: string;
+  locale?: string;
+}): MailPayload {
+  const uk = (opts.locale ?? "uk") === "uk";
+  const name = opts.displayName.trim() || (uk ? "друже" : "friend");
+  const subject = uk
+    ? "Підтвердіть акаунт EduForge"
+    : "Confirm your EduForge account";
+  const policyUk =
+    "Без підтвердження: через 7 днів акаунт стане неактивним, а через 30 днів буде видалений.";
+  const policyEn =
+    "Without confirmation: after 7 days the account becomes inactive, and after 30 days it is deleted.";
+  const text = uk
+    ? `Привіт, ${name}!\n\nВітаємо в EduForge. Підтвердіть email, щоб зберегти акаунт:\n${opts.verifyUrl}\n\n${policyUk}\n\nЯкщо ви не реєструвались — ігноруйте цей лист.\n— Команда EduForge`
+    : `Hi, ${name}!\n\nWelcome to EduForge. Confirm your email to keep your account:\n${opts.verifyUrl}\n\n${policyEn}\n\nIf you did not sign up, ignore this email.\n— EduForge team`;
+  const cta = ctaButton(opts.verifyUrl, uk ? "Підтвердити email" : "Confirm email");
+  const html = uk
+    ? `<div style="font-family:system-ui,sans-serif;max-width:520px"><h2 style="color:#1a1a1a">Вітаємо в EduForge</h2><p>Привіт, <b>${name}</b>!</p><p>Підтвердіть email, щоб зберегти акаунт.</p>${cta}<p style="color:#444">${policyUk}</p><p style="color:#666;font-size:12px"><a href="${opts.verifyUrl}">${opts.verifyUrl}</a></p><p style="color:#666;font-size:12px">EduForge</p></div>`
+    : `<div style="font-family:system-ui,sans-serif;max-width:520px"><h2 style="color:#1a1a1a">Welcome to EduForge</h2><p>Hi <b>${name}</b>!</p><p>Confirm your email to keep your account.</p>${cta}<p style="color:#444">${policyEn}</p><p style="color:#666;font-size:12px"><a href="${opts.verifyUrl}">${opts.verifyUrl}</a></p><p style="color:#666;font-size:12px">EduForge</p></div>`;
+  return { to: opts.to, subject, text, html };
+}
+
 export function weeklyReportEmail(stats: {
   email: string;
   displayName: string;
@@ -70,15 +125,36 @@ export function weeklyReportEmail(stats: {
   streakDays: number;
 }): MailPayload {
   const uk = (stats.locale ?? "uk") === "uk";
+  const origin = webOrigin();
+  const learnUrl = `${origin}/learn`;
+  const inactive = stats.lessonsCompleted === 0 && stats.xpApprox === 0;
   const subject = uk
-    ? `EduForge: твій тижневий звіт, ${stats.displayName}`
-    : `EduForge: your weekly report, ${stats.displayName}`;
+    ? inactive
+      ? `EduForge: ми сумуємо, ${stats.displayName}`
+      : `EduForge: твій тижневий звіт, ${stats.displayName}`
+    : inactive
+      ? `EduForge: we miss you, ${stats.displayName}`
+      : `EduForge: your weekly report, ${stats.displayName}`;
+
+  const nudgeUk = inactive
+    ? `\nСхоже, цього тижня було тихо. 5–10 хвилин на карті навчання — і серія знову з вами.\nВідкрити: ${learnUrl}\n`
+    : `\nПродовжити: ${learnUrl}\n`;
+  const nudgeEn = inactive
+    ? `\nLooks like a quiet week. 5–10 minutes on the learning map keeps your streak alive.\nOpen: ${learnUrl}\n`
+    : `\nContinue: ${learnUrl}\n`;
+
   const text = uk
-    ? `Привіт, ${stats.displayName}!\n\nТвій тиждень у EduForge:\n• Уроків завершено: ${stats.lessonsCompleted}\n• XP (з уроків): ${stats.xpApprox}\n• Карток SRS: ${stats.flashcardReviews}\n• Фокус: ${stats.focusMinutes} хв\n• Серія днів: ${stats.streakDays}\n\nПродовжуй! 🔥\n— Команда EduForge`
-    : `Hi ${stats.displayName}!\n\nYour EduForge week:\n• Lessons completed: ${stats.lessonsCompleted}\n• XP from lessons: ${stats.xpApprox}\n• SRS cards: ${stats.flashcardReviews}\n• Focus: ${stats.focusMinutes} min\n• Streak: ${stats.streakDays}\n\nKeep going! 🔥\n— EduForge team`;
+    ? `Привіт, ${stats.displayName}!\n\nТвій тиждень у EduForge:\n• Уроків завершено: ${stats.lessonsCompleted}\n• XP (з уроків): ${stats.xpApprox}\n• Карток SRS: ${stats.flashcardReviews}\n• Фокус: ${stats.focusMinutes} хв\n• Серія днів: ${stats.streakDays}\n${nudgeUk}\n— Команда EduForge`
+    : `Hi ${stats.displayName}!\n\nYour EduForge week:\n• Lessons completed: ${stats.lessonsCompleted}\n• XP from lessons: ${stats.xpApprox}\n• SRS cards: ${stats.flashcardReviews}\n• Focus: ${stats.focusMinutes} min\n• Streak: ${stats.streakDays}\n${nudgeEn}\n— EduForge team`;
+
+  const cta = ctaButton(
+    learnUrl,
+    uk ? (inactive ? "Повернутися до навчання" : "Продовжити навчання") : inactive ? "Back to learning" : "Continue learning",
+  );
   const html = uk
-    ? `<div style="font-family:sans-serif"><h2>Тижневий звіт</h2><p>Привіт, <b>${stats.displayName}</b>!</p><ul><li>Уроків: <b>${stats.lessonsCompleted}</b></li><li>XP: <b>${stats.xpApprox}</b></li><li>SRS: <b>${stats.flashcardReviews}</b></li><li>Фокус: <b>${stats.focusMinutes}</b> хв</li><li>Серія: <b>${stats.streakDays}</b></li></ul><p>Продовжуй! 🔥</p></div>`
-    : `<div style="font-family:sans-serif"><h2>Weekly report</h2><p>Hi <b>${stats.displayName}</b>!</p><ul><li>Lessons: <b>${stats.lessonsCompleted}</b></li><li>XP: <b>${stats.xpApprox}</b></li><li>SRS: <b>${stats.flashcardReviews}</b></li><li>Focus: <b>${stats.focusMinutes}</b> min</li><li>Streak: <b>${stats.streakDays}</b></li></ul><p>Keep going! 🔥</p></div>`;
+    ? `<div style="font-family:system-ui,sans-serif;max-width:520px"><h2 style="color:#1a1a1a">Тижневий звіт</h2><p>Привіт, <b>${stats.displayName}</b>!</p><ul><li>Уроків: <b>${stats.lessonsCompleted}</b></li><li>XP: <b>${stats.xpApprox}</b></li><li>SRS: <b>${stats.flashcardReviews}</b></li><li>Фокус: <b>${stats.focusMinutes}</b> хв</li><li>Серія: <b>${stats.streakDays}</b></li></ul>${inactive ? `<p>Тихий тиждень — навіть один урок відновлює серію 🔥</p>` : `<p>Гарний темп — так тримати! 🔥</p>`}${cta}<p style="color:#666;font-size:12px">EduForge</p></div>`
+    : `<div style="font-family:system-ui,sans-serif;max-width:520px"><h2 style="color:#1a1a1a">Weekly report</h2><p>Hi <b>${stats.displayName}</b>!</p><ul><li>Lessons: <b>${stats.lessonsCompleted}</b></li><li>XP: <b>${stats.xpApprox}</b></li><li>SRS: <b>${stats.flashcardReviews}</b></li><li>Focus: <b>${stats.focusMinutes}</b> min</li><li>Streak: <b>${stats.streakDays}</b></li></ul>${inactive ? `<p>Quiet week — even one lesson protects your streak 🔥</p>` : `<p>Great pace — keep it up! 🔥</p>`}${cta}<p style="color:#666;font-size:12px">EduForge</p></div>`;
+
   return { to: stats.email, subject, text, html };
 }
 
@@ -94,17 +170,47 @@ export function parentChildDigestEmail(opts: {
   programmingLessonsWeek: number;
   playgroundSolvedWeek: number;
   homeworkCompletedWeek: number;
+  examsPassedWeek?: number;
   globalLevel: number;
+  /** When true: soft check-in for quiet weeks */
+  inactive?: boolean;
 }): MailPayload {
   const uk = (opts.locale ?? "uk") === "uk";
+  const origin = webOrigin();
+  const parentsUrl = `${origin}/parents`;
+  const exams = opts.examsPassedWeek ?? 0;
+  const inactive =
+    opts.inactive ??
+    (opts.lessonsCompleted === 0 &&
+      opts.xpApprox === 0 &&
+      opts.programmingLessonsWeek === 0 &&
+      opts.playgroundSolvedWeek === 0 &&
+      opts.homeworkCompletedWeek === 0 &&
+      exams === 0);
+
   const subject = uk
-    ? `EduForge: тиждень ${opts.childName}`
-    : `EduForge: ${opts.childName}'s week`;
+    ? inactive
+      ? `EduForge: ${opts.childName} — тихий тиждень`
+      : `EduForge: тиждень ${opts.childName}`
+    : inactive
+      ? `EduForge: ${opts.childName} — quiet week`
+      : `EduForge: ${opts.childName}'s week`;
+
+  const actionUk = inactive
+    ? `Запропонуйте 1 урок на карті навчання або перевірте домашку.`
+    : `Подивіться деталі та домашку в кабінеті батьків.`;
+  const actionEn = inactive
+    ? `Suggest one lesson on the learning map or check homework.`
+    : `See details and homework in the parent portal.`;
+
   const text = uk
-    ? `Привіт, ${opts.parentName}!\n\nТижневий огляд для ${opts.childName} (L${opts.globalLevel}):\n• Уроків: ${opts.lessonsCompleted}\n• XP: ${opts.xpApprox}\n• Серія: ${opts.streakDays} днів\n• Programming уроків: ${opts.programmingLessonsWeek}\n• Playground challenges: ${opts.playgroundSolvedWeek}\n• Домашка здана: ${opts.homeworkCompletedWeek}\n\nДеталі: /parents\n— EduForge`
-    : `Hi ${opts.parentName}!\n\nWeekly overview for ${opts.childName} (L${opts.globalLevel}):\n• Lessons: ${opts.lessonsCompleted}\n• XP: ${opts.xpApprox}\n• Streak: ${opts.streakDays} days\n• Programming lessons: ${opts.programmingLessonsWeek}\n• Playground challenges: ${opts.playgroundSolvedWeek}\n• Homework completed: ${opts.homeworkCompletedWeek}\n\nDetails: /parents\n— EduForge`;
+    ? `Привіт, ${opts.parentName}!\n\nТижневий огляд для ${opts.childName} (L${opts.globalLevel}):\n• Уроків: ${opts.lessonsCompleted}\n• XP: ${opts.xpApprox}\n• Серія: ${opts.streakDays} днів\n• Programming: ${opts.programmingLessonsWeek}\n• Playground: ${opts.playgroundSolvedWeek}\n• Домашка: ${opts.homeworkCompletedWeek}\n• Контрольні: ${exams}\n\n${actionUk}\nКабінет: ${parentsUrl}\n— EduForge`
+    : `Hi ${opts.parentName}!\n\nWeekly overview for ${opts.childName} (L${opts.globalLevel}):\n• Lessons: ${opts.lessonsCompleted}\n• XP: ${opts.xpApprox}\n• Streak: ${opts.streakDays} days\n• Programming: ${opts.programmingLessonsWeek}\n• Playground: ${opts.playgroundSolvedWeek}\n• Homework: ${opts.homeworkCompletedWeek}\n• Exams passed: ${exams}\n\n${actionEn}\nPortal: ${parentsUrl}\n— EduForge`;
+
+  const cta = ctaButton(parentsUrl, uk ? "Відкрити кабінет батьків" : "Open parent portal");
   const html = uk
-    ? `<div style="font-family:sans-serif"><h2>Тиждень дитини</h2><p>Привіт, <b>${opts.parentName}</b>!</p><p>Огляд для <b>${opts.childName}</b> (рівень ${opts.globalLevel}):</p><ul><li>Уроків: <b>${opts.lessonsCompleted}</b></li><li>XP: <b>${opts.xpApprox}</b></li><li>Серія: <b>${opts.streakDays}</b></li><li>Programming: <b>${opts.programmingLessonsWeek}</b></li><li>Playground: <b>${opts.playgroundSolvedWeek}</b></li><li>Домашка: <b>${opts.homeworkCompletedWeek}</b></li></ul><p>Кабінет батьків: /parents</p></div>`
-    : `<div style="font-family:sans-serif"><h2>Child's week</h2><p>Hi <b>${opts.parentName}</b>!</p><p>Overview for <b>${opts.childName}</b> (level ${opts.globalLevel}):</p><ul><li>Lessons: <b>${opts.lessonsCompleted}</b></li><li>XP: <b>${opts.xpApprox}</b></li><li>Streak: <b>${opts.streakDays}</b></li><li>Programming: <b>${opts.programmingLessonsWeek}</b></li><li>Playground: <b>${opts.playgroundSolvedWeek}</b></li><li>Homework: <b>${opts.homeworkCompletedWeek}</b></li></ul><p>Parent portal: /parents</p></div>`;
+    ? `<div style="font-family:system-ui,sans-serif;max-width:520px"><h2 style="color:#1a1a1a">${inactive ? "Тихий тиждень" : "Тиждень дитини"}</h2><p>Привіт, <b>${opts.parentName}</b>!</p><p>Огляд для <b>${opts.childName}</b> (рівень ${opts.globalLevel}):</p><ul><li>Уроків: <b>${opts.lessonsCompleted}</b></li><li>XP: <b>${opts.xpApprox}</b></li><li>Серія: <b>${opts.streakDays}</b></li><li>Programming: <b>${opts.programmingLessonsWeek}</b></li><li>Playground: <b>${opts.playgroundSolvedWeek}</b></li><li>Домашка: <b>${opts.homeworkCompletedWeek}</b></li><li>Контрольні: <b>${exams}</b></li></ul><p>${actionUk}</p>${cta}<p style="color:#666;font-size:12px">EduForge</p></div>`
+    : `<div style="font-family:system-ui,sans-serif;max-width:520px"><h2 style="color:#1a1a1a">${inactive ? "Quiet week" : "Child's week"}</h2><p>Hi <b>${opts.parentName}</b>!</p><p>Overview for <b>${opts.childName}</b> (level ${opts.globalLevel}):</p><ul><li>Lessons: <b>${opts.lessonsCompleted}</b></li><li>XP: <b>${opts.xpApprox}</b></li><li>Streak: <b>${opts.streakDays}</b></li><li>Programming: <b>${opts.programmingLessonsWeek}</b></li><li>Playground: <b>${opts.playgroundSolvedWeek}</b></li><li>Homework: <b>${opts.homeworkCompletedWeek}</b></li><li>Exams: <b>${exams}</b></li></ul><p>${actionEn}</p>${cta}<p style="color:#666;font-size:12px">EduForge</p></div>`;
+
   return { to: opts.email, subject, text, html };
 }

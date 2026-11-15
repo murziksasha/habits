@@ -90,6 +90,38 @@ export const ENGLISH_PLACEMENT: PlacementQuestion[] = [
     correctIndex: 1,
     weight: 2,
   },
+  {
+    id: "p11",
+    promptUk: "Оберіть правильне: I ___ this film yesterday.",
+    promptEn: "Choose: I ___ this film yesterday.",
+    options: ["have seen", "saw", "had seeing", "seen"],
+    correctIndex: 1,
+    weight: 2,
+  },
+  {
+    id: "p12",
+    promptUk: "___ the rain, the match went ahead.",
+    promptEn: "___ the rain, the match went ahead.",
+    options: ["Although", "Despite", "However", "Because"],
+    correctIndex: 1,
+    weight: 2,
+  },
+  {
+    id: "p13",
+    promptUk: "The actual problem is the budget. «Actual» означає:",
+    promptEn: "The actual problem is the budget. «Actual» means:",
+    options: ["актуальний / topical", "справжній / real", "можливий / possible", "регулярний / regular"],
+    correctIndex: 1,
+    weight: 1.5,
+  },
+  {
+    id: "p14",
+    promptUk: "It's time we ___.",
+    promptEn: "It's time we ___.",
+    options: ["go", "went", "going", "gone"],
+    correctIndex: 1,
+    weight: 2,
+  },
 ];
 
 export type PlacementLevel = {

@@ -1,10 +1,11 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { logger } from "hono/logger";
 import { env } from "./env.js";
+import { log, latencyStats, newRequestId, recordLatency } from "./logger.js";
+import { checkReady } from "./ready.js";
 import { adminRoutes } from "./routes/admin.js";
 import { authRoutes } from "./routes/auth.js";
-import { billingRoutes } from "./routes/billing.js";
+
 import { bookmarkRoutes } from "./routes/bookmarks.js";
 import { certificateRoutes } from "./routes/certificates.js";
 import { challengeRoutes } from "./routes/challenges.js";
@@ -24,8 +25,11 @@ import { parentRoutes } from "./routes/parents.js";
 import { referralRoutes } from "./routes/referrals.js";
 import { reminderRoutes } from "./routes/reminders.js";
 import { reviewRoutes } from "./routes/review.js";
+import { deepLearningRoutes } from "./routes/deep-learning.js";
 import { searchRoutes } from "./routes/search.js";
 import { shopRoutes } from "./routes/shop.js";
+import { characterRoutes } from "./routes/character.js";
+import { giftRoutes } from "./routes/gifts.js";
 import { notesRoutes } from "./routes/notes.js";
 import { focusRoutes } from "./routes/focus.js";
 import { profileRoutes } from "./routes/profiles.js";
@@ -41,20 +45,93 @@ import { speechRoutes } from "./routes/speech.js";
 import { playgroundRoutes } from "./routes/playground.js";
 import { tournamentRoutes } from "./routes/tournaments.js";
 import { feedbackRoutes } from "./routes/feedback.js";
+import { publicBrandingRoutes } from "./routes/public-branding.js";
+import { meRoutes } from "./routes/me.js";
+import { judgeRoutes } from "./routes/judge.js";
+import { oauthRoutes } from "./routes/oauth.js";
+import { familyRoutes } from "./routes/family.js";
+import { csrfOriginMiddleware } from "./csrf.js";
+import { withSpan } from "./otel.js";
+import { clientIp, rateLimit } from "./rate-limit.js";
+import { isUniqueViolation } from "./http-errors.js";
 
 export function createApp() {
   const app = new Hono();
 
-  app.use("*", logger());
+  // Request id + structured access log + latency samples + OTel span
+  app.use("*", async (c, next) => {
+    const requestId =
+      c.req.header("x-request-id")?.trim() ||
+      c.req.header("x-correlation-id")?.trim() ||
+      newRequestId();
+    c.set("requestId" as never, requestId as never);
+    c.header("x-request-id", requestId);
+    const start = Date.now();
+    await withSpan(
+      "http.request",
+      { method: c.req.method, path: c.req.path, requestId },
+      async () => {
+        await next();
+      },
+    );
+    const ms = Date.now() - start;
+    recordLatency(ms, c.req.path);
+    log.info("request", {
+      requestId,
+      method: c.req.method,
+      path: c.req.path,
+      status: c.res.status,
+      ms,
+    });
+  });
+
   app.use(
     "*",
     cors({
       origin: env.webOrigin,
       credentials: true,
-      allowHeaders: ["Content-Type", "Authorization"],
+      allowHeaders: [
+        "Content-Type",
+        "Authorization",
+        "X-Request-Id",
+        "Idempotency-Key",
+        "X-Admin-StepUp",
+      ],
       allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      exposeHeaders: ["X-Request-Id"],
     }),
   );
+
+  // Strict Origin check for cookie-authenticated mutations
+  // (FEATURE_STRICT_CSRF or production default — see resolveFeatureFlags)
+  app.use("*", csrfOriginMiddleware);
+
+  // Global mutation rate limit (Redis when available; per-IP)
+  app.use("*", async (c, next) => {
+    if (!["POST", "PUT", "PATCH", "DELETE"].includes(c.req.method)) {
+      await next();
+      return;
+    }
+    const ip = clientIp(c.req.raw.headers);
+    const rl = await rateLimit({ key: `mut:${ip}`, limit: 120, windowMs: 60_000 });
+    if (!rl.ok) {
+      c.header("Retry-After", String(rl.retryAfterSec));
+      return c.json({ error: "rate_limited", retryAfter: rl.retryAfterSec }, 429);
+    }
+    await next();
+  });
+
+  // Baseline security headers on all API responses
+  app.use("*", async (c, next) => {
+    c.header("X-Content-Type-Options", "nosniff");
+    c.header("X-Frame-Options", "DENY");
+    c.header("Referrer-Policy", "strict-origin-when-cross-origin");
+    c.header("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+    if (process.env.NODE_ENV === "production") {
+      c.header("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    }
+    await next();
+  });
 
   app.get("/health", (c) =>
     c.json({
@@ -66,11 +143,26 @@ export function createApp() {
     }),
   );
 
+  app.get("/ready", async (c) => {
+    const status = await checkReady();
+    return c.json(status, status.ok ? 200 : 503);
+  });
+
+  // Test-only path to exercise onError sanitization (vitest or non-production)
+  if (process.env.NODE_ENV !== "production" || process.env.VITEST) {
+    app.get("/__test/throw", () => {
+      throw new Error("secret_internal_detail");
+    });
+  }
+
   app.route("/", openapiRoutes);
+  app.route("/public", publicBrandingRoutes);
   app.route("/auth", authRoutes);
+  app.route("/auth/oauth", oauthRoutes);
+  app.route("/family", familyRoutes);
   app.route("/courses", courseRoutes);
   app.route("/leaderboard", leaderboardRoutes);
-  app.route("/billing", billingRoutes);
+
   app.route("/chess", chessRoutes);
   app.route("/coach", coachRoutes);
   app.route("/tournaments", tournamentRoutes);
@@ -89,7 +181,10 @@ export function createApp() {
   app.route("/chat", chatRoutes);
   app.route("/referrals", referralRoutes);
   app.route("/shop", shopRoutes);
+  app.route("/character", characterRoutes);
+  app.route("/gifts", giftRoutes);
   app.route("/review", reviewRoutes);
+  app.route("/deep", deepLearningRoutes);
   app.route("/quests", questRoutes);
   app.route("/notes", notesRoutes);
   app.route("/focus", focusRoutes);
@@ -105,12 +200,32 @@ export function createApp() {
   app.route("/playground", playgroundRoutes);
   app.route("/metrics", metricsRoutes);
   app.route("/admin", adminRoutes);
+  app.route("/me", meRoutes);
+  app.route("/judge", judgeRoutes);
 
   app.notFound((c) => c.json({ error: "not_found" }, 404));
   app.onError((err, c) => {
-    console.error(err);
-    return c.json({ error: "internal", message: err.message }, 500);
+    const requestId = (c.get("requestId" as never) as string | undefined) ?? undefined;
+    log.error("unhandled", {
+      requestId,
+      err: err instanceof Error ? err.message : String(err),
+      stack: err instanceof Error ? err.stack : undefined,
+    });
+    if (isUniqueViolation(err)) {
+      return c.json({ error: "conflict", requestId }, 409);
+    }
+    const isProd = process.env.NODE_ENV === "production";
+    return c.json(
+      {
+        error: "internal",
+        requestId,
+        ...(isProd ? {} : { message: err instanceof Error ? err.message : "error" }),
+      },
+      500,
+    );
   });
 
   return app;
 }
+
+export { latencyStats };

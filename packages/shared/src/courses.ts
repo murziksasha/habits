@@ -16,12 +16,48 @@ export const COURSE_SLUGS = [
   "sql_fundamentals",
   "node_fundamentals",
   "express_fundamentals",
+  "embedded_cpp",
+  "sysadmin",
+  "devops",
+  "software_testing",
+  "postgresql_apps",
+  "git_workflows",
+  "web_security",
+  "ai_development",
+  "python_for_ai",
+  "agentic_systems",
+  "llmops",
+  "ai_security",
+  "ai_product",
+  "nextjs_fullstack",
+  "applied_algorithms",
+  "go_fundamentals",
+  "web_accessibility",
+  "rest_api_design",
+  "frontend_performance",
+  "browser_web_apis",
 ] as const;
 
 export type CourseSlug = (typeof COURSE_SLUGS)[number];
 
+/** App-level registry guard (DB stores free-form varchar). */
+export function isCourseSlug(value: string): value is CourseSlug {
+  return (COURSE_SLUGS as readonly string[]).includes(value);
+}
+
+export function parseCourseSlug(value: string): CourseSlug | null {
+  return isCourseSlug(value) ? value : null;
+}
+
 /** Catalog grouping for discoverability */
 export type CourseGroup = "skill" | "code" | "deep" | "chess";
+
+export function resolveCourseGroup(slug: string): CourseGroup {
+  if ((COURSE_SLUGS as readonly string[]).includes(slug)) {
+    return COURSE_GROUP[slug as CourseSlug];
+  }
+  return "skill";
+}
 
 export const COURSE_GROUP: Record<CourseSlug, CourseGroup> = {
   english: "skill",
@@ -39,6 +75,26 @@ export const COURSE_GROUP: Record<CourseSlug, CourseGroup> = {
   sql_fundamentals: "deep",
   node_fundamentals: "deep",
   express_fundamentals: "deep",
+  embedded_cpp: "deep",
+  sysadmin: "skill",
+  devops: "skill",
+  software_testing: "deep",
+  postgresql_apps: "deep",
+  git_workflows: "deep",
+  web_security: "deep",
+  ai_development: "deep",
+  python_for_ai: "deep",
+  agentic_systems: "deep",
+  llmops: "deep",
+  ai_security: "deep",
+  ai_product: "deep",
+  nextjs_fullstack: "deep",
+  applied_algorithms: "deep",
+  go_fundamentals: "deep",
+  web_accessibility: "deep",
+  rest_api_design: "deep",
+  frontend_performance: "deep",
+  browser_web_apis: "deep",
 };
 
 export const COURSE_GROUP_META: Record<
@@ -53,6 +109,241 @@ export const COURSE_GROUP_META: Record<
 
 export function coursesByGroup(group: CourseGroup): CourseSlug[] {
   return COURSE_SLUGS.filter((s) => COURSE_GROUP[s] === group);
+}
+
+export type CoursePart = {
+  id: string;
+  titleUk: string;
+  titleEn: string;
+  unitSlugs: readonly string[];
+};
+
+/** Presentation groups on an existing course page; these do not create courses or locks. */
+export const COURSE_PARTS: Partial<Record<CourseSlug, readonly CoursePart[]>> = {
+  devops: [
+    {
+      id: "foundations",
+      titleUk: "Основи",
+      titleEn: "Foundations",
+      unitSlugs: ["git-workstation", "linux-base", "bash", "networks", "python-ops"],
+    },
+    {
+      id: "ship-an-image",
+      titleUk: "Випустити образ",
+      titleEn: "Ship an image",
+      unitSlugs: ["containers", "aws-survival", "iac", "ci"],
+    },
+    {
+      id: "run-it",
+      titleUk: "Запустити сервіс",
+      titleEn: "Run it",
+      unitSlugs: ["kubernetes", "observability", "devsecops-gitops"],
+    },
+    {
+      id: "stay-up",
+      titleUk: "Тримати сервіс",
+      titleEn: "Stay up",
+      unitSlugs: ["k8s-workloads", "traffic-identity", "gitops-delivery"],
+    },
+    {
+      id: "platform-discipline",
+      titleUk: "Дисципліна платформи",
+      titleEn: "Platform discipline",
+      unitSlugs: ["finops_cost", "supply_chain_builds", "policy_as_code"],
+    },
+    {
+      id: "on-call",
+      titleUk: "На зміні",
+      titleEn: "On call",
+      unitSlugs: ["data-plane", "alerts-runbooks", "incident-drills", "sre-capstone"],
+    },
+  ],
+  english: [
+    {
+      id: "en-part-foundations",
+      titleUk: "Основи",
+      titleEn: "Foundations",
+      unitSlugs: ["basics-1", "basics-2", "travel", "work-life"],
+    },
+    {
+      id: "en-part-communication",
+      titleUk: "Спілкування",
+      titleEn: "Communication",
+      unitSlugs: [
+        "conversation",
+        "meetings-phone",
+        "dialogues-daily",
+        "work-collaboration",
+        "engineering-collaboration-en",
+        "learning-skills",
+      ],
+    },
+    {
+      id: "en-part-grammar-toolkit",
+      titleUk: "Граматика і технічна англійська",
+      titleEn: "Grammar and technical English",
+      unitSlugs: [
+        "articles-determiners",
+        "conditionals",
+        "phrasal-work",
+        "reported-speech",
+        "prepositions-place-time",
+        "relative-clauses",
+        "modal-verbs",
+        "tech-english",
+      ],
+    },
+    {
+      id: "en-part-tenses",
+      titleUk: "Часи і аспект",
+      titleEn: "Tense and aspect",
+      unitSlugs: [
+        "en-deep-perfect",
+        "en-deep-perfect-plus",
+        "en-deep-past-story",
+        "en-deep-future",
+      ],
+    },
+    {
+      id: "en-part-core-grammar",
+      titleUk: "Стан, моделі і порівняння",
+      titleEn: "Voice, patterns, and comparison",
+      unitSlugs: [
+        "en-deep-passive",
+        "en-deep-gerunds",
+        "en-deep-comparison",
+        "en-deep-modals-plus",
+      ],
+    },
+    {
+      id: "en-part-sentences",
+      titleUk: "Будова речення",
+      titleEn: "Sentence craft",
+      unitSlugs: [
+        "en-deep-wish",
+        "en-deep-questions-plus",
+        "en-deep-linking",
+        "en-deep-c1-style",
+      ],
+    },
+    {
+      id: "en-part-pronunciation",
+      titleUk: "Вимова",
+      titleEn: "Pronunciation",
+      unitSlugs: ["en-deep-ipa-vowels", "en-deep-consonants", "en-deep-stress-intonation"],
+    },
+    {
+      id: "en-part-vocabulary",
+      titleUk: "Словник",
+      titleEn: "Vocabulary",
+      unitSlugs: [
+        "en-deep-collocations",
+        "en-deep-word-formation",
+        "en-deep-phrasals",
+        "en-deep-idioms",
+        "en-deep-themes-a",
+        "en-deep-themes-b",
+      ],
+    },
+    {
+      id: "en-part-skills",
+      titleUk: "Навички, робота й іспити",
+      titleEn: "Skills, work, and exams",
+      unitSlugs: [
+        "en-deep-reading",
+        "en-deep-writing-email",
+        "en-deep-writing-essay",
+        "en-deep-speaking",
+        "en-deep-business-it",
+        "en-deep-exam-prep",
+      ],
+    },
+  ],
+  chess: [
+    {
+      id: "ch-part-early",
+      titleUk: "Правила і рання тактика",
+      titleEn: "Rules and early tactics",
+      unitSlugs: [
+        "rules",
+        "tactics",
+        "endgames-intro",
+        "tactics-boost",
+        "tactics-practice-2",
+        "mixed-tactics-endgames",
+        "endgame-accuracy-review",
+      ],
+    },
+    {
+      id: "ch-part-structures",
+      titleUk: "Перші ендшпілі та структури",
+      titleEn: "First endgames and structures",
+      unitSlugs: [
+        "opening-principles-plus",
+        "pawn-structures",
+        "middlegame-plans",
+        "rook-endgames-plus",
+        "calculation-hygiene",
+        "practical-study",
+      ],
+    },
+    {
+      id: "ch-part-foundations",
+      titleUk: "Нотація і розрахунок",
+      titleEn: "Rules and calculation tools",
+      unitSlugs: ["ch-deep-notation", "ch-deep-calc-viz"],
+    },
+    {
+      id: "ch-part-tactics",
+      titleUk: "Тактика і мати",
+      titleEn: "Tactics and mate patterns",
+      unitSlugs: [
+        "ch-deep-tactics-hidden",
+        "ch-deep-tactics-remove",
+        "ch-deep-mates-classic",
+        "ch-deep-mates-attack",
+        "ch-deep-tactics-mix",
+      ],
+    },
+    {
+      id: "ch-part-openings",
+      titleUk: "Дебюти як ідеї",
+      titleEn: "Openings as ideas",
+      unitSlugs: [
+        "ch-deep-italian-ruy",
+        "ch-deep-qg-london",
+        "ch-deep-sicilian-french",
+        "ch-deep-caro-kid",
+      ],
+    },
+    {
+      id: "ch-part-middlegame",
+      titleUk: "Стратегія мітельшпілю",
+      titleEn: "Middlegame strategy",
+      unitSlugs: [
+        "ch-deep-planning",
+        "ch-deep-minor-pieces",
+        "ch-deep-attack-king",
+        "ch-deep-pawn-play",
+      ],
+    },
+    {
+      id: "ch-part-endgames",
+      titleUk: "Ендшпілі",
+      titleEn: "Endgames",
+      unitSlugs: ["ch-deep-kp-theory", "ch-deep-rook-theory", "ch-deep-minor-end"],
+    },
+    {
+      id: "ch-part-practice",
+      titleUk: "Партії, практика, мислення",
+      titleEn: "Games, practice, mind",
+      unitSlugs: ["ch-deep-famous-1", "ch-deep-famous-2", "ch-deep-tournament"],
+    },
+  ],
+};
+
+export function getCourseParts(slug: string): readonly CoursePart[] {
+  return isCourseSlug(slug) ? COURSE_PARTS[slug] ?? [] : [];
 }
 
 export const COURSE_META: Record<
@@ -74,7 +365,7 @@ export const COURSE_META: Record<
     titleEn: "English",
     descriptionUk: "Вивчай англійську як у Duolingo — уроки, серії, досвід.",
     descriptionEn: "Learn English like Duolingo — lessons, streaks, XP.",
-    icon: "🇬🇧",
+    icon: "📗",
     color: "#58CC02",
     group: "skill",
   },
@@ -116,6 +407,30 @@ export const COURSE_META: Record<
     descriptionEn: "Sequences, patterns, and critical thinking.",
     icon: "🧩",
     color: "#FF9600",
+    group: "skill",
+  },
+  sysadmin: {
+    slug: "sysadmin",
+    titleUk: "Сисадмін",
+    titleEn: "Sysadmin",
+    descriptionUk:
+      "SOHO і Linux-консоль: мережа офісу, бекапи, git для конфігів, systemd, VPN, RAID і відновлення.",
+    descriptionEn:
+      "SOHO and the Linux console: office network, backups, git for configs, systemd, VPN, RAID, and recovery.",
+    icon: "🖥️",
+    color: "#0F766E",
+    group: "skill",
+  },
+  devops: {
+    slug: "devops",
+    titleUk: "DevOps",
+    titleEn: "DevOps",
+    descriptionUk:
+      "Один сервіс forge-status: від Git і Linux до образу, Kubernetes і GitOps. Далі — надійні workloads, TLS, доставка digest, відновлення бази й чергування. CI завершується push образу; AWS — до Terraform.",
+    descriptionEn:
+      "One service, forge-status: from Git and Linux to an image, Kubernetes, and GitOps. Then resilient workloads, TLS, digest promotion, database recovery, and on-call drills. CI ends at the image push; AWS comes before Terraform.",
+    icon: "🚀",
+    color: "#7C3AED",
     group: "skill",
   },
   programming: {
@@ -190,10 +505,12 @@ export const COURSE_META: Record<
   },
   sql_fundamentals: {
     slug: "sql_fundamentals",
-    titleUk: "SQL",
-    titleEn: "SQL",
-    descriptionUk: "SELECT, JOINs, aggregates, DML, keys — deep track.",
-    descriptionEn: "SELECT, JOINs, aggregates, DML, keys — deep track.",
+    titleUk: "SQL і Oracle Database",
+    titleEn: "SQL & Oracle Database",
+    descriptionUk:
+      "SQL, PL/SQL і адміністрування Oracle: від перших запитів до JSON, векторів і сценаріїв супроводу.",
+    descriptionEn:
+      "Oracle SQL, PL/SQL, and administration: from first queries to JSON, vectors, and operations scenarios.",
     icon: "🗄️",
     color: "#336791",
     group: "deep",
@@ -218,10 +535,226 @@ export const COURSE_META: Record<
     color: "#000000",
     group: "deep",
   },
+  embedded_cpp: {
+    slug: "embedded_cpp",
+    titleUk: "Embedded C++ · MilTech",
+    titleEn: "Embedded C++ · MilTech",
+    descriptionUk:
+      "C++ для обмежених ресурсів: пам'ять, CMake, мережа, FreeRTOS, MAVLink, safety, mission — deep track + labs.",
+    descriptionEn:
+      "C++ for constrained systems: memory, CMake, networking, FreeRTOS, MAVLink, safety, mission — deep track + labs.",
+    icon: "🪖",
+    color: "#4B5320",
+    group: "deep",
+  },
+  software_testing: {
+    slug: "software_testing",
+    titleUk: "Практичне тестування ПЗ",
+    titleEn: "Practical Software Testing",
+    descriptionUk:
+      "Вимоги, Vitest, межові кейси й фікстури, тести React-компонентів, API/DB інтеграція, Playwright і CI.",
+    descriptionEn:
+      "Testable requirements, Vitest unit tests, boundary cases & fixtures, React component tests, API/DB integration, Playwright & CI.",
+    icon: "🧪",
+    color: "#0F766E",
+    group: "deep",
+  },
+  postgresql_apps: {
+    slug: "postgresql_apps",
+    titleUk: "PostgreSQL для вебдодатків",
+    titleEn: "PostgreSQL for Web Applications",
+    descriptionUk:
+      "Реляційне моделювання, обмеження й міграції, параметризований CRUD, JOIN, пагінація, транзакції та індекси.",
+    descriptionEn:
+      "Relational modeling, constraints & migrations, parameterized CRUD, joins & pagination, transactions, and indexes/EXPLAIN.",
+    icon: "🐘",
+    color: "#336791",
+    group: "deep",
+  },
+  git_workflows: {
+    slug: "git_workflows",
+    titleUk: "Git та командні воркфлоу",
+    titleEn: "Git and Team Workflows",
+    descriptionUk:
+      "Історія репозиторію, гілки й атомарні коміти, розв'язання конфліктів, код-рев'ю та релізні процеси.",
+    descriptionEn:
+      "Repository history, branches & clean commits, conflict resolution, code reviews, recovery, and release workflows.",
+    icon: "🌿",
+    color: "#F05032",
+    group: "deep",
+  },
+  web_security: {
+    slug: "web_security",
+    titleUk: "Безпечні вебдодатки",
+    titleEn: "Secure Web Applications",
+    descriptionUk:
+      "Межі довіри, валідація й екранування, сесії, авторизація й ownership, CSP/CORS/CSRF, секрети й залежності (OWASP 2025).",
+    descriptionEn:
+      "Trust boundaries, input validation & output handling, sessions, authorization, browser security, and dependency/config hygiene (OWASP 2025).",
+    icon: "🛡️",
+    color: "#DC2626",
+    group: "deep",
+  },
+  ai_development: {
+    slug: "ai_development",
+    titleUk: "AI-асистована розробка",
+    titleEn: "AI-Assisted Development",
+    descriptionUk:
+      "Специфікація задач, вибір контексту, малі дифи, верифікація й рев'ю коду, приватність, аудит залежностей і контроль AI-кодера.",
+    descriptionEn:
+      "Task specification, context selection, small diffs, verification & debugging, privacy, dependency review, and controlling AI coders.",
+    icon: "🤖",
+    color: "#6366F1",
+    group: "deep",
+  },
+  python_for_ai: {
+    slug: "python_for_ai",
+    titleUk: "Python для AI",
+    titleEn: "Python for AI",
+    descriptionUk:
+      "Читання та ремонт агентного Python: значення, колекції, типізовані функції, JSON/HTTP, async/await і рев'ю сніпетів.",
+    descriptionEn:
+      "Read and repair agent-style Python: values, collections, typed functions, JSON/HTTP shapes, async/await, and AI snippet review.",
+    icon: "🐍",
+    color: "#3776AB",
+    group: "deep",
+  },
+  agentic_systems: {
+    slug: "agentic_systems",
+    titleUk: "Агентні системи та RAG",
+    titleEn: "Agentic Systems & RAG",
+    descriptionUk:
+      "Скрипт vs модель vs агент, контракти інструментів, планування, мультиагентні патерни, гібридний RAG і векторні сховища.",
+    descriptionEn:
+      "Script vs model vs agent, tool schemas, planning & reflection, multi-agent patterns, hybrid RAG, and vector store tradeoffs.",
+    icon: "🕸️",
+    color: "#8B5CF6",
+    group: "deep",
+  },
+  llmops: {
+    slug: "llmops",
+    titleUk: "LLMOps: трейси, evals і бюджет",
+    titleEn: "LLMOps: Traces, Evals & Budget",
+    descriptionUk:
+      "Трейсинг і токени, фікстурні evals у CI, HTTP vs GraphQL/gRPC/події, черги, хмарні консолі та контроль бюджету.",
+    descriptionEn:
+      "Tracing and token cost, fixture evals in CI, HTTP vs GraphQL/gRPC/events, durable queues, cloud model IDs, and budget limits.",
+    icon: "📈",
+    color: "#0284C7",
+    group: "deep",
+  },
+  ai_security: {
+    slug: "ai_security",
+    titleUk: "Безпека AI-агентів",
+    titleEn: "AI Security",
+    descriptionUk:
+      "Межі довіри для інструментів, захист від непрямих інструкцій, allowlist і HITL, output-політики, секрети та локальні моделі.",
+    descriptionEn:
+      "Tool trust boundaries, separating untrusted data from instructions, allowlists & HITL, output guardrails, secret hygiene, and local models.",
+    icon: "🛡️",
+    color: "#B91C1C",
+    group: "deep",
+  },
+  ai_product: {
+    slug: "ai_product",
+    titleUk: "AI-продукт і Human-in-the-Loop",
+    titleEn: "AI Product & Human-in-the-Loop",
+    descriptionUk:
+      "Маршрутизація між сильною, локальною моделлю й Python, продуктові межі, approve/edit/undo, відмови та рев'ю підтримки.",
+    descriptionEn:
+      "Routing between frontier, local, and plain Python, product boundaries, approve/edit/undo controls, failure modes, and support-agent review.",
+    icon: "🧭",
+    color: "#0D9488",
+    group: "deep",
+  },
+  nextjs_fullstack: {
+    slug: "nextjs_fullstack",
+    titleUk: "Full-Stack на Next.js",
+    titleEn: "Full-Stack Applications with Next.js",
+    descriptionUk:
+      "Маршрутизація App Router, межі Server/Client, доступ до даних, мутації, авторизація, кешування й діагностика.",
+    descriptionEn:
+      "App Router routing, server/client boundaries, data access, mutations, identity & authz, caching/errors, and deployment diagnostics.",
+    icon: "▲",
+    color: "#111827",
+    group: "deep",
+  },
+  applied_algorithms: {
+    slug: "applied_algorithms",
+    titleUk: "Прикладні алгоритми та структури даних",
+    titleEn: "Applied Algorithms & Data Structures",
+    descriptionUk:
+      "Складність, Map/Set/індекси, стеки й черги, пошук і сортування, дерева й обходи та вимірювані компроміси.",
+    descriptionEn:
+      "Complexity analysis, collections, stacks & queues, searching & sorting, trees & traversal, and measurable application tradeoffs.",
+    icon: "📐",
+    color: "#D97706",
+    group: "deep",
+  },
+  go_fundamentals: {
+    slug: "go_fundamentals",
+    titleUk: "Go: основи",
+    titleEn: "Go Fundamentals",
+    descriptionUk:
+      "Пакети, типи, зрізи, інтерфейси, горутини та тестування — глибокий старт у Go.",
+    descriptionEn:
+      "Packages, types, slices, interfaces, goroutines and testing — a solid start in Go.",
+    icon: "🐹",
+    color: "#00ADD8",
+    group: "deep",
+  },
+  web_accessibility: {
+    slug: "web_accessibility",
+    titleUk: "Веб-доступність (WCAG)",
+    titleEn: "Web Accessibility (WCAG)",
+    descriptionUk:
+      "Принципи POUR, клавіатура, ARIA, контраст і перевірка доступності за WCAG 2.2.",
+    descriptionEn:
+      "POUR principles, keyboard, ARIA, contrast and accessibility testing against WCAG 2.2.",
+    icon: "♿",
+    color: "#0F766E",
+    group: "deep",
+  },
+  rest_api_design: {
+    slug: "rest_api_design",
+    titleUk: "Дизайн REST API",
+    titleEn: "REST API Design",
+    descriptionUk:
+      "Ресурси, методи HTTP, статус-коди, ідемпотентність, версіонування та помилки API.",
+    descriptionEn:
+      "Resources, HTTP methods, status codes, idempotency, versioning and API errors.",
+    icon: "🔗",
+    color: "#EA580C",
+    group: "deep",
+  },
+  frontend_performance: {
+    slug: "frontend_performance",
+    titleUk: "Продуктивність фронтенду",
+    titleEn: "Frontend Performance",
+    descriptionUk:
+      "Критичний шлях, рендер, бандлі, зображення, кеш і Core Web Vitals (LCP, INP, CLS).",
+    descriptionEn:
+      "Critical path, rendering, bundles, images, caching and Core Web Vitals (LCP, INP, CLS).",
+    icon: "⚡",
+    color: "#CA8A04",
+    group: "deep",
+  },
+  browser_web_apis: {
+    slug: "browser_web_apis",
+    titleUk: "Веб-API браузера",
+    titleEn: "Browser Web APIs",
+    descriptionUk:
+      "DOM і події, fetch і стріми, сховища, спостерігачі, воркери, історія, буфер і дозволи.",
+    descriptionEn:
+      "The DOM and events, fetch and streams, storage, observers, workers, history, clipboard and permissions.",
+    icon: "🌐",
+    color: "#2563EB",
+    group: "deep",
+  },
 };
 
 /** Hub path for deep tracks / code (fallback /courses/:slug) */
-export const COURSE_HUB_HREF: Partial<Record<CourseSlug, string>> = {
+export const COURSE_HUB_HREF: Partial<Record<CourseSlug | string, string>> = {
   programming: "/programming",
   typescript: "/typescript",
   html_semantics: "/html-semantics",
@@ -232,8 +765,127 @@ export const COURSE_HUB_HREF: Partial<Record<CourseSlug, string>> = {
   sql_fundamentals: "/sql-fundamentals",
   node_fundamentals: "/node-fundamentals",
   express_fundamentals: "/express-fundamentals",
+  embedded_cpp: "/embedded-cpp",
+  software_testing: "/software-testing",
+  postgresql_apps: "/postgresql-apps",
+  git_workflows: "/git-workflows",
+  web_security: "/web-security",
+  ai_development: "/ai-development",
+  python_for_ai: "/python-for-ai",
+  agentic_systems: "/agentic-systems",
+  llmops: "/llmops",
+  ai_security: "/ai-security",
+  ai_product: "/ai-product",
+  nextjs_fullstack: "/nextjs-fullstack",
+  applied_algorithms: "/applied-algorithms",
+  go_fundamentals: "/go-fundamentals",
+  web_accessibility: "/web-accessibility",
+  rest_api_design: "/rest-api-design",
+  frontend_performance: "/frontend-performance",
+  browser_web_apis: "/browser-web-apis",
   chess: "/play",
 };
+
+/** Canonical full-stack progression across EduForge courses. */
+export const FULL_STACK_ROADMAP_ORDER: readonly CourseSlug[] = [
+  "programming",
+  "html_semantics",
+  "css_layout",
+  "web_accessibility",
+  "git_workflows",
+  "js_fundamentals",
+  "browser_web_apis",
+  "typescript",
+  "react_fundamentals",
+  "frontend_performance",
+  "node_fundamentals",
+  "express_fundamentals",
+  "rest_api_design",
+  "postgresql_apps",
+  "software_testing",
+  "web_security",
+  "ai_development",
+  "python_for_ai",
+  "agentic_systems",
+  "llmops",
+  "ai_security",
+  "ai_product",
+  "nextjs_fullstack",
+  "applied_algorithms",
+  "go_fundamentals",
+  "sysadmin",
+  "devops",
+] as const;
+
+export const COURSE_PREREQUISITES: Partial<Record<CourseSlug, readonly CourseSlug[]>> = {
+  html_semantics: ["programming"],
+  css_layout: ["programming", "html_semantics"],
+  git_workflows: ["programming"],
+  js_fundamentals: ["programming", "html_semantics", "css_layout"],
+  typescript: ["js_fundamentals"],
+  react_fundamentals: ["js_fundamentals", "typescript"],
+  node_fundamentals: ["js_fundamentals"],
+  express_fundamentals: ["node_fundamentals"],
+  sql_fundamentals: ["programming"],
+  postgresql_apps: ["express_fundamentals", "sql_fundamentals"],
+  qa_theory: ["programming"],
+  software_testing: ["js_fundamentals", "react_fundamentals", "express_fundamentals"],
+  web_security: ["express_fundamentals", "postgresql_apps"],
+  ai_development: ["typescript", "git_workflows", "software_testing"],
+  python_for_ai: ["programming"],
+  agentic_systems: ["python_for_ai", "ai_development"],
+  llmops: ["agentic_systems", "node_fundamentals"],
+  ai_security: ["agentic_systems", "web_security"],
+  ai_product: ["agentic_systems", "ai_security"],
+  nextjs_fullstack: ["react_fundamentals", "express_fundamentals", "postgresql_apps"],
+  applied_algorithms: ["js_fundamentals", "typescript"],
+  devops: ["sysadmin", "express_fundamentals", "postgresql_apps", "software_testing"],
+  go_fundamentals: ["programming"],
+  web_accessibility: ["html_semantics", "css_layout"],
+  rest_api_design: ["express_fundamentals"],
+  frontend_performance: ["js_fundamentals", "react_fundamentals"],
+  browser_web_apis: ["js_fundamentals"],
+};
+
+export const COURSE_NEXT_MAP: Partial<Record<CourseSlug, readonly CourseSlug[]>> = {
+  programming: ["html_semantics", "css_layout", "git_workflows", "js_fundamentals", "go_fundamentals"],
+  html_semantics: ["css_layout", "js_fundamentals", "web_accessibility"],
+  css_layout: ["js_fundamentals", "react_fundamentals", "web_accessibility"],
+  git_workflows: ["js_fundamentals", "ai_development"],
+  js_fundamentals: ["typescript", "react_fundamentals", "node_fundamentals", "browser_web_apis"],
+  typescript: ["react_fundamentals", "express_fundamentals", "applied_algorithms"],
+  react_fundamentals: ["software_testing", "nextjs_fullstack", "frontend_performance"],
+  node_fundamentals: ["express_fundamentals", "sysadmin"],
+  express_fundamentals: ["postgresql_apps", "software_testing", "web_security", "rest_api_design"],
+  sql_fundamentals: ["postgresql_apps"],
+  postgresql_apps: ["software_testing", "web_security", "nextjs_fullstack"],
+  qa_theory: ["software_testing"],
+  software_testing: ["web_security", "ai_development", "devops"],
+  web_security: ["ai_development", "nextjs_fullstack", "devops"],
+  ai_development: ["python_for_ai", "nextjs_fullstack", "applied_algorithms"],
+  python_for_ai: ["agentic_systems", "typescript"],
+  agentic_systems: ["llmops", "ai_security"],
+  llmops: ["ai_security", "devops"],
+  ai_security: ["ai_product"],
+  ai_product: ["devops"],
+  nextjs_fullstack: ["applied_algorithms", "devops"],
+  applied_algorithms: ["devops"],
+  sysadmin: ["devops"],
+  devops: ["applied_algorithms"],
+  go_fundamentals: ["devops"],
+  web_accessibility: ["react_fundamentals", "web_security"],
+  rest_api_design: ["web_security", "nextjs_fullstack"],
+  frontend_performance: ["nextjs_fullstack"],
+  browser_web_apis: ["frontend_performance", "web_security"],
+};
+
+export function getCoursePrerequisites(slug: string): readonly CourseSlug[] {
+  return isCourseSlug(slug) ? COURSE_PREREQUISITES[slug] ?? [] : [];
+}
+
+export function getCourseNextSteps(slug: string): readonly CourseSlug[] {
+  return isCourseSlug(slug) ? COURSE_NEXT_MAP[slug] ?? [] : [];
+}
 
 /** Ordered learning path for the programming course units */
 export const PROGRAMMING_UNIT_ORDER = [
@@ -272,6 +924,14 @@ export type ProgrammingMiniSlug = (typeof PROGRAMMING_MINI_LESSON_SLUGS)[number]
 
 export function isProgrammingMiniSlug(s: string): boolean {
   return (PROGRAMMING_MINI_LESSON_SLUGS as readonly string[]).includes(s);
+}
+
+/** Flat registry rows for admin / hub tooling */
+export function listCourseRegistry() {
+  return COURSE_SLUGS.map((slug) => ({
+    ...COURSE_META[slug],
+    hubHref: COURSE_HUB_HREF[slug] ?? `/courses/${slug}`,
+  }));
 }
 
 /**
@@ -389,7 +1049,9 @@ export const DEFAULT_DAILY_GOAL_XP = 50;
 
 export const CHESS_TIME_CONTROLS = [
   { id: "3+0", initialMs: 180_000, incrementMs: 0, label: "3 хв" },
+  { id: "3+2", initialMs: 180_000, incrementMs: 2_000, label: "3+2" },
   { id: "5+0", initialMs: 300_000, incrementMs: 0, label: "5 хв" },
+  { id: "5+3", initialMs: 300_000, incrementMs: 3_000, label: "5+3" },
   { id: "10+0", initialMs: 600_000, incrementMs: 0, label: "10 хв" },
 ] as const;
 
@@ -409,4 +1071,18 @@ export type ExerciseType =
   | "code_output"
   | "code_fill"
   | "code_order"
-  | "code_project";
+  | "code_project"
+  | "code_run"
+  | "video"
+  | "code_judge"
+  | "concept"
+  | "explain";
+
+/** Newly added deep tracks surfaced on the catalog and learn map (not a 7th primary-nav slot). */
+export const FEATURED_COURSE_SLUGS: readonly CourseSlug[] = [
+  "go_fundamentals",
+  "web_accessibility",
+  "rest_api_design",
+  "frontend_performance",
+  "browser_web_apis",
+];

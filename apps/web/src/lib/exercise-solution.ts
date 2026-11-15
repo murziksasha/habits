@@ -77,6 +77,15 @@ export function formatExerciseSolution(
     }
   }
 
+  if (exercise.type === "code_run") {
+    const tests = (exercise.tests as { stdout?: string }[]) ?? [];
+    const outs = tests.map((t) => t.stdout).filter(Boolean);
+    if (outs.length) {
+      const body = outs.map((o, i) => `test${i + 1}: ${o}`).join("\n");
+      return explanation ? `${body}\n\n${explanation}` : body;
+    }
+  }
+
   if (explanation && String(explanation).trim()) return String(explanation).trim();
   return null;
 }
@@ -100,6 +109,13 @@ export function getApplyableAnswer(exercise: SolutionExercise): unknown | null {
   if (exercise.type === "code_order" || exercise.type === "order_words") {
     const c = exercise.correct ?? exercise.lines;
     return c?.length ? [...c] : null;
+  }
+  if (exercise.type === "code_run") {
+    const sol =
+      exercise.solutionEn ||
+      exercise.solutionUk ||
+      (exercise as { starter?: string }).starter;
+    return sol ? { source: String(sol) } : null;
   }
   return null;
 }

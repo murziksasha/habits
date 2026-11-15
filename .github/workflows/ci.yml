@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, dev, deepImprovements]
   pull_request:
-    branches: [main, master]
+    branches: [main, master, dev, deepImprovements]
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -17,44 +17,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with:
-          version: 11.14.0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
-      - run: pnpm install --no-frozen-lockfile
+      - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @eduforge/shared build
       - run: pnpm --filter @eduforge/content build
       - run: pnpm --filter @eduforge/chess-core build
+      - run: pnpm --filter @eduforge/judge build
       - run: pnpm --filter @eduforge/db build
       - name: Unit tests
         run: pnpm test:unit
       - name: Typecheck
         run: pnpm typecheck
-
-  # Playwright smoke — skipped by default (needs full stack). Enable with:
-  #   workflow_dispatch or set repo var RUN_E2E=true
-  e2e:
-    name: E2E smoke (optional)
-    if: ${{ github.event_name == 'workflow_dispatch' || vars.RUN_E2E == 'true' }}
-    runs-on: ubuntu-latest
-    needs: unit
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 11.14.0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install --no-frozen-lockfile
-      - run: pnpm --filter @eduforge/web exec playwright install --with-deps chromium
-      - name: E2E (expects stack at localhost — use SKIP_E2E if not)
-        env:
-          SKIP_E2E: ${{ vars.SKIP_E2E || '1' }}
-        run: pnpm test:e2e
+      - name: Lint
+        run: pnpm lint
+      - name: Production dependency audit
+        run: pnpm audit --prod --audit-level=high
         continue-on-error: true
 
   integration:
@@ -74,25 +54,85 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
     env:
-      DATABASE_URL: postgresql://eduforge:eduforge@localhost:5432/eduforge
+      DATABASE_URL: postgresql://eduforge:eduforge@127.0.0.1:5432/eduforge
+      REDIS_URL: redis://127.0.0.1:6379
       NODE_ENV: development
       AUTH_SECRET: ci-test-secret
-      WEB_ORIGIN: http://localhost:3000
+      WEB_ORIGIN: http://127.0.0.1:3000
+      COOKIE_SECURE: "0"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with:
-          version: 11.14.0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
-      - run: pnpm install --no-frozen-lockfile
+      - run: pnpm install --frozen-lockfile
+      # API imports @eduforge/judge — must build before integration tests
       - run: pnpm --filter @eduforge/shared build
       - run: pnpm --filter @eduforge/content build
       - run: pnpm --filter @eduforge/chess-core build
+      - run: pnpm --filter @eduforge/judge build
       - run: pnpm --filter @eduforge/db build
+      - run: pnpm --filter @eduforge/api build
       - run: pnpm db:migrate
       - run: pnpm db:seed
       - run: pnpm --filter @eduforge/api test:integration
+
+  content-gate:
+    name: Content integrity gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @eduforge/shared build
+      - run: pnpm --filter @eduforge/content build
+      - name: Content + MDX tests
+        run: pnpm --filter @eduforge/content test
+
+  labs-verify:
+    name: ForgeBoard labs (starter/solution/broken)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: eduforge
+          POSTGRES_PASSWORD: eduforge
+          POSTGRES_DB: eduforge
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U eduforge"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      LABS_DATABASE_URL: postgresql://eduforge:eduforge@127.0.0.1:5432/eduforge
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @eduforge/shared build
+      - run: pnpm --filter @eduforge/content build
+      - run: pnpm --filter @eduforge/db test
+      - run: node scripts/verify-labs.mjs

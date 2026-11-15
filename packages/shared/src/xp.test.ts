@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { applyElo, DEFAULT_ELO, expectedScore } from "./chess-rating.js";
-import { regenerateHearts } from "./entitlements.js";
+import { applyElo, clampElo, DEFAULT_ELO, ELO_FLOOR, expectedScore } from "./chess-rating.js";
+import { maxHearts, regenerateHearts } from "./entitlements.js";
 import {
   chessGameXpAward,
+  clampDailyXpGain,
+  DAILY_XP_CAP,
   globalXpFromCourseGain,
   lessonXpAward,
   levelFromXp,
@@ -64,15 +66,33 @@ describe("elo", () => {
     expect(whiteDelta).toBe(0);
     expect(blackDelta).toBe(0);
   });
+
+  it("provisional K is larger than veteran K", () => {
+    const fresh = applyElo(1000, 1000, "1-0", 0, 0);
+    const veteran = applyElo(1000, 1000, "1-0", 40, 40);
+    expect(Math.abs(fresh.whiteDelta)).toBeGreaterThan(Math.abs(veteran.whiteDelta));
+  });
+
+  it("clamps rating floor", () => {
+    expect(clampElo(40)).toBe(ELO_FLOOR);
+  });
+});
+
+describe("daily XP cap", () => {
+  it("clamps remaining room", () => {
+    expect(clampDailyXpGain(0, 50)).toBe(50);
+    expect(clampDailyXpGain(DAILY_XP_CAP, 50)).toBe(0);
+    expect(clampDailyXpGain(DAILY_XP_CAP - 10, 50)).toBe(10);
+  });
 });
 
 describe("hearts smoke", () => {
-  it("premium always full", () => {
+  it("keeps shared cap and regen without instant refill", () => {
     const r = regenerateHearts({
-      plan: "premium",
       hearts: 0,
       heartsUpdatedAt: new Date(),
     });
-    expect(r.hearts).toBe(999);
+    expect(r.hearts).toBe(0);
+    expect(maxHearts()).toBe(5);
   });
 });

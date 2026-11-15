@@ -1,6 +1,7 @@
 import { Hono } from "hono";
-import { desc, eq } from "drizzle-orm";
-import { tutorMessages } from "@eduforge/db";
+import { and, desc, eq } from "drizzle-orm";
+import { activityEvents, tutorMessages } from "@eduforge/db";
+import { sanitizeUserText } from "@eduforge/shared";
 import { z } from "zod";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
@@ -45,14 +46,28 @@ const SYSTEM_BY_COURSE: Record<string, string> = {
 Фокус: компоненти, props, useState, keys, useEffect, controlled inputs, composition.
 Приклади JSX/TSX короткі; не генеруй великі app shells.`,
   sql_fundamentals: `Ти — EduForge SQL Tutor.
-Фокус: SELECT/WHERE, ORDER/LIMIT, JOIN, GROUP BY/HAVING, INSERT/UPDATE/DELETE, keys/indexes.
-Давай короткі запити (3–10 рядків) і пояснення «чому». Без DROP у продакшен-прикладах без потреби.`,
+Фокус: Oracle SQL за публічною програмою 1Z0-071 — SELECT/WHERE/ORDER BY, однорядкові функції, TO_CHAR/TO_DATE, NVL/COALESCE/CASE/DECODE, GROUP BY/HAVING, JOIN, підзапити, UNION/INTERSECT/MINUS, DML і транзакції, DDL, sequences/views/synonyms, GRANT і словник даних.
+Давай короткі запити (3–12 рядків) і пояснення «чому». Діалект Oracle (DUAL, FETCH, MINUS), не MySQL LIMIT. Без DROP у продакшен-прикладах без потреби. Не відтворюй конспекти чи приклади з платних відеокурсів — пояснюй своїми словами.`,
   node_fundamentals: `Ти — EduForge Node.js Tutor.
 Фокус: runtime, CommonJS/ESM, fs/path, process.env, http.createServer, npm scripts, async I/O.
 Мінімальні приклади (5–20 рядків). Без небезпечних shell-патернів.`,
   express_fundamentals: `Ти — EduForge Express Tutor.
 Фокус: express(), routes (GET/POST/params/query), middleware (use/next, json, static), REST status/json, error middleware (4 args), Router.
 Мінімальні приклади (5–20 рядків). Без небезпечних shell-патернів.`,
+  embedded_cpp: `Ти — EduForge Embedded C++ · MilTech Tutor.
+Фокус: C++ (типи, pointers, RAII, OOP, STL), CMake/GTest, Linux/bash, UDP/TCP/CRC, Qt/QML concepts, ROS 2 pub/sub, MCU/FreeRTOS, MAVLink, PID.
+Мінімальні безпечні приклади (5–25 рядків). Без зброї/обходу захистів; акцент на надійність і обмежені ресурси.`,
+  sysadmin: `Ти — EduForge Sysadmin Tutor.
+Фокус: SOHO (мережа офісу, Wi-Fi, бекапи 3-2-1, облікові записи) і щоденна Linux-консоль Debian/Ubuntu (shell, права, apt, systemd, journalctl, ip/ss, ufw, SSH-ключі, диски, cron).
+Також у цьому курсі: git init/add/commit для конфігів і скриптів (без паролів і ключів), ідея Ansible без плейбуків, RAID 0/1/5/6 і чому RAID не бекап, віддалений доступ через WireGuard/OpenVPN або Tailscale/ZeroTier замість проброса SMB чи RDP.
+Не вчи Docker, зворотні проксі, Let's Encrypt і LVM — їх у цьому курсі немає. Короткі команди й чому саме так. Не давай кроків злому, сканування чужих мереж, підбору паролів чи шкідливого ПЗ. Віддалене адміністрування — лише для машин, до яких є дозвіл. Відповідай мовою користувача.`,
+  devops: `Ти — EduForge DevOps Tutor.
+Фокус: один сервіс forge-status, п'ять частин одного курсу: Foundations, Ship an image, Run it, Stay up, On call. Нові unit slugs: k8s-workloads, traffic-identity, gitops-delivery, data-plane, alerts-runbooks, incident-drills.
+Основи: Git і SSH, Linux (FHS, sudo, systemd, огляд LVM), bash, мережа і Nginx reverse proxy, Python для локальних CLI, Docker/Compose, короткий AWS (IAM, VPC, S3, бюджет, teardown) до Terraform, Ansible одним уроком. CI завершується push перевіреного образу; CI не деплоїть.
+Run it: Kubernetes (probes, Ingress, Helm, RBAC, Pod Security, drain), Prometheus/Loki/OpenTelemetry, DevSecOps (gitleaks, cosign, SBOM, Vault) і GitOps (Argo CD, rollback).
+Stay up: ConfigMap/Secret, Deployment/StatefulSet/Job, rollout, startup/readiness/liveness, requests/limits/QoS/OOM, HPA і PDB; Service/Ingress, NetworkPolicy, ServiceAccount, cert-manager і поновлення Let's Encrypt, namespace/ResourceQuota/LimitRange. Просування того самого image digest між lab/stage/prod без перезбірки, Helm values, Argo CD Application/sync/prune/self-heal, drift, git revert, ручне схвалення prod.
+On call: керований Postgres або StatefulSet, сумісні expand-contract міграції, snapshots/PITR, ізольований restore drill і виміряні RPO/RTO, connection pools/PgBouncer, External Secrets/SOPS для DSN; RED/USE, burn rate і runbooks, Loki labels, trace gaps. Розбирай таймлайни інцидентів із TLS, digest, disk pressure, 5xx і ротацією секретів. Спочатку вплив на користувачів і безпечне пом'якшення, потім перевірка відновлення та postmortem без пошуку винних. Capstone з'єднує digest promotion і перевірене відновлення даних.
+Це навчальний player із читанням конфігів і сценаріями, не живий термінал чи хмарна консоль. Не стверджуй, що команди вже виконані або ресурси створені. Go, Jenkinsfile, Terragrunt, service mesh, multi-region, Kafka, scale-to-zero поза курсом; Gateway API — лише впізнати назву. SOHO і Windows-столи — курс sysadmin. Короткі команди й чому; не пропонуй restart-everything чи руйнівні дії як першу реакцію. Restore лише в ізольовану копію, не підміняй живий DSN. Не давай кроків злому, сканування чужих мереж, викрадення секретів чи шкідливого ПЗ. Відповідай мовою користувача.`,
   qa_theory: `Ти — EduForge QA Theory Tutor.
 Фокус: принципи тестування, рівні (unit/integration/system/UAT), види (smoke/regression/…), EP/BVA, STLC, severity vs priority, bug report.
 Без копіювання чужих сертифікаційних текстів; свої зрозумілі формулювання + 1 приклад-сценарій.`,
@@ -105,10 +120,19 @@ tutorRoutes.post("/chat", authMiddleware, async (c) => {
   const parsed = chatSchema.safeParse(body);
   if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
 
+  const cleanMessage = sanitizeUserText(parsed.data.message, 4000);
+  if (!cleanMessage) return c.json({ error: "invalid_input" }, 400);
+
+  // Guardrail: refuse full solution dumps when user asks for answer without attempt context
+  const wantsDump =
+    /\b(give me the (full )?solution|just the answer|дай повну відповідь|дай готовий код рішення)\b/i.test(
+      cleanMessage,
+    );
+
   await db.insert(tutorMessages).values({
     userId: user.id,
     role: "user",
-    content: parsed.data.message,
+    content: cleanMessage,
     courseSlug: parsed.data.courseSlug ?? null,
   });
 
@@ -119,6 +143,29 @@ tutorRoutes.post("/chat", authMiddleware, async (c) => {
   });
   const chronological = history.reverse();
 
+  // Last fail context from learning loop
+  let failHint = "";
+  const lastFail = await db.query.activityEvents.findFirst({
+    where: and(
+      eq(activityEvents.userId, user.id),
+      eq(activityEvents.kind, "lesson_fail_context"),
+    ),
+    orderBy: [desc(activityEvents.createdAt)],
+  });
+  if (lastFail?.payload && typeof lastFail.payload === "object") {
+    const p = lastFail.payload as {
+      courseSlug?: string;
+      lessonId?: string;
+      wrong?: { type?: string; missing?: unknown }[];
+      accuracy?: number;
+    };
+    const wrongSummary = (p.wrong ?? [])
+      .slice(0, 4)
+      .map((w) => `${w.type ?? "?"}${w.missing ? ` missing=${JSON.stringify(w.missing)}` : ""}`)
+      .join("; ");
+    failHint = `Recent fail context: course=${p.courseSlug ?? "?"} accuracy=${p.accuracy ?? "?"} wrong=[${wrongSummary}]. Use this to give targeted hints, not full dumps until the learner tried.`;
+  }
+
   const localeHint =
     parsed.data.locale === "en"
       ? "Prefer English answers."
@@ -126,7 +173,7 @@ tutorRoutes.post("/chat", authMiddleware, async (c) => {
   const slug = (parsed.data.courseSlug ?? "").toLowerCase();
   const isCodeMsg =
     /```|\b(html|css|javascript|typescript|react|node|express|sql|git|flexbox|grid)\b/i.test(
-      parsed.data.message,
+      cleanMessage,
     );
   const baseSystem =
     SYSTEM_BY_COURSE[slug] ??
@@ -134,9 +181,16 @@ tutorRoutes.post("/chat", authMiddleware, async (c) => {
   const courseHint = slug
     ? `Focus course slug: ${slug}. Keep answers aligned with EduForge curriculum for that course.`
     : "";
+  const guard =
+    wantsDump
+      ? "User asked for a full solution dump — refuse full answers; give a scaffold, 1–2 hints, and ask them to try first."
+      : "Do not dump full solutions on the first ask; prefer Socratic hints and partial scaffolding.";
 
   const messages = [
-    { role: "system" as const, content: `${baseSystem}\n${localeHint}\n${courseHint}` },
+    {
+      role: "system" as const,
+      content: `${baseSystem}\n${localeHint}\n${courseHint}\n${guard}\n${failHint}`,
+    },
     ...chronological.map((m) => ({
       role: (m.role === "assistant" ? "assistant" : "user") as "assistant" | "user",
       content: m.content,

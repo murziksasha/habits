@@ -9,4 +9,7 @@ coverage
 .DS_Store
 docker-data
 apps/web/public/sw.js
+apps/api/data/
 *.tsbuildinfo
+__pycache__/
+*.py[cod]

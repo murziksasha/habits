@@ -2,12 +2,15 @@ import type { CourseContent, Exercise } from "./types.js";
 import {
   codeFill,
   codeOrder,
+  codeOrderAuto,
+  codeProject,
   codeRead,
   exam,
   lesson,
   matchEx,
   mcq,
   unit,
+  why,
 } from "./builders.js";
 
 const boxFlow = unit("box-flow", "Box & flow", "Box & flow", [
@@ -68,6 +71,60 @@ const boxFlow = unit("box-flow", "Box & flow", "Box & flow", [
         "display: ___;",
         ["flex"],
         true,
+      ),
+    ],
+  ),
+  lesson(
+    "cl-position-stacking",
+    "Позиціонування та специфічність",
+    "Positioning & specificity",
+    2,
+    false,
+    [
+      codeFill(
+        "cl-pos1",
+        "Абсолютне позиціонування відносно найближчого позиціонованого предка",
+        "Absolute positioning relative to nearest positioned ancestor",
+        "css",
+        "position: ___;",
+        ["absolute"],
+        true,
+      ),
+      mcq(
+        "cl-pos2",
+        "Для роботи z-index елемент повинен:",
+        "For z-index to work, the element must:",
+        [
+          "мати position != static (relative, absolute, fixed, sticky) або бути flex/grid item",
+          "мати лише display: inline",
+          "мати обов'язково overflow: hidden",
+          "бути тегом <body>",
+        ],
+        0,
+      ),
+      codeRead(
+        "cl-pos3",
+        "Яке правило переможе через специфічність селекторів?",
+        "Which rule wins due to selector specificity?",
+        "css",
+        "/* 1 */ #header .btn { color: red; }\n/* 2 */ .nav .btn { color: blue; }\n/* 3 */ button.btn { color: green; }",
+        [
+          "#header .btn (ID + class = 1-1-0)",
+          ".nav .btn (2 classes = 0-2-0)",
+          "button.btn (element + class = 0-1-1)",
+          "Усі кольори змішаються",
+        ],
+        0,
+      ),
+      matchEx(
+        "cl-pos4",
+        "Зіставте значення position",
+        "Match position values",
+        [
+          { left: "relative", right: "зміщення від звичайного місця в потоці / offset from normal flow" },
+          { left: "fixed", right: "фіксація відносно вікна перегляду / fixed to viewport" },
+          { left: "sticky", right: "перемикання між relative та fixed при скролі / toggles between relative and fixed on scroll" },
+        ],
       ),
     ],
   ),
@@ -207,6 +264,57 @@ const flexCore = unit("flex-core", "Flex core", "Flex core", [
         "justify-content: ___;",
         ["space-between"],
         true,
+      ),
+    ],
+  ),
+  lesson(
+    "cl-flex-gap-center",
+    "gap & centering",
+    "gap & centering",
+    2,
+    true,
+    [
+      codeFill(
+        "cl-fg1",
+        "gap",
+        "gap",
+        "css",
+        ".row { display: flex; ___: 1rem; }",
+        ["gap"],
+        true,
+      ),
+      mcq(
+        "cl-fg2",
+        "gap vs margin between items:",
+        "gap vs margin between items:",
+        [
+          "gap — простір між flex/grid items без «хвостиків»",
+          "gap працює лише в tables",
+          "gap = z-index",
+          "gap only for fonts",
+        ],
+        0,
+      ),
+      codeFill(
+        "cl-fg3",
+        "center both axes",
+        "center both axes",
+        "css",
+        "justify-content: center; align-items: ___;",
+        ["center"],
+        true,
+      ),
+      mcq(
+        "cl-fg4",
+        "To center one child in a flex container often use:",
+        "To center one child in a flex container often use:",
+        [
+          "justify-content + align-items: center",
+          "only float:left",
+          "only position:fixed without flex",
+          "table-layout only",
+        ],
+        0,
       ),
     ],
   ),
@@ -689,6 +797,379 @@ const chooseTool = unit("choose-tool", "Flex vs Grid", "Flex vs Grid", [
   ]),
 ]);
 
+const appliedResponsiveTroubleshooting = unit(
+  "applied_responsive_troubleshooting",
+  "Applied: дебаг та адаптивність верстки",
+  "Applied: Layout Troubleshooting & Responsive Patterns",
+  [
+    lesson(
+      "css-dbg-flex-overflow",
+      "Дебаг Flexbox: переповнення тексту та min-width: 0",
+      "Debug Flexbox: text truncation & min-width: 0",
+      3,
+      false,
+      [
+        codeFill(
+          "cl-app-1",
+          "Виправлення обрізки довгого тексту всередині flex-елемента",
+          "Fix text-overflow ellipsis inside flex item",
+          "css",
+          ".flex-item {\n  min-width: ___;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}",
+          ["0"],
+          true,
+        ),
+        codeRead(
+          "cl-app-2",
+          "Запобігання стисканню фіксованої іконки у flexbox",
+          "Prevent flex item shrinking using flex-shrink",
+          "css",
+          ".avatar-icon {\n  width: 48px;\n  height: 48px;\n  flex-shrink: 0;\n}",
+          [
+            "flex-shrink: 0 гарантує, що аватар залишиться рівно 48px навіть при звуженні контейнера",
+            "flex-shrink: 0 приховує іконку",
+            "Іконка розтягнеться на всю ширину",
+            "flex-shrink не працює без flex-grow",
+          ],
+          0,
+        ),
+        mcq(
+          "cl-app-3",
+          "Чому за замовчуванням flex-елемент має min-width: auto замість 0?",
+          "Why do flex items have min-width: auto by default instead of 0?",
+          [
+            "Щоб елемент автоматично не стискався менше розміру свого текстового вмісту, якщо це явно не дозволено",
+            "Це баг у CSS2",
+            "Щоб заборонити перенесення рядків",
+            "Для сумісності з табличною версткою",
+          ],
+          0,
+        ),
+      ],
+    ),
+    lesson(
+      "css-dbg-grid-auto-fit",
+      "Адаптивна сітка: auto-fit vs auto-fill",
+      "Responsive grid: auto-fit vs auto-fill with minmax",
+      3,
+      false,
+      [
+        codeFill(
+          "cl-app-4",
+          "Створення адаптивної сітки колонок без медіа-запитів",
+          "Create responsive columns without media queries",
+          "css",
+          ".card-grid {\n  display: grid;\n  grid-template-columns: repeat(___, minmax(280px, 1fr));\n  gap: 1.5rem;\n}",
+          ["auto-fit", "auto-fill"],
+          true,
+        ),
+        codeRead(
+          "cl-app-5",
+          "Різниця між auto-fit та auto-fill при малій кількості карток",
+          "auto-fit vs auto-fill with few cards",
+          "css",
+          "/* auto-fit: колапсує порожні треки і розтягує наявні картки */\n/* auto-fill: зберігає порожні треки заданої ширини */",
+          [
+            "auto-fit розтягує наявні колонки на всю ширину контейнера, якщо їх менше ніж вміщується",
+            "auto-fill видаляє зайві елементи з DOM",
+            "auto-fit вимагає фіксованої висоти контейнера",
+            "Між ними немає жодної практичної різниці",
+          ],
+          0,
+        ),
+      ],
+    ),
+    lesson(
+      "css-dbg-stacking-context",
+      "Дебаг z-index: контексти накладання та sticky",
+      "Debug z-index: stacking contexts & sticky containment",
+      3,
+      false,
+      [
+        codeRead(
+          "cl-app-6",
+          "Чому z-index: 9999 не перекриває інший блок?",
+          "Why z-index: 9999 fails to overlap outside element",
+          "css",
+          ".parent {\n  position: relative;\n  z-index: 1;\n  opacity: 0.99; /* створює новий stacking context */\n}\n.child {\n  position: absolute;\n  z-index: 9999;\n}",
+          [
+            "child замкнений усередині stacking context батька parent з рівнем z-index: 1",
+            "z-index не працює з position: absolute",
+            "opacity вимикає відображення елемента",
+            "Потрібно вказати z-index: 100000",
+          ],
+          0,
+        ),
+        codeFill(
+          "cl-app-7",
+          "Чому position: sticky може не працювати: перевірка overflow батька",
+          "Fix position sticky by removing overflow hidden on ancestor",
+          "css",
+          "/* Якщо батьківський контейнер має overflow: hidden, sticky ламається */\n.scroll-container {\n  overflow: ___; /* замість hidden */\n}",
+          ["visible", "auto"],
+          true,
+        ),
+      ],
+    ),
+    lesson(
+      "css-app-cumulative-task",
+      "Підсумковий таск: адаптивний дашборд",
+      "Applied task: responsive multi-panel layout",
+      3,
+      false,
+      [
+        codeOrder(
+          "cl-app-8",
+          "Створення адаптивної сітки дашборду: мобільний стек → десктоп 3 колонки",
+          "Responsive dashboard CSS: mobile stacked → desktop columns",
+          "css",
+          [
+            ".dashboard { display: flex; flex-direction: column; gap: 1rem; }",
+            "@media (min-width: 1024px) {",
+            "  .dashboard { display: grid; grid-template-columns: 240px 1fr 300px; }",
+            "}",
+          ],
+          [
+            ".dashboard { display: flex; flex-direction: column; gap: 1rem; }",
+            "@media (min-width: 1024px) {",
+            "  .dashboard { display: grid; grid-template-columns: 240px 1fr 300px; }",
+            "}",
+          ],
+        ),
+        codeFill(
+          "cl-app-9",
+          "Вирівнювання футера картки по нижньому краю у flex-контейнері",
+          "Push card footer to bottom using margin-top auto",
+          "css",
+          ".card-body { display: flex; flex-direction: column; }\n.card-footer { margin-top: ___; }",
+          ["auto"],
+          true,
+        ),
+      ],
+    ),
+    exam(
+      "css-app-exam",
+      "Екзамен: дебаг верстки та адаптивність",
+      "Exam: layout troubleshooting",
+      3,
+      [
+        mcq(
+          "cl-app-10",
+          "Яка одиниця виміру CSS Grid представляє частку доступного вільного простору?",
+          "Which CSS Grid unit represents a fraction of available free space?",
+          ["fr", "em", "%", "ch"],
+          0,
+        ),
+        codeRead(
+          "cl-app-11",
+          "Як спрацює властивість aspect-ratio: 16 / 9?",
+          "How does aspect-ratio: 16 / 9 behave?",
+          "css",
+          ".video-embed { width: 100%; aspect-ratio: 16 / 9; }",
+          [
+            "Автоматично розраховує висоту відповідно до пропорції 16 до 9 без 'padding hack'",
+            "Вимагає обов'язкового встановлення height: 100%",
+            "Працює лише для відеофайлів у форматі mp4",
+            "Зменшує роздільну здатність екрана",
+          ],
+          0,
+        ),
+        codeFill(
+          "cl-app-12",
+          "Властивість для створення відступів між flex або grid елементами",
+          "Property for gutters between flex or grid items",
+          "css",
+          ".container { display: flex; ___: 1.5rem; }",
+          ["gap"],
+          true,
+        ),
+        codeOrder(
+          "cl-app-13",
+          "Специфічність CSS селекторів за спаданням сили",
+          "CSS specificity order from highest to lowest",
+          "text",
+          [
+            "1. Inline стилі (style=...)",
+            "2. ID селектори (#header)",
+            "3. Класи, псевдокласи та атрибути (.card, :hover, [type])",
+            "4. Теги та псевдоелементи (div, p, ::before)",
+          ],
+          [
+            "1. Inline стилі (style=...)",
+            "2. ID селектори (#header)",
+            "3. Класи, псевдокласи та атрибути (.card, :hover, [type])",
+            "4. Теги та псевдоелементи (div, p, ::before)",
+          ],
+        ),
+      ],
+    ),
+  ],
+);
+
+const modernCssResilience = unit(
+  "modern_css_resilience",
+  "Каскадні шари, container queries, токени й захист від переповнення",
+  "Cascade Layers, Container Queries, Tokens & Overflow Resilience",
+  [
+    lesson(
+      "cl-layers-tokens",
+      "@layer, дизайн-токени та логічні властивості",
+      "@layer, design tokens & logical properties",
+      3,
+      false,
+      [
+        codeRead(
+          "cl-mod-1",
+          "Чому правило з шару `utilities` перемагає правило з `components`, навіть якщо селектор у `components` має вищу специфічність?",
+          "Predict: why does a rule in `@layer utilities` override `@layer components` even if the component selector has higher specificity?",
+          "css",
+          "@layer base, components, utilities;\n@layer components { .card .btn { background: blue; } }\n@layer utilities { .bg-accent { background: green; } }",
+          [
+            "У `@layer` порядок оголошення шарів важливіший за специфічність усередині шарів (для нормальних правил)",
+            "Специфічність завжди перемагає `@layer`",
+            "Правила поза `@layer` мають найнижчий пріоритет",
+            "Тому що green стоїть нижче за алфавітом",
+          ],
+          0,
+          why(
+            "Пізніший шар у `@layer` перемагає попередній без `!important`; незагорнуті (unlayered) стилі мають ще вищий пріоритет.",
+            "Later cascade layers beat earlier layers regardless of selector specificity; unlayered rules sit above all layers.",
+          ),
+        ),
+        codeFill(
+          "cl-mod-2",
+          "Замініть `padding-left` / `padding-right` однією логічною властивістю для підтримки різних напрямків письма",
+          "Replace left/right padding with a logical property",
+          "css",
+          ".btn { ___-inline: var(--space-md, 1rem); }",
+          ["padding"],
+          true,
+          why("Логічні властивості (`padding-inline`, `margin-block`) працюють і для LTR, і для RTL.", "Logical properties (`padding-inline`, `margin-block`) adapt across writing modes."),
+        ),
+      ],
+    ),
+    lesson(
+      "cl-container-overflow",
+      "@container queries, адаптивна типографіка, reduced motion та довгі тексти",
+      "@container queries, fluid typography, reduced motion & overflow",
+      3,
+      false,
+      [
+        codeFill(
+          "cl-mod-3",
+          "Оголосіть картку як контейнер розміру для запитів `@container`",
+          "Declare an element as an inline-size container for `@container` queries",
+          "css",
+          ".task-slot { container-___: inline-size; }",
+          ["type"],
+          true,
+          why("`container-type: inline-size` дозволяє дочірнім компонентам адаптуватися до ширини слота, а не лише вікна.", "`container-type: inline-size` lets components respond to parent slot width."),
+        ),
+        codeRead(
+          "cl-mod-4",
+          "Довгий URL або безпробіловий токен ламає grid-картку і викликає горизонтальний скрол на 320px. Яка причина і фікс?",
+          "A long unbroken token widens a grid card past 320px. What fixes both grid sizing and text wrapping?",
+          "css",
+          ".task-card { min-width: 0; overflow-wrap: anywhere; }",
+          [
+            "`min-width: 0` знімає дефолтний `min-width: auto` у grid/flex-дітей, а `overflow-wrap: anywhere` переносить довгі рядки",
+            "`overflow: hidden` робить текст читабельним",
+            "`font-size: clamp(2rem, 5vw, 4rem)` зменшує картку",
+            "`position: fixed` виправляє переповнення",
+          ],
+          0,
+          why(
+            "Без `min-width: 0` flex/grid елемент розтягується під нерозривний контент.",
+            "Flex/grid items default to `min-width: auto`; setting `min-width: 0` plus `overflow-wrap` prevents overflow.",
+          ),
+        ),
+        codeProject(
+          "cl-mod-5",
+          "Створіть стійку до 200%-зуму й довгого тексту картку задачі на `@layer`, `@container`, `clamp()` і `prefers-reduced-motion`.",
+          "Author a zoom- and overflow-resilient task card stylesheet with `@layer`, `@container`, `clamp()`, and `prefers-reduced-motion`.",
+          [
+            {
+              id: "css",
+              name: "tokens.css",
+              language: "css",
+              starter: `@layer tokens, components;
+@layer tokens {
+  :root {
+    --space-4: 1rem;
+  }
+}
+/* TODO: .board-slot container-type, .task-title clamp(), min-width:0, overflow-wrap, @container, prefers-reduced-motion */
+`,
+            },
+          ],
+          [
+            {
+              fileId: "css",
+              contains: ["@layer", "container-type", "@container", "clamp(", "overflow-wrap", "prefers-reduced-motion"],
+            },
+          ],
+          {
+            hintUk: "Додайте `@container (min-width: 28rem)`, `clamp(1rem, 2vw, 1.35rem)` та `@media (prefers-reduced-motion: reduce)`.",
+            hintEn: "Include `@container (min-width: 28rem)`, `clamp(1rem, 2vw, 1.35rem)`, and `@media (prefers-reduced-motion: reduce)`.",
+          },
+        ),
+      ],
+    ),
+    exam("cl-mod-exam", "Контрольна: сучасний стійкий CSS", "Exam: modern resilient CSS", 3, [
+      mcq(
+        "cl-me1",
+        "Чим `@container` краще за `@media (min-width: ...)` для перевикористовуваної картки задачі?",
+        "Why choose `@container` over `@media` for a reusable task card?",
+        [
+          "Картка підлаштовується під ширину свого контейнера (сайбар чи основна область), а не всього екрану",
+          "`@container` автоматично завантажує шрифти",
+          "`@media` більше не працює в браузерах",
+          "`@container` скасовує box model",
+        ],
+        0,
+        why("Container queries роблять компоненти по-справжньому портативними.", "Container queries decouple component layout from global viewport width."),
+      ),
+      codeFill(
+        "cl-me2",
+        "Плавне масштабування шрифту між мінімумом і максимумом",
+        "Fluid typography bounded by min and max sizes",
+        "css",
+        "font-size: ___(1rem, 2.5vw, 1.5rem);",
+        ["clamp"],
+        true,
+        why("`clamp(min, preferred, max)` не дає тексту стати замалим при 200% зумі або гігантським на десктопі.", "`clamp(min, preferred, max)` keeps headings readable across zoom levels."),
+      ),
+      codeRead(
+        "cl-me3",
+        "Який рядок не дасть flex-елементу з довгим заголовком витиснути кнопку «Видалити» за межі екрана?",
+        "Which property stops a long flex title from pushing the Delete button off-screen?",
+        "css",
+        ".title { flex: 1; ___: 0; overflow-wrap: anywhere; }",
+        [
+          "min-width: 0",
+          "z-index: 99",
+          "flex-grow: 10",
+          "display: inline",
+        ],
+        0,
+        why("`min-width: 0` дозволяє flex-дитячій області стискатися нижче ширини свого контенту.", "`min-width: 0` allows a flex item to shrink below its intrinsic content size."),
+      ),
+      codeOrderAuto(
+        "cl-me4",
+        "Порядок каскадних шарів від базових токенів до утиліт",
+        "Cascade layer order from lowest to highest priority",
+        "css",
+        [
+          "@layer reset;",
+          "@layer tokens;",
+          "@layer components;",
+          "@layer utilities;",
+        ],
+        why("Базовий скид і токени оголошуються першими, а точкові утиліти — останніми.", "Declare reset/tokens first and override utilities last."),
+      ),
+    ]),
+  ],
+);
+
 const capstone = unit("capstone", "Capstone", "Capstone", [
   lesson(
     "cl-capstone-dashboard",
@@ -782,6 +1263,8 @@ export const cssLayoutContent: CourseContent = {
     gridPlacement,
     gridResponsive,
     chooseTool,
+    appliedResponsiveTroubleshooting,
+    modernCssResilience,
     capstone,
   ],
 };

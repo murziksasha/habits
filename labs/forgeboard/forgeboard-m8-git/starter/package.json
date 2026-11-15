@@ -1,0 +1,10 @@
+{
+  "name": "forgeboard-m8-git",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lab:init": "node scripts/init-repo.mjs",
+    "test": "node --test tests/verify.test.mjs"
+  }
+}

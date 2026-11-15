@@ -8,14 +8,20 @@ import {
   useMemo,
   useState,
 } from "react";
-import { api } from "./api";
+import { api, COOKIE_SESSION, LEGACY_TOKEN_KEY } from "./api";
 
 export type User = {
   id: string;
   email: string;
-  plan: "free" | "premium";
   role?: "user" | "admin";
-  planExpiresAt?: string | null;
+  /** false = needs verification; true / undefined = ok */
+  emailVerified?: boolean;
+  /** inactive = unverified past the 7-day grace window */
+  accountStatus?: "active" | "inactive" | string;
+  totpEnabled?: boolean;
+  mfaVerified?: boolean;
+  mfaEnrollRequired?: boolean;
+  mfaRequired?: boolean;
 };
 
 export type Character = {
@@ -28,18 +34,45 @@ export type Character = {
   dailyXp?: number;
   dailyXpDate?: string | null;
   dailyGoalXp?: number;
+  weeklyTarget?: number | null;
   streakFreezes?: number;
   unlockedAvatars?: string[];
   onboarding?: Record<string, boolean>;
+  progression?: {
+    lastLevelAwarded?: number;
+    skillPoints?: number;
+    talents?: Record<string, number>;
+    unlockedTitles?: string[];
+    equippedTitle?: string | null;
+    unlockedFrames?: string[];
+    equippedFrame?: string | null;
+    pathBadges?: string[];
+    weekly?: {
+      weekKey: string;
+      talents: number;
+      lessons: number;
+      claimed: string[];
+    };
+  };
 };
 
 type AuthState = {
   user: User | null;
   character: Character | null;
+  /**
+   * Session marker for page `if (!token)` guards.
+   * - COOKIE_SESSION when httpOnly cookie is active
+   * - legacy Bearer string only during one-shot migration
+   * Prefer cookie; do not put secrets in localStorage.
+   */
   token: string | null;
   loading: boolean;
   refresh: () => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
+  login: (
+    email: string,
+    password: string,
+  ) => Promise<{ mfaRequired?: boolean; mfaToken?: string } | void>;
+  completeMfaLogin: (mfaToken: string, code: string) => Promise<void>;
   register: (
     email: string,
     password: string,
@@ -51,7 +84,14 @@ type AuthState = {
 };
 
 const AuthContext = createContext<AuthState | null>(null);
-const TOKEN_KEY = "eduforge_token";
+
+function clearLegacyToken() {
+  try {
+    localStorage.removeItem(LEGACY_TOKEN_KEY);
+  } catch {
+    /* ignore */
+  }
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -60,33 +100,77 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
-    const t = typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
-    setToken(t);
+    // 1) Cookie-first (credentials: include)
     try {
-      const data = await api<{ user: User; character: Character }>("/auth/me", {
-        token: t,
-      });
+      const data = await api<{ user: User; character: Character }>("/auth/me");
       setUser(data.user);
       setCharacter(data.character);
+      setToken(COOKIE_SESSION);
+      clearLegacyToken();
+      return;
     } catch {
-      setUser(null);
-      setCharacter(null);
-    } finally {
-      setLoading(false);
+      /* fall through to legacy Bearer */
     }
+
+    // 2) Dual-support: migrate localStorage Bearer → cookie via promote-on-auth
+    let legacy: string | null = null;
+    try {
+      legacy = typeof window !== "undefined" ? localStorage.getItem(LEGACY_TOKEN_KEY) : null;
+    } catch {
+      legacy = null;
+    }
+    if (legacy) {
+      try {
+        const data = await api<{ user: User; character: Character }>("/auth/me", {
+          token: legacy,
+        });
+        setUser(data.user);
+        setCharacter(data.character);
+        // Server re-issues httpOnly cookie on Bearer success
+        setToken(COOKIE_SESSION);
+        clearLegacyToken();
+        return;
+      } catch {
+        clearLegacyToken();
+      }
+    }
+
+    setUser(null);
+    setCharacter(null);
+    setToken(null);
   }, []);
 
   useEffect(() => {
-    void refresh();
+    void refresh().finally(() => setLoading(false));
   }, [refresh]);
 
   const login = useCallback(async (email: string, password: string) => {
+    const data = await api<{
+      user: User;
+      character?: Character;
+      token?: string;
+      mfaRequired?: boolean;
+      mfaToken?: string;
+      mfaEnrollRequired?: boolean;
+    }>("/auth/login", { method: "POST", body: { email, password } });
+    if (data.mfaRequired && data.mfaToken) {
+      return { mfaRequired: true, mfaToken: data.mfaToken };
+    }
+    // Set-Cookie from API is primary; do not persist Bearer in localStorage
+    clearLegacyToken();
+    setToken(COOKIE_SESSION);
+    setUser(data.user);
+    setCharacter(data.character ?? null);
+  }, []);
+
+  const completeMfaLogin = useCallback(async (mfaToken: string, code: string) => {
     const data = await api<{ user: User; character: Character; token: string }>(
-      "/auth/login",
-      { method: "POST", body: { email, password } },
+      "/auth/mfa/totp/verify",
+      { method: "POST", body: { mfaToken, code } },
     );
-    localStorage.setItem(TOKEN_KEY, data.token);
-    setToken(data.token);
+    // Set-Cookie from API is primary; do not persist Bearer in localStorage
+    clearLegacyToken();
+    setToken(COOKIE_SESSION);
     setUser(data.user);
     setCharacter(data.character);
   }, []);
@@ -105,8 +189,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           },
         },
       );
-      localStorage.setItem(TOKEN_KEY, data.token);
-      setToken(data.token);
+      clearLegacyToken();
+      setToken(COOKIE_SESSION);
       setUser(data.user);
       setCharacter(data.character);
     },
@@ -115,11 +199,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
+      // Cookie session: no Bearer needed
       await api("/auth/logout", { method: "POST", token });
     } catch {
       /* ignore */
     }
-    localStorage.removeItem(TOKEN_KEY);
+    clearLegacyToken();
     setToken(null);
     setUser(null);
     setCharacter(null);
@@ -133,11 +218,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       loading,
       refresh,
       login,
+      completeMfaLogin,
       register,
       logout,
       setCharacter,
     }),
-    [user, character, token, loading, refresh, login, register, logout],
+    [user, character, token, loading, refresh, login, completeMfaLogin, register, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

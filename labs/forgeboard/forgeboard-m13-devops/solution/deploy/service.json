@@ -1,0 +1,11 @@
+{
+  "service": "forgeboard-api",
+  "image": "ghcr.io/eduforge/forgeboard-api@sha256:9f4e71c2a08b4d6e8f1c3a5b7d9e0f21468ace13579bdf02468ace13579bdf02",
+  "env": {
+    "API_PORT": 4000
+  },
+  "readinessProbe": {
+    "path": "/ready",
+    "port": 4000
+  }
+}
