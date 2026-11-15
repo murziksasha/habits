@@ -26,6 +26,7 @@ jobs:
       - run: pnpm --filter @eduforge/content build
       - run: pnpm --filter @eduforge/chess-core build
       - run: pnpm --filter @eduforge/judge build
+      - run: pnpm --filter @eduforge/circuit-engine build
       - run: pnpm --filter @eduforge/db build
       - name: Unit tests
         run: pnpm test:unit
@@ -83,6 +84,7 @@ jobs:
       - run: pnpm --filter @eduforge/content build
       - run: pnpm --filter @eduforge/chess-core build
       - run: pnpm --filter @eduforge/judge build
+      - run: pnpm --filter @eduforge/circuit-engine build
       - run: pnpm --filter @eduforge/db build
       - run: pnpm --filter @eduforge/api build
       - run: pnpm db:migrate

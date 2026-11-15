@@ -2,9 +2,9 @@
  * One SPICE run per child process. A timeout kills the process.
  */
 
-import { fork, spawn, type ChildProcess } from "node:child_process";
-import { existsSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { fork, spawn, type ChildProcess } from "child_process";
+import { existsSync } from "fs";
+import { fileURLToPath } from "url";
 import type { RunSimOutput } from "./runner.js";
 
 const EMPTY: RunSimOutput = {
