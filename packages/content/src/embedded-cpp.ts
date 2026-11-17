@@ -66,8 +66,8 @@ int main() {
       ),
       codeRun(
         "ec-i4c",
-        "Lab: виведи координати 0 0",
-        "Lab: print coordinates 0 0",
+        "Вхідні дані: шаблон C++ програми з функцією main(). Очікуваний результат: вивід координат «0 0» у стандартний потік stdout. Обов'язкові елементи: cout, 0, main. Обмеження: емуляція C++ виконується у браузері; заборонено виклики системних функцій на хості.",
+        "Input: C++ program starter with main(). Expected result: prints coordinates '0 0' to stdout. Mandatory elements: cout, 0, main. Validation limits: C++ simulation executes in the browser; host system calls are disallowed.",
         "cpp",
         `#include <iostream>
 using namespace std;
@@ -82,7 +82,9 @@ int main() {
           requiredSource: ["cout", "main"],
           forbiddenSource: ["system("],
           hintUk: "cout << 0 << \" \" << 0 << endl;",
-          hintEn: "cout << 0 << \" \" << 0 << endl;"
+          hintEn: "cout << 0 << \" \" << 0 << endl;",
+          limitationsUk: "C++ виконується у безпечній браузерній пісочниці WebAssembly/JSCPP. Код не виконується на серверному хості.",
+          limitationsEn: "C++ executes in a secure client-side WebAssembly/JSCPP sandbox. No code is executed on the server host.",
         },
       ),
     ],
@@ -3141,8 +3143,8 @@ double u = Kp * e; // ?`,
       ),
       codeRun(
         "ec-c8c",
-        "Lab: PID P-term",
-        "Lab: PID P-term",
+        "Вхідні дані: коефіцієнт Kp = 0.5 та похибка e = 10.0. Очікуваний результат: обчислення пропорційної складової регулятора Kp * e та вивід «5» у stdout. Обов'язкові елементи: Kp, e, cout. Обмеження: виконання тестується через браузерний емулятор C++; кінцеві перенесення рядків обрізаються автоматично.",
+        "Input: gain Kp = 0.5 and error e = 10.0. Expected result: compute PID proportional term Kp * e and print '5' to stdout. Mandatory elements: Kp, e, cout. Validation limits: tested via client-side C++ emulator; trailing whitespace and newlines are trimmed.",
         "cpp",
         `#include <iostream>
 using namespace std;
@@ -3158,7 +3160,9 @@ int main() {
         {
           requiredSource: ["Kp", "cout"],
           hintUk: "cout << (Kp * e) << endl;",
-          hintEn: "cout << (Kp * e) << endl;"
+          hintEn: "cout << (Kp * e) << endl;",
+          limitationsUk: "Клієнтський запуск у емуляторі; сервер перевіряє наявність обчислення та ключових змінних.",
+          limitationsEn: "Client-side execution in emulator; server validates calculations and key variables statically.",
         },
       ),
     ],

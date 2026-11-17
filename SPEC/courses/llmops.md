@@ -3,7 +3,7 @@
 Slug: `llmops`
 Group: deep
 Hub: `/llmops`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `agentic_systems`, `node_fundamentals`
 Recommended next: `ai_security`, `devops`
 
@@ -15,19 +15,19 @@ Tracing and token cost (LangSmith, Arize Phoenix, W&B), golden fixture evals in 
 
 ### `lo_traces` — Traces, Spans, and Token Cost
 
-- `lo-tr-spans` — Why Traces Matter: LangSmith, Phoenix, and W&B [free] (3 exercises)
-- `lo-tr-tokens` — Token Growth Across Turns and Reading Span Bottlenecks [free] (3 exercises)
+- `lo-tr-spans` — Why Traces Matter: LangSmith, Phoenix, and W&B (3 exercises)
+- `lo-tr-tokens` — Token Growth Across Turns and Reading Span Bottlenecks (3 exercises)
 - `lo-tr-exam` — Checkpoint: Traces and Token Cost [exam] (3 exercises)
 
 ### `lo_evals` — Golden Fixtures in CI Without Live Model Calls
 
-- `lo-ev-fixtures` — Why CI Grades Golden Fixtures Instead of Live Models [free] (3 exercises)
-- `lo-ev-metrics` — Deterministic Invariants to Assert on Fixtures [free] (3 exercises)
+- `lo-ev-fixtures` — Why CI Grades Golden Fixtures Instead of Live Models (3 exercises)
+- `lo-ev-metrics` — Deterministic Invariants to Assert on Fixtures (3 exercises)
 - `lo-ev-exam` — Checkpoint: Golden Fixture Evals [exam] (3 exercises)
 
 ### `lo_apis` — APIs: HTTP, GraphQL, gRPC, and Request vs Event
 
-- `lo-ap-contracts` — The Agent Lives on HTTP: When GraphQL or gRPC Makes Sense [free] (3 exercises)
+- `lo-ap-contracts` — The Agent Lives on HTTP: When GraphQL or gRPC Makes Sense (3 exercises)
 - `lo-ap-events` — Request vs Event: Avoiding Timeout Traps (3 exercises)
 - `lo-ap-exam` — Checkpoint: APIs and Events [exam] (3 exercises)
 

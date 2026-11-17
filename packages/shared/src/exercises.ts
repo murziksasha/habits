@@ -24,6 +24,11 @@ export const EXERCISE_TYPES = [
   "code_judge",
   "concept",
   "explain",
+  "composite_artifact",
+  "dataset_query",
+  "incident_step",
+  "numeric",
+  "circuit_lab",
 ] as const satisfies readonly ExerciseType[];
 
 export const exerciseTypeSchema = z.enum(EXERCISE_TYPES);
@@ -61,8 +66,10 @@ export function isKnownExerciseType(type: string): type is ExerciseType {
 
 const base = {
   id: z.string().min(1).max(128),
-  promptUk: z.string().min(1).max(4000),
-  promptEn: z.string().max(4000).optional(),
+  promptUk: z.string().min(1).max(8000),
+  promptEn: z.string().max(8000).optional(),
+  contentVersion: z.string().max(16).optional(),
+  examVariant: z.enum(["A", "B", "C"]).optional(),
 };
 
 /** Zod schemas for exercise payloads (admin publish + soft validation). */
@@ -165,10 +172,10 @@ export const exerciseSchema = z.discriminatedUnion("type", [
   z.object({
     ...base,
     type: z.literal("concept"),
-    bodyUk: z.string().min(1).max(6000),
-    bodyEn: z.string().max(6000).optional(),
-    keyPointsUk: z.array(z.string().max(400)).max(8).optional(),
-    keyPointsEn: z.array(z.string().max(400)).max(8).optional(),
+    bodyUk: z.string().min(1).max(16000),
+    bodyEn: z.string().max(16000).optional(),
+    keyPointsUk: z.array(z.string().max(500)).max(8).optional(),
+    keyPointsEn: z.array(z.string().max(500)).max(8).optional(),
     code: z.string().max(4000).optional(),
     language: z.string().optional(),
     check: z
@@ -295,6 +302,9 @@ export const exerciseSchema = z.discriminatedUnion("type", [
     explanationEn: z.string().optional(),
     solutionUk: z.string().optional(),
     solutionEn: z.string().optional(),
+    limitationsUk: z.string().optional(),
+    limitationsEn: z.string().optional(),
+    checkMode: z.enum(["behavior", "text", "both"]).optional(),
   }),
   z.object({
     ...base,
@@ -324,6 +334,90 @@ export const exerciseSchema = z.discriminatedUnion("type", [
       )
       .min(1),
     timeoutMs: z.number().optional(),
+    accepted: z.array(z.string()).optional(),
+    requiredSource: z.array(z.string()).optional(),
+    forbiddenSource: z.array(z.string()).optional(),
+    caseSensitive: z.boolean().optional(),
+    checkMode: z.enum(["behavior", "text", "both"]).optional(),
+    limitationsUk: z.string().optional(),
+    limitationsEn: z.string().optional(),
+    explanationUk: z.string().optional(),
+    explanationEn: z.string().optional(),
+  }),
+  z.object({
+    ...base,
+    type: z.literal("numeric"),
+    target: z.union([z.number(), z.string(), z.object({ real: z.number(), imag: z.number() })]).optional(),
+    unit: z.string().optional(),
+    absTolerance: z.number().optional(),
+    relTolerance: z.number().optional(),
+    requireUnit: z.boolean().optional(),
+    fields: z
+      .array(
+        z.object({
+          name: z.string(),
+          labelUk: z.string().optional(),
+          labelEn: z.string().optional(),
+          target: z.union([z.number(), z.string(), z.object({ real: z.number(), imag: z.number() })]),
+          unit: z.string().optional(),
+          absTolerance: z.number().optional(),
+          relTolerance: z.number().optional(),
+          requireUnit: z.boolean().optional(),
+        }),
+      )
+      .optional(),
+    hintUk: z.string().optional(),
+    hintEn: z.string().optional(),
+    explanationUk: z.string().optional(),
+    explanationEn: z.string().optional(),
+  }),
+  z.object({
+    ...base,
+    type: z.literal("circuit_lab"),
+    circuit: z.union([z.record(z.unknown()), z.string()]),
+    allowedModifications: z
+      .object({
+        canAddComponents: z.boolean().optional(),
+        canRemoveComponents: z.boolean().optional(),
+        canChangeValues: z.boolean().optional(),
+        allowedComponentTypes: z.array(z.string()).optional(),
+        editableComponentIds: z.array(z.string()).optional(),
+      })
+      .optional(),
+    analysis: z.object({
+      type: z.enum(["op", "dc", "ac", "tran", "noise"]),
+      dc: z.record(z.unknown()).optional(),
+      ac: z.record(z.unknown()).optional(),
+      tran: z.record(z.unknown()).optional(),
+      noise: z.record(z.unknown()).optional(),
+      params: z.record(z.union([z.string(), z.number()])).optional(),
+    }),
+    criteria: z.array(z.record(z.unknown())).min(1),
+    constraints: z
+      .object({
+        canAddComponents: z.boolean().optional(),
+        canRemoveComponents: z.boolean().optional(),
+        canChangeValues: z.boolean().optional(),
+        allowedComponentTypes: z.array(z.string()).optional(),
+        editableComponentIds: z.array(z.string()).optional(),
+        maxComponents: z.number().int().positive().optional(),
+      })
+      .optional(),
+    scenarios: z
+      .array(
+        z.object({
+          id: z.string(),
+          overrides: z.record(z.string()).optional(),
+          faults: z.array(z.string()).optional(),
+          criteria: z.array(z.record(z.unknown())).min(1),
+        }),
+      )
+      .optional(),
+    rejectOutputSubstitution: z.boolean().optional(),
+    starterNetlist: z.string().optional(),
+    solutionNetlist: z.string().optional(),
+    hintUk: z.string().optional(),
+    hintEn: z.string().optional(),
     explanationUk: z.string().optional(),
     explanationEn: z.string().optional(),
   }),
@@ -333,7 +427,10 @@ export const exercisesArraySchema = z.array(exerciseSchema).min(1);
 
 export const courseSlugPattern = /^[a-z][a-z0-9_]{1,62}$/;
 
-export function validateExercises(exercises: unknown): {
+export function validateExercises(
+  exercises: unknown,
+  opts?: { requireBothLocales?: boolean },
+): {
   ok: boolean;
   errors: string[];
 } {
@@ -347,11 +444,16 @@ export function validateExercises(exercises: unknown): {
       return;
     }
     const row = r.data as {
+      promptUk?: string;
+      promptEn?: string;
       options?: string[];
       optionsEn?: string[];
       pairs?: unknown[];
       pairsEn?: unknown[];
     };
+    if (opts?.requireBothLocales && (!row.promptUk || !row.promptEn)) {
+      errors.push(`exercise[${i}]: missing_prompt_en_or_uk`);
+    }
     if (row.optionsEn && row.optionsEn.length !== (row.options?.length ?? -1)) {
       errors.push(`exercise[${i}]: options_en_length`);
     }

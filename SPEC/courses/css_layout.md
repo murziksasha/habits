@@ -3,9 +3,9 @@
 Slug: `css_layout`
 Group: deep
 Hub: `/css-layout`
-Freemium: first 6 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `programming`, `html_semantics`
-Recommended next: `js_fundamentals`, `react_fundamentals`
+Recommended next: `js_fundamentals`, `frontend_performance`
 
 ## What this course is
 
@@ -15,18 +15,18 @@ Deep layout track: box model, Flexbox, CSS Grid, responsive, flex vs grid. Unit 
 
 ### `box-flow` — Box & flow
 
-- `cl-box-model` — Box model [free] (3 exercises)
-- `cl-display` — display values [free] (2 exercises)
-- `cl-position-stacking` — Positioning & specificity [free] (4 exercises)
+- `cl-box-model` — Box model (3 exercises)
+- `cl-display` — display values (2 exercises)
+- `cl-position-stacking` — Positioning & specificity (4 exercises)
 - `cl-box-exam` — Exam: box [exam] (4 exercises)
 
 ### `flex-core` — Flex core
 
-- `cl-flex-container` — Flex container [free] (3 exercises)
-- `cl-flex-wrap` — wrap & gap [free] (3 exercises)
+- `cl-flex-container` — Flex container (3 exercises)
+- `cl-flex-wrap` — wrap & gap (3 exercises)
 - `cl-flex-justify-align` — justify & align (3 exercises)
 - `cl-flex-space` — space-between / around (2 exercises)
-- `cl-flex-gap-center` — gap & centering [free] (4 exercises)
+- `cl-flex-gap-center` — gap & centering (4 exercises)
 - `cl-flex-core-exam` — Exam: flex core [exam] (5 exercises)
 
 ### `flex-items` — Flex items

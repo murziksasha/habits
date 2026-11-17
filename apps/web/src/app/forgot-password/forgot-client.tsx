@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { UI } from "@eduforge/shared";
+import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
 
 export function ForgotPasswordClient() {
+  const { t } = useLocale();
   const [email, setEmail] = useState("");
   const [msg, setMsg] = useState("");
   const [resetUrl, setResetUrl] = useState("");
@@ -21,10 +22,10 @@ export function ForgotPasswordClient() {
         method: "POST",
         body: { email },
       });
-      setMsg(d.message ?? UI.password.sent);
+      setMsg(d.message ?? t.password.sent);
       if (d.resetUrl) setResetUrl(d.resetUrl);
     } catch {
-      setMsg(UI.common.error);
+      setMsg(t.common.error);
     } finally {
       setLoading(false);
     }
@@ -32,11 +33,11 @@ export function ForgotPasswordClient() {
 
   return (
     <div className="mx-auto max-w-md card space-y-4">
-      <h1 className="text-2xl font-black">{UI.password.forgotTitle}</h1>
-      <p className="text-sm text-ink-muted">{UI.password.forgotHint}</p>
+      <h1 className="text-2xl font-black">{t.password.forgotTitle}</h1>
+      <p className="text-sm text-ink-muted">{t.password.forgotHint}</p>
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
-          <label className="label">{UI.auth.email}</label>
+          <label className="label">{t.auth.email}</label>
           <input
             className="input"
             type="email"
@@ -46,7 +47,7 @@ export function ForgotPasswordClient() {
           />
         </div>
         <button className="btn-primary w-full" disabled={loading}>
-          {UI.password.sendLink}
+          {t.password.sendLink}
         </button>
       </form>
       {msg && <p className="text-sm font-bold text-sky">{msg}</p>}
@@ -60,7 +61,7 @@ export function ForgotPasswordClient() {
       )}
       <p className="text-center text-sm">
         <Link href="/login" className="font-bold text-sky">
-          {UI.nav.login}
+          {t.nav.login}
         </Link>
       </p>
     </div>

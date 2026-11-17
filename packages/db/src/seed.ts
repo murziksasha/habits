@@ -37,6 +37,7 @@ import {
   restApiDesignContent,
   frontendPerformanceContent,
   browserWebApisContent,
+  electricalEngineeringContent,
   type CourseContent,
 } from "@eduforge/content";
 import bcrypt from "bcryptjs";
@@ -55,7 +56,7 @@ import {
   users,
 } from "./schema.js";
 
-const allCourses: CourseContent[] = [
+export const allCourses: CourseContent[] = [
   englishContent,
   chessContent,
   typingContent,
@@ -91,6 +92,7 @@ const allCourses: CourseContent[] = [
   restApiDesignContent,
   frontendPerformanceContent,
   browserWebApisContent,
+  electricalEngineeringContent,
 ];
 
 export async function seedCourse(
@@ -138,10 +140,8 @@ export async function seedCourse(
         icon: content.icon,
         color: content.color,
         sortOrder,
-        status: "published",
         category,
         contentSource: "seed",
-        publishedAt: course.publishedAt ?? new Date(),
       })
       .where(eq(courses.id, course.id));
   }
@@ -200,6 +200,7 @@ export async function seedCourse(
           isFree: lesson.isFree ?? false,
           isExam: lesson.isExam ?? false,
           passThreshold: lesson.passThreshold ?? null,
+          contentVersion: lesson.contentVersion ?? 1,
           exercises: lesson.exercises,
         });
         console.log(`  + lesson ${content.slug}/${unit.slug}/${lesson.slug}`);
@@ -215,6 +216,7 @@ export async function seedCourse(
             isFree: lesson.isFree ?? false,
             isExam: lesson.isExam ?? false,
             passThreshold: lesson.passThreshold ?? null,
+            contentVersion: lesson.contentVersion ?? 1,
             exercises: lesson.exercises,
           })
           .where(eq(lessons.id, existing.id));
@@ -224,7 +226,7 @@ export async function seedCourse(
   console.log(`Seeded course ${content.slug}`);
 }
 
-async function seedFlashcards(db: ReturnType<typeof createDb>) {
+export async function seedFlashcards(db: ReturnType<typeof createDb>) {
   for (const deck of FLASHCARD_DECKS) {
     let d = await db.query.flashcardDecks.findFirst({
       where: eq(flashcardDecks.slug, deck.slug),
@@ -352,7 +354,7 @@ async function seedAdmin(db: ReturnType<typeof createDb>) {
   }
 }
 
-async function seedAchievements(db: ReturnType<typeof createDb>) {
+export async function seedAchievements(db: ReturnType<typeof createDb>) {
   for (const a of ACHIEVEMENT_CATALOG) {
     const existing = await db.query.achievements.findFirst({
       where: eq(achievements.code, a.code),

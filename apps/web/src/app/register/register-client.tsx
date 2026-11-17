@@ -3,13 +3,15 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { postRegisterPath, safeNextPath, UI } from "@eduforge/shared";
+import { postRegisterPath, safeNextPath } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/locale-context";
 import { API_URL } from "@/lib/api";
 import { isFriendInviteId, sendFriendInvite } from "@/lib/friend-invite";
 
 function RegisterForm() {
   const { register } = useAuth();
+  const { t } = useLocale();
   const router = useRouter();
   const params = useSearchParams();
   const friendId = params.get("friend");
@@ -61,7 +63,7 @@ function RegisterForm() {
 
   return (
     <div className="mx-auto max-w-md card">
-      <h1 className="text-2xl font-black">{UI.auth.registerTitle}</h1>
+      <h1 className="text-2xl font-black">{t.auth.registerTitle}</h1>
       {hasFriendInvite && (
         <p className="mt-2 rounded-xl bg-brand-soft/40 px-3 py-2 text-sm font-bold text-ink">
           👥 Friend invite — after sign-up we will send a friend request.
@@ -69,7 +71,7 @@ function RegisterForm() {
       )}
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
         <div>
-          <label className="label">{UI.auth.displayName}</label>
+          <label className="label">{t.auth.displayName}</label>
           <input
             className="input"
             value={displayName}
@@ -79,7 +81,7 @@ function RegisterForm() {
           />
         </div>
         <div>
-          <label className="label">{UI.auth.email}</label>
+          <label className="label">{t.auth.email}</label>
           <input
             className="input"
             type="email"
@@ -89,7 +91,7 @@ function RegisterForm() {
           />
         </div>
         <div>
-          <label className="label">{UI.auth.password}</label>
+          <label className="label">{t.auth.password}</label>
           <input
             className="input"
             type="password"
@@ -119,7 +121,7 @@ function RegisterForm() {
           </p>
         )}
         <button type="submit" className="btn-primary w-full min-h-11" disabled={loading}>
-          {UI.auth.submitRegister}
+          {t.auth.submitRegister}
         </button>
       </form>
       {googleOn && (
@@ -133,12 +135,12 @@ function RegisterForm() {
         </a>
       )}
       <p className="mt-4 text-center text-sm text-ink-muted">
-        {UI.auth.hasAccount}{" "}
+        {t.auth.hasAccount}{" "}
         <Link
           href={hasFriendInvite && friendId ? `/login?friend=${friendId}` : "/login"}
           className="font-bold text-sky"
         >
-          {UI.nav.login}
+          {t.nav.login}
         </Link>
       </p>
     </div>
@@ -146,8 +148,9 @@ function RegisterForm() {
 }
 
 export function RegisterClient() {
+  const { t } = useLocale();
   return (
-    <Suspense fallback={<p>{UI.common.loading}</p>}>
+    <Suspense fallback={<p>{t.common.loading}</p>}>
       <RegisterForm />
     </Suspense>
   );

@@ -3,7 +3,7 @@
 Slug: `speed_reading`
 Group: skill
 Hub: `/courses/speed_reading`
-Freemium: first 6 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 
 ## What this course is
 
@@ -13,11 +13,11 @@ RSVP, chunking, and reading comprehension.
 
 ### `foundations` — Foundations
 
-- `what-is-rsvp` — What is RSVP [free] (2 exercises)
-- `reduce-subvocal` — Less subvocalization [free] (2 exercises)
-- `chunking` — Chunking — word groups [free] (2 exercises)
-- `comprehension-1` — Comprehension 1 [free] (1 exercises)
-- `comprehension-2` — Розуміння 2 [free] (2 exercises)
+- `what-is-rsvp` — What is RSVP (2 exercises)
+- `reduce-subvocal` — Less subvocalization (2 exercises)
+- `chunking` — Chunking — word groups (2 exercises)
+- `comprehension-1` — Comprehension 1 (1 exercises)
+- `comprehension-2` — Розуміння 2 (2 exercises)
 - `peripheral` — Периферійний зір (2 exercises)
 - `meta-cognition` — Метапізнання (1 exercises)
 - `speed-burst` — Швидкісний ривок (2 exercises)
@@ -27,7 +27,7 @@ RSVP, chunking, and reading comprehension.
 - `scanning` — Сканування (2 exercises)
 - `science-passage` — Науковий уривок (1 exercises)
 - `capstone-reading` — Капстоун (2 exercises)
-- `news-skim` — News skimming [free] (2 exercises)
+- `news-skim` — News skimming (2 exercises)
 - `dense-tech` — Dense tech text (2 exercises)
 
 ### `speed-comprehension-tiers` — Speed & Comprehension Tiers

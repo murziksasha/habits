@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@eduforge/chess-core": "workspace:*",
+    "@eduforge/circuit-engine": "workspace:*",
     "@eduforge/db": "workspace:*",
     "@eduforge/judge": "workspace:*",
     "@eduforge/shared": "workspace:*",

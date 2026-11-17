@@ -38,9 +38,15 @@ Machine-readable: `GET /openapi.json` (v1.8) · human: `GET /docs`.
 |--------|------|------|-------------|
 | GET | `/courses` | No | List courses |
 | GET | `/courses/progress/me` | Yes | Per-course progress |
-| GET | `/courses/:slug` | Yes | Units, lessons, locks, hearts |
-| GET | `/courses/:slug/lessons/:id` | Yes | Lesson payload |
-| POST | `/courses/:slug/lessons/:id/submit` | Yes | Grade + XP; exams need ≥70%; returns `isExam` / `passed` / `examFailed`, `levelUp` (course), `courseLevelBefore/After`, `characterXpGain`, `characterLevelBefore/After`, `characterLevelUp`, `levelChangeTrigger`, `grantedRewards` |
+| GET | `/courses/:slug` | Optional | Published course tree; account progress when authenticated |
+| GET | `/courses/:slug/lessons/:id` | Optional | Lesson preview; authenticated unit exam readiness checks |
+| POST | `/courses/:slug/lessons/:id/submit` | Optional | Grade + XP for accounts; limited guest result without account progress. Exams use their `passThreshold` (default 70%); returns `isExam` / `passed` / `examFailed`, `levelUp` (course), `courseLevelBefore/After`, `characterXpGain`, `characterLevelBefore/After`, `characterLevelUp`, `levelChangeTrigger`, `grantedRewards` |
+
+Authenticated lesson submission checks that the URL slug matches the lesson's course. Missing/mismatched lessons and unpublished or hidden courses return `404 { error: "not_found" }` to non-admin learners; admins may preview unpublished content. Unit exams require current-version completion of every non-exam lesson in their unit, otherwise `403 { error: "exam_locked" }`. These checks also apply when submitting directly rather than opening the lesson first. Electrical engineering capstone exams require 100%.
+
+Each submitted answer has `{ exerciseId, answer, wrongAttempts?, confidence?, hintsUsed?, solutionRevealed? }`. `hintsUsed` and `solutionRevealed` are optional, client-reported assistance metadata. The server grades the answer itself and uses assistance and wrong-attempt reports when calculating `evidenceLevel`; theory-only acknowledgements do not establish independent mastery. The legacy top-level `usedHint` is also consumed. Client reports are not tamper-proof evidence, and reload persistence is an [open issue](./CURRENT.md#learning-quality-follow-up). Existing verified evidence is retained rather than downgraded by later assisted practice.
+
+Guest preview/submit remains a separate limited path: it requires a published, visible course, does not award account XP/progress, and does not use the authenticated unit-completion readiness check.
 
 ## Learning OS (`/learning`)
 
@@ -61,6 +67,8 @@ Machine-readable: `GET /openapi.json` (v1.8) · human: `GET /docs`.
 | GET | `/learning/programming/minis/leaderboard` | Yes | All-time minis ranks |
 | GET | `/learning/programming/minis/race` | Yes | Weekly minis race |
 | POST | `/learning/programming/minis/race/claim-bonus` | Yes | Top-3 XP claim |
+
+Continue recommendations resume an unfinished lesson or select the first unfinished current-version lesson in unit/lesson order. Locked exams are skipped; a fully completed current course has no Continue target. The exam board filters to published, visible courses and uses current content versions for both readiness and passed status. General recommendation ranking and weak/spaced review visibility still have [follow-up work](./CURRENT.md#learning-quality-follow-up).
 
 ## Playground (`/playground`)
 
@@ -210,3 +218,16 @@ See [SPEC 72](./72-admin-platform-v2.md).
 ```
 
 Common codes: `400 invalid_input`, `401 unauthorized`, `402 insufficient_xp`, `403 forbidden`, `404 not_found`, `409 email_taken`.
+
+## Circuits (`/circuits`)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/circuits/projects` | Yes | `{ projects }` without the document body |
+| POST | `/circuits/projects` | Yes | Create. Body `{ title, document }`. Returns `{ project }` |
+| GET | `/circuits/projects/:id` | Yes | `{ project }` including the document |
+| PATCH | `/circuits/projects/:id` | Yes | `{ title?, document?, expectedRevision }`. Revision increments in SQL. `409 project_conflict` |
+| DELETE | `/circuits/projects/:id` | Yes | Delete the caller's project |
+| POST | `/circuits/simulate` | Yes | `{ circuit, analysis }` → `{ ok: true, result }` or `503 circuit_engine_unavailable` |
+
+A document larger than 1 MiB UTF-8 is `400 document_too_large`. The account cap is 100 projects, counted inside a transaction. Guest preview does not call this route. Guest lesson submit still uses the existing limited server path. `503` must not change attempts, hearts, or XP.

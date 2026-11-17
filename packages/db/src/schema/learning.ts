@@ -13,4 +13,5 @@ export {
   learningMilestones,
   exerciseAttempts,
   exerciseReviews,
+  selfVerificationSessions,
 } from "./tables.js";

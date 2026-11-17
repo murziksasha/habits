@@ -4,6 +4,7 @@ import {
   courses,
   lessons,
   placementResults,
+  units,
   userCourseProgress,
   userLessonProgress,
 } from "@eduforge/db";
@@ -19,6 +20,9 @@ import {
   weeklyMinisRaceSlugs,
 } from "@eduforge/shared";
 import { db } from "../db.js";
+import { lessonCountsAsCurrentMastery } from "./certificate-rules.js";
+import { pickContinueLessonId } from "./continue-target.js";
+import { applyFocusPriority, focusCourseSlug } from "./recommendation-rank.js";
 import { getSpacedReviewLessons, getWeakLessons, masteryPriority } from "./mastery.js";
 
 export type NextRecommendation = {
@@ -52,6 +56,10 @@ export type NextStepsPrefetch = {
 
 const DEEP_TRACK_SLUGS = coursesByGroup("deep");
 
+function isPublicCourse(course: { status?: string | null; isVisible?: boolean | null }): boolean {
+  return course.status === "published" && course.isVisible !== false;
+}
+
 const MAX_EXPLORE = 4;
 
 /** Smart next steps: unfinished lessons, weak review, placement, minis, exams. */
@@ -78,36 +86,59 @@ export async function buildNextRecommendations(
       .innerJoin(courses, eq(courses.id, userCourseProgress.courseId))
       .where(eq(userCourseProgress.userId, userId)));
 
-  for (const p of progress) {
-    if (p.lastLessonId) {
-      recommendations.push({
-        kind: "continue_course",
-        titleUk: `Продовжити: ${p.titleUk}`,
-        titleEn: `Continue: ${p.titleEn || p.titleUk}`,
-        href: `/courses/${p.slug}/lessons/${p.lastLessonId}`,
-        priority: 10 + p.completedLessons,
-        meta: { courseSlug: p.slug, icon: p.icon },
-      });
-    } else {
-      recommendations.push({
-        kind: "start_course",
-        titleUk: `Почати: ${p.titleUk}`,
-        titleEn: `Start: ${p.titleEn || p.titleUk}`,
-        href: `/courses/${p.slug}`,
-        priority: 5,
-        meta: { courseSlug: p.slug },
-      });
-    }
-  }
-
   const allCourses =
     prefetch?.courses ??
     (await db.query.courses.findMany({
       orderBy: [asc(courses.sortOrder)],
     }));
+  const courseById = new Map(allCourses.map((course) => [course.id, course]));
+  const visibleProgress = progress.filter((row) => {
+    const course = courseById.get(row.courseId);
+    return course ? isPublicCourse(course) : false;
+  });
+  const visibleIds = visibleProgress.map((row) => row.courseId);
+  const [continueLessons, continueUnits, continueProgress] = visibleIds.length
+    ? await Promise.all([
+        db.query.lessons.findMany({ where: inArray(lessons.courseId, visibleIds) }),
+        db.query.units.findMany({ where: inArray(units.courseId, visibleIds) }),
+        prefetch?.lessonProgress
+          ? Promise.resolve(prefetch.lessonProgress)
+          : db.query.userLessonProgress.findMany({ where: eq(userLessonProgress.userId, userId) }),
+      ])
+    : [[], [], []];
+
+  for (const row of visibleProgress) {
+    const targetId = pickContinueLessonId(
+      continueLessons.filter((lesson) => lesson.courseId === row.courseId),
+      continueUnits.filter((unit) => unit.courseId === row.courseId),
+      continueProgress.filter((item) => item.courseId === row.courseId),
+      row.lastLessonId,
+    );
+    if (targetId) {
+      recommendations.push({
+        kind: "continue_course",
+        titleUk: `Продовжити: ${row.titleUk}`,
+        titleEn: `Continue: ${row.titleEn || row.titleUk}`,
+        href: `/courses/${row.slug}/lessons/${targetId}`,
+        priority: 10 + row.completedLessons,
+        meta: { courseSlug: row.slug, icon: row.icon },
+      });
+    } else if (row.completedLessons === 0) {
+      recommendations.push({
+        kind: "start_course",
+        titleUk: `Почати: ${row.titleUk}`,
+        titleEn: `Start: ${row.titleEn || row.titleUk}`,
+        href: `/courses/${row.slug}`,
+        priority: 5,
+        meta: { courseSlug: row.slug },
+      });
+    }
+  }
+
   const started = new Set(progress.map((p) => p.courseId));
   let exploreCount = 0;
   for (const course of allCourses) {
+    if (!isPublicCourse(course)) continue;
     if (started.has(course.id)) continue;
     if (exploreCount >= MAX_EXPLORE) break;
     recommendations.push({
@@ -158,7 +189,7 @@ export async function buildNextRecommendations(
       titleEn: `🩸 Leech: ${w.titleEn}`,
       href: `/courses/${w.courseSlug}/lessons/${w.lessonId}`,
       priority: masteryPriority(w.bestScore, w.attempts) + 2,
-      meta: { leech: true, attempts: w.attempts, bestScore: w.bestScore },
+      meta: { leech: true, attempts: w.attempts, bestScore: w.bestScore, courseSlug: w.courseSlug },
     });
   }
 
@@ -171,7 +202,7 @@ export async function buildNextRecommendations(
       titleEn: `📅 Spaced review: ${s.titleEn}`,
       href: `/courses/${s.courseSlug}/lessons/${s.lessonId}`,
       priority: 12 + (1 - s.bestScore) * 4,
-      meta: { spaced: true, bestScore: s.bestScore },
+      meta: { spaced: true, bestScore: s.bestScore, courseSlug: s.courseSlug },
     });
   }
 
@@ -269,7 +300,7 @@ export async function buildNextRecommendations(
   }
 
   const progCourse = allCourses.find((c) => c.slug === "programming");
-  if (progCourse) {
+  if (progCourse && isPublicCourse(progCourse)) {
     const miniSlugs = [...PROGRAMMING_MINI_LESSON_SLUGS];
     const raceSlugs = weeklyMinisRaceSlugs();
     const raceSet = new Set(raceSlugs);
@@ -398,9 +429,13 @@ export async function buildNextRecommendations(
       : await db.query.lessons.findMany({ where: eq(lessons.isExam, true) })
   );
   if (examLessons.length) {
-    const doneSet = new Set(
-      lpForExams.filter((p) => p.status === "completed").map((p) => p.lessonId),
-    );
+    const examProgress = new Map(lpForExams.map((row) => [row.lessonId, row]));
+    const examDone = (lesson: { id: string; contentVersion?: number | null }) =>
+      lessonCountsAsCurrentMastery({
+        status: examProgress.get(lesson.id)?.status ?? "",
+        lessonContentVersion: lesson.contentVersion ?? 1,
+        completedContentVersion: examProgress.get(lesson.id)?.completedContentVersion ?? null,
+      });
     const unitIds = [...new Set(examLessons.map((l) => l.unitId))];
     const unitLessons =
       unitIds.length > 0
@@ -418,12 +453,12 @@ export async function buildNextRecommendations(
     let examRecs = 0;
     for (const ex of examLessons) {
       if (examRecs >= 3) break;
-      if (doneSet.has(ex.id)) continue;
+      if (examDone(ex)) continue;
       const peers = byUnit.get(ex.unitId) ?? [];
       const nonExam = peers.filter((l) => !l.isExam);
-      if (!nonExam.length || !nonExam.every((l) => doneSet.has(l.id))) continue;
+      if (!nonExam.length || !nonExam.every((l) => examDone(l))) continue;
       const course = courseMap.get(ex.courseId);
-      if (!course) continue;
+      if (!course || !isPublicCourse(course)) continue;
       recommendations.push({
         kind: "exam_ready",
         titleUk: `📝 Контрольна: ${ex.titleUk}`,
@@ -438,7 +473,7 @@ export async function buildNextRecommendations(
 
   for (const slug of DEEP_TRACK_SLUGS) {
     const c = allCourses.find((x) => x.slug === slug);
-    if (!c || started.has(c.id)) continue;
+    if (!c || !isPublicCourse(c) || started.has(c.id)) continue;
     recommendations.push({
       kind: "deep_track",
       titleUk: `Deep track: ${c.titleUk}`,
@@ -449,9 +484,23 @@ export async function buildNextRecommendations(
     });
   }
 
+  const focusSlug = focusCourseSlug(
+    visibleProgress.map((row) => ({
+      slug: row.slug,
+      courseId: row.courseId,
+      lastLessonId: row.lastLessonId,
+      completedLessons: row.completedLessons,
+    })),
+    continueProgress.map((item) => ({
+      courseId: item.courseId,
+      completedAt: item.completedAt,
+    })),
+  );
+  const focused = applyFocusPriority(recommendations, focusSlug);
+
   // ML-lite adaptive re-rank (feature blend; weights via ADAPTIVE_WEIGHTS_JSON)
   const weights = loadAdaptiveWeights(process.env as Record<string, string | undefined>);
-  const scored = recommendations.map((r) => {
+  const scored = focused.map((r) => {
     const meta = r.meta ?? {};
     const score = adaptiveScore(
       {

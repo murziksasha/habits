@@ -386,15 +386,46 @@ describeIntegration("API integration", () => {
     const stUnit1 = (
       stRes.data.units as { slug: string; lessons: { id: string; slug: string; isExam?: boolean }[] }[]
     ).find((u) => u.slug === "st_testable_requirements")!;
+
+    const stExam = stUnit1.lessons.find((x) => x.isExam)!;
+    // Attempting exam before unit lessons are completed is rejected with 403 exam_locked
+    const prematureExam = await json(`/courses/software_testing/lessons/${stExam.id}/submit`, {
+      method: "POST",
+      token: activeToken,
+      body: { answers: [] },
+    });
+    expect(prematureExam.status).toBe(403);
+    expect(prematureExam.data.error).toBe("exam_locked");
+
+    // Complete all non-exam lessons in the unit with valid answers
     for (const l of stUnit1.lessons.filter((x) => !x.isExam)) {
+      const detail = await json(`/courses/software_testing/lessons/${l.id}`, { token: activeToken });
+      expect(detail.status).toBe(200);
+      const exercises = (detail.data.lesson as { exercises: { id: string; type: string; correctIndex?: number; accepted?: string[]; pairs?: { left: string; right: string }[]; correct?: string[] }[] }).exercises;
+      const answers = exercises.map((ex) => {
+        if (ex.type === "mcq" || ex.type === "logic_puzzle" || ex.type === "code_read" || ex.type === "code_output_mcq") {
+          return { exerciseId: ex.id, answer: ex.correctIndex ?? 0 };
+        }
+        if (ex.type === "translate" || ex.type === "fill_blank" || ex.type === "code_fill") {
+          return { exerciseId: ex.id, answer: ex.accepted?.[0] ?? "" };
+        }
+        if (ex.type === "match") {
+          return { exerciseId: ex.id, answer: ex.pairs ?? [] };
+        }
+        if (ex.type === "order_words" || ex.type === "code_order") {
+          return { exerciseId: ex.id, answer: ex.correct ?? [] };
+        }
+        return { exerciseId: ex.id, answer: true };
+      });
       const s = await json(`/courses/software_testing/lessons/${l.id}/submit`, {
         method: "POST",
         token: activeToken,
-        body: { answers: [] },
+        body: { answers },
       });
       expect(s.status).toBe(200);
+      expect(s.data.passed).toBe(true);
     }
-    const stExam = stUnit1.lessons.find((x) => x.isExam)!;
+
     const examBypassAttempt = await json(`/courses/software_testing/lessons/${stExam.id}/submit`, {
       method: "POST",
       token: activeToken,

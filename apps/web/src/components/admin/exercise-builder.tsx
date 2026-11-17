@@ -29,6 +29,7 @@ const TYPES = [
   "code_output",
   "code_fill",
   "code_order",
+  "code_judge",
   "typing",
   "rsvp",
   "comprehension",
@@ -37,6 +38,8 @@ const TYPES = [
   "code_project",
   "concept",
   "explain",
+  "numeric",
+  "circuit_lab",
 ] as const;
 
 function newId() {
@@ -119,6 +122,18 @@ function blankExercise(type: string): BuilderExercise {
         lines: ["const a = 1;", "const b = a + 1;", "console.log(b);"],
         correct: ["const a = 1;", "const b = a + 1;", "console.log(b);"],
       };
+    case "code_judge":
+      return {
+        id,
+        type,
+        promptUk: "Напиши код, що виводить Hello, world!",
+        promptEn: "Write code that prints Hello, world!",
+        language: "javascript",
+        starter: "// напиши код тут\n",
+        tests: [{ type: "stdout_contains", value: "Hello, world!" }],
+        checkMode: "both",
+        accepted: ['console.log("Hello, world!");'],
+      };
     case "typing":
       return {
         id,
@@ -186,6 +201,35 @@ function blankExercise(type: string): BuilderExercise {
         keyPointsUk: ["Головна думка"],
         keyPointsEn: ["Key idea"],
       };
+    case "numeric":
+      return {
+        id,
+        type,
+        promptUk: "Обчисліть величину в базових одиницях СІ.",
+        promptEn: "Calculate the quantity in base SI units.",
+        target: 1,
+        unit: "V",
+        absTolerance: 0.01,
+        relTolerance: 0.02,
+        contentVersion: "2",
+      };
+    case "circuit_lab":
+      return {
+        id,
+        type,
+        promptUk: "Побудуйте схему і здайте документ.",
+        promptEn: "Build the circuit and submit the document.",
+        contentVersion: "2",
+        circuit: {
+          version: 2,
+          components: [],
+          wires: [],
+          junctions: [],
+          mode: "schematic",
+        },
+        analysis: { type: "op" },
+        criteria: [{ type: "node_voltage", node: "out", target: 0, unit: "V", absTolerance: 0.05 }],
+      };
     case "code_project":
       return {
         id,
@@ -216,7 +260,7 @@ type Props = {
 export function ExerciseBuilder({ exercises, onChange, onJsonSync }: Props) {
   const [selected, setSelected] = useState(0);
   const [addType, setAddType] = useState<string>("mcq");
-  const validation = useMemo(() => validateExercises(exercises), [exercises]);
+  const validation = useMemo(() => validateExercises(exercises, { requireBothLocales: true }), [exercises]);
 
   function emit(next: BuilderExercise[]) {
     onChange(next);
@@ -670,6 +714,77 @@ export function ExerciseBuilder({ exercises, onChange, onJsonSync }: Props) {
                 value={String(ex.sampleAnswerEn ?? "")}
                 onChange={(e) => updateAt(selected, { sampleAnswerEn: e.target.value || undefined })}
               />
+            </div>
+          )}
+
+          {ex.type === "code_judge" && (
+            <div className="space-y-3 rounded-2xl border-2 border-slate-200 p-3 dark:border-slate-700">
+              <p className="text-xs font-bold text-ink-muted">Code Judge Settings</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="label">Language</label>
+                  <select
+                    className="input text-xs"
+                    value={String(ex.language ?? "javascript")}
+                    onChange={(e) => updateAt(selected, { language: e.target.value })}
+                  >
+                    <option value="javascript">JavaScript</option>
+                    <option value="typescript">TypeScript</option>
+                    <option value="python">Python</option>
+                    <option value="bash">Bash</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="label">Verification Mode</label>
+                  <select
+                    className="input text-xs"
+                    value={String(ex.checkMode ?? "both")}
+                    onChange={(e) => updateAt(selected, { checkMode: e.target.value })}
+                  >
+                    <option value="both">Both (Behavior + Text)</option>
+                    <option value="behavior">Behavior only</option>
+                    <option value="text">Text only</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="label">Starter Code</label>
+                <textarea
+                  className="input min-h-20 font-mono text-xs"
+                  value={String(ex.starter ?? "")}
+                  onChange={(e) => updateAt(selected, { starter: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="label">Judge Tests (JSON array)</label>
+                <textarea
+                  className="input min-h-20 font-mono text-xs"
+                  value={JSON.stringify(ex.tests ?? [], null, 2)}
+                  onChange={(e) => {
+                    try {
+                      updateAt(selected, { tests: JSON.parse(e.target.value) });
+                    } catch {
+                      /* allow typing */
+                    }
+                  }}
+                />
+              </div>
+              <div>
+                <label className="label">Limitations note (UK)</label>
+                <input
+                  className="input text-xs"
+                  value={String(ex.limitationsUk ?? "")}
+                  onChange={(e) => updateAt(selected, { limitationsUk: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="label">Limitations note (EN)</label>
+                <input
+                  className="input text-xs"
+                  value={String(ex.limitationsEn ?? "")}
+                  onChange={(e) => updateAt(selected, { limitationsEn: e.target.value })}
+                />
+              </div>
             </div>
           )}
 

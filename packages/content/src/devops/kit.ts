@@ -1,5 +1,6 @@
 import {
   codeFill,
+  codeJudge,
   codeOrder,
   codeOutputMcq,
   codeRead,
@@ -25,6 +26,23 @@ export type Step =
       en: string;
       passage: string;
       questions: { q: string; qEn?: string; options: string[]; correctIndex: number }[];
+      note?: Note;
+    }
+  | {
+      t: "judge";
+      uk: string;
+      en: string;
+      lang: "javascript" | "typescript" | "python" | "bash";
+      starter: string;
+      tests: {
+        type: "stdout_contains" | "stdout_equals" | "exit_code" | "not_stdout_contains";
+        value: string | number;
+      }[];
+      checkMode?: "behavior" | "text" | "both";
+      accepted?: string[];
+      requiredSource?: string[];
+      limitationsUk?: string;
+      limitationsEn?: string;
       note?: Note;
     };
 
@@ -61,6 +79,23 @@ export function steps(prefix: string, items: Step[]): Exercise[] {
           questions: item.questions,
           ...item.note,
         };
+      case "judge":
+        return codeJudge(
+          id,
+          item.uk,
+          item.en,
+          item.lang,
+          item.starter,
+          item.tests,
+          {
+            checkMode: item.checkMode,
+            accepted: item.accepted,
+            requiredSource: item.requiredSource,
+            limitationsUk: item.limitationsUk,
+            limitationsEn: item.limitationsEn,
+            ...item.note,
+          },
+        );
     }
   });
 }

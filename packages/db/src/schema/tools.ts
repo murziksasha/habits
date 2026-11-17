@@ -9,4 +9,5 @@ export {
   flashcardStates,
   flashcardReviews,
   tutorMessages,
+  circuitProjects,
 } from "./tables.js";

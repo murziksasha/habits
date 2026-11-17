@@ -109,6 +109,39 @@ describe("unit mastery map", () => {
     expect(map[0]!.state).toBe("learning");
     expect(map[0]!.lessons[1]!.state).toBe("new");
   });
+
+  it("treats a fresh successful practice as remembered even when the first completion is old", () => {
+    const first = new Date("2026-08-01T00:00:00Z");
+    const recent = new Date("2026-10-28T00:00:00Z");
+    const map = buildUnitMasteryMap(
+      [
+        {
+          slug: "u1",
+          titleUk: "Юніт",
+          lessons: [
+            {
+              id: "l1",
+              slug: "a",
+              titleUk: "A",
+              progress: {
+                status: "completed",
+                bestScore: 1,
+                attempts: 3,
+                completedAt: first,
+                lastPracticedAt: recent,
+                evidenceLevel: "self_verified",
+              },
+            },
+          ],
+        },
+      ],
+      recent,
+    );
+    expect(map[0]!.lessons[0]!.state).toBe("mastered");
+    expect(map[0]!.lessons[0]!.retentionPct).toBe(100);
+    expect(map[0]!.lessons[0]!.lastPracticedAt).toBe(recent.toISOString());
+    expect(map[0]!.lessons[0]!.evidenceLevel).toBe("self_verified");
+  });
 });
 
 describe("explain in your own words", () => {
@@ -149,5 +182,14 @@ describe("explain in your own words", () => {
     const g = gradeExercise(ex, "It is something about code that I do not really remember now at all.");
     expect(g.correct).toBe(false);
     expect((g.meta?.missing as string[]).length).toBeGreaterThan(0);
+  });
+
+  it("does not pass when one keyword is repeated to fill the word count", () => {
+    const stuffed = gradeExplanation("electron ".repeat(20), {
+      minWords: 20,
+      keyIdeas: [{ labelUk: "електрон", labelEn: "electron", anyOf: ["electron", "електрон"] }],
+    });
+    expect(stuffed.correct).toBe(false);
+    expect(stuffed.tooShort).toBe(true);
   });
 });

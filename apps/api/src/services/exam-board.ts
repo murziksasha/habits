@@ -1,6 +1,7 @@
 import { asc, eq, inArray } from "drizzle-orm";
 import { courses, lessons, units, userLessonProgress } from "@eduforge/db";
 import { db } from "../db.js";
+import { lessonCountsAsCurrentMastery } from "./certificate-rules.js";
 
 export type ExamBoardSummary = {
   totalExams: number;
@@ -42,6 +43,37 @@ export type ExamBoardPrefetch = {
   lessons?: (typeof lessons.$inferSelect)[];
 };
 
+type ExamProgress = {
+  status: string;
+  completedContentVersion?: number | null;
+};
+
+/** Passed only for the current content version. A v1 completion does not open a v2 exam. */
+export function resolveExamRowStatus(
+  exam: { contentVersion?: number | null },
+  examProgress: ExamProgress | undefined,
+  unitLessons: { id: string; isExam: boolean | null; contentVersion?: number | null }[],
+  progressByLesson: Map<string, ExamProgress>,
+): "locked" | "ready" | "passed" {
+  const passed = lessonCountsAsCurrentMastery({
+    status: examProgress?.status ?? "",
+    lessonContentVersion: exam.contentVersion ?? 1,
+    completedContentVersion: examProgress?.completedContentVersion ?? null,
+  });
+  if (passed) return "passed";
+  const ready = unitLessons
+    .filter((lesson) => !lesson.isExam)
+    .every((lesson) => {
+      const progress = progressByLesson.get(lesson.id);
+      return lessonCountsAsCurrentMastery({
+        status: progress?.status ?? "",
+        lessonContentVersion: lesson.contentVersion ?? 1,
+        completedContentVersion: progress?.completedContentVersion ?? null,
+      });
+    });
+  return ready ? "ready" : "locked";
+}
+
 /** Unit exam board for a learner (shared by /learning/exams/me and /me/home). */
 export async function buildExamBoard(
   userId: string,
@@ -53,9 +85,10 @@ export async function buildExamBoard(
     (await db.query.courses.findMany({
       orderBy: [asc(courses.sortOrder)],
     }));
-  const courseList = courseFilter
+  const courseList = (courseFilter
     ? allCourses.filter((c) => c.slug === courseFilter)
-    : allCourses;
+    : allCourses
+  ).filter((course) => course.status === "published" && course.isVisible);
 
   const lpAll =
     prefetch?.lessonProgress ??
@@ -119,12 +152,8 @@ export async function buildExamBoard(
     for (const ex of exams) {
       const unit = courseUnits.find((u) => u.id === ex.unitId);
       const nonExam = courseLessons.filter((l) => l.unitId === ex.unitId && !l.isExam);
-      const unitDone = nonExam.every((l) => lpMap.get(l.id)?.status === "completed");
       const lp = lpMap.get(ex.id);
-      const passed = lp?.status === "completed";
-      let status: "locked" | "ready" | "passed" = "locked";
-      if (passed) status = "passed";
-      else if (unitDone) status = "ready";
+      const status = resolveExamRowStatus(ex, lp, nonExam, lpMap);
       summary.totalExams += 1;
       if (status === "passed") summary.passed += 1;
       else if (status === "ready") summary.ready += 1;

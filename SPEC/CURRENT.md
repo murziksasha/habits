@@ -1,6 +1,7 @@
 # CURRENT — Product surface freeze & IA map
 
-**Status:** Active (2026-07)  
+**Status:** Active; learning-quality review updated 2026-11-15
+
 **Access:** EduForge is free. There is no subscription, Stripe checkout, trial, or premium unlock.  
 **Scope:** Consolidation after SPECs 01–71. Prefer quality, IA, and platform over new surface area.
 
@@ -26,7 +27,9 @@ Primary journeys:
 
 Deep tracks (`typescript`, `html_semantics`, `css_layout`, `qa_theory`, `js_*`, `react_*`, `sql_*`, `node_*`, `express_*`) are **Core content** but **not** primary nav entries — reach via `/learn`, `/courses`, `/programming`.
 
-Skill tracks `sysadmin` and `devops` are the same kind of surface: `/learn` and `/courses`, not a new primary-nav slot. `devops` is the container, Kubernetes, and delivery path. `sysadmin` stops before those topics. Per-course depth is `SPEC/courses/`.
+`electrical_engineering` stays one course at `/courses/electrical_engineering`: 10 stages, 60 units, 360 lessons including 60 exams, seven graded circuit lab cards, and three capstones. Electrical machines are part of this course, not a separate electromechanics slug. The lab is `/courses/electrical_engineering/lab` and is linked from the course page. It is not a new primary-nav slot. Version 2, its model boundaries, and publication policy are specified in [the course document](./courses/electrical_engineering.md). Publication requires review; seed/content sync does not republish a course moved back to draft. This document does not assert the live publication state of any instance.
+
+Skill tracks `sysadmin` and `devops` are accessed via `/learn` and `/courses`, not a new primary-nav slot. `sysadmin` covers workstation and SOHO administration, Linux console, local service troubleshooting, and local container operations (Podman/rootless Docker, systemd unit integration). `devops` owns the delivery pipeline, CI/CD, registries, infrastructure-as-code, orchestration (Kubernetes, AWS), observability, and on-call reliability runbooks. Per-course depth is `SPEC/courses/`.
 
 `devops` is still reached from `/learn` and `/courses`; Stay up and On call are more units on that course page, not a new nav slot.
 
@@ -272,15 +275,12 @@ Skill tracks `sysadmin` and `devops` are the same kind of surface: `/learn` and 
 174. **AI skills stack:** Added 5 deep tracks (`python_for_ai`, `agentic_systems`, `llmops`, `ai_security`, `ai_product`) plus unit `ai_coder_control` on `ai_development` so the IT-AI engineering skills stack is learnable offline inside EduForge without paid model keys, external vector databases, new primary nav items, or new ForgeBoard zip labs (`LOCAL_LAB_MANIFESTS` stays 13). Reached via `/learn`, `/courses`, `/programming`, and `RoadmapCourseHub` RSC shells.
 175. **My progress, history & clearer level-ups:** Upgraded `/calendar` into **My progress** backed by shared `learning-progress` aggregation (`GET /learning/progress`, `GET /learning/history`, `PUT /learning/goal`, study-day `GET /learning/calendar`), Dashboard/Profile small calendars switched to recorded study dates (`skill_attempts`), linked from Dashboard/Learn/Profile without new primary nav items, nullable `characters.weekly_target` (`0031_weekly_learning_goal`), daily XP cap applied before level rewards, and explicit course vs character level-up + granted rewards metadata and lesson result UX.
 
-### Deep learning pack (SPEC 90–92)
+### Deep learning pack (SPEC 90–93)
 
-171. **Learning depth:** `concept` exercise type (theory + key points + code + self-check) · forgetting-curve memory model (`retentionPct` / `dueInDays` on `/review`) · interleaved mixed practice (`/review/mixed`, `GET /review/mixed`, `POST /review/mixed/check`) · 14 new lessons: JS closures/this/event loop, TS conditional/mapped/template-literal types, SQL CTE/indexes/EXPLAIN, English learning skills. Backlog delivered in wave 172.
-
-172. **Learning depth 2 (SPEC 92):** confidence ratings + calibration card · mistake notebook `/review/mistakes` (exercise-level SRS, migration 0032) · mastery map `/courses/[slug]/mastery` · `explain` exercise type (rubric + tutor feedback `POST /deep/explain-feedback`) · MDX `<!-- concept -->` / `<!-- explain -->` markers + admin forms · capped XP for mixed/mistake practice · js_fundamentals prompt rewrite · CI on `deepImprovements`.
-
-173. **Admin God Mode (`/admin/users`):** Any admin can hard-delete another account (with school-owner cascade, detaching teacher and pairing seats), set password (destroys sessions, audits `user_set_password`), turn 2FA off (clears TOTP/backup hashes, sets `mfa_exempt = true` for admins, kills sessions, audits `user_mfa_off`), and require 2FA (clears `mfa_exempt`, kills sessions, audits `user_mfa_require`). Own row hides controls; API rejects self-target (`400 self_target`). Step-up enforced with auto-pass when admin 2FA is off. Migration `0035_admin_mfa_exempt`.
-
-174. **Smarter chess practice & tighter Learn session:**
+176. **Learning depth (SPEC 90–91):** `concept` exercise type (theory + key points + code + self-check) · forgetting-curve memory model (`retentionPct` / `dueInDays` on `/review`) · interleaved mixed practice (`/review/mixed`, `GET /review/mixed`, `POST /review/mixed/check`) · 14 new lessons: JS closures/this/event loop, TS conditional/mapped/template-literal types, SQL CTE/indexes/EXPLAIN, English learning skills. Backlog delivered in wave 172.  
+177. **Learning depth 2 (SPEC 92):** confidence ratings + calibration card · mistake notebook `/review/mistakes` (exercise-level SRS, migration 0032) · mastery map `/courses/[slug]/mastery` · `explain` exercise type (rubric + tutor feedback `POST /deep/explain-feedback`) · MDX `<!-- concept -->` / `<!-- explain -->` markers + admin forms · capped XP for mixed/mistake practice · js_fundamentals prompt rewrite · CI on `deepImprovements`.  
+178. **Admin God Mode (`/admin/users`):** Any admin can hard-delete another account (with school-owner cascade, detaching teacher and pairing seats), set password (destroys sessions, audits `user_set_password`), turn 2FA off (clears TOTP/backup hashes, sets `mfa_exempt = true` for admins, kills sessions, audits `user_mfa_off`), and require 2FA (clears `mfa_exempt`, kills sessions, audits `user_mfa_require`). Own row hides controls; API rejects self-target (`400 self_target`). Step-up enforced with auto-pass when admin 2FA is off. Migration `0035_admin_mfa_exempt`.  
+179. **Smarter chess practice & tighter Learn session:**
    - **Chess bot practice (Phase A):** Move selection moved into `@eduforge/chess-core` as `chooseBotMove(fen, level)`. Three calibrated levels:
      - `Learner`: 1-ply search scoring hanging pieces/safe captures and development, with ~25% random blunder moves.
      - `Club`: Depth-2 alpha-beta search with MVV-LVA capture ordering, piece-square tables (development, center control, castling), and occasional second-best move selection (~35%) among moves within 35 cp of best score.
@@ -293,9 +293,57 @@ Skill tracks `sysadmin` and `devops` are the same kind of surface: `/learn` and 
      - Quests start collapsed: Daily and weekly quest cards on `/learn` show compact summaries (e.g. `2 of 3 today`, `1 of 2 this week`) and expand on tap.
      - Course catalog groups remain directly accessible below the session fold.
      - Extra "Practice vs Club bot" link in the Chess course group directly deep-linking to `/play?level=club`.
-
+180. **Clear tasks, robust grading & editor keyboard isolation (SPEC 93):**
+   - **Clarity of exercise conditions:** Defined input data, expected outcome, mandatory elements, and validation limits without solution leakage across built-in courses; exercise IDs and student progress preserved.
+   - **Expanded normalization & equivalence:** `@eduforge/shared` `normText` unifies Ukrainian apostrophes (`’`, `‘`, `ʼ`, `'`) and quotation styles; `normCode` and `isCodeEquivalent` accept formatting variations in quotes, operator spacing, semicolons, and CSS properties (`font-size`).
+   - **Server behavior verification (`code_judge`):** Zero trust for client-reported test passes; execution isolated to Docker sandbox; 503 `judge_unavailable` fallback with retry/switch without heart penalty; dual-mode toggle (behavior vs text) persisted in `localStorage`.
+   - **Editor keyboard event isolation (`isTypingTarget`):** Deep detection of Monaco editor, ARIA text entry roles, and text inputs prevents global hotkeys (`f`, `?`, `Esc`, digits) from firing when typing code such as `font-size`.
+   - **Open lesson reload detection:** Real-time hash comparison prompts learner to reload updated lesson structure without loss of completed progress.
+   - **CMS builder & safe synchronization:** CMS exercise builder supports `code_judge` authoring; `pnpm content:sync` updates `seed` courses safely without touching accounts, progress, or CMS materials.
+181. **Comprehensive Learning Quality & Mastery Verification Program (Waves 0–10):**
+   - **Canonical skill objectives for all 35 courses:** `packages/shared/src/skills.ts` defines explicit Bloom-level taxonomies, bilingual descriptions, criteria, outcomes, and common learner remediation errors across all 35 courses in the registry. Enforced by automated test gate `verifyAllCoursesHaveObjectives()`.
+   - **Four-tier mastery evidence model:** `MasteryEvidenceLevel` (`insufficient_data`, `assisted`, `self_verified`, `retained_verified`) is separate from completion counts. Lesson evidence now excludes non-evaluative formats and theory-only concept acknowledgements and consumes reported hint use, solution views, and wrong attempts. Assistance caps newly earned evidence at `assisted`; prior verified evidence is retained. Persistence and mastery-map inconsistencies remain in the follow-up list below.
+   - **Structured feedback contract & environment waiver:** `DetailedFeedback` categorizes errors (`knowledge_gap`, `incomplete`, `accepted_alternative`, `environment_error`). Environment and judge runner failures (`environment_error`) strictly waive heart deductions (`penaltyWaived: true`).
+   - **High-signal exercise formats:** Added `composite_artifact` (multi-file projects), `dataset_query` (analytical database queries), and `incident_step` (production incident triage ordering) to the assessment bank.
+   - **Deterministic unit exam variants:** `resolveExamVariantId` deterministically hashes `(userId, lessonId, attemptNumber)` across `variant_A`, `variant_B`, and `variant_C` preventing browser-refresh exploitation while rotating across re-takes.
+   - **Spaced retention transfer checks:** `isTransferCheckDue(lastVerifiedAt, now)` triggers spaced transfer verification checks at 7-day and 30-day retention intervals to promote `self_verified` mastery to `retained_verified`.
+   - **Self-verification sessions & attempt tracking:** Endpoints `POST /learning/self-verify/start` and `POST /learning/self-verify/submit` backed by migration `0038_learning_evidence_and_verification.sql` for recording verification attempts and evidence levels.
+   - **Learner agency & UX:**
+     - Session duration presets (5m, 10m [default], 20m) persisted in `localStorage`.
+     - Real-time syllabus search & filter (by title, exam, lab) on course detail pages.
+     - Granular draft persistence and recovery in Monaco / input fields with explicit reset confirmation (↺).
+     - Four-tier stepped graduated hints (Principle → Diagnostic → Partial Step → Mentor Tip).
+     - Mobile responsive code execution tabs (📋 Task, 💻 Code, ▶️ Output).
+     - Contextual ambiguity / issue reporting modal (🚩) sending direct feedback to `/feedback`.
+   - **Actionable parent report cards:** 3-part card ("🎯 Чому навчився", "🤝 Де потрібна підтримка", "🚀 Наступний крок") providing clear, human-understandable guidance without raw grade jargon.
+   - **ForgeBoard local practice labs validation:** All 13 local practice labs verified with automated lifecycle testing (starter fail, solution pass, broken fail) via `scripts/verify-labs.mjs`.
+   - **Dual-locale CMS authoring validation:** CMS `ExerciseBuilder` and `validateExercises` strictly enforce presence of both Ukrainian and English prompts before publication.
+   - **Fail-closed judge integrity:** Docker runner isolates student code; production mode strictly enforces fail-closed without silent local fallback.
 
 **What not to build next:** native store apps, full multi-worker judge pool, trained ML ranking, new deep track without CONTENT-DX + IA justification, extra primary nav slots.
+
+### Learning-quality fixes reviewed on 2026-11-15
+
+Commit `2bc27f6` implements numeric tolerances scaled to the quantity, deterministic choice display order with canonical answer indices, assistance-aware lesson evidence, current-version Continue targets, and authenticated submit checks for course visibility, matching slug, and unit exam readiness. Search and the exam board filter unpublished/hidden courses; the board checks current content versions. Laboratory document replacement, analysis settings, and conflict save-as-copy are implemented. Course-specific details are in [Electrical Engineering](./courses/electrical_engineering.md); verification is recorded in [Testing](./11-testing.md#learning-quality-review-2026-11-15).
+
+### Learning-quality follow-up
+
+Delivered after the review of `2bc27f6`:
+
+- **Last practice:** `user_lesson_progress.last_practiced_at` (migration `0041`) records a successful pass and does not overwrite the first `completedAt`. The mastery map, `/review` retention, and spaced-review due dates use that timestamp when it exists. The map also shows the evidence label.
+- **Sessions:** the 5/10/20 control on `/learn` builds the mission from the existing recommendation list: one review, review plus a new lesson, or those plus a close.
+- **Review queue:** a failed `/review` request shows a retry state. `?from=exam` names the missed skill, links one short practice, and returns to the interrupted exam. The queue and mixed practice skip unpublished or hidden courses.
+- **Lab draft:** a successful project save writes the returned revision into the account-scoped local draft. Logout clears the project list and does not restore another account's draft.
+- **Attempt marks:** hint, solution, and wrong-attempt counts are stored with the lesson and restored into the submit payload after reload.
+- **Locale:** electrical match cards have `pairsEn`. Laboratory chrome, criterion labels, and save errors use the shared `circuitLab` strings.
+
+Still open:
+
+- A graded lab in every module.
+- A grader that accepts a paraphrase without the sample's wording.
+- Browser walkthrough of the full lesson and lab flow in UK and EN on desktop and mobile. Unit tests do not replace that check.
+
+Run migration `0041_last_practiced_at` before the new column is read in a live database.
 
 ### P2 strategic foundations (scaffolds live — see SPEC/P2-STRATEGIC.md)
 

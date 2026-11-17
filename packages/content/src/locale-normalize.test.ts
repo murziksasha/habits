@@ -40,23 +40,17 @@ const mini: CourseContent = {
 };
 
 describe("ensureFreemiumFreeLessons", () => {
-  it("marks first N non-exam lessons free", () => {
+  it("acts as a safe identity function for backwards compatibility", () => {
     const c = ensureFreemiumFreeLessons(mini, 5);
-    const free = c.units[0]!.lessons.filter((l) => l.isFree);
-    expect(free.length).toBe(5);
-    expect(c.units[0]!.lessons[5]!.isFree).toBe(false);
-    expect(c.units[0]!.lessons[5]!.isExam).toBe(true);
+    expect(c).toBe(mini);
   });
 });
 
 describe("normalizeCourseLocales", () => {
-  it("fills promptEn and freemium free flags", () => {
+  it("fills promptEn without modifying lesson accessibility", () => {
     const c = normalizeCourseLocales(mini);
     expect(c.units[0]!.lessons[0]!.exercises[0]).toMatchObject({
       promptEn: "Питання",
     });
-    expect(
-      c.units.flatMap((u) => u.lessons).filter((l) => l.isFree).length,
-    ).toBeGreaterThanOrEqual(FREEMIUM_FREE_LESSON_COUNT);
   });
 });

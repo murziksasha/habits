@@ -3,9 +3,9 @@
 Slug: `js_fundamentals`
 Group: deep
 Hub: `/js-fundamentals`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `programming`, `html_semantics`, `css_layout`
-Recommended next: `typescript`, `react_fundamentals`, `node_fundamentals`
+Recommended next: `typescript`, `browser_web_apis`, `node_fundamentals`
 
 ## What this course is
 
@@ -19,19 +19,19 @@ Deep JS: types, operators, functions, arrays, objects, async/await, DOM, modules
 
 ### `values` — Values & types
 
-- `jsf-values` — typeof & primitives [free] (3 exercises)
-- `jsf-const-let` — const / let [free] (3 exercises)
+- `jsf-values` — typeof & primitives (3 exercises)
+- `jsf-const-let` — const / let (3 exercises)
 - `jsf-values-exam` — Exam: values [exam] (4 exercises)
 
 ### `operators` — Operators
 
-- `jsf-eq` — == vs === [free] (3 exercises)
-- `jsf-truthy` — Truthy / falsy [free] (3 exercises)
+- `jsf-eq` — == vs === (3 exercises)
+- `jsf-truthy` — Truthy / falsy (3 exercises)
 - `jsf-ops-exam` — Exam: operators [exam] (4 exercises)
 
 ### `functions` — Functions
 
-- `jsf-fn-decl` — Declarations & arrows [free] (3 exercises)
+- `jsf-fn-decl` — Declarations & arrows (3 exercises)
 - `jsf-fn-params` — Default & rest (3 exercises)
 - `jsf-fn-exam` — Exam: functions [exam] (4 exercises)
 

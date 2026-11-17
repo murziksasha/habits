@@ -12,7 +12,34 @@ import {
   listLabsForCourse,
   maxHearts,
   regenerateHearts,
+  resolveExamVariantId,
+  selectExamVariantExercises,
+  stripExamSolutions,
 } from "@eduforge/shared";
+import { lessonCountsAsCurrentMastery } from "../services/certificate-rules.js";
+
+function lessonIsCurrent(
+  lesson: { contentVersion?: number | null },
+  lp?: { status: string; completedContentVersion?: number | null } | null,
+): boolean {
+  return lessonCountsAsCurrentMastery({
+    status: lp?.status ?? "",
+    lessonContentVersion: lesson.contentVersion ?? 1,
+    completedContentVersion: lp?.completedContentVersion ?? null,
+  });
+}
+
+function exercisesForViewer(
+  lesson: { id: string; isExam: boolean | null; exercises: unknown },
+  userId: string | null,
+  attempts: number,
+  mastered: boolean,
+): unknown {
+  const raw = (lesson.exercises as { examVariant?: string }[]) ?? [];
+  if (!lesson.isExam) return raw;
+  const selected = selectExamVariantExercises(raw, resolveExamVariantId(userId ?? "guest", lesson.id, attempts));
+  return mastered ? selected : stripExamSolutions(selected as Record<string, unknown>[]);
+}
 
 function attachLabMeta(
   courseSlug: string,
@@ -35,6 +62,7 @@ import { clientIp, rateLimit } from "../rate-limit.js";
 import { getCourseProgress } from "../services/home.js";
 import {
   buildGuestSubmitResult,
+  buildGuestSubmitResultAsync,
   getNextCourseLesson,
   submitLesson,
 } from "../services/submit-lesson.js";
@@ -173,9 +201,7 @@ courseRoutes.get("/:slug", optionalAuth, async (c) => {
         const nonExam = sorted.filter(
           (x) => x.unitId === u.id && !x.isExam,
         );
-        const nonExamDone = nonExam.every(
-          (x) => lpMap.get(x.id)?.status === "completed",
-        );
+        const nonExamDone = nonExam.every((x) => lessonIsCurrent(x, lpMap.get(x.id)));
         const isExam = Boolean(l.isExam);
         const examLocked = isExam && !nonExamDone && lp?.status !== "completed";
         const labMeta = attachLabMeta(course.slug, l.slug, course.contentSource);
@@ -197,6 +223,9 @@ courseRoutes.get("/:slug", optionalAuth, async (c) => {
           status: lp?.status ?? "available",
           bestScore: lp?.bestScore ?? 0,
           completedAt: lp?.completedAt ?? null,
+          contentVersion: l.contentVersion ?? 1,
+          masteryCurrent: lessonIsCurrent(l, lp),
+          historicalCompletion: lp?.status === "completed" && !lessonIsCurrent(l, lp),
         };
       }),
   }));
@@ -260,6 +289,7 @@ courseRoutes.get("/:slug/lessons/:lessonId", optionalAuth, async (c) => {
     return c.json({
       lesson: {
         ...lesson,
+        exercises: exercisesForViewer(lesson, null, 0, false),
         isExam: Boolean(lesson.isExam),
         passThreshold: lesson.passThreshold ?? (lesson.isExam ? 0.7 : null),
       },
@@ -280,10 +310,8 @@ courseRoutes.get("/:slug/lessons/:lessonId", optionalAuth, async (c) => {
         eq(userLessonProgress.courseId, course.id),
       ),
     });
-    const done = new Set(
-      lpRows.filter((p) => p.status === "completed").map((p) => p.lessonId),
-    );
-    const unitReady = unitLessons.every((l) => done.has(l.id));
+    const lpMap = new Map(lpRows.map((p) => [p.lessonId, p]));
+    const unitReady = unitLessons.every((l) => lessonIsCurrent(l, lpMap.get(l.id)));
     if (!unitReady) {
       return c.json({ error: "exam_locked", message: "Finish unit lessons first" }, 403);
     }
@@ -325,12 +353,24 @@ courseRoutes.get("/:slug/lessons/:lessonId", optionalAuth, async (c) => {
     }
   }
 
+  const viewerProgress = await db.query.userLessonProgress.findFirst({
+    where: and(eq(userLessonProgress.userId, user.id), eq(userLessonProgress.lessonId, lesson.id)),
+  });
   const labMeta = attachLabMeta(course.slug, lesson.slug, course.contentSource);
   return c.json({
     lesson: {
       ...lesson,
+      exercises: exercisesForViewer(
+        lesson,
+        user.id,
+        viewerProgress?.attempts ?? 0,
+        lessonIsCurrent(lesson, viewerProgress),
+      ),
       isExam: Boolean(lesson.isExam),
       passThreshold: lesson.passThreshold ?? (lesson.isExam ? 0.7 : null),
+      masteryCurrent: lessonIsCurrent(lesson, viewerProgress),
+      historicalCompletion:
+        viewerProgress?.status === "completed" && !lessonIsCurrent(lesson, viewerProgress),
     },
     course,
     localLab: labMeta.localLab,
@@ -383,11 +423,18 @@ courseRoutes.post("/:slug/lessons/:lessonId/submit", optionalAuth, async (c) => 
     const result = await submitLesson({
       user,
       lessonId,
+      courseSlug: slug,
       answers,
       usedHint: Boolean(body?.usedHint),
     });
 
     if (!result.ok) {
+      if (result.error === "judge_unavailable" || result.error === "circuit_engine_unavailable") {
+        return c.json(
+          { error: result.error, exerciseId: (result as { exerciseId: string }).exerciseId },
+          result.status as 503,
+        );
+      }
       return c.json({ error: result.error }, result.status);
     }
 
@@ -424,16 +471,23 @@ courseRoutes.post("/:slug/lessons/:lessonId/submit", optionalAuth, async (c) => 
     answer: unknown;
   }[];
 
-  const exercises =
-    (lesson.exercises as { id: string; type: string; [k: string]: unknown }[]) ?? [];
+  const storedExercises =
+    (lesson.exercises as { id: string; type: string; examVariant?: string; [k: string]: unknown }[]) ?? [];
+  const exercises = lesson.isExam
+    ? selectExamVariantExercises(storedExercises, resolveExamVariantId("guest", lesson.id, 0))
+    : storedExercises;
   const nextLesson = await getNextCourseLesson(course.id, course.slug, lesson.sortOrder);
-  const guestBody = buildGuestSubmitResult({
+  const guestBody = await buildGuestSubmitResultAsync({
     exercises,
     answers,
     isExam: Boolean(lesson.isExam),
     passThreshold: lesson.passThreshold,
     nextLesson,
   });
+
+  if ("error" in guestBody) {
+    return c.json({ error: guestBody.error, exerciseId: guestBody.exerciseId }, guestBody.status as 503);
+  }
 
   return c.json(guestBody);
 });

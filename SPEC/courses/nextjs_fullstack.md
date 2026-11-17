@@ -3,7 +3,7 @@
 Slug: `nextjs_fullstack`
 Group: deep
 Hub: `/nextjs-fullstack`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `react_fundamentals`, `express_fundamentals`, `postgresql_apps`
 Recommended next: `applied_algorithms`, `devops`
 
@@ -19,27 +19,27 @@ App Router, explicit Server/Client boundaries, isolated server data access, vali
 
 ### `nx_app_routing` — App Router, Layouts, Loading & Error States
 
-- `nx-ar-files` — Special Files in App Router Segments [free] (2 exercises)
+- `nx-ar-files` — Special Files in App Router Segments (2 exercises)
 - `nx-ar-exam` — Checkpoint: App Router Foundations [exam] (1 exercises)
 
 ### `nx_server_client_boundaries` — Server vs Client Component Boundaries
 
-- `nx-scb-boundary` — Pushing 'use client' Down the Component Tree [free] (2 exercises)
+- `nx-scb-boundary` — Pushing 'use client' Down the Component Tree (2 exercises)
 - `nx-scb-exam` — Checkpoint: Server & Client Boundaries [exam] (1 exercises)
 
 ### `nx_data_access` — Server Data Access, Streaming & Secret Isolation
 
-- `nx-da-env` — Private Env Vars & Server-Only Data Access [free] (2 exercises)
+- `nx-da-env` — Private Env Vars & Server-Only Data Access (2 exercises)
 - `nx-da-exam` — Checkpoint: Server Data Access [exam] (1 exercises)
 
 ### `nx_mutations_actions` — Mutations: Route Handlers & Server Actions
 
-- `nx-ma-contracts` — Validating & Authorizing Every Mutation Endpoint [free] (2 exercises)
+- `nx-ma-contracts` — Validating & Authorizing Every Mutation Endpoint (2 exercises)
 - `nx-ma-exam` — Checkpoint: Secure Mutations [exam] (1 exercises)
 
 ### `nx_identity_authz` — Identity & Authorization Beyond Middleware
 
-- `nx-ia-dal` — Defense in Depth: Never Rely Solely on Middleware [free] (1 exercises)
+- `nx-ia-dal` — Defense in Depth: Never Rely Solely on Middleware (1 exercises)
 - `nx-ia-exam` — Checkpoint: Identity & Authz [exam] (1 exercises)
 
 ### `nx_caching_failures` — Caching, Revalidation & Failure States

@@ -3,7 +3,7 @@
 Slug: `software_testing`
 Group: deep
 Hub: `/software-testing`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `js_fundamentals`, `react_fundamentals`, `express_fundamentals`
 Recommended next: `web_security`, `ai_development`, `devops`
 
@@ -19,19 +19,19 @@ Testable requirements, high-signal unit tests, boundary fixtures, React componen
 
 ### `st_testable_requirements` — Testable Requirements & Verification Pyramid
 
-- `st-req-behaviors` — Turning Specs into Testable Assertions [free] (2 exercises)
-- `st-req-levels` — Choosing the Right Test Level [free] (2 exercises)
+- `st-req-behaviors` — Turning Specs into Testable Assertions (2 exercises)
+- `st-req-levels` — Choosing the Right Test Level (2 exercises)
 - `st-req-exam` — Checkpoint: Testable Requirements [exam] (2 exercises)
 
 ### `st_unit_testing` — Unit Tests & Failure-Catching Assertions
 
-- `st-ut-tautology` — Spotting Tautological & Over-Mocked Tests [free] (2 exercises)
-- `st-ut-pure-refactor` — Extracting Pure Logic for Deterministic Tests [free] (2 exercises)
+- `st-ut-tautology` — Spotting Tautological & Over-Mocked Tests (2 exercises)
+- `st-ut-pure-refactor` — Extracting Pure Logic for Deterministic Tests (2 exercises)
 - `st-ut-exam` — Checkpoint: Unit Testing [exam] (2 exercises)
 
 ### `st_boundaries_fixtures` — Boundary Cases & Realistic Test Fixtures
 
-- `st-bf-boundaries` — Equivalence Partitions & Off-by-One Boundaries [free] (2 exercises)
+- `st-bf-boundaries` — Equivalence Partitions & Off-by-One Boundaries (2 exercises)
 - `st-bf-fixtures` — Fixture Builders & Test Isolation (2 exercises)
 - `st-bf-exam` — Checkpoint: Boundaries & Fixtures [exam] (2 exercises)
 

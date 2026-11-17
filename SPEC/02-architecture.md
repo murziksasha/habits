@@ -69,7 +69,7 @@ chess-core  (leaf)
 
 - Credential register/login  
 - Session token: random hex stored as **SHA-256 hash** in `sessions`  
-- Client: HTTP-only cookie *and/or* `Authorization: Bearer` (SPA uses Bearer from `localStorage`)  
+- Client: HTTP-only cookie `eduforge_session` (cookie-first; dual-support accepts `Authorization: Bearer` and promotes to cookie; no session secret stored in `localStorage`)  
 - Password reset tokens similarly hashed  
 
 ## Trust boundaries

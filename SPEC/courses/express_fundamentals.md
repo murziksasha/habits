@@ -3,9 +3,9 @@
 Slug: `express_fundamentals`
 Group: deep
 Hub: `/express-fundamentals`
-Freemium: first 7 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `node_fundamentals`
-Recommended next: `postgresql_apps`, `software_testing`, `web_security`
+Recommended next: `rest_api_design`, `postgresql_apps`, `go_fundamentals`
 
 ## What this course is
 
@@ -19,19 +19,19 @@ App, routes, middleware, REST, validation resilience, auth vs ownership, Router,
 
 ### `intro` — Express intro
 
-- `ef-what` — What is Express [free] (3 exercises)
-- `ef-install` — Install & import [free] (3 exercises)
+- `ef-what` — What is Express (3 exercises)
+- `ef-install` — Install & import (3 exercises)
 - `ef-intro-exam` — Exam: intro [exam] (4 exercises)
 
 ### `app-basics` — App basics
 
-- `ef-create-app` — express() + listen [free] (3 exercises)
-- `ef-first-route` — First GET route [free] (3 exercises)
+- `ef-create-app` — express() + listen (3 exercises)
+- `ef-first-route` — First GET route (3 exercises)
 - `ef-app-exam` — Exam: app [exam] (4 exercises)
 
 ### `routes` — Routes
 
-- `ef-methods` — HTTP methods on app [free] (3 exercises)
+- `ef-methods` — HTTP methods on app (3 exercises)
 - `ef-params-query` — params & query (3 exercises)
 - `ef-routes-exam` — Exam: routes [exam] (4 exercises)
 
@@ -49,8 +49,8 @@ App, routes, middleware, REST, validation resilience, auth vs ownership, Router,
 
 ### `json-body` — JSON body
 
-- `ef-json-mw` — express.json middleware [free] (4 exercises)
-- `ef-post-create` — POST create pattern [free] (4 exercises)
+- `ef-json-mw` — express.json middleware (4 exercises)
+- `ef-post-create` — POST create pattern (4 exercises)
 - `ef-json-exam` — Exam: JSON body [exam] (6 exercises)
 
 ### `errors` — Error handling

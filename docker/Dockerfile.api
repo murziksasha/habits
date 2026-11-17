@@ -9,6 +9,7 @@ COPY packages/content/package.json packages/content/
 COPY packages/chess-core/package.json packages/chess-core/
 COPY packages/db/package.json packages/db/
 COPY packages/judge/package.json packages/judge/
+COPY packages/circuit-engine/package.json packages/circuit-engine/
 COPY apps/api/package.json apps/api/
 RUN pnpm install --frozen-lockfile=false
 
@@ -18,6 +19,7 @@ COPY packages ./packages
 COPY apps/api ./apps/api
 COPY turbo.json ./
 RUN pnpm --filter @eduforge/shared build \
+ && pnpm --filter @eduforge/circuit-engine build \
  && pnpm --filter @eduforge/content build \
  && pnpm --filter @eduforge/chess-core build \
  && pnpm --filter @eduforge/db build \

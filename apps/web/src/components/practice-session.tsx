@@ -33,6 +33,8 @@ type SessionAnswer = {
   exerciseId: string;
   answer: unknown;
   wrongAttempts: number;
+  hintsUsed?: number;
+  solutionRevealed?: boolean;
   confidence: ConfidenceLevel | null;
 };
 
@@ -64,6 +66,8 @@ export function PracticeSession({
   const [answers, setAnswers] = useState<SessionAnswer[]>([]);
   const [confidence, setConfidence] = useState<ConfidenceLevel | null>(null);
   const wrongRef = useRef(0);
+  const hintsRef = useRef(0);
+  const solutionRef = useRef(false);
   const [result, setResult] = useState<CheckResult | null>(null);
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -77,6 +81,8 @@ export function PracticeSession({
     setIdx(0);
     setConfidence(null);
     wrongRef.current = 0;
+    hintsRef.current = 0;
+    solutionRef.current = false;
     api<{ items: PracticeItem[] }>(loadPath, { token })
       .then((d) => setItems(d.items ?? []))
       .catch(() => {
@@ -112,11 +118,15 @@ export function PracticeSession({
         exerciseId: it.exercise.id,
         answer,
         wrongAttempts: wrongRef.current,
+        hintsUsed: hintsRef.current,
+        solutionRevealed: solutionRef.current,
         confidence,
       },
     ];
     setAnswers(next);
     wrongRef.current = 0;
+    hintsRef.current = 0;
+    solutionRef.current = false;
     setConfidence(null);
     if (idx < items.length - 1) setIdx(idx + 1);
     else void finish(next);
@@ -191,7 +201,7 @@ export function PracticeSession({
                   <span className={ok ? "font-black text-green-600" : "font-black text-orange-500"}>
                     {ok ? "✓" : "↺"}
                   </span>
-                  {!ok && (
+                  {(!ok || it.exercise.type === "circuit_lab" || it.exercise.type === "numeric") && (
                     <Link
                       href={`/courses/${it.courseSlug}/lessons/${it.lessonId}`}
                       className="text-sm font-bold text-sky hover:underline"
@@ -239,6 +249,12 @@ export function PracticeSession({
           onAnswer={handleAnswer}
           onWrongAttempt={() => {
             wrongRef.current += 1;
+          }}
+          onHintUsed={() => {
+            hintsRef.current += 1;
+          }}
+          onSolutionRevealed={() => {
+            solutionRef.current = true;
           }}
           lessonId={it.lessonId}
         />

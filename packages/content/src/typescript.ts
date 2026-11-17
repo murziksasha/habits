@@ -1,5 +1,5 @@
 import type { CourseContent, Exercise, LessonContent, UnitContent } from "./types.js";
-import { codeFill, codeRead, codeOrder, codeOrderAuto, codeProject, mcq, why } from "./builders.js";
+import { codeFill, codeJudge, codeRead, codeOrder, codeOrderAuto, codeProject, mcq, why } from "./builders.js";
 import { tsAdvancedTypesUnit } from "./deep-units.js";
 
 function lesson(
@@ -1453,9 +1453,9 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
         id: "tsc-c1",
         type: "code_project",
         promptUk:
-          "TS: interface User { id: number; name: string }, function greet(u: User): string. README згадує interface.",
+          "Вихідні файли: greet.ts та README.md. Очікуваний результат: типізована функція привітання користувача та опис інтерфейсу. Обов'язкові елементи: interface User з id (number) та name (string), greet(u: User): string; у README згадка interface. Обмеження: статичний аналіз файлів проекту без виконання tsc.",
         promptEn:
-          "TS: interface User { id: number; name: string }, function greet(u: User): string. README mentions interface.",
+          "Input files: greet.ts and README.md. Expected result: typed user greeting function and interface documentation. Mandatory elements: interface User with id (number) and name (string), greet(u: User): string; in README mention interface. Validation limits: static file checks without running tsc.",
         files: [
           {
             id: "ts",
@@ -1489,6 +1489,36 @@ export {};
           { fileId: "md", contains: ["interface"] },
         ],
       },
+      codeJudge(
+        "tsc-c2-judge",
+        "Вхідні дані: інтерфейс User { id: number; name: string } та функція formatUser(u: User): string. Очікуваний результат: вивід «User #1: Ada» у консоль. Обов'язкові елементи: interface User, formatUser, console.log. Обмеження: поведінковий режим компілює TypeScript та запускає його в ізольованому контейнері Docker; текстовий режим перевіряє код статично.",
+        "Input: User interface { id: number; name: string } and formatUser(u: User): string function. Expected output: prints 'User #1: Ada' to console. Mandatory elements: interface User, formatUser, console.log. Validation limits: behavior mode compiles TypeScript in an isolated Docker container; text mode statically validates code.",
+        "typescript",
+        `interface User {
+  id: number;
+  name: string;
+}
+
+function formatUser(u: User): string {
+  // TODO: return \`User #\${u.id}: \${u.name}\`;
+  return \`User #\${u.id}: \${u.name}\`;
+}
+
+const user: User = { id: 1, name: "Ada" };
+console.log(formatUser(user));
+`,
+        [
+          { type: "stdout_contains", value: "User #1: Ada" },
+          { type: "exit_code", value: 0 },
+        ],
+        {
+          checkMode: "both",
+          accepted: ["interface User", "formatUser", "User #1: Ada"],
+          requiredSource: ["interface User", "formatUser"],
+          limitationsUk: "Поведінкова перевірка компілює та виконує код у пісочниці Docker. Текстовий режим перевіряє інтерфейс та функцію без виконання.",
+          limitationsEn: "Behavior check compiles and runs TypeScript in an isolated Docker sandbox. Text mode checks interface and function without execution.",
+        },
+      ),
     ],
   ),
   lesson(

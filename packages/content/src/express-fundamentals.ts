@@ -779,9 +779,9 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
         id: "ef-c1",
         type: "code_project",
         promptUk:
-          "Express: express(), express.json(), GET /health → { ok: true }, listen PORT||3000. README з curl.",
+          "Вихідні файли: app.js, package.json, README.md. Очікуваний результат: REST API з middleware express.json() та маршрутом GET /health. Обов'язкові елементи: express, json, /health, listen, PORT; у package.json start та node; у README приклад curl health. Обмеження: статичний аналіз коду без запуску Express-сервера.",
         promptEn:
-          "Express: express(), express.json(), GET /health → { ok: true }, listen PORT||3000. README with curl.",
+          "Input files: app.js, package.json, README.md. Expected result: a REST API with express.json() middleware and GET /health route. Mandatory elements: express, json, /health, listen, PORT; in package.json start and node; in README curl example for health. Validation limits: static source check without starting an Express server.",
         files: [
           {
             id: "js",

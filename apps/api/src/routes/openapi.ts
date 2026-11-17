@@ -69,6 +69,51 @@ const doc = {
         },
       },
     },
+    "/circuits/projects": {
+      get: {
+        tags: ["circuits"],
+        summary: "List the caller's circuit projects as { projects }",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "{ projects }" } },
+      },
+      post: {
+        tags: ["circuits"],
+        summary: "Create a project. Body is a canonical CircuitDocument. Returns { project }",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "201": { description: "{ project }" },
+          "400": { description: "project_limit_reached or invalid_circuit" },
+        },
+      },
+    },
+    "/circuits/projects/{id}": {
+      get: {
+        tags: ["circuits"],
+        summary: "Load one project document as { project }",
+        security: [{ bearerAuth: [] }],
+        responses: { "200": { description: "{ project }" } },
+      },
+      patch: {
+        tags: ["circuits"],
+        summary: "Update by owner, id, and expectedRevision. Revision increments in SQL",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "{ project }" },
+          "409": { description: "project_conflict" },
+        },
+      },
+    },
+    "/circuits/simulate": {
+      post: {
+        tags: ["circuits"],
+        summary: "Authenticated preview. Body { circuit, analysis }. Success { ok: true, result }",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "{ ok: true, result }" },
+          "503": { description: "circuit_engine_unavailable" },
+        },
+      },
+    },
     "/me/home": {
       get: {
         tags: ["me"],
@@ -621,6 +666,66 @@ const doc = {
           "400": { description: "invalid_input" },
           "401": { description: "unauthorized" },
           "404": { description: "no_character" },
+        },
+      },
+    },
+    "/learning/self-verify/start": {
+      post: {
+        tags: ["learning"],
+        summary: "Start a server-governed self-verification session",
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["courseSlug", "lessonSlug"],
+                properties: {
+                  courseSlug: { type: "string" },
+                  lessonSlug: { type: "string" },
+                  exerciseIndex: { type: "integer", default: 0 },
+                  datasetVersion: { type: "string", default: "1" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "Session started" },
+          "400": { description: "invalid_input" },
+          "401": { description: "unauthorized" },
+          "404": { description: "not_found" },
+        },
+      },
+    },
+    "/learning/self-verify/submit": {
+      post: {
+        tags: ["learning"],
+        summary: "Submit first answer for self-verification before disclosing grading",
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["sessionId", "answer"],
+                properties: {
+                  sessionId: { type: "string", format: "uuid" },
+                  answer: {},
+                  hintsUsed: { type: "integer", default: 0 },
+                  solutionRevealed: { type: "boolean", default: false },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "Verified and graded with mastery evidence" },
+          "400": { description: "invalid_input" },
+          "401": { description: "unauthorized" },
+          "404": { description: "session_not_found" },
         },
       },
     },

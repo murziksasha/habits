@@ -19,22 +19,22 @@
 | `@eduforge/content` | Course tree shape, exercise ids | Vitest | No |
 | `@eduforge/api` | `gradeExercise` + integration HTTP | Vitest | Integration: yes |
 | `@eduforge/realtime` | matchmaking pure helpers | Vitest | No |
-| `@eduforge/web` | Playwright e2e smoke | Playwright | Yes + running web/api |
+| `@eduforge/web` | Pure helpers and component unit tests; browser e2e separately | Vitest / Playwright | Unit: no; e2e: yes + running web/api |
 
 ## Commands
 
 ```bash
-# All turbo unit/integration package tests
+# Package test scripts (API integration is a separate command)
 pnpm test
 
-# Units only (same turbo graph; integration runs if not skipped)
+# Workspace unit suites; API default config excludes integration.test.ts
 pnpm test:unit
 
 # API integration (Postgres required, seed recommended)
 pnpm test:integration
 
-# Skip integration when DB unavailable
-SKIP_INTEGRATION=1 pnpm --filter @eduforge/api test
+# API unit suite (no Postgres required)
+pnpm --filter @eduforge/api test
 
 # Playwright e2e (web + api must be running)
 pnpm test:e2e
@@ -77,6 +77,26 @@ pnpm test:e2e
 9. Leaderboard + chess rating  
 
 Uses Hono `app.request()` via exported `createApp()` — no live port needed, only DB.
+
+Electrical engineering content is gated by `@eduforge/content` tests: 60 units, 360 lessons, version-2 lesson bodies, bilingual prompts, exam shape, and explain samples that pass `gradeExercise`. Circuit reference labs are gated by `@eduforge/circuit-engine` `project-labs.test.ts`. A 503 from an unavailable engine is specified and is not covered by the Postgres integration file yet. Browser desktop and mobile passes of the lab editor were not run in the authoring session that landed the version-2 course.
+
+## Learning-quality review (2026-11-15)
+
+Review of commit `2bc27f6` ran the complete shared, content, API unit, and web unit suites:
+
+| Package | Passed tests |
+| --- | ---: |
+| `@eduforge/shared` | 260 |
+| `@eduforge/content` | 81 |
+| `@eduforge/api` | 138 |
+| `@eduforge/web` | 34 |
+| **Total** | **513** |
+
+The shared build and typechecks for all four packages also passed. This is a recorded review result, not a claim that future commits or a deployed instance have passed. Postgres integration and browser desktop/mobile checks were not run in that review because the local services were not running. The circuit-engine suite had 26 passing tests in the preceding course audit; it was not rerun for `2bc27f6`.
+
+Added regression coverage includes tiny-value scalar/complex tolerances, zero/wrong-sign charge answers, repeated-keyword explanations, reported assistance and theory-only evidence, current-version Continue targets and exam readiness, submission visibility/slug checks, and stable choice permutations. Web helper tests do not exercise mouse/keyboard interaction or editor recovery in a browser.
+
+Outstanding recovery, recommendation, mastery, and locale scenarios are tracked in [CURRENT](./CURRENT.md#learning-quality-follow-up). Existing green suites do not cover all of those behaviors.
 
 ## What matchmaking tests cover
 

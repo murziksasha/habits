@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
-import { COURSE_SLUGS, UI } from "@eduforge/shared";
+import { COURSE_SLUGS } from "@eduforge/shared";
 import { PageLoading } from "@/components/page-loading";
 
 type Msg = { role: string; content: string; model?: string | null };
@@ -168,8 +168,9 @@ function TutorPageInner() {
 }
 
 export function TutorClient() {
+  const { t } = useLocale();
   return (
-    <Suspense fallback={<p>{UI.common.loading}</p>}>
+    <Suspense fallback={<p>{t.common.loading}</p>}>
       <TutorPageInner />
     </Suspense>
   );

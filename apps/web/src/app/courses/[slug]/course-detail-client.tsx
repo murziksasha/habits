@@ -6,11 +6,11 @@ import { Fragment, useEffect, useState } from "react";
 import {
   COURSE_HUB_HREF,
   COURSE_META,
+  EE_MILESTONES,
   getCourseNextSteps,
   getCourseParts,
   getCoursePrerequisites,
   pickLocale,
-  UI,
 } from "@eduforge/shared";
 import { OracleSectionBar, prerequisiteLabels, unitInOracleSection } from "@/components/oracle-sections";
 import { useAuth } from "@/lib/auth-context";
@@ -25,17 +25,20 @@ import clsx from "clsx";
 
 type Lesson = {
   id: string;
+  slug?: string;
   titleUk: string;
   titleEn?: string;
   locked: boolean;
   status: string;
   bestScore: number;
+  masteryCurrent?: boolean;
   isExam?: boolean;
   examLocked?: boolean;
   passThreshold?: number | null;
   baseXp?: number;
   hasLocalLab?: boolean;
   localLabId?: string | null;
+  historicalCompletion?: boolean;
 };
 
 type Unit = { id: string; slug: string; titleUk: string; titleEn?: string; lessons: Lesson[] };
@@ -45,7 +48,9 @@ export function CourseDetailClient() {
   const { token, user, loading } = useAuth();
   const { locale, t } = useLocale();
   const [section, setSection] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [openUnits, setOpenUnits] = useState<Record<string, boolean>>({});
+  const [showProgram, setShowProgram] = useState(false);
   const [data, setData] = useState<{
     course: {
       titleUk: string;
@@ -111,7 +116,7 @@ export function CourseDetailClient() {
         <Skeleton className="h-28 w-full" />
         <Skeleton className="h-16 w-full" />
         <Skeleton className="h-16 w-full" />
-        <p className="sr-only">{UI.common.loading}</p>
+        <p className="sr-only">{t.common.loading}</p>
       </div>
     );
   }
@@ -128,12 +133,41 @@ export function CourseDetailClient() {
   }
 
   const oracle = slug === "sql_fundamentals";
-  const visibleUnits = oracle ? data.units.filter((u) => unitInOracleSection(u.slug, section)) : data.units;
-  const allLessons = visibleUnits.flatMap((u) => u.lessons);
-  const continueLesson =
-    allLessons.find((l) => !l.locked && l.status !== "completed") ??
-    allLessons.find((l) => !l.locked) ??
-    null;
+  const baseUnits = oracle ? data.units.filter((u) => unitInOracleSection(u.slug, section)) : data.units;
+  const q = searchQuery.trim().toLowerCase();
+  const visibleUnits = q
+    ? baseUnits
+        .map((u) => {
+          const uMatch =
+            u.titleUk.toLowerCase().includes(q) ||
+            Boolean(u.titleEn && u.titleEn.toLowerCase().includes(q));
+          const matchingLessons = u.lessons.filter(
+            (l) =>
+              uMatch ||
+              l.titleUk.toLowerCase().includes(q) ||
+              Boolean(l.titleEn && l.titleEn.toLowerCase().includes(q)),
+          );
+          return { ...u, lessons: matchingLessons };
+        })
+        .filter((u) => u.lessons.length > 0)
+    : baseUnits;
+  const lessonDone = (lesson: Lesson) =>
+    lesson.masteryCurrent === true || (lesson.masteryCurrent == null && lesson.status === "completed");
+  const lessonOpen = (lesson: Lesson) => !lesson.locked && !lessonDone(lesson);
+  const allLessons = baseUnits.flatMap((u) => u.lessons);
+  const continueLesson = allLessons.find(lessonOpen) ?? allLessons.find((l) => !l.locked) ?? null;
+  const currentUnit =
+    data.units.find((unit) => unit.lessons.some(lessonOpen)) ?? data.units[data.units.length - 1] ?? null;
+  const stageIndex = currentUnit ? data.units.findIndex((unit) => unit.id === currentUnit.id) : 0;
+  const milestones = EE_MILESTONES.map((milestone) => {
+    const lesson = data.units.flatMap((unit) => unit.lessons).find((item) => item.slug === milestone.lessonSlug);
+    return lesson ? { ...milestone, lesson, done: lessonDone(lesson) } : null;
+  }).filter((item): item is NonNullable<typeof item> => item !== null);
+  const nearestPractice = milestones.find((item) => !item.done) ?? null;
+  const programUnits =
+    slug === "electrical_engineering" && !q && !showProgram && currentUnit
+      ? visibleUnits.filter((unit) => unit.id === currentUnit.id)
+      : visibleUnits;
   const completedCount = allLessons.filter((l) => l.status === "completed").length;
   const totalCount = allLessons.length || 1;
   const parts = getCourseParts(slug);
@@ -151,6 +185,14 @@ export function CourseDetailClient() {
           <p className="text-ink-muted">
             {pickLocale(locale, data.course.descriptionUk, data.course.descriptionEn)}
           </p>
+          {slug === "electrical_engineering" ? (
+            <Link
+              href="/courses/electrical_engineering/lab"
+              className="mt-3 inline-flex rounded-xl bg-sky px-4 py-2 text-sm font-black text-white"
+            >
+              {t.circuitLab.labLink}
+            </Link>
+          ) : null}
           {(() => {
             const prereqs = getCoursePrerequisites(slug);
             const nextSteps = getCourseNextSteps(slug);
@@ -184,7 +226,7 @@ export function CourseDetailClient() {
               </div>
             );
           })()}
-          {continueLesson ? (
+          {continueLesson && slug !== "electrical_engineering" ? (
             <Link
               href={`/courses/${slug}/lessons/${continueLesson.id}`}
               className="btn-primary mt-4 inline-flex min-h-11"
@@ -216,7 +258,7 @@ export function CourseDetailClient() {
               <XpBar
                 xp={data.progress.xp}
                 color={data.course.color}
-                label={`${UI.dashboard.level} ${data.progress.level}`}
+                label={`${t.dashboard.level} ${data.progress.level}`}
               />
             </>
           ) : null}
@@ -234,23 +276,74 @@ export function CourseDetailClient() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-xl font-black">{t.coursePage.outline}</h2>
-        <div className="flex gap-2">
+      {slug === "electrical_engineering" && currentUnit ? (
+        <section className="card space-y-3 border-brand/40" aria-label={t.coursePage.currentStage}>
+          <p className="text-xs font-black uppercase text-brand-dark">
+            {t.coursePage.currentStage} {stageIndex + 1} / {data.units.length}
+          </p>
+          <h2 className="text-2xl font-black">
+            {pickLocale(locale, currentUnit.titleUk, currentUnit.titleEn)}
+          </h2>
+          {nearestPractice ? (
+            <p className="text-sm font-bold text-ink-muted">
+              {t.coursePage.nearestPractice}: {pickLocale(locale, nearestPractice.outcomeUk, nearestPractice.outcomeEn)}
+            </p>
+          ) : null}
+          {continueLesson ? (
+            <Link
+              href={`/courses/${slug}/lessons/${continueLesson.id}`}
+              className="btn-primary inline-flex min-h-11"
+            >
+              {t.coursePage.continue}: {pickLocale(locale, continueLesson.titleUk, continueLesson.titleEn)} →
+            </Link>
+          ) : null}
+        </section>
+      ) : null}
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-xl font-black">{t.coursePage.outline}</h2>
+          {q ? (
+            <p className="text-xs font-bold text-sky">
+              {visibleUnits.flatMap((u) => u.lessons).length}{" "}
+              {locale === "en" ? "lessons found" : "уроків знайдено"}
+            </p>
+          ) : null}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative min-w-[180px] flex-1 sm:w-60">
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={locale === "en" ? "Search lessons..." : "Пошук уроків..."}
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 pl-8 text-xs font-bold placeholder:text-ink-muted focus:border-brand focus:outline-none dark:border-slate-700 dark:bg-slate-900"
+            />
+            <span className="pointer-events-none absolute left-2.5 top-2 text-xs text-ink-muted">🔍</span>
+          </div>
+          {slug === "electrical_engineering" && !q ? (
+            <button
+              type="button"
+              className="btn-secondary !px-2.5 !py-1.5 text-xs"
+              onClick={() => setShowProgram((open) => !open)}
+            >
+              {showProgram ? t.coursePage.hideProgram : t.coursePage.showProgram}
+            </button>
+          ) : null}
           <button
             type="button"
-            className="btn-secondary !px-3 !py-2 text-sm"
+            className="btn-secondary !px-2.5 !py-1.5 text-xs"
             onClick={() =>
-              setOpenUnits(Object.fromEntries(visibleUnits.map((u) => [u.id, true])))
+              setOpenUnits(Object.fromEntries(programUnits.map((u) => [u.id, true])))
             }
           >
             {t.coursePage.expandAll}
           </button>
           <button
             type="button"
-            className="btn-secondary !px-3 !py-2 text-sm"
+            className="btn-secondary !px-2.5 !py-1.5 text-xs"
             onClick={() =>
-              setOpenUnits(Object.fromEntries(visibleUnits.map((u) => [u.id, false])))
+              setOpenUnits(Object.fromEntries(programUnits.map((u) => [u.id, false])))
             }
           >
             {t.coursePage.collapseAll}
@@ -259,14 +352,14 @@ export function CourseDetailClient() {
       </div>
       {oracle ? <OracleSectionBar units={data.units} value={section} onChange={setSection} /> : null}
 
-      {visibleUnits.map((unit, ui) => {
+      {programUnits.map((unit, ui) => {
         const part = parts.find((part) => part.unitSlugs.includes(unit.slug));
-        const previousPart = parts.find((part) => part.unitSlugs.includes(visibleUnits[ui - 1]?.slug ?? ""));
+        const previousPart = parts.find((part) => part.unitSlugs.includes(programUnits[ui - 1]?.slug ?? ""));
         const showPartHeading = part && part.id !== previousPart?.id;
         const defaultOpenId =
-          visibleUnits.find((u) => u.lessons.some((l) => l.status !== "completed"))?.id ??
-          visibleUnits[0]?.id;
-        const open = openUnits[unit.id] ?? unit.id === defaultOpenId;
+          programUnits.find((u) => u.lessons.some(lessonOpen))?.id ??
+          programUnits[0]?.id;
+        const open = q ? true : (openUnits[unit.id] ?? unit.id === defaultOpenId);
         const prereq = prerequisiteLabels(unit.slug, data.units, locale);
         const unitDone = unit.lessons.filter((l) => l.status === "completed").length;
         const unitTotal = unit.lessons.length || 1;
@@ -341,6 +434,11 @@ export function CourseDetailClient() {
                           {lesson.isExam ? (
                             <span className="ml-2 rounded-full bg-grape/15 px-2 py-0.5 text-[10px] font-black text-grape">
                               {locale === "en" ? "Exam" : "Контрольна"}
+                            </span>
+                          ) : null}
+                          {lesson.historicalCompletion ? (
+                            <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-black text-amber-800 dark:bg-amber-950 dark:text-amber-200">
+                              {t.circuitLab.historicalResult}
                             </span>
                           ) : null}
                           {lesson.hasLocalLab ? (

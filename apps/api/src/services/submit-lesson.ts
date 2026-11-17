@@ -26,6 +26,10 @@ import {
   rollLevelUpLoot,
   typingXpAward,
   utcDateKey,
+  evidenceForLessonSubmit,
+  resolveExamVariantId,
+  isTransferCheckDue,
+  type MasteryEvidenceLevel,
   type GrantedRewardItem,
   type LevelChangeTrigger,
   type LootDrop,
@@ -34,8 +38,13 @@ import {
 import type { AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 import { logActivity, notifyUser } from "../engagement.js";
-import { gradeExercise } from "../grade.js";
+import { gradeExercise, gradeCodeJudgeText } from "../grade.js";
+import { runJudge, getJudgeMode, type JudgeTest, type JudgeLang } from "@eduforge/judge";
+import { evaluateCircuitLab } from "@eduforge/circuit-engine";
+import { gradeCircuitServerEvaluation, selectExamVariantExercises } from "@eduforge/shared";
+import { CircuitQueueFull, withCircuitSlot } from "./circuit-queue.js";
 import { log } from "../logger.js";
+import { lessonCountsAsCurrentMastery } from "./certificate-rules.js";
 import { buildXpPatch } from "./character-progression.js";
 import { applyLootDrop } from "./loot-apply.js";
 import { runSubmitSideEffects } from "./submit-side-effects.js";
@@ -47,6 +56,10 @@ export type SubmitAnswer = {
   wrongAttempts?: number;
   /** 1 guess · 2 unsure · 3 sure (optional, SPEC 92) */
   confidence?: number | null;
+  /** Hint levels opened before this answer. */
+  hintsUsed?: number;
+  /** The learner opened the worked solution before this answer. */
+  solutionRevealed?: boolean;
 };
 
 export type GradedExerciseResult = {
@@ -132,6 +145,139 @@ function lootDropToRewardItem(drop: LootDrop): GrantedRewardItem {
         source: "loot",
       };
   }
+}
+
+export async function gradeLessonAttemptAsync(
+  exercises: { id: string; type: string; [k: string]: unknown }[],
+  answers: SubmitAnswer[],
+  isExam: boolean,
+  passThreshold?: number | null,
+  userId?: string | null,
+): Promise<
+  | { ok: true; grading: LessonGradingResult }
+  | { ok: false; error: "judge_unavailable" | "circuit_engine_unavailable"; exerciseId: string }
+> {
+  const results: GradedExerciseResult[] = [];
+
+  for (const ex of exercises) {
+    const a = answers.find((x) => x.exerciseId === ex.id);
+
+    if (ex.type === "circuit_lab") {
+      const rawAns = a?.answer;
+      let circuitDoc = rawAns;
+      if (typeof rawAns === "object" && rawAns !== null && "circuit" in rawAns) {
+        circuitDoc = (rawAns as any).circuit;
+      }
+      try {
+        const evalRes = await withCircuitSlot(userId ?? null, () => evaluateCircuitLab(circuitDoc, ex as any));
+        if (evalRes.error && evalRes.error.includes("circuit_engine_unavailable")) {
+          return { ok: false, error: "circuit_engine_unavailable", exerciseId: ex.id };
+        }
+        const graded = gradeCircuitServerEvaluation({
+          ok: evalRes.ok,
+          criteriaPassed: evalRes.criteriaPassed,
+          criteriaTotal: evalRes.criteriaTotal,
+          criteriaResults: evalRes.criteriaResults,
+          error: evalRes.error,
+        });
+        results.push({ exerciseId: ex.id, type: ex.type, ...graded });
+      } catch (err) {
+        if (err instanceof CircuitQueueFull || (err instanceof Error && err.message.includes("circuit_engine_unavailable"))) {
+          return { ok: false, error: "circuit_engine_unavailable", exerciseId: ex.id };
+        }
+        return { ok: false, error: "circuit_engine_unavailable", exerciseId: ex.id };
+      }
+    } else if (ex.type === "code_judge") {
+      const rawAns = a?.answer;
+      const ansObj =
+        typeof rawAns === "object" && rawAns !== null
+          ? (rawAns as Record<string, unknown>)
+          : { source: String(rawAns ?? "") };
+      const mode = ansObj.mode === "text" ? "text" : "behavior";
+      const source = String(ansObj.source ?? ansObj.code ?? "");
+
+      if (mode === "text") {
+        // Text mode verification: pure static analysis, no execution
+        const graded = gradeCodeJudgeText(ex, source);
+        results.push({ exerciseId: ex.id, type: ex.type, ...graded });
+      } else {
+        // Behavior mode: MUST run isolated Docker runner on server!
+        // Client-supplied `ok: true` or test passes are completely ignored!
+        const judgeMode = getJudgeMode();
+        if (judgeMode === "off") {
+          return { ok: false, error: "judge_unavailable", exerciseId: ex.id };
+        }
+        try {
+          const tests = (ex.tests as JudgeTest[]) ?? [];
+          const judgeRes = await runJudge({
+            lang: ex.language as JudgeLang,
+            source,
+            tests,
+            timeoutMs: Number(ex.timeoutMs ?? 3000),
+          });
+          if (judgeRes.mode === "disabled" || judgeRes.error === "judge_disabled") {
+            return { ok: false, error: "judge_unavailable", exerciseId: ex.id };
+          }
+          const total = judgeRes.tests.length || (judgeRes.ok ? 1 : 0);
+          const passed = judgeRes.tests.filter((t) => t.pass).length || (judgeRes.ok ? 1 : 0);
+          const ratio = total > 0 ? passed / total : judgeRes.ok ? 1 : 0;
+          results.push({
+            exerciseId: ex.id,
+            type: ex.type,
+            correct: judgeRes.ok && ratio >= 1,
+            partial: ratio,
+            meta: {
+              judge: true,
+              mode: "behavior",
+              serverVerified: true,
+              stdout: judgeRes.stdout,
+              stderr: judgeRes.stderr,
+              passed,
+              total,
+            },
+          });
+        } catch {
+          return { ok: false, error: "judge_unavailable", exerciseId: ex.id };
+        }
+      }
+    } else {
+      const graded = gradeExercise(ex, a?.answer);
+      results.push({ exerciseId: ex.id, type: ex.type, ...graded });
+    }
+  }
+
+  for (const row of results) {
+    const ex = exercises.find((item) => item.id === row.exerciseId);
+    const version = ex?.contentVersion ?? ex?.exerciseVersion;
+    row.exerciseVersion = version === undefined || version === null || version === "" ? "1" : String(version);
+  }
+
+  const correctCount = results.filter((r) => r.correct).length;
+  const accuracy = exercises.length
+    ? results.reduce((sum, r) => {
+        if (typeof r.partial === "number") return sum + Math.min(1, Math.max(0, r.partial));
+        return sum + (r.correct ? 1 : 0);
+      }, 0) / exercises.length
+    : 0;
+
+  const completeBar = lessonCompleteThreshold({
+    isExam,
+    passThreshold,
+  });
+  const passed = accuracy + 1e-9 >= completeBar;
+
+  return {
+    ok: true,
+    grading: {
+      results,
+      correctCount,
+      accuracy,
+      passThreshold: completeBar,
+      passed,
+      isExam,
+      examFailed: isExam && !passed,
+    },
+  };
 }
 
 export function gradeLessonAttempt(
@@ -234,17 +380,53 @@ export function buildGuestSubmitResult(opts: {
   };
 }
 
+export async function buildGuestSubmitResultAsync(opts: {
+  exercises: { id: string; type: string; [k: string]: unknown }[];
+  answers: SubmitAnswer[];
+  isExam: boolean;
+  passThreshold?: number | null;
+  nextLesson: NextLessonSummary | null;
+}): Promise<
+  | GuestSubmitResultBody
+  | { error: "judge_unavailable" | "circuit_engine_unavailable"; exerciseId: string; status: 503 }
+> {
+  const asyncGrading = await gradeLessonAttemptAsync(
+    opts.exercises,
+    opts.answers,
+    opts.isExam,
+    opts.passThreshold,
+  );
+  if (!asyncGrading.ok) {
+    return { error: asyncGrading.error, exerciseId: asyncGrading.exerciseId, status: 503 };
+  }
+  const grading = asyncGrading.grading;
+  return {
+    guest: true,
+    accuracy: grading.accuracy,
+    passed: grading.passed,
+    results: grading.results,
+    correctCount: grading.correctCount,
+    total: opts.exercises.length,
+    isExam: grading.isExam,
+    examFailed: grading.examFailed,
+    passThreshold: grading.passThreshold,
+    nextLesson: grading.passed ? opts.nextLesson : null,
+    xpGain: 0,
+  };
+}
+
 export type SubmitLessonInput = {
   user: AuthedUser;
   lessonId: string;
+  courseSlug?: string;
   answers: SubmitAnswer[];
   usedHint?: boolean;
 };
 
 export type SubmitLessonError = {
   ok: false;
-  status: 404;
-  error: "not_found";
+  status: 404 | 403;
+  error: "not_found" | "exam_locked";
 };
 
 export type SubmitLessonSuccess = {
@@ -253,7 +435,25 @@ export type SubmitLessonSuccess = {
   body: Record<string, unknown>;
 };
 
-export type SubmitLessonResult = SubmitLessonError | SubmitLessonSuccess;
+export type SubmitLessonJudgeUnavailable = {
+  ok: false;
+  status: 503;
+  error: "judge_unavailable";
+  exerciseId: string;
+};
+
+export type SubmitLessonCircuitEngineUnavailable = {
+  ok: false;
+  status: 503;
+  error: "circuit_engine_unavailable";
+  exerciseId: string;
+};
+
+export type SubmitLessonResult =
+  | SubmitLessonError
+  | SubmitLessonSuccess
+  | SubmitLessonJudgeUnavailable
+  | SubmitLessonCircuitEngineUnavailable;
 
 /**
  * Grade a lesson attempt, update progress/XP/streak, side-effects (quests, certs).
@@ -262,21 +462,66 @@ export type SubmitLessonResult = SubmitLessonError | SubmitLessonSuccess;
 export async function submitLesson(
   input: SubmitLessonInput,
 ): Promise<SubmitLessonResult> {
-  const { user, lessonId, answers, usedHint } = input;
+  const { user, lessonId, courseSlug, answers, usedHint } = input;
 
   const lesson = await db.query.lessons.findFirst({ where: eq(lessons.id, lessonId) });
   if (!lesson) return { ok: false, status: 404, error: "not_found" };
   const course = await db.query.courses.findFirst({ where: eq(courses.id, lesson.courseId) });
   if (!course) return { ok: false, status: 404, error: "not_found" };
+  if (courseSlug && course.slug !== courseSlug) return { ok: false, status: 404, error: "not_found" };
+  if ((course.status !== "published" || !course.isVisible) && user.role !== "admin") {
+    return { ok: false, status: 404, error: "not_found" };
+  }
 
-  const exercises =
-    (lesson.exercises as { id: string; type: string; [k: string]: unknown }[]) ?? [];
-  const grading = gradeLessonAttempt(
+  if (lesson.isExam) {
+    const unitLessons = await db.query.lessons.findMany({
+      where: eq(lessons.unitId, lesson.unitId),
+    });
+    const unitProgress = await db.query.userLessonProgress.findMany({
+      where: and(eq(userLessonProgress.userId, user.id), eq(userLessonProgress.courseId, course.id)),
+    });
+    const progressByLesson = new Map(unitProgress.map((row) => [row.lessonId, row]));
+    const unitReady = unitLessons
+      .filter((row) => !row.isExam)
+      .every((row) =>
+        lessonCountsAsCurrentMastery({
+          status: progressByLesson.get(row.id)?.status ?? "",
+          lessonContentVersion: row.contentVersion ?? 1,
+          completedContentVersion: progressByLesson.get(row.id)?.completedContentVersion ?? null,
+        }),
+      );
+    if (!unitReady) return { ok: false, status: 403, error: "exam_locked" };
+  }
+
+  const storedExercises =
+    (lesson.exercises as { id: string; type: string; examVariant?: string; [k: string]: unknown }[]) ?? [];
+  const priorProgress = lesson.isExam
+    ? await db.query.userLessonProgress.findFirst({
+        where: and(eq(userLessonProgress.userId, user.id), eq(userLessonProgress.lessonId, lesson.id)),
+      })
+    : null;
+  const exercises = lesson.isExam
+    ? selectExamVariantExercises(
+        storedExercises,
+        resolveExamVariantId(user.id, lesson.id, priorProgress?.attempts ?? 0),
+      )
+    : storedExercises;
+  const gradingResult = await gradeLessonAttemptAsync(
     exercises,
     answers,
     Boolean(lesson.isExam),
     lesson.passThreshold,
+    user.id,
   );
+  if (!gradingResult.ok) {
+    return {
+      ok: false,
+      status: 503,
+      error: gradingResult.error,
+      exerciseId: gradingResult.exerciseId,
+    };
+  }
+  const grading = gradingResult.grading;
   const { results, correctCount, accuracy, isExam, passThreshold: completeBar, passed } = grading;
   const outcome: "passed" | "failed" = passed ? "passed" : "failed";
 
@@ -329,6 +574,34 @@ export async function submitLesson(
     xpGain = Math.max(1, Math.floor(xpGain * 0.35));
   }
 
+  const examVariantId = isExam
+    ? resolveExamVariantId(user.id, lesson.id, prevLp?.attempts ?? 0)
+    : null;
+
+  const prevEvidence = (prevLp?.evidenceLevel as MasteryEvidenceLevel) ?? "insufficient_data";
+  const daysSinceFirst = prevLp?.lastSelfVerifiedAt
+    ? Math.max(0, Math.floor((Date.now() - new Date(prevLp.lastSelfVerifiedAt).getTime()) / 86_400_000))
+    : 0;
+
+  const evidenceLevel = evidenceForLessonSubmit({
+    exercises,
+    results,
+    answers,
+    passed,
+    passThreshold: completeBar,
+    isExam,
+    isFirstAttempt: !prevLp || prevLp.attempts === 0,
+    daysSinceFirstVerification: daysSinceFirst,
+    priorEvidenceLevel: prevEvidence,
+    usedHint,
+  });
+
+  const updatedLastSelfVerifiedAt =
+    evidenceLevel === "self_verified" || evidenceLevel === "retained_verified"
+      ? prevLp?.lastSelfVerifiedAt ?? new Date()
+      : prevLp?.lastSelfVerifiedAt ?? null;
+
+  const practicedAt = passed ? new Date() : null;
   if (prevLp) {
     await db
       .update(userLessonProgress)
@@ -336,7 +609,13 @@ export async function submitLesson(
         status: passed ? "completed" : prevLp.status,
         bestScore: Math.max(prevLp.bestScore, accuracy),
         attempts: prevLp.attempts + 1,
-        completedAt: passed ? prevLp.completedAt ?? new Date() : prevLp.completedAt,
+        evidenceLevel,
+        lastSelfVerifiedAt: updatedLastSelfVerifiedAt,
+        completedAt: passed ? prevLp.completedAt ?? practicedAt : prevLp.completedAt,
+        lastPracticedAt: passed ? practicedAt : prevLp.lastPracticedAt,
+        completedContentVersion: passed
+          ? Math.max(prevLp.completedContentVersion ?? 0, lesson.contentVersion ?? 1)
+          : prevLp.completedContentVersion,
       })
       .where(eq(userLessonProgress.id, prevLp.id));
   } else {
@@ -347,7 +626,11 @@ export async function submitLesson(
       status: passed ? "completed" : "available",
       bestScore: accuracy,
       attempts: 1,
-      completedAt: passed ? new Date() : null,
+      evidenceLevel,
+      lastSelfVerifiedAt: updatedLastSelfVerifiedAt,
+      completedAt: practicedAt,
+      lastPracticedAt: practicedAt,
+      completedContentVersion: passed ? (lesson.contentVersion ?? 1) : null,
     });
   }
 
@@ -743,6 +1026,8 @@ export async function submitLesson(
       homeworkCompleted,
       isExam,
       passed,
+      evidenceLevel,
+      variantId: examVariantId,
       passThreshold: completeBar,
       examFailed: isExam && !passed,
       nextLesson,

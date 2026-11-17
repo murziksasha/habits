@@ -3,7 +3,7 @@
 Slug: `postgresql_apps`
 Group: deep
 Hub: `/postgresql-apps`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `express_fundamentals`, `sql_fundamentals`
 Recommended next: `software_testing`, `web_security`, `nextjs_fullstack`
 
@@ -19,19 +19,19 @@ Relational modeling, constraints and migrations, parameterized CRUD, joins and k
 
 ### `pg_relational_modeling` — Relational Modeling for Web Apps
 
-- `pg-rm-entities` — Entities, Keys & 1:N Modeling in PostgreSQL [free] (2 exercises)
-- `pg-rm-normalization` — Avoiding Anomalies & Foreign Key Actions [free] (1 exercises)
+- `pg-rm-entities` — Entities, Keys & 1:N Modeling in PostgreSQL (2 exercises)
+- `pg-rm-normalization` — Avoiding Anomalies & Foreign Key Actions (1 exercises)
 - `pg-rm-exam` — Checkpoint: Relational Modeling [exam] (2 exercises)
 
 ### `pg_constraints_migrations` — Constraints & Safe Schema Migrations
 
-- `pg-cm-constraints` — CHECK Constraints & Partial Unique Indexes [free] (2 exercises)
-- `pg-cm-migrations` — Forward-Only Versioned Migrations & Lock Safety [free] (2 exercises)
+- `pg-cm-constraints` — CHECK Constraints & Partial Unique Indexes (2 exercises)
+- `pg-cm-migrations` — Forward-Only Versioned Migrations & Lock Safety (2 exercises)
 - `pg-cm-exam` — Checkpoint: Constraints & Migrations [exam] (2 exercises)
 
 ### `pg_parameterized_crud` — Parameterized CRUD & Returning Clauses
 
-- `pg-crud-params` — Bind Parameters ($1) & RETURNING [free] (2 exercises)
+- `pg-crud-params` — Bind Parameters ($1) & RETURNING (2 exercises)
 - `pg-crud-upsert` — Idempotent Upserts with ON CONFLICT (1 exercises)
 - `pg-crud-exam` — Checkpoint: Parameterized CRUD [exam] (2 exercises)
 

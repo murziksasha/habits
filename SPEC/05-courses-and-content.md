@@ -16,20 +16,24 @@
 | `qa_theory` | QA theory deep track | principles, levels, types, techniques, STLC + exams |
 | `js_fundamentals` | JavaScript deep track | types, functions, arrays, async, DOM, modules + exams |
 | `react_fundamentals` | React deep track | components, props, state, lists, effects, forms + exams |
-| `sql_fundamentals` | SQL & Oracle Database | One course, three sections: SQL & Modern Oracle (22 units including the capstone), PL/SQL (8), Database Administration (8). 38 units, 155 lessons. Identities stay stable across incremental seeds |
+| `sql_fundamentals` | SQL & Oracle Database | One course, three sections: SQL & Modern Oracle, PL/SQL, Database Administration. 44 units, 177 lessons, 44 exams. Oracle 1Z0-071 checklist, query repair, and explicit Oracle ↔ PostgreSQL dialect notes |
 | `node_fundamentals` | Node.js deep track | runtime, modules, fs, env, http, npm, async + exams |
 | `express_fundamentals` | Express deep track | app, routes, middleware, REST, errors, Router + exams |
 | `embedded_cpp` | Embedded C++ · MilTech | memory, CMake, net, RTOS, MAVLink, safety, datalink, mission + labs/exams |
+| `electrical_engineering` | Electrical engineering + SPICE | Charge and fields → DC/AC → electronics → power systems and machines → three capstones; 60 units, 360 lessons including 60 exams |
+
+Full canonical list of all **36 registered courses** (558 units, 2,513 lessons including 513 exams, 13 ForgeBoard labs) lives in **[SPEC/courses/README.md](./courses/README.md)** and **[SPEC/COURSE-REGISTRY.md](./COURSE-REGISTRY.md)**. Counts include unpublished content. All published courses and lessons are free for all accounts. The in-app SPICE laboratory is separate from ForgeBoard packs.
 
 ## Content pipeline
 
 1. Authors define content in `packages/content/src/*.ts`  
-2. `pnpm db:seed` upserts courses/units/lessons by **slug** (skips `contentSource=cms`)  
-3. Admin CMS can create **draft** courses (free-form slug), units/lessons, then **publish**  
-4. Learners see only `status=published` + `isVisible` courses via API  
+2. `pnpm content:sync` safely synchronizes courses/units/lessons without touching users, passwords, sessions, progress, or `contentSource=cms` courses  
+3. `pnpm db:seed` runs full seed for fresh local dev environments  
+4. Admin CMS can create **draft** courses (free-form slug), units/lessons, then **publish**  
+5. Learners see only `status=published` + `isVisible` courses via API  
 
-Seed is **incremental**: existing seed slugs update payload; new seed slugs insert.  
-CMS-owned courses are not overwritten by seed. See SPEC 72 for publish gates.
+Seed and content:sync are **incremental**: existing seed slugs update payload; new seed slugs insert.  
+CMS-owned courses are not overwritten. See SPEC 72 for publish gates and SPEC 93 for content synchronization guarantees.
 
 ## Lesson model
 
@@ -66,17 +70,23 @@ CMS-owned courses are not overwritten by seed. See SPEC 72 for publish gates.
 | `code_project` | multi-file + substring checks | Programming minis |
 | `code_run` | client run (C++ via JSCPP) + source needles | embedded_cpp labs, playground-style |
 | `video` | watch ratio ≥ `minWatchRatio` | MDX `videoUrl` lessons |
-| `code_judge` | judge result `{ ok }` / tests ratio | Judge-enabled drills |
+| `code_judge` | Server Docker isolated execution or static text mode (SPEC 93) | Judge-enabled drills |
 | `concept` | acknowledged, or optional `check` MCQ | Theory card first in deep lessons (SPEC 91) |
-| `explain` | rubric: ≥ `minWords` words and ≥ `passRatio` of `keyIdeas` stems | Self-explanation; optional tutor feedback (SPEC 92) |
+| `explain` | Rubric stem matches plus repetition-capped word count and non-keyword vocabulary checks | Self-explanation; optional tutor feedback (SPEC 92) |
+| `numeric` | SI-aware scalar or complex answer with explicit absolute/relative tolerance and magnitude-scaled floating-point slack | Electrical engineering calculations |
+| `circuit_lab` | Server structural checks and SPICE evaluation against authored criteria | Electrical engineering circuit exercises |
 
-See also [23-programming-track.md](./23-programming-track.md) and SPECs 33–54 (playground, minis, race).
+See also [23-programming-track.md](./23-programming-track.md), [93-clear-tasks-robust-grading.md](./93-clear-tasks-robust-grading.md), and SPECs 33–54 (playground, minis, race).
 
-Normalization for text answers: trim, lowercase, strip trailing punctuation, collapse spaces.
+Choice-based exercises may shuffle their display order deterministically; submitted indices remain the original content indices. Explanation grading counts each normalized token at most twice and requires non-keyword vocabulary as well as rubric matches. This reduces repetition padding but remains a lexical check, not semantic verification. Authoring guidance is in [CONTENT-DX](./CONTENT-DX.md).
+
+Normalization for text and code answers:
+- Text: trim, lowercase, unify Ukrainian apostrophes (`’`, `‘`, `ʼ`, `'`) and quotes (`«`, `»`, `“`, `”`, `"`), collapse spaces, strip trailing punctuation.
+- Code: normalize string quotes (`'` vs `"`), operator spacing (`a + b` vs `a+b`), optional semicolons, and CSS property spacing (`font-size`). Zero client trust for `code_judge` execution passes (server-verified only).
 
 ## Access
 
-Every lesson is open to every account. `lesson.isFree` is leftover content metadata and does not lock the player.
+Published lessons are free for every account. `lesson.isFree` is leftover content metadata and does not lock the player. Authenticated unit exam opening and submission require completion of the current content version of the unit's non-exam lessons; the server returns `403 exam_locked` otherwise. Draft and hidden content is unavailable to non-admin users. See [API contracts](./04-api-reference.md#courses-courses).
 
 Hearts are a shared practice counter (5, then regen). Running out of hearts does not block opening or submitting a lesson.
 

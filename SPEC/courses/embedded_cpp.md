@@ -3,7 +3,7 @@
 Slug: `embedded_cpp`
 Group: deep
 Hub: `/embedded-cpp`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 
 ## What this course is
 
@@ -13,15 +13,15 @@ C++ for constrained systems and miltech stack: memory, CMake, networking, FreeRT
 
 ### `miltech-intro` — MilTech intro · C++
 
-- `ec-miltech-path` — C++ specifics in Military Tech [free] (6 exercises)
-- `ec-types-ops` — Types, operators, conditions, bitmap [free] (6 exercises)
-- `ec-loops-fn` — Loops, functions, main event loop [free] (5 exercises)
-- `ec-determinism-logs` — Determinism, logs, coding standards [free] (5 exercises)
+- `ec-miltech-path` — C++ specifics in Military Tech (6 exercises)
+- `ec-types-ops` — Types, operators, conditions, bitmap (6 exercises)
+- `ec-loops-fn` — Loops, functions, main event loop (5 exercises)
+- `ec-determinism-logs` — Determinism, logs, coding standards (5 exercises)
 - `ec-intro-exam` — Exam: intro [exam] (7 exercises)
 
 ### `memory` — Memory & structures
 
-- `ec-arrays-ptr` — Arrays, strings, pointers [free] (5 exercises)
+- `ec-arrays-ptr` — Arrays, strings, pointers (5 exercises)
 - `ec-struct-align` — Structs, enum, union, alignment (5 exercises)
 - `ec-endian-pack` — Endianness, packed layout, ownership (5 exercises)
 - `ec-mem-exam` — Exam: memory [exam] (7 exercises)

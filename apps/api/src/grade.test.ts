@@ -234,6 +234,41 @@ int main(){ cout << 1; return 0; }`,
     expect(gradeExercise(ex, 0).correct).toBe(false);
   });
 
+  it("rejects client-spoofed ok: true in code_judge", () => {
+    const ex = {
+      id: "cj1",
+      type: "code_judge",
+      language: "javascript",
+      starter: "",
+      tests: [{ type: "stdout_contains", value: "ok" }],
+    };
+    // Untrusted client claim must be rejected by server
+    expect(gradeExercise(ex, { ok: true, testsPassed: 5 }).correct).toBe(false);
+    expect(gradeExercise(ex, { ok: true }).correct).toBe(false);
+
+    // Only _serverVerified execution passes
+    expect(
+      gradeExercise(ex, { _serverVerified: true, ok: true, testsPassed: 1, testsTotal: 1 }).correct,
+    ).toBe(true);
+  });
+
+  it("grades code_judge in text mode without executing code", () => {
+    const ex = {
+      id: "cj2",
+      type: "code_judge",
+      language: "javascript",
+      starter: "",
+      tests: [{ type: "stdout_contains", value: "hello" }],
+      requiredSource: ["console.log"],
+    };
+    const pass = gradeExercise(ex, { mode: "text", source: 'console.log("hello");' });
+    expect(pass.correct).toBe(true);
+    expect(pass.meta?.mode).toBe("text");
+
+    const fail = gradeExercise(ex, { mode: "text", source: 'alert("hi");' });
+    expect(fail.correct).toBe(false);
+  });
+
   it("unknown type is incorrect", () => {
     expect(gradeExercise({ id: "x", type: "nope" }, true).correct).toBe(false);
   });

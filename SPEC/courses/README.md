@@ -1,6 +1,8 @@
 # Course depth
 
-One file per course slug. Programs reflect seeded units/lessons plus linked `ForgeBoard` local practice packs (`LOCAL_LAB_MANIFESTS`, `assessmentMode: "local_practice"`).
+One file per course slug. Programs reflect seeded units/lessons plus linked `ForgeBoard` local practice packs (`LOCAL_LAB_MANIFESTS`, `assessmentMode: "local_practice"`). There are 36 registered courses, 558 units, 2,513 lessons including 513 exams, and 13 ForgeBoard packs. These content totals include unpublished courses and do not describe the currently published catalog of an instance.
+
+Electrical engineering also has an in-app SPICE laboratory and seven graded circuit exercise cards; these are not ForgeBoard packs and are not counted in the Local Lab column.
 
 Update in the same change as `packages/content`. See `SPEC/CONTENT-DX.md`.
 
@@ -41,3 +43,4 @@ Update in the same change as `packages/content`. See `SPEC/CONTENT-DX.md`.
 | [`rest_api_design`](./rest_api_design.md) | deep | 6 | 24 | 6 | — | Resource URLs, HTTP methods, status codes, idempotency, versioning, pagination, errors, auth, and OpenAPI. |
 | [`frontend_performance`](./frontend_performance.md) | deep | 6 | 24 | 6 | — | Critical path, rendering, bundles, images, caching, and Core Web Vitals (LCP, INP, CLS). |
 | [`browser_web_apis`](./browser_web_apis.md) | deep | 6 | 24 | 6 | — | DOM and events, fetch and streams, storage, observers, workers, history, clipboard, and permissions. |
+| [`electrical_engineering`](./electrical_engineering.md) | skill | 60 | 360 | 60 | — | Comprehensive electrical engineering: nature of electricity, DC/AC circuits, components & transients, semiconductors, op-amps, power electronics, electrical machines, and 3 capstone projects. |

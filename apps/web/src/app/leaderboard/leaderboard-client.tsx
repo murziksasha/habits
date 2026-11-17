@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { COURSE_SLUGS, COURSE_META, UI } from "@eduforge/shared";
+import { COURSE_SLUGS, COURSE_META, pickLocale } from "@eduforge/shared";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
@@ -79,19 +79,19 @@ function LeaderboardInner() {
 
   return (
     <div className="space-y-6 pb-20 md:pb-0">
-      <h1 className="text-3xl font-black">🏆 {UI.leaderboard.title}</h1>
+      <h1 className="text-3xl font-black">🏆 {t.leaderboard.title}</h1>
       <div className="flex flex-wrap gap-2">
         <button
           className={tab === "global" ? "btn-primary !py-2" : "btn-secondary !py-2"}
           onClick={() => setTab("global")}
         >
-          {UI.leaderboard.global}
+          {t.leaderboard.global}
         </button>
         <button
           className={tab === "chess" ? "btn-primary !py-2" : "btn-secondary !py-2"}
           onClick={() => setTab("chess")}
         >
-          {UI.leaderboard.chessElo}
+          {t.leaderboard.chessElo}
         </button>
         <button
           className={tab === "playground" ? "btn-primary !py-2" : "btn-secondary !py-2"}
@@ -105,7 +105,7 @@ function LeaderboardInner() {
             className={tab === s ? "btn-primary !py-2" : "btn-secondary !py-2"}
             onClick={() => setTab(s)}
           >
-            {COURSE_META[s].icon} {COURSE_META[s].titleUk}
+            {COURSE_META[s].icon} {pickLocale(locale, COURSE_META[s].titleUk, COURSE_META[s].titleEn)}
           </button>
         ))}
       </div>
@@ -118,9 +118,9 @@ function LeaderboardInner() {
         <table className="w-full text-left">
           <thead>
             <tr className="text-sm text-ink-muted">
-              <th className="pb-3">{UI.leaderboard.rank}</th>
-              <th className="pb-3">{UI.leaderboard.player}</th>
-              <th className="pb-3 text-right">{UI.leaderboard.score}</th>
+              <th className="pb-3">{t.leaderboard.rank}</th>
+              <th className="pb-3">{t.leaderboard.player}</th>
+              <th className="pb-3 text-right">{t.leaderboard.score}</th>
             </tr>
           </thead>
           <tbody>

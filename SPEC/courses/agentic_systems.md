@@ -3,7 +3,7 @@
 Slug: `agentic_systems`
 Group: deep
 Hub: `/agentic-systems`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `python_for_ai`, `ai_development`
 Recommended next: `llmops`, `ai_security`
 
@@ -15,19 +15,19 @@ Script vs model vs agent, tool schemas, planning & reflection against objective 
 
 ### `ag_choose` — Plain Script vs One Model Call vs an Agent
 
-- `ag-ch-ladder` — Cost and Failure Surface: Pick the Simplest Pattern [free] (3 exercises)
-- `ag-ch-surface` — Complexity Ladder and Hard Step Caps [free] (3 exercises)
+- `ag-ch-ladder` — Cost and Failure Surface: Pick the Simplest Pattern (3 exercises)
+- `ag-ch-surface` — Complexity Ladder and Hard Step Caps (3 exercises)
 - `ag-ch-exam` — Checkpoint: Choosing the Right Pattern [exam] (3 exercises)
 
 ### `ag_tools` — Tool Schemas, Idempotent Tools, and Model-Readable Errors
 
-- `ag-tl-schema` — Tool Contracts and Errors the Model Can Read [free] (3 exercises)
-- `ag-tl-idempotent` — Idempotent Tools Under Retries [free] (3 exercises)
+- `ag-tl-schema` — Tool Contracts and Errors the Model Can Read (3 exercises)
+- `ag-tl-idempotent` — Idempotent Tools Under Retries (3 exercises)
 - `ag-tl-exam` — Checkpoint: Agent Tools [exam] (3 exercises)
 
 ### `ag_plan_reflect` — Task Splitting and Verification-Backed Reflection
 
-- `ag-pr-split` — Splitting Tasks vs Vibes-Based Self-Critique [free] (3 exercises)
+- `ag-pr-split` — Splitting Tasks vs Vibes-Based Self-Critique (3 exercises)
 - `ag-pr-check` — Reflection Against an Actual Check (3 exercises)
 - `ag-pr-exam` — Checkpoint: Planning and Reflection [exam] (3 exercises)
 

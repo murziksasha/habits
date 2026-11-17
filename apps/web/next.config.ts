@@ -38,17 +38,35 @@ const nextConfig: NextConfig = {
   transpilePackages: ["@eduforge/shared"],
   // C++ interpreter used only in the browser for playground / code_run
   serverExternalPackages: ["JSCPP"],
-  webpack: (config) => {
+  webpack: (config, { isServer, webpack }) => {
     config.resolve = config.resolve ?? {};
     config.resolve.fallback = {
       ...(config.resolve.fallback ?? {}),
       fs: false,
       path: false,
       module: false,
+      child_process: false,
+      url: false,
     };
+    if (!isServer && webpack) {
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(/^node:/, (resource: { request: string }) => {
+          resource.request = resource.request.replace(/^node:/, "");
+        })
+      );
+    }
     // WebContainer API is browser-only
     config.externals = config.externals ?? [];
     return config;
+  },
+  async redirects() {
+    return [
+      {
+        source: "/pricing",
+        destination: "/courses",
+        permanent: false,
+      },
+    ];
   },
   async headers() {
     return [

@@ -1,26 +1,29 @@
 import { describe, expect, it } from "vitest";
-import {
-  DEFAULT_EXAM_PASS_THRESHOLD,
-  examPassed,
-  examPassThreshold,
-  lessonCompleteThreshold,
-} from "./exam.js";
+import { resolveExamVariantId, selectExamVariantExercises, stripExamSolutions } from "./exam.js";
 
-describe("exam helpers", () => {
-  it("defaults threshold to 0.7", () => {
-    expect(examPassThreshold(null)).toBe(DEFAULT_EXAM_PASS_THRESHOLD);
-    expect(examPassThreshold(undefined)).toBe(0.7);
+describe("exam variants", () => {
+  const bank = [
+    { id: "a1", examVariant: "A" },
+    { id: "a2", examVariant: "A" },
+    { id: "b1", examVariant: "B" },
+  ];
+
+  it("keeps an untagged bank intact", () => {
+    expect(selectExamVariantExercises([{ id: "only" }], "variant_B")).toEqual([{ id: "only" }]);
   });
 
-  it("examPassed respects bar", () => {
-    expect(examPassed(0.69, 0.7)).toBe(false);
-    expect(examPassed(0.7, 0.7)).toBe(true);
-    expect(examPassed(1, 0.7)).toBe(true);
+  it("serves form B and falls back from C to A", () => {
+    expect(selectExamVariantExercises(bank, "variant_B").map((e) => e.id)).toEqual(["b1"]);
+    expect(selectExamVariantExercises(bank, "variant_C").map((e) => e.id)).toEqual(["a1", "a2"]);
   });
 
-  it("lessonCompleteThreshold differs for exams", () => {
-    expect(lessonCompleteThreshold({ isExam: false })).toBe(0.5);
-    expect(lessonCompleteThreshold({ isExam: true })).toBe(0.7);
-    expect(lessonCompleteThreshold({ isExam: true, passThreshold: 0.8 })).toBe(0.8);
+  it("strips worked solutions", () => {
+    const [row] = stripExamSolutions([{ id: "q", explanationUk: "secret", correctIndex: 1 }]);
+    expect(row?.explanationUk).toBeUndefined();
+    expect(row?.correctIndex).toBe(1);
+  });
+
+  it("is stable for the same attempt", () => {
+    expect(resolveExamVariantId("user", "lesson", 1)).toBe(resolveExamVariantId("user", "lesson", 1));
   });
 });

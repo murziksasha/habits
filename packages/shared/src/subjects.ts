@@ -33,8 +33,8 @@ export const SUBJECT_META: Record<
   technology: {
     titleUk: "Технології",
     titleEn: "Technology",
-    blurbUk: "Програмування, дані та інструменти.",
-    blurbEn: "Programming, data, and tools.",
+    blurbUk: "Програмування, електротехніка, дані та інструменти.",
+    blurbEn: "Programming, electrical engineering, data, and tools.",
     order: 4,
   },
 };
@@ -75,6 +75,7 @@ export const COURSE_SUBJECT: Record<CourseSlug, SubjectId> = {
   rest_api_design: "technology",
   frontend_performance: "technology",
   browser_web_apis: "technology",
+  electrical_engineering: "technology",
 };
 
 export function subjectForCourse(slug: string): SubjectId {

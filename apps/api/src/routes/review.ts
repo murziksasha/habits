@@ -69,6 +69,7 @@ reviewRoutes.get("/", authMiddleware, async (c) => {
       attempts: userLessonProgress.attempts,
       status: userLessonProgress.status,
       completedAt: userLessonProgress.completedAt,
+      lastPracticedAt: userLessonProgress.lastPracticedAt,
       isExam: lessons.isExam,
     })
     .from(userLessonProgress)
@@ -77,6 +78,8 @@ reviewRoutes.get("/", authMiddleware, async (c) => {
     .where(
       and(
         eq(userLessonProgress.userId, user.id),
+        eq(courses.status, "published"),
+        eq(courses.isVisible, true),
         or(
           and(
             eq(userLessonProgress.status, "completed"),
@@ -95,6 +98,7 @@ reviewRoutes.get("/", authMiddleware, async (c) => {
   // Optional: pull last exam_failed wrong types for coaching banner
   let examContext: {
     courseSlug?: string;
+    lessonId?: string;
     wrongTypes?: string[];
     accuracy?: number;
   } | null = null;
@@ -107,6 +111,7 @@ reviewRoutes.get("/", authMiddleware, async (c) => {
       const p = last.payload as Record<string, unknown>;
       examContext = {
         courseSlug: typeof p.courseSlug === "string" ? p.courseSlug : undefined,
+        lessonId: typeof p.lessonId === "string" ? p.lessonId : undefined,
         wrongTypes: Array.isArray(p.wrongTypes) ? (p.wrongTypes as string[]) : undefined,
         accuracy: typeof p.accuracy === "number" ? p.accuracy : undefined,
       };
@@ -133,7 +138,7 @@ reviewRoutes.get("/", authMiddleware, async (c) => {
           {
             bestScore: r.bestScore ?? 0,
             attempts: r.attempts ?? 0,
-            lastPracticedAt: r.completedAt,
+            lastPracticedAt: r.lastPracticedAt ?? r.completedAt,
           },
           now,
         )
@@ -205,6 +210,8 @@ reviewRoutes.get("/mixed", authMiddleware, async (c) => {
     eq(userLessonProgress.userId, user.id),
     eq(userLessonProgress.status, "completed"),
     eq(lessons.isExam, false),
+    eq(courses.status, "published"),
+    eq(courses.isVisible, true),
   ];
   if (courseSlug) conds.push(eq(courses.slug, courseSlug));
 

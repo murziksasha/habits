@@ -382,9 +382,9 @@ const htmlUnit = unit("html", "HTML", "HTML", [
         id: "pr-html-proj-1",
         type: "code_project",
         promptUk:
-          "Збери картку: HTML з h1 «EduForge», p.lead, button; CSS з .card padding і background.",
+          "Вихідні файли: index.html та styles.css. Очікуваний результат: картка article.card із заголовком h1 EduForge, лід-параграфом p.lead та кнопкою button; у CSS задано padding та background. Обов'язкові елементи: <article class=\"card\">, <h1>EduForge</h1>, <p class=\"lead\">, <button>, .card { padding, background }. Обмеження: статична перевірка структури; підтримуються одинарні й подвійні лапки.",
         promptEn:
-          "Build a card: HTML with h1 «EduForge», p.lead, button; CSS .card with padding and background.",
+          "Input files: index.html and styles.css. Expected result: an article.card containing an h1 EduForge heading, a p.lead paragraph, and a button; styled with padding and background. Mandatory elements: <article class=\"card\">, <h1>EduForge</h1>, <p class=\"lead\">, <button>, .card { padding, background }. Validation limits: static multi-file source check; single and double quotes accepted.",
         files: [
           {
             id: "html",
@@ -650,9 +650,9 @@ const cssUnit = unit("css", "CSS", "CSS", [
         id: "pr-css-proj-1",
         type: "code_project",
         promptUk:
-          "Hero-блок: section.hero з h1 і p; CSS: .hero flex, center, min-height 200px, background.",
+          "Вихідні файли: index.html та styles.css. Очікуваний результат: Hero-банер, вирівняний по центру через Flexbox, з висотою від 200px. Обов'язкові елементи: <section class=\"hero\"> із <h1> та <p>; у styles.css селектор .hero із display: flex, justify-content, align-items, min-height, background. Обмеження: перевірка CSS-властивостей з гнучкими пробілами.",
         promptEn:
-          "Hero block: section.hero with h1 and p; CSS: .hero flex, center, min-height 200px, background.",
+          "Input files: index.html and styles.css. Expected result: a hero section centered with Flexbox with minimum height of 200px. Mandatory elements: <section class=\"hero\"> with <h1> and <p>; in styles.css selector .hero with display: flex, justify-content, align-items, min-height, background. Validation limits: static CSS rule verification with flexible spacing.",
         files: [
           {
             id: "html",
@@ -1236,9 +1236,9 @@ console.log(3);`,
         id: "pr-js-proj-1",
         type: "code_project",
         promptUk:
-          "HTML: #count і button#inc. CSS: #count font-size. JS: click → count++ і textContent.",
+          "Вихідні файли: index.html, styles.css, main.js. Очікуваний результат: клік на кнопку #inc збільшує число в #count. Обов'язкові елементи: елементи з id=\"count\" та id=\"inc\"; у CSS #count з font-size; у JS getElementById, addEventListener('click', ...), textContent. Обмеження: статична перевірка трьох файлів; перевіряються еквівалентні лапки та селектори.",
         promptEn:
-          "HTML: #count and button#inc. CSS: #count font-size. JS: click → count++ and textContent.",
+          "Input files: index.html, styles.css, main.js. Expected result: clicking button #inc increments the counter value in #count. Mandatory elements: elements with id=\"count\" and id=\"inc\"; in CSS #count with font-size; in JS getElementById, addEventListener('click', ...), textContent. Validation limits: static source check across files; quotes and selectors normalized.",
         files: [
           {
             id: "html",
@@ -1438,9 +1438,9 @@ const typescriptUnit = unit("typescript", "TypeScript", "TypeScript", [
         id: "pr-ts-proj-1",
         type: "code_project",
         promptUk:
-          "TS util: interface User { id: number; name: string }, function greet(u: User): string. + README з типом.",
+          "Вихідні файли: greet.ts та README.md. Очікуваний результат: типізована функція привітання та документація типу. Обов'язкові елементи: interface User з полями id (число) та name (рядок), функція greet(u: User): string; у README згадка interface і string. Обмеження: перевірка TS-сигнатур без виконання компиляції.",
         promptEn:
-          "TS util: interface User { id: number; name: string }, function greet(u: User): string. + README about types.",
+          "Input files: greet.ts and README.md. Expected result: typed greeting function and documentation. Mandatory elements: interface User with id: number and name: string, function greet(u: User): string; in README mention interface and string. Validation limits: static TS signature check without running tsc.",
         files: [
           {
             id: "ts",
@@ -1700,9 +1700,9 @@ const reactUnit = unit("react", "React", "React", [
         id: "pr-re-proj-1",
         type: "code_project",
         promptUk:
-          "React Toggle: useState, button onClick, умовний текст On/Off. (source checks — без live React runtime)",
+          "Вихідні файли: Toggle.jsx та toggle.css. Очікуваний результат: компонент кнопки-перемикача стану. Обов'язкові елементи: useState(false), export function Toggle, onClick, setOn, вивід тексту On або Off; у toggle.css .toggle. Обмеження: перевірка JSX без монтування у live React-середовище.",
         promptEn:
-          "React Toggle: useState, button onClick, conditional On/Off text. (source checks — no live React runtime)",
+          "Input files: Toggle.jsx and toggle.css. Expected result: a toggle button component. Mandatory elements: useState(false), export function Toggle, onClick, setOn, rendering On or Off text; in toggle.css .toggle. Validation limits: static JSX check without mounting in a live React DOM runtime.",
         files: [
           {
             id: "jsx",
@@ -1947,9 +1947,9 @@ const gitUnit = unit("git", "Git", "Git", [
         id: "pr-git-proj-1",
         type: "code_project",
         promptUk:
-          "Склади bash-скрипт commit flow: git status, git add ., git commit -m \"feat: card\".",
+          "Вихідні файли: commit.sh та NOTES.md. Очікуваний результат: послідовність команд коміту та опис робочого процесу. Обов'язкові елементи: git status, git add ., git commit -m \"feat: card\"; у NOTES.md згадка branch і PR. Обмеження: статичний аналіз bash-скрипту; дозволені еквівалентні лапки в повідомленні коміту.",
         promptEn:
-          "Write a bash commit-flow script: git status, git add ., git commit -m \"feat: card\".",
+          "Input files: commit.sh and NOTES.md. Expected result: commit workflow script and notes. Mandatory elements: git status, git add ., git commit -m \"feat: card\"; in NOTES.md mention branch and PR. Validation limits: static shell script check; single and double quotes in commit messages accepted.",
         files: [
           {
             id: "sh",
@@ -2145,9 +2145,9 @@ const nodeUnit = unit("node", "Node.js", "Node.js", [
         id: "pr-no-proj-1",
         type: "code_project",
         promptUk:
-          "Скелет HTTP-сервера: createServer, listen(PORT), process.env.PORT. + package.json scripts.",
+          "Вихідні файли: server.js та package.json. Очікуваний результат: базовий HTTP-сервер Node.js із портом із оточення та скрипт запуску. Обов'язкові елементи: createServer, listen, process.env, PORT; у package.json скрипт зі start та node. Обмеження: статична перевірка без відкриття сокета на хості.",
         promptEn:
-          "HTTP server skeleton: createServer, listen(PORT), process.env.PORT. + package.json scripts.",
+          "Input files: server.js and package.json. Expected result: minimal Node.js HTTP server reading PORT from environment and a start script. Mandatory elements: createServer, listen, process.env, PORT; in package.json start script invoking node. Validation limits: static source check without opening a local port.",
         files: [
           {
             id: "js",
@@ -2400,9 +2400,9 @@ const expressUnit = unit("express", "Express", "Express", [
         id: "pr-ex-proj-1",
         type: "code_project",
         promptUk:
-          "Express app: express(), app.get('/health'), app.listen. + README з curl прикладом.",
+          "Вихідні файли: app.js та README.md. Очікуваний результат: Express-застосунок з ендпоінтом health check та документація виклику. Обов'язкові елементи: express, app.get, '/health', app.listen; у README згадки curl та /health. Обмеження: статична перевірка без запуску демона.",
         promptEn:
-          "Express app: express(), app.get('/health'), app.listen. + README with curl example.",
+          "Input files: app.js and README.md. Expected result: an Express app with a health check endpoint and request documentation. Mandatory elements: express, app.get, '/health', app.listen; in README mention curl and /health. Validation limits: static source check without launching a daemon.",
         files: [
           {
             id: "js",
@@ -2617,9 +2617,9 @@ const sqlUnit = unit("sql", "SQL", "SQL", [
         id: "pr-sql-proj-1",
         type: "code_project",
         promptUk:
-          "Напиши SQL JOIN users↔orders і короткий README з поясненням INNER JOIN.",
+          "Вихідні файли: query.sql та README.md. Очікуваний результат: SQL-запит об'єднання таблиць користувачів і замовлень та пояснення. Обов'язкові елементи: SELECT, FROM, JOIN, users, orders, ON; у README згадка INNER JOIN. Обмеження: статичний розбір SQL без підключення до живої бази даних.",
         promptEn:
-          "Write SQL JOIN users↔orders and a short README explaining INNER JOIN.",
+          "Input files: query.sql and README.md. Expected result: SQL query joining users with orders and documentation. Mandatory elements: SELECT, FROM, JOIN, users, orders, ON; in README mention INNER JOIN. Validation limits: static SQL check without connecting to a live database.",
         files: [
           {
             id: "sql",
@@ -2796,9 +2796,9 @@ const qaUnit = unit("qa", "QA", "QA", [
         id: "pr-qa-proj-1",
         type: "code_project",
         promptUk:
-          "Оформи тест-кейс: preconditions, steps, expected. + checklist smoke (login, CRUD).",
+          "Вихідні файли: testcase.md та smoke-checklist.md. Очікуваний результат: детальний тест-кейс і чекліст смоук-тестування. Обов'язкові елементи: у testcase.md секції Preconditions, Steps, Expected; у smoke-checklist.md згадки smoke, login, CRUD. Обмеження: перевірка Markdown-документації на наявність ключових розділів.",
         promptEn:
-          "Write a test case: preconditions, steps, expected. + smoke checklist (login, CRUD).",
+          "Input files: testcase.md and smoke-checklist.md. Expected result: a test case structure and smoke testing checklist. Mandatory elements: in testcase.md sections Preconditions, Steps, Expected; in smoke-checklist.md mention smoke, login, CRUD. Validation limits: static markdown validation against rubric sections.",
         files: [
           {
             id: "case",

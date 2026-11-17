@@ -1,6 +1,7 @@
 import type { CourseContent } from "./types.js";
 import {
   codeFill,
+  codeJudge,
   codeOrderAuto,
   codeRead,
   exam,
@@ -864,6 +865,35 @@ const pyReview = unit(
           "if ___(raw) > MAX_CHARS:\n    raise ValueError(\"input_too_large\")",
           ["len"],
           true,
+        ),
+        codeJudge(
+          "py-r4-judge",
+          "Вхідні дані: функція safe_read(stream, max_chars=1000). Очікуваний результат: зчитування не більше max_chars символів та вивід «OK: 5 chars read». Обов'язкові елементи: def safe_read, read, max_chars. Обмеження: поведінковий режим виконує скрипт Python у пісочниці Docker; текстовий режим перевіряє код статично без запуску.",
+          "Input: safe_read(stream, max_chars=1000) function. Expected output: reads at most max_chars characters and prints 'OK: 5 chars read'. Mandatory elements: def safe_read, read, max_chars. Validation limits: behavior mode executes Python script in Docker sandbox; text mode statically checks code without execution.",
+          "python",
+          `import io
+
+def safe_read(stream, max_chars: int = 1000) -> str:
+    chunk = stream.read(max_chars + 1)
+    if len(chunk) > max_chars:
+        raise ValueError("input_too_large")
+    return chunk
+
+stream = io.StringIO("hello")
+result = safe_read(stream, 1000)
+print(f"OK: {len(result)} chars read")
+`,
+          [
+            { type: "stdout_contains", value: "OK: 5 chars read" },
+            { type: "exit_code", value: 0 },
+          ],
+          {
+            checkMode: "both",
+            accepted: ["def safe_read", "safe_read", "OK: 5 chars read"],
+            requiredSource: ["def safe_read", "read"],
+            limitationsUk: "Поведінковий режим запускає Python в ізольованому контейнері Docker. Текстовий режим перевіряє сигнатуру та виклики без виконання.",
+            limitationsEn: "Behavior mode runs Python in an isolated Docker container. Text mode inspects signatures and calls statically.",
+          },
         ),
       ],
       { baseXp: 26 },

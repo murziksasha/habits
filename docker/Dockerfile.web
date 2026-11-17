@@ -6,6 +6,7 @@ FROM base AS deps
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* ./
 COPY packages/shared/package.json packages/shared/
 COPY packages/chess-core/package.json packages/chess-core/
+COPY packages/circuit-engine/package.json packages/circuit-engine/
 COPY apps/web/package.json apps/web/
 RUN pnpm install --frozen-lockfile=false
 
@@ -18,9 +19,11 @@ ENV NEXT_OUTPUT=standalone
 # Source only — node_modules stay from deps (must not be overwritten by host)
 COPY packages/shared ./packages/shared
 COPY packages/chess-core ./packages/chess-core
+COPY packages/circuit-engine ./packages/circuit-engine
 COPY apps/web ./apps/web
 COPY turbo.json ./
 RUN pnpm --filter @eduforge/shared build \
+ && pnpm --filter @eduforge/circuit-engine build \
  && pnpm --filter @eduforge/chess-core build \
  && pnpm --filter @eduforge/web build
 

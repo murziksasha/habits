@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@eduforge/chess-core": "workspace:*",
+    "@eduforge/circuit-engine": "workspace:*",
     "@eduforge/shared": "workspace:*",
     "@monaco-editor/react": "^4.7.0",
     "@webcontainer/api": "^1.6.4",
@@ -24,6 +25,7 @@
     "clsx": "^2.1.1",
     "html-to-image": "^1.11.13",
     "jspdf": "^4.2.1",
+    "katex": "^0.19.1",
     "monaco-editor": "^0.55.1",
     "next": "^15.2.4",
     "qrcode": "^1.5.4",
@@ -35,6 +37,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.51.1",
+    "@types/katex": "^0.16.8",
     "@types/node": "^22.14.0",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19.1.0",

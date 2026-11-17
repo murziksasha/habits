@@ -3,7 +3,7 @@
 Slug: `react_fundamentals`
 Group: deep
 Hub: `/react-fundamentals`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `js_fundamentals`, `typescript`
 Recommended next: `software_testing`, `nextjs_fullstack`
 
@@ -19,19 +19,19 @@ Components, props, useState, lists/keys, useEffect, forms, composition, advanced
 
 ### `intro` — React intro
 
-- `rf-what` — What is React [free] (3 exercises)
-- `rf-jsx` — JSX basics [free] (3 exercises)
+- `rf-what` — What is React (3 exercises)
+- `rf-jsx` — JSX basics (3 exercises)
 - `rf-intro-exam` — Exam: intro [exam] (4 exercises)
 
 ### `components` — Components
 
-- `rf-fn-comp` — Function components [free] (3 exercises)
-- `rf-props` — Props [free] (3 exercises)
+- `rf-fn-comp` — Function components (3 exercises)
+- `rf-props` — Props (3 exercises)
 - `rf-comp-exam` — Exam: components [exam] (4 exercises)
 
 ### `state` — State
 
-- `rf-useState` — useState [free] (3 exercises)
+- `rf-useState` — useState (3 exercises)
 - `rf-events` — Events (2 exercises)
 - `rf-state-exam` — Exam: state [exam] (4 exercises)
 

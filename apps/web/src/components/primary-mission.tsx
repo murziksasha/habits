@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { composeLearningSession, type SessionRole, type SessionStep } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
@@ -53,18 +54,26 @@ function getRecommendationReason(kind: string | undefined, t: ReturnType<typeof 
   return t.learn.reasonDefault;
 }
 
+function sessionRoleLabel(role: SessionRole, t: ReturnType<typeof useLocale>["t"]): string {
+  if (role === "review") return t.learn.sessionReview;
+  if (role === "close") return t.learn.sessionClose;
+  return t.learn.sessionNew;
+}
+
 /** Single source-of-truth primary CTA for thin home / learn. */
 export function PrimaryMission({
   variant = "hero",
   showSecondary = false,
+  minutes,
 }: {
   variant?: "hero" | "compact";
   showSecondary?: boolean;
+  /** When set, the mission is a 5, 10, or 20 minute session from the same recommendations. */
+  minutes?: 5 | 10 | 20;
 }) {
   const { token, user, character } = useAuth();
   const { locale, t } = useLocale();
-  const [next, setNext] = useState<NextItem | null>(null);
-  const [secondary, setSecondary] = useState<NextItem[]>([]);
+  const [list, setList] = useState<NextItem[]>([]);
   const skillPoints = character?.progression?.skillPoints ?? 0;
 
   useEffect(() => {
@@ -73,15 +82,16 @@ export function PrimaryMission({
       token,
     })
       .then((d) => {
-        const list = d.recommendations ?? d.items ?? [];
-        setNext(list[0] ?? null);
-        setSecondary(list.slice(1, 3));
+        setList(d.recommendations ?? d.items ?? []);
       })
       .catch(() => {
-        setNext(null);
-        setSecondary([]);
+        setList([]);
       });
   }, [token, user]);
+
+  const session: SessionStep[] = minutes ? composeLearningSession(minutes, list) : [];
+  const next = minutes ? (session[0] ?? null) : (list[0] ?? null);
+  const secondary = minutes ? session.slice(1) : showSecondary ? list.slice(1, 3) : [];
 
   if (!user) return null;
 
@@ -145,7 +155,23 @@ export function PrimaryMission({
       <Link href={href} className="btn-primary inline-flex min-h-11">
         {t.coursePage.continue} →
       </Link>
-      {showSecondary && secondary.length > 0 && (
+      {minutes && session.length > 0 ? (
+        <ol className="space-y-1 pt-1">
+          <li className="text-xs font-black uppercase text-ink-muted">{t.learn.sessionTitle}</li>
+          {session.map((step, i) => (
+            <li key={`${step.href}-${step.role}`}>
+              <Link
+                href={step.href}
+                className="text-sm font-bold text-ink-muted hover:text-brand-dark hover:underline"
+              >
+                {i + 1}. {sessionRoleLabel(step.role, t)}:{" "}
+                {locale === "en" ? step.titleEn : step.titleUk}
+              </Link>
+            </li>
+          ))}
+        </ol>
+      ) : null}
+      {!minutes && showSecondary && secondary.length > 0 && (
         <ul className="space-y-1 pt-1">
           {secondary.map((r, i) => (
             <li key={`${r.href}-${i}`}>

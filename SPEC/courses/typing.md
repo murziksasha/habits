@@ -3,7 +3,7 @@
 Slug: `typing`
 Group: skill
 Hub: `/courses/typing`
-Freemium: first 6 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 
 ## What this course is
 
@@ -13,11 +13,11 @@ Build speed and accuracy with touch typing drills.
 
 ### `home-row` — Home row
 
-- `en-home-1` — EN: asdf jkl; [free] (1 exercises)
-- `en-home-2` — EN: home-row words [free] (1 exercises)
-- `uk-home-1` — UK: home row [free] (1 exercises)
-- `uk-home-2` — UK: simple words [free] (1 exercises)
-- `en-home-3` — EN: rhythm [free] (1 exercises)
+- `en-home-1` — EN: asdf jkl; (1 exercises)
+- `en-home-2` — EN: home-row words (1 exercises)
+- `uk-home-1` — UK: home row (1 exercises)
+- `uk-home-2` — UK: simple words (1 exercises)
+- `en-home-3` — EN: rhythm (1 exercises)
 - `en-top-1` — EN: top row (1 exercises)
 - `en-bottom-1` — EN: bottom row (1 exercises)
 - `en-words-1` — EN: common words (1 exercises)
@@ -51,7 +51,7 @@ Build speed and accuracy with touch typing drills.
 
 ### `daily-drills` — Daily drills
 
-- `drill-accuracy` — Drill: accuracy [free] (1 exercises)
+- `drill-accuracy` — Drill: accuracy (1 exercises)
 - `drill-combo` — Drill: EN + symbols (1 exercises)
 - `drill-uk-flow` — Drill: UK flow (1 exercises)
 - `drill-sprint-60` — Drill: 60s sprint text (1 exercises)

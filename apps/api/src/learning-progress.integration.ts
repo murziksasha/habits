@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { expect, it } from "vitest";
-import { activityEvents, skillAttempts, userLessonProgress, users } from "@eduforge/db";
+import { activityEvents, courses, skillAttempts, userLessonProgress, users } from "@eduforge/db";
 import { isoWeekBounds, utcDateKey } from "@eduforge/shared";
 import { db } from "./db.js";
 
@@ -118,6 +118,29 @@ export function registerLearningProgressIntegrationTests(
       const detail = await json(`/courses/english/lessons/${engLesson1Id}`, { token: tokenA });
       expect(detail.status).toBe(200);
       engExercises = (detail.data.lesson as { exercises: typeof engExercises }).exercises;
+
+      // Ensure unit prerequisite lessons are completed so the exam is unlocked
+      const examUnit = units.find((u) => u.lessons.some((l) => l.id === engExamId));
+      if (examUnit) {
+        const prereqs = examUnit.lessons.filter((l) => !l.isExam);
+        if (prereqs.length > 0) {
+          const course = await db.query.courses.findFirst({ where: eq(courses.slug, "english") });
+          if (course) {
+            await db.insert(userLessonProgress).values(
+              prereqs.map((p) => ({
+                userId: userAId,
+                courseId: course.id,
+                lessonId: p.id,
+                status: "completed" as const,
+                bestScore: 1.0,
+                attempts: 1,
+                completedContentVersion: 1,
+                completedAt: null,
+              })),
+            );
+          }
+        }
+      }
     });
 
     it("records attempt metadata, repeats, failures, exam thresholds, and idempotent replay without double counting", async () => {

@@ -74,6 +74,51 @@ describe("isTypingTarget", () => {
     ).toBe(true);
   });
 
+  it("returns true for Monaco editor containers and inner elements", () => {
+    // Monaco editor root
+    expect(
+      isTypingTarget({
+        tagName: "DIV",
+        className: "monaco-editor",
+      } as unknown as EventTarget),
+    ).toBe(true);
+
+    // Inner element inside Monaco (e.g., token span inside view line)
+    expect(
+      isTypingTarget({
+        tagName: "SPAN",
+        closest: (sel: string) => (sel.includes("monaco-editor") ? {} : null),
+      } as unknown as EventTarget),
+    ).toBe(true);
+
+    // Typing inside Monaco input area
+    expect(
+      isTypingTarget({
+        tagName: "TEXTAREA",
+        className: "inputarea monaco-mouse-cursor-text",
+      } as unknown as EventTarget),
+    ).toBe(true);
+  });
+
+  it("returns true for role=textbox and searchbox", () => {
+    expect(
+      isTypingTarget({
+        tagName: "DIV",
+        getAttribute: (attr: string) => (attr === "role" ? "textbox" : null),
+      } as unknown as EventTarget),
+    ).toBe(true);
+  });
+
+  it("protects typing 'font-size' inside editor or text field", () => {
+    // When typing words starting with 'f' like 'font-size', target is recognized as typing target
+    const target = {
+      tagName: "SPAN",
+      textContent: "font-size: 16px",
+      closest: (sel: string) => (sel.includes("monaco-editor") ? {} : null),
+    } as unknown as EventTarget;
+    expect(isTypingTarget(target)).toBe(true);
+  });
+
   it("returns false for non-typing targets and null", () => {
     expect(isTypingTarget(null)).toBe(false);
     expect(isTypingTarget({ tagName: "BUTTON" } as unknown as EventTarget)).toBe(false);

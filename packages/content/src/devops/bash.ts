@@ -43,16 +43,24 @@ export const bashUnit = unit("bash", "Bash і автоматизація", "Bash
       i: 0,
     },
     {
-      t: "mcq",
-      uk: "shellcheck перед комітом скрипта forge-status:",
-      en: "shellcheck before committing a forge-status script:",
-      o: [
-        "Ловить лапки, неоголошені змінні і небезпечні шаблони",
-        "Замінює тести Python",
-        "Підписує образ",
-        "Монтує диск",
+      t: "judge",
+      uk: "Вхідні дані: bash-скрипт із суворими прапорцями безпеки. Очікуваний результат: вивід «STATUS: OK» та успішне завершення. Обов'язкові елементи: set -euo pipefail, echo. Обмеження: поведінкова перевірка виконує скрипт у пісочниці Linux Docker без доступу до мережі; текстовий режим перевіряє команди статично.",
+      en: "Input: bash script with strict safety flags. Expected result: outputs 'STATUS: OK' and exits with code 0. Mandatory elements: set -euo pipefail, echo. Validation limits: behavior mode runs bash script in isolated Linux Docker sandbox; text mode statically checks commands.",
+      lang: "bash",
+      starter: `#!/usr/bin/env bash
+set -euo pipefail
+
+echo "STATUS: OK"
+`,
+      tests: [
+        { type: "stdout_contains", value: "STATUS: OK" },
+        { type: "exit_code", value: 0 },
       ],
-      i: 0,
+      checkMode: "both",
+      accepted: ["set -euo pipefail", "STATUS: OK"],
+      requiredSource: ["set -euo pipefail", "echo"],
+      limitationsUk: "Виконується у захищеному контейнері Linux. Текстовий режим перевіряє наявність обов'язкових прапорців без запуску.",
+      limitationsEn: "Runs in an isolated Linux container. Text mode verifies mandatory flags statically without execution.",
     },
   ]),
   teach("do-text", "Текст і JSON", "Text and JSON", 2, "do-text", [

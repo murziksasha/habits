@@ -3,7 +3,7 @@
 Slug: `ai_security`
 Group: deep
 Hub: `/ai-security`
-Freemium: first 5 non-exam lesson(s) open without Pro.
+Access: Free for every account (no Pro, trial, or paywall).
 Prerequisites: `agentic_systems`, `web_security`
 Recommended next: `ai_product`
 
@@ -15,19 +15,19 @@ Defensive agent security: tool trust boundaries, indirect prompt injection separ
 
 ### `as_threat` — Threat Model and Trust Boundaries for Agent Tools
 
-- `as-th-boundary` — Tools Can Delete Files, Send Mail, or Move Money: Draw the Trust Boundary [free] (3 exercises)
-- `as-th-blast` — Fail-Closed Defaults and Scoping Tool Permissions [free] (3 exercises)
+- `as-th-boundary` — Tools Can Delete Files, Send Mail, or Move Money: Draw the Trust Boundary (3 exercises)
+- `as-th-blast` — Fail-Closed Defaults and Scoping Tool Permissions (3 exercises)
 - `as-th-exam` — Checkpoint: Threat Model and Boundaries [exam] (3 exercises)
 
 ### `as_injection` — Prompt Injection Defense: Separating Data from Instructions
 
-- `as-in-indirect` — Indirect Prompt Injection Through External Content [free] (3 exercises)
-- `as-in-controls` — Defense-in-Depth When Processing Untrusted Sources [free] (3 exercises)
+- `as-in-indirect` — Indirect Prompt Injection Through External Content (3 exercises)
+- `as-in-controls` — Defense-in-Depth When Processing Untrusted Sources (3 exercises)
 - `as-in-exam` — Checkpoint: Prompt Injection Controls [exam] (3 exercises)
 
 ### `as_tools` — Allowlists, Least Privilege, and Human Confirmation
 
-- `as-tl-allowlist` — Allowlists Over Denylists and Least Privilege [free] (3 exercises)
+- `as-tl-allowlist` — Allowlists Over Denylists and Least Privilege (3 exercises)
 - `as-tl-hitl` — Irreversible Actions Require Human Confirmation (3 exercises)
 - `as-tl-exam` — Checkpoint: Allowlists and HITL [exam] (3 exercises)
 

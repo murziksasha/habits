@@ -100,6 +100,7 @@ Course programs and the depth of the seeded lessons live in [courses/](./courses
 | 90 | [Deep improvements plan](./90-deep-improvements-plan.md) | Analysis, findings, step-by-step plan + backlog for learning depth |
 | 91 | [Deep-learning features](./91-deep-learning-features.md) | Concept cards, forgetting-curve memory model, interleaved mixed practice, new deep lessons |
 | 92 | [Deep learning, round 2](./92-deep-learning-2.md) | Confidence calibration, mistake notebook (exercise SRS), mastery map, explain-in-own-words, MDX concept markers |
+| 93 | [Clear tasks & robust grading](./93-clear-tasks-robust-grading.md) | Condition clarification, code equivalence, server-side behavior check, editor hotkey isolation, dual mode |
 | — | **[CURRENT.md](./CURRENT.md)** | **Active product surface freeze, IA, improvement checklist** |
 | — | [CONTENT-DX.md](./CONTENT-DX.md) | Content authoring DX + EN gate |
 | — | [CONTENT-EXPANSION.md](./CONTENT-EXPANSION.md) | Nov 2026 lesson expansion: +572 lessons, 3 new courses, pipeline |
@@ -108,9 +109,9 @@ Course programs and the depth of the seeded lessons live in [courses/](./courses
 | — | [OPS.md](./OPS.md) | Backups, multi-instance, flags, incidents |
 | — | [P2-STRATEGIC.md](./P2-STRATEGIC.md) | Judge, OTel, MDX, video, classroom, mobile foundations |
 
-> **Note:** Specs 01–91 are historical feature logs. Day-to-day product truth is **[CURRENT.md](./CURRENT.md)**.
+> **Note:** Specs 01–93 are historical feature logs. Day-to-day product truth is **[CURRENT.md](./CURRENT.md)**.
 
-**Status:** SPECs **01–91** + improvement waves through **142** (full RSC strangler, character talents, friend gifts, course expansion). Active surface: **[CURRENT.md](./CURRENT.md)**. Content: **[CONTENT-DX.md](./CONTENT-DX.md)**. Cron: **[CRON.md](./CRON.md)**. Foundations: **[P2-STRATEGIC.md](./P2-STRATEGIC.md)**.
+**Status:** SPECs **01–93** + improvement waves through **142** (full RSC strangler, character talents, friend gifts, course expansion). Active surface: **[CURRENT.md](./CURRENT.md)**. Content: **[CONTENT-DX.md](./CONTENT-DX.md)**. Cron: **[CRON.md](./CRON.md)**. Foundations: **[P2-STRATEGIC.md](./P2-STRATEGIC.md)**.
 
 ## Product name
 

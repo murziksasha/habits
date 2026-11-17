@@ -6,11 +6,16 @@ import { Chess } from "@eduforge/chess-core";
 import {
   countWords,
   exercisePrompt,
+  gradeCodeJudgeText,
   gradeExplanation,
+  gradeNumericAnswer,
   localizeExerciseOptions,
   localizeMatchPairs,
-  UI,
+  getUI,
   type ExplainKeyIdea,
+  type CircuitDocument,
+  type CircuitAnalysis,
+  type CircuitCriterion,
 } from "@eduforge/shared";
 import clsx from "clsx";
 import { useLocale } from "@/lib/locale-context";
@@ -33,8 +38,12 @@ import {
   getApplyableAnswer,
 } from "@/lib/exercise-solution";
 import { hasOpenDialog, isTypingTarget, optionIndexFromKey } from "@/lib/answer-keys";
+import { stableOptionOrder } from "@/lib/option-order";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
+import { FormattedFormulaText, KaTeXMath } from "@/components/circuit/katex-math";
+import { CircuitEditor } from "@/components/circuit/circuit-editor";
+import type { RunSimOutput } from "@eduforge/circuit-engine";
 
 export type Exercise = {
   id: string;
@@ -47,6 +56,10 @@ export type Exercise = {
 const ExamModeCtx = createContext(false);
 /** Reports wrong soft attempts to the session (SPEC 92: first-try / mistake notebook). */
 const WrongAttemptCtx = createContext<(() => void) | null>(null);
+const AssistanceCtx = createContext<{
+  onHintUsed?: () => void;
+  onSolutionRevealed?: () => void;
+}>({});
 /** Lesson id for server-side helpers (explain tutor feedback). */
 const LessonIdCtx = createContext<string | null>(null);
 
@@ -60,6 +73,8 @@ export function ExercisePlayer({
   onAnswer,
   examMode = false,
   onWrongAttempt,
+  onHintUsed,
+  onSolutionRevealed,
   lessonId,
 }: {
   exercise: Exercise;
@@ -68,9 +83,14 @@ export function ExercisePlayer({
   examMode?: boolean;
   /** Called on each wrong soft attempt (client check) */
   onWrongAttempt?: () => void;
+  /** Called when the learner opens or deepens a hint. */
+  onHintUsed?: () => void;
+  /** Called when the learner opens the worked solution. */
+  onSolutionRevealed?: () => void;
   /** Lesson id (enables tutor feedback on explain exercises) */
   lessonId?: string;
 }) {
+  const { t } = useLocale();
   const body = (() => {
     switch (exercise.type) {
       case "mcq":
@@ -114,15 +134,27 @@ export function ExercisePlayer({
         return <ConceptExercise exercise={exercise} onAnswer={onAnswer} />;
       case "explain":
         return <ExplainExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "composite_artifact":
+        return <CodeProjectExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "dataset_query":
+        return <CodeFillExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "incident_step":
+        return <OrderWordsExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "numeric":
+        return <NumericExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "circuit_lab":
+        return <CircuitLabExerciseComponent exercise={exercise} onAnswer={onAnswer} />;
       default:
-        return <p>Невідомий тип: {exercise.type}</p>;
+        return <p>{t.lesson.unknownExerciseType}: {exercise.type}</p>;
     }
   })();
 
   return (
     <ExamModeCtx.Provider value={examMode}>
       <WrongAttemptCtx.Provider value={onWrongAttempt ?? null}>
-        <LessonIdCtx.Provider value={lessonId ?? null}>{body}</LessonIdCtx.Provider>
+        <AssistanceCtx.Provider value={{ onHintUsed, onSolutionRevealed }}>
+          <LessonIdCtx.Provider value={lessonId ?? null}>{body}</LessonIdCtx.Provider>
+        </AssistanceCtx.Provider>
       </WrongAttemptCtx.Provider>
     </ExamModeCtx.Provider>
   );
@@ -144,6 +176,7 @@ function CodeBlock({ code }: { code: string; language?: string }) {
 function useExerciseHint(exercise: Exercise) {
   const { locale, t } = useLocale();
   const { character } = useAuth();
+  const assistance = useContext(AssistanceCtx);
   const mentorRank = Math.min(
     3,
     Math.max(0, Number(character?.progression?.talents?.mentor) || 0),
@@ -154,6 +187,13 @@ function useExerciseHint(exercise: Exercise) {
   const autoOpenLevel = Math.min(maxLevel, 1 + Math.floor(mentorRank / 2));
 
   const [level, setLevel] = useState(0); // 0 = closed
+  function changeLevel(next: number | ((current: number) => number)) {
+    setLevel((current) => {
+      const resolved = typeof next === "function" ? next(current) : next;
+      if (resolved > current && resolved > 0) assistance.onHintUsed?.();
+      return resolved;
+    });
+  }
   const base =
     locale === "en"
       ? String(exercise.hintEn || exercise.explanationEn || exercise.hintUk || exercise.explanationUk || "")
@@ -190,7 +230,7 @@ function useExerciseHint(exercise: Exercise) {
 
   function setOpen(v: boolean | ((b: boolean) => boolean)) {
     const next = typeof v === "function" ? v(level > 0) : v;
-    setLevel(next ? Math.max(autoOpenLevel, level || autoOpenLevel) : 0);
+    changeLevel(next ? Math.max(autoOpenLevel, level || autoOpenLevel) : 0);
   }
 
   return {
@@ -206,17 +246,25 @@ function useExerciseHint(exercise: Exercise) {
           <button
             type="button"
             className="text-xs font-bold text-grape hover:underline"
-            onClick={() => setLevel((l) => (l > 0 ? 0 : autoOpenLevel))}
+            onClick={() => changeLevel((l) => (l > 0 ? 0 : autoOpenLevel))}
           >
             💡 {level > 0 ? t.lesson.hideHint : t.lesson.showHint}
-            {level > 0 ? ` · L${level}` : ""}
+            {level === 1
+              ? ` · ${locale === "en" ? "L1: Principle" : "L1: Ключовий принцип"}`
+              : level === 2
+                ? ` · ${locale === "en" ? "L2: Clue" : "L2: Діагностика"}`
+                : level === 3
+                  ? ` · ${locale === "en" ? "L3: Partial Step" : "L3: Частковий крок"}`
+                  : level > 3
+                    ? ` · L${level}`
+                    : ""}
             {mentorRank > 0 ? " 🎓" : ""}
           </button>
           {level > 0 && level < maxLevel && (
             <button
               type="button"
               className="text-xs font-bold text-sky hover:underline"
-              onClick={() => setLevel((l) => Math.min(maxLevel, l + 1))}
+              onClick={() => changeLevel((l) => Math.min(maxLevel, l + 1))}
             >
               {locale === "en" ? "Deeper hint" : "Глибша підказка"} →
             </button>
@@ -353,6 +401,7 @@ function DrillFooter({
   onApplySolution?: (answer: unknown) => void;
 }) {
   const { t, locale } = useLocale();
+  const assistance = useContext(AssistanceCtx);
   const [showSol, setShowSol] = useState(false);
   const solution =
     exercise && soft.canSkip
@@ -377,7 +426,7 @@ function DrillFooter({
           disabled={!canCheck}
           onClick={onCheck}
         >
-          {UI.lesson.check}
+          {t.lesson.check}
         </button>
         {soft.canSkip ? (
           <button
@@ -392,7 +441,12 @@ function DrillFooter({
           <button
             type="button"
             className="btn-secondary"
-            onClick={() => setShowSol((v) => !v)}
+            onClick={() =>
+              setShowSol((open) => {
+                if (!open) assistance.onSolutionRevealed?.();
+                return !open;
+              })
+            }
           >
             {showSol ? t.lesson.hideSolution : t.lesson.showSolution}
           </button>
@@ -457,13 +511,14 @@ function McqExercise({
   const { locale } = useLocale();
   const prompt = usePrompt(exercise);
   const options = localizeExerciseOptions(locale, exercise as { options?: string[]; optionsEn?: string[] });
+  const order = useMemo(
+    () => stableOptionOrder(String(exercise.id), options.length),
+    [exercise.id, options.length],
+  );
   const [selected, setSelected] = useState<number | null>(null);
   const hint = useExerciseHint(exercise);
   const soft = useSoftAttempts(hint.setOpen);
-  const speakSrc =
-    typeof exercise.source === "string"
-      ? String(exercise.source)
-      : options[0] ?? prompt;
+  const speakSrc = typeof exercise.source === "string" ? String(exercise.source) : prompt;
   const code = typeof exercise.code === "string" ? String(exercise.code) : "";
   const correctIndex =
     typeof exercise.correctIndex === "number" ? exercise.correctIndex : null;
@@ -490,28 +545,34 @@ function McqExercise({
       const optIdx = optionIndexFromKey(e);
       if (optIdx !== null) {
         e.preventDefault();
-        if (optIdx < options.length) {
-          setSelected(optIdx);
+        const original = order[optIdx];
+        if (original !== undefined) {
+          setSelected(original);
           soft.resetSoft();
         }
         return;
       }
 
-      const n = options.length;
+      const n = order.length;
       if (!n) return;
 
       const target = e.target as HTMLElement | null;
       const isButtonOrLink = Boolean(target?.closest?.("button, a"));
       if (isButtonOrLink) return;
 
+      const currentDisplay = selected === null ? -1 : order.indexOf(selected);
       if (e.key === "ArrowDown" || e.key === "ArrowRight") {
         e.preventDefault();
-        setSelected((s) => (s === null ? 0 : Math.min(n - 1, s + 1)));
+        const next = currentDisplay < 0 ? 0 : Math.min(n - 1, currentDisplay + 1);
+        const original = order[next];
+        if (original !== undefined) setSelected(original);
         return;
       }
       if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
         e.preventDefault();
-        setSelected((s) => (s === null ? 0 : Math.max(0, s - 1)));
+        const next = currentDisplay < 0 ? 0 : Math.max(0, currentDisplay - 1);
+        const original = order[next];
+        if (original !== undefined) setSelected(original);
         return;
       }
       if (e.key === "Enter" && selected !== null) {
@@ -522,7 +583,7 @@ function McqExercise({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [options.length, selected, correctIndex, soft, onAnswer]);
+  }, [order, selected, correctIndex, soft, onAnswer]);
 
   const keysHint =
     locale === "en"
@@ -546,25 +607,25 @@ function McqExercise({
         role="radiogroup"
         aria-labelledby={`ex-prompt-${exercise.id}`}
       >
-        {options.map((opt, i) => (
+        {order.map((original, displayIndex) => (
           <button
-            key={i}
+            key={original}
             type="button"
             role="radio"
-            aria-checked={selected === i}
+            aria-checked={selected === original}
             className={clsx(
               "rounded-2xl border-2 px-4 py-3 text-left font-bold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky",
-              selected === i ? "border-sky bg-sky/10" : "border-slate-200 hover:bg-slate-50",
+              selected === original ? "border-sky bg-sky/10" : "border-slate-200 hover:bg-slate-50",
             )}
             onClick={() => {
-              setSelected(i);
+              setSelected(original);
               soft.resetSoft();
             }}
           >
-            {i < 9 && (
-              <span className="mr-2 text-xs text-ink-muted">{i + 1}.</span>
+            {displayIndex < 9 && (
+              <span className="mr-2 text-xs text-ink-muted">{displayIndex + 1}.</span>
             )}
-            {opt}
+            {options[original]}
           </button>
         ))}
       </div>
@@ -591,7 +652,7 @@ function TextExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const prompt = usePrompt(exercise);
   const [value, setValue] = useState("");
   const source =
@@ -635,7 +696,7 @@ function TextExercise({
         disabled={!value.trim()}
         onClick={() => onAnswer(value)}
       >
-        {UI.lesson.check}
+        {t.lesson.check}
       </button>
     </div>
   );
@@ -648,7 +709,7 @@ function MatchExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const prompt = usePrompt(exercise);
   const pairs = useMemo(
     () =>
@@ -792,7 +853,7 @@ function MatchExercise({
         disabled={matched.length !== pairs.length}
         onClick={() => onAnswer(matched)}
       >
-        {UI.lesson.check}
+        {t.lesson.check}
       </button>
     </div>
   );
@@ -812,6 +873,7 @@ function CodeRunExercise({
   const [busy, setBusy] = useState(false);
   const [runMsg, setRunMsg] = useState("");
   const [testsOk, setTestsOk] = useState(false);
+  const [mobileTab, setMobileTab] = useState<"task" | "editor" | "output">("editor");
   const hint = useExerciseHint(exercise);
   const soft = useSoftAttempts(hint.setOpen);
   const tests =
@@ -828,6 +890,7 @@ function CodeRunExercise({
     setBusy(true);
     setRunMsg(locale === "en" ? "Running…" : "Запуск…");
     setTestsOk(false);
+    setMobileTab("output");
     try {
       const srcCheck = softGradeCodeRunSource(
         source,
@@ -883,6 +946,7 @@ function CodeRunExercise({
           ? "Run tests successfully before submit"
           : "Спочатку успішно запусти тести",
       );
+      setMobileTab("output");
       return;
     }
     const srcCheck = softGradeCodeRunSource(
@@ -894,6 +958,7 @@ function CodeRunExercise({
     );
     if (!srcCheck.ok) {
       soft.registerFail();
+      setMobileTab("output");
       return;
     }
     soft.markOk();
@@ -902,36 +967,91 @@ function CodeRunExercise({
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-black">{prompt}</h2>
-      {hint.panel}
-      <p className="text-xs font-bold text-ink-muted">
-        {locale === "en"
-          ? "C++ lab — Run tests (client), then Check"
-          : "C++ lab — Запусти тести (у браузері), потім Перевірити"}
-      </p>
-      <MonacoCodeEditor
-        value={source}
-        onChange={(v) => {
-          setSource(v);
-          setTestsOk(false);
-          soft.resetSoft();
-        }}
-        language={lang === "cpp" ? "cpp" : lang}
-        height="320px"
-      />
-      {runMsg ? (
-        <pre
+      {/* Mobile Tab Switcher (Task / Code / Output) */}
+      <div className="flex sm:hidden border-b border-slate-200 dark:border-slate-800 mb-2 gap-1" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mobileTab === "task"}
           className={clsx(
-            "rounded-xl border-2 p-3 text-xs font-mono whitespace-pre-wrap",
-            testsOk
-              ? "border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-100"
-              : "border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100",
+            "flex-1 py-1.5 text-xs font-bold border-b-2 text-center transition",
+            mobileTab === "task"
+              ? "border-brand text-brand-dark dark:text-brand-light"
+              : "border-transparent text-ink-muted",
           )}
+          onClick={() => setMobileTab("task")}
         >
-          {runMsg}
-        </pre>
-      ) : null}
-      <div className="flex flex-wrap gap-2">
+          📋 {locale === "en" ? "Task" : "Умова"}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mobileTab === "editor"}
+          className={clsx(
+            "flex-1 py-1.5 text-xs font-bold border-b-2 text-center transition",
+            mobileTab === "editor"
+              ? "border-brand text-brand-dark dark:text-brand-light"
+              : "border-transparent text-ink-muted",
+          )}
+          onClick={() => setMobileTab("editor")}
+        >
+          💻 {locale === "en" ? "Code" : "Код"}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mobileTab === "output"}
+          className={clsx(
+            "flex-1 py-1.5 text-xs font-bold border-b-2 text-center transition",
+            mobileTab === "output"
+              ? "border-brand text-brand-dark dark:text-brand-light"
+              : "border-transparent text-ink-muted",
+          )}
+          onClick={() => setMobileTab("output")}
+        >
+          ▶️ {locale === "en" ? "Output" : "Результат"}
+        </button>
+      </div>
+
+      <div className={clsx("space-y-3", mobileTab !== "task" && "hidden sm:block")}>
+        <h2 className="text-xl font-black">{prompt}</h2>
+        {hint.panel}
+        <p className="text-xs font-bold text-ink-muted">
+          {locale === "en"
+            ? "C++ lab — Run tests (client), then Check"
+            : "C++ lab — Запусти тести (у браузері), потім Перевірити"}
+        </p>
+      </div>
+
+      <div className={clsx("space-y-2", mobileTab !== "editor" && "hidden sm:block")}>
+        <MonacoCodeEditor
+          value={source}
+          onChange={(v) => {
+            setSource(v);
+            setTestsOk(false);
+            soft.resetSoft();
+          }}
+          language={lang === "cpp" ? "cpp" : lang}
+          height="320px"
+        />
+      </div>
+
+      <div className={clsx("space-y-2", mobileTab !== "output" && "hidden sm:block")}>
+        {runMsg ? (
+          <pre
+            className={clsx(
+              "rounded-xl border-2 p-3 text-xs font-mono whitespace-pre-wrap",
+              testsOk
+                ? "border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-100"
+                : "border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100",
+            )}
+          >
+            {runMsg}
+          </pre>
+        ) : null}
+      </div>
+
+      <div className="flex flex-wrap gap-2 pt-1">
         <button
           type="button"
           className="btn-secondary"
@@ -1380,6 +1500,7 @@ function TypingExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
+  const { locale, t } = useLocale();
   const text = String(exercise.text ?? "");
   const [value, setValue] = useState("");
   const [started, setStarted] = useState<number | null>(null);
@@ -1422,14 +1543,14 @@ function TypingExercise({
           if (!started) setStarted(Date.now());
           setValue(e.target.value);
         }}
-        placeholder="Почніть друкувати…"
+        placeholder={locale === "en" ? "Start typing…" : "Почніть друкувати…"}
       />
       <div className="flex gap-4 text-sm font-bold">
         <span>
-          {UI.typing.wpm}: {wpm}
+          {t.typing.wpm}: {wpm}
         </span>
         <span>
-          {UI.typing.accuracy}: {Math.round(accuracy * 100)}%
+          {t.typing.accuracy}: {Math.round(accuracy * 100)}%
         </span>
       </div>
       <button
@@ -1437,7 +1558,7 @@ function TypingExercise({
         disabled={!done}
         onClick={() => onAnswer({ wpm, accuracy, completed: true })}
       >
-        {UI.lesson.check}
+        {t.lesson.check}
       </button>
     </div>
   );
@@ -1450,6 +1571,7 @@ function RsvpExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
+  const { t } = useLocale();
   const words = String(exercise.text ?? "").split(/\s+/).filter(Boolean);
   const wpm = Number(exercise.wpm ?? 240);
   const [i, setI] = useState(-1);
@@ -1475,7 +1597,7 @@ function RsvpExercise({
         {i < 0 ? "…" : finished ? "✓" : words[i]}
       </div>
       <p className="text-sm font-bold text-ink-muted">
-        {UI.reading.wpm}: {wpm}
+        {t.reading.wpm}: {wpm}
       </p>
       {!running && !finished && (
         <button
@@ -1485,12 +1607,12 @@ function RsvpExercise({
             setRunning(true);
           }}
         >
-          {UI.reading.startRsvp}
+          {t.reading.startRsvp}
         </button>
       )}
       {finished && (
         <button className="btn-primary" onClick={() => onAnswer({ completed: true })}>
-          {UI.lesson.continue}
+          {t.lesson.continue}
         </button>
       )}
     </div>
@@ -1504,7 +1626,12 @@ function ComprehensionExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
+  const { locale, t } = useLocale();
   const questions = (exercise.questions as { q: string; options: string[] }[]) ?? [];
+  const optionOrders = useMemo(
+    () => questions.map((q, qi) => stableOptionOrder(`${String(exercise.id)}:${qi}`, q.options.length)),
+    [exercise.id, questions],
+  );
   const [answers, setAnswers] = useState<(number | null)[]>(questions.map(() => null));
   const [showQs, setShowQs] = useState(false);
 
@@ -1514,26 +1641,26 @@ function ComprehensionExercise({
       <div className="rounded-2xl bg-slate-100 p-4 leading-relaxed">{String(exercise.passage)}</div>
       {!showQs ? (
         <button className="btn-primary" onClick={() => setShowQs(true)}>
-          До питань
+          {locale === "en" ? "To questions" : "До питань"}
         </button>
       ) : (
         <>
           {questions.map((q, qi) => (
             <div key={qi} className="space-y-2">
               <p className="font-bold">{q.q}</p>
-              {q.options.map((opt, oi) => (
+              {(optionOrders[qi] ?? []).map((original) => (
                 <button
-                  key={oi}
+                  key={original}
                   type="button"
                   className={clsx(
                     "block w-full rounded-xl border-2 px-3 py-2 text-left font-semibold",
-                    answers[qi] === oi ? "border-sky bg-sky/10" : "border-slate-200",
+                    answers[qi] === original ? "border-sky bg-sky/10" : "border-slate-200",
                   )}
                   onClick={() =>
-                    setAnswers((a) => a.map((v, i) => (i === qi ? oi : v)))
+                    setAnswers((a) => a.map((v, i) => (i === qi ? original : v)))
                   }
                 >
-                  {opt}
+                  {q.options[original]}
                 </button>
               ))}
             </div>
@@ -1543,7 +1670,7 @@ function ComprehensionExercise({
             disabled={answers.some((a) => a === null)}
             onClick={() => onAnswer(answers)}
           >
-            {UI.lesson.check}
+            {t.lesson.check}
           </button>
         </>
       )}
@@ -1558,6 +1685,7 @@ function ChessPuzzleExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
+  const { t } = useLocale();
   const fen = String(exercise.fen);
   const solution = (exercise.solutionSans as string[]) ?? [];
   const [game, setGame] = useState(() => new Chess(fen));
@@ -1583,7 +1711,7 @@ function ChessPuzzleExercise({
       const expected = solution[nextSans.length - 1];
       const norm = (s: string) => s.replace(/[+#]/g, "");
       if (expected && norm(move.san) !== norm(expected)) {
-        setMsg("Не той хід — спробуйте ще");
+        setMsg(t.chess.wrongMove);
         setTimeout(() => {
           setGame(new Chess(fen));
           setSans([]);
@@ -1595,7 +1723,7 @@ function ChessPuzzleExercise({
       setSans(nextSans);
       setGame(g);
       if (nextSans.length >= solution.length) {
-        setMsg(UI.lesson.correct);
+        setMsg(t.lesson.correct);
         if (g.isCheckmate()) {
           setEndReason("checkmate");
           onAnswer({ solved: true, sans: nextSans, mate: true });
@@ -1623,7 +1751,7 @@ function ChessPuzzleExercise({
           viewer={viewer}
           onMove={onDrop}
           endReason={endReason}
-          endLine={UI.chess.puzzleSolved}
+          endLine={t.chess.puzzleSolved}
           boardWidth={360}
         />
       </div>
@@ -1639,7 +1767,12 @@ function ChessLessonExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
+  const { t } = useLocale();
   const quiz = exercise.quiz as { q: string; options: string[]; correctIndex: number } | undefined;
+  const order = useMemo(
+    () => stableOptionOrder(`${String(exercise.id)}:quiz`, quiz?.options.length ?? 0),
+    [exercise.id, quiz?.options.length],
+  );
   const [selected, setSelected] = useState<number | null>(null);
   const fen = String(exercise.fen);
   const viewer = useMemo(() => {
@@ -1668,17 +1801,17 @@ function ChessLessonExercise({
         <>
           <p className="font-bold">{quiz.q}</p>
           <div className="grid gap-2">
-            {quiz.options.map((opt, i) => (
+            {order.map((original) => (
               <button
-                key={i}
+                key={original}
                 type="button"
                 className={clsx(
                   "rounded-2xl border-2 px-4 py-3 text-left font-bold",
-                  selected === i ? "border-sky bg-sky/10" : "border-slate-200",
+                  selected === original ? "border-sky bg-sky/10" : "border-slate-200",
                 )}
-                onClick={() => setSelected(i)}
+                onClick={() => setSelected(original)}
               >
-                {opt}
+                {quiz.options[original]}
               </button>
             ))}
           </div>
@@ -1687,12 +1820,12 @@ function ChessLessonExercise({
             disabled={selected === null}
             onClick={() => selected !== null && onAnswer(selected)}
           >
-            {UI.lesson.check}
+            {t.lesson.check}
           </button>
         </>
       ) : (
         <button className="btn-primary" onClick={() => onAnswer(true)}>
-          {UI.lesson.continue}
+          {t.lesson.continue}
         </button>
       )}
     </div>
@@ -1710,7 +1843,7 @@ function ConceptExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const en = locale === "en";
   const body = String(
     (en ? exercise.bodyEn || exercise.bodyUk : exercise.bodyUk || exercise.bodyEn) ?? "",
@@ -1721,6 +1854,10 @@ function ConceptExercise({
   const check = exercise.check as
     | { qUk: string; qEn?: string; options: string[]; correctIndex: number }
     | undefined;
+  const order = useMemo(
+    () => stableOptionOrder(`${String(exercise.id)}:check`, check?.options.length ?? 0),
+    [exercise.id, check?.options.length],
+  );
   const [selected, setSelected] = useState<number | null>(null);
   const paragraphs = body.split(/\n{2,}/).filter((p) => p.trim());
 
@@ -1733,7 +1870,7 @@ function ConceptExercise({
       <div className="space-y-3 rounded-2xl bg-slate-100 p-4 leading-relaxed dark:bg-slate-800">
         {paragraphs.map((p, i) => (
           <p key={i} className="whitespace-pre-line">
-            {p}
+            <FormattedFormulaText text={p} />
           </p>
         ))}
       </div>
@@ -1757,17 +1894,17 @@ function ConceptExercise({
             {en ? check.qEn || check.qUk : check.qUk}
           </p>
           <div className="grid gap-2">
-            {check.options.map((opt, i) => (
+            {order.map((original) => (
               <button
-                key={i}
+                key={original}
                 type="button"
                 className={clsx(
                   "rounded-2xl border-2 px-4 py-3 text-left font-bold",
-                  selected === i ? "border-sky bg-sky/10" : "border-slate-200",
+                  selected === original ? "border-sky bg-sky/10" : "border-slate-200",
                 )}
-                onClick={() => setSelected(i)}
+                onClick={() => setSelected(original)}
               >
-                {opt}
+                {check.options[original]}
               </button>
             ))}
           </div>
@@ -1776,7 +1913,7 @@ function ConceptExercise({
             disabled={selected === null}
             onClick={() => selected !== null && onAnswer(selected)}
           >
-            {UI.lesson.check}
+            {t.lesson.check}
           </button>
         </>
       ) : (
@@ -1799,7 +1936,7 @@ function ExplainExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const en = locale === "en";
   const { token } = useAuth();
   const lessonId = useContext(LessonIdCtx);
@@ -1891,7 +2028,7 @@ function ExplainExercise({
       )}
       <div className="flex flex-wrap gap-2">
         <button className="btn-primary" disabled={!text.trim()} onClick={check}>
-          {UI.lesson.check}
+          {t.lesson.check}
         </button>
         {lessonId && !examMode && (
           <button
@@ -1929,7 +2066,7 @@ function VideoExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const url = String(exercise.videoUrl ?? "");
   const durationSec = Number(exercise.durationSec ?? exercise.videoDurationSec ?? 60);
   const minRatio = Number(exercise.minWatchRatio ?? 0.8);
@@ -1993,7 +2130,7 @@ function VideoExercise({
         }
       >
         {done || ratio >= minRatio
-          ? UI.lesson.continue
+          ? t.lesson.continue
           : locale === "en"
             ? "Keep watching…"
             : "Дивіться далі…"}
@@ -2012,7 +2149,7 @@ function VideoExercise({
   );
 }
 
-/** Multi-lang Docker/local judge exercise */
+/** Multi-lang Docker/local judge exercise with behavior and text verification modes */
 function CodeJudgeExercise({
   exercise,
   onAnswer,
@@ -2020,8 +2157,9 @@ function CodeJudgeExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const { token } = useAuth();
+  const onWrongAttempt = useContext(WrongAttemptCtx);
   const lang = String(exercise.language ?? "javascript") as
     | "javascript"
     | "typescript"
@@ -2031,11 +2169,74 @@ function CodeJudgeExercise({
   const [code, setCode] = useState(starter);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
-  const tests = (exercise.tests as { type: string; value: string | number }[]) ?? [];
+  const [judgeUnavailable, setJudgeUnavailable] = useState(false);
+  const [mobileTab, setMobileTab] = useState<"task" | "editor" | "output">("editor");
 
-  async function run() {
+  // Verification mode: "behavior" (default) or "text", saved to device localStorage
+  const [mode, setMode] = useState<"behavior" | "text">(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("eduforge_grading_mode");
+        if (saved === "text" || saved === "behavior") return saved;
+      } catch {
+        /* ignore */
+      }
+    }
+    return "behavior";
+  });
+
+  function handleModeChange(newMode: "behavior" | "text") {
+    setMode(newMode);
+    setMsg("");
+    setJudgeUnavailable(false);
+    try {
+      localStorage.setItem("eduforge_grading_mode", newMode);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  const tests = (exercise.tests as { type: string; value: string | number }[]) ?? [];
+  const limitations = locale === "en" ? exercise.limitationsEn : exercise.limitationsUk;
+
+  async function checkTextMode() {
     setBusy(true);
     setMsg("");
+    try {
+      const res = gradeCodeJudgeText(exercise, code);
+      if (res.correct) {
+        setMsg(
+          locale === "en"
+            ? "✓ Text criteria passed! Code accepted."
+            : "✓ Текстові критерії пройдено! Відповідь зараховано.",
+        );
+        onAnswer({
+          source: code,
+          mode: "text",
+        });
+      } else {
+        const miss = res.meta?.missing as string[] | undefined;
+        const forb = res.meta?.forbidden as string | undefined;
+        const reason = forb
+          ? `${locale === "en" ? "Forbidden pattern:" : "Заборонений патерн:"} ${forb}`
+          : miss?.length
+            ? `${locale === "en" ? "Missing required elements:" : "Не вистачає обов'язкових елементів:"} ${miss.join(", ")}`
+            : locale === "en"
+              ? "Code does not meet the required criteria."
+              : "Код не відповідає зазначеним критеріям.";
+        setMsg(`FAIL: ${reason}`);
+        onWrongAttempt?.();
+      }
+      setMobileTab("output");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function runBehaviorMode() {
+    setBusy(true);
+    setMsg("");
+    setJudgeUnavailable(false);
     try {
       const d = await api<{
         result: {
@@ -2044,6 +2245,7 @@ function CodeJudgeExercise({
           stderr: string;
           tests: { pass: boolean; name: string }[];
           mode: string;
+          error?: string;
         };
       }>("/judge/run", {
         method: "POST",
@@ -2058,28 +2260,40 @@ function CodeJudgeExercise({
           timeoutMs: Number(exercise.timeoutMs ?? 3000),
         },
       });
+
+      if (d.result.mode === "disabled" || d.result.error === "judge_disabled") {
+        setJudgeUnavailable(true);
+        setMsg(
+          locale === "en"
+            ? "Judge runner is currently offline or disabled."
+            : "Judge runner зараз вимкнено або недоступний.",
+        );
+        return;
+      }
+
       const passed = d.result.tests.filter((t) => t.pass).length;
       const total = d.result.tests.length || (d.result.ok ? 1 : 0);
       setMsg(
         `${d.result.mode}: ${d.result.ok ? "OK" : "FAIL"}\n${d.result.stdout}\n${d.result.stderr}`,
       );
+
       if (d.result.ok) {
         onAnswer({
-          ok: true,
-          testsPassed: passed || 1,
-          testsTotal: total || 1,
-          stdout: d.result.stdout,
+          source: code,
+          mode: "behavior",
         });
       } else {
-        onAnswer({
-          ok: false,
-          testsPassed: passed,
-          testsTotal: Math.max(total, 1),
-          stdout: d.result.stdout,
-        });
+        onWrongAttempt?.();
       }
-    } catch (e) {
-      setMsg(e instanceof Error ? e.message : "judge_error");
+      setMobileTab("output");
+    } catch (e: unknown) {
+      const err = e as Error & { status?: number; data?: { error?: string } };
+      if (err.status === 503 || err.data?.error === "judge_unavailable" || err.data?.error === "judge_disabled") {
+        setJudgeUnavailable(true);
+      } else {
+        setMsg(e instanceof Error ? e.message : "judge_error");
+      }
+      setMobileTab("output");
     } finally {
       setBusy(false);
     }
@@ -2087,31 +2301,460 @@ function CodeJudgeExercise({
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
-      <p className="text-xs font-bold text-ink-muted">
-        Judge · {lang} ·{" "}
-        {locale === "en" ? "runs on API (local or Docker)" : "виконується на API (local/Docker)"}
-      </p>
-      <MonacoCodeEditor
-        value={code}
-        onChange={setCode}
-        language={lang === "python" ? "python" : lang === "bash" ? "shell" : "javascript"}
-        height="220px"
-      />
-      <button type="button" className="btn-primary" disabled={busy} onClick={() => void run()}>
-        {busy
-          ? locale === "en"
-            ? "Running…"
-            : "Виконуємо…"
-          : locale === "en"
-            ? "Run in judge"
-            : "Запустити в judge"}
-      </button>
-      {msg && (
-        <pre className="max-h-40 overflow-auto rounded-xl bg-slate-900 p-3 text-xs text-green-300">
-          {msg}
-        </pre>
+      {/* Mobile Tab Switcher (Condition / Code / Output) */}
+      <div className="flex sm:hidden border-b border-slate-200 dark:border-slate-800 mb-2 gap-1" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mobileTab === "task"}
+          className={clsx(
+            "flex-1 py-1.5 text-xs font-bold border-b-2 text-center transition",
+            mobileTab === "task"
+              ? "border-brand text-brand-dark dark:text-brand-light"
+              : "border-transparent text-ink-muted",
+          )}
+          onClick={() => setMobileTab("task")}
+        >
+          📋 {locale === "en" ? "Task" : "Умова"}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mobileTab === "editor"}
+          className={clsx(
+            "flex-1 py-1.5 text-xs font-bold border-b-2 text-center transition",
+            mobileTab === "editor"
+              ? "border-brand text-brand-dark dark:text-brand-light"
+              : "border-transparent text-ink-muted",
+          )}
+          onClick={() => setMobileTab("editor")}
+        >
+          💻 {locale === "en" ? "Code" : "Код"}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mobileTab === "output"}
+          className={clsx(
+            "flex-1 py-1.5 text-xs font-bold border-b-2 text-center transition",
+            mobileTab === "output"
+              ? "border-brand text-brand-dark dark:text-brand-light"
+              : "border-transparent text-ink-muted",
+          )}
+          onClick={() => setMobileTab("output")}
+        >
+          ▶️ {locale === "en" ? "Output" : "Результат"}
+        </button>
+      </div>
+
+      <div className={clsx("space-y-3", mobileTab !== "task" && "hidden sm:block")}>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
+          <div className="inline-flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+            <button
+              type="button"
+              className={clsx(
+                "rounded-lg px-3 py-1 text-xs font-bold transition",
+                mode === "behavior"
+                  ? "bg-white text-ink shadow dark:bg-slate-700 dark:text-white"
+                  : "text-ink-muted hover:text-ink dark:text-slate-400 dark:hover:text-white",
+              )}
+              onClick={() => handleModeChange("behavior")}
+            >
+              ⚙️ {t.lesson.modeBehavior}
+            </button>
+            <button
+              type="button"
+              className={clsx(
+                "rounded-lg px-3 py-1 text-xs font-bold transition",
+                mode === "text"
+                  ? "bg-white text-ink shadow dark:bg-slate-700 dark:text-white"
+                  : "text-ink-muted hover:text-ink dark:text-slate-400 dark:hover:text-white",
+              )}
+              onClick={() => handleModeChange("text")}
+            >
+              📄 {t.lesson.modeText}
+            </button>
+          </div>
+        </div>
+
+        {mode === "text" && (
+          <div className="rounded-2xl border border-sky-300 bg-sky-50/80 p-3 text-xs font-medium text-sky-900 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-200">
+            ℹ️ {t.lesson.textModeDisclaimer}
+          </div>
+        )}
+
+        {Boolean(limitations) && (
+          <p className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-ink-muted dark:bg-slate-800/60 dark:text-slate-300">
+            ℹ️ {String(limitations)}
+          </p>
+        )}
+
+        <p className="text-xs font-bold text-ink-muted">
+          Judge · {lang} ·{" "}
+          {mode === "behavior"
+            ? locale === "en"
+              ? "isolated server execution"
+              : "ізольоване серверне виконання"
+            : locale === "en"
+              ? "static source verification"
+              : "статична перевірка коду"}
+        </p>
+      </div>
+
+      <div className={clsx("space-y-2", mobileTab !== "editor" && "hidden sm:block")}>
+        <MonacoCodeEditor
+          value={code}
+          onChange={setCode}
+          language={lang === "python" ? "python" : lang === "bash" ? "shell" : "javascript"}
+          height="220px"
+        />
+      </div>
+
+      <div className={clsx("space-y-3", mobileTab !== "output" && "hidden sm:block")}>
+        {judgeUnavailable && (
+          <div className="rounded-2xl border-2 border-amber-500 bg-amber-50 p-4 dark:bg-amber-950/30 space-y-2">
+            <p className="font-bold text-amber-800 dark:text-amber-200">
+              ⚠️ {t.lesson.judgeUnavailable}
+            </p>
+            <p className="text-xs text-amber-700 dark:text-amber-300">
+              {t.lesson.judgeUnavailableHint}
+            </p>
+            <div className="flex flex-wrap gap-2 pt-1">
+              <button
+                type="button"
+                className="btn-primary !py-1.5 !text-xs"
+                disabled={busy}
+                onClick={() => void runBehaviorMode()}
+              >
+                🔄 {t.lesson.retryBehaviorCheck}
+              </button>
+              <button
+                type="button"
+                className="btn-secondary !py-1.5 !text-xs"
+                onClick={() => {
+                  setJudgeUnavailable(false);
+                  handleModeChange("text");
+                }}
+              >
+                📝 {t.lesson.switchToTextCheck}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {msg && (
+          <pre className="max-h-40 overflow-auto rounded-xl bg-slate-900 p-3 text-xs text-green-300">
+            {msg}
+          </pre>
+        )}
+      </div>
+
+      <div className="flex gap-2 pt-1">
+        <button
+          type="button"
+          className="btn-primary"
+          disabled={busy}
+          onClick={() => {
+            if (mode === "text") {
+              void checkTextMode();
+            } else {
+              void runBehaviorMode();
+            }
+          }}
+        >
+          {busy
+            ? locale === "en"
+              ? "Running…"
+              : "Виконуємо…"
+            : mode === "text"
+              ? locale === "en"
+                ? "Check text"
+                : "Перевірити (текст)"
+              : locale === "en"
+                ? "Run in judge"
+                : "Запустити в judge"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function NumericExercise({
+  exercise,
+  onAnswer,
+}: {
+  exercise: Exercise;
+  onAnswer: (a: unknown) => void;
+}) {
+  const { locale, t } = useLocale();
+  const prompt = usePrompt(exercise);
+  const hint = useExerciseHint(exercise);
+  const soft = useSoftAttempts(hint.setOpen);
+
+  const fields = (exercise.fields as Array<{
+    name?: string;
+    labelUk?: string;
+    labelEn?: string;
+    unit?: string;
+    placeholder?: string;
+  }>) || [];
+
+  const isMulti = fields.length > 0;
+  const [singleVal, setSingleVal] = useState("");
+  const [fieldVals, setFieldVals] = useState<Record<string, string>>({});
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const formula = typeof exercise.formula === "string" ? exercise.formula : null;
+  const unit = typeof exercise.unit === "string" ? exercise.unit : "";
+
+  const handleSubmit = () => {
+    const rawAnswer = isMulti ? fieldVals : singleVal;
+    const res = gradeNumericAnswer(rawAnswer, exercise as any);
+
+    if (!res.correct) {
+      if (res.fieldResults) {
+        const errs: Record<string, string> = {};
+        for (const [k, v] of Object.entries(res.fieldResults)) {
+          if (!v.correct) errs[k] = v.error || "incorrect";
+        }
+        setFieldErrors(errs);
+      }
+      const failMsg =
+        locale === "en"
+          ? res.error === "unit_mismatch"
+            ? "Incompatible or missing unit"
+            : "Value out of tolerance"
+          : res.error === "unit_mismatch"
+            ? "Невірна або відсутня розмірність одиниць"
+            : "Значення виходить за межі допустимої похибки";
+      soft.registerFail(failMsg);
+      return;
+    }
+
+    setFieldErrors({});
+    soft.markOk();
+    onAnswer(rawAnswer);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-black text-slate-100" id={`ex-prompt-${exercise.id}`}>
+        {prompt}
+      </h2>
+
+      {/* Optional Formula */}
+      {formula && (
+        <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 text-center text-slate-100">
+          <KaTeXMath math={formula} inline={false} />
+        </div>
       )}
+
+      {/* Helper text about SI prefixes and notation */}
+      <div className="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 text-xs text-slate-400">
+        {locale === "en"
+          ? "💡 Supports SI prefixes (p, n, µ/u, m, k, M/meg, G), decimal commas, and scientific notation (e.g. 1.2e-3)."
+          : "💡 Підтримуються префікси СІ (p, n, µ/u, m, k, M/meg, G), коми замість крапок та експоненційна форма (напр. 1.2e-3)."}
+      </div>
+
+      {/* Input section */}
+      {isMulti ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {fields.map((f) => {
+            const fieldName = f.name || "val";
+            const fieldLabel = (locale === "en" ? f.labelEn : f.labelUk) || fieldName;
+            const fieldUnit = f.unit || "";
+            const isErr = Boolean(fieldErrors[fieldName]);
+
+            return (
+              <div
+                key={fieldName}
+                className={clsx(
+                  "p-3 rounded-xl border bg-slate-900/70 flex flex-col gap-1.5",
+                  isErr ? "border-red-500/80" : "border-slate-800"
+                )}
+              >
+                <div className="flex justify-between items-center text-xs font-semibold text-slate-300">
+                  <span>{fieldLabel}</span>
+                  {fieldUnit && (
+                    <span className="font-mono text-cyan-400 font-bold bg-slate-800 px-1.5 py-0.5 rounded text-[11px]">
+                      {fieldUnit}
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="text"
+                  value={fieldVals[fieldName] ?? ""}
+                  placeholder={f.placeholder || (fieldUnit ? `напр. 10 ${fieldUnit}` : "0")}
+                  onChange={(e) =>
+                    setFieldVals((prev) => ({ ...prev, [fieldName]: e.target.value }))
+                  }
+                  onKeyDown={handleKeyDown}
+                  className="px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-100 font-mono text-sm focus:outline-none focus:border-cyan-500"
+                />
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1 max-w-sm">
+            <input
+              type="text"
+              value={singleVal}
+              onChange={(e) => setSingleVal(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={unit ? `напр. 100 ${unit}` : "0"}
+              aria-labelledby={`ex-prompt-${exercise.id}`}
+              className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 font-mono text-sm focus:outline-none focus:border-cyan-500 pr-14"
+            />
+            {unit && (
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-cyan-400 bg-slate-800 px-2 py-0.5 rounded pointer-events-none">
+                {unit}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Feedback / hint */}
+      <SoftFeedback
+        wrong={soft.wrong}
+        detail={soft.detail}
+        attempts={soft.attempts}
+        max={soft.max}
+        mentorRank={soft.mentorRank}
+      />
+
+      {/* Actions */}
+      <div className="flex items-center gap-3 pt-2">
+        <button
+          type="button"
+          onClick={handleSubmit}
+          className="btn-primary"
+        >
+          {t.lesson.check}
+        </button>
+
+        {soft.canSkip && (
+          <button
+            type="button"
+            onClick={() => onAnswer(isMulti ? fieldVals : singleVal)}
+            className="text-xs font-bold text-slate-400 hover:text-slate-200 underline"
+          >
+            {locale === "en" ? "Skip exercise" : "Пропустити завдання"}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CircuitLabExerciseComponent({
+  exercise,
+  onAnswer,
+}: {
+  exercise: Exercise;
+  onAnswer: (a: unknown) => void;
+}) {
+  const { locale } = useLocale();
+  const prompt = usePrompt(exercise);
+  const hint = useExerciseHint(exercise);
+  const soft = useSoftAttempts(hint.setOpen);
+
+  const t = getUI(locale === "en" ? "en" : "uk");
+  const seeded = (exercise.circuit as CircuitDocument) || (exercise.circuitDocument as CircuitDocument);
+  const initialDoc = seeded || {
+    version: 2,
+    title: (exercise.title as string) || "Lab Circuit",
+    components: [],
+    wires: [],
+    junctions: [],
+    mode: "schematic" as const,
+  };
+
+  const [currentDoc, setCurrentDoc] = useState<CircuitDocument>(initialDoc);
+  const [simOutput, setSimOutput] = useState<RunSimOutput | null>(null);
+
+  const criteria = (exercise.criteria as CircuitCriterion[]) || [];
+  const analysis = (exercise.analysis as CircuitAnalysis) || {
+    type: "tran",
+    tran: { tStep: 1e-5, tStop: 5e-3 },
+  };
+
+  const handleSubmit = () => {
+    soft.markOk();
+    onAnswer({ circuit: currentDoc });
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-2">
+          <span className="px-2.5 py-0.5 rounded-full bg-cyan-950 border border-cyan-800 text-cyan-300 text-xs font-bold uppercase tracking-wider">
+            {t.circuitLab.title}
+          </span>
+        </div>
+        <h2 className="text-xl font-black text-slate-100" id={`ex-prompt-${exercise.id}`}>
+          {prompt}
+        </h2>
+      </div>
+
+      {/* Embedded Circuit Editor with SPICE engine and waveforms */}
+      <CircuitEditor
+        initialDoc={currentDoc}
+        onChange={setCurrentDoc}
+        initialAnalysis={analysis}
+        criteria={criteria}
+        onSimulationResult={(res) => {
+          setSimOutput(res);
+          if (res.ok) {
+            soft.resetSoft();
+          }
+        }}
+      />
+
+      {/* Feedback / hint */}
+      <SoftFeedback
+        wrong={soft.wrong}
+        detail={soft.detail}
+        attempts={soft.attempts}
+        max={soft.max}
+        mentorRank={soft.mentorRank}
+      />
+
+      {simOutput && !simOutput.ok ? (
+        <p className="text-sm font-bold text-amber-300">{t.circuitLab.simFailed}</p>
+      ) : null}
+
+      <div className="flex items-center gap-3 pt-3">
+        <button
+          type="button"
+          onClick={handleSubmit}
+          className="btn-primary"
+        >
+          {t.circuitLab.submitSolution}
+        </button>
+
+        {soft.canSkip && (
+          <button
+            type="button"
+            onClick={() =>
+              onAnswer({ circuit: currentDoc, skipped: true })
+            }
+            className="text-xs font-bold text-slate-400 hover:text-slate-200 underline"
+          >
+            {t.circuitLab.skipExercise}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

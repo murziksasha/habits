@@ -4,6 +4,11 @@ import Link from "next/link";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import {
+  getEvidenceLevelLabels,
+  MASTERY_EVIDENCE_LEVELS,
+  type MasteryEvidenceLevel,
+} from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
@@ -33,6 +38,8 @@ type MapData = {
       bestScorePct: number;
       retentionPct: number | null;
       dueInDays: number | null;
+      lastPracticedAt?: string | null;
+      evidenceLevel?: string | null;
     }[];
   }[];
   totals: Record<State | "lessons", number>;
@@ -44,6 +51,13 @@ const STATE_STYLE: Record<State, string> = {
   fading: "border-orange-400 bg-orange-100 dark:bg-orange-950/40",
   mastered: "border-green-500 bg-green-100 dark:bg-green-950/40",
 };
+
+function evidenceLabel(level: string | null | undefined, en: boolean): string | null {
+  if (!level || level === "insufficient_data") return null;
+  if (!MASTERY_EVIDENCE_LEVELS.includes(level as MasteryEvidenceLevel)) return null;
+  const labels = getEvidenceLevelLabels(level as MasteryEvidenceLevel);
+  return en ? labels.labelEn : labels.labelUk;
+}
 
 const STATE_LABEL: Record<State, [string, string]> = {
   new: ["Нове", "New"],
@@ -128,6 +142,10 @@ export function MasteryMapClient() {
                     {STATE_LABEL[l.state][en ? 1 : 0]}
                     {l.state !== "new" ? ` · ${l.bestScorePct}%` : ""}
                     {l.retentionPct != null ? ` · 🧠 ${l.retentionPct}%` : ""}
+                    {evidenceLabel(l.evidenceLevel, en) ? ` · ${evidenceLabel(l.evidenceLevel, en)}` : ""}
+                    {l.lastPracticedAt
+                      ? ` · ${new Date(l.lastPracticedAt).toLocaleDateString(en ? "en" : "uk")}`
+                      : ""}
                   </p>
                 </Link>
               ))}

@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { UI } from "@eduforge/shared";
 import { useAuth } from "@/lib/auth-context";
+import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
 import {
   ExerciseBuilder,
@@ -44,6 +44,7 @@ type Unit = {
 
 export function AdminContentClient() {
   const { user, token, loading } = useAuth();
+  const { t } = useLocale();
   const router = useRouter();
   const [courses, setCourses] = useState<Course[]>([]);
   const [slug, setSlug] = useState("english");
@@ -250,15 +251,15 @@ export function AdminContentClient() {
   }
 
   if (loading || user?.role !== "admin") {
-    return <PageLoading label={UI.common.loading} />;
+    return <PageLoading label={t.common.loading} />;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-black">{UI.admin.content}</h1>
+        <h1 className="text-3xl font-black">{t.admin.content}</h1>
         <Link href="/admin" className="btn-secondary !py-2">
-          {UI.common.back}
+          {t.common.back}
         </Link>
       </div>
 
@@ -329,7 +330,7 @@ export function AdminContentClient() {
                     className="text-xs font-bold text-red-500 px-1"
                     onClick={() => void deleteUnit(u)}
                   >
-                    {UI.admin.delete}
+                    {t.admin.delete}
                   </button>
                 </div>
               </div>
@@ -368,7 +369,7 @@ export function AdminContentClient() {
                       className="text-xs font-bold text-red-500"
                       onClick={() => void remove(l.id)}
                     >
-                      {UI.admin.delete}
+                      {t.admin.delete}
                     </button>
                   </li>
                 ))}
@@ -379,7 +380,7 @@ export function AdminContentClient() {
 
         <div className="card space-y-3 sticky top-20 h-fit">
           <h2 className="text-xl font-black">
-            {editId ? UI.admin.editLesson : "Оберіть урок"}
+            {editId ? t.admin.editLesson : "Оберіть урок"}
           </h2>
           {editId ? (
             <>
@@ -391,7 +392,7 @@ export function AdminContentClient() {
                 <label className="label">Title (EN)</label>
                 <input className="input" value={titleEn} onChange={(e) => setTitleEn(e.target.value)} />
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="label">XP</label>
                   <input
@@ -412,14 +413,6 @@ export function AdminContentClient() {
                     onChange={(e) => setDifficulty(Number(e.target.value))}
                   />
                 </div>
-                <label className="flex items-end gap-2 pb-3 font-bold text-sm">
-                  <input
-                    type="checkbox"
-                    checked={isFree}
-                    onChange={(e) => setIsFree(e.target.checked)}
-                  />
-                  Free
-                </label>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <label className="flex items-center gap-2 font-bold text-sm">
@@ -494,7 +487,7 @@ export function AdminContentClient() {
               )}
               {msg && <p className="text-sm font-bold text-sky">{msg}</p>}
               <button type="button" className="btn-primary w-full" onClick={() => void save()}>
-                {UI.common.save}
+                {t.common.save}
               </button>
             </>
           ) : (

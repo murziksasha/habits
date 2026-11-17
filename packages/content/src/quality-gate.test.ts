@@ -23,6 +23,8 @@ const PROMPT_TYPES = new Set([
   "concept",
   "explain",
   "video",
+  "numeric",
+  "circuit_lab",
 ]);
 
 function everyLesson(fn: (lesson: LessonContent, courseSlug: string, unitSlug: string) => void) {
@@ -186,6 +188,27 @@ describe("content quality gate", () => {
             const rec = ex as { sampleAnswerUk?: string; sampleAnswerEn?: string };
             if (!nonempty(rec.sampleAnswerUk) || !nonempty(rec.sampleAnswerEn)) {
               gaps.push(`${loc}:sampleAnswer`);
+            }
+            break;
+          }
+          case "numeric": {
+            const rec = ex as {
+              target?: unknown;
+              fields?: { target?: unknown }[];
+            };
+            if (rec.target === undefined && (!Array.isArray(rec.fields) || rec.fields.length === 0)) {
+              gaps.push(`${loc}:target-or-fields`);
+            }
+            break;
+          }
+          case "circuit_lab": {
+            const rec = ex as {
+              analysis?: unknown;
+              criteria?: unknown[];
+            };
+            if (!rec.analysis) gaps.push(`${loc}:analysis`);
+            if (!Array.isArray(rec.criteria) || rec.criteria.length === 0) {
+              gaps.push(`${loc}:criteria`);
             }
             break;
           }

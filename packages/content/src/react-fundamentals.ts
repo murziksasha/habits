@@ -639,9 +639,9 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
         id: "rf-cap1",
         type: "code_project",
         promptUk:
-          "React: function Toggle() з useState, button показує On/Off. README: state.",
+          "Вихідні файли: Toggle.tsx та README.md. Очікуваний результат: React-компонент перемикача з хуком стану. Обов'язкові елементи: useState, function Toggle, button, текст On та Off; у README розділ про state. Обмеження: статичний аналіз структури коду без запуску bundler чи live DOM.",
         promptEn:
-          "React: function Toggle() with useState, button shows On/Off. README: state.",
+          "Input files: Toggle.tsx and README.md. Expected result: a stateful React toggle component. Mandatory elements: useState, function Toggle, button, On and Off labels; in README explain state. Validation limits: static component structure analysis without a live bundler or DOM renderer.",
         files: [
           {
             id: "tsx",

@@ -22,6 +22,15 @@ export type AttemptItem = {
   correct: boolean;
   wrongAttempts?: number;
   confidence?: number | null;
+  firstCheckPassed?: boolean;
+  hintsUsed?: number;
+  solutionRevealed?: boolean;
+  practiceMode?: string;
+  verificationMethod?: string;
+  dataSource?: string;
+  feedbackCategory?: string;
+  exerciseVersion?: string;
+  variantId?: string;
 };
 
 export type AttemptSource = "lesson" | "mixed" | "mistakes";
@@ -48,13 +57,23 @@ export function planExerciseLearning(
     .filter((i) => !SKIP_ATTEMPT_TYPES.has(i.type))
     .map((i) => {
       const wrongAttempts = clampWrongAttempts(i.wrongAttempts);
+      const firstTry = isFirstTry({ correct: i.correct, wrongAttempts });
       return {
         lessonId: i.lessonId,
         exerciseId: i.exerciseId,
         exerciseType: i.type.slice(0, 32),
         correct: i.correct,
-        firstTry: isFirstTry({ correct: i.correct, wrongAttempts }),
+        firstTry,
+        firstCheckPassed: i.firstCheckPassed ?? (firstTry && (i.hintsUsed ?? 0) === 0 && !i.solutionRevealed),
         wrongAttempts,
+        hintsUsed: i.hintsUsed ?? 0,
+        solutionRevealed: Boolean(i.solutionRevealed),
+        practiceMode: i.practiceMode ?? "guided",
+        verificationMethod: i.verificationMethod ?? "lesson",
+        dataSource: i.dataSource ?? "curated",
+        feedbackCategory: i.feedbackCategory ?? (i.correct ? "accepted_alternative" : "knowledge_gap"),
+        exerciseVersion: i.exerciseVersion ?? "1",
+        variantId: i.variantId ?? null,
         confidence: normalizeConfidence(i.confidence),
       };
     });

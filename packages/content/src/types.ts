@@ -1,4 +1,11 @@
-export type Exercise =
+import type {
+  CircuitDocument,
+  CircuitAnalysis,
+  CircuitCriterion,
+  CircuitConstraints,
+} from "@eduforge/shared";
+
+type ExerciseBody =
   | {
       id: string;
       type: "mcq";
@@ -25,6 +32,7 @@ export type Exercise =
       promptUk: string;
       promptEn?: string;
       pairs: { left: string; right: string }[];
+      pairsEn?: { left: string; right: string }[];
       explanationUk?: string;
       explanationEn?: string;
     }
@@ -204,6 +212,9 @@ export type Exercise =
       explanationEn?: string;
       solutionUk?: string;
       solutionEn?: string;
+      limitationsUk?: string;
+      limitationsEn?: string;
+      checkMode?: "behavior" | "text" | "both";
     }
   | {
       id: string;
@@ -255,9 +266,70 @@ export type Exercise =
         value: string | number;
       }[];
       timeoutMs?: number;
+      accepted?: string[];
+      requiredSource?: string[];
+      forbiddenSource?: string[];
+      caseSensitive?: boolean;
+      checkMode?: "behavior" | "text" | "both";
+      limitationsUk?: string;
+      limitationsEn?: string;
       explanationUk?: string;
       explanationEn?: string;
+    }
+  | {
+      id: string;
+      type: "numeric";
+      promptUk: string;
+      promptEn?: string;
+      target?: number | { real: number; imag: number } | string;
+      unit?: string;
+      formula?: string;
+      absTolerance?: number;
+      relTolerance?: number;
+      requireUnit?: boolean;
+      fields?: {
+        name?: string;
+        labelUk?: string;
+        labelEn?: string;
+        target: number | { real: number; imag: number } | string;
+        unit?: string;
+        absTolerance?: number;
+        relTolerance?: number;
+        requireUnit?: boolean;
+        placeholder?: string;
+      }[];
+      explanationUk?: string;
+      explanationEn?: string;
+    }
+  | {
+      id: string;
+      type: "circuit_lab";
+      promptUk: string;
+      promptEn?: string;
+      title?: string;
+      circuitDocument?: CircuitDocument;
+      netlist?: string;
+      analysis: CircuitAnalysis;
+      criteria: CircuitCriterion[];
+      hintsUk?: string[];
+      hintsEn?: string[];
+      explanationUk?: string;
+      explanationEn?: string;
+      circuit?: CircuitDocument;
+      constraints?: CircuitConstraints;
+      scenarios?: {
+        id: string;
+        overrides?: Record<string, string>;
+        faults?: string[];
+        criteria: CircuitCriterion[];
+      }[];
+      rejectOutputSubstitution?: boolean;
     };
+
+export type Exercise = ExerciseBody & {
+  contentVersion?: string;
+  examVariant?: "A" | "B" | "C";
+};
 
 export type LessonContent = {
   slug: string;
@@ -265,11 +337,17 @@ export type LessonContent = {
   titleEn?: string;
   baseXp: number;
   difficulty: number;
+  /**
+   * @deprecated EduForge is free for all users. All lessons are open.
+   * Kept only for backwards compatibility with legacy CMS data and imports.
+   */
   isFree?: boolean;
   /** Unit control test — higher pass bar, no solution reveal */
   isExam?: boolean;
   /** 0..1 accuracy required when isExam (default 0.7 in app) */
   passThreshold?: number;
+  /** 2 for the rewritten electrical engineering course. */
+  contentVersion?: number;
   exercises: Exercise[];
 };
 

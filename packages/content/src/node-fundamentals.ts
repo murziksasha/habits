@@ -471,9 +471,9 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
         id: "nf-c1",
         type: "code_project",
         promptUk:
-          "Node: require http, createServer, listen process.env.PORT||3000, package.json scripts.start. README: env.",
+          "Вихідні файли: server.js, package.json, README.md. Очікуваний результат: сервер Node.js на базі модуля http з підтримкою PORT та npm start. Обов'язкові елементи: http, createServer, listen, PORT; у package.json поля start та node; у README згадка env. Обмеження: статична перевірка без запуску процесу Node на хості.",
         promptEn:
-          "Node: require http, createServer, listen process.env.PORT||3000, package.json scripts.start. README: env.",
+          "Input files: server.js, package.json, README.md. Expected result: a Node.js server using http module with PORT fallback and npm start. Mandatory elements: http, createServer, listen, PORT; in package.json start and node; in README mention env. Validation limits: static source check without launching a Node process.",
         files: [
           {
             id: "js",

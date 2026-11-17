@@ -1,6 +1,7 @@
 import { and, asc, desc, eq, lt, sql } from "drizzle-orm";
 import { courses, lessons, userLessonProgress } from "@eduforge/db";
 import { db } from "../db.js";
+import { isSpacedReviewDue } from "./spaced-due.js";
 
 export type WeakLesson = {
   lessonId: string;
@@ -40,6 +41,8 @@ export async function getWeakLessons(
     .where(
       and(
         eq(userLessonProgress.userId, userId),
+        eq(courses.status, "published"),
+        eq(courses.isVisible, true),
         sql`${userLessonProgress.bestScore} < ${scoreBelow}`,
         sql`${userLessonProgress.attempts} > 0`,
       ),
@@ -85,6 +88,7 @@ export async function getSpacedReviewLessons(
       bestScore: userLessonProgress.bestScore,
       attempts: userLessonProgress.attempts,
       completedAt: userLessonProgress.completedAt,
+      lastPracticedAt: userLessonProgress.lastPracticedAt,
     })
     .from(userLessonProgress)
     .innerJoin(lessons, eq(lessons.id, userLessonProgress.lessonId))
@@ -92,6 +96,8 @@ export async function getSpacedReviewLessons(
     .where(
       and(
         eq(userLessonProgress.userId, userId),
+        eq(courses.status, "published"),
+        eq(courses.isVisible, true),
         eq(userLessonProgress.status, "completed"),
         lt(userLessonProgress.bestScore, 0.95),
         sql`${userLessonProgress.completedAt} is not null`,
@@ -100,14 +106,16 @@ export async function getSpacedReviewLessons(
     .orderBy(asc(userLessonProgress.bestScore), desc(userLessonProgress.completedAt))
     .limit(40);
 
-  const due = rows.filter((r) => {
-    if (!r.completedAt) return false;
-    const score = r.bestScore ?? 0;
-    // Interval days: better score → longer wait (1–14d)
-    const intervalDays = Math.min(14, Math.max(1, Math.floor(1 + score * 12)));
-    const dueAt = r.completedAt.getTime() + intervalDays * 86_400_000;
-    return dueAt <= now;
-  });
+  const due = rows.filter((r) =>
+    isSpacedReviewDue(
+      {
+        bestScore: r.bestScore ?? 0,
+        completedAt: r.completedAt,
+        lastPracticedAt: r.lastPracticedAt,
+      },
+      now,
+    ),
+  );
 
   return due.slice(0, limit).map((r) => ({
     lessonId: r.lessonId,
