@@ -156,4 +156,6 @@ against their own rubric.
 
 ## Quality gate
 
+Run `pnpm content:audit` to measure section depth across all seeded courses before selecting the next content slice. The audit is diagnostic; its short-lesson count deliberately includes single-task typing drills.
+
 `packages/content/src/quality-gate.test.ts` fails CI on missing uk/en titles or prompts, unpaired empty explanations, duplicate slugs or exercise ids, and malformed exercises. Run it with `pnpm --filter @eduforge/content test`. It is part of `pnpm test:unit` and the `content-gate` GitHub Actions job.

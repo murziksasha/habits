@@ -383,5 +383,23 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
         "CI hands over an immutable image. The live service changes only through what reads Git: the chart, the tag, the sync.",
       ),
     },
+    {
+      t: "read",
+      uk: "Після релізу B кількість 5xx зросла. Argo показує Synced, але міграція БД не завершена, а останню копію жодного разу не відновлювали. Який наступний крок підтверджується доказами?",
+      en: "After release B, 5xx rises. Argo says Synced, but the DB migration is incomplete and the latest backup has never been restored. Which next action is supported by the evidence?",
+      lang: "text",
+      code: "release A: healthy; schema v1\nrelease B: 5xx 12%; schema migration incomplete\nArgo: Synced\nbackup: completed, restore: untested",
+      o: [
+        "Зупинити просування B, перевірити сумісність схеми для відкату A та відновити копію лише в ізоляції / Stop promoting B, check schema compatibility for rollback to A, and restore a copy only in isolation",
+        "Вважати Synced доказом здоров'я та продовжити rollout / Treat Synced as proof of health and continue rollout",
+        "Одразу підключити неперевірену копію до живого сервісу / Attach the untested backup directly to the live service",
+        "Видалити міграцію та журнали / Delete the migration and logs",
+      ],
+      i: 0,
+      note: why(
+        "Синхронізація конфігурації не доводить працездатності. Відкат залежить від сумісності схеми, а резервну копію перевіряють без ризику для живих даних.",
+        "Configuration sync does not prove service health. Rollback depends on schema compatibility, and the backup should be tested without risking live data.",
+      ),
+    },
   ]),
 ]);

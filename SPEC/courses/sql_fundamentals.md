@@ -129,7 +129,7 @@ Oracle SQL along the public 1Z0-071 checklist: SELECT, functions, joins, subquer
 ## Depth now
 
 - Units: 44
-- Lessons: 177
+- Lessons: 178
 - Exams: 44
 - Free non-exam lessons: 6
 - Exercise types in seed: code_fill, code_order, code_output, code_read, match, mcq
@@ -139,6 +139,8 @@ Oracle SQL along the public 1Z0-071 checklist: SELECT, functions, joins, subquer
 - Oracle 1Z0-071 / PostgreSQL comparison dialect notes
 
 ## Expansion (Nov 2026)
+
+Applied transfer: `sql-transfer-report` in `sql_profiling` preserves customers with no orders through aggregation and LEFT JOIN.
 
 Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
 

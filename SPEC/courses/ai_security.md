@@ -51,9 +51,9 @@ Defensive agent security: tool trust boundaries, indirect prompt injection separ
 
 ## Depth now
 
-- Units: 9
-- Lessons: 27
-- Exams: 9
+- Units: 10
+- Lessons: 30
+- Exams: 10
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_read, match, mcq
 
@@ -66,3 +66,6 @@ New units:
 - `as_data_residency` — Data residency and what goes to the provider (3 lessons including exam)
 - `as_jailbreak_evals` — Refusal evaluation: jailbreaks as a regression set (3 lessons including exam)
 - `as_log_redaction` — Logs, traces, and the right to be forgotten in AI systems (3 lessons including exam)
+- `as_applied_document_attack` — Defend a support agent from document-borne instructions and unsafe sends (3 lessons including exam)
+
+Reference: [OWASP prompt injection prevention](https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html).

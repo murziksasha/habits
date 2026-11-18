@@ -125,12 +125,14 @@ export const exerciseSchema = z.discriminatedUnion("type", [
     ...base,
     type: z.literal("comprehension"),
     passage: z.string().min(1),
+    passageEn: z.string().min(1).optional(),
     questions: z
       .array(
         z.object({
           q: z.string(),
           qEn: z.string().optional(),
           options: z.array(z.string()).min(2),
+          optionsEn: z.array(z.string()).min(2).optional(),
           correctIndex: z.number().int().min(0),
         }),
       )

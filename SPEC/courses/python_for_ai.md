@@ -51,9 +51,9 @@ Read and repair agent-style Python: values, collections, typed functions, JSON/H
 
 ## Depth now
 
-- Units: 9
-- Lessons: 27
-- Exams: 9
+- Units: 10
+- Lessons: 30
+- Exams: 10
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_read, match, mcq
 
@@ -66,3 +66,6 @@ New units:
 - `py_typing_contracts` — Annotations, protocols, and data contracts (3 lessons including exam)
 - `py_packaging_env` — Environments, dependencies, and a reproducible run (3 lessons including exam)
 - `py_pydantic_io` — Pydantic at the boundaries and safe text splitting (3 lessons including exam)
+- `py_applied_support_parser` — Validate JSON and bound async calls in a support request handler (3 lessons including exam)
+
+References: [Python JSON decoding](https://docs.python.org/3/library/json.html) and [asyncio timeouts](https://docs.python.org/3/library/asyncio-task.html#asyncio.wait_for).

@@ -328,6 +328,8 @@ Commit `2bc27f6` implements numeric tolerances scaled to the quantity, determini
 
 ### Learning-quality follow-up
 
+The first full 36-course depth pass and reproducible audit are in [COURSE-DEPTH](./COURSE-DEPTH.md). It adds foundation transfer lessons, cross-stack and AI applied units, specialist transfer cases, and DevOps/electrical final checks. The audit remains a diagnostic for subsequent per-unit improvements.
+
 Delivered after the review of `2bc27f6`:
 
 - **Last practice:** `user_lesson_progress.last_practiced_at` (migration `0041`) records a successful pass and does not overwrite the first `completedAt`. The mastery map, `/review` retention, and spaced-review due dates use that timestamp when it exists. The map also shows the evidence label.

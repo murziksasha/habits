@@ -55,3 +55,11 @@ Critical rendering path, main-thread work, bundles and code splitting, images, H
 - `perf-measure-rum` — The lab finds the cause, the field is the user's truth: RUM, CrUX, PerformanceObserver
 - `perf_vitals-exam` — Exam: Web Vitals [exam]
 
+### `perf_applied_product_page` — Product page performance triage
+
+- `perf-applied-hero` — Diagnose the LCP resource and calculate byte savings (4 exercises)
+- `perf-applied-interaction` — Split main-thread work and verify INP (4 exercises)
+- `perf_applied_product_page-exam` — Exam: page performance [exam] (4 exercises)
+
+Reference for diagnosing interaction latency: [web.dev INP guidance](https://web.dev/articles/optimize-inp).
+

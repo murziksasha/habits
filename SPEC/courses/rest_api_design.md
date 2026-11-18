@@ -54,3 +54,11 @@ Resource URLs, HTTP methods and status codes, idempotency, versioning, paginatio
 - `rest-rate-limit` — A request limit: 429, Retry-After, and visible counters
 - `rest-openapi` — OpenAPI is a contract, not only a pretty docs page
 - `rest_auth_docs-exam` — Exam: auth and the contract [exam]
+
+### `rest_applied_orders` — Orders without duplicates
+
+- `rest-applied-retry-contract` — Safe POST retry with server-side deduplication (4 exercises)
+- `rest-applied-list-contract` — Stable pagination and public error contract (4 exercises)
+- `rest_applied_orders-exam` — Exam: order contract [exam] (4 exercises)
+
+Reference for safe retries: [RFC 9110 HTTP Semantics](https://www.rfc-editor.org/rfc/rfc9110.html#section-9.2.2).

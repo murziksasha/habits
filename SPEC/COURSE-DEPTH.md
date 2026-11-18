@@ -1,0 +1,21 @@
+# Course depth improvement program
+
+Status: first full 36-course pass delivered. This document records the improvement program for the existing courses. It complements the per-course programs in `SPEC/courses/`; it does not introduce another course registry. The current seed has 569 units, 2,569 lessons, and 524 exams.
+
+## Baseline and measurement
+
+Run `pnpm content:audit` after content changes. The command builds `@eduforge/content` and prints one row per seeded course. `--json` is available on `node scripts/course-depth-audit.mjs` after the build. The report counts non-exam lessons with fewer than three assessable items, lessons without a concept card, exams with fewer than four assessable items, and units without an interactive or submitted artifact from the existing exercise-type set. These are triage signals, not automatic failures: a typing drill is intentionally one task, and code reading, code filling, and case-based MCQ practice are useful even though they are not classified as artifacts.
+
+Baseline before this program: 36 courses, 558 units, 2,513 lessons and 513 exams. The initial audit showed 14/14 logic units without a practical artifact, 44/45 English units without one, and 6/6 units without one in each of Go, Web Accessibility, REST API Design, Frontend Performance, and Browser Web APIs. Short exams are concentrated in the newer specialist tracks. The existing quality gate protects structure, IDs, and bilingual prompts but cannot judge whether a distractor is plausible or a task transfers to a new situation.
+
+## Content standard
+
+For a new or substantially revised section: state a measurable objective, show a worked example, use independent retrieval, include an application on unfamiliar data, and check the result with explicit criteria. Prefer existing exercise types and server grading. Keep existing lesson/exercise identifiers stable. Review Ukrainian and English prompts, choices, hints, explanations, and passages; mere presence of `promptEn` is insufficient. A unit exam should test application on new data and should not disclose its answer through earlier examples.
+
+## Delivery order
+
+1. Foundation: English, Chess, Typing, Speed Reading, Logic. The first slice adds a workplace clarification scenario, mate verification on the board, sustained two-layout typing, bilingual reading inference, and counterexample reasoning. These lessons are inserted into existing units; no learner progress is reordered.
+2. Software development: Programming; TypeScript; HTML Semantics; CSS Layout; QA Theory; JavaScript; React; SQL; Node; Express; Software Testing; PostgreSQL Apps; Git Workflows; Next.js Full Stack; Applied Algorithms; Go; Web Accessibility; REST API Design; Frontend Performance; Browser Web APIs. The five newer tracks have applied sections with two taught lessons and a four-question exam each: bounded Go HTTP handling, accessible checkout, retry-safe order API, product-page performance triage, and cancellable browser search. The other fifteen tracks have an inserted, bilingual, three-check transfer case connected to code or system behaviour, constraints, diagnosis, and verification.
+3. Systems and specialization: Embedded C++, Sysadmin, DevOps, Web Security, AI Development, Python for AI, Agentic Systems, LLMOps, AI Security, AI Product, Electrical Engineering. Embedded C++, Sysadmin, and Web Security have inserted transfer cases. The six AI tracks each have a two-lesson applied unit and four-question exam. The DevOps final exam checks a deployment incident with schema and backup evidence. Electrical Engineering lesson `ee-37-l2` checks a combined conduction/switching loss on changed numbers while keeping model limits explicit.
+
+Every registered course now has at least one new applied transfer or cross-stage check. Per-course programs and the canonical registry are updated. The audit still reports pre-existing short lessons and exams: these are diagnostic signals, not a completeness gate, because several types intentionally carry one task and many existing units already use code reading or case decisions as their practice. Further course maintenance should use the same standard and audit. Use `content:sync` for an existing instance; publication of a draft remains a separate reviewed action.

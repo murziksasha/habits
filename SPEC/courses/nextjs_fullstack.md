@@ -56,7 +56,7 @@ App Router, explicit Server/Client boundaries, isolated server data access, vali
 ## Depth now
 
 - Units: 10
-- Lessons: 27
+- Lessons: 28
 - Exams: 10
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_project, code_read, match, mcq
@@ -66,6 +66,8 @@ App Router, explicit Server/Client boundaries, isolated server data access, vali
 - Next.js Server and Client Components: https://nextjs.org/docs/app/getting-started/server-and-client-components
 
 ## Expansion (Nov 2026)
+
+Applied transfer: `nx-transfer-tenant-inbox` in `nx_middleware_edges` separates server authorization, client form state, mutations, and tenant-aware caching.
 
 Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
 

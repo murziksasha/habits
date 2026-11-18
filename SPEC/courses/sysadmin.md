@@ -118,12 +118,14 @@ From a small office to the console: network, backups, Windows desks, bash, permi
 ## Depth now
 
 - Units: 16
-- Lessons: 76
+- Lessons: 77
 - Exams: 16
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_read, match, mcq
 
 ## Expansion (Nov 2026)
+
+Applied transfer: `sa-transfer-restore` in `observability_home` diagnoses a failed file service and verifies an isolated backup restore.
 
 Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
 

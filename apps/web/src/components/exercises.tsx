@@ -1627,7 +1627,7 @@ function ComprehensionExercise({
   onAnswer: (a: unknown) => void;
 }) {
   const { locale, t } = useLocale();
-  const questions = (exercise.questions as { q: string; options: string[] }[]) ?? [];
+  const questions = (exercise.questions as { q: string; qEn?: string; options: string[]; optionsEn?: string[] }[]) ?? [];
   const optionOrders = useMemo(
     () => questions.map((q, qi) => stableOptionOrder(`${String(exercise.id)}:${qi}`, q.options.length)),
     [exercise.id, questions],
@@ -1638,7 +1638,9 @@ function ComprehensionExercise({
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
-      <div className="rounded-2xl bg-slate-100 p-4 leading-relaxed">{String(exercise.passage)}</div>
+      <div className="rounded-2xl bg-slate-100 p-4 leading-relaxed">
+        {String(locale === "en" && exercise.passageEn ? exercise.passageEn : exercise.passage)}
+      </div>
       {!showQs ? (
         <button className="btn-primary" onClick={() => setShowQs(true)}>
           {locale === "en" ? "To questions" : "До питань"}
@@ -1647,7 +1649,7 @@ function ComprehensionExercise({
         <>
           {questions.map((q, qi) => (
             <div key={qi} className="space-y-2">
-              <p className="font-bold">{q.q}</p>
+              <p className="font-bold">{locale === "en" && q.qEn ? q.qEn : q.q}</p>
               {(optionOrders[qi] ?? []).map((original) => (
                 <button
                   key={original}
@@ -1660,7 +1662,7 @@ function ComprehensionExercise({
                     setAnswers((a) => a.map((v, i) => (i === qi ? original : v)))
                   }
                 >
-                  {q.options[original]}
+                  {(locale === "en" && q.optionsEn?.length === q.options.length ? q.optionsEn : q.options)[original]}
                 </button>
               ))}
             </div>

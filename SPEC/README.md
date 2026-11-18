@@ -104,6 +104,7 @@ Course programs and the depth of the seeded lessons live in [courses/](./courses
 | — | **[CURRENT.md](./CURRENT.md)** | **Active product surface freeze, IA, improvement checklist** |
 | — | [CONTENT-DX.md](./CONTENT-DX.md) | Content authoring DX + EN gate |
 | — | [CONTENT-EXPANSION.md](./CONTENT-EXPANSION.md) | Nov 2026 lesson expansion: +572 lessons, 3 new courses, pipeline |
+| — | [COURSE-DEPTH.md](./COURSE-DEPTH.md) | Delivered 36-course depth pass and ongoing diagnostic audit |
 | — | [CRON.md](./CRON.md) | Digest / re-engage cron runbook |
 | — | [COURSE-REGISTRY.md](./COURSE-REGISTRY.md) | Slug → hub → freemium matrix |
 | — | [OPS.md](./OPS.md) | Backups, multi-instance, flags, incidents |

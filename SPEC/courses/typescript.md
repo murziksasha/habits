@@ -91,7 +91,7 @@ Full TypeScript course: primitives to generics, narrowing, and utility types. Un
 ## Depth now
 
 - Units: 19
-- Lessons: 70
+- Lessons: 71
 - Exams: 19
 - Free non-exam lessons: 6
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, mcq
@@ -101,6 +101,8 @@ Full TypeScript course: primitives to generics, narrowing, and utility types. Un
 - TypeScript Handbook: https://www.typescriptlang.org/docs/
 
 ## Expansion (Nov 2026)
+
+Applied transfer: `ts-transfer-api-result` in `this_parameters` checks discriminated API results, exhaustive errors, and runtime validation.
 
 Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
 

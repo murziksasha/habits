@@ -56,12 +56,14 @@ Testable requirements, high-signal unit tests, boundary fixtures, React componen
 ## Depth now
 
 - Units: 9
-- Lessons: 30
+- Lessons: 31
 - Exams: 9
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, match, mcq
 
 ## Expansion (Nov 2026)
+
+Applied transfer: `st-transfer-intermittent` in `st_perf_impact` makes a retry/concurrency defect reproducible and checks persisted side effects.
 
 Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
 

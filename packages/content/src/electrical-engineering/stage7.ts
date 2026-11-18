@@ -173,6 +173,18 @@ export const stage7Units: UnitContent[] = [
             explanationUk: "0,5 Вт * 0,25 = 0,125 Вт. Втрати перемикання в цю відповідь не входять.",
             explanationEn: "0.5 W * 0.25 = 0.125 W. Switching loss is not part of this answer.",
           }),
+          createNumeric({
+            id: "ee-37-l2-v2-transfer-total-loss",
+            promptUk: "Інший ключ має I = 4 А, Rds = 0,03 Ом, D = 0,5 та енергію перемикання 5 мкДж за цикл при 10 кГц. Яка сумарна середня втрата у ватах без інших членів?",
+            promptEn: "A different switch has I = 4 A, Rds = 0.03 ohm, D = 0.5, and 5 microjoules of switching energy per cycle at 10 kHz. What is the combined average loss in watts, excluding other terms?",
+            target: 0.29,
+            unit: "W",
+            formula: "P = I^2*Rds*D + E_switch*f = 16*0.03*0.5 + 5e-6*10000",
+            absTolerance: 0.005,
+            relTolerance: 0.02,
+            explanationUk: "Провідність: 16*0,03*0,5 = 0,24 Вт. Перемикання: 5 мкДж*10 кГц = 0,05 Вт. Разом 0,29 Вт. Для висновку про температуру ще потрібні температура довкілля й тепловий опір.",
+            explanationEn: "Conduction: 16*0.03*0.5 = 0.24 W. Switching: 5 microjoules*10 kHz = 0.05 W. Total: 0.29 W. Ambient temperature and thermal resistance are still needed for a thermal sign-off.",
+          }),
           withPairsEn(
             createMatch({
               id: "ee-37-l2-v2-m",

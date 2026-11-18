@@ -78,10 +78,10 @@ Build speed and accuracy with touch typing drills.
 ## Depth now
 
 - Units: 7
-- Lessons: 81
+- Lessons: 82
 - Exams: 3
 - Free non-exam lessons: 6
-- Exercise types in seed: typing
+- Exercise types in seed: concept, typing
 
 ## Expansion (Nov 2026)
 
@@ -90,3 +90,4 @@ Additional bilingual (uk+en) units in `packages/content/src/expansion/typing-exp
 - `code-drills` — Typing code and commands
 - `uk-prose-professional` — Ukrainian professional prose
 - `en-prose-engineering` — English engineering prose
+- `tp-transfer-accuracy-stamina` — Sustained accuracy across English and Ukrainian work messages

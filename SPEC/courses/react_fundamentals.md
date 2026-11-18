@@ -95,7 +95,7 @@ Components, props, useState, lists/keys, useEffect, forms, composition, advanced
 ## Depth now
 
 - Units: 18
-- Lessons: 63
+- Lessons: 64
 - Exams: 18
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_project, code_read, match, mcq
@@ -105,6 +105,8 @@ Components, props, useState, lists/keys, useEffect, forms, composition, advanced
 - React Docs — Thinking in React: https://react.dev/learn/thinking-in-react
 
 ## Expansion (Nov 2026)
+
+Applied transfer: `react-transfer-edit-form` in `react_strict_dev` protects edited values from late responses and derives validation state.
 
 Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
 

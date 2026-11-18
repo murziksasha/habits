@@ -133,7 +133,7 @@ Deep JS: types, operators, functions, arrays, objects, async/await, DOM, modules
 ## Depth now
 
 - Units: 25
-- Lessons: 103
+- Lessons: 104
 - Exams: 25
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, match, mcq
@@ -143,6 +143,8 @@ Deep JS: types, operators, functions, arrays, objects, async/await, DOM, modules
 - MDN JavaScript & Fetch/AbortController Guides: https://developer.mozilla.org/
 
 ## Expansion (Nov 2026)
+
+Applied transfer: `js-transfer-search-race` in `proxy_meta` handles stale fetch results, cancellation, and safe text rendering.
 
 Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
 

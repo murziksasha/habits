@@ -56,7 +56,7 @@ Relational modeling, constraints and migrations, parameterized CRUD, joins and k
 ## Depth now
 
 - Units: 9
-- Lessons: 30
+- Lessons: 31
 - Exams: 9
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, match, mcq
@@ -66,6 +66,8 @@ Relational modeling, constraints and migrations, parameterized CRUD, joins and k
 - PostgreSQL Tutorial & Documentation: https://www.postgresql.org/docs/current/tutorial.html
 
 ## Expansion (Nov 2026)
+
+Applied transfer: `pg-transfer-online-migration` in `pg_pool_replicas` stages a compatible column change, batch backfill, and keyset listing.
 
 Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
 

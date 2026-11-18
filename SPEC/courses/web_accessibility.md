@@ -55,3 +55,11 @@ POUR principles, keyboard access, ARIA, contrast, and accessibility testing agai
 - `a11y-sr-manual` — A screen reader and people: a short manual pass plus real users
 - `testing_a11y-exam` — Exam: a11y testing [exam]
 
+### `a11y_applied_checkout` — Accessible checkout flow
+
+- `a11y-applied-errors` — Repairable form errors and focus (4 exercises)
+- `a11y-applied-dialog` — Dialog focus and return (4 exercises)
+- `a11y_applied_checkout-exam` — Exam: accessible form [exam] (4 exercises)
+
+References: [W3C form error notification](https://www.w3.org/WAI/tutorials/forms/notifications/) and [modal dialog focus pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/).
+

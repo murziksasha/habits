@@ -119,7 +119,7 @@ Mimo-style path: HTML → CSS → JS → TypeScript → React → Git → Node �
 ## Depth now
 
 - Units: 10
-- Lessons: 84
+- Lessons: 85
 - Exams: 10
 - Free non-exam lessons: 17
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, match, mcq
@@ -129,6 +129,8 @@ Mimo-style path: HTML → CSS → JS → TypeScript → React → Git → Node �
 - MDN Employability Curriculum: https://developer.mozilla.org/en-US/curriculum/about-curriculum/
 
 ## Expansion (Nov 2026)
+
+Applied transfer: `pr-transfer-release` in `qa` traces a quantity field from the form through API and database validation, with retry and release checks.
 
 Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
 

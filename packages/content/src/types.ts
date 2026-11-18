@@ -75,7 +75,8 @@ type ExerciseBody =
       promptUk: string;
       promptEn?: string;
       passage: string;
-      questions: { q: string; qEn?: string; options: string[]; correctIndex: number }[];
+      passageEn?: string;
+      questions: { q: string; qEn?: string; options: string[]; optionsEn?: string[]; correctIndex: number }[];
       explanationUk?: string;
       explanationEn?: string;
     }
@@ -87,6 +88,7 @@ type ExerciseBody =
       category: string;
       difficulty: number;
       options: string[];
+      optionsEn?: string[];
       correctIndex: number;
       hintUk?: string;
       hintEn?: string;
@@ -118,6 +120,7 @@ type ExerciseBody =
       code: string;
       language: string;
       options: string[];
+      optionsEn?: string[];
       correctIndex: number;
       explanationUk?: string;
       explanationEn?: string;

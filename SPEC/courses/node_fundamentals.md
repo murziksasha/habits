@@ -83,12 +83,14 @@ Runtime, modules, fs/path, env, http server, npm, async, events/streams, process
 ## Depth now
 
 - Units: 15
-- Lessons: 50
+- Lessons: 51
 - Exams: 15
 - Free non-exam lessons: 6
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, match, mcq
 
 ## Expansion (Nov 2026)
+
+Applied transfer: `node-transfer-import` in `node_diagnostics` handles stream backpressure, atomic publication, and shutdown.
 
 Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
 

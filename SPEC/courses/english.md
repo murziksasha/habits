@@ -85,7 +85,7 @@ Learn English through short interactive lessons.
 ## Depth now
 
 - Units: **45**
-- Lessons: **248**
+- Lessons: **249**
 - Exams: **30**
 - Free non-exam lessons: 12
 - Exercise types in seed: fill_blank, match, mcq, order_words, translate, concept, explain, comprehension
@@ -156,6 +156,7 @@ English (the Nov 2026 expansion), then the deep parts below.
 - `en-deep-writing-essay` — Essays, CV and cover letter
 - `en-deep-speaking` — Speaking and functional language
 - `en-deep-business-it` — Business and IT English plus
+- `en-transfer-clarify` — Clarifying a request through a workplace scenario (concept, decisions, translation)
 - `en-deep-exam-prep` — IELTS and FCE-style tasks
 
 Flashcard decks: `english-perfect-passives`, `english-collocations`,

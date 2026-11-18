@@ -55,3 +55,11 @@ Practical browser APIs: the DOM and events, fetch and streams, storage, observer
 - `br-notify-permission` — Notification and Permissions: ask at the moment of need, explain why
 - `browser_platform-exam` — Exam: the platform [exam]
 
+### `browser_applied_search` — Search without stale results
+
+- `browser-applied-cancel` — Abort stale requests and check HTTP status (4 exercises)
+- `browser-applied-render` — Render untrusted result text safely (4 exercises)
+- `browser_applied_search-exam` — Exam: browser search [exam] (4 exercises)
+
+Reference for fetch status and cancellation: [MDN Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch).
+

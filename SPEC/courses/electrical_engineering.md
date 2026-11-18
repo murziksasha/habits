@@ -128,6 +128,8 @@ Known recovery, evidence, recommendation, and localization limitations are track
 
 ## Lesson standard
 
+The hand-authored `ee-37-l2` now has an additional numeric transfer check: combine conduction and switching loss for changed current, resistance, duty, edge energy, and frequency. Its feedback states that loss alone cannot sign off junction temperature without ambient temperature and thermal resistance. Unit, lesson, and exam-form counts remain unchanged.
+
 Each instructional lesson states a question, a physical model, the mathematics before it is applied, one fully worked example, at least three checks of two different kinds, a characteristic mistake with the model limit, and an explain-in-your-own-words close. Module `ee-01-matter-charge` does not use Ohm or Kirchhoff. Numeric targets are base-SI values with an explicit tolerance. Generators may convert units of a written problem. They do not invent the explanation from the lesson title.
 
 ## Capstone checks

@@ -87,12 +87,14 @@ App, routes, middleware, REST, validation resilience, auth vs ownership, Router,
 ## Depth now
 
 - Units: 15
-- Lessons: 50
+- Lessons: 51
 - Exams: 15
 - Free non-exam lessons: 7
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, match, mcq
 
 ## Expansion (Nov 2026)
+
+Applied transfer: `express-transfer-reservation` in `testing_express` checks owner scope, validation, and retry safety.
 
 Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
 

@@ -51,9 +51,9 @@ Script vs model vs agent, tool schemas, planning & reflection against objective 
 
 ## Depth now
 
-- Units: 9
-- Lessons: 27
-- Exams: 9
+- Units: 10
+- Lessons: 30
+- Exams: 10
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_read, match, mcq
 
@@ -66,3 +66,4 @@ New units:
 - `ag_memory_session` — Agent memory: session, facts, and forgetting (3 lessons including exam)
 - `ag_hitl_gates` — A human in the loop: confirming risky actions (3 lessons including exam)
 - `ag_timeouts_budget` — Limits on an agent's steps, time, and cost (3 lessons including exam)
+- `ag_applied_support_flow` — Bounded support agent with source checks and human approval (3 lessons including exam)

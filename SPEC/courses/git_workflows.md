@@ -48,12 +48,14 @@ Commit history and bisect, branching and rebase safety, conflict resolution with
 ## Depth now
 
 - Units: 8
-- Lessons: 25
+- Lessons: 26
 - Exams: 8
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_project, code_read, match, mcq
 
 ## Expansion (Nov 2026)
+
+Applied transfer: `git-transfer-hotfix` in `gw_large_repos` uses a reproducible bisect signal, verifies conflict resolution, and traces a hotfix to a release.
 
 Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
 

@@ -56,7 +56,7 @@ OWASP Top 10:2025 in practice: trust boundaries, validation and XSS/SQLi defense
 ## Depth now
 
 - Units: 9
-- Lessons: 30
+- Lessons: 31
 - Exams: 9
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_project, code_read, match, mcq
@@ -66,6 +66,8 @@ OWASP Top 10:2025 in practice: trust boundaries, validation and XSS/SQLi defense
 - OWASP Top 10:2025: https://top10.owasp.org/2025/en/
 
 ## Expansion (Nov 2026)
+
+Applied transfer: `ws-transfer-session-boundary` in `ws_oauth_supply` tests record-level authorization, cookie mutation CSRF protection, and session handling.
 
 Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
 

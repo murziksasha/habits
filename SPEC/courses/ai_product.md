@@ -45,9 +45,9 @@ Routing between strong hosted models, local models, and plain Python; turning bu
 
 ## Depth now
 
-- Units: 8
-- Lessons: 24
-- Exams: 8
+- Units: 9
+- Lessons: 27
+- Exams: 9
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_read, match, mcq
 
@@ -60,3 +60,4 @@ New units:
 - `ap_pricing_ux` — Token prices in the product: honest expectations (3 lessons including exam)
 - `ap_feedback_loop` — Feedback: ratings that actually change the product (3 lessons including exam)
 - `ap_launch_checklist` — Launching an AI feature: a checklist, not only a demo (3 lessons including exam)
+- `ap_applied_support_handoff` — Route support requests, expose uncertainty, and approve exact outgoing actions (3 lessons including exam)

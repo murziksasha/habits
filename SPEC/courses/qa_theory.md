@@ -123,12 +123,14 @@ Deep testing theory: principles, levels, types, black/white-box, STLC, defects, 
 ## Depth now
 
 - Units: 19
-- Lessons: 71
+- Lessons: 72
 - Exams: 19
 - Free non-exam lessons: 6
 - Exercise types in seed: code_order, match, mcq
 
 ## Expansion (Nov 2026)
+
+Applied transfer: `qa-transfer-risk-triage` in `exploratory_charters` defines the oracle and high-risk tests for concurrent booking and a reproducible defect report.
 
 Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
 

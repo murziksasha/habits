@@ -51,9 +51,9 @@ Tracing and token cost (LangSmith, Arize Phoenix, W&B), golden fixture evals in 
 
 ## Depth now
 
-- Units: 9
-- Lessons: 27
-- Exams: 9
+- Units: 10
+- Lessons: 30
+- Exams: 10
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_read, match, mcq
 
@@ -66,3 +66,4 @@ New units:
 - `lo_prompt_versions` — Prompt versions and a release, as for code (3 lessons including exam)
 - `lo_canary_rollout` — A canary and shadow traffic for a model (3 lessons including exam)
 - `lo_semantic_slo` — A semantic cache and a model-response SLO (3 lessons including exam)
+- `lo_applied_release_gate` — Fixed eval fixtures, cost traces, and rollback decisions (3 lessons including exam)

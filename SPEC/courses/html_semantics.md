@@ -92,7 +92,7 @@ Semantic markup: landmarks, outline, accessible forms & validation, focus manage
 ## Depth now
 
 - Units: 14
-- Lessons: 51
+- Lessons: 52
 - Exams: 14
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, match, mcq
@@ -102,6 +102,8 @@ Semantic markup: landmarks, outline, accessible forms & validation, focus manage
 - MDN HTML Accessibility & Forms: https://developer.mozilla.org/
 
 ## Expansion (Nov 2026)
+
+Applied transfer: `html-transfer-service-form` in `metadata_social` repairs a public-service form error with labels, a focused summary, and retained values.
 
 Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
 

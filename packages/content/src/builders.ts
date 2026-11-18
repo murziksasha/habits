@@ -54,7 +54,7 @@ export function mcq(
   options: string[],
   correctIndex: number,
   note?: Note,
-): Exercise {
+): Extract<Exercise, { type: "mcq" }> {
   return { id, type: "mcq", promptUk, promptEn, options, correctIndex, ...note };
 }
 

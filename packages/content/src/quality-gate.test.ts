@@ -141,15 +141,20 @@ describe("content quality gate", () => {
           case "comprehension": {
             const rec = ex as {
               passage?: string;
-              questions?: { q: string; options: string[]; correctIndex: number }[];
+              passageEn?: string;
+              questions?: { q: string; qEn?: string; options: string[]; optionsEn?: string[]; correctIndex: number }[];
             };
             if (!nonempty(rec.passage)) gaps.push(`${loc}:passage`);
+            if (rec.passageEn !== undefined && !nonempty(rec.passageEn)) gaps.push(`${loc}:passageEn`);
             if (!Array.isArray(rec.questions) || rec.questions.length === 0) {
               gaps.push(`${loc}:questions`);
             }
             for (const [i, q] of (rec.questions ?? []).entries()) {
               if (!nonempty(q.q)) gaps.push(`${loc}:q${i}`);
+              if (rec.passageEn && !nonempty(q.qEn)) gaps.push(`${loc}:qEn${i}`);
               checkMcq(`${loc}:q${i}`, q.options, q.correctIndex, gaps);
+              if (q.optionsEn && q.optionsEn.length !== q.options.length) gaps.push(`${loc}:optionsEn${i}`);
+              if (rec.passageEn && !q.optionsEn) gaps.push(`${loc}:optionsEn${i}`);
             }
             break;
           }
