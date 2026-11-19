@@ -90,7 +90,7 @@ export function codeRead(
   options: string[],
   correctIndex: number,
   note?: Note,
-): Exercise {
+): Extract<Exercise, { type: "code_read" }> {
   return {
     id,
     type: "code_read",
@@ -121,7 +121,7 @@ export function matchEx(
   promptUk: string,
   promptEn: string,
   pairs: { left: string; right: string }[],
-): Exercise {
+): Extract<Exercise, { type: "match" }> {
   return { id, type: "match", promptUk, promptEn, pairs };
 }
 

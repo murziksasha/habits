@@ -44,6 +44,7 @@ const newUnits: UnitContent[] = [
               "the",
               "нуль"
             ],
+            "optionsEn": ["an", "a", "the", "no article"],
             "correctIndex": 0,
             "explanationUk": "h у hour німе, слово починається з голосного звуку.",
             "explanationEn": "The h in hour is silent, so the word starts with a vowel sound."
@@ -59,6 +60,7 @@ const newUnits: UnitContent[] = [
               "the",
               "нуль"
             ],
+            "optionsEn": ["a", "an", "the", "no article"],
             "correctIndex": 0,
             "explanationUk": "university починається зі звуку /j/, як 'you'.",
             "explanationEn": "university starts with a /j/ sound, as in 'you'."
@@ -177,6 +179,7 @@ const newUnits: UnitContent[] = [
               "a",
               "an"
             ],
+            "optionsEn": ["no article", "the", "a", "an"],
             "correctIndex": 0,
             "explanationUk": "Назви мов зазвичай без артикля.",
             "explanationEn": "Language names usually have no article."
@@ -207,6 +210,7 @@ const newUnits: UnitContent[] = [
               "A water boils at 100 degrees.",
               "An water boils at 100 degrees."
             ],
+            "optionsEn": ["Water boils at 100 degrees.", "The water boils at 100 degrees. (as a general statement)", "A water boils at 100 degrees.", "An water boils at 100 degrees."],
             "correctIndex": 0,
             "explanationUk": "Речовини в загальному значенні мають нульовий артикль: Water boils…",
             "explanationEn": "Substances in a general sense take the zero article: Water boils…"
@@ -1377,6 +1381,7 @@ const newUnits: UnitContent[] = [
               "today",
               "here"
             ],
+            "optionsEn": ["then", "now (always)", "today", "here"],
             "correctIndex": 0,
             "explanationUk": "now зазвичай стає then.",
             "explanationEn": "now usually becomes then."
@@ -1394,14 +1399,15 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-rr-1",
             "type": "mcq",
-            "promptUk": "'I can swim.' → She said she ___ swim.",
-            "promptEn": "'I can swim.' → She said she ___ swim.",
+            "promptUk": "Застосуйте узгодження часів: 'I can swim.' → She said she ___ swim.",
+            "promptEn": "Apply backshift: 'I can swim.' → She said she ___ swim.",
             "options": [
               "could",
               "can завжди",
               "will",
               "might have"
             ],
+            "optionsEn": ["could", "can (always)", "will", "might have"],
             "correctIndex": 0,
             "explanationUk": "can зсувається в could.",
             "explanationEn": "can shifts to could."
@@ -1515,6 +1521,7 @@ const newUnits: UnitContent[] = [
               "at",
               "by завжди"
             ],
+            "optionsEn": ["on", "in", "at", "by (always)"],
             "correctIndex": 0,
             "explanationUk": "Поверхня столу — on.",
             "explanationEn": "The table surface takes on."
@@ -1558,6 +1565,7 @@ const newUnits: UnitContent[] = [
               "in",
               "by завжди"
             ],
+            "optionsEn": ["at", "on", "in", "by (always)"],
             "correctIndex": 0,
             "explanationUk": "Точний час — at.",
             "explanationEn": "A precise clock time takes at."
@@ -1626,6 +1634,7 @@ const newUnits: UnitContent[] = [
               "at",
               "in"
             ],
+            "optionsEn": ["to", "into (always)", "at", "in"],
             "correctIndex": 0,
             "explanationUk": "Напрямок до місця роботи — to.",
             "explanationEn": "Direction toward a workplace is to."
@@ -2043,6 +2052,7 @@ const newUnits: UnitContent[] = [
               "Lviv which is in western Ukraine is famous for coffee. (без ком, якщо місто вже відоме)",
               "Lviv, who is in western Ukraine, is famous for coffee."
             ],
+            "optionsEn": ["Lviv, which is in western Ukraine, is famous for coffee.", "Lviv, that is in western Ukraine, is famous for coffee.", "Lviv which is in western Ukraine is famous for coffee. (without commas when the city is already identified)", "Lviv, who is in western Ukraine, is famous for coffee."],
             "correctIndex": 0,
             "explanationUk": "Місто вже ідентифіковане — which з комами.",
             "explanationEn": "The city is already identified — which with commas."
@@ -2256,6 +2266,7 @@ const newUnits: UnitContent[] = [
               "shouldn't have to завжди",
               "must not обов'язково"
             ],
+            "optionsEn": ["don't have to", "mustn't", "shouldn't have to (always)", "must not (necessarily)"],
             "correctIndex": 0,
             "explanationUk": "don't have to — немає обов'язку.",
             "explanationEn": "don't have to means no obligation."
@@ -2325,6 +2336,7 @@ const newUnits: UnitContent[] = [
               "can",
               "will must"
             ],
+            "optionsEn": ["must", "should (as an order)", "can", "will must"],
             "correctIndex": 0,
             "explanationUk": "must have — майже впевнений висновок.",
             "explanationEn": "must have is a near-certain conclusion."
@@ -2344,14 +2356,15 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-my-3",
             "type": "mcq",
-            "promptUk": "That ___ be the right SHA — I built this commit myself (виключення).",
-            "promptEn": "That ___ be the right SHA — I built this commit myself (exclusion).",
+            "promptUk": "That ___ be the right SHA — it differs from the hash I built (висновок про неможливість).",
+            "promptEn": "That ___ be the right SHA — it differs from the hash I built (a conclusion of impossibility).",
             "options": [
               "can't",
               "mustn't як заборона",
               "don't have to",
               "shouldn't завжди"
             ],
+            "optionsEn": ["can't", "mustn't (as a prohibition)", "don't have to", "shouldn't (always)"],
             "correctIndex": 0,
             "explanationUk": "can't — логічно неможливо.",
             "explanationEn": "can't means it is logically impossible."
@@ -2463,13 +2476,14 @@ const newUnits: UnitContent[] = [
             "promptEn": "I ___ wear a pass — security policy requires it.",
             "options": [
               "have to",
-              "must як особисте бажання лише",
+              "must to",
               "can",
               "might"
             ],
+            "optionsEn": ["have to", "must to", "can", "might"],
             "correctIndex": 0,
-            "explanationUk": "зовнішнє правило — have to.",
-            "explanationEn": "an external rule takes have to."
+            "explanationUk": "Have to природно виражає зовнішнє правило; must теж може виражати обов’язок, але must to граматично неправильне.",
+            "explanationEn": "Have to naturally expresses an external rule; must can also express obligation, but must to is ungrammatical."
           },
           {
             "id": "en-mrv-3",
@@ -2682,6 +2696,7 @@ const newUnits: UnitContent[] = [
               "назви компанії",
               "кольори кнопки обов'язково"
             ],
+            "optionsEn": ["expected vs actual, steps, environment", "only the author's feelings", "the company name", "the button color in every case"],
             "correctIndex": 0,
             "explanationUk": "Немає відтворення й очікуваної поведінки.",
             "explanationEn": "There is no reproduction and no expected behaviour."
@@ -2760,6 +2775,7 @@ const newUnits: UnitContent[] = [
               "колір логотипа",
               "розклад відпусток"
             ],
+            "optionsEn": ["why a decision was made, and the alternatives", "only the repository name", "the logo color", "the holiday schedule"],
             "correctIndex": 0,
             "explanationUk": "Головне — рішення і чому не інші варіанти.",
             "explanationEn": "The point is the decision and why not the other options."
@@ -2825,6 +2841,7 @@ const newUnits: UnitContent[] = [
               "новим мозковим штурмом без запису",
               "мовчазним виходом"
             ],
+            "optionsEn": ["decisions, owners, deadlines written down", "only Thanks everyone", "another brainstorming session without notes", "leaving silently"],
             "correctIndex": 0,
             "explanationUk": "Без запису рішення зникне.",
             "explanationEn": "Without a written record the decision will vanish."

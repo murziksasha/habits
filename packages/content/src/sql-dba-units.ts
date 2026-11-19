@@ -19,12 +19,12 @@ const architecture: TeachSpec[] = [
     titleUk: "Екземпляр і файли бази",
     titleEn: "The instance and the database files",
     difficulty: 3,
-    pointsUk: ["Екземпляр — пам’ять і фонові процеси", "База — файли даних, журнали і control file", "Зупинений екземпляр не відповідає на запити"],
-    pointsEn: ["An instance is memory and background processes", "The database is data files, logs, and the control file", "A stopped instance does not answer queries"],
+    pointsUk: ["Екземпляр — пам’ять і фонові процеси", "База — файли даних, журнали і control file", "Зупинений екземпляр не обслуговує запити"],
+    pointsEn: ["An instance is memory and background processes", "The database is data files, logs, and the control file", "A stopped instance does not serve queries"],
     conceptUk:
-      "Екземпляр Oracle — це SGA плюс фонові процеси на сервері. База — це файли: data files, online redo logs і control file. Запит читає блоки в пам’ять. Якщо екземпляр зупинено, файли на диску ще існують, але сеансів немає. Плутанина «скопіюю папку і це резервна копія» небезпечна: без узгоджених файлів копія не відкриється. Цей урок — сценарій, живий сервер не потрібен.",
+      "Екземпляр Oracle — це SGA плюс фонові процеси на сервері. База — це файли: data files, online redo logs і control file. Запит читає блоки в пам’ять. Якщо цей екземпляр зупинено, файли на диску ще існують, але його сеанси не обслуговуються. У RAC інші екземпляри можуть продовжувати роботу з тією самою базою. Плутанина «скопіюю папку і це резервна копія» небезпечна: без узгоджених файлів копія не відкриється. Цей урок — сценарій, живий сервер не потрібен.",
     conceptEn:
-      "An Oracle instance is the SGA plus background processes on a server. The database is the files: data files, online redo logs, and the control file. A query reads blocks into memory. If the instance is stopped, the files still exist on disk, but there are no sessions. The mix-up 'I will copy the folder and that is a backup' is unsafe: without a consistent set of files the copy will not open. This lesson is a scenario. No live server is required.",
+      "An Oracle instance is the SGA plus background processes on a server. The database is the files: data files, online redo logs, and the control file. A query reads blocks into memory. If this instance is stopped, the files still exist on disk, but its sessions are not served. In RAC other instances may continue to access the same database. The mix-up 'I will copy the folder and that is a backup' is unsafe: without a consistent set of files the copy will not open. This lesson is a scenario. No live server is required.",
     code: "-- scenario, not a command to run against production\n-- instance: SGA + LGWR, DBWn, PMON, SMON\n-- database: data files, redo logs, control file",
     worked: {
       promptUk: "Процеси зупинені, файли даних на диску цілі. Що це означає?",
@@ -65,9 +65,9 @@ const architecture: TeachSpec[] = [
     pointsUk: ["З 21c нова база — це CDB", "Застосунок працює в PDB, не в CDB$ROOT", "Локальний користувач живе в одній PDB"],
     pointsEn: ["From 21c a new database is a CDB", "The application works in a PDB, not in CDB$ROOT", "A local user lives in one PDB"],
     conceptUk:
-      "Контейнерна база (CDB) містить корінь CDB$ROOT, шаблон PDB$SEED і плаговані бази PDB. У 19c ще можна було створити non-CDB. Починаючи з 21c архітектура non-CDB для нових баз не підтримується, і це лишається в 23ai та 26ai. Таблиці застосунку створюють у PDB. Користувач C## у корені — спільний. Локальний користувач без цього префікса існує в одній PDB. Підключення до сервісу кореня не показує таблиці PDB.",
+      "Контейнерна база (CDB) містить корінь CDB$ROOT, шаблон PDB$SEED і плаговані бази PDB. У 19c ще можна було створити non-CDB. Починаючи з 21c архітектура non-CDB для нових баз не підтримується, і це лишається в 23ai та 26ai. Таблиці застосунку створюють у PDB. Створені користувачем спільні користувачі CDB зазвичай мають префікс C## за типовим налаштуванням COMMON_USER_PREFIX. Локальний користувач існує в одній PDB; application common users мають окремі правила іменування. Підключення до сервісу кореня не показує таблиці PDB.",
     conceptEn:
-      "A container database (CDB) holds the root CDB$ROOT, the PDB$SEED template, and pluggable databases (PDBs). In 19c you could still create a non-CDB. Starting with 21c the non-CDB architecture is not supported for new databases, and that remains true in 23ai and 26ai. Application tables belong in a PDB. A C## user in the root is common. A local user without that prefix exists in one PDB. Connecting to the root service does not show the PDB's tables.",
+      "A container database (CDB) holds the root CDB$ROOT, the PDB$SEED template, and pluggable databases (PDBs). In 19c you could still create a non-CDB. Starting with 21c the non-CDB architecture is not supported for new databases, and that remains true in 23ai and 26ai. Application tables belong in a PDB. User-created CDB common users normally have the C## prefix under the default COMMON_USER_PREFIX setting. A local user exists in one PDB; application common users follow separate naming rules. Connecting to the root service does not show the PDB's tables.",
     code: "-- connect to the PDB service, not CDB$ROOT\nALTER SESSION SET CONTAINER = app_pdb;\nSELECT SYS_CONTEXT('USERENV','CON_NAME') AS container FROM dual;",
     worked: {
       promptUk: "Розробник підключився до CDB$ROOT і не бачить таблицю orders. Найімовірніше:",
@@ -87,8 +87,8 @@ const architecture: TeachSpec[] = [
       options: ["Обов’язково називається C##APP", "Існує в одній PDB", "Бачить усі PDB без прав", "Замінює control file"],
       optionsEn: ["Must be named C##APP", "Exists in one PDB", "Sees every PDB with no privileges", "Replaces the control file"],
       correctIndex: 1,
-      explanationUk: "Спільний користувач створюється в корені і має префікс C##.",
-      explanationEn: "A common user is created in the root and uses the C## prefix.",
+      explanationUk: "Спільний користувач CDB створюється в корені; типовий префікс C## залежить від налаштування. Application common user має інші правила.",
+      explanationEn: "A CDB common user is created in the root; the default C## prefix depends on configuration. Application common users follow different rules.",
     },
     whyUk: "Поясніть, чому таблиці застосунку створюють у PDB, а не в CDB$ROOT.",
     whyEn: "Explain why application tables are created in a PDB rather than in CDB$ROOT.",
@@ -108,19 +108,19 @@ const architecture: TeachSpec[] = [
     pointsUk: ["DBWn пише брудні блоки", "LGWR пише redo", "COMMIT не чекає повного запису всіх data files"],
     pointsEn: ["DBWn writes dirty blocks", "LGWR writes redo", "COMMIT does not wait for every data file to be fully written"],
     conceptUk:
-      "Після зміни блок у буфері SGA позначено брудним. DBWn запише його пізніше. Надійність COMMIT дає журнал: LGWR записує redo, і лише тоді коміт підтверджено. SMON піднімає базу після збою, PMON прибирає зламані сесії. Якщо хтось каже «коміт миттєво переписав data file», це неточна модель. Для відновлення потрібні і файли, і журнали. Імена процесів варто впізнавати в сценарії аварії, навіть без доступу до сервера.",
+      "Після зміни блок у буфері SGA позначено брудним. DBWn запише його пізніше. Для COMMIT WRITE WAIT підтвердження надходить після стійкого запису redo. За NOWAIT відповідь може прийти до завершення запису, тож після збою підтверджені зміни можуть загубитися. SMON піднімає базу після збою, PMON прибирає зламані сесії. Якщо хтось каже «коміт миттєво переписав data file», це неточна модель. Для відновлення потрібні і файли, і журнали. Імена процесів варто впізнавати в сценарії аварії, навіть без доступу до сервера.",
     conceptEn:
-      "After a change, the block in the SGA buffer is dirty. DBWn writes it later. COMMIT is made durable by the log: LGWR writes the redo, and only then is the commit confirmed. SMON recovers the database after a crash, and PMON cleans up failed sessions. If someone says 'the commit instantly rewrote the data file', that model is inaccurate. Recovery needs both the files and the logs. You should recognize these process names in an outage scenario even without server access.",
+      "After a change, the block in the SGA buffer is dirty. DBWn writes it later. For COMMIT WRITE WAIT, confirmation follows a persistent redo write. With NOWAIT the reply can arrive before the write completes, so a crash can lose changes that appeared confirmed. SMON recovers the database after a crash, and PMON cleans up failed sessions. If someone says 'the commit instantly rewrote the data file', that model is inaccurate. Recovery needs both the files and the logs. You should recognize these process names in an outage scenario even without server access.",
     code: "-- durable commit waits for LGWR, not for a full data-file rewrite\n-- DBWn writes dirty buffers in the background",
     worked: {
-      promptUk: "Сесія отримала підтвердження COMMIT. Який процес уже мав записати журнал?",
-      promptEn: "The session received COMMIT confirmation. Which process had to write the log?",
-      code: "COMMIT;",
+      promptUk: "Сесія отримала підтвердження COMMIT WRITE WAIT. Який процес уже мав записати журнал?",
+      promptEn: "The session received COMMIT WRITE WAIT confirmation. Which process had to write the log?",
+      code: "COMMIT WRITE WAIT;",
       options: ["Лише планувальник клієнта", "LGWR", "Експорт Data Pump", "Тригер :NEW"],
       optionsEn: ["Only the client scheduler", "LGWR", "A Data Pump export", "The :NEW trigger"],
       correctIndex: 1,
-      explanationUk: "Підтверджений коміт спирається на запис redo.",
-      explanationEn: "A confirmed commit depends on the redo write.",
+      explanationUk: "WAIT повертає успіх після стійкого запису redo; NOWAIT має іншу гарантію.",
+      explanationEn: "WAIT returns success after redo is persistent; NOWAIT offers a different guarantee.",
     },
     retrieval: {
       kind: "mcq",
@@ -140,8 +140,8 @@ const architecture: TeachSpec[] = [
       { labelUk: "DBWn пізніше", labelEn: "DBWn later", anyOf: ["dbwn", "dbw", "пізн", "later", "брудн", "dirty"] },
       { labelUk: "коміт", labelEn: "commit", anyOf: ["commit", "коміт"] },
     ],
-    sampleUk: "Успішний COMMIT означає, що LGWR записав redo. DBWn може записати брудні блоки даних пізніше, тож data files в цю мить уже не обов’язково перезаписані.",
-    sampleEn: "A successful COMMIT means LGWR wrote the redo. DBWn may write the dirty data blocks later, so the data files are not necessarily rewritten at that moment.",
+    sampleUk: "Успішний COMMIT WRITE WAIT означає, що LGWR стійко записав redo. DBWn може записати брудні блоки даних пізніше, тож data files в цю мить уже не обов’язково перезаписані.",
+    sampleEn: "A successful COMMIT WRITE WAIT means LGWR made redo persistent. DBWn may write the dirty data blocks later, so the data files are not necessarily rewritten at that moment.",
   },
 ];
 
@@ -154,9 +154,9 @@ const connect: TeachSpec[] = [
     pointsUk: ["Слухач типово слухає порт 1521", "Рядок host:port/service веде до сервісу", "SYSDBA не для роботи застосунку"],
     pointsEn: ["The listener usually uses port 1521", "The string host:port/service targets a service", "SYSDBA is not for application work"],
     conceptUk:
-      "Клієнт не відкриває data file сам. Він іде до listener, типово на порт 1521, і просить сервіс. Easy Connect виглядає як localhost:1521/app_pdb. У рядку вказано ім’я сервісу, не пароль. Обліковий запис SYS з SYSDBA — для аварійного адміністрування. Застосунок і навчальні вправи використовують окремого користувача. Пароль не пишуть у репозиторій.",
+      "Клієнт не відкриває data file сам. Він іде до listener, типово на порт 1521, і просить сервіс. Easy Connect виглядає як localhost:1521/app_pdb. У рядку вказано ім’я сервісу, не пароль. SYSDBA — адміністративний привілей для задач на кшталт запуску і зупинки бази, а не для облікового запису застосунку. Застосунок і навчальні вправи використовують окремого користувача. Пароль не пишуть у репозиторій.",
     conceptEn:
-      "A client does not open a data file itself. It goes to the listener, usually on port 1521, and asks for a service. Easy Connect looks like localhost:1521/app_pdb. The string names the service, not the password. The SYS account with SYSDBA is for emergency administration. The application and course exercises use a separate user. Do not write the password into a repository.",
+      "A client does not open a data file itself. It goes to the listener, usually on port 1521, and asks for a service. Easy Connect looks like localhost:1521/app_pdb. The string names the service, not the password. SYSDBA is an administrative privilege for tasks such as starting and stopping the database, not an application login. The application and course exercises use a separate user. Do not write the password into a repository.",
     code: "sqlplus app_user@\"localhost:1521/app_pdb\"",
     worked: {
       promptUk: "Рядок localhost:1521/app_pdb означає:",
@@ -170,12 +170,12 @@ const connect: TeachSpec[] = [
     },
     retrieval: {
       kind: "mcq",
-      promptUk: "Хто має працювати від SYSDBA щодня?",
-      promptEn: "Who should use SYSDBA for daily work?",
+      promptUk: "Якому коду не слід працювати з SYSDBA для звичайних запитів?",
+      promptEn: "Which code should not use SYSDBA for ordinary queries?",
       code: "",
-      options: ["Код веб-застосунку", "Ніхто: це аварійний режим, не обліковка застосунку", "Кожен студент у спільному PDF", "Тригер аудиту"],
-      optionsEn: ["The web application code", "Nobody: it is an emergency mode, not an application login", "Every student in a shared PDF", "An audit trigger"],
-      correctIndex: 1,
+      options: ["Код веб-застосунку", "Адміністративна утиліта для запуску бази", "Адміністратор під час відновлення", "Уповноважений адміністратор для зупинки бази"],
+      optionsEn: ["Web application code", "An administrative utility starting the database", "An administrator during recovery", "An authorized administrator stopping the database"],
+      correctIndex: 0,
       explanationUk: "Застосунку вистачає власного користувача з вузькими правами.",
       explanationEn: "The application gets its own user with narrow privileges.",
     },
@@ -368,13 +368,13 @@ const security: TeachSpec[] = [
     pointsUk: ["Свої об’єкти не видні іншим самі", "GRANT на схему з 23ai ширший за одну таблицю", "SQL Firewall не замінює пароль"],
     pointsEn: ["Your objects are not visible to others automatically", "A schema grant in 23ai is wider than one table", "SQL Firewall does not replace a password"],
     conceptUk:
-      "Таблиця hr.employees не читається користувачем app, доки немає права. Класика — GRANT SELECT ON hr.employees TO app. У 23ai з’явились права на всю схему, і вони лишаються в 26ai: це зручно для розробника і небезпечно, якщо видати їх веб-обліковці. SQL Firewall (23ai) уміє обмежувати дозволені SQL, але це додатковий контроль, а не обліковий запис. Сценарій відмови ORA-01031 insufficient privileges лікують конкретним GRANT, а не роллю DBA.",
+      "Таблиця hr.employees не читається користувачем app, доки немає права. Класика — GRANT SELECT ON hr.employees TO app. У 23ai з’явились права на всю схему, і вони лишаються в 26ai: це зручно для розробника і небезпечно, якщо видати їх веб-обліковці. SQL Firewall (23ai) уміє обмежувати дозволені SQL, але це додатковий контроль, а не обліковий запис. Помилка доступу не визначає причину автоматично: для SELECT на чужу таблицю ORA-00942 може означати відсутній об’єкт, неправильну схему або нестачу прав. Спочатку перевірте контейнер, ім’я та права; якщо саме SELECT відсутній і доступ потрібен, видайте конкретний GRANT.",
     conceptEn:
-      "The table hr.employees is not readable by app until a privilege exists. The classic form is GRANT SELECT ON hr.employees TO app. In 23ai schema-wide privileges arrived, and they remain in 26ai: handy for a developer, dangerous if you give them to the web account. SQL Firewall (23ai) can restrict which SQL is allowed, but it is an extra control, not an account. An ORA-01031 insufficient privileges scenario is fixed with a specific GRANT, not with the DBA role.",
-    code: "GRANT SELECT ON hr.employees TO app;\n-- ORA-01031 means this privilege, or an equivalent, is missing",
+      "The table hr.employees is not readable by app until a privilege exists. The classic form is GRANT SELECT ON hr.employees TO app. In 23ai schema-wide privileges arrived, and they remain in 26ai: handy for a developer, dangerous if you give them to the web account. SQL Firewall (23ai) can restrict which SQL is allowed, but it is an extra control, not an account. An access error does not identify its cause automatically: ORA-00942 for a SELECT can mean a missing object, wrong schema, or missing access. Check container, name, and privileges first; if SELECT is missing and access is needed, grant that privilege specifically.",
+    code: "GRANT SELECT ON hr.employees TO app;\n-- grant only after verifying the object and required access",
     worked: {
-      promptUk: "app отримав ORA-01031 на SELECT hr.employees. Найменше достатнє виправлення:",
-      promptEn: "app received ORA-01031 on SELECT hr.employees. The smallest sufficient fix:",
+      promptUk: "Таблицю hr.employees перевірено; app потрібен доступ до читання, але права SELECT немає. Найменше достатнє виправлення:",
+      promptEn: "hr.employees is verified; app needs read access but lacks SELECT. What is the smallest sufficient fix?",
       code: "SELECT * FROM hr.employees;",
       options: ["GRANT DBA TO app", "GRANT SELECT ON hr.employees TO app", "Видалити listener", "Увімкнути ARCHIVELOG"],
       optionsEn: ["GRANT DBA TO app", "GRANT SELECT ON hr.employees TO app", "Drop the listener", "Enable ARCHIVELOG"],
@@ -393,15 +393,15 @@ const security: TeachSpec[] = [
       explanationUk: "Схема містить багато об’єктів, включно з майбутніми.",
       explanationEn: "A schema contains many objects, including future ones.",
     },
-    whyUk: "Поясніть, чому ORA-01031 на одну таблицю не лікують роллю DBA.",
-    whyEn: "Explain why ORA-01031 on one table is not fixed with the DBA role.",
+    whyUk: "Поясніть, як перевірити помилку доступу до однієї таблиці й чому не слід одразу видавати роль DBA.",
+    whyEn: "Explain how to investigate an access error on one table and why not to grant DBA immediately.",
     ideas: [
       { labelUk: "одне право", labelEn: "one privilege", anyOf: ["grant", "select", "прав"] },
       { labelUk: "забагато", labelEn: "too much", anyOf: ["dba", "забагат", "too"] },
-      { labelUk: "01031", labelEn: "01031", anyOf: ["01031", "insufficient", "недостат"] },
+      { labelUk: "діагностика", labelEn: "diagnosis", anyOf: ["00942", "об’єкт", "об'єкт", "object", "схем", "schema"] },
     ],
-    sampleUk: "ORA-01031 на одну таблицю лікується вузьким GRANT SELECT. Роль DBA дає забагато інших прав і не є найменшим виправленням.",
-    sampleEn: "ORA-01031 on one table is fixed with a narrow GRANT SELECT. The DBA role gives too many other privileges and is not the smallest fix.",
+    sampleUk: "Спочатку перевіряють об’єкт, схему і права: ORA-00942 може означати і відсутність доступу. Якщо бракує SELECT, вузький GRANT достатній, а роль DBA дає забагато інших прав.",
+    sampleEn: "First check the object, schema, and privileges: ORA-00942 can also indicate missing access. If SELECT is missing, a narrow GRANT is sufficient; the DBA role grants too many other privileges.",
   },
 ];
 
@@ -414,9 +414,9 @@ const storage: TeachSpec[] = [
     pointsUk: ["Таблиця лежить у табличному просторі", "SYSTEM і SYSAUX не для даних застосунку", "У PDB свої простори"],
     pointsEn: ["A table lives in a tablespace", "SYSTEM and SYSAUX are not for application data", "A PDB has its own tablespaces"],
     conceptUk:
-      "Табличний простір — логічна полиця для сегментів. За ним стоять data files. SYSTEM тримає словник, SYSAUX — допоміжні компоненти, UNDO — образи для відкату і узгодженого читання, TEMP — сортування, USERS або окремий простір — таблиці застосунку. Створити таблицю продукту в SYSTEM можна, але супровід і заповнення диска тоді б’ють по словнику. У PDB простори свої, навіть якщо імена збігаються з коренем.",
+      "Табличний простір — логічна полиця для сегментів. Постійні простори використовують data files, тимчасові — tempfiles. SYSTEM тримає словник, SYSAUX — допоміжні компоненти, UNDO — образи для відкату і узгодженого читання, TEMP — сортування, USERS або окремий простір — таблиці застосунку. Створити таблицю продукту в SYSTEM можна, але супровід і заповнення диска тоді б’ють по словнику. У PDB простори свої, навіть якщо імена збігаються з коренем.",
     conceptEn:
-      "A tablespace is a logical shelf for segments. Data files sit behind it. SYSTEM holds the dictionary, SYSAUX holds auxiliary components, UNDO holds images for rollback and consistent read, TEMP is for sorting, and USERS or a dedicated tablespace holds application tables. You can create a product table in SYSTEM, but maintenance and a full disk then hit the dictionary. A PDB has its own tablespaces, even when the names match the root.",
+      "A tablespace is a logical shelf for segments. Permanent tablespaces use data files; temporary tablespaces use tempfiles. SYSTEM holds the dictionary, SYSAUX holds auxiliary components, UNDO holds images for rollback and consistent read, TEMP is for sorting, and USERS or a dedicated tablespace holds application tables. You can create a product table in SYSTEM, but maintenance and a full disk then hit the dictionary. A PDB has its own tablespaces, even when the names match the root.",
     code: "CREATE TABLE orders (\n  id NUMBER PRIMARY KEY\n) TABLESPACE users;",
     worked: {
       promptUk: "Нові замовлення записали в табличний простір SYSTEM. Чому це поганий сценарій?",
@@ -457,16 +457,16 @@ const storage: TeachSpec[] = [
     pointsUk: ["ORA-01536 — вичерпано квоту користувача", "ORA-01653 — немає куди розширити сегмент", "Безлімітна квота не створює вільні гігабайти"],
     pointsEn: ["ORA-01536 means the user quota is exhausted", "ORA-01653 means the segment cannot extend", "An unlimited quota does not create free gigabytes"],
     conceptUk:
-      "Два різні «немає місця». ORA-01536: у користувача закінчилась квота на цей табличний простір, навіть якщо у файлі ще є вільні байти. ORA-01653: сегмент не може взяти екстент, бо файл не росте або диск повний. ALTER USER … QUOTA UNLIMITED знімає лише першу стелю. Сценарій черги замовлень: вставки падають, а вільне місце в операційній системі ще є — дивіться квоту, не тільки df.",
+      "Два різні «немає місця». ORA-01536: у власника сегмента закінчилась квота на цей табличний простір, навіть якщо у файлі ще є вільні байти. ORA-01653: сегмент не може взяти екстент, бо файл не росте або диск повний. ALTER USER … QUOTA UNLIMITED знімає лише першу стелю. Сценарій черги замовлень: вставки падають, а вільне місце в операційній системі ще є — дивіться квоту, не тільки df.",
     conceptEn:
-      "There are two different 'no space' errors. ORA-01536: the user ran out of quota on that tablespace, even if the file still has free bytes. ORA-01653: the segment cannot take an extent because the file does not grow or the disk is full. ALTER USER … QUOTA UNLIMITED removes only the first ceiling. Scenario: the order queue fails inserts while the operating system still has free space. Look at the quota, not only at df.",
-    code: "-- ORA-01536: quota exceeded for tablespace USERS\nALTER USER app QUOTA UNLIMITED ON users;",
+      "There are two different 'no space' errors. ORA-01536: the segment owner ran out of quota on that tablespace, even if the file still has free bytes. ORA-01653: the segment cannot take an extent because the file does not grow or the disk is full. ALTER USER … QUOTA UNLIMITED removes only the first ceiling. Scenario: the order queue fails inserts while the operating system still has free space. Look at the quota, not only at df.",
+    code: "-- ORA-01536: quota exceeded for tablespace USERS\n-- after assessing need, an administrator may grant a bounded quota\nALTER USER app QUOTA 100M ON users;",
     worked: {
       promptUk: "Вставка падає з ORA-01536, у data file ще є вільне місце. Що вичерпано?",
       promptEn: "An insert fails with ORA-01536, and the data file still has free space. What ran out?",
       code: "ORA-01536: space quota exceeded for tablespace 'USERS'",
-      options: ["Журнал redo цілої бази завжди", "Квота користувача", "Порт 1521", "Роль DB_DEVELOPER_ROLE"],
-      optionsEn: ["The redo log of the whole database, always", "The user's quota", "Port 1521", "The DB_DEVELOPER_ROLE role"],
+      options: ["Журнал redo цілої бази завжди", "Квота власника сегмента", "Порт 1521", "Роль DB_DEVELOPER_ROLE"],
+      optionsEn: ["The redo log of the whole database, always", "The segment owner's quota", "Port 1521", "The DB_DEVELOPER_ROLE role"],
       correctIndex: 1,
       explanationUk: "Текст прямо називає quota.",
       explanationEn: "The text names the quota directly.",
@@ -539,27 +539,27 @@ const storage: TeachSpec[] = [
 
 export const dbaUnitsA: UnitContent[] = [
   pack("dba-architecture", "Архітектура і CDB/PDB", "Architecture and CDB/PDB", architecture, "Контрольна: архітектура", "Exam: architecture", [
-    { promptUk: "Екземпляр — це:", promptEn: "An instance is:", options: ["Лише data files", "Пам’ять і фонові процеси", "Пароль SYS", "Роль DBA"], correctIndex: 1, explanationUk: "Файли — це база.", explanationEn: "The files are the database." },
-    { promptUk: "Таблиці застосунку в сучасній базі живуть у:", promptEn: "In a current database, application tables live in:", options: ["Лише в CDB$ROOT", "Лише в listener", "PDB", "Файлі tnsnames обов’язково"], correctIndex: 2, explanationUk: "Корінь не є схемою продукту.", explanationEn: "The root is not the product schema." },
-    { promptUk: "Підтверджений COMMIT спирається на:", promptEn: "A confirmed COMMIT depends on:", options: ["Повний перезапис усіх data files синхронно", "Data Pump", "Тригер AFTER", "Запис redo процесом LGWR"], correctIndex: 3, explanationUk: "DBWn може писати блоки пізніше.", explanationEn: "DBWn may write blocks later." },
-    { promptUk: "Non-CDB для нових баз:", promptEn: "Non-CDB for new databases:", options: ["Не підтримується з 21c, включно з 26ai", "Обов’язковий у 26ai", "Замінює PDB$SEED", "Це тип VECTOR"], correctIndex: 0, explanationUk: "19c ще дозволяв non-CDB.", explanationEn: "19c still allowed a non-CDB." },
+    { promptUk: "Екземпляр — це:", promptEn: "An instance is:", options: ["Лише data files", "Пам’ять і фонові процеси", "Пароль SYS", "Роль DBA"], optionsEn: ["Only data files", "Memory and background processes", "The SYS password", "The DBA role"], correctIndex: 1, explanationUk: "Файли — це база.", explanationEn: "The files are the database." },
+    { promptUk: "Таблиці застосунку в сучасній базі живуть у:", promptEn: "In a current database, application tables live in:", options: ["Лише в CDB$ROOT", "Лише в listener", "PDB", "Файлі tnsnames обов’язково"], optionsEn: ["Only in CDB$ROOT", "Only in the listener", "A PDB", "Necessarily in a tnsnames file"], correctIndex: 2, explanationUk: "Корінь не є схемою продукту.", explanationEn: "The root is not the product schema." },
+    { promptUk: "Підтверджений COMMIT WRITE WAIT спирається на:", promptEn: "A confirmed COMMIT WRITE WAIT depends on:", options: ["Повний перезапис усіх data files синхронно", "Data Pump", "Тригер AFTER", "Запис redo процесом LGWR"], optionsEn: ["Synchronous rewriting of all data files", "Data Pump", "An AFTER trigger", "Redo written by LGWR"], correctIndex: 3, explanationUk: "DBWn може писати блоки пізніше.", explanationEn: "DBWn may write blocks later." },
+    { promptUk: "Non-CDB для нових баз:", promptEn: "Non-CDB for new databases:", options: ["Не підтримується з 21c, включно з 26ai", "Обов’язковий у 26ai", "Замінює PDB$SEED", "Це тип VECTOR"], optionsEn: ["Unsupported from 21c, including 26ai", "Mandatory in 26ai", "Replaces PDB$SEED", "Is a VECTOR type"], correctIndex: 0, explanationUk: "19c ще дозволяв non-CDB.", explanationEn: "19c still allowed a non-CDB." },
   ]),
   pack("dba-connect", "Локальне підключення", "Local setup and connections", connect, "Контрольна: підключення", "Exam: connections", [
-    { promptUk: "localhost:1521/app_pdb задає:", promptEn: "localhost:1521/app_pdb specifies:", options: ["Пароль і tablespace", "Хост, порт і сервіс", "Ім’я redo", "Квоту"], correctIndex: 1, explanationUk: "Це Easy Connect.", explanationEn: "That is Easy Connect." },
-    { promptUk: "SHOW CON_NAME = CDB$ROOT означає:", promptEn: "SHOW CON_NAME = CDB$ROOT means:", options: ["Ви в потрібній PDB", "Сервіс 12514 вже виправлено", "Сесія в корені, не в PDB застосунку", "ARCHIVELOG увімкнено"], correctIndex: 2, explanationUk: "Потрібен сервіс PDB.", explanationEn: "You need the PDB service." },
-    { promptUk: "ORA-12514:", promptEn: "ORA-12514:", options: ["Хибний пароль", "Немає квоти", "Мутуюча таблиця", "Слухач не знає сервісу"], correctIndex: 3, explanationUk: "Пароль — це ORA-01017.", explanationEn: "A password error is ORA-01017." },
-    { promptUk: "Щоденна робота застосунку від SYSDBA:", promptEn: "Daily application work as SYSDBA:", options: ["Не підходить: це аварійний адміністративний вхід", "Обов’язкова для SELECT", "Замінює сервіс PDB", "Лікує ORA-01653"], correctIndex: 0, explanationUk: "Застосунок має власного користувача.", explanationEn: "The application has its own user." },
+    { promptUk: "localhost:1521/app_pdb задає:", promptEn: "localhost:1521/app_pdb specifies:", options: ["Пароль і tablespace", "Хост, порт і сервіс", "Ім’я redo", "Квоту"], optionsEn: ["Password and tablespace", "Host, port, and service", "A redo name", "A quota"], correctIndex: 1, explanationUk: "Це Easy Connect.", explanationEn: "That is Easy Connect." },
+    { promptUk: "SHOW CON_NAME = CDB$ROOT означає:", promptEn: "SHOW CON_NAME = CDB$ROOT means:", options: ["Ви в потрібній PDB", "Сервіс 12514 вже виправлено", "Сесія в корені, не в PDB застосунку", "ARCHIVELOG увімкнено"], optionsEn: ["You are in the intended PDB", "Service error 12514 is already fixed", "The session is in the root, not the application PDB", "ARCHIVELOG is enabled"], correctIndex: 2, explanationUk: "Потрібен сервіс PDB.", explanationEn: "You need the PDB service." },
+    { promptUk: "ORA-12514:", promptEn: "ORA-12514:", options: ["Хибний пароль", "Немає квоти", "Мутуюча таблиця", "Слухач не знає сервісу"], optionsEn: ["Bad password", "No quota", "A mutating table", "The listener does not know the service"], correctIndex: 3, explanationUk: "Пароль — це ORA-01017.", explanationEn: "A password error is ORA-01017." },
+    { promptUk: "Щоденна робота застосунку від SYSDBA:", promptEn: "Daily application work as SYSDBA:", options: ["Не підходить: це адміністративний привілей", "Обов’язкова для SELECT", "Замінює сервіс PDB", "Лікує ORA-01653"], optionsEn: ["Inappropriate: this is an administrative privilege", "Required for SELECT", "Replaces the PDB service", "Fixes ORA-01653"], correctIndex: 0, explanationUk: "Застосунок має власного користувача.", explanationEn: "The application has its own user." },
   ]),
   pack("dba-security", "Користувачі, ролі й безпека", "Users, roles, and security", security, "Контрольна: безпека", "Exam: security", [
-    { promptUk: "Без CREATE SESSION користувач:", promptEn: "Without CREATE SESSION the user:", options: ["Входить як SYS", "Не отримує сесію", "Бачить усі PDB", "Має квоту UNLIMITED"], correctIndex: 1, explanationUk: "Вхід — окреме право.", explanationEn: "Login is a separate privilege." },
-    { promptUk: "DB_DEVELOPER_ROLE:", promptEn: "DB_DEVELOPER_ROLE:", options: ["Це роль DBA", "Є в Oracle 11g", "З’явилась у 23ai і не дорівнює DBA", "Дає лише SELECT на dual"], correctIndex: 2, explanationUk: "На 19c її немає.", explanationEn: "It does not exist on 19c." },
-    { promptUk: "ORA-01031 на одну таблицю лікують:", promptEn: "ORA-01031 on one table is fixed by:", options: ["Зміною пароля", "Відкриттям PDB$SEED", "Вимкненням redo", "GRANT на цей об’єкт"], correctIndex: 3, explanationUk: "Бракує права, не журналу.", explanationEn: "A privilege is missing, not the log." },
-    { promptUk: "Роль DBA в обліковці веб-застосунку:", promptEn: "The DBA role on a web application account:", options: ["Дає заширокі права коду", "Потрібна для кожного SELECT", "Замінює квоту", "Ховає ORA-12514"], correctIndex: 0, explanationUk: "Помилка застосунку стає адміністративною.", explanationEn: "An application bug becomes administrative." },
+    { promptUk: "Без CREATE SESSION користувач:", promptEn: "Without CREATE SESSION the user:", options: ["Входить як SYS", "Не отримує сесію", "Бачить усі PDB", "Має квоту UNLIMITED"], optionsEn: ["Logs in as SYS", "Cannot establish a session", "Sees all PDBs", "Has UNLIMITED quota"], correctIndex: 1, explanationUk: "Вхід — окреме право.", explanationEn: "Login is a separate privilege." },
+    { promptUk: "DB_DEVELOPER_ROLE:", promptEn: "DB_DEVELOPER_ROLE:", options: ["Це роль DBA", "Є в Oracle 11g", "З’явилась у 23ai і не дорівнює DBA", "Дає лише SELECT на dual"], optionsEn: ["It is the DBA role", "Exists in Oracle 11g", "Introduced in 23ai and distinct from DBA", "Grants only SELECT on dual"], correctIndex: 2, explanationUk: "На 19c її немає.", explanationEn: "It does not exist on 19c." },
+    { promptUk: "Перевірено, що бракує SELECT на одну таблицю. Що надати?", promptEn: "SELECT on one table is confirmed missing. What should be granted?", options: ["Зміною пароля", "Відкриттям PDB$SEED", "Вимкненням redo", "GRANT на цей об’єкт"], optionsEn: ["Change the password", "Open PDB$SEED", "Disable redo", "GRANT on this object"], correctIndex: 3, explanationUk: "Бракує права, не журналу.", explanationEn: "A privilege is missing, not the log." },
+    { promptUk: "Роль DBA в обліковці веб-застосунку:", promptEn: "The DBA role on a web application account:", options: ["Дає заширокі права коду", "Потрібна для кожного SELECT", "Замінює квоту", "Ховає ORA-12514"], optionsEn: ["Gives the application excessive privileges", "Is needed for every SELECT", "Replaces quota", "Hides ORA-12514"], correctIndex: 0, explanationUk: "Помилка застосунку стає адміністративною.", explanationEn: "An application bug becomes administrative." },
   ]),
   pack("dba-storage", "Сховище", "Storage", storage, "Контрольна: сховище", "Exam: storage", [
-    { promptUk: "Дані застосунку кладуть у:", promptEn: "Application data belongs in:", options: ["SYSTEM поруч зі словником", "Окремий табличний простір, не SYSTEM", "Лише в TEMP", "Control file"], correctIndex: 1, explanationUk: "SYSTEM — для словника.", explanationEn: "SYSTEM is for the dictionary." },
-    { promptUk: "ORA-01536 при вільному місці у файлі:", promptEn: "ORA-01536 while the file still has free space:", options: ["Закінчився redo завжди", "Хибний сервіс", "Вичерпано квоту користувача", "Мутує таблиця"], correctIndex: 2, explanationUk: "Квота і розмір файлу — різні стелі.", explanationEn: "Quota and file size are different ceilings." },
-    { promptUk: "ORA-01653 після QUOTA UNLIMITED:", promptEn: "ORA-01653 after QUOTA UNLIMITED:", options: ["Лікується CREATE SESSION", "Означає хибний пароль", "Зникає після GRANT DBA", "Сегмент не може взяти екстент"], correctIndex: 3, explanationUk: "Файл або диск не росте.", explanationEn: "The file or the disk cannot grow." },
-    { promptUk: "Повний SYSTEM спочатку:", promptEn: "A full SYSTEM is handled first by:", options: ["Діагнозом контейнера і сегмента", "DROP USER SYS", "Вимкненням LGWR", "Видачею DBA усім"], correctIndex: 0, explanationUk: "У просторі лежить словник.", explanationEn: "The dictionary lives in that tablespace." },
+    { promptUk: "Дані застосунку кладуть у:", promptEn: "Application data belongs in:", options: ["SYSTEM поруч зі словником", "Окремий табличний простір, не SYSTEM", "Лише в TEMP", "Control file"], optionsEn: ["SYSTEM alongside the dictionary", "A separate tablespace, not SYSTEM", "Only TEMP", "The control file"], correctIndex: 1, explanationUk: "SYSTEM — для словника.", explanationEn: "SYSTEM is for the dictionary." },
+    { promptUk: "ORA-01536 при вільному місці у файлі:", promptEn: "ORA-01536 while the file still has free space:", options: ["Закінчився redo завжди", "Хибний сервіс", "Вичерпано квоту власника сегмента", "Мутує таблиця"], optionsEn: ["Redo always ran out", "The wrong service", "The segment owner’s quota is exhausted", "A mutating table"], correctIndex: 2, explanationUk: "Квота і розмір файлу — різні стелі.", explanationEn: "Quota and file size are different ceilings." },
+    { promptUk: "ORA-01653 після QUOTA UNLIMITED:", promptEn: "ORA-01653 after QUOTA UNLIMITED:", options: ["Лікується CREATE SESSION", "Означає хибний пароль", "Зникає після GRANT DBA", "Сегмент не може взяти екстент"], optionsEn: ["Fixed by CREATE SESSION", "Means a bad password", "Disappears after GRANT DBA", "The segment cannot allocate an extent"], correctIndex: 3, explanationUk: "Файл або диск не росте.", explanationEn: "The file or the disk cannot grow." },
+    { promptUk: "Повний SYSTEM спочатку:", promptEn: "A full SYSTEM is handled first by:", options: ["Діагнозом контейнера і сегмента", "DROP USER SYS", "Вимкненням LGWR", "Видачею DBA усім"], optionsEn: ["Diagnosing the container and segment", "DROP USER SYS", "Disabling LGWR", "Granting DBA to everyone"], correctIndex: 0, explanationUk: "У просторі лежить словник.", explanationEn: "The dictionary lives in that tablespace." },
   ]),
 ];

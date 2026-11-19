@@ -10921,6 +10921,12 @@ const newUnits: UnitContent[] = [
               "I need two TESTS, if tests are not the contrast.",
               "I need two tests — усі слова рівні, без піка."
             ],
+            "optionsEn": [
+              "I need TWO tests, not one.",
+              "I NEED two tests, when the only contrast is the number.",
+              "I need two TESTS, when tests are not the contrast.",
+              "I need two tests with equal stress on every word."
+            ],
             "correctIndex": 0,
             "explanationUk": "Протиставляється кількість — TWO.",
             "explanationEn": "The number is contrasted — TWO."
@@ -18444,6 +18450,12 @@ const newUnits: UnitContent[] = [
               "Yes (коли маєте на увазі no).",
               "That's interesting як повна згода завжди."
             ],
+            "optionsEn": [
+              "I see your point, but I look at it differently.",
+              "No. You're wrong.",
+              "Yes, when you actually mean no.",
+              "That's interesting always means agreement."
+            ],
             "correctIndex": 0,
             "explanationUk": "Визнати точку зору і додати свою з but.",
             "explanationEn": "Acknowledge the point and add yours with but."
@@ -18736,6 +18748,12 @@ const newUnits: UnitContent[] = [
               "I don't know. (і тиша)",
               "He must forgot."
             ],
+            "optionsEn": [
+              "It depends, but two factors are X and Y.",
+              "Yes, and stop there.",
+              "I don't know, and stop there.",
+              "He must forgot."
+            ],
             "correctIndex": 0,
             "explanationUk": "It depends + фактори — природний хід.",
             "explanationEn": "It depends plus factors is a natural move."
@@ -18851,6 +18869,12 @@ const newUnits: UnitContent[] = [
               "No. You're wrong.",
               "That's interesting як повна згода завжди.",
               "Yes, коли маєте на увазі no."
+            ],
+            "optionsEn": [
+              "I see your point, but I look at it differently.",
+              "No. You're wrong.",
+              "That's interesting always means agreement.",
+              "Yes, when you actually mean no."
             ],
             "correctIndex": 0,
             "explanationUk": "I see your point, but…",
@@ -19090,6 +19114,12 @@ const newUnits: UnitContent[] = [
               "Off track. (без плану)",
               "See the git log."
             ],
+            "optionsEn": [
+              "Users can now export a report in one click.",
+              "We refactored the orchestrator, as the only sentence.",
+              "Off track, without details.",
+              "See the git log."
+            ],
             "correctIndex": 0,
             "explanationUk": "Користь для користувача, не внутрішній жаргон.",
             "explanationEn": "A benefit for the user, not internal jargon."
@@ -19187,6 +19217,12 @@ const newUnits: UnitContent[] = [
               "Everything is fine. (коли логін не працює)",
               "It is all the vendor's fault, as a first public sentence with no facts.",
               "Resolved. (коли ще розслідуєте)"
+            ],
+            "optionsEn": [
+              "We are investigating a login issue and will update you by 14:30 EET.",
+              "Everything is fine, when users cannot log in.",
+              "It is all the vendor's fault, as a first public sentence with no facts.",
+              "Resolved, before it has been verified."
             ],
             "correctIndex": 0,
             "explanationUk": "Чесно: знаємо, діємо, наступне оновлення о цій годині.",
@@ -19454,6 +19490,12 @@ const newUnits: UnitContent[] = [
               "Inna ruined it.",
               "No blockers. (коли три дні немає доступу, і ви мовчите про це)"
             ],
+            "optionsEn": [
+              "Yesterday I finished the export. Today I'll start filters. Blocker: waiting on staging access.",
+              "Let me demo thirty minutes of code.",
+              "Inna ruined it.",
+              "No blockers, when access is actually blocked and you do not mention it."
+            ],
             "correctIndex": 0,
             "explanationUk": "Вчора, сьогодні, блокер — по одному реченню.",
             "explanationEn": "Yesterday, today, a blocker — one sentence each."
@@ -19479,6 +19521,12 @@ const newUnits: UnitContent[] = [
               "Inna ruined it.",
               "Нічого не казати про проблеми.",
               "Перетворити ретро на оцінку story points."
+            ],
+            "optionsEn": [
+              "The hand-off was late. Next time I would add a checklist.",
+              "Inna ruined it.",
+              "Say nothing about the problem.",
+              "Measure a person by the number of story points."
             ],
             "correctIndex": 0,
             "explanationUk": "Факт і дія, без персонального звинувачення.",
@@ -19617,6 +19665,12 @@ const newUnits: UnitContent[] = [
               "Inna ruined it як стандартний формат",
               "сорокахвилинне демо коду як норма",
               "оцінка всіх епіків заново"
+            ],
+            "optionsEn": [
+              "Yesterday, today, a blocker",
+              "Inna ruined it, with personal blame",
+              "A thirty-minute code demonstration",
+              "Say there are no blockers when there is one"
             ],
             "correctIndex": 0,
             "explanationUk": "Коротко три пункти.",

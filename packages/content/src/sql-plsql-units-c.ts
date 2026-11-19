@@ -63,13 +63,13 @@ const packages: TeachSpec[] = [
     titleUk: "Стан пакета в сесії",
     titleEn: "Package state in a session",
     difficulty: 3,
-    pointsUk: ["Змінна пакета живе до кінця сесії", "Інша сесія має власну копію", "Публічна змінна видима коду цієї сесії"],
-    pointsEn: ["A package variable lives until the session ends", "Another session has its own copy", "A public variable is visible to code in that session"],
+    pointsUk: ["Стан пакета зазвичай живе протягом сесії", "Інша сесія має власну копію", "Публічна змінна видима коду цієї сесії"],
+    pointsEn: ["Package state normally lasts for the session", "Another session has its own copy", "A public variable is visible to code in that session"],
     conceptUk:
-      "Змінна, оголошена в тілі пакета, зберігає значення між викликами тієї самої сесії. Друга сесія починає зі свого значення і не бачить чужий лічильник. Це не спільна пам’ять усього екземпляра. Не кладіть пароль у публічну змінну: будь-який код сесії, який бачить пакет, може його прочитати. PRAGMA SERIALLY_REUSABLE скидає стан після виклику, якщо справді потрібне чисте місце.",
+      "Змінна, оголошена в тілі пакета, зберігає значення між викликами тієї самої сесії. Друга сесія починає зі свого значення і не бачить чужий лічильник. Це не спільна пам’ять усього екземпляра. Перекомпіляція тіла може скинути стан і спричинити ORA-04068; пул з’єднань повторно використовує сесії. Не кладіть пароль у публічну змінну: будь-який код сесії, який бачить пакет, може його прочитати. PRAGMA SERIALLY_REUSABLE скидає стан після виклику, якщо справді потрібне чисте місце.",
     conceptEn:
-      "A variable declared in the package body keeps its value between calls in the same session. A second session starts with its own value and does not see the other counter. This is not memory shared by the whole instance. Do not store a password in a public variable: any code in the session that can see the package can read it. PRAGMA SERIALLY_REUSABLE clears state after a call when you truly need a clean slate.",
-    code: "PACKAGE BODY emp_api AS\n  g_calls NUMBER := 0;\n  PROCEDURE set_bonus(...) IS\n  BEGIN\n    g_calls := g_calls + 1;\n  END;\nEND;",
+      "A variable declared in the package body keeps its value between calls in the same session. A second session starts with its own value and does not see the other counter. This is not memory shared by the whole instance. Recompiling the body can discard state and raise ORA-04068; a connection pool reuses sessions. Do not store a password in a public variable: any code in the session that can see the package can read it. PRAGMA SERIALLY_REUSABLE clears state after a call when you truly need a clean slate.",
+    code: "PACKAGE BODY emp_api AS\n  g_calls NUMBER := 0;\n  PROCEDURE set_bonus(p_id NUMBER, p_bonus NUMBER) IS\n  BEGIN\n    g_calls := g_calls + 1;\n  END;\nEND;",
     worked: {
       promptUk: "Сесія А двічі викликала set_bonus. Сесія Б викликає вперше. Що в g_calls у сесії Б на початку тіла?",
       promptEn: "Session A called set_bonus twice. Session B calls it for the first time. What is g_calls in session B at the start of the body?",
@@ -106,13 +106,13 @@ const packages: TeachSpec[] = [
     titleUk: "Секція ініціалізації",
     titleEn: "Initialization section",
     difficulty: 4,
-    pointsUk: ["Код після процедур тіла виконується раз на сесію", "Помилка ініціалізації доходить до викликача", "Наступний виклик пробує ініціалізацію знову"],
-    pointsEn: ["Code after the body's procedures runs once per session", "An initialization error reaches the caller", "The next call tries initialization again"],
+    pointsUk: ["Ініціалізація виконується для екземпляра пакета в сесії", "Помилка ініціалізації доходить до викликача", "Стан може бути втрачений після перекомпіляції"],
+    pointsEn: ["Initialization runs for the session’s package instance", "An initialization error reaches the caller", "Recompilation can discard state"],
     conceptUk:
-      "У кінці тіла, після процедур, можна написати BEGIN … END. Ця секція виконується один раз, коли сесія вперше звертається до пакета. Тут зручно заповнити довідковий кеш. Якщо секція падає, перший виклик отримує виняток, а пакет у цій сесії лишається неініціалізованим. Наступний виклик пробує секцію знову. Не ставте туди DML, який має виконуватись на кожен запит.",
+      "У кінці тіла, після процедур, можна написати BEGIN … END. Ця секція виконується один раз, коли сесія вперше звертається до пакета. Тут зручно заповнити довідковий кеш. Якщо секція падає, перший виклик отримує виняток, а пакет у цій сесії лишається неініціалізованим. Життєвий цикл стану залежить від інвалідації та конфігурації; після перекомпіляції стан може бути скинуто. Не ставте туди DML, який має виконуватись на кожен запит.",
     conceptEn:
-      "At the end of the body, after the procedures, you can write BEGIN … END. That section runs once, when the session first touches the package. It is a good place to fill a lookup cache. If the section fails, the first call receives the exception and the package stays uninitialized in that session. The next call tries the section again. Do not put DML there that must run on every request.",
-    code: "PACKAGE BODY emp_api AS\n  g_rate NUMBER;\n  PROCEDURE set_bonus(...) IS BEGIN NULL; END;\nBEGIN\n  SELECT rate INTO g_rate FROM tax_rate WHERE code = 'STD';\nEND emp_api;",
+      "At the end of the body, after the procedures, you can write BEGIN … END. That section runs once, when the session first touches the package. It is a good place to fill a lookup cache. If the section fails, the first call receives the exception and the package stays uninitialized in that session. The state lifecycle depends on invalidation and configuration; recompilation can discard state. Do not put DML there that must run on every request.",
+    code: "PACKAGE BODY emp_api AS\n  g_rate NUMBER;\n  PROCEDURE set_bonus(p_id NUMBER, p_bonus NUMBER) IS BEGIN NULL; END;\nBEGIN\n  SELECT rate INTO g_rate FROM tax_rate WHERE code = 'STD';\nEND emp_api;",
     worked: {
       promptUk: "SELECT у секції ініціалізації не знайшов рядок і підняв NO_DATA_FOUND. Перший виклик:",
       promptEn: "The SELECT in the initialization section found no row and raised NO_DATA_FOUND. The first call:",
@@ -125,8 +125,8 @@ const packages: TeachSpec[] = [
     },
     retrieval: {
       kind: "mcq",
-      promptUk: "Скільки разів за сесію виконується успішна секція ініціалізації?",
-      promptEn: "How many times per session does a successful initialization section run?",
+      promptUk: "Скільки разів виконується успішна секція ініціалізації для одного екземпляра пакета в сесії?",
+      promptEn: "How many times does successful initialization run for one package instance in a session?",
       code: "",
       options: ["На кожен SQL-рядок", "Один раз", "На кожен COMMIT", "Лише після DROP"],
       optionsEn: ["Once per SQL row", "Once", "Once per COMMIT", "Only after DROP"],
@@ -134,15 +134,15 @@ const packages: TeachSpec[] = [
       explanationUk: "Повторні виклики вже бачать готові змінні.",
       explanationEn: "Later calls already see the prepared variables.",
     },
-    whyUk: "Поясніть, що станеться з наступним викликом, якщо ініціалізація пакета впала.",
-    whyEn: "Explain what happens on the next call if package initialization failed.",
+    whyUk: "Поясніть, коли виконується ініціалізація пакета і що бачить викликач при необробленій помилці.",
+    whyEn: "Explain when package initialization runs and what the caller sees on an unhandled error.",
     ideas: [
       { labelUk: "виняток", labelEn: "exception", anyOf: ["винят", "exception", "no_data", "помил", "error"] },
       { labelUk: "не ініціалізовано", labelEn: "not initialized", anyOf: ["не ініці", "not init", "uninitial"] },
-      { labelUk: "спроба знову", labelEn: "tries again", anyOf: ["знов", "again", "наступ", "next"] },
+      { labelUk: "екземпляр пакета", labelEn: "package instance", anyOf: ["сесі", "session", "екземпляр", "instance"] },
     ],
-    sampleUk: "Перший виклик отримує виняток, і пакет у сесії лишається не ініціалізованим. Наступний виклик пробує секцію ініціалізації знову.",
-    sampleEn: "The first call receives the exception, and the package in that session stays not initialized. The next call tries the initialization section again.",
+    sampleUk: "Секція виконується під час ініціалізації екземпляра пакета в сесії. Необроблений виняток доходить до першого викликача, тому код має обробляти невдалу ініціалізацію.",
+    sampleEn: "The section runs during initialization of the session package instance. An unhandled exception reaches the first caller, so the application must handle initialization failure.",
   }),
 ];
 
@@ -180,15 +180,15 @@ const triggers: TeachSpec[] = [
       explanationUk: "Старого рядка ще не було.",
       explanationEn: "There was no old row yet.",
     },
-    whyUk: "Поясніть, чому перевірку нової зарплати ставлять у BEFORE ROW, а не в AFTER ROW.",
-    whyEn: "Explain why a new-salary check belongs in BEFORE ROW rather than AFTER ROW.",
+    whyUk: "Поясніть різницю між зміною :NEW у BEFORE ROW і перевіркою значення в AFTER ROW.",
+    whyEn: "Explain the difference between changing :NEW in BEFORE ROW and validating it in AFTER ROW.",
     ideas: [
       { labelUk: ":NEW", labelEn: ":NEW", anyOf: [":new", "new"] },
       { labelUk: "до запису", labelEn: "before the write", anyOf: ["before", "до запис", "до змін"] },
       { labelUk: "AFTER не змінює", labelEn: "AFTER does not change it", anyOf: ["after", "04084", "не змін", "cannot"] },
     ],
-    sampleUk: "BEFORE ROW ще може змінити :NEW до запису рядка. AFTER ROW змінити :NEW вже не може, тому перевірка нової зарплати там запізня.",
-    sampleEn: "BEFORE ROW can still change :NEW before the row is written. AFTER ROW cannot change :NEW, so a new-salary check there is too late.",
+    sampleUk: "BEFORE ROW може змінити :NEW до запису. AFTER ROW не може присвоювати :NEW, але може перевірити значення та підняти виняток; для простої умови краще розглянути CHECK.",
+    sampleEn: "BEFORE ROW can change :NEW before the write. AFTER ROW cannot assign to :NEW but can validate the value and raise an exception; consider CHECK for a simple rule.",
   }),
   L({
     slug: "sqlf-pl-trg-stmt",
@@ -242,7 +242,7 @@ const triggers: TeachSpec[] = [
       "Рядковий тригер на emp, який робить SELECT COUNT(*) INTO v_n FROM emp, читає таблицю посеред її ж зміни. Oracle зупиняє це помилкою ORA-04091, mutating table. Так база захищає тригер від непередбаченого набору рядків. Обхід: зібрати ключі в рядовому тригері, а запит до emp виконати в AFTER STATEMENT або складеному тригері (compound trigger, з 11g). Автономна транзакція, щоб «просто прочитати», ховає проблему і бачить не ті дані.",
     conceptEn:
       "A row trigger on emp that runs SELECT COUNT(*) INTO v_n FROM emp reads the table in the middle of its own change. Oracle stops that with ORA-04091, mutating table. The database is protecting the trigger from an unpredictable row set. The workaround is to collect keys in the row trigger and query emp in AFTER STATEMENT, or use a compound trigger (since 11g). An autonomous transaction that 'just reads' hides the problem and sees the wrong data.",
-    code: "AFTER UPDATE ON emp\nFOR EACH ROW\nBEGIN\n  SELECT COUNT(*) INTO v_n FROM emp;\nEND;",
+    code: "CREATE OR REPLACE TRIGGER emp_count_trg\nAFTER UPDATE ON emp\nFOR EACH ROW\nDECLARE\n  v_n NUMBER;\nBEGIN\n  SELECT COUNT(*) INTO v_n FROM emp;\nEND;",
     worked: {
       promptUk: "Цей рядковий тригер під час UPDATE emp:",
       promptEn: "This row trigger during UPDATE emp:",
@@ -285,9 +285,9 @@ const collections: TeachSpec[] = [
     pointsUk: ["Associative array індексується в PL/SQL", "Nested table може бути і колонкою", "VARRAY має верхню межу"],
     pointsEn: ["An associative array is indexed in PL/SQL", "A nested table can also be a column", "A VARRAY has an upper bound"],
     conceptUk:
-      "У PL/SQL три поширені колекції. Асоціативний масив (INDEX BY PLS_INTEGER або VARCHAR2) живе в пам’яті сесії і зручний як словник. Nested table — це список без фіксованої стелі, його можна передати в SQL через тип схеми. VARRAY має максимальну кількість елементів, задану в типі. Порожній nested table — не NULL, якщо ви його ініціалізували конструктором type(). Неініціалізована колекція дає помилку при зверненні.",
+      "У PL/SQL три поширені колекції. Асоціативний масив (INDEX BY PLS_INTEGER або VARCHAR2) живе в пам’яті сесії і зручний як словник. Nested table — це список без фіксованої стелі, його можна передати в SQL через тип схеми. VARRAY має максимальну кількість елементів, задану в типі. Порожній nested table — не NULL, якщо ви його ініціалізували конструктором type(). Для атомарно NULL nested table або VARRAY більшість операцій викликають COLLECTION_IS_NULL; метод EXISTS є винятком. Асоціативний масив починається порожнім і не потребує конструктора.",
     conceptEn:
-      "PL/SQL has three common collections. An associative array (INDEX BY PLS_INTEGER or VARCHAR2) lives in session memory and works well as a dictionary. A nested table is a list without a fixed ceiling, and a schema-level type can pass it into SQL. A VARRAY has a maximum element count declared on the type. An empty nested table is not NULL once you construct it with type(). An uninitialized collection errors when you touch it.",
+      "PL/SQL has three common collections. An associative array (INDEX BY PLS_INTEGER or VARCHAR2) lives in session memory and works well as a dictionary. A nested table is a list without a fixed ceiling, and a schema-level type can pass it into SQL. A VARRAY has a maximum element count declared on the type. An empty nested table is not NULL once you construct it with type(). For an atomically NULL nested table or VARRAY most operations raise COLLECTION_IS_NULL; EXISTS is an exception. An associative array starts empty and needs no constructor.",
     code: "TYPE id_list IS TABLE OF NUMBER;\nTYPE id_map IS TABLE OF NUMBER INDEX BY PLS_INTEGER;\nv_ids id_list := id_list();",
     worked: {
       promptUk: "Потрібен словник «код відділу → назва» лише в пам’яті сесії. Найпростіший тип:",
@@ -369,9 +369,9 @@ const collections: TeachSpec[] = [
     pointsUk: ["FORALL відправляє DML пачкою", "SAVE EXCEPTIONS збирає помилки рядків", "Успішні рядки лишаються в транзакції"],
     pointsEn: ["FORALL sends DML as a batch", "SAVE EXCEPTIONS collects row errors", "Successful rows stay in the transaction"],
     conceptUk:
-      "FORALL i IN 1 .. v_ids.COUNT виконує один і той самий DML для елементів колекції з меншою кількістю перемикань, ніж цикл з UPDATE всередині. Якщо індекси з дірками, діапазон 1 .. COUNT не підходить: беріть INDICES OF. SAVE EXCEPTIONS не зупиняє пачку на першій помилці. Після FORALL, якщо були збої, керування йде в обробник, а SQL%BULK_EXCEPTIONS містить номери. Успішні зміни не відкочуються самі: вирішіть COMMIT чи ROLLBACK усієї транзакції.",
+      "FORALL i IN 1 .. v_ids.COUNT виконує один і той самий DML для елементів колекції з меншою кількістю перемикань, ніж цикл з UPDATE всередині. Якщо індекси з дірками, діапазон 1 .. COUNT не підходить: беріть INDICES OF. SAVE EXCEPTIONS не зупиняє пачку на першій помилці. Після FORALL, якщо були збої, керування йде в обробник, а SQL%BULK_EXCEPTIONS містить інформацію про невдалі ітерації та коди помилок. Успішні зміни не відкочуються самі: вирішіть COMMIT чи ROLLBACK усієї транзакції.",
     conceptEn:
-      "FORALL i IN 1 .. v_ids.COUNT runs the same DML for collection elements with fewer switches than a loop that contains UPDATE. If the indexes have gaps, the range 1 .. COUNT does not fit: use INDICES OF. SAVE EXCEPTIONS does not stop the batch at the first error. After FORALL, if anything failed, control goes to the handler and SQL%BULK_EXCEPTIONS holds the indexes. Successful changes do not roll back by themselves: you decide COMMIT or ROLLBACK for the whole transaction.",
+      "FORALL i IN 1 .. v_ids.COUNT runs the same DML for collection elements with fewer switches than a loop that contains UPDATE. If the indexes have gaps, the range 1 .. COUNT does not fit: use INDICES OF. SAVE EXCEPTIONS does not stop the batch at the first error. After FORALL, if anything failed, control goes to the handler and SQL%BULK_EXCEPTIONS holds failed iteration information and error codes. Successful changes do not roll back by themselves: you decide COMMIT or ROLLBACK for the whole transaction.",
     code: "BEGIN\n  FORALL i IN INDICES OF v_ids SAVE EXCEPTIONS\n    UPDATE emp SET bonus = 0 WHERE emp_id = v_ids(i);\nEXCEPTION\n  WHEN OTHERS THEN\n    v_bad := SQL%BULK_EXCEPTIONS.COUNT;\nEND;",
     worked: {
       promptUk: "З п’яти UPDATE два порушили CHECK. FORALL був із SAVE EXCEPTIONS, обробник спрацював. Успішні три:",
@@ -496,13 +496,13 @@ const dynamicSql: TeachSpec[] = [
     titleUk: "Перевірка процедури і відкат",
     titleEn: "Testing a procedure, then rolling back",
     difficulty: 4,
-    pointsUk: ["Тест сам піднімає помилку, якщо очікування не збіглось", "Після перевірки потрібен ROLLBACK", "Друк у DBMS_OUTPUT не є вердиктом"],
-    pointsEn: ["The test raises if the expectation misses", "After the check you need ROLLBACK", "Printing with DBMS_OUTPUT is not a verdict"],
+    pointsUk: ["Тест сам піднімає помилку, якщо очікування не збіглось", "Відкатіть тестові зміни і при успіху, і при помилці", "Друк у DBMS_OUTPUT не є вердиктом"],
+    pointsEn: ["The test raises if the expectation misses", "Roll back test changes on both success and failure", "Printing with DBMS_OUTPUT is not a verdict"],
     conceptUk:
-      "Живий сервер для цього курсу не потрібен, але сценарій перевірки варто вміти прочитати. Процедура assert_equal порівнює факт і очікування і викликає RAISE_APPLICATION_ERROR, якщо вони різні. Тестовий блок вставляє рядок, викликає пакет, перевіряє число і робить ROLLBACK, щоб не лишити сміття в спільній схемі. COMMIT у тесті забруднює дані наступного запуску. DBMS_OUTPUT.PUT_LINE лише друкує: червоний тест без винятку виглядає як успіх.",
+      "Живий сервер для цього курсу не потрібен, але сценарій перевірки варто вміти прочитати. Процедура assert_equal порівнює факт і очікування і викликає RAISE_APPLICATION_ERROR, якщо вони різні. Тест ставить SAVEPOINT, вставляє рядок і перевіряє результат. ROLLBACK TO потрібен і після успіху, і в обробнику перед RAISE: після помилки звичайне виконання переходить до EXCEPTION, оминаючи наступні команди. Це працює, лише якщо перевірюваний код не зробив COMMIT, DDL чи незалежних автономних змін; для таких випадків потрібна ізольована база та окреме очищення. DBMS_OUTPUT.PUT_LINE лише друкує: червоний тест без винятку виглядає як успіх.",
     conceptEn:
-      "This course does not need a live server, but you should be able to read a test scenario. assert_equal compares the actual value with the expected one and calls RAISE_APPLICATION_ERROR when they differ. The test block inserts a row, calls the package, checks the number, and issues ROLLBACK so it does not leave trash in a shared schema. A COMMIT in the test pollutes the next run. DBMS_OUTPUT.PUT_LINE only prints: a failing test with no exception looks like success.",
-    code: "BEGIN\n  INSERT INTO emp(emp_id, salary) VALUES (-1, 100);\n  emp_api.set_bonus(-1, 15);\n  assert_equal(bonus_of(-1), 15);\n  ROLLBACK;\nEND;",
+      "This course does not need a live server, but you should be able to read a test scenario. assert_equal compares the actual value with the expected one and calls RAISE_APPLICATION_ERROR when they differ. The test sets a SAVEPOINT, inserts a row, and checks the result. ROLLBACK TO is needed on success and in the handler before RAISE: an error transfers control to EXCEPTION, skipping later statements. This works only if the code under test has not committed, issued DDL, or made independent autonomous changes; those cases need an isolated database and separate cleanup. DBMS_OUTPUT.PUT_LINE only prints: a failing test with no exception looks like success.",
+    code: "BEGIN\n  SAVEPOINT before_test;\n  INSERT INTO emp(emp_id, salary) VALUES (-1, 100);\n  emp_api.set_bonus(-1, 15);\n  assert_equal(bonus_of(-1), 15);\n  ROLLBACK TO before_test;\nEXCEPTION\n  WHEN OTHERS THEN\n    ROLLBACK TO before_test;\n    RAISE;\nEND;",
     worked: {
       promptUk: "Тест надрукував 'expected 15 got 0' через DBMS_OUTPUT і завершився без винятку. Це:",
       promptEn: "The test printed 'expected 15 got 0' through DBMS_OUTPUT and ended with no exception. This is:",
@@ -515,14 +515,14 @@ const dynamicSql: TeachSpec[] = [
     },
     retrieval: {
       kind: "mcq",
-      promptUk: "Після вставки тестового рядка в спільну таблицю варто:",
-      promptEn: "After inserting a test row into a shared table you should:",
+      promptUk: "За умови, що перевірюваний код не робить COMMIT або DDL, як прибрати зміни після SAVEPOINT навіть при помилці?",
+      promptEn: "Assuming the tested code does not COMMIT or issue DDL, how do you remove changes after a SAVEPOINT even on failure?",
       code: "",
-      options: ["COMMIT, щоб інші тести бачили рядок", "ROLLBACK", "DROP USER", "GRANT DBA"],
-      optionsEn: ["COMMIT, so other tests see the row", "ROLLBACK", "DROP USER", "GRANT DBA"],
+      options: ["COMMIT, щоб інші тести бачили рядок", "ROLLBACK TO у звичайному шляху та обробнику помилок", "DROP USER", "GRANT DBA"],
+      optionsEn: ["COMMIT, so other tests see the row", "ROLLBACK TO on both the normal and exception paths", "DROP USER", "GRANT DBA"],
       correctIndex: 1,
-      explanationUk: "Відкат прибирає дані тесту.",
-      explanationEn: "A rollback removes the test data.",
+      explanationUk: "ROLLBACK TO прибирає зміни після точки; в обробнику після очищення повторно підніміть помилку.",
+      explanationEn: "ROLLBACK TO removes changes after the savepoint; re-raise the failure after cleanup in the handler.",
     },
     whyUk: "Поясніть, чому тестовий блок має підняти виняток і зробити ROLLBACK.",
     whyEn: "Explain why a test block should raise an exception and issue ROLLBACK.",
@@ -531,34 +531,34 @@ const dynamicSql: TeachSpec[] = [
       { labelUk: "ROLLBACK", labelEn: "ROLLBACK", anyOf: ["rollback", "відкат"] },
       { labelUk: "не лишати дані", labelEn: "leave no data", anyOf: ["дані", "data", "сміт", "trash", "shared", "спіль"] },
     ],
-    sampleUk: "Якщо очікування не збіглось, тест піднімає виняток, інакше блок виглядає успішним. ROLLBACK прибирає тестові дані зі спільної таблиці.",
-    sampleEn: "If the expectation misses, the test raises an exception. Otherwise the block looks successful. ROLLBACK removes the test data from the shared table.",
+    sampleUk: "Якщо очікування не збіглось, тест піднімає виняток. ROLLBACK TO прибирає тестові дані після savepoint і в нормальному шляху, і в обробнику; обробник повторно піднімає помилку.",
+    sampleEn: "If the expectation misses, the test raises an exception. ROLLBACK TO removes test data after the savepoint on both normal and exception paths; the handler re-raises the failure.",
   }),
 ];
 
 export const plsqlUnitsC: UnitContent[] = [
   pack("plsql-packages", "Пакети", "Packages", packages, "Контрольна: пакети", "Exam: packages", [
-    { promptUk: "Викликачі компілюються проти:", promptEn: "Callers compile against:", options: ["Приватних змінних тіла", "Специфікації", "Alert log", "Control file"], correctIndex: 1, explanationUk: "Контракт — специфікація.", explanationEn: "The contract is the specification." },
-    { promptUk: "g_calls у двох сесіях:", promptEn: "g_calls in two sessions:", options: ["Завжди однаковий", "Зберігається в UNDO назавжди", "У кожної сесії свій", "Видно лише SYS"], correctIndex: 2, explanationUk: "Стан пакета сесійний.", explanationEn: "Package state is per session." },
-    { promptUk: "Успішна ініціалізація за сесію:", promptEn: "A successful initialization per session:", options: ["На кожен рядок", "На кожен тригер", "Лише після ANALYZE", "Один раз"], correctIndex: 3, explanationUk: "Далі використовуються готові змінні.", explanationEn: "Later calls use the prepared variables." },
-    { promptUk: "Пароль у публічній змінній пакета:", promptEn: "A password in a public package variable:", options: ["Читається кодом цієї сесії, який бачить пакет", "Зашифрований автоматично", "Видно іншим сесіям як V$SESSION", "Це рекомендований гаманець"], correctIndex: 0, explanationUk: "Публічне ім’я доступне в сесії.", explanationEn: "A public name is reachable inside the session." },
+    { promptUk: "Викликачі компілюються проти:", promptEn: "Callers compile against:", options: ["Приватних змінних тіла", "Специфікації", "Alert log", "Control file"], optionsEn: ["Private body variables", "The specification", "Alert log", "Control file"], correctIndex: 1, explanationUk: "Контракт — специфікація.", explanationEn: "The contract is the specification." },
+    { promptUk: "g_calls у двох сесіях:", promptEn: "g_calls in two sessions:", options: ["Завжди однаковий", "Зберігається в UNDO назавжди", "У кожної сесії свій", "Видно лише SYS"], optionsEn: ["Always identical", "Stored in UNDO forever", "Separate in each session", "Visible only to SYS"], correctIndex: 2, explanationUk: "Стан пакета сесійний.", explanationEn: "Package state is per session." },
+    { promptUk: "Успішна ініціалізація одного екземпляра пакета в сесії:", promptEn: "Successful initialization of one package instance in a session:", options: ["На кожен рядок", "На кожен тригер", "Лише після ANALYZE", "Один раз"], optionsEn: ["For every row", "For every trigger", "Only after ANALYZE", "Once per instance"], correctIndex: 3, explanationUk: "Далі використовуються готові змінні.", explanationEn: "Later calls use the prepared variables." },
+    { promptUk: "Пароль у публічній змінній пакета:", promptEn: "A password in a public package variable:", options: ["Читається кодом цієї сесії, який бачить пакет", "Зашифрований автоматично", "Видно іншим сесіям як V$SESSION", "Це рекомендований гаманець"], optionsEn: ["Readable by code in this session that can access the package", "Automatically encrypted", "Visible to other sessions as V$SESSION", "The recommended wallet"], correctIndex: 0, explanationUk: "Публічне ім’я доступне в сесії.", explanationEn: "A public name is reachable inside the session." },
   ]),
   pack("plsql-triggers", "Тригери", "Triggers", triggers, "Контрольна: тригери", "Exam: triggers", [
-    { promptUk: "Змінити :NEW.salary можна в:", promptEn: "You can change :NEW.salary in:", options: ["AFTER ROW", "BEFORE ROW", "Лише в GRANT", "У звіті DBMS_XPLAN"], correctIndex: 1, explanationUk: "AFTER дає ORA-04084.", explanationEn: "AFTER raises ORA-04084." },
-    { promptUk: "UPDATE 100 рядків і тригер без FOR EACH ROW:", promptEn: "UPDATE of 100 rows and a trigger without FOR EACH ROW:", options: ["100 викликів", "0 викликів", "1 виклик", "Виклик на кожен індекс"], correctIndex: 2, explanationUk: "Це тригер оператора.", explanationEn: "That is a statement trigger." },
-    { promptUk: "SELECT з emp у рядковому тригері на emp:", promptEn: "SELECT from emp in a row trigger on emp:", options: ["Рекомендований аудит", "Завжди 0", "Потребує QUALIFY", "ORA-04091"], correctIndex: 3, explanationUk: "Таблиця мутує.", explanationEn: "The table is mutating." },
-    { promptUk: "На INSERT :OLD:", promptEn: "On INSERT, :OLD is:", options: ["Порожній", "Копія наступного рядка", "Обов’язково від’ємний", "Рядок з dual"], correctIndex: 0, explanationUk: "Старого рядка немає.", explanationEn: "There is no old row." },
+    { promptUk: "Змінити :NEW.salary можна в:", promptEn: "You can change :NEW.salary in:", options: ["AFTER ROW", "BEFORE ROW", "Лише в GRANT", "У звіті DBMS_XPLAN"], optionsEn: ["AFTER ROW", "BEFORE ROW", "Only in GRANT", "In a DBMS_XPLAN report"], correctIndex: 1, explanationUk: "AFTER дає ORA-04084.", explanationEn: "AFTER raises ORA-04084." },
+    { promptUk: "UPDATE 100 рядків і тригер без FOR EACH ROW:", promptEn: "UPDATE of 100 rows and a trigger without FOR EACH ROW:", options: ["100 викликів", "0 викликів", "1 виклик", "Виклик на кожен індекс"], optionsEn: ["100 invocations", "0 invocations", "1 invocation", "One invocation per index"], correctIndex: 2, explanationUk: "Це тригер оператора.", explanationEn: "That is a statement trigger." },
+    { promptUk: "SELECT з emp у рядковому тригері на emp:", promptEn: "SELECT from emp in a row trigger on emp:", options: ["Рекомендований аудит", "Завжди 0", "Потребує QUALIFY", "ORA-04091"], optionsEn: ["Recommended auditing", "Always 0", "Requires QUALIFY", "ORA-04091"], correctIndex: 3, explanationUk: "Таблиця мутує.", explanationEn: "The table is mutating." },
+    { promptUk: "На INSERT :OLD:", promptEn: "On INSERT, :OLD is:", options: ["Порожній", "Копія наступного рядка", "Обов’язково від’ємний", "Рядок з dual"], optionsEn: ["Empty", "A copy of the next row", "Always negative", "A row from dual"], correctIndex: 0, explanationUk: "Старого рядка немає.", explanationEn: "There is no old row." },
   ]),
   pack("plsql-collections", "Колекції і пачкові операції", "Collections and bulk operations", collections, "Контрольна: колекції", "Exam: collections", [
-    { promptUk: "Словник у пам’яті сесії:", promptEn: "A dictionary in session memory:", options: ["Лише VARRAY(1)", "Асоціативний масив", "Control file", "Тригер оператора"], correctIndex: 1, explanationUk: "INDEX BY дає ключ.", explanationEn: "INDEX BY supplies the key." },
-    { promptUk: "LIMIT у FETCH BULK COLLECT:", promptEn: "LIMIT on FETCH BULK COLLECT:", options: ["Заборонений у PL/SQL", "Замінює WHERE", "Тримає розмір порції", "Робить COMMIT"], correctIndex: 2, explanationUk: "Інакше PGA може забрати всю таблицю.", explanationEn: "Otherwise PGA can take the whole table." },
-    { promptUk: "Після SAVE EXCEPTIONS успішні рядки:", promptEn: "After SAVE EXCEPTIONS, successful rows:", options: ["Зникають самі", "Пишуться в recycle bin", "Стають NULL", "Лишаються в транзакції"], correctIndex: 3, explanationUk: "Відкат — окреме рішення.", explanationEn: "Rollback is a separate decision." },
-    { promptUk: "Дірки в індексах колекції:", promptEn: "Gaps in collection indexes:", options: ["FORALL … INDICES OF", "Завжди 1 .. COUNT", "Лише SQL%ROWCOUNT", "Лише :NEW"], correctIndex: 0, explanationUk: "Щільний діапазон чіпає відсутні індекси.", explanationEn: "A dense range touches missing indexes." },
+    { promptUk: "Словник у пам’яті сесії:", promptEn: "A dictionary in session memory:", options: ["Лише VARRAY(1)", "Асоціативний масив", "Control file", "Тригер оператора"], optionsEn: ["Only VARRAY(1)", "An associative array", "Control file", "A statement trigger"], correctIndex: 1, explanationUk: "INDEX BY дає ключ.", explanationEn: "INDEX BY supplies the key." },
+    { promptUk: "LIMIT у FETCH BULK COLLECT:", promptEn: "LIMIT on FETCH BULK COLLECT:", options: ["Заборонений у PL/SQL", "Замінює WHERE", "Тримає розмір порції", "Робить COMMIT"], optionsEn: ["Forbidden in PL/SQL", "Replaces WHERE", "Bounds the batch size", "Issues COMMIT"], correctIndex: 2, explanationUk: "Інакше PGA може забрати всю таблицю.", explanationEn: "Otherwise PGA can take the whole table." },
+    { promptUk: "Після SAVE EXCEPTIONS успішні рядки:", promptEn: "After SAVE EXCEPTIONS, successful rows:", options: ["Зникають самі", "Пишуться в recycle bin", "Стають NULL", "Лишаються в транзакції"], optionsEn: ["Disappear on their own", "Go to the recycle bin", "Become NULL", "Remain in the transaction"], correctIndex: 3, explanationUk: "Відкат — окреме рішення.", explanationEn: "Rollback is a separate decision." },
+    { promptUk: "Дірки в індексах колекції:", promptEn: "Gaps in collection indexes:", options: ["FORALL … INDICES OF", "Завжди 1 .. COUNT", "Лише SQL%ROWCOUNT", "Лише :NEW"], optionsEn: ["FORALL … INDICES OF", "Always 1 .. COUNT", "Only SQL%ROWCOUNT", "Only :NEW"], correctIndex: 0, explanationUk: "Щільний діапазон чіпає відсутні індекси.", explanationEn: "A dense range touches missing indexes." },
   ]),
   pack("plsql-dynamic", "Динамічний SQL, тести і підсумок розробника", "Dynamic SQL, testing, and a developer capstone", dynamicSql, "Контрольна: динамічний SQL", "Exam: dynamic SQL", [
-    { promptUk: "Значення фільтра в динамічний SQL передають:", promptEn: "A filter value in dynamic SQL is passed by:", options: ["Вклеюванням у лапки", "USING", "GRANT", "FETCH FIRST"], correctIndex: 1, explanationUk: "USING відділяє дані від тексту.", explanationEn: "USING separates data from text." },
-    { promptUk: "FROM :t не працює, бо:", promptEn: "FROM :t fails because:", options: ["Немає PL/SQL", "Бракує індексу", "Зв’язана змінна не є ім’ям об’єкта", "Потрібен AFTER ROW"], correctIndex: 2, explanationUk: "Ім’я — це структура запиту.", explanationEn: "The name is the statement structure." },
-    { promptUk: "Друк очікування через DBMS_OUTPUT без RAISE:", promptEn: "Printing the expectation with DBMS_OUTPUT and no RAISE:", options: ["Валить блок", "Замінює ROLLBACK", "Пише RMAN", "Не дає вердикту провалу"], correctIndex: 3, explanationUk: "Блок завершується успішно.", explanationEn: "The block ends successfully." },
-    { promptUk: "Тестова вставка в спільну таблицю закінчується:", promptEn: "A test insert into a shared table should end with:", options: ["ROLLBACK", "COMMIT завжди", "DROP TABLE", "GRANT DBA"], correctIndex: 0, explanationUk: "Інакше сміття лишається наступним тестам.", explanationEn: "Otherwise trash remains for the next test." },
+    { promptUk: "Значення фільтра в динамічний SQL передають:", promptEn: "A filter value in dynamic SQL is passed by:", options: ["Вклеюванням у лапки", "USING", "GRANT", "FETCH FIRST"], optionsEn: ["Concatenation inside quotes", "USING", "GRANT", "FETCH FIRST"], correctIndex: 1, explanationUk: "USING відділяє дані від тексту.", explanationEn: "USING separates data from text." },
+    { promptUk: "FROM :t не працює, бо:", promptEn: "FROM :t fails because:", options: ["Немає PL/SQL", "Бракує індексу", "Зв’язана змінна не є ім’ям об’єкта", "Потрібен AFTER ROW"], optionsEn: ["There is no PL/SQL", "An index is missing", "A bind variable is not an object name", "AFTER ROW is required"], correctIndex: 2, explanationUk: "Ім’я — це структура запиту.", explanationEn: "The name is the statement structure." },
+    { promptUk: "Друк очікування через DBMS_OUTPUT без RAISE:", promptEn: "Printing the expectation with DBMS_OUTPUT and no RAISE:", options: ["Валить блок", "Замінює ROLLBACK", "Пише RMAN", "Не дає вердикту провалу"], optionsEn: ["Fails the block", "Replaces ROLLBACK", "Writes RMAN", "Does not produce a failure verdict"], correctIndex: 3, explanationUk: "Блок завершується успішно.", explanationEn: "The block ends successfully." },
+    { promptUk: "Код без COMMIT і DDL тестується після SAVEPOINT. Як прибрати зміни і при помилці?", promptEn: "Code with no COMMIT or DDL is tested after a SAVEPOINT. How are changes removed on failure too?", options: ["ROLLBACK TO точки тесту при успіху і помилці", "COMMIT завжди", "DROP TABLE", "GRANT DBA"], optionsEn: ["ROLLBACK TO the test savepoint on success and failure", "Always COMMIT", "DROP TABLE", "GRANT DBA"], correctIndex: 0, explanationUk: "Інакше сміття лишається наступним тестам.", explanationEn: "Otherwise trash remains for the next test." },
   ]),
 ];

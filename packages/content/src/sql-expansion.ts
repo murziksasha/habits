@@ -13,15 +13,16 @@ function teach(
 }
 
 function exam4(
-  rows: [string, string, string[], number, string, string][],
+  rows: [string, string, string[], number, string, string, string[]][],
 ): ExamSpec[] {
-  return rows.map(([promptUk, promptEn, options, correctIndex, explanationUk, explanationEn]) => ({
+  return rows.map(([promptUk, promptEn, options, correctIndex, explanationUk, explanationEn, optionsEn]) => ({
     promptUk,
     promptEn,
     options,
     correctIndex,
     explanationUk,
     explanationEn,
+    optionsEn,
   }));
 }
 
@@ -129,27 +130,27 @@ const modernSelect: TeachSpec[] = [
     titleEn: "BOOLEAN in CHECK and WHERE",
     difficulty: 3,
     pointsUk: [
-      "CHECK приймає TRUE і UNKNOWN",
+      "CHECK приймає TRUE і UNKNOWN; IS TRUE повертає FALSE для NULL",
       "WHERE відкидає UNKNOWN",
       "Не плутайте 'Y'/'N' зі справжнім BOOLEAN",
     ],
     pointsEn: [
-      "CHECK accepts TRUE and UNKNOWN",
+      "CHECK accepts TRUE and UNKNOWN; IS TRUE returns FALSE for NULL",
       "WHERE rejects UNKNOWN",
       "Do not confuse 'Y'/'N' with a real BOOLEAN",
     ],
-    conceptUk: "CHECK істинний, якщо вираз TRUE або UNKNOWN: рядок з NULL у BOOLEAN не порушує CHECK (active IS TRUE). WHERE, навпаки, лишає лише TRUE. Старий шаблон CHAR(1) з 'Y'/'N' не має IS TRUE. Це розходження легко зловити на таблиці результату з трьох рядків.",
-    conceptEn: "A CHECK succeeds when the expression is TRUE or UNKNOWN: a NULL boolean does not violate CHECK (active IS TRUE). WHERE keeps only TRUE. The old CHAR(1) 'Y'/'N' pattern has no IS TRUE. A three-row result table makes the split obvious.",
-    code: "ALTER TABLE flags ADD CONSTRAINT flags_on CHECK (active IS TRUE);\n-- рядок active = UNKNOWN проходить CHECK, але не проходить WHERE active IS TRUE",
+    conceptUk: "CHECK не відхиляє UNKNOWN, але важливо обчислити весь вираз: NULL IS TRUE дає FALSE. Отже CHECK (active IS TRUE) відхиляє NULL і FALSE. Натомість CHECK (active) отримує UNKNOWN для NULL і пропускає його; WHERE active залишає лише TRUE.",
+    conceptEn: "CHECK does not reject UNKNOWN, but evaluate the entire expression: NULL IS TRUE is FALSE. Thus CHECK (active IS TRUE) rejects NULL and FALSE. By contrast CHECK (active) receives UNKNOWN for NULL and accepts it; WHERE active keeps only TRUE.",
+    code: "ALTER TABLE flags ADD CONSTRAINT flags_on CHECK (active IS TRUE);\n-- NULL IS TRUE = FALSE, тому CHECK відхиляє NULL",
     worked: {
       promptUk: "Рядок active = UNKNOWN і CHECK (active IS TRUE). Що станеться на INSERT?",
       promptEn: "Row active = UNKNOWN and CHECK (active IS TRUE). What happens on INSERT?",
       code: "CHECK (active IS TRUE)",
-      options: ["INSERT заборонено", "INSERT дозволено, бо UNKNOWN не порушує CHECK", "Колонка стає FALSE", "Помилка компіляції на 26ai"],
-      optionsEn: ["INSERT is rejected", "INSERT is allowed, because UNKNOWN does not violate CHECK", "The column becomes FALSE", "Compile error on 26ai"],
-      correctIndex: 1,
-      explanationUk: "UNKNOWN не робить CHECK хибним. Той самий рядок зникне у WHERE active IS TRUE.",
-      explanationEn: "UNKNOWN does not make the CHECK false. The same row disappears from WHERE active IS TRUE.",
+      options: ["INSERT заборонено", "INSERT дозволено, бо NULL IS TRUE є UNKNOWN", "Колонка стає FALSE", "Помилка компіляції на 26ai"],
+      optionsEn: ["INSERT is rejected", "INSERT is allowed because NULL IS TRUE is UNKNOWN", "The column becomes FALSE", "Compile error on 26ai"],
+      correctIndex: 0,
+      explanationUk: "NULL IS TRUE дорівнює FALSE, тому CHECK відхиляє рядок. На відміну від цього CHECK (active) отримав би UNKNOWN і пропустив NULL.",
+      explanationEn: "NULL IS TRUE is FALSE, so CHECK rejects the row. By contrast CHECK (active) would receive UNKNOWN and allow NULL.",
     },
     retrieval: {
       kind: "mcq",
@@ -157,19 +158,20 @@ const modernSelect: TeachSpec[] = [
       promptEn: "Why is CHAR(1) 'Y'/'N' weaker than BOOLEAN on 26ai?",
       code: "",
       options: ["BOOLEAN заборонений у SQL", "Можна записати 'X', і немає IS TRUE", "CHAR не індексується", "BOOLEAN займає більше місця завжди"],
+      optionsEn: ["BOOLEAN is forbidden in SQL", "CHAR can contain 'X' and has no IS TRUE", "CHAR cannot be indexed", "BOOLEAN always takes more space"],
       correctIndex: 1,
       explanationUk: "Рядок 'X' проходить у CHAR(1) без окремого CHECK. BOOLEAN має лише три значення.",
       explanationEn: "'X' fits in CHAR(1) unless you add a CHECK. BOOLEAN has only three values.",
     },
-    whyUk: "Поясніть, чому рядок з UNKNOWN проходить CHECK, але не потрапляє у вибірку WHERE IS TRUE.",
-    whyEn: "Explain why an UNKNOWN row passes a CHECK but is absent from WHERE IS TRUE.",
+    whyUk: "Порівняйте CHECK (active) і CHECK (active IS TRUE) для NULL та поясніть результат WHERE.",
+    whyEn: "Compare CHECK (active) and CHECK (active IS TRUE) for NULL and explain the WHERE result.",
     ideas: [
       { labelUk: "CHECK і UNKNOWN", labelEn: "CHECK and UNKNOWN", anyOf: ["check", "unknown"] },
       { labelUk: "WHERE лише TRUE", labelEn: "WHERE only TRUE", anyOf: ["where", "true"] },
       { labelUk: "три значення", labelEn: "three values", anyOf: ["false", "boolean", "null"] },
     ],
-    sampleUk: "CHECK (active IS TRUE) пропускає UNKNOWN, бо CHECK не вважає unknown порушенням. WHERE active IS TRUE лишає лише TRUE, тож FALSE і UNKNOWN зникають.",
-    sampleEn: "CHECK (active IS TRUE) allows UNKNOWN, because a CHECK does not treat unknown as a violation. WHERE active IS TRUE keeps only TRUE, so FALSE and UNKNOWN disappear.",
+    sampleUk: "CHECK (active) пропускає NULL, бо значення виразу UNKNOWN. Але NULL IS TRUE дає FALSE, тому CHECK (active IS TRUE) відхиляє рядок. WHERE active IS TRUE також його відфільтровує.",
+    sampleEn: "CHECK (active) allows NULL because its expression is UNKNOWN. But NULL IS TRUE is FALSE, so CHECK (active IS TRUE) rejects the row. WHERE active IS TRUE also filters it out.",
   }),
 ];
 
@@ -180,17 +182,17 @@ const grouping: TeachSpec[] = [
     titleEn: "GROUP BY alias",
     difficulty: 3,
     pointsUk: [
-      "23ai: GROUP BY може посилатись на псевдонім або позицію",
+      "23ai: GROUP BY може посилатись на псевдонім; позиція залежить від налаштування",
       "На 19c вираз у GROUP BY треба повторити",
       "Псевдонім SELECT не видно в WHERE",
     ],
     pointsEn: [
-      "23ai: GROUP BY may use a select alias or position",
+      "23ai: GROUP BY may use a select alias; position depends on a setting",
       "On 19c you repeat the expression in GROUP BY",
       "A SELECT alias is still invisible to WHERE",
     ],
-    conceptUk: `Oracle AI Database 23ai дозволяє GROUP BY salary_band або GROUP BY 1, якщо це псевдонім чи позиція списку SELECT. На 19c це ORA-00904: вираз CASE треба повторити в GROUP BY. WHERE як і раніше не бачить псевдоніми SELECT — фільтр після агрегації лишається HAVING. ${V.uk}`,
-    conceptEn: `Oracle AI Database 23ai allows GROUP BY salary_band or GROUP BY 1 when that is a select-list alias or position. On 19c that is ORA-00904: repeat the CASE expression in GROUP BY. WHERE still cannot see SELECT aliases — a filter after aggregation stays in HAVING. ${V.en}`,
+    conceptUk: `Oracle AI Database 23ai дозволяє GROUP BY salary_band як псевдонім списку SELECT. Групування за позицією потребує GROUP_BY_POSITION_ENABLED=TRUE, який за замовчуванням вимкнено. На 19c псевдонім не підтримується: вираз CASE треба повторити в GROUP BY. WHERE як і раніше не бачить псевдоніми SELECT — фільтр після агрегації лишається HAVING. ${V.uk}`,
+    conceptEn: `Oracle AI Database 23ai allows GROUP BY salary_band as a select-list alias. Grouping by position requires GROUP_BY_POSITION_ENABLED=TRUE, which is disabled by default. On 19c aliases are unsupported: repeat the CASE expression in GROUP BY. WHERE still cannot see SELECT aliases — a filter after aggregation stays in HAVING. ${V.en}`,
     code: "SELECT CASE WHEN salary >= 5000 THEN 'high' ELSE 'low' END AS salary_band,\n       COUNT(*) AS n\nFROM emp\nGROUP BY salary_band;",
     worked: {
       promptUk: "Запит з GROUP BY salary_band на 19c:",
@@ -208,6 +210,7 @@ const grouping: TeachSpec[] = [
       promptEn: "Where can you still not use a SELECT-list alias, even on 26ai?",
       code: "",
       options: ["ORDER BY", "WHERE", "GROUP BY псевдоніма в 26ai", "ORDER BY 1"],
+      optionsEn: ["ORDER BY", "WHERE", "GROUP BY an alias in 26ai", "ORDER BY 1"],
       correctIndex: 1,
       explanationUk: "WHERE обчислюється до списку SELECT, тому псевдонім там не існує.",
       explanationEn: "WHERE runs before the SELECT list, so the alias does not exist there yet.",
@@ -229,41 +232,41 @@ const grouping: TeachSpec[] = [
     difficulty: 4,
     pointsUk: [
       "QUALIFY фільтрує аналітику, як HAVING фільтрує GROUP BY",
-      "Це Oracle AI Database 26ai",
+      "Oracle AI Database 26ai з RU 23.26.0",
       "На 19c/21c/23ai без QUALIFY — зовнішній запит",
     ],
     pointsEn: [
       "QUALIFY filters analytics the way HAVING filters GROUP BY",
-      "This is Oracle AI Database 26ai",
+      "Oracle AI Database 26ai from RU 23.26.0",
       "On 19c/21c and 23ai without QUALIFY, use an outer query",
     ],
-    conceptUk: `QUALIFY у Oracle AI Database 26ai відбирає рядки за результатом аналітичної функції, без вкладеного запиту. Аналітика обчислюється після WHERE і GROUP BY, тому ROW_NUMBER() у WHERE — помилка на будь-якій версії. На 19c, 21c і початкових 23ai пишуть зовнішній SELECT навколо inline view. ${V.uk}`,
-    conceptEn: `QUALIFY in Oracle AI Database 26ai keeps rows by an analytic result, without a nested query. Analytics are computed after WHERE and GROUP BY, so ROW_NUMBER() in WHERE is an error on every version. On 19c, 21c, and early 23ai you wrap the query in an outer SELECT. ${V.en}`,
+    conceptUk: `QUALIFY у Oracle AI Database 26ai з RU 23.26.0 відбирає рядки за результатом аналітичної функції, без вкладеного запиту. Аналітика обчислюється після WHERE і GROUP BY, тому ROW_NUMBER() у WHERE — помилка на будь-якій версії. На 19c, 21c і початкових 23ai пишуть зовнішній SELECT навколо inline view.`,
+    conceptEn: `QUALIFY in Oracle AI Database 26ai from RU 23.26.0 keeps rows by an analytic result, without a nested query. Analytics are computed after WHERE and GROUP BY, so ROW_NUMBER() in WHERE is an error on every version. On 19c, 21c, and early 23ai you wrap the query in an outer SELECT.`,
     code: "SELECT dept_id, emp_id, salary,\n       RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) AS rnk\nFROM emp\nQUALIFY RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) = 1;",
     worked: {
       promptUk: "Чому цей фільтр недійсний?",
       promptEn: "Why is this filter invalid?",
       code: "SELECT emp_id,\n       ROW_NUMBER() OVER (ORDER BY salary DESC) AS rn\nFROM emp\nWHERE ROW_NUMBER() OVER (ORDER BY salary DESC) = 1;",
       options: [
-        "WHERE не бачить аналітику; потрібен зовнішній запит або QUALIFY (26ai)",
+        "WHERE не бачить аналітику; потрібен зовнішній запит або QUALIFY (26ai RU 23.26.0+)",
         "ROW_NUMBER заборонений",
         "Треба LIMIT 1",
         "PARTITION BY обов’язковий",
       ],
       optionsEn: [
-        "WHERE cannot see an analytic; use an outer query or QUALIFY (26ai)",
+        "WHERE cannot see an analytic; use an outer query or QUALIFY (26ai RU 23.26.0+)",
         "ROW_NUMBER is forbidden",
         "LIMIT 1 is required",
         "PARTITION BY is mandatory",
       ],
       correctIndex: 0,
-      explanationUk: "Аналітична функція рахується після WHERE. Фільтр за rn — у зовнішньому WHERE або в QUALIFY на 26ai.",
-      explanationEn: "The analytic is calculated after WHERE. Filter rn in an outer WHERE, or in QUALIFY on 26ai.",
+      explanationUk: "Аналітична функція рахується після WHERE. Фільтр за rn — у зовнішньому WHERE або в QUALIFY на 26ai RU 23.26.0+.",
+      explanationEn: "The analytic is calculated after WHERE. Filter rn in an outer WHERE, or in QUALIFY on 26ai RU 23.26.0+.",
     },
     retrieval: {
       kind: "fill",
-      promptUk: "Допишіть фільтр аналітики для 26ai",
-      promptEn: "Finish the analytic filter for 26ai",
+      promptUk: "Допишіть фільтр аналітики для 26ai RU 23.26.0+",
+      promptEn: "Finish the analytic filter for 26ai RU 23.26.0+",
       code: "SELECT dept_id, salary,\n       RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) AS rnk\nFROM emp\n___ RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) = 1;",
       accepted: ["QUALIFY", "qualify"],
       explanationUk: "QUALIFY стоїть після віконної функції і лишає рядки, де ранг дорівнює 1.",
@@ -276,8 +279,8 @@ const grouping: TeachSpec[] = [
       { labelUk: "QUALIFY або зовнішній запит", labelEn: "QUALIFY or outer query", anyOf: ["qualify", "зовніш", "outer", "вклад"] },
       { labelUk: "версія 26ai", labelEn: "26ai", anyOf: ["26", "19"] },
     ],
-    sampleUk: "Аналітика рахується після WHERE, тому умову за ROW_NUMBER там писати не можна. На 26ai її ставлять у QUALIFY, а на 19c ховають розрахунок у вкладений запит і фільтрують зовні.",
-    sampleEn: "An analytic is computed after WHERE, so a ROW_NUMBER test cannot go there. On 26ai you put it in QUALIFY; on 19c you hide the calculation in a nested query and filter outside.",
+    sampleUk: "Аналітика рахується після WHERE, тому умову за ROW_NUMBER там писати не можна. На 26ai RU 23.26.0+ її ставлять у QUALIFY, а на 19c ховають розрахунок у вкладений запит і фільтрують зовні.",
+    sampleEn: "An analytic is computed after WHERE, so a ROW_NUMBER test cannot go there. On 26ai RU 23.26.0+ you put it in QUALIFY; on 19c you hide the calculation in a nested query and filter outside.",
   }),
   teach({
     slug: "sqlf-grp-table",
@@ -337,6 +340,7 @@ function examModernSelect(): ExamSpec[] {
       1,
       "Це зміна SQL у 23ai. 19c потребує dual.",
       "This SQL change arrived in 23ai. 19c needs dual.",
+      ["Only PostgreSQL", "Oracle 23ai/26ai", "Oracle 11g", "Nowhere"],
     ],
     [
       "active IS TRUE істинне для:",
@@ -345,6 +349,7 @@ function examModernSelect(): ExamSpec[] {
       2,
       "IS TRUE не включає FALSE і UNKNOWN.",
       "IS TRUE does not include FALSE or UNKNOWN.",
+      ["FALSE", "UNKNOWN", "TRUE", "Any NULL"],
     ],
     [
       "До SQL BOOLEAN прапор зазвичай тримали в:",
@@ -353,14 +358,16 @@ function examModernSelect(): ExamSpec[] {
       3,
       "У SQL до 23ai типу BOOLEAN не було.",
       "SQL had no BOOLEAN type before 23ai.",
+      ["BOOLEAN in an 11g table", "Only BLOB", "Only XML", "NUMBER(1) or CHAR(1)"],
     ],
     [
       "CHECK (active IS TRUE) і значення UNKNOWN:",
       "CHECK (active IS TRUE) and the value UNKNOWN:",
-      ["Рядок приймається", "Рядок завжди відхиляється", "Колонка стає FALSE", "Потрібен тригер"],
-      0,
-      "UNKNOWN не порушує CHECK.",
-      "UNKNOWN does not violate a CHECK.",
+      ["Рядок приймається", "Рядок відхиляється", "Колонка стає FALSE", "Потрібен тригер"],
+      1,
+      "NULL IS TRUE дорівнює FALSE, тому CHECK відхиляє рядок.",
+      "NULL IS TRUE is FALSE, so CHECK rejects the row.",
+      ["The row is accepted", "The row is rejected", "The column becomes FALSE", "A trigger is required"],
     ],
   ]);
 }
@@ -374,6 +381,7 @@ function examGrouping(): ExamSpec[] {
       1,
       "Підтримка псевдоніма в GROUP BY з’явилась у 23ai.",
       "SELECT-alias support in GROUP BY arrived in 23ai.",
+      ["Works in 19c", "Works in 23ai/26ai", "Replaces HAVING", "Always forbidden"],
     ],
     [
       "ROW_NUMBER() у WHERE:",
@@ -382,14 +390,16 @@ function examGrouping(): ExamSpec[] {
       2,
       "WHERE виконується раніше за аналітику.",
       "WHERE runs before analytics.",
+      ["Normal for top-1", "Same as QUALIFY on 19c", "Error: analytics are not yet calculated", "Requires LIMIT"],
     ],
     [
-      "QUALIFY з’явився в:",
-      "QUALIFY arrived in:",
-      ["Oracle 12c", "Oracle 19c", "лише PostgreSQL", "Oracle AI Database 26ai"],
+      "QUALIFY підтримується в:",
+      "QUALIFY is supported in:",
+      ["Oracle 12c", "Oracle 19c", "лише PostgreSQL", "Oracle 26ai з RU 23.26.0"],
       3,
-      "На старіших випусках фільтр виносять у зовнішній запит.",
+      "На старіших випусках без QUALIFY фільтр виносять у зовнішній запит.",
       "On older releases the filter moves to an outer query.",
+      ["Oracle 12c", "Oracle 19c", "Only PostgreSQL", "Oracle 26ai RU 23.26.0 and later"],
     ],
     [
       "Нічия 100, 100, потім 80. DENSE_RANK:",
@@ -398,6 +408,7 @@ function examGrouping(): ExamSpec[] {
       0,
       "DENSE_RANK не пропускає номер після нічиєї.",
       "DENSE_RANK does not skip a number after a tie.",
+      ["1, 1, 2", "1, 1, 3", "1, 2, 3", "2, 2, 1"],
     ],
   ]);
 }

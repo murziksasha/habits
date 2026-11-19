@@ -15,10 +15,10 @@ Oracle SQL along the public 1Z0-071 checklist: SELECT, functions, joins, subquer
 
 ### `select` — SELECT and the model
 
-- `sqlf-rel-model` — Tables, keys, NULL (4 exercises)
+- `sqlf-rel-model` — Tables, keys, NULL (5 exercises)
 - `sqlf-select` — SELECT / FROM (4 exercises)
-- `sqlf-distinct-alias` — DISTINCT, aliases, expressions (4 exercises)
-- `sqlf-dual-quote` — DUAL, q-quote, concatenation (4 exercises)
+- `sqlf-distinct-alias` — DISTINCT, aliases, expressions (5 exercises)
+- `sqlf-dual-quote` — DUAL, q-quote, concatenation (5 exercises)
 - `sqlf-where` — WHERE filters (4 exercises)
 - `sqlf-select-exam` — Exam: SELECT [exam] (4 exercises)
 
@@ -26,87 +26,87 @@ Oracle SQL along the public 1Z0-071 checklist: SELECT, functions, joins, subquer
 
 - `sqlf-order` — Sorting (4 exercises)
 - `sqlf-limit` — LIMIT / OFFSET (4 exercises)
-- `sqlf-between-like` — BETWEEN, IN, LIKE (4 exercises)
-- `sqlf-fetch-nulls` — FETCH, NULLS, ROWNUM (4 exercises)
+- `sqlf-between-like` — BETWEEN, IN, LIKE (5 exercises)
+- `sqlf-fetch-nulls` — FETCH, NULLS, ROWNUM (5 exercises)
 - `sqlf-order-exam` — Exam: order/limit [exam] (4 exercises)
 
 ### `single-row` — Single-row functions
 
-- `sqlf-char-fn` — Character functions (4 exercises)
-- `sqlf-num-fn` — Numeric functions (4 exercises)
-- `sqlf-date-fn` — Dates (4 exercises)
+- `sqlf-char-fn` — Character functions (5 exercises)
+- `sqlf-num-fn` — Numeric functions (5 exercises)
+- `sqlf-date-fn` — Dates (5 exercises)
 - `sqlf-fn-exam` — Exam: character, number, date [exam] (6 exercises)
 
 ### `conversion` — Conversion, NULL, CASE
 
-- `sqlf-convert` — TO_CHAR, TO_DATE, TO_NUMBER (4 exercises)
-- `sqlf-null-fns` — NVL, NVL2, NULLIF, COALESCE (4 exercises)
-- `sqlf-case-decode` — CASE and DECODE (4 exercises)
+- `sqlf-convert` — TO_CHAR, TO_DATE, TO_NUMBER (5 exercises)
+- `sqlf-null-fns` — NVL, NVL2, NULLIF, COALESCE (5 exercises)
+- `sqlf-case-decode` — CASE and DECODE (5 exercises)
 - `sqlf-cv-exam` — Exam: conversion and conditions [exam] (6 exercises)
 
 ### `aggregates` — Aggregates
 
 - `sqlf-agg` — COUNT / SUM / AVG (4 exercises)
 - `sqlf-group` — GROUP BY / HAVING (4 exercises)
-- `sqlf-group-rules` — GROUP BY rules (4 exercises)
+- `sqlf-group-rules` — GROUP BY rules (5 exercises)
 - `sqlf-agg-exam` — Exam: aggregates [exam] (4 exercises)
 
 ### `joins` — JOINs
 
 - `sqlf-inner` — INNER JOIN (4 exercises)
 - `sqlf-left` — LEFT JOIN (4 exercises)
-- `sqlf-join-using` — USING, NATURAL, self join (4 exercises)
-- `sqlf-outer-traps` — OUTER, CROSS, WHERE traps (4 exercises)
+- `sqlf-join-using` — USING, NATURAL, self join (5 exercises)
+- `sqlf-outer-traps` — OUTER, CROSS, WHERE traps (5 exercises)
 - `sqlf-join-exam` — Exam: JOINs [exam] (4 exercises)
 
 ### `subqueries` — Subqueries
 
-- `sqlf-sq-single` — Single-row subquery (4 exercises)
-- `sqlf-sq-multi` — IN, ANY, ALL (4 exercises)
-- `sqlf-sq-exists` — Correlation and EXISTS (4 exercises)
+- `sqlf-sq-single` — Single-row subquery (6 exercises)
+- `sqlf-sq-multi` — IN, ANY, ALL (6 exercises)
+- `sqlf-sq-exists` — Correlation and EXISTS (5 exercises)
 - `sqlf-sq-exam` — Exam: subqueries [exam] (6 exercises)
 
 ### `set-ops` — Set operators
 
-- `sqlf-union` — UNION and UNION ALL (4 exercises)
-- `sqlf-minus-intersect` — INTERSECT and MINUS (4 exercises)
+- `sqlf-union` — UNION and UNION ALL (6 exercises)
+- `sqlf-minus-intersect` — INTERSECT and MINUS (5 exercises)
 - `sqlf-set-exam` — Exam: set operators [exam] (6 exercises)
 
 ### `dml` — INSERT / UPDATE / DELETE
 
 - `sqlf-insert` — INSERT (3 exercises)
 - `sqlf-update-delete` — UPDATE / DELETE (4 exercises)
-- `sqlf-merge` — MERGE and INSERT ALL (4 exercises)
-- `sqlf-tx` — COMMIT, ROLLBACK, SAVEPOINT (4 exercises)
+- `sqlf-merge` — MERGE and INSERT ALL (5 exercises)
+- `sqlf-tx` — COMMIT, ROLLBACK, SAVEPOINT (6 exercises)
 - `sqlf-dml-exam` — Exam: DML [exam] (4 exercises)
 
 ### `modeling` — Keys & modeling
 
 - `sqlf-keys` — PRIMARY / FOREIGN KEY (4 exercises)
 - `sqlf-index` — Indexes intro (4 exercises)
-- `sqlf-ddl-create` — CREATE TABLE and constraints (4 exercises)
-- `sqlf-ddl-alter` — ALTER, DROP, TRUNCATE (4 exercises)
+- `sqlf-ddl-create` — CREATE TABLE and constraints (5 exercises)
+- `sqlf-ddl-alter` — ALTER, DROP, TRUNCATE (5 exercises)
 - `sqlf-model-exam` — Exam: modeling [exam] (4 exercises)
 
 ### `schema-objects` — Sequences, views, synonyms
 
-- `sqlf-sequences` — Sequences (4 exercises)
-- `sqlf-views` — Views (4 exercises)
-- `sqlf-synonyms` — Synonyms and indexes (4 exercises)
+- `sqlf-sequences` — Sequences (6 exercises)
+- `sqlf-views` — Views (5 exercises)
+- `sqlf-synonyms` — Synonyms and indexes (6 exercises)
 - `sqlf-schema-exam` — Exam: schema objects [exam] (6 exercises)
 
 ### `access-dict` — Privileges, dictionary, time
 
-- `sqlf-grant` — GRANT and roles (4 exercises)
-- `sqlf-dictionary` — Data dictionary (4 exercises)
-- `sqlf-time` — Time zones (4 exercises)
+- `sqlf-grant` — GRANT and roles (5 exercises)
+- `sqlf-dictionary` — Data dictionary (5 exercises)
+- `sqlf-time` — Time zones (5 exercises)
 - `sqlf-access-exam` — Exam: access, dictionary, time [exam] (6 exercises)
 
 ### `windows` — NULL and window functions
 
-- `sqlf-null-coalesce` — NULL & COALESCE (4 exercises)
-- `sqlf-window-row` — ROW_NUMBER / OVER (3 exercises)
-- `sqlf-window-rank` — RANK vs DENSE_RANK (3 exercises)
+- `sqlf-null-coalesce` — NULL & COALESCE (5 exercises)
+- `sqlf-window-row` — ROW_NUMBER / OVER (5 exercises)
+- `sqlf-window-rank` — RANK vs DENSE_RANK (4 exercises)
 - `sqlf-window-exam` — Exam: windows [exam] (4 exercises)
 
 ### `query_repair_scenarios` — Scenario: Query Repair & Debugging
@@ -118,13 +118,13 @@ Oracle SQL along the public 1Z0-071 checklist: SELECT, functions, joins, subquer
 
 ### `dataset_diagnosis` — Dataset Result Diagnosis & Dialect Notes
 
-- `sqlf-dataset-predict` — Predict query output on a sample dataset (JOIN, NULL, COUNT) (3 exercises)
+- `sqlf-dataset-predict` — Predict query output on a sample dataset (JOIN, NULL, COUNT) (4 exercises)
 - `sqlf-ds-exam` — Exam: dataset diagnosis & SQL dialects [exam] (4 exercises)
 
 ### `capstone` — Capstone
 
-- `sqlf-capstone-query` — Scenario: users + orders (4 exercises)
-- `sqlf-cap-exam` — Final SQL exam [exam] (12 exercises)
+- `sqlf-capstone-query` — Scenario: users + orders (7 exercises)
+- `sqlf-cap-exam` — Final SQL exam [exam] (14 exercises)
 
 ## Depth now
 

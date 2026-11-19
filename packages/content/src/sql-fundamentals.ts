@@ -695,14 +695,18 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
     3,
     false,
     [
-      mcq(
+      concept("sqlf-capstone-concept", "Від запитання до запиту", "From question to query", {
+        uk: "Щоб підсумувати замовлення, з’єднайте користувачів із замовленнями за ключем і згрупуйте рядки за користувачем. INNER JOIN вилучає користувачів без замовлень; LEFT JOIN зберігає їх. Для стабільної пагінації ORDER BY має визначати однозначний порядок, наприклад за унікальним id. Фільтрування ROW_NUMBER залежить від версії Oracle.",
+        en: "To total orders, join users to orders by key and group rows by user. INNER JOIN excludes users without orders; LEFT JOIN keeps them. Stable pagination needs an ORDER BY that defines a unique order, for example by unique id. Filtering ROW_NUMBER depends on the Oracle version.",
+      }),
+      { ...mcq(
         "sqlf-c1",
         "Імена користувачів і сума їхніх замовлень:",
         "User names and the sum of their orders:",
         ["лише DROP", "JOIN і GROUP BY SUM", "лише DELETE", "EXPLAIN ANALYZE"],
         1,
-      ),
-      codeRead(
+      ), optionsEn: ["Only DROP", "JOIN and GROUP BY with SUM", "Only DELETE", "EXPLAIN ANALYZE"] },
+      { ...codeRead(
         "sqlf-c5",
         "Друга сторінка стрічки по 20 рядків на Oracle 12c і новіше:",
         "Second page of a feed, 20 rows, on Oracle 12c and later:",
@@ -710,18 +714,18 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
         "SELECT * FROM posts\nORDER BY id DESC\nOFFSET 20 ROWS\nFETCH NEXT 20 ROWS ONLY",
         ["LIMIT 20 OFFSET 20", "OFFSET і FETCH NEXT", "WITH RECURSIVE", "EXPLAIN ANALYZE"],
         1,
-      ),
-      mcq(
+      ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["LIMIT 20 OFFSET 20", "OFFSET and FETCH NEXT", "WITH RECURSIVE", "EXPLAIN ANALYZE"] },
+      { ...mcq(
         "sqlf-c6",
-        "Відібрати rn = 1 після ROW_NUMBER у тому самому SELECT. На Oracle 26ai це:",
-        "Keep rn = 1 after ROW_NUMBER in the same SELECT. On Oracle 26ai that is:",
+        "Відібрати rn = 1 після ROW_NUMBER у тому самому SELECT. На Oracle 26ai з RU 23.26.0+ це:",
+        "Keep rn = 1 after ROW_NUMBER in the same SELECT. On Oracle 26ai with RU 23.26.0+ that is:",
         ["WHERE rn = 1, бо аналітика вже відома в WHERE", "QUALIFY", "обов’язкове слово RECURSIVE", "GRANT SELECT"],
         1,
-      ),
+      ), optionsEn: ["WHERE rn = 1 because analytics are already available in WHERE", "QUALIFY", "The required RECURSIVE keyword", "GRANT SELECT"] },
       codeFill(
         "sqlf-c2",
-        "join orders",
-        "join orders",
+        "З’єднайте користувачів із замовленнями",
+        "Join users to orders",
         "sql",
         "FROM users u JOIN orders o ___ u.id = o.user_id",
         ["ON", "on"],
@@ -729,8 +733,8 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
       ),
       codeFill(
         "sqlf-c3",
-        "group",
-        "group",
+        "Згрупуйте за користувачем",
+        "Group by user",
         "sql",
         "SELECT u.id, SUM(o.total) FROM … ___ u.id;",
         ["GROUP BY", "group by"],
@@ -738,7 +742,7 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
       ),
       codeRead(
         "sqlf-c4",
-        "Users without orders:",
+        "Користувачі без замовлень:",
         "Users without orders:",
         "sql",
         "LEFT JOIN … WHERE o.id IS NULL",
@@ -753,138 +757,60 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
     codeFill("sqlf-ce3", "JOIN ON", "JOIN ON", "sql", "JOIN b ___ a.id = b.a_id", ["ON", "on"], false),
     codeFill("sqlf-ce4", "GROUP BY", "GROUP BY", "sql", "SELECT a, COUNT(*) FROM t ___ a;", ["GROUP BY", "group by"], false),
     codeFill("sqlf-ce5", "COUNT", "COUNT", "sql", "SELECT ___(*) FROM t;", ["COUNT", "count"], false),
-    mcq("sqlf-ce6", "LEFT JOIN keeps:", "LEFT JOIN keeps:", ["only matches", "left rows", "no left", "DDL"], 1),
-    mcq(
+    { ...mcq("sqlf-ce6", "LEFT JOIN зберігає:", "LEFT JOIN keeps:", ["лише збіги", "ліві рядки", "жодного лівого рядка", "DDL"], 1), optionsEn: ["Only matches", "Left rows", "No left rows", "DDL"] },
+    { ...mcq(
       "sqlf-ce7",
       "Фільтр аналітики QUALIFY належить до:",
       "The QUALIFY analytic filter belongs to:",
-      ["Oracle 11g", "Oracle 19c як єдина форма", "Oracle 26ai; раніше потрібен зовнішній запит", "лише PL/SQL"],
+      ["Oracle 11g", "Oracle 19c як єдина форма", "Oracle 26ai з RU 23.26.0+; в Oracle 19c використовують зовнішній запит", "лише PL/SQL"],
       2,
-    ),
-    mcq(
+    ), optionsEn: ["Oracle 11g", "Oracle 19c as the only form", "Oracle 26ai with RU 23.26.0+; Oracle 19c uses an outer query", "Only PL/SQL"] },
+    { ...mcq(
       "sqlf-ce8",
-      "now() і INTERVAL у діалекті Oracle замінюють на:",
-      "In Oracle dialect, now() and INTERVAL are replaced by:",
-      ["EXPLAIN ANALYZE", "WITH RECURSIVE", "LIMIT", "SYSDATE і арифметику днів"],
+      "Як отримати поточні дату і час типу DATE в Oracle?",
+      "How do you get the current date and time as a DATE in Oracle?",
+      ["EXPLAIN ANALYZE", "WITH RECURSIVE", "LIMIT", "SYSDATE"],
       3,
-    ),
+    ), optionsEn: ["EXPLAIN ANALYZE", "WITH RECURSIVE", "LIMIT", "SYSDATE"] },
     ...capstoneOracleExercises,
   ]),
 ]);
 
 const windowsU = unit("windows", "NULL і віконні функції", "NULL and window functions", [
-  lesson(
-    "sqlf-null-coalesce",
-    "NULL & COALESCE",
-    "NULL & COALESCE",
-    2,
-    true,
-    [
-      mcq(
-        "sqlf-nc1",
-        "NULL means:",
-        "NULL means:",
-        ["unknown / missing value", "always zero", "empty string always", "boolean false only"],
-        0,
-      ),
-      codeFill(
-        "sqlf-nc2",
-        "IS NULL",
-        "IS NULL",
-        "sql",
-        "SELECT * FROM t WHERE email ___ NULL;",
-        ["IS", "is"],
-        false,
-      ),
-      codeFill(
-        "sqlf-nc3",
-        "COALESCE",
-        "COALESCE",
-        "sql",
-        "SELECT ___(nickname, 'anon') FROM users;",
-        ["COALESCE", "coalesce"],
-        false,
-      ),
-      mcq(
-        "sqlf-nc4",
-        "1 = NULL evaluates to:",
-        "1 = NULL evaluates to:",
-        ["NULL (unknown), not TRUE", "TRUE always", "FALSE always", "syntax error always"],
-        0,
-      ),
-    ],
-  ),
-  lesson(
-    "sqlf-window-row",
-    "ROW_NUMBER / OVER",
-    "ROW_NUMBER / OVER",
-    3,
-    false,
-    [
-      mcq(
-        "sqlf-w1",
-        "Window functions keep:",
-        "Window functions keep:",
-        ["row detail + analytic value", "only aggregate one row", "drop table", "indexes only"],
-        0,
-      ),
-      codeFill(
-        "sqlf-w2",
-        "row number",
-        "row number",
-        "sql",
-        "SELECT ___() OVER (ORDER BY created_at) AS rn FROM t;",
-        ["ROW_NUMBER", "row_number"],
-        false,
-      ),
-      codeFill(
-        "sqlf-w3",
-        "partition",
-        "partition",
-        "sql",
-        "… OVER (___ BY user_id ORDER BY ts)",
-        ["PARTITION", "partition"],
-        false,
-      ),
-    ],
-  ),
-  lesson(
-    "sqlf-window-rank",
-    "RANK vs DENSE_RANK",
-    "RANK vs DENSE_RANK",
-    3,
-    false,
-    [
-      mcq(
-        "sqlf-w4",
-        "RANK after ties 1,1 next is:",
-        "RANK after ties 1,1 next is:",
-        ["3 (skips)", "2 always", "0", "null"],
-        0,
-      ),
-      mcq(
-        "sqlf-w5",
-        "DENSE_RANK after ties 1,1 next is:",
-        "DENSE_RANK after ties 1,1 next is:",
-        ["2 (no skip)", "3", "1 only", "error"],
-        0,
-      ),
-      codeFill(
-        "sqlf-w6",
-        "dense",
-        "dense",
-        "sql",
-        "SELECT ___(score) OVER (ORDER BY score DESC) FROM t;",
-        ["DENSE_RANK", "dense_rank"],
-        false,
-      ),
-    ],
-  ),
-  exam("sqlf-window-exam", "Контрольна: windows", "Exam: windows", 3, [
-    mcq("sqlf-we1", "OVER is used with:", "OVER is used with:", ["window funcs", "only DELETE", "only GRANT", "CSS"], 0),
-    codeFill("sqlf-we2", "ROW_NUMBER", "ROW_NUMBER", "sql", "___() OVER (ORDER BY id)", ["ROW_NUMBER", "row_number"], false),
-    mcq("sqlf-we3", "PARTITION BY:", "PARTITION BY:", ["groups window", "drops table", "renames DB", "locks only"], 0),
-    codeFill("sqlf-we4", "ORDER in window", "ORDER in window", "sql", "OVER (PARTITION BY u ___ BY ts)", ["ORDER", "order"], false),
+  lesson("sqlf-null-coalesce", "NULL і COALESCE", "NULL and COALESCE", 2, true, [
+    concept("sqlf-null-coalesce-concept", "Невідоме значення", "Unknown values", {
+      uk: "NULL позначає відсутнє або невідоме значення. Порівняння з ним через = чи <> зазвичай дає UNKNOWN, а WHERE залишає тільки TRUE. Для перевірки використовуйте IS NULL; COALESCE повертає перший не-NULL аргумент. Oracle також трактує порожній рядок як NULL.",
+      en: "NULL represents an absent or unknown value. Comparing with it using = or <> generally yields UNKNOWN, and WHERE keeps only TRUE. Use IS NULL to test for it; COALESCE returns the first non-NULL argument. Oracle also treats an empty string as NULL.",
+    }),
+    { ...mcq("sqlf-nc1", "Що означає NULL?", "What does NULL mean?", ["невідоме або відсутнє значення", "завжди нуль", "завжди порожній рядок", "лише логічне false"], 0), optionsEn: ["An unknown or missing value", "Always zero", "Always an empty string", "Only Boolean false"] },
+    codeFill("sqlf-nc2", "Перевірте відсутню адресу", "Test for a missing address", "sql", "SELECT * FROM t WHERE email ___ NULL;", ["IS", "is"], false, why("Для NULL використовують IS NULL, а не = NULL.", "Use IS NULL rather than = NULL.")),
+    codeFill("sqlf-nc3", "Оберіть перше відоме значення", "Choose the first known value", "sql", "SELECT ___(nickname, 'anon') FROM users;", ["COALESCE", "coalesce", "NVL", "nvl"], false, why("Для двох аргументів підійдуть COALESCE або NVL.", "For two arguments, COALESCE or NVL works.")),
+    { ...mcq("sqlf-nc4", "Результат порівняння 1 = NULL:", "The result of 1 = NULL:", ["UNKNOWN", "завжди TRUE", "завжди FALSE", "синтаксична помилка"], 0, why("UNKNOWN не проходить фільтр WHERE.", "UNKNOWN does not pass a WHERE filter.")), optionsEn: ["UNKNOWN", "Always TRUE", "Always FALSE", "A syntax error"] },
+  ]),
+  lesson("sqlf-window-row", "ROW_NUMBER і OVER", "ROW_NUMBER and OVER", 3, false, [
+    concept("sqlf-window-row-concept", "Номер у межах групи", "A number within a partition", {
+      uk: "Аналітична функція додає значення до рядків, не згортаючи їх як GROUP BY. PARTITION BY визначає незалежні групи, ORDER BY усередині OVER — порядок обчислення. ROW_NUMBER призначає різні номери навіть за однакових значень сортування; додайте унікальний ключ для стабільного результату. Зовнішній ORDER BY окремо задає порядок видачі.",
+      en: "An analytic function adds a value to rows without collapsing them like GROUP BY. PARTITION BY defines independent groups; ORDER BY inside OVER defines calculation order. ROW_NUMBER assigns different numbers even to ties; add a unique key for deterministic results. An outer ORDER BY separately controls output order.",
+    }),
+    { ...mcq("sqlf-w1", "Що зберігають віконні функції?", "What do window functions preserve?", ["деталі рядків разом з аналітичним значенням", "лише один агрегований рядок", "видаляють таблицю", "лише індекси"], 0), optionsEn: ["Row detail along with an analytic value", "Only one aggregated row", "They drop the table", "Only indexes"] },
+    codeFill("sqlf-w2", "Пронумеруйте рядки", "Number the rows", "sql", "SELECT ___() OVER (ORDER BY created_at, id) AS rn FROM t;", ["ROW_NUMBER", "row_number"], false, why("Унікальний id розв’язує нічиї за created_at, якщо id є ключем.", "A unique id breaks ties on created_at when id is a key.")),
+    codeFill("sqlf-w3", "Незалежні групи користувачів", "Independent user partitions", "sql", "OVER (___ BY user_id ORDER BY ts)", ["PARTITION", "partition"], false),
+    { ...mcq("sqlf-window-ties", "Два рядки мають однаковий created_at. Як зробити ROW_NUMBER відтворюваним, якщо id унікальний?", "Two rows share created_at. How can ROW_NUMBER be deterministic if id is unique?", ["Додати id до ORDER BY у OVER", "Прибрати ORDER BY", "Додати DISTINCT після запиту", "Замінити OVER на WHERE"], 0, why("Сортування за created_at, id задає однозначний порядок.", "Ordering by created_at, id establishes a unique order.")), optionsEn: ["Add id to ORDER BY inside OVER", "Remove ORDER BY", "Add DISTINCT after the query", "Replace OVER with WHERE"] },
+  ]),
+  lesson("sqlf-window-rank", "RANK і DENSE_RANK", "RANK and DENSE_RANK", 3, false, [
+    concept("sqlf-window-rank-concept", "Нічиї та пропущені місця", "Ties and skipped ranks", {
+      uk: "RANK і DENSE_RANK присвоюють однаковий ранг рядкам із однаковими значеннями сортування. Після двох перших місць RANK дає 3, а DENSE_RANK — 2. Аналітичні RANK() та DENSE_RANK() не приймають score як аргумент: значення вказують у ORDER BY всередині OVER.",
+      en: "RANK and DENSE_RANK assign the same rank to rows tied on the ordering values. After two first-place rows, RANK gives 3 and DENSE_RANK gives 2. Analytic RANK() and DENSE_RANK() do not take score as an argument: specify it in ORDER BY inside OVER.",
+    }),
+    { ...mcq("sqlf-w4", "Після нічиєї з рангами 1, 1 наступний RANK дорівнює:", "After tied ranks 1, 1, the next RANK is:", ["3", "2", "0", "NULL"], 0), optionsEn: ["3", "2", "0", "NULL"] },
+    { ...mcq("sqlf-w5", "Після нічиєї з рангами 1, 1 наступний DENSE_RANK дорівнює:", "After tied ranks 1, 1, the next DENSE_RANK is:", ["2", "3", "1", "помилка"], 0), optionsEn: ["2", "3", "1", "Error"] },
+    codeFill("sqlf-w6", "Щільне ранжування за спаданням балів", "Dense ranking by descending score", "sql", "SELECT ___() OVER (ORDER BY score DESC) FROM t;", ["DENSE_RANK", "dense_rank"], false, why("Аналітична функція має порожні дужки; поле сортування записують у OVER.", "The analytic function has empty parentheses; the ordering field goes inside OVER.")),
+  ]),
+  exam("sqlf-window-exam", "Контрольна: віконні функції", "Exam: window functions", 3, [
+    { ...mcq("sqlf-we1", "OVER використовують із:", "OVER is used with:", ["аналітичними функціями", "лише DELETE", "лише GRANT", "CSS"], 0), optionsEn: ["Analytic functions", "Only DELETE", "Only GRANT", "CSS"] },
+    codeFill("sqlf-we2", "Номер рядка", "Row number", "sql", "___() OVER (ORDER BY id)", ["ROW_NUMBER", "row_number"], false),
+    { ...mcq("sqlf-we3", "PARTITION BY:", "PARTITION BY:", ["визначає групи для аналітичного обчислення", "видаляє таблицю", "перейменовує базу", "лише блокує рядки"], 0), optionsEn: ["Defines partitions for analytic calculation", "Drops the table", "Renames the database", "Only locks rows"] },
+    codeFill("sqlf-we4", "Порядок усередині групи", "Order within a partition", "sql", "OVER (PARTITION BY u ___ BY ts)", ["ORDER", "order"], false),
   ]),
 ]);
 
@@ -900,7 +826,11 @@ const datasetDiagnosisU = unit(
       3,
       false,
       [
-        codeRead(
+        concept("sqlf-dataset-diagnosis-concept", "Перевірка результату за рядками", "Tracing query results row by row", {
+          uk: "Спочатку випишіть рядки після кожного JOIN, потім застосуйте фільтр і групування. LEFT JOIN створює NULL у колонках відсутнього збігу: COUNT(*) рахує такий рядок, але COUNT правого ключа — ні. Дві незалежні гілки 1:N можуть перемножити рядки; безпечно агрегуйте кожну гілку до одного рядка на ключ перед їх з’єднанням.",
+          en: "First list the rows after each JOIN, then apply filtering and grouping. LEFT JOIN supplies NULLs for a missing match: COUNT(*) counts that row, while COUNT of the right key does not. Two independent 1:N branches can multiply rows; safely aggregate each branch to one row per key before joining them.",
+        }),
+        { ...codeRead(
           "sqlf-ds1",
           "Дано: `users` = [(1, 'Ada'), (2, 'Bohdan')], `orders` = [(10, 1, 100), (11, 1, NULL)]. Що поверне цей запит?",
           "Dataset: `users` = [(1, 'Ada'), (2, 'Bohdan')], `orders` = [(10, 1, 100), (11, 1, NULL)]. What does this return?",
@@ -917,26 +847,26 @@ const datasetDiagnosisU = unit(
             "COUNT(column) ігнорує NULL (однак LEFT JOIN зберігає Bohdan із 0 замовлень, бо o.id є NULL).",
             "COUNT(column) ignores NULLs; LEFT JOIN keeps Bohdan with o.id = NULL so both counts are 0.",
           ),
-        ),
-        codeOutputMcq(
+        ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["(Ada, 2, 1) and (Bohdan, 0, 0): COUNT(o.id) counts two orders; COUNT(o.amount) skips NULL", "(Ada, 2, 2) and (Bohdan, 1, 1)", "Only (Ada, 2, 1), because LEFT JOIN filters out Bohdan", "(Ada, 1, 1) and (Bohdan, 0, 0)"] },
+        { ...codeOutputMcq(
           "sqlf-ds2",
-          "Діагностуйте хибне підсумовування: `users` має 1 рядок (Ada), `tasks` — 3 задачі, `comments` — 2 коментарі. Чому сума оцінок завищена вдвічі?",
+          "Діагностуйте хибне підсумовування: `users` має 1 рядок (Ada), `tasks` — 3 задачі по 10 балів, `comments` — 2 коментарі. Чому сума становить 60 замість 30?",
           "Diagnose inflated totals: 1 user, 3 tasks (10 pts each), 2 comments. Why does this return 60 instead of 30?",
           "sql",
           "SELECT u.id, SUM(t.points) AS pts\nFROM users u\nJOIN tasks t ON t.user_id = u.id\nJOIN comments c ON c.user_id = u.id\nGROUP BY u.id;",
           [
-            "Кросможливе множення двох зв'язків 1:N (3 tasks × 2 comments = 6 рядків до SUM)",
+            "Множення рядків двох зв'язків 1:N (3 tasks × 2 comments = 6 рядків до SUM)",
             "SUM() у SQL рахує кожен рядок двічі за замовчуванням",
             "JOIN повернув NULL",
             "GROUP BY u.id видалив дублікати неправильно",
           ],
           0,
           why(
-            "Дві незалежні таблиці 1:N в одному JOIN породжують декартове розмноження; агрегуйте одну гілку в CTE або підзапиті.",
-            "Joining two independent 1:N tables multiplies rows before SUM; pre-aggregate one branch in a subquery or CTE.",
+            "Дві незалежні таблиці 1:N в одному JOIN породжують декартове розмноження; агрегуйте обидві гілки до одного рядка на користувача перед їх з’єднанням.",
+            "Joining two independent 1:N tables multiplies rows before SUM; pre-aggregate both branches to one row per user before joining them.",
           ),
-        ),
-        mcq(
+        ) as Extract<Exercise, { type: "code_output" }>, optionsEn: ["Two independent 1:N joins multiply rows: 3 tasks × 2 comments = 6 rows before SUM", "SUM always counts every row twice", "JOIN returned NULL", "GROUP BY u.id removed duplicates incorrectly"] },
+        { ...mcq(
           "sqlf-ds3",
           "Яка відповідність між Oracle SQL (1Z0-071) та PostgreSQL коректна?",
           "Which Oracle SQL (1Z0-071) to PostgreSQL dialect mapping is accurate?",
@@ -948,21 +878,21 @@ const datasetDiagnosisU = unit(
           ],
           0,
           why(
-            "Знання діалектів дозволяє перенести реляційну теорію з Oracle на продакшн-PostgreSQL.",
-            "Knowing exact dialect mappings transfers Oracle fundamentals cleanly to PostgreSQL apps.",
+            "Це поширені відповідності для зазначених прикладів, але NVL і COALESCE можуть відрізнятися правилами типів та обчислення аргументів.",
+            "These are common mappings for the examples shown, but NVL and COALESCE can differ in type handling and argument evaluation.",
           ),
-        ),
+        ), optionsEn: ["Oracle NVL(a, b) / MINUS / FROM DUAL correspond in these examples to PostgreSQL COALESCE(a, b) / EXCEPT / SELECT without DUAL", "Oracle VARCHAR2 is faster because PostgreSQL has no indexes", "PostgreSQL has no LEFT JOIN or ROW_NUMBER()", "Oracle and PostgreSQL have identical SYSDATE and LIMIT"] },
       ],
     ),
     exam("sqlf-ds-exam", "Контрольна: діагностика запитів і діалекти", "Exam: dataset diagnosis & SQL dialects", 3, [
-      mcq(
+      { ...mcq(
         "sqlf-dse1",
         "У наборі рядків `[10, NULL, 20]` значення `COUNT(*)` та `COUNT(col)` дорівнюють:",
         "For column values `[10, NULL, 20]`, `COUNT(*)` and `COUNT(col)` evaluate to:",
         ["3 і 2", "3 і 3", "2 і 2", "2 і 1"],
         0,
         why("COUNT(*) рахує всі рядки; COUNT(col) пропускає NULL.", "COUNT(*) counts rows; COUNT(col) skips NULLs."),
-      ),
+      ), optionsEn: ["3 and 2", "3 and 3", "2 and 2", "2 and 1"] },
       codeFill(
         "sqlf-dse2",
         "PostgreSQL-еквівалент Oracle `MINUS` (різниця множин)",
@@ -973,7 +903,7 @@ const datasetDiagnosisU = unit(
         false,
         why("Oracle використовує MINUS, стандарт і PostgreSQL — EXCEPT.", "Oracle uses MINUS; ANSI SQL and PostgreSQL use EXCEPT."),
       ),
-      codeRead(
+      { ...codeRead(
         "sqlf-dse3",
         "Яка причина, що `WHERE col != 'done'` приховує рядки з `col IS NULL`?",
         "Why does `WHERE col != 'done'` omit rows where `col` is `NULL`?",
@@ -987,7 +917,7 @@ const datasetDiagnosisU = unit(
         ],
         0,
         why("Для збереження NULL використовуйте `WHERE status IS DISTINCT FROM 'done'` (PostgreSQL) або `(status != 'done' OR status IS NULL)`.", "Use `IS DISTINCT FROM` (Postgres) or explicit `OR status IS NULL`."),
-      ),
+      ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["NULL != done is UNKNOWN, and WHERE keeps only TRUE", "SQL converts NULL to the string done", "!= works only for numbers", "HAVING is required"] },
       codeOrderAuto(
         "sqlf-dse4",
         "Безпечний шаблон уникнення розмноження рядків при сумуванні двох гілок",
@@ -996,12 +926,16 @@ const datasetDiagnosisU = unit(
         [
           "WITH task_totals AS (",
           "  SELECT user_id, SUM(points) AS pts FROM tasks GROUP BY user_id",
+          "), comment_totals AS (",
+          "  SELECT user_id, COUNT(*) AS cnt FROM comments GROUP BY user_id",
           ")",
-          "SELECT u.id, COALESCE(tt.pts, 0) FROM users u LEFT JOIN task_totals tt ON tt.user_id = u.id;",
+          "SELECT u.id, COALESCE(tt.pts, 0), COALESCE(ct.cnt, 0)",
+          "FROM users u LEFT JOIN task_totals tt ON tt.user_id = u.id",
+          "LEFT JOIN comment_totals ct ON ct.user_id = u.id;",
         ],
         why(
-          "Попередня агрегація в CTE гарантує 1 рядок на користувача до об'єднання.",
-          "Pre-aggregating in a CTE guarantees one row per parent before joining.",
+          "Кожна CTE дає не більше одного рядка на користувача; з’єднання не перемножує задачі на коментарі.",
+          "Each CTE yields at most one row per user, so the joins do not multiply tasks by comments.",
         ),
       ),
     ]),

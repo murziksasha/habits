@@ -25,7 +25,7 @@ const foundations = unit("foundations", "Основи відповідально
     1,
     true,
     [
-      mcq(
+      { ...mcq(
         "sa-f01",
         "Головна робота сисадміна в малому офісі:",
         "The main job of a small-office sysadmin:",
@@ -40,8 +40,8 @@ const foundations = unit("foundations", "Основи відповідально
           "Доступність, доступ, зміна, резервна копія і нотатки — п'ять речей, за які вас покличуть.",
           "Availability, access, change, backup, and notes are the five things you will be called for.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["Keep services available, access appropriate, changes documented, and backups restorable", "Design the company logo", "Collect GitHub stars", "Choose the PC case color"] },
+      { ...mcq(
         "sa-f02",
         "Найнадійніший спосіб зрозуміти, яка зміна зламала офіс:",
         "The reliable way to know which change broke the office:",
@@ -52,8 +52,8 @@ const foundations = unit("foundations", "Основи відповідально
           "перезавантажити все кілька разів",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Make and record one change at a time", "Change the network, passwords, and updates simultaneously", "Avoid recording anything", "Reboot everything repeatedly"] },
+      { ...mcq(
         "sa-f03",
         "Нотатки потрібні, бо:",
         "Notes matter because:",
@@ -64,14 +64,14 @@ const foundations = unit("foundations", "Основи відповідально
           "їх читає ядро Linux",
         ],
         0,
-      ),
-      matchEx("sa-f04", "Зіставте обов'язок і зміст", "Match the duty to its meaning", [
+      ), optionsEn: ["The next person, often you a month later, can repeat the action", "They replace backups", "They eliminate the need for passwords", "The Linux kernel reads them"] },
+      { ...matchEx("sa-f04", "Зіставте обов'язок і зміст", "Match the duty to its meaning", [
         { left: "Доступність / Availability", right: "Люди можуть працювати" },
         { left: "Доступ / Access", right: "Лише потрібні люди входять" },
         { left: "Зміна / Change", right: "Правки контрольовані й записані" },
         { left: "Копія / Backup", right: "Дані можна повернути" },
-      ]),
-      mcq(
+      ]), pairsEn: [{"left": "Availability", "right": "People can work"}, {"left": "Access", "right": "Only authorized people can sign in"}, {"left": "Change", "right": "Changes are controlled and recorded"}, {"left": "Backup", "right": "Data can be restored"}] },
+      { ...mcq(
         "sa-f05",
         "«На моєму комп'ютері працює» означає:",
         "\"It works on my machine\" means:",
@@ -82,7 +82,7 @@ const foundations = unit("foundations", "Основи відповідально
           "Wi-Fi більше не потрібен",
         ],
         0,
-      ),
+      ), optionsEn: ["Only your computer has been checked; the office service still needs testing", "The entire office is certainly healthy", "The backup has already been tested", "Wi-Fi is no longer needed"] },
     ],
   ),
   lesson(
@@ -92,7 +92,7 @@ const foundations = unit("foundations", "Основи відповідально
     1,
     true,
     [
-      mcq(
+      { ...mcq(
         "sa-f06",
         "Диск і пам'ять — різні речі. Повний диск означає:",
         "Disk and memory are different. A full disk means:",
@@ -104,11 +104,11 @@ const foundations = unit("foundations", "Основи відповідально
         ],
         0,
         why(
-          "Повна RAM змушує систему свапити й гальмувати. Повний диск ламає запис. Лікують їх по-різному.",
-          "Full RAM makes the system swap and slow down. A full disk breaks writes. You fix them differently.",
+          "За нестачі RAM система може активно використовувати swap або завершувати процеси. Повна файлова система перешкоджає запису; причини й дії різні.",
+          "Memory pressure can cause swapping or process termination. A full filesystem prevents writes; investigate each problem separately.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["Writes to the full filesystem can fail and services may stop", "The CPU can no longer calculate", "Only Wi-Fi becomes slow", "RAM has run out"] },
+      { ...mcq(
         "sa-f07",
         "SSD порівняно з HDD:",
         "An SSD compared with an HDD:",
@@ -119,8 +119,8 @@ const foundations = unit("foundations", "Основи відповідально
           "замінює ДБЖ",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["It has no moving parts but can still fail; both need backups", "It never fails", "It always clicks before failing", "It replaces a UPS"] },
+      { ...mcq(
         "sa-f08",
         "Мережева карта (NIC) — це:",
         "A network interface (NIC) is:",
@@ -131,8 +131,8 @@ const foundations = unit("foundations", "Основи відповідально
           "обліковий запис адміністратора",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Hardware that connects a computer to a wired or wireless network", "A power supply", "A file in /etc", "An administrator account"] },
+      { ...mcq(
         "sa-f09",
         "ДБЖ (UPS) у малому офісі:",
         "A UPS in a small office:",
@@ -143,13 +143,13 @@ const foundations = unit("foundations", "Основи відповідально
           "шифрує диски",
         ],
         0,
-      ),
-      matchEx("sa-f10", "Симптом → що перевірити спочатку", "Symptom → first thing to check", [
+      ), optionsEn: ["Provides temporary power and time for a clean shutdown", "Replaces backups", "Assigns IP addresses", "Encrypts disks"] },
+      { ...matchEx("sa-f10", "Симптом → що перевірити спочатку", "Symptom → first thing to check", [
         { left: "Випадкові ребуті", right: "Блок живлення / розетка / UPS" },
         { left: "Клацання й повільний диск", right: "HDD, негайно копіювати дані" },
         { left: "Немає лінка на кабелі", right: "Кабель, порт, NIC" },
         { left: "Гальма, диск вільний", right: "RAM і навантаження CPU" },
-      ]),
+      ]), pairsEn: [{"left": "Random reboots", "right": "Power supply, outlet, or UPS"}, {"left": "Clicking and slow disk", "right": "HDD: copy data immediately"}, {"left": "No link on the cable", "right": "Cable, port, and NIC"}, {"left": "Slow system with free disk space", "right": "RAM and CPU load"}] },
     ],
   ),
   lesson(
@@ -167,7 +167,7 @@ const foundations = unit("foundations", "Основи відповідально
         ["bootloader (GRUB)", "UEFI firmware", "your shell", "kernel", "userspace services"],
         ["UEFI firmware", "bootloader (GRUB)", "kernel", "userspace services", "your shell"],
       ),
-      mcq(
+      { ...mcq(
         "sa-f12",
         "UEFI — це:",
         "UEFI is:",
@@ -178,8 +178,8 @@ const foundations = unit("foundations", "Основи відповідально
           "обліковий запис root",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Firmware that starts before the operating system", "The bash shell", "A disk filesystem", "The root account"] },
+      { ...mcq(
         "sa-f13",
         "Оболонка (shell), наприклад bash:",
         "A shell, such as bash:",
@@ -194,8 +194,8 @@ const foundations = unit("foundations", "Основи відповідально
           "Термінал — вікно. Shell — програма в ньому. Ядро — серце ОС під ними.",
           "The terminal is the window. The shell is the program in it. The kernel is the OS core underneath.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["A user-space program that reads commands", "The same thing as the kernel", "Motherboard firmware", "A disk driver"] },
+      { ...mcq(
         "sa-f14",
         "Щоденний обліковий запис офісного ПК має бути:",
         "The daily account on an office PC should be:",
@@ -206,8 +206,8 @@ const foundations = unit("foundations", "Основи відповідально
           "без пароля, щоб не забути",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["A standard user account, with separate administrator access for installations", "Always an administrator account for speed", "One account shared by the entire office", "An account without a password"] },
+      { ...mcq(
         "sa-f15",
         "Ядро (kernel) відповідає за:",
         "The kernel is responsible for:",
@@ -218,7 +218,7 @@ const foundations = unit("foundations", "Основи відповідально
           "друк рахунків у Word",
         ],
         0,
-      ),
+      ), optionsEn: ["Hardware, processes, memory, and file access", "Only the color of the bash prompt", "The Wi-Fi password on the router", "Printing invoices in Word"] },
     ],
   ),
   lesson(
@@ -228,25 +228,25 @@ const foundations = unit("foundations", "Основи відповідально
     1,
     true,
     [
-      mcq(
+      { ...mcq(
         "sa-f16",
         "Один байт — це:",
         "One byte is:",
         ["8 біт", "1024 біти", "1 гігабайт", "один файл"],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["8 bits", "1024 bits", "1 gigabyte", "One file"] },
+      { ...mcq(
         "sa-f17",
         "KiB / MiB / GiB рахують по:",
         "KiB / MiB / GiB count by:",
         ["1024", "1000, як на коробці диска", "512 завжди", "10"],
         0,
         why(
-          "Виробник пише GB як 1000³. df часто показує GiB (1024³). Тому «500 GB» на наліпці менші в системі.",
-          "Vendors write GB as 1000³. df often shows GiB (1024³). A labeled 500 GB disk looks smaller in the OS.",
+          "Виробник використовує GB = 1000³ байтів. df -h зазвичай показує двійкові одиниці (1024³), а стандартний df може мати інший розмір блока.",
+          "Vendors use GB = 1000³ bytes. df -h commonly displays binary units (1024³); plain df can use a different block size.",
         ),
-      ),
-      codeRead(
+      ), optionsEn: ["1024", "1000, as on a disk label", "Always 512", "10"] },
+      { ...codeRead(
         "sa-f18",
         "Де закінчилось місце?",
         "Where did the space run out?",
@@ -263,8 +263,8 @@ const foundations = unit("foundations", "Основи відповідально
           "Видалення файлів на /mnt/backup не звільнить /. Дивіться колонку Mounted on.",
           "Deleting files on /mnt/backup does not free /. Read the Mounted on column.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["/ (sda2) is nearly full; /mnt/backup has space", "Only the backup disk is full", "Both disks are empty", "This is ip addr output"] },
+      { ...mcq(
         "sa-f19",
         "df показує:",
         "df shows:",
@@ -275,8 +275,8 @@ const foundations = unit("foundations", "Основи відповідально
           "список користувачів",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Space usage on mounted filesystems", "The number of CPU cores", "The Wi-Fi password", "A list of users"] },
+      { ...mcq(
         "sa-f20",
         "Наліпка диска «500 GB» і менше в df — це зазвичай:",
         "A 500 GB label looking smaller in df is usually:",
@@ -287,11 +287,11 @@ const foundations = unit("foundations", "Основи відповідально
           "помилка команди ls",
         ],
         0,
-      ),
+      ), optionsEn: ["Decimal GB versus binary GiB, plus partitioning and filesystem overhead", "Always a sign of a virus", "Proof that the disk is faulty", "An ls command error"] },
     ],
   ),
   exam("sa-exam-foundations", "Контрольна: основи", "Exam: foundations", 2, [
-    mcq(
+    { ...mcq(
       "sa-f21",
       "Що не входить у роботу сисадміна малого офісу?",
       "Which is not a small-office sysadmin duty?",
@@ -302,8 +302,8 @@ const foundations = unit("foundations", "Основи відповідально
         "тримати сервіс доступним",
       ],
       0,
-    ),
-    mcq(
+    ), optionsEn: ["Choose the font for a marketing presentation", "Verify that a backup can be restored", "Record a change before making it", "Keep a service available"] },
+    { ...mcq(
       "sa-f22",
       "Повна оперативна пам'ять і повний диск:",
       "Full RAM and a full disk:",
@@ -314,7 +314,7 @@ const foundations = unit("foundations", "Основи відповідально
         "означають лише поганий Wi-Fi",
       ],
       0,
-    ),
+    ), optionsEn: ["Different problems requiring different remedies", "The same problem", "Always fixed by rebooting", "Only a sign of poor Wi-Fi"] },
     codeOrder(
       "sa-f23",
       "Що стартує раніше?",
@@ -323,14 +323,14 @@ const foundations = unit("foundations", "Основи відповідально
       ["kernel", "UEFI firmware", "shell"],
       ["UEFI firmware", "kernel", "shell"],
     ),
-    mcq(
+    { ...mcq(
       "sa-f24",
       "bash — це:",
       "bash is:",
       ["оболонка, програма користувача", "прошивка UEFI", "файлова система", "блок живлення"],
       0,
-    ),
-    mcq(
+    ), optionsEn: ["A shell, running as a user-space program", "UEFI firmware", "A filesystem", "A power supply"] },
+    { ...mcq(
       "sa-f25",
       "Чому df показує менше, ніж наліпка диска?",
       "Why does df show less than the disk label?",
@@ -341,8 +341,8 @@ const foundations = unit("foundations", "Основи відповідально
         "бо не було sudo",
       ],
       0,
-    ),
-    mcq(
+    ), optionsEn: ["Manufacturer GB uses powers of 1000; GiB uses 1024, and partitions also matter", "df counts RAM only", "The label always exaggerates by exactly double", "sudo was not used"] },
+    { ...mcq(
       "sa-f26",
       "ДБЖ потрібен, щоб:",
       "A UPS is there so that:",
@@ -353,7 +353,7 @@ const foundations = unit("foundations", "Основи відповідально
         "замінити адміністратора",
       ],
       0,
-    ),
+    ), optionsEn: ["A short power outage need not interrupt a disk write", "Store three copies of the data", "Provide DHCP", "Replace the administrator"] },
   ]),
 ]);
 
@@ -365,7 +365,7 @@ const sohoNetwork = unit("soho-network", "Мережа малого офісу",
     1,
     true,
     [
-      mcq(
+      { ...mcq(
         "sa-n01",
         "Модем і маршрутизатор:",
         "A modem and a router:",
@@ -376,8 +376,8 @@ const sohoNetwork = unit("soho-network", "Мережа малого офісу",
           "вони синоніми без різниці в роботі",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["A modem terminates the provider connection; a router connects networks. One device can do both", "They must always be separate devices", "A modem provides Wi-Fi while a router only prints", "They are exact synonyms"] },
+      { ...mcq(
         "sa-n02",
         "Яка адреса приватна?",
         "Which address is private?",
@@ -387,37 +387,37 @@ const sohoNetwork = unit("soho-network", "Мережа малого офісу",
           "Приватні діапазони: 10.0.0.0/8, 172.16.0.0–172.31.255.255, 192.168.0.0/16. 8.8.8.8 — публічний DNS Google.",
           "Private ranges: 10.0.0.0/8, 172.16.0.0–172.31.255.255, 192.168.0.0/16. 8.8.8.8 is Google's public DNS.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["192.168.1.20", "8.8.8.8", "1.1.1.1", "9.9.9.9"] },
+      { ...mcq(
         "sa-n03",
         "Шлюз за замовчуванням (default gateway):",
         "The default gateway:",
         [
-          "адреса, куди хост шле пакети не зі своєї підмережі — зазвичай роутер",
+          "наступний вузол, якщо немає точнішого маршруту — зазвичай роутер",
           "те саме, що DNS-сервер завжди",
           "пароль Wi-Fi",
           "ім'я комп'ютера",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["The next hop used when no more specific route matches, usually a router", "Always the same thing as a DNS server", "The Wi-Fi password", "The computer name"] },
+      { ...mcq(
         "sa-n04",
         "DNS робить:",
         "DNS does this:",
         [
-          "перетворює ім'я (printer.local, example.com) на IP",
+          "допомагає визначити IP-адресу за доменним ім'ям (наприклад, example.com)",
           "живить ДБЖ",
           "ставити права chmod",
           "шифрує диск",
         ],
         0,
-      ),
-      matchEx("sa-n05", "Пристрій і його робота", "Device and its job", [
+      ), optionsEn: ["Resolves names such as example.com to IP addresses", "Powers a UPS", "Sets chmod permissions", "Encrypts the disk"] },
+      { ...matchEx("sa-n05", "Пристрій і його робота", "Device and its job", [
         { left: "Комутатор / switch", right: "З'єднує пристрої однієї LAN" },
         { left: "Точка доступу / AP", right: "Переводить Wi-Fi в дротову мережу" },
         { left: "Маршрутизатор / router", right: "Передає пакети між мережами" },
         { left: "DNS", right: "Ім'я → IP-адреса" },
-      ]),
+      ]), pairsEn: [{"left": "Switch", "right": "Connects devices on the same LAN"}, {"left": "Access point", "right": "Bridges Wi-Fi clients to the wired network"}, {"left": "Router", "right": "Forwards packets between networks"}, {"left": "DNS", "right": "Resolves a name to an IP address"}] },
     ],
   ),
   lesson(
@@ -427,7 +427,7 @@ const sohoNetwork = unit("soho-network", "Мережа малого офісу",
     2,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-n06",
         "DHCP зазвичай видає хосту:",
         "DHCP usually gives a host:",
@@ -438,11 +438,11 @@ const sohoNetwork = unit("soho-network", "Мережа малого офісу",
           "сертифікат HTTPS сайту",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["An IP address, subnet mask, gateway, and DNS servers", "Only an administrator password", "Disk contents", "A website HTTPS certificate"] },
+      { ...mcq(
         "sa-n07",
-        "Принтер або NAS у офісі краще:",
-        "A printer or NAS in the office should:",
+        "Практичний спосіб надати принтеру або NAS стабільну адресу:",
+        "A practical way to give an office printer or NAS a stable address:",
         [
           "мати резервування DHCP (одна й та сама адреса), щоб клієнти не губили його",
           "щодня отримувати випадкову адресу",
@@ -450,8 +450,8 @@ const sohoNetwork = unit("soho-network", "Мережа малого офісу",
           "працювати без IP",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Use a DHCP reservation for a stable address clients can find", "Get a random address every day", "Be placed in the DMZ", "Run without an IP address"] },
+      { ...mcq(
         "sa-n08",
         "Дві машини з однаковою статичною IP:",
         "Two machines with the same static IP:",
@@ -462,8 +462,8 @@ const sohoNetwork = unit("soho-network", "Мережа малого офісу",
           "прискорює Wi-Fi",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["An address conflict can make one or both devices unreliable", "This is required for redundancy", "This is called DNS", "This speeds up Wi-Fi"] },
+      { ...mcq(
         "sa-n09",
         "Адреса 169.254.x.x на Windows найчастіше означає:",
         "169.254.x.x on Windows most often means:",
@@ -475,10 +475,10 @@ const sohoNetwork = unit("soho-network", "Мережа малого офісу",
         ],
         0,
         why(
-          "169.254.0.0/16 — APIPA. Машина в мережі майже сама. Шукайте кабель, VLAN і DHCP на роутері.",
-          "169.254.0.0/16 is APIPA. The machine is almost alone. Check the cable, VLAN, and the router's DHCP.",
+          "169.254.0.0/16 — діапазон IPv4 link-local (APIPA). Зв’язок можливий з іншими link-local вузлами на тому самому сегменті, але не через маршрутизатор. Перевірте кабель, VLAN і DHCP-сервер.",
+          "169.254.0.0/16 is the IPv4 link-local range (APIPA). Other link-local hosts on the same segment may be reachable, but routers do not forward this traffic. Check the cable, VLAN, and DHCP server.",
         ),
-      ),
+      ), optionsEn: ["DHCP did not respond and the system assigned a link-local address", "It is a public internet address", "The VPN connected successfully", "The disk is full"] },
       codeFill(
         "sa-n10",
         "Приватна мережа домашнього офісу найчастіше починається так. Доповніть перший октет.",
@@ -497,19 +497,19 @@ const sohoNetwork = unit("soho-network", "Мережа малого офісу",
     2,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-n11",
         "2.4 ГГц порівняно з 5 ГГц:",
         "2.4 GHz compared with 5 GHz:",
         [
-          "краще проходить стіни, менше каналів без накладки, нижча швидкість",
+          "зазвичай краще проходить стіни, має менше каналів без перекриття і нижчу потенційну швидкість",
           "завжди швидший і без завад",
           "не існує",
           "працює лише для принтерів",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Usually passes through walls better, has fewer non-overlapping channels, and lower potential throughput", "Is always faster and interference-free", "Does not exist", "Works only for printers"] },
+      { ...mcq(
         "sa-n12",
         "Для офісної LAN оберіть:",
         "For an office LAN, choose:",
@@ -524,32 +524,32 @@ const sohoNetwork = unit("soho-network", "Мережа малого офісу",
           "Прихований SSID не є доступом: ім'я все одно видно в ефірі. Шифрування — WPA2/WPA3.",
           "A hidden SSID is not access control: the name is still on the air. Encryption is WPA2/WPA3.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["Use WPA2 or WPA3; WEP and an open network are unsuitable", "Use WEP because it is old and compatible", "Use an open network with a hidden name", "Use the same password for guests and the server"] },
+      { ...mcq(
         "sa-n13",
         "Гостьова Wi-Fi мережа має:",
         "A guest Wi-Fi network should:",
         [
-          "не бачити ваші файлові кулі й принтери LAN",
+          "не мати доступу до ваших файлових ресурсів і принтерів LAN",
           "мати той самий пароль, що й адміністратор роутера",
           "бути мостом у серверну VLAN",
           "вимикати DHCP на основній мережі",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Prevent guests from reaching office file shares and LAN printers", "Use the router administrator password", "Bridge guests into the server VLAN", "Disable DHCP on the main network"] },
+      { ...mcq(
         "sa-n14",
         "Канали 1, 6 і 11 на 2.4 ГГц:",
         "Channels 1, 6, and 11 on 2.4 GHz:",
         [
-          "майже не накладаються; сусідні номери накладаються сильно",
+          "для каналів шириною 20 МГц не перекриваються; сусідні номери перекриваються",
           "заборонені",
           "це діапазон 6 ГГц",
           "це порти TCP",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["For 20 MHz channels, 1, 6, and 11 do not overlap; adjacent channel numbers overlap", "Are forbidden", "Are in the 6 GHz band", "Are TCP ports"] },
+      { ...mcq(
         "sa-n15",
         "Приховати SSID:",
         "Hiding the SSID:",
@@ -560,7 +560,7 @@ const sohoNetwork = unit("soho-network", "Мережа малого офісу",
           "робить мережу невидимою для всіх пристроїв назавжди",
         ],
         0,
-      ),
+      ), optionsEn: ["Does not replace a password", "Encrypts traffic", "Disables NAT", "Makes the network permanently invisible to all devices"] },
     ],
   ),
   lesson(
@@ -570,7 +570,7 @@ const sohoNetwork = unit("soho-network", "Мережа малого офісу",
     2,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-n16",
         "NAT на домашньому роутері:",
         "NAT on a home router:",
@@ -581,8 +581,8 @@ const sohoNetwork = unit("soho-network", "Мережа малого офісу",
           "робить бекап диска",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Lets many private addresses access the internet through one public address", "Resolves names into IP addresses", "Sets chmod permissions", "Backs up a disk"] },
+      { ...mcq(
         "sa-n17",
         "Проброс порта (port forward):",
         "A port forward:",
@@ -597,8 +597,8 @@ const sohoNetwork = unit("soho-network", "Мережа малого офісу",
           "Не прокидайте в інтернет RDP (3389), SMB (445) і адмінку роутера. Кожен проброс — це двері. Віддалений доступ пізніше в курсі — це VPN, не відкритий SMB.",
           "Do not forward RDP (3389), SMB (445), or the router admin UI to the internet. Each forward is a door. Remote access later in the course is a VPN, not open SMB.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["Can expose an internal service to the internet and introduces risk", "Only speeds up Wi-Fi", "Disables DHCP", "Encrypts the disk"] },
+      { ...mcq(
         "sa-n18",
         "DMZ на споживчому роутері:",
         "DMZ on a consumer router:",
@@ -609,15 +609,15 @@ const sohoNetwork = unit("soho-network", "Мережа малого офісу",
           "це безпечний режим за замовчуванням",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Forwards unsolicited inbound traffic to one host; do not place a work PC there", "Is a guest Wi-Fi network", "Is a backup", "Is the safe default"] },
+      { ...mcq(
         "sa-n19",
         "Яка адреса публічна?",
         "Which address is public?",
         ["8.8.8.8", "10.1.1.5", "172.16.0.4", "192.168.0.4"],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["8.8.8.8", "10.1.1.5", "172.16.0.4", "192.168.0.4"] },
+      { ...mcq(
         "sa-n20",
         "172.32.0.5 — це:",
         "172.32.0.5 is:",
@@ -628,11 +628,11 @@ const sohoNetwork = unit("soho-network", "Мережа малого офісу",
           "маска підмережі",
         ],
         0,
-      ),
+      ), optionsEn: ["Not an RFC 1918 private address; the private 172 range is 172.16 through 172.31", "Always private because it begins with 172", "A gateway address by definition", "A subnet mask"] },
     ],
   ),
   exam("sa-exam-network", "Контрольна: мережа офісу", "Exam: office network", 2, [
-    mcq(
+    { ...mcq(
       "sa-n21",
       "Шлюз і DNS:",
       "Gateway and DNS:",
@@ -643,8 +643,8 @@ const sohoNetwork = unit("soho-network", "Мережа малого офісу",
         "обидва є прошивкою UEFI",
       ],
       0,
-    ),
-    mcq(
+    ), optionsEn: ["They do different jobs: route traffic and resolve names to IP addresses", "They always have one address and one job", "Both set file permissions", "Both are UEFI firmware"] },
+    { ...mcq(
       "sa-n22",
       "169.254.12.8 на ноутбуці Windows:",
       "169.254.12.8 on a Windows laptop:",
@@ -655,20 +655,20 @@ const sohoNetwork = unit("soho-network", "Мережа малого офісу",
         "це режим WPA3",
       ],
       0,
-    ),
-    mcq(
+    ), optionsEn: ["DHCP likely did not provide an address", "This is a Google DNS address", "A port was forwarded successfully", "This is WPA3 mode"] },
+    { ...mcq(
       "sa-n23",
       "Гостьовий Wi-Fi без ізоляції:",
       "Guest Wi-Fi without isolation:",
       [
-        "дає гостю шлях до ваших куль і принтерів",
+        "може дати гостю доступ до ваших файлових ресурсів і принтерів",
         "автоматично вмикає WPA3",
         "замінює бекап",
         "вимикає NAT",
       ],
       0,
-    ),
-    mcq(
+    ), optionsEn: ["Guests may be able to reach office shares and printers", "Automatically enables WPA3", "Replaces backups", "Disables NAT"] },
+    { ...mcq(
       "sa-n24",
       "Безпечне рішення для віддаленого доступу до офісного ПК:",
       "A safer choice than exposing an office PC:",
@@ -679,14 +679,14 @@ const sohoNetwork = unit("soho-network", "Мережа малого офісу",
         "вимкнути пароль на роутері",
       ],
       0,
-    ),
-    matchEx("sa-n25", "Адреса і клас", "Address and class", [
+    ), optionsEn: ["Avoid exposing RDP directly to the internet", "Put the PC in the DMZ", "Forward port 3389 to the WAN", "Disable the router password"] },
+    { ...matchEx("sa-n25", "Адреса і клас", "Address and class", [
       { left: "10.8.0.4", right: "приватна 10/8" },
       { left: "192.168.88.1", right: "приватна 192.168/16" },
       { left: "172.31.1.1", right: "приватна 172.16/12" },
       { left: "172.32.1.1", right: "не приватна: 172.32 поза діапазоном" },
-    ]),
-    mcq(
+    ]), pairsEn: [{"left": "10.8.0.4", "right": "Private 10/8"}, {"left": "192.168.88.1", "right": "Private 192.168/16"}, {"left": "172.31.1.1", "right": "Private 172.16/12"}, {"left": "172.32.1.1", "right": "Not private: 172.32 is outside the range"}] },
+    { ...mcq(
       "sa-n26",
       "Резервування DHCP для принтера потрібне, щоб:",
       "A DHCP reservation for a printer exists so that:",
@@ -697,7 +697,7 @@ const sohoNetwork = unit("soho-network", "Мережа малого офісу",
         "замінити драйвер",
       ],
       0,
-    ),
+    ), optionsEn: ["Clients can keep finding the printer at a stable address", "Make the printer public on the internet", "Disable Wi-Fi", "Replace the driver"] },
   ]),
 ]);
 
@@ -709,7 +709,7 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
     2,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-c01",
         "Спільний пароль на весь офіс:",
         "One shared password for the whole office:",
@@ -720,8 +720,8 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
           "вимога DHCP",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["A problem: you cannot revoke one person's access independently", "An ISO best practice", "A replacement for a password manager", "A DHCP requirement"] },
+      { ...mcq(
         "sa-c02",
         "Краще за короткий складний пароль на стікері:",
         "Better than a short complex password on a sticky note:",
@@ -732,8 +732,8 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
           "порожній пароль, бо офіс маленький",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["A long passphrase kept in a password manager", "The password admin on a monitor", "One long password for every service", "An empty password because the office is small"] },
+      { ...mcq(
         "sa-c03",
         "Адміністративний обліковий запис:",
         "An administrator account:",
@@ -744,8 +744,8 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
           "замінює бекап",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["For installation and administration, not everyday email", "Must be given to every employee", "Does not need a password", "Replaces backups"] },
+      { ...mcq(
         "sa-c04",
         "Людина пішла з офісу. Перше щодо доступу:",
         "Someone left the office. First access step:",
@@ -756,13 +756,13 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
           "видалити бекапи, де є її ім'я",
         ],
         0,
-      ),
-      matchEx("sa-c05", "Практика і оцінка", "Practice and verdict", [
+      ), optionsEn: ["Disable their accounts and revoke keys and sessions", "Wait until next year's audit", "Change only the wallpaper", "Delete backups containing their name"] },
+      { ...matchEx("sa-c05", "Практика і оцінка", "Practice and verdict", [
         { left: "Окремий адмін-акаунт", right: "так: адмін окремо" },
         { left: "Пароль на стікері", right: "ні: стікер" },
         { left: "Менеджер паролів", right: "так: менеджер" },
         { left: "Один пароль на пошту й роутер", right: "ні: один пароль на все" },
-      ]),
+      ]), pairsEn: [{"left": "Separate administrator account", "right": "Good: separate administration"}, {"left": "Password on a sticky note", "right": "Bad: exposed password"}, {"left": "Password manager", "right": "Good: password manager"}, {"left": "One password for email and router", "right": "Bad: password reuse"}] },
     ],
   ),
   lesson(
@@ -772,7 +772,7 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
     2,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-c06",
         "Оновлення безпеки відкладають, бо:",
         "People delay security updates because:",
@@ -783,8 +783,8 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
           "вони замінюють пароль Wi-Fi",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["People fear disruption; schedule a maintenance window instead of postponing indefinitely", "Updates always delete documents", "Only DNS installs them", "They replace the Wi-Fi password"] },
+      { ...mcq(
         "sa-c07",
         "Перед оновленням сервера:",
         "Before updating a server:",
@@ -795,8 +795,8 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
           "працювати під root у пошті",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Know how to roll back and notify people of the maintenance window", "Disable backups permanently", "Open every port", "Read email as root"] },
+      { ...mcq(
         "sa-c08",
         "Одна зміна за раз означає:",
         "One change at a time means:",
@@ -807,8 +807,8 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
           "перейменовувати сервер щодня",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["If something fails, you know which change was made", "Never update anything", "Install every internet package at once", "Rename the server daily"] },
+      { ...mcq(
         "sa-c09",
         "Запис про зміну містить:",
         "A change note contains:",
@@ -819,8 +819,8 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
           "серійний номер миші",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["What changed, when, who made the change, and how to verify it", "Only a plaintext password", "A photo of the office", "The mouse serial number"] },
+      { ...mcq(
         "sa-c10",
         "Пауза оновлень на місяць на офісних ПК:",
         "Pausing updates for a month on office PCs:",
@@ -831,7 +831,7 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
           "потрібна, щоб працював DHCP",
         ],
         0,
-      ),
+      ), optionsEn: ["Can leave known vulnerabilities unpatched", "Improves backups", "Enables WPA3", "Is needed for DHCP"] },
     ],
   ),
   lesson(
@@ -841,7 +841,7 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
     2,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-c11",
         "Правило 3-2-1:",
         "The 3-2-1 rule:",
@@ -856,8 +856,8 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
           "Дві копії на тому самому диску — це одна пожежа. Копія, яку не відновлювали, лишається надією.",
           "Two copies on the same disk are one fire. A copy you never restored is still a hope.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["Three copies, two types of media, one copy off-site", "Three passwords, two routers, one printer", "Three users, two administrators, one guest", "Three reboots, two updates, one DMZ"] },
+      { ...mcq(
         "sa-c12",
         "Перевірка бекапу — це:",
         "A backup test is:",
@@ -868,16 +868,16 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
           "відкрити порт 445",
         ],
         0,
-      ),
+      ), optionsEn: ["Restore a file to a separate location and compare it", "Check that the backup drive has a green light", "Delete the original", "Open port 445"] },
       codeOrder(
         "sa-c13",
         "Порядок пробного відновлення",
         "Order of a restore drill",
         "text",
-        ["write down the date", "compare one known file", "restore into an empty folder", "pick a backup copy"],
-        ["pick a backup copy", "restore into an empty folder", "compare one known file", "write down the date"],
+        ["Записати дату / Record the date", "Порівняти відомий файл / Compare a known file", "Відновити в порожню папку / Restore into an empty folder", "Обрати резервну копію / Pick a backup copy"],
+        ["Обрати резервну копію / Pick a backup copy", "Відновити в порожню папку / Restore into an empty folder", "Порівняти відомий файл / Compare a known file", "Записати дату / Record the date"],
       ),
-      mcq(
+      { ...mcq(
         "sa-c14",
         "Відновлювати поверх єдиної живої копії:",
         "Restoring on top of the only good copy:",
@@ -888,19 +888,19 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
           "потрібно для DHCP",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Avoid it: a bad backup could overwrite the only good copy", "Is the best approach", "Is how RAID replaces backup", "Is required by DHCP"] },
+      { ...mcq(
         "sa-c15",
         "RAID у домашньому NAS:",
         "RAID on a home NAS:",
         [
-          "рятує від смерті одного диска, але не від видалення файлу чи шифрувальника",
+          "деякі рівні RAID витримують відмову диска, але не захищають від видалення файлу чи шифрувальника",
           "замінює правило 3-2-1",
           "це протокол Wi-Fi",
           "вимикає потребу в перевірці відновлення",
         ],
         0,
-      ),
+      ), optionsEn: ["Some RAID configurations tolerate disk failure, but not file deletion or ransomware", "Replaces the 3-2-1 rule", "Is a Wi-Fi protocol", "Eliminates restore testing"] },
     ],
   ),
   lesson(
@@ -910,7 +910,7 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
     2,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-c16",
         "Сторінка черговості (runbook) містить:",
         "A one-page runbook contains:",
@@ -921,8 +921,8 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
           "ліцензійний ключ Windows на стіні",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Who to contact, where backups are, how to restore, and where to find the password manager", "All passwords in plaintext", "Only a photo of the router", "A Windows license key on the wall"] },
+      { ...mcq(
         "sa-c17",
         "Паролі на сторінці черговості:",
         "Passwords on the runbook page:",
@@ -933,20 +933,20 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
           "їх має бачити гість Wi-Fi",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Do not write them there; identify the password manager instead", "Write them all down or the runbook is useless", "One shared password is enough", "Make them visible to Wi-Fi guests"] },
+      { ...mcq(
         "sa-c18",
         "ДБЖ під сервером або NAS:",
         "A UPS under the server or NAS:",
         [
-          "має вміти сказати ОС вимкнутись, поки батарея ще жива",
+          "має бути налаштований і перевірений для чистого вимкнення ОС до розрядження батареї",
           "замінює офсайт-копію",
           "роздає IP",
           "шифрує SMB",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Should be configured and tested to trigger a clean OS shutdown before its battery runs out", "Replaces an off-site backup", "Assigns IP addresses", "Encrypts SMB"] },
+      { ...mcq(
         "sa-c19",
         "Файлова куля офісу:",
         "An office file share:",
@@ -957,29 +957,29 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
           "не потребує бекапу, бо це куля",
         ],
         0,
-      ),
-      matchEx("sa-c20", "Річ і місце в офісі", "Thing and where it belongs", [
+      ), optionsEn: ["Uses individual accounts and appropriate permissions, not Everyone with full control", "Is open to the whole internet on port 445", "Is placed in the DMZ", "Needs no backup because it is a share"] },
+      { ...matchEx("sa-c20", "Річ і місце в офісі", "Thing and where it belongs", [
         { left: "Паролі", right: "менеджер паролів" },
         { left: "Як відновити файли", right: "сторінка черговості" },
         { left: "Коротке зникнення світла", right: "ДБЖ" },
         { left: "Друга копія в іншому будинку", right: "офсайт у 3-2-1" },
-      ]),
+      ]), pairsEn: [{"left": "Passwords", "right": "Password manager"}, {"left": "How to restore files", "right": "Runbook"}, {"left": "Short power outage", "right": "UPS"}, {"left": "Another copy in a separate building", "right": "Off-site copy in 3-2-1"}] },
     ],
   ),
   exam("sa-exam-care", "Контрольна: догляд", "Exam: office care", 2, [
-    mcq(
+    { ...mcq(
       "sa-c21",
       "3-2-1 — це:",
       "3-2-1 is:",
       [
-        "три копії, два носії, одна поза офісом",
+        "три копії, два типи носіїв, одна копія поза офісом",
         "три SSID, два канали, один DMZ",
         "три адміни на один пароль",
         "три перезапуски на день",
       ],
       0,
-    ),
-    mcq(
+    ), optionsEn: ["Three copies, two types of media, one off-site", "Three SSIDs, two channels, one DMZ", "Three administrators sharing one password", "Three reboots a day"] },
+    { ...mcq(
       "sa-c22",
       "Спільний пароль:",
       "A shared password:",
@@ -990,16 +990,16 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
         "заміна runbook",
       ],
       0,
-    ),
+    ), optionsEn: ["Does not let you revoke one person's access independently", "Is better than a password manager", "Is a WPA3 requirement", "Replaces a runbook"] },
     codeOrder(
       "sa-c23",
       "Пробне відновлення",
       "Restore drill",
       "text",
-      ["compare one file", "restore into an empty folder", "pick a copy"],
-      ["pick a copy", "restore into an empty folder", "compare one file"],
+      ["Порівняти файл / Compare one file", "Відновити в порожню папку / Restore into an empty folder", "Обрати копію / Pick a copy"],
+      ["Обрати копію / Pick a copy", "Відновити в порожню папку / Restore into an empty folder", "Порівняти файл / Compare one file"],
     ),
-    mcq(
+    { ...mcq(
       "sa-c24",
       "RAID замість бекапу:",
       "RAID instead of a backup:",
@@ -1010,8 +1010,8 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
         "вимикає потребу в облікових записах",
       ],
       0,
-    ),
-    mcq(
+    ), optionsEn: ["Does not protect against deletion and ransomware", "Alone fulfills the 3-2-1 rule", "Stores a copy in another city", "Eliminates the need for accounts"] },
+    { ...mcq(
       "sa-c25",
       "Вічна пауза оновлень:",
       "An endless update pause:",
@@ -1022,8 +1022,8 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
         "замінює ДБЖ",
       ],
       0,
-    ),
-    mcq(
+    ), optionsEn: ["Leaves known vulnerabilities unpatched", "Is a backup plan", "Is needed for guest Wi-Fi", "Replaces a UPS"] },
+    { ...mcq(
       "sa-c26",
       "На runbook паролі:",
       "Passwords on the runbook:",
@@ -1034,7 +1034,7 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
         "шарять у гостьовій мережі",
       ],
       0,
-    ),
+    ), optionsEn: ["Do not print them; identify where the password manager is", "Write them all in capital letters", "Stick them on the router", "Share them over guest Wi-Fi"] },
   ]),
 ]);
 
@@ -1046,31 +1046,31 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
     2,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-w01",
         "UAC у Windows:",
         "UAC on Windows:",
         [
-          "питає підтвердження, коли дія хоче права адміністратора",
+          "запитує згоду або облікові дані адміністратора, коли дія потребує підвищення прав",
           "це антивірус",
           "це файлова куля",
           "це DHCP-сервер",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Requests consent or administrator credentials when an action requires elevation", "Is an antivirus", "Is a file share", "Is a DHCP server"] },
+      { ...mcq(
         "sa-w02",
         "Щоденна робота:",
         "Daily work:",
         [
-          "під звичайним користувачем; підвищення — лише на встановлення",
+          "під звичайним користувачем; підвищення — лише для адміністративних завдань",
           "завжди під вбудованим Administrator без пароля",
           "під обліковим записом гостя з правами адміна",
           "без облікового запису взагалі",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Use a standard account; elevate only when administrative work requires it", "Always use the built-in Administrator without a password", "Use a guest account with administrator rights", "Work without an account"] },
+      { ...mcq(
         "sa-w03",
         "Локальний обліковий запис і обліковий запис Microsoft:",
         "A local account and a Microsoft account:",
@@ -1085,8 +1085,8 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
           "Локальний працює офлайн. Microsoft-акаунт вміє скинути пароль онлайн і тягне налаштування. Для офісу важливіше: окремий адмін і записане рішення.",
           "A local account works offline. A Microsoft account can reset the password online and syncs settings. For the office, the split admin and a written choice matter more.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["Both can be used; document the choice and use a standard account for daily work", "A local account is always less secure", "A Microsoft account permanently disables UAC", "There is no difference and no need to document the choice"] },
+      { ...mcq(
         "sa-w04",
         "Запит UAC на незнайому програму:",
         "A UAC prompt for a program you do not know:",
@@ -1097,8 +1097,8 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
           "дати програмі пароль роутера",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Cancel and investigate where the program came from", "Always click Yes", "Permanently disable UAC", "Give the program the router password"] },
+      { ...mcq(
         "sa-w05",
         "Вбудований Administrator без пароля:",
         "The built-in Administrator with no password:",
@@ -1109,7 +1109,7 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
           "потрібно для друку",
         ],
         0,
-      ),
+      ), optionsEn: ["Do not leave it without a password", "Is convenient for the office", "Is required by Defender", "Is required for printing"] },
     ],
   ),
   lesson(
@@ -1119,7 +1119,7 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
     2,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-w06",
         "Microsoft Defender:",
         "Microsoft Defender:",
@@ -1130,8 +1130,8 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
           "редактор реєстру",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Is built-in protection; do not disable it merely for speed", "Is port-forwarding software", "Replaces backups", "Is a registry editor"] },
+      { ...mcq(
         "sa-w07",
         "Пауза Windows Update:",
         "Pausing Windows Update:",
@@ -1142,8 +1142,8 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
           "робить бекап 3-2-1",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Can leave the PC without fixes for known vulnerabilities", "Improves NTFS", "Enables guest Wi-Fi", "Creates a 3-2-1 backup"] },
+      { ...mcq(
         "sa-w08",
         "Перезапуск після оновлень:",
         "A restart after updates:",
@@ -1154,8 +1154,8 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
           "змінює публічну IP назавжди",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Schedule a restart window; a patch may remain unapplied until reboot", "Is never needed", "Deletes user documents", "Permanently changes the public IP"] },
+      { ...mcq(
         "sa-w09",
         "Другий антивірус «поруч» з Defender без плану:",
         "A second antivirus beside Defender with no plan:",
@@ -1166,8 +1166,8 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
           "потрібен, щоб працював UAC",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Can conflict; choose and manage endpoint protection deliberately", "Always doubles protection without side effects", "Replaces Windows updates", "Is required for UAC"] },
+      { ...mcq(
         "sa-w10",
         "Оновлення ставлять:",
         "Install updates:",
@@ -1178,7 +1178,7 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
           "через проброс порту 445",
         ],
         0,
-      ),
+      ), optionsEn: ["Use Windows Update or an approved managed office source, not a random site", "Use any email attachment", "Only install after disabling Defender", "Forward port 445"] },
     ],
   ),
   lesson(
@@ -1188,23 +1188,23 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
     2,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-w11",
         "Ефективний дозвіл на файлову кулю Windows:",
         "The effective permission on a Windows share:",
         [
-          "більш суворий із двох: дозвіл кулі і дозвіл NTFS",
+          "дія має бути дозволена ефективними мережевими дозволами й дозволами NTFS",
           "лише дозвіл кулі, NTFS ігнорується",
           "лише NTFS, куля ігнорується",
           "завжди Full control для Everyone",
         ],
         0,
         why(
-          "Куля може дозволяти Change, а NTFS — лише Read. Користувач отримає Read. Мають дозволяти обидва шари.",
-          "The share may allow Change while NTFS allows only Read. The user gets Read. Both layers must allow the action.",
+          "Для мережевого доступу дія має бути дозволена обома шарами. Ефективні дозволи кожного шару залежать від членства в групах, успадкування і записів deny; перевіряйте їх для конкретного користувача.",
+          "Network access requires both layers to allow the action. Effective permissions within each layer depend on group membership, inheritance, and deny entries; check them for the specific user.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["The requested action must be allowed by both effective share and NTFS permissions", "Only share permissions matter; NTFS is ignored", "Only NTFS matters; the share is ignored", "Everyone always gets full control"] },
+      { ...mcq(
         "sa-w12",
         "Зіставлений диск (mapped drive):",
         "A mapped drive:",
@@ -1215,8 +1215,8 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
           "правило брандмауера",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["A drive letter referring to a UNC network share", "A physical SSD", "A USB port", "A firewall rule"] },
+      { ...mcq(
         "sa-w13",
         "Everyone — Full control на кулі офісу:",
         "Everyone — Full control on an office share:",
@@ -1227,8 +1227,8 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
           "це режим гостьового Wi-Fi",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Is overly broad; grant access to the group that needs it", "Is mandatory for printing", "Eliminates NTFS permissions", "Is the guest Wi-Fi mode"] },
+      { ...mcq(
         "sa-w14",
         "Користувач бачить кулю, але не може відкрити теку. Спершу:",
         "The user sees the share but cannot open a folder. First:",
@@ -1239,13 +1239,13 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
           "видалити обліковий запис",
         ],
         0,
-      ),
-      matchEx("sa-w15", "Шар і питання", "Layer and the question it answers", [
+      ), optionsEn: ["Check both share and NTFS permissions", "Disable Defender", "Forward port 445 to the internet", "Delete the account"] },
+      { ...matchEx("sa-w15", "Шар і питання", "Layer and the question it answers", [
         { left: "Дозвіл кулі", right: "Чи пускає мережевий доступ" },
         { left: "NTFS", right: "Чи пускає файлова система" },
         { left: "Літера Z:", right: "Зіставлений шлях UNC" },
         { left: "Група, не Everyone", right: "Кому справді треба доступ" },
-      ]),
+      ]), pairsEn: [{"left": "Share permissions", "right": "Whether network access is allowed"}, {"left": "NTFS permissions", "right": "Whether filesystem access is allowed"}, {"left": "Drive Z:", "right": "A mapped UNC path"}, {"left": "A group, not Everyone", "right": "Who actually needs access"}] },
     ],
   ),
   lesson(
@@ -1255,27 +1255,27 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
     2,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-w16",
         "Список файлів у PowerShell:",
         "List files in PowerShell:",
         ["Get-ChildItem", "Get-NetIPAddress", "Get-Service", "Restart-Service"],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Get-ChildItem", "Get-NetIPAddress", "Get-Service", "Restart-Service"] },
+      { ...mcq(
         "sa-w17",
         "IP-адреси інтерфейсів:",
         "IP addresses of interfaces:",
         ["Get-NetIPAddress", "Get-ChildItem", "chmod", "apt update"],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Get-NetIPAddress", "Get-ChildItem", "chmod", "apt update"] },
+      { ...mcq(
         "sa-w18",
         "Служби Windows:",
         "Windows services:",
         ["Get-Service", "Get-ChildItem", "ls -la", "ufw status"],
         0,
-      ),
+      ), optionsEn: ["Get-Service", "Get-ChildItem", "ls -la", "ufw status"] },
       codeFill(
         "sa-w19",
         "Перезапустити службу. Доповніть командлет.",
@@ -1289,7 +1289,7 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
           "A PowerShell pipeline passes objects, not text lines like bash. Get-Service shows state, Restart-Service restarts.",
         ),
       ),
-      codeRead(
+      { ...codeRead(
         "sa-w20",
         "Що зробить ця команда?",
         "What will this command do?",
@@ -1302,11 +1302,11 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
           "оновить список пакетів apt",
         ],
         0,
-      ),
+      ), optionsEn: ["Show services in the Running state", "Delete every service", "Forward port 3389", "Update the apt package list"] },
     ],
   ),
   exam("sa-exam-windows", "Контрольна: столи Windows", "Exam: Windows desks", 3, [
-    mcq(
+    { ...mcq(
       "sa-w21",
       "UAC:",
       "UAC:",
@@ -1317,8 +1317,8 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
         "це редактор fstab",
       ],
       0,
-    ),
-    mcq(
+    ), optionsEn: ["Requests consent or credentials for elevation", "Is a 3-2-1 backup", "Is NAT", "Is an fstab editor"] },
+    { ...mcq(
       "sa-w22",
       "Defender вимикати:",
       "Turn Defender off:",
@@ -1329,14 +1329,14 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
         "треба замість оновлень",
       ],
       0,
-    ),
-    mcq(
+    ), optionsEn: ["Do not turn it off merely for speed", "Turn it off every Monday", "Turn it off for a share to work", "Turn it off instead of updating"] },
+    { ...mcq(
       "sa-w23",
-      "Куля дозволяє Change, NTFS дозволяє Read. Користувач може:",
-      "The share allows Change, NTFS allows Read. The user can:",
+      "Ефективний дозвіл мережевого ресурсу — Change, а NTFS — лише Read. Що дозволено через мережу?",
+      "Effective share permission is Change and effective NTFS permission is read-only. What can the user do over the network?",
       ["читати", "писати попри NTFS", "керувати роутером", "вимкнути UAC"],
       0,
-    ),
+    ), optionsEn: ["Read", "Write despite the NTFS restriction", "Manage the router", "Disable UAC"] },
     codeFill(
       "sa-w24",
       "Командлет списку файлів",
@@ -1346,14 +1346,14 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
       ["Get-ChildItem"],
       false,
     ),
-    mcq(
+    { ...mcq(
       "sa-w25",
       "\\\\nas\\docs на літері Z: — це:",
       "\\\\nas\\docs on drive Z: is:",
       ["зіставлена куля", "приватний діапазон IP", "правило ufw", "файл підкачки"],
       0,
-    ),
-    mcq(
+    ), optionsEn: ["A mapped network share", "A private IP range", "A ufw rule", "A paging file"] },
+    { ...mcq(
       "sa-w26",
       "Щоденний користувач Windows:",
       "The daily Windows user:",
@@ -1364,7 +1364,7 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
         "root",
       ],
       0,
-    ),
+    ), optionsEn: ["A standard user", "The built-in Administrator without a password", "Everyone", "root"] },
   ]),
 ]);
 
@@ -1376,7 +1376,7 @@ const shell = unit("shell", "Оболонка", "The shell", [
     2,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-s01",
         "Абсолютний шлях:",
         "An absolute path:",
@@ -1387,7 +1387,7 @@ const shell = unit("shell", "Оболонка", "The shell", [
           "це маска підмережі",
         ],
         0,
-      ),
+      ), optionsEn: ["Starts with / and does not depend on the current directory", "Always starts with a Windows drive letter", "Is a user name", "Is a subnet mask"] },
       codeFill(
         "sa-s02",
         "Показати поточну теку",
@@ -1397,14 +1397,14 @@ const shell = unit("shell", "Оболонка", "The shell", [
         ["pwd"],
         true,
       ),
-      mcq(
+      { ...mcq(
         "sa-s03",
         "~ у шляху — це:",
         "~ in a path is:",
         ["домашня тека поточного користувача", "корінь диска /", "тека /etc", "попередня команда"],
         0,
-      ),
-      codeRead(
+      ), optionsEn: ["The current user’s home directory when expanded by the shell", "The root directory /", "The /etc directory", "The previous command"] },
+      { ...codeRead(
         "sa-s04",
         "Що означає крапка і дві крапки?",
         "What do dot and dot-dot mean?",
@@ -1417,8 +1417,8 @@ const shell = unit("shell", "Оболонка", "The shell", [
           "cd .. видаляє теку",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: [".. is the parent directory; . is the current directory", ". is the parent directory; .. is home", "Both lead to /", "cd .. deletes the directory"] },
+      { ...mcq(
         "sa-s05",
         "ls -la відрізняється від ls тим, що:",
         "ls -la differs from ls because it:",
@@ -1433,7 +1433,7 @@ const shell = unit("shell", "Оболонка", "The shell", [
           "Імена на кшталт .ssh приховані. Без -a їх не видно. -l додає права, власника і розмір.",
           "Names like .ssh are hidden. Without -a you do not see them. -l adds mode, owner, and size.",
         ),
-      ),
+      ), optionsEn: ["Uses long format and includes hidden dot-prefixed names", "Deletes files", "Enables the firewall", "Prints only directories larger than 1 GB"] },
     ],
   ),
   lesson(
@@ -1443,14 +1443,14 @@ const shell = unit("shell", "Оболонка", "The shell", [
     2,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-s06",
         "Коротка довідка по прапорцях команди:",
         "A short flag list for a command:",
         ["command --help", "rm -rf /", "chmod 777", "ufw disable"],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["command --help", "rm -rf /", "chmod 777", "ufw disable"] },
+      { ...mcq(
         "sa-s07",
         "man сторінка — це:",
         "A man page is:",
@@ -1461,8 +1461,8 @@ const shell = unit("shell", "Оболонка", "The shell", [
           "список Wi-Fi мереж",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["A manual page, normally viewed in a pager exited with q", "The systemd journal", "The fstab file", "A list of Wi-Fi networks"] },
+      { ...mcq(
         "sa-s08",
         "Ctrl-C у терміналі:",
         "Ctrl-C in the terminal:",
@@ -1477,19 +1477,19 @@ const shell = unit("shell", "Оболонка", "The shell", [
           "Ctrl-D на порожньому рядку — кінець введення (EOF) і часто вихід із оболонки. Ctrl-C — перервати команду.",
           "Ctrl-D on an empty line is end-of-file and often leaves the shell. Ctrl-C interrupts the command.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["Sends SIGINT and usually interrupts the foreground command", "Always copies a Linux file to the clipboard", "Powers off the machine", "Is the same as Ctrl-D"] },
+      { ...mcq(
         "sa-s09",
         "type або which:",
         "type or which:",
         [
-          "показує, який файл команди виконає оболонка",
+          "type показує, як оболонка розпізнає ім’я; which зазвичай шукає виконуваний файл у PATH",
           "змінює власника файлу",
           "ставить пакет",
           "відкриває порт",
         ],
         0,
-      ),
+      ), optionsEn: ["type identifies how the shell resolves a name; which generally locates executables on PATH", "Changes file ownership", "Installs a package", "Opens a port"] },
       codeFill(
         "sa-s10",
         "Відкрити довідку ls",
@@ -1508,7 +1508,7 @@ const shell = unit("shell", "Оболонка", "The shell", [
     2,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-s11",
         "Зірочка * у bash:",
         "A star * in bash:",
@@ -1519,40 +1519,40 @@ const shell = unit("shell", "Оболонка", "The shell", [
           "сигнал SIGKILL",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["A shell glob that expands matching names before the command runs", "A comment as in SQL", "A command to go to root", "The SIGKILL signal"] },
+      { ...mcq(
         "sa-s12",
-        "ls * не показує .bashrc, бо:",
-        "ls * does not show .bashrc because:",
+        "За типових налаштувань bash маска * не включає .bashrc, бо:",
+        "With default bash settings, the * glob does not include .bashrc because:",
         [
-          "* не збігається з іменами, що починаються на крапку",
+          "за замовчуванням * не збігається з іменами, що починаються на крапку",
           "файл видалено",
           "потрібен sudo для будь-якого ls",
           ".bashrc лежить лише в /etc",
         ],
         0,
-      ),
+      ), optionsEn: ["By default, * does not match leading dots", "The file was deleted", "Any ls requires sudo", ".bashrc exists only in /etc"] },
       codeFill(
         "sa-s13",
-        "Перейти в теку з пробілом у назві",
-        "Enter a directory whose name has a space",
+        "Перейти в теку з точною назвою My Files",
+        "Enter the directory named exactly My Files",
         "bash",
         "cd \"My ___\"",
-        ["Files", "files"],
-        false,
+        ["Files"],
+        true,
         why(
           "Без лапок оболонка ріже рядок по пробілу і cd отримує два аргументи.",
           "Without quotes the shell splits on the space and cd receives two arguments.",
         ),
       ),
-      mcq(
+      { ...mcq(
         "sa-s14",
         "Знак ? у масці:",
         "A ? in a glob:",
         ["рівно один будь-який символ", "будь-яка кількість символів", "початок коментаря", "перенаправлення stderr"],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Exactly one matching character", "Any number of characters", "The start of a comment", "stderr redirection"] },
+      { ...mcq(
         "sa-s15",
         "Подвійні лапки навколо змінної:",
         "Double quotes around a variable:",
@@ -1563,7 +1563,7 @@ const shell = unit("shell", "Оболонка", "The shell", [
           "те саме, що sudo",
         ],
         0,
-      ),
+      ), optionsEn: ["Permit $VAR expansion while keeping spaces within one argument", "Disable every expansion like single quotes", "Delete a file", "Are the same as sudo"] },
     ],
   ),
   lesson(
@@ -1573,7 +1573,7 @@ const shell = unit("shell", "Оболонка", "The shell", [
     3,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-s16",
         "Пайп | :",
         "A pipe | :",
@@ -1584,8 +1584,8 @@ const shell = unit("shell", "Оболонка", "The shell", [
           "ставить пакет",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Connects the left command’s stdout to the right command’s stdin", "Writes stderr to a file and stops the left command", "Elevates privileges", "Installs a package"] },
+      { ...mcq(
         "sa-s17",
         "Різниця > і >> :",
         "The difference between > and >> :",
@@ -1600,7 +1600,7 @@ const shell = unit("shell", "Оболонка", "The shell", [
           "Перенаправлення > у існуючий файл знищує старий вміст. Для журналу, який хочете зберегти, беріть >>.",
           "Redirecting > onto an existing file destroys the old contents. To keep a log, use >>.",
         ),
-      ),
+      ), optionsEn: ["> truncates and writes the file; >> appends", "Both append", "> reads a file and >> deletes it", "> means stderr and >> means stdin"] },
       codeFill(
         "sa-s18",
         "Викинути звичайний вивід команди",
@@ -1610,7 +1610,7 @@ const shell = unit("shell", "Оболонка", "The shell", [
         ["null"],
         true,
       ),
-      mcq(
+      { ...mcq(
         "sa-s19",
         "2> file :",
         "2> file :",
@@ -1621,7 +1621,7 @@ const shell = unit("shell", "Оболонка", "The shell", [
           "те саме, що sudo",
         ],
         0,
-      ),
+      ), optionsEn: ["Writes stderr to file; stdout stays wherever it was directed", "Writes both streams to file", "Deletes file", "Is the same as sudo"] },
       codeOrder(
         "sa-s20",
         "Як зібрати рядок: спершу команда, потім фільтр",
@@ -1633,21 +1633,21 @@ const shell = unit("shell", "Оболонка", "The shell", [
     ],
   ),
   exam("sa-exam-shell", "Контрольна: оболонка", "Exam: the shell", 3, [
-    mcq(
+    { ...mcq(
       "sa-s21",
-      "cd /var/log з будь-якої теки спрацює, бо шлях:",
-      "cd /var/log works from anywhere because the path is:",
+      "cd /var/log не залежить від поточної теки, бо шлях:",
+      "cd /var/log does not depend on the current directory because the path is:",
       ["абсолютний", "відносний", "маска *", "приватна IP"],
       0,
-    ),
-    mcq(
+    ), optionsEn: ["Absolute", "Relative", "A * glob", "A private IP"] },
+    { ...mcq(
       "sa-s22",
       "Ctrl-D на порожньому запрошенні:",
       "Ctrl-D at an empty prompt:",
       ["EOF, часто вихід із оболонки", "SIGKILL процесу init", "копія файлу", "оновлення apt"],
       0,
-    ),
-    mcq(
+    ), optionsEn: ["EOF, often exiting the shell", "SIGKILL to init", "A file copy", "An apt update"] },
+    { ...mcq(
       "sa-s23",
       "rm notes > backup не робить бекап notes, бо:",
       "rm notes > backup does not back up notes because:",
@@ -1658,7 +1658,7 @@ const shell = unit("shell", "Оболонка", "The shell", [
         "backup — зарезервоване слово ядра",
       ],
       0,
-    ),
+    ), optionsEn: ["> redirects rm output; it does not copy the file", "rm always copies before deleting", "notes must be quoted", "backup is a reserved kernel word"] },
     codeFill(
       "sa-s24",
       "Довгий список із прихованими",
@@ -1668,13 +1668,13 @@ const shell = unit("shell", "Оболонка", "The shell", [
       ["-la", "-al"],
       true,
     ),
-    mcq(
+    { ...mcq(
       "sa-s25",
-      "* не чіпає файли на крапку. Щоб їх побачити:",
-      "* skips dotfiles. To see them:",
+      "За типових налаштувань * не включає файли на крапку. Щоб їх побачити:",
+      "With default settings * skips dotfiles. To see them:",
       ["ls -a", "chmod 777 *", "rm -rf /", "ufw disable"],
       0,
-    ),
+    ), optionsEn: ["ls -a", "chmod 777 *", "rm -rf /", "ufw disable"] },
     codeOrder(
       "sa-s26",
       "Порядок фрагментів",
@@ -1694,7 +1694,7 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
     3,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-p01",
         "mkdir -p a/b/c :",
         "mkdir -p a/b/c :",
@@ -1705,8 +1705,8 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
           "монтує диск",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Creates missing parent directories and succeeds if they already exist as directories", "Deletes directory c", "Copies with mode 777", "Mounts a disk"] },
+      { ...mcq(
         "sa-p02",
         "cp -a :",
         "cp -a :",
@@ -1717,8 +1717,8 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
           "архівує в /dev/null",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Copies recursively and attempts to preserve permissions and timestamps", "Always prompts for each file", "Is the same as rm", "Archives into /dev/null"] },
+      { ...mcq(
         "sa-p03",
         "mv всередині однієї файлової системи:",
         "mv on the same filesystem:",
@@ -1729,8 +1729,8 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
           "працює лише з порожніми теками",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Renames or moves a directory entry; data is usually not copied", "Always makes a complete copy and keeps the original", "Only changes the owner", "Works only on empty directories"] },
+      { ...mcq(
         "sa-p04",
         "Кошик стільниці і rm :",
         "The desktop trash and rm :",
@@ -1745,7 +1745,7 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
           "Немає прапорця «покласти в кошик» у rm. Перевіряйте шлях двічі. rm -rf / — команда, яку не запускають.",
           "rm has no trash flag. Check the path twice. rm -rf / is a command you do not run.",
         ),
-      ),
+      ), optionsEn: ["rm removes the name directly; desktop trash is separate", "rm puts the file in the trash", "Trash always calls shred", "rm does not exist in bash"] },
       codeFill(
         "sa-p05",
         "Створити вкладені теки одним викликом",
@@ -1764,7 +1764,7 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
     3,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-p06",
         "du -sh каталог :",
         "du -sh on a directory :",
@@ -1775,8 +1775,8 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
           "таблиця маршрутів",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Summarizes disk usage of the directory in human-readable units", "Shows free space on all disks", "Lists processes", "Shows the routing table"] },
+      { ...mcq(
         "sa-p07",
         "df -h від du відрізняється тим, що:",
         "df -h differs from du because:",
@@ -1787,17 +1787,17 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
           "df видаляє великі файли",
         ],
         0,
-      ),
+      ), optionsEn: ["df reports filesystem usage; du reports usage of selected paths", "They always print the same result", "du shows IP addresses", "df deletes large files"] },
       codeFill(
         "sa-p08",
         "Знайти в /etc файли з іменем, що закінчується на .conf",
         "Find files under /etc whose names end in .conf",
         "bash",
-        "find /etc -name '*.___'",
+        "find /etc -type f -name '*.___'",
         ["conf"],
         true,
       ),
-      mcq(
+      { ...mcq(
         "sa-p09",
         "Жорстке посилання (hard link):",
         "A hard link:",
@@ -1812,8 +1812,8 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
           "Симлінк — це шлях. Жорстке посилання — ще одне ім'я даних. Видалення одного імені не звільняє місце, якщо лишилось інше.",
           "A symlink is a path. A hard link is another name for the data. Removing one name does not free space while another name remains.",
         ),
-      ),
-      codeRead(
+      ), optionsEn: ["Another name for the same inode; data remains while a link exists", "A path that can dangle", "A DNS record", "A ufw rule"] },
+      { ...codeRead(
         "sa-p10",
         "Що зайнято?",
         "What is full?",
@@ -1826,7 +1826,7 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
           "du показує вільне місце",
         ],
         0,
-      ),
+      ), optionsEn: ["The root filesystem is full and /var/log is a large candidate to investigate", "20 GB is free", "Only /home is full", "du shows free space"] },
     ],
   ),
   lesson(
@@ -1836,14 +1836,14 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
     3,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-p11",
         "Цифри прав: r, w, x — це:",
         "Permission digits: r, w, x are:",
         ["4, 2 і 1", "1, 2 і 4 навпаки завжди", "8, 4 і 2", "лише букви, цифр немає"],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["4, 2, and 1", "1, 2, and 4 in reverse in every case", "8, 4, and 2", "Only letters exist, no digits"] },
+      { ...mcq(
         "sa-p12",
         "644 на звичайному файлі:",
         "644 on a regular file:",
@@ -1854,8 +1854,8 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
           "лише root може читати",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["The owner can read and write; group and others can read", "Everyone can write", "Nobody can read", "Only root can read"] },
+      { ...mcq(
         "sa-p13",
         "755 на скрипті або теці:",
         "755 on a script or directory:",
@@ -1866,8 +1866,8 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
           "забороняє власнику вхід у теку",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["The owner has rwx; group and others have read and execute/search", "Is the same as 777", "Is the same as 600", "Prevents the owner from entering the directory"] },
+      { ...mcq(
         "sa-p14",
         "chmod 777 :",
         "chmod 777 :",
@@ -1882,8 +1882,8 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
           "Приватний ключ SSH — 600. Звичайний текст — 644. Тека, в яку входять інші, — 755. 777 лікує симптом і відкриває запис кожному.",
           "An SSH private key is 600. Ordinary text is 644. A directory others may enter is 755. 777 treats the symptom and lets everyone write.",
         ),
-      ),
-      codeRead(
+      ), optionsEn: ["Grants write permission to everyone; it is rarely the right fix", "Is a private-key mode", "Only the owner can read", "Disables execution"] },
+      { ...codeRead(
         "sa-p15",
         "Який файл схожий на приватний ключ?",
         "Which file looks like a private key?",
@@ -1896,7 +1896,7 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
           "жоден: 600 означає «усі читають»",
         ],
         0,
-      ),
+      ), optionsEn: ["id_ed25519 with mode 600", "notes.txt with mode 644", "bin because it is a directory", "None: 600 means everyone can read"] },
     ],
   ),
   lesson(
@@ -1906,7 +1906,7 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
     3,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-p16",
         "chown ada:staff notes.txt :",
         "chown ada:staff notes.txt :",
@@ -1917,24 +1917,24 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
           "створює користувача ada",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Sets owner ada and group staff", "Sets mode 644", "Deletes the file", "Creates user ada"] },
+      { ...mcq(
         "sa-p17",
         "sudo перед однією командою:",
         "sudo in front of one command:",
         [
-          "виконує її з правами root і це лишається в журналі",
+          "зазвичай виконує команду від root, якщо політика дозволяє; журналювання залежить від налаштувань",
           "вимикає журнал назавжди",
           "те саме, що chmod 777",
           "працює без пароля на будь-якій машині з коробки",
         ],
         0,
         why(
-          "Цілий день у root-оболонці означає, що будь-яка помилка — від root. Одна команда через sudo вужча і її видно в auth.log.",
-          "A root shell all day means any slip runs as root. One command via sudo is narrower and shows up in auth.log.",
+          "У root-оболонці будь-яка помилка виконується з підвищеними правами. Окремі команди sudo звужують час підвищення; місце і наявність журналу залежать від конфігурації.",
+          "In a root shell any mistake runs with elevated privileges. Individual sudo commands limit that scope; whether and where they are logged depends on configuration.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["Normally runs the command as root if policy permits; logging depends on configuration", "Permanently disables logging", "Is the same as chmod 777", "Works without a password on every system by default"] },
+      { ...mcq(
         "sa-p18",
         "sudo -i :",
         "sudo -i :",
@@ -1945,7 +1945,7 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
           "ставить пакети",
         ],
         0,
-      ),
+      ), optionsEn: ["Starts a root login shell if allowed; mistakes can affect the whole session", "Only prints who you are", "Disables sudo", "Installs packages"] },
       codeFill(
         "sa-p19",
         "Віддати файл користувачу ada",
@@ -1955,7 +1955,7 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
         ["chown"],
         true,
       ),
-      mcq(
+      { ...mcq(
         "sa-p20",
         "Користувач не входить у теку з правами r-x у «інших», але він власник із --- :",
         "A user cannot enter a directory where others have r-x, but the owner mode is --- :",
@@ -1966,11 +1966,11 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
           "власник ігнорує права",
         ],
         0,
-      ),
+      ), optionsEn: ["The owner permission bits apply, not the other-user bits", "The most permissive bits always apply", "The directory x bit has nothing to do with entering", "The owner ignores permissions"] },
     ],
   ),
   exam("sa-exam-files", "Контрольна: файли і права", "Exam: files and permissions", 3, [
-    mcq(
+    { ...mcq(
       "sa-p21",
       "Безпечне прибирання файлів:",
       "A safe cleanup:",
@@ -1981,14 +1981,14 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
         "mv / /tmp",
       ],
       0,
-    ),
-    mcq(
+    ), optionsEn: ["Check the path and do not run rm on /", "Run rm -rf / if the disk is full", "Run chmod 777 on /", "Run mv / /tmp"] },
+    { ...mcq(
       "sa-p22",
       "Режим приватного ключа:",
       "Mode for a private key:",
       ["600", "777", "644 для всіх ключів обов'язково", "000 і потім 777"],
       0,
-    ),
+    ), optionsEn: ["600", "777", "644 is required for all keys", "000 followed by 777"] },
     codeFill(
       "sa-p23",
       "Розмір теки коротко",
@@ -1998,7 +1998,7 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
       ["-sh"],
       true,
     ),
-    mcq(
+    { ...mcq(
       "sa-p24",
       "Жорстке посилання:",
       "A hard link:",
@@ -2009,28 +2009,28 @@ const filesPerms = unit("files-perms", "Файли і права", "Files and pe
         "користувач sudo",
       ],
       0,
-    ),
-    mcq(
+    ), optionsEn: ["Another name for the same inode", "A DNS record", "A port forward", "A sudo user"] },
+    { ...mcq(
       "sa-p25",
       "sudo переважніше за постійний root, бо:",
       "sudo is preferable to a permanent root shell because:",
       [
-        "команда вужча і потрапляє в журнал",
+        "окрема команда звужує час підвищення прав і може журналюватися",
         "sudo вимикає права",
         "root не вміє читати /etc",
         "sudo не потребує облікового запису",
       ],
       0,
-    ),
-    codeRead(
+    ), optionsEn: ["A single command limits the scope of elevation and can be logged", "sudo disables permissions", "root cannot read /etc", "sudo needs no account"] },
+    { ...codeRead(
       "sa-p26",
-      "Хто може писати у файл?",
-      "Who can write the file?",
+      "Хто може писати у файл за наведеними бітами режиму, без ACL і спеціальних привілеїв?",
+      "Who can write based on these mode bits, without ACLs or special privileges?",
       "bash",
       "-rw-r--r-- 1 ada staff 20 readme.txt",
       ["лише ada", "усі", "лише staff", "ніхто"],
       0,
-    ),
+    ), optionsEn: ["Only ada", "Everyone", "Only staff", "Nobody"] },
   ]),
 ]);
 
@@ -2042,21 +2042,21 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
     3,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-t01",
         "Дивитись довгий файл сторінками:",
         "Read a long file a page at a time:",
         ["less", "rm", "mkfs", "ufw disable"],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["less", "rm", "mkfs", "ufw disable"] },
+      { ...mcq(
         "sa-t02",
         "Останні 50 рядків журналу:",
         "The last 50 lines of a log:",
         ["tail -n 50", "head -n 50 завжди лише для кінця", "chmod 50", "ls -50"],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["tail -n 50", "head -n 50 always shows only the end", "chmod 50", "ls -50"] },
+      { ...mcq(
         "sa-t03",
         "tail -f :",
         "tail -f :",
@@ -2067,7 +2067,7 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
           "монтує диск",
         ],
         0,
-      ),
+      ), optionsEn: ["Stays open and prints appended lines as the file grows", "Deletes the file", "Searches for a package", "Mounts a disk"] },
       codeFill(
         "sa-t04",
         "Шукати рядок із номерами рядків, без урахування регістру",
@@ -2081,7 +2081,7 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
           "Search a chosen directory. Do not grep -R / the whole disk out of habit: it is slow and noisy.",
         ),
       ),
-      mcq(
+      { ...mcq(
         "sa-t05",
         "grep -R pattern /etc/nginx :",
         "grep -R pattern /etc/nginx :",
@@ -2092,7 +2092,7 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
           "замінює journalctl для всіх служб",
         ],
         0,
-      ),
+      ), optionsEn: ["Searches recursively in that directory", "Searches only the home directory", "Starts nginx", "Replaces journalctl for every service"] },
     ],
   ),
   lesson(
@@ -2102,26 +2102,26 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
     3,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-t06",
         "Перед правкою конфіга:",
         "Before editing a config:",
         [
-          "зробити копію файлу поруч",
+          "зробити захищену копію і знати, як її відновити",
           "одразу rm оригінал",
           "chmod 777",
           "вимкнути журнал",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Make a protected copy before editing and know how to restore it", "Immediately remove the original", "Run chmod 777", "Disable logging"] },
+      { ...mcq(
         "sa-t07",
         "Вийти з nano:",
         "Leave nano:",
         ["Ctrl+X", ":q! завжди", "kill -9 nano обов'язково", "reboot"],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Ctrl+X", ":q! always", "kill -9 nano is required", "reboot"] },
+      { ...mcq(
         "sa-t08",
         "Вийти з vim без збереження:",
         "Leave vim without saving:",
@@ -2136,23 +2136,23 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
           "Якщо vim відкрився випадково: Esc, :q!. Зберегти і вийти — :wq.",
           "If vim opened by accident: Esc, then :q!. Save and quit is :wq.",
         ),
-      ),
+      ), optionsEn: ["Esc, then :q!", "Ctrl+X", "Just close the laptop lid", ":write-only"] },
       codeFill(
         "sa-t09",
-        "Копія конфіга перед правкою",
-        "Copy a config before editing",
+        "Створіть nginx.conf.bak перед правкою, якщо такої копії ще немає",
+        "Create nginx.conf.bak before editing, if that copy does not already exist",
         "bash",
         "sudo cp nginx.conf nginx.conf.___",
         ["bak"],
         true,
       ),
-      mcq(
+      { ...mcq(
         "sa-t10",
         "Зберегти файл у nano:",
         "Save a file in nano:",
         ["Ctrl+O", ":wq", "dd", "sudo -i"],
         0,
-      ),
+      ), optionsEn: ["Ctrl+O", ":wq", "dd", "sudo -i"] },
     ],
   ),
   lesson(
@@ -2162,7 +2162,7 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
     3,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-t11",
         "apt update :",
         "apt update :",
@@ -2177,8 +2177,8 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
           "Спершу update, потім upgrade. Upgrade без свіжого списку ставить те, що вже було у відомому індексі.",
           "Update first, then upgrade. Upgrade without a fresh list installs whatever the old index already knew.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["Refreshes package indexes without installing upgrades", "Immediately installs all updates", "Removes unused packages", "Reboots the machine"] },
+      { ...mcq(
         "sa-t12",
         "apt upgrade :",
         "apt upgrade :",
@@ -2189,7 +2189,7 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
           "вимикає репозиторії",
         ],
         0,
-      ),
+      ), optionsEn: ["Installs available upgrades using downloaded package indexes", "Only prints the Ubuntu version", "Is the same as update", "Disables repositories"] },
       codeOrder(
         "sa-t13",
         "Порядок apt",
@@ -2198,7 +2198,7 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
         ["sudo apt upgrade", "sudo apt update"],
         ["sudo apt update", "sudo apt upgrade"],
       ),
-      mcq(
+      { ...mcq(
         "sa-t14",
         "Випадковий .deb з невідомого сайту:",
         "A random .deb from an unknown site:",
@@ -2209,8 +2209,8 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
           "не може містити скрипти",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Is riskier than using a package from a trusted distribution repository", "Is always safer because it is newer", "Is the same as apt update", "Cannot contain scripts"] },
+      { ...mcq(
         "sa-t15",
         "Ім'я пакета і ім'я команди:",
         "A package name and a command name:",
@@ -2221,7 +2221,7 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
           "пакет завжди називається bash",
         ],
         0,
-      ),
+      ), optionsEn: ["Can differ; install the package name known to apt", "Always match", "The command is always named sudo", "The package is always named bash"] },
     ],
   ),
   lesson(
@@ -2231,7 +2231,7 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
     3,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-t16",
         "Навіщо git для конфіга чи скрипта сисадміна:",
         "Why git for a sysadmin config or script:",
@@ -2246,8 +2246,8 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
           "Тримайте в репозиторії копію файлів, які правите, або свої скрипти. Не комітьте паролі, приватні ключі і всліпу весь /etc.",
           "Keep a repository of the files you edit, or of your scripts. Do not commit passwords, private keys, or all of /etc blindly.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["Shows what changed and when; a pile of .bak files is harder to compare", "Replaces a 3-2-1 backup", "Grants sudo", "Opens a VPN"] },
+      { ...mcq(
         "sa-t17",
         "git init :",
         "git init :",
@@ -2258,7 +2258,7 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
           "форматує диск",
         ],
         0,
-      ),
+      ), optionsEn: ["Initializes a repository in the current directory", "Always publishes files on the internet", "Reloads nginx", "Formats the disk"] },
       codeOrder(
         "sa-t18",
         "Записати правку конфіга",
@@ -2276,11 +2276,11 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
         ["commit"],
         true,
         why(
-          "Повідомлення каже, що змінилось. Комітьте до reload служби: попередній текст тоді на одну команду назад.",
-          "The message says what changed. Commit before you reload the service: the previous text is then one command away.",
+          "Збережіть і перевірте початкову версію до змін. Перегляньте diff без секретів, перевірте синтаксис конфігурації і лише тоді плануйте перезавантаження служби.",
+          "Record and verify a baseline before making changes. Review the diff for secrets, validate the configuration syntax, and then plan the service reload.",
         ),
       ),
-      mcq(
+      { ...mcq(
         "sa-t20",
         "Десять машин, кожну правлять руками по SSH:",
         "Ten machines, each edited by hand over SSH:",
@@ -2295,7 +2295,7 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
           "Це лише ідея: один опис на багато машин. Сам курс лишається про одну консоль. Ansible не замінює бекап.",
           "This is only the idea: one description for many machines. This course stays on one console. Ansible does not replace a backup.",
         ),
-      ),
+      ), optionsEn: ["Manual configurations drift; a tool such as Ansible can describe desired state", "Is faster and safer than every recorded change", "Ansible replaces backup and RAID", "One file cannot be edited without Ansible"] },
     ],
   ),
   exam("sa-exam-packages", "Контрольна: текст, пакети, git", "Exam: text, packages, git", 3, [
@@ -2307,14 +2307,14 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
       ["sudo apt upgrade", "sudo apt update"],
       ["sudo apt update", "sudo apt upgrade"],
     ),
-    mcq(
+    { ...mcq(
       "sa-t22",
       "Випадково відкрили vim. Вихід без запису:",
       "You opened vim by accident. Quit without writing:",
       ["Esc :q!", "Ctrl+O", "rm -rf /", "apt remove vim обов'язково перед виходом"],
       0,
-    ),
-    mcq(
+    ), optionsEn: ["Esc :q!", "Ctrl+O", "rm -rf /", "apt remove vim is required before exiting"] },
+    { ...mcq(
       "sa-t23",
       "Копія конфіга потрібна, щоб:",
       "A config copy exists so that:",
@@ -2325,7 +2325,7 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
         "замінити бекап 3-2-1 повністю",
       ],
       0,
-    ),
+    ), optionsEn: ["Restore the previous text if the edit breaks the service", "Speed up the CPU", "Open a port", "Completely replace a 3-2-1 backup"] },
     codeFill(
       "sa-t24",
       "Останні 20 рядків",
@@ -2335,7 +2335,7 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
       ["-n"],
       true,
     ),
-    mcq(
+    { ...mcq(
       "sa-t25",
       "git для конфіга дає:",
       "Git on a config gives:",
@@ -2346,8 +2346,8 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
         "права 777",
       ],
       0,
-    ),
-    mcq(
+    ), optionsEn: ["History of what changed and when", "A replacement for 3-2-1 backups", "An open port", "Mode 777"] },
+    { ...mcq(
       "sa-t26",
       ".deb з листа:",
       "A .deb from an email:",
@@ -2358,7 +2358,7 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
         "так оновлюють ядро безпечніше",
       ],
       0,
-    ),
+    ), optionsEn: ["Do not install it; obtain the package from a trusted repository", "Always install it because the router antivirus checked the email", "It is the same as apt update", "It is the safer way to update the kernel"] },
   ]),
 ]);
 
@@ -2370,7 +2370,7 @@ const processes = unit("processes", "Процеси і служби", "Processes
     3,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-pr01",
         "PID у ps — це:",
         "PID in ps is:",
@@ -2381,24 +2381,24 @@ const processes = unit("processes", "Процеси і служби", "Processes
           "версія пакета",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Process identifier", "File permissions", "TCP port", "Package version"] },
+      { ...mcq(
         "sa-pr02",
         "У top колонка %wa (iowait) висока, а CPU майже вільний:",
         "In top, %wa (iowait) is high while the CPU looks idle:",
         [
-          "процеси чекають на диск або інший ввід-вивід, не лише на процесор",
+          "процесор простоював за наявності незавершеного вводу-виводу; перевірте сховище і навантаження",
           "потрібно більше ядер і все",
           "це завжди вірус",
           "треба chmod 777",
         ],
         0,
         why(
-          "Назви поля достатньо: iowait. Не плутайте його з «процесор зайнятий на 100%».",
-          "The field name is enough: iowait. Do not confuse it with a CPU that is 100% busy.",
+          "iowait показує час простою CPU, коли був незавершений ввід-вивід; сам по собі він не визначає винний процес чи пристрій. Перевірте затримки й навантаження сховища.",
+          "iowait measures CPU idle time while I/O was outstanding; it does not identify a culprit by itself. Investigate storage latency and workload.",
         ),
-      ),
-      codeRead(
+      ), optionsEn: ["The CPU spent time idle while I/O was outstanding; investigate storage and workload", "More CPU cores are the only possible fix", "This is always a virus", "Run chmod 777"] },
+      { ...codeRead(
         "sa-pr03",
         "Що видно в рядку?",
         "What does the row show?",
@@ -2411,8 +2411,8 @@ const processes = unit("processes", "Процеси і служби", "Processes
           "користувача ada видалено",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Process 842, user ada, state S (sleeping), command nginx", "Port 842 is open on the WAN", "The nginx file has a PID instead of permissions", "User ada has been deleted"] },
+      { ...mcq(
         "sa-pr04",
         "Стан S у ps зазвичай:",
         "State S in ps usually means:",
@@ -2423,8 +2423,8 @@ const processes = unit("processes", "Процеси і служби", "Processes
           "процес не існує",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["The process is sleeping and waiting for an event", "The process is necessarily a zombie", "The process is in the UEFI kernel", "The process does not exist"] },
+      { ...mcq(
         "sa-pr05",
         "ps показує зріз, top:",
         "ps shows a snapshot, top:",
@@ -2435,7 +2435,7 @@ const processes = unit("processes", "Процеси і служби", "Processes
           "те саме, що df",
         ],
         0,
-      ),
+      ), optionsEn: ["Refreshes its table until closed", "Writes fstab", "Installs packages", "Is the same as df"] },
     ],
   ),
   lesson(
@@ -2445,7 +2445,7 @@ const processes = unit("processes", "Процеси і служби", "Processes
     3,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-pr06",
         "SIGTERM (15):",
         "SIGTERM (15):",
@@ -2456,8 +2456,8 @@ const processes = unit("processes", "Процеси і служби", "Processes
           "те саме, що SIGKILL",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Requests termination, allowing the process to handle the signal and clean up", "Cannot be caught and immediately removes the process", "Reboots the machine", "Is the same as SIGKILL"] },
+      { ...mcq(
         "sa-pr07",
         "SIGKILL (9):",
         "SIGKILL (9):",
@@ -2472,7 +2472,7 @@ const processes = unit("processes", "Процеси і служби", "Processes
           "kill без номера шле TERM. Спершу 15, дайте процесу секунду, і лише тоді 9.",
           "kill with no number sends TERM. Try 15, give the process a moment, and only then 9.",
         ),
-      ),
+      ), optionsEn: ["Cannot be caught by the process; reserve it for when a graceful stop fails", "Is a gentle request to exit", "Is the default signal from kill", "Reloads a configuration"] },
       codeFill(
         "sa-pr08",
         "М'яко попросити процес 842 вийти",
@@ -2482,19 +2482,19 @@ const processes = unit("processes", "Процеси і служби", "Processes
         ["-15", "-TERM", "-s TERM"],
         true,
       ),
-      mcq(
+      { ...mcq(
         "sa-pr09",
         "kill -9 одразу:",
         "kill -9 immediately:",
         [
-          "не дає процесу закрити файли й дочірні ресурси",
+          "не дає програмі виконати власне очищення; ОС закриває файлові дескриптори завершеного процесу",
           "завжди безпечніше за TERM",
           "пише запис у бекап",
           "те саме, що systemctl reload",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Prevents application-level cleanup; the OS closes the terminated process’s file descriptors", "Is always safer than TERM", "Writes to a backup", "Is the same as systemctl reload"] },
+      { ...mcq(
         "sa-pr10",
         "Фонове завдання оболонки (command &):",
         "A background shell job (command &):",
@@ -2505,7 +2505,7 @@ const processes = unit("processes", "Процеси і служби", "Processes
           "не має PID",
         ],
         0,
-      ),
+      ), optionsEn: ["Remains a child of the shell; exiting may terminate it", "Automatically becomes a systemd service", "Survives a reboot without configuration", "Has no PID"] },
     ],
   ),
   lesson(
@@ -2515,7 +2515,7 @@ const processes = unit("processes", "Процеси і служби", "Processes
     3,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-pr11",
         "systemctl start nginx :",
         "systemctl start nginx :",
@@ -2527,11 +2527,11 @@ const processes = unit("processes", "Процеси і служби", "Processes
         ],
         0,
         why(
-          "enable — після завантаження. start — зараз. Потрібні обидва, якщо служба має і працювати, і пережити reboot.",
-          "enable is for boot. start is for now. You need both if the service should be up and survive a reboot.",
+          "enable налаштовує запуск під час завантаження, start запускає зараз. Успішний запуск залежить від конфігурації та стану служби.",
+          "enable configures boot activation; start starts the service now. Successful startup depends on the unit configuration and service health.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["Starts now and does not guarantee startup after reboot", "Enables startup but does not start now", "Removes the package", "Is the same as enable"] },
+      { ...mcq(
         "sa-pr12",
         "systemctl enable nginx :",
         "systemctl enable nginx :",
@@ -2542,8 +2542,8 @@ const processes = unit("processes", "Процеси і служби", "Processes
           "ставити пакет nginx",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Configures activation at boot but does not itself start the service", "Immediately stops nginx", "Is the same as reboot", "Installs nginx"] },
+      { ...mcq(
         "sa-pr13",
         "systemctl disable :",
         "systemctl disable :",
@@ -2554,8 +2554,8 @@ const processes = unit("processes", "Процеси і служби", "Processes
           "вимикає диск",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Removes enablement links but does not stop the currently running service", "Immediately sends kill -9", "Deletes the configuration", "Turns off the disk"] },
+      { ...mcq(
         "sa-pr27",
         "systemctl reload, якщо служба вміє:",
         "systemctl reload, when the service supports it:",
@@ -2567,10 +2567,10 @@ const processes = unit("processes", "Процеси і служби", "Processes
         ],
         0,
         why(
-          "restart рве з'єднання. reboot чіпає всю машину. Після перевірки конфіга зазвичай достатньо reload.",
-          "restart drops connections. reboot restarts the machine. After a config test, reload is usually enough.",
+          "restart зазвичай перериває роботу служби; reboot перезапускає машину. Після перевірки конфігурації з’ясуйте, чи конкретна служба підтримує reload і застосовує потрібні зміни.",
+          "A restart typically interrupts the service; reboot restarts the machine. After validating the configuration, check whether that service supports reload and applies the intended changes.",
         ),
-      ),
+      ), optionsEn: ["Requests a configuration reload and may preserve existing connections", "Always reboots the machine", "Is the same as enable", "Deletes /etc"] },
       codeFill(
         "sa-pr14",
         "Дізнатись, чи жива служба ssh",
@@ -2580,7 +2580,7 @@ const processes = unit("processes", "Процеси і служби", "Processes
         ["status"],
         true,
       ),
-      codeRead(
+      { ...codeRead(
         "sa-pr15",
         "Що з nginx?",
         "What about nginx?",
@@ -2593,7 +2593,7 @@ const processes = unit("processes", "Процеси і служби", "Processes
           "це вивід df",
         ],
         0,
-      ),
+      ), optionsEn: ["The service is enabled but currently failed", "The service is disabled and therefore healthy", "Enabled means the process is certainly running", "This is df output"] },
     ],
   ),
   lesson(
@@ -2603,7 +2603,7 @@ const processes = unit("processes", "Процеси і служби", "Processes
     3,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-pr16",
         "На Ubuntu перше місце журналу служби:",
         "On Ubuntu, the first place for a service log:",
@@ -2614,7 +2614,7 @@ const processes = unit("processes", "Процеси і служби", "Processes
           "лист на пошту root автоматично",
         ],
         0,
-      ),
+      ), optionsEn: ["Start with journalctl; some services also log to files in /var/log", "Only /etc", "BIOS", "An automatic email to root"] },
       codeFill(
         "sa-pr17",
         "Журнал однієї служби",
@@ -2624,7 +2624,7 @@ const processes = unit("processes", "Процеси і служби", "Processes
         ["-u"],
         true,
       ),
-      mcq(
+      { ...mcq(
         "sa-pr18",
         "journalctl -b :",
         "journalctl -b :",
@@ -2635,8 +2635,8 @@ const processes = unit("processes", "Процеси і служби", "Processes
           "вимикає журнал",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Entries from the current boot", "All boots since 2010 without a filter", "Only the disk vendor kernel", "Disables the journal"] },
+      { ...mcq(
         "sa-pr19",
         "-p err :",
         "-p err :",
@@ -2647,8 +2647,8 @@ const processes = unit("processes", "Процеси і служби", "Processes
           "фільтрує за ім'ям користувача err",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Keeps error and more severe entries", "Prints only debug entries", "Deletes the journal", "Filters by a user named err"] },
+      { ...mcq(
         "sa-pr20",
         "--no-pager у команді, яку ви копіюєте в нотатки:",
         "--no-pager on a command you paste into notes:",
@@ -2663,39 +2663,39 @@ const processes = unit("processes", "Процеси і служби", "Processes
           "Робочий рядок: journalctl -u NAME -b -p err --no-pager. -f лишає хвіст відкритим, як tail -f.",
           "A working line: journalctl -u NAME -b -p err --no-pager. -f follows the tail, like tail -f.",
         ),
-      ),
+      ), optionsEn: ["Prints without a pager such as less", "Disables kernel colors", "Is needed only on Windows", "Is the same as -f and waits forever"] },
     ],
   ),
   exam("sa-exam-processes", "Контрольна: процеси", "Exam: processes", 3, [
-    mcq(
+    { ...mcq(
       "sa-pr21",
       "Спершу сигнал:",
       "The first signal:",
       ["SIGTERM 15", "SIGKILL 9", "reboot -f", "chmod 777"],
       0,
-    ),
-    mcq(
+    ), optionsEn: ["SIGTERM 15", "SIGKILL 9", "reboot -f", "chmod 777"] },
+    { ...mcq(
       "sa-pr22",
       "enable без start:",
       "enable without start:",
       [
-        "після наступного reboot служба стартує, зараз її може не бути",
+        "службу налаштовано для запуску під час завантаження, але зараз вона може не працювати",
         "процес уже працює гарантовано",
         "пакет видалено",
         "порт закрито",
       ],
       0,
-    ),
+    ), optionsEn: ["The unit is configured for boot activation but may not be running now", "The process is guaranteed to be running", "The package has been deleted", "The port is closed"] },
     codeFill(
       "sa-pr23",
-      "Автозапуск ssh після reboot",
-      "Start ssh on every boot",
+      "Налаштувати запуск ssh під час завантаження",
+      "Enable ssh for startup at boot",
       "bash",
       "sudo systemctl ___ ssh",
       ["enable"],
       true,
     ),
-    codeRead(
+    { ...codeRead(
       "sa-pr24",
       "Служба enabled і failed. Висновок:",
       "The unit is enabled and failed. Conclusion:",
@@ -2708,19 +2708,19 @@ const processes = unit("processes", "Процеси і служби", "Processes
         "це iowait",
       ],
       0,
-    ),
-    mcq(
+    ), optionsEn: ["The unit is enabled, but currently failed", "Everything is healthy because it is enabled", "disable has already run", "This is iowait"] },
+    { ...mcq(
       "sa-pr25",
       "Високий iowait:",
       "High iowait:",
       [
-        "очікування диска або іншого IO",
+        "простій CPU за наявності незавершеного вводу-виводу; потрібна подальша діагностика",
         "доказ, що CPU згорів",
         "помилка DNS",
         "режим 777",
       ],
       0,
-    ),
+    ), optionsEn: ["CPU idle time while I/O was outstanding; investigate further", "Proof that the CPU burned out", "A DNS error", "Mode 777"] },
     codeFill(
       "sa-pr26",
       "Помилки nginx з цього завантаження",
@@ -2741,7 +2741,7 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
     3,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-nc01",
         "Сучасна команда адрес на Linux:",
         "The current command for addresses on Linux:",
@@ -2756,8 +2756,8 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
           "ifconfig зі старого пакета net-tools. Вчіть ip. ifconfig можна згадати лише як старе ім'я.",
           "ifconfig comes from the old net-tools package. Learn ip. Mention ifconfig only as the old name.",
         ),
-      ),
-      codeRead(
+      ), optionsEn: ["ip addr", "ifconfig as the primary modern tool", "winipcfg", "apt addr"] },
+      { ...codeRead(
         "sa-nc02",
         "Яка адреса хоста на eth0?",
         "What is the host address on eth0?",
@@ -2770,8 +2770,8 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
           "префікс /8 на eth0",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["192.168.1.20 with prefix /24", "127.0.0.1 is the office LAN address", "eth0 has no address", "eth0 has prefix /8"] },
+      { ...mcq(
         "sa-nc03",
         "127.0.0.1 :",
         "127.0.0.1 :",
@@ -2782,7 +2782,7 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
           "адреса DNS Google",
         ],
         0,
-      ),
+      ), optionsEn: ["This same machine, not a neighbor in the office", "Always the default gateway", "The provider public address", "The Google DNS address"] },
       codeFill(
         "sa-nc04",
         "Показати маршрути",
@@ -2792,18 +2792,18 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
         ["route", "r"],
         true,
       ),
-      mcq(
+      { ...mcq(
         "sa-nc05",
         "Рядок default via 192.168.1.1 :",
         "A line default via 192.168.1.1 :",
         [
-          "шлюз, куди йдуть пакети не з локальної мережі",
+          "наступний вузол, якщо немає точнішого маршруту",
           "ім'я цієї машини",
           "маска файлу",
           "порт SSH",
         ],
         0,
-      ),
+      ), optionsEn: ["The next hop when no more specific route matches", "The name of this machine", "A file mask", "The SSH port"] },
     ],
   ),
   lesson(
@@ -2813,7 +2813,7 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
     3,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-nc06",
         "ping шлюзу проходить, ім'я сайту — ні, а ping 1.1.1.1 проходить:",
         "Gateway ping works, the site name does not, and ping 1.1.1.1 works:",
@@ -2828,8 +2828,8 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
           "Порядок: шлюз, потім публічна IP, потім ім'я. Так ви відділяєте маршрут, шлях у інтернет і DNS.",
           "Order: gateway, then a public IP, then a name. That separates routing, internet path, and DNS.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["A DNS problem is plausible; investigate name resolution", "The cable is absent", "The disk is full", "There are no permissions on /"] },
+      { ...mcq(
         "sa-nc07",
         "ss -lnt :",
         "ss -lnt :",
@@ -2840,7 +2840,7 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
           "вміст /etc/shadow",
         ],
         0,
-      ),
+      ), optionsEn: ["Listening TCP sockets with numeric addresses and ports", "All installed packages", "Only the ARP table", "The contents of /etc/shadow"] },
       codeFill(
         "sa-nc08",
         "Лише заголовки HTTP",
@@ -2850,7 +2850,7 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
         ["-I"],
         true,
       ),
-      mcq(
+      { ...mcq(
         "sa-nc09",
         "dig example.com або resolvectl query example.com :",
         "dig example.com or resolvectl query example.com :",
@@ -2861,21 +2861,21 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
           "те саме, що ping",
         ],
         0,
-      ),
-      codeRead(
+      ), optionsEn: ["Queries name resolution and displays the response", "Opens a router port", "Installs an example package", "Is the same as ping"] },
+      { ...codeRead(
         "sa-nc10",
         "Чому curl отримав відмову?",
         "Why did curl get a refusal?",
         "bash",
         "$ curl -I http://127.0.0.1:8080\ncurl: (7) Failed to connect to 127.0.0.1 port 8080: Connection refused",
         [
-          "на цьому порту ніхто не слухає",
+          "імовірно, порт ніхто не слухає; відмову також може надіслати брандмауер",
           "DNS приклад.com зламаний",
           "немає маршруту до 127.0.0.1",
           "ufw уже вимкнено, тому порт зайнятий",
         ],
         0,
-      ),
+      ), optionsEn: ["No listener is likely, though a firewall reject can also cause refusal", "DNS for example.com is broken", "There is no route to 127.0.0.1", "ufw is disabled, so the port is occupied"] },
     ],
   ),
   lesson(
@@ -2885,31 +2885,31 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
     4,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-nc11",
         "Перш ніж увімкнути ufw на машині, куди ви заходите по SSH:",
         "Before you enable ufw on a box you reach over SSH:",
         [
-          "дозволити OpenSSH, інакше відріжете собі вхід",
+          "дозволити фактичний порт SSH і потрібне джерело доступу до увімкнення брандмауера",
           "ufw disable у циклі",
           "відкрити всі порти",
           "видалити ключі",
         ],
         0,
         why(
-          "Порядок: allow OpenSSH, enable, status. Вимикати брандмауер як «лагодження» не вчимо.",
-          "Order: allow OpenSSH, enable, status. Disabling the firewall is not the fix we teach.",
+          "Перевірте фактичний порт SSH і адресу керування. При стандартному порту 22 приклад — allow OpenSSH, enable, status; збережіть консольний доступ і перевірте нове SSH-з’єднання до закриття старого.",
+          "Verify the actual SSH port and management source. For standard port 22, use allow OpenSSH, enable, status; retain console access and test a new SSH connection before closing the old one.",
         ),
-      ),
+      ), optionsEn: ["Allow the actual SSH port and management source before enabling the firewall", "Run ufw disable in a loop", "Open every port", "Delete the keys"] },
       codeOrder(
         "sa-nc12",
-        "Увімкнути ufw, не втративши SSH",
-        "Enable ufw without losing SSH",
+        "Увімкнути ufw для SSH на стандартному порту 22",
+        "Enable ufw for SSH on the standard port 22",
         "bash",
         ["sudo ufw enable", "sudo ufw status", "sudo ufw allow OpenSSH"],
         ["sudo ufw allow OpenSSH", "sudo ufw enable", "sudo ufw status"],
       ),
-      mcq(
+      { ...mcq(
         "sa-nc13",
         "Типова політика офісного сервера:",
         "A typical office server policy:",
@@ -2920,7 +2920,7 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
           "заборонено localhost",
         ],
         0,
-      ),
+      ), optionsEn: ["Deny inbound traffic except what is required", "Allow all inbound traffic and deny all outbound traffic", "Use no policy and random ports", "Deny localhost"] },
       codeFill(
         "sa-nc14",
         "Подивитись правила",
@@ -2930,7 +2930,7 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
         ["status"],
         true,
       ),
-      mcq(
+      { ...mcq(
         "sa-nc15",
         "ufw disable як постійне рішення:",
         "ufw disable as a permanent fix:",
@@ -2941,7 +2941,7 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
           "потрібне, щоб працював journalctl",
         ],
         0,
-      ),
+      ), optionsEn: ["May hide the symptom while removing a layer of protection", "Is correct for an internet-facing SSH server", "Replaces updates", "Is needed for journalctl"] },
     ],
   ),
   lesson(
@@ -2951,7 +2951,7 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
     4,
     false,
     [
-      mcq(
+      { ...mcq(
         "sa-nc16",
         "ssh-keygen :",
         "ssh-keygen :",
@@ -2962,8 +2962,8 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
           "ставить ufw",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Creates a key pair on your machine", "Copies the root password to the server in plaintext", "Disables sshd", "Installs ufw"] },
+      { ...mcq(
         "sa-nc17",
         "Приватний ключ:",
         "The private key:",
@@ -2978,8 +2978,8 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
           "Публічний ключ — в authorized_keys. Приватний — режим 600 і парольна фраза на ключ. Чужий сервер не адмініструють.",
           "The public key goes in authorized_keys. The private key stays mode 600 with a passphrase. Do not administer a server you are not allowed to touch.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["Stays with you; the public key goes to the server", "Is stored in known_hosts", "Is placed in /etc/motd", "Can be posted in the office chat"] },
+      { ...mcq(
         "sa-nc18",
         "known_hosts раптом не збігся:",
         "known_hosts suddenly does not match:",
@@ -2990,8 +2990,8 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
           "прокиньте порт 22 на весь інтернет «для перевірки»",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Stop and verify the server host key through an independent channel", "Immediately delete the entry and connect", "Disable checking permanently in the configuration", "Forward port 22 to the entire internet to test"] },
+      { ...mcq(
         "sa-nc19",
         "scp і sftp :",
         "scp and sftp :",
@@ -3002,7 +3002,7 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
           "команди apt",
         ],
         0,
-      ),
+      ), optionsEn: ["Transfer files over SSH", "By themselves replace a 3-2-1 backup", "Are Wi-Fi protocols", "Are apt commands"] },
       codeFill(
         "sa-nc20",
         "Створити ключ",
@@ -3015,21 +3015,21 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
     ],
   ),
   exam("sa-exam-netcli", "Контрольна: мережа з консолі", "Exam: network from the shell", 4, [
-    codeRead(
+    { ...codeRead(
       "sa-nc21",
-      "Хто слухає з усіх інтерфейсів?",
-      "Who listens on all interfaces?",
+      "Який TCP-порт слухає всі IPv4-адреси?",
+      "Which TCP port listens on all IPv4 addresses?",
       "bash",
       "LISTEN 0 128 0.0.0.0:22 0.0.0.0:*\nLISTEN 0 128 127.0.0.1:631 0.0.0.0:*",
       [
-        "SSH (22) на всіх адресах; 631 лише на localhost",
+        "TCP-порт 22 слухає всі IPv4-адреси; порт 631 — лише IPv4 loopback",
         "обидва лише на localhost",
         "631 відкритий у інтернет, 22 закритий",
         "це вивід df",
       ],
       0,
-    ),
-    mcq(
+    ), optionsEn: ["TCP port 22 listens on all IPv4 addresses; port 631 listens on IPv4 loopback", "Both listen only on loopback", "Port 631 is open to the internet and port 22 is closed", "This is df output"] },
+    { ...mcq(
       "sa-nc22",
       "ping шлюзу немає:",
       "The gateway does not answer ping:",
@@ -3040,16 +3040,16 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
         "допомагає apt remove iproute2",
       ],
       0,
-    ),
+    ), optionsEn: ["It is too early to blame DNS", "DNS is certainly the only cause", "chmod 777 helps", "apt remove iproute2 helps"] },
     codeOrder(
       "sa-nc23",
-      "ufw і SSH",
-      "ufw and SSH",
+      "ufw і SSH на стандартному порту 22",
+      "ufw and SSH on the standard port 22",
       "bash",
       ["sudo ufw enable", "sudo ufw allow OpenSSH"],
       ["sudo ufw allow OpenSSH", "sudo ufw enable"],
     ),
-    mcq(
+    { ...mcq(
       "sa-nc24",
       "Чужий known_hosts:",
       "A mismatched known_hosts:",
@@ -3060,7 +3060,7 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
         "вимкнути ufw назавжди",
       ],
       0,
-    ),
+    ), optionsEn: ["Stop and verify the server through an independent channel", "Set StrictHostKeyChecking no globally", "Publish the private key", "Disable ufw permanently"] },
     codeFill(
       "sa-nc25",
       "Короткі адреси",
@@ -3070,7 +3070,7 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
       ["-br"],
       true,
     ),
-    mcq(
+    { ...mcq(
       "sa-nc26",
       "ifconfig :",
       "ifconfig :",
@@ -3081,7 +3081,7 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
         "створює ключ SSH",
       ],
       0,
-    ),
+    ), optionsEn: ["A legacy net-tools command; ip is the modern alternative", "The only correct command in Ubuntu", "Shows the nginx journal", "Creates an SSH key"] },
   ]),
 ]);
 
@@ -3463,7 +3463,7 @@ const usersDisks = unit("users-disks-cron", "Користувачі, диски,
       "Дзеркало RAID 1:",
       "A RAID 1 mirror:",
       [
-        "рятує від смерті одного диска і не рятує від видалення файла",
+        "деякі рівні витримують відмову диска, але не захищають від видалення файла",
         "замінює бекап",
         "це RAID 0",
         "форматує розділ, як mkfs",

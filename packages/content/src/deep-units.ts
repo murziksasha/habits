@@ -498,13 +498,13 @@ export const sqlCtePerformanceUnit: UnitContent = unit(
         ["SELECT * FROM top_users;", "WITH top_users AS (", ")", "  SELECT user_id FROM orders GROUP BY user_id HAVING count(*) > 5"],
         ["WITH top_users AS (", "  SELECT user_id FROM orders GROUP BY user_id HAVING count(*) > 5", ")", "SELECT * FROM top_users;"],
       ),
-      mcq(
+      { ...mcq(
         "sqlf-cte-3",
-        "Для дерева категорій (parent_id) потрібен:",
-        "To walk a category tree (parent_id) you need:",
+        "Який із варіантів підтримує обхід дерева категорій (parent_id) в Oracle?",
+        "Which option can traverse a category tree (parent_id) in Oracle?",
         ["WITH … UNION ALL без слова RECURSIVE", "GROUP BY", "DISTINCT", "FETCH FIRST"],
         0,
-      ),
+      ), optionsEn: ["WITH … UNION ALL without the RECURSIVE keyword", "GROUP BY", "DISTINCT", "FETCH FIRST"] },
     ]),
     lesson("sqlf-indexes", "Індекси", "Indexes", 3, false, [
       concept(
@@ -512,12 +512,12 @@ export const sqlCtePerformanceUnit: UnitContent = unit(
         "Як працює B-tree індекс",
         "How a B-tree index works",
         {
-          uk: "Індекс — відсортована структура (зазвичай B-tree), що дозволяє знайти рядки за O(log n) замість повного сканування таблиці.\n\nСкладений індекс (a, b) допомагає умовам на a або на a і b, але не лише на b (правило лівого префікса). Кожен індекс сповільнює INSERT/UPDATE.",
-          en: "An index is a sorted structure (usually a B-tree) that finds rows in O(log n) instead of a full table scan.\n\nA composite index (a, b) helps filters on a, or on a and b, but not on b alone (leftmost-prefix rule). Every index slows down INSERT/UPDATE.",
+          uk: "B-tree індекс підтримує впорядкований пошук і може скоротити читання даних, але загальна вартість залежить від кількості збігів та звернень до таблиці.\n\nІндекс (a, b) зазвичай найкраще підтримує умови, що починаються з a. У деяких випадках оптимізатор Oracle може обрати index skip scan і за умовою лише на b. Індекси займають місце та потребують підтримки під час запису.",
+          en: "A B-tree index supports ordered lookups and can reduce data reads, but total cost depends on matches and table access.\n\nAn index on (a, b) usually best supports predicates starting with a. In some cases the Oracle optimizer can choose an index skip scan for a predicate on b alone. Indexes consume space and require maintenance during writes.",
         },
         {
-          keyPointsUk: ["Індексуйте колонки з WHERE / JOIN / ORDER BY", "Правило лівого префікса", "Функція над колонкою (lower(email)) вимикає звичайний індекс"],
-          keyPointsEn: ["Index columns used in WHERE / JOIN / ORDER BY", "Leftmost-prefix rule", "A function on the column (lower(email)) disables a plain index"],
+          keyPointsUk: ["Розглядайте індекси за запитами та вибірковістю", "Правило лівого префікса", "Для lower(email) розгляньте function-based index і перевірте план"],
+          keyPointsEn: ["Consider indexes based on workload and selectivity", "Leftmost-prefix rule", "For lower(email), consider a function-based index and inspect the plan"],
           language: "sql",
           code: "CREATE INDEX orders_user_created_idx\n  ON orders (user_id, created_at);",
         },
@@ -531,10 +531,10 @@ export const sqlCtePerformanceUnit: UnitContent = unit(
         ["INDEX", "index"],
         false,
       ),
-      mcq(
+      { ...mcq(
         "sqlf-cte-5",
-        "Індекс (user_id, created_at) НЕ допоможе запиту:",
-        "Index (user_id, created_at) will NOT help:",
+        "Для якого фільтра складений індекс (user_id, created_at) не має обмеження за провідною колонкою?",
+        "Which filter on index (user_id, created_at) has no predicate on its leading column?",
         [
           "WHERE created_at > DATE '2026-01-01' (без user_id)",
           "WHERE user_id = 7",
@@ -542,14 +542,14 @@ export const sqlCtePerformanceUnit: UnitContent = unit(
           "WHERE user_id = 7 ORDER BY created_at",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["WHERE created_at > DATE '2026-01-01' without user_id", "WHERE user_id = 7", "WHERE user_id = 7 AND created_at > SYSDATE - 1", "WHERE user_id = 7 ORDER BY created_at"] },
+      { ...mcq(
         "sqlf-cte-6",
         "Ціна зайвих індексів:",
         "The cost of extra indexes:",
         ["повільніші INSERT/UPDATE і більше місця", "повільніший SELECT завжди", "втрата даних", "неможливість JOIN"],
         0,
-      ),
+      ), optionsEn: ["More write maintenance and storage", "Every SELECT is always slower", "Data loss", "JOIN becomes impossible"] },
       explain(
         "sqlf-cte-x1",
         "Поясніть своїми словами, коли індекс прискорює запит і чому не варто індексувати все.",
@@ -574,8 +574,8 @@ export const sqlCtePerformanceUnit: UnitContent = unit(
         "Читаємо план запиту",
         "Reading a query plan",
         {
-          uk: "В Oracle план знімають так: EXPLAIN PLAN FOR і ваш SELECT, потім SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY). Це не команда EXPLAIN ANALYZE і саме по собі не друкує фактичний час.\n\nTABLE ACCESS FULL на великій таблиці, коли потрібні лічені рядки, — сигнал додати індекс. INDEX RANGE SCAN означає, що індекс використано. Повне читання нормальне, якщо потрібна велика частка рядків.",
-          en: "In Oracle you capture a plan with EXPLAIN PLAN FOR and your SELECT, then SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY). That is not EXPLAIN ANALYZE, and by itself it does not print actual time.\n\nTABLE ACCESS FULL on a large table when you need a handful of rows is a hint to add an index. INDEX RANGE SCAN means the index is used. A full read is normal when you need a large fraction of the rows.",
+          uk: "В Oracle план знімають так: EXPLAIN PLAN FOR і ваш SELECT, потім SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY). Це не команда EXPLAIN ANALYZE і саме по собі не друкує фактичний час.\n\nTABLE ACCESS FULL на великій таблиці за малої вибірки — привід перевірити статистику, план і можливий індекс, а не доказ, що індекс обов’язково допоможе. INDEX RANGE SCAN означає, що індекс використано. Повне читання нормальне, якщо потрібна велика частка рядків.",
+          en: "In Oracle you capture a plan with EXPLAIN PLAN FOR and your SELECT, then SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY). That is not EXPLAIN ANALYZE, and by itself it does not print actual time.\n\nTABLE ACCESS FULL on a large table for a small result warrants checking statistics, the plan and a possible index; it does not prove an index will help. INDEX RANGE SCAN means the index is used. A full read is normal when you need a large fraction of the rows.",
         },
         {
           keyPointsUk: ["EXPLAIN PLAN FOR не є EXPLAIN ANALYZE", "План друкує DBMS_XPLAN.DISPLAY", "TABLE ACCESS FULL доречний, коли потрібна велика частка рядків"],
@@ -598,38 +598,38 @@ export const sqlCtePerformanceUnit: UnitContent = unit(
         { left: "INDEX RANGE SCAN", right: "шукає через індекс" },
         { left: "HASH JOIN", right: "зʼєднання через хеш-таблицю" },
       ]),
-      mcq(
+      { ...mcq(
         "sqlf-cte-9",
-        "WHERE lower(email) = 'a@b.c' не використовує індекс на email. Рішення:",
-        "WHERE lower(email) = 'a@b.c' ignores the email index. Fix:",
+        "Для частого пошуку за lower(email) потрібен придатний шлях доступу. Що варто перевірити?",
+        "A frequent lower(email) lookup needs a suitable access path. What should you consider?",
         ["індекс на вираз: CREATE INDEX ... ON users (lower(email))", "додати ROWNUM = 1", "DISTINCT", "ORDER BY email"],
         0,
-      ),
+      ), optionsEn: ["A function-based index on lower(email)", "Add ROWNUM = 1", "DISTINCT", "ORDER BY email"] },
     ]),
     exam("sqlf-cte-exam", "Контрольна: CTE і продуктивність", "Exam: CTEs & performance", 4, [
-      codeFill("sqlf-ctee-1", "CTE", "CTE", "sql", "___ t AS (SELECT 1) SELECT * FROM t;", ["WITH", "with"], false),
-      mcq(
+      codeFill("sqlf-ctee-1", "CTE", "CTE", "sql", "___ t AS (SELECT 1 FROM dual) SELECT * FROM t;", ["WITH", "with"], false),
+      { ...mcq(
         "sqlf-ctee-2",
         "Ієрархію обходять через:",
         "Hierarchies are walked with:",
         ["рекурсивний WITH … UNION ALL", "HAVING", "UNION без ALL лише", "CROSS JOIN"],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Recursive WITH … UNION ALL", "HAVING", "Only UNION without ALL", "CROSS JOIN"] },
+      { ...mcq(
         "sqlf-ctee-3",
         "Правило лівого префікса стосується:",
         "The leftmost-prefix rule is about:",
         ["складених індексів", "назв таблиць", "транзакцій", "GRANT"],
         0,
-      ),
+      ), optionsEn: ["Composite indexes", "Table names", "Transactions", "GRANT"] },
       codeFill("sqlf-ctee-4", "Зняти план", "Capture a plan", "sql", "EXPLAIN PLAN ___ SELECT 1 FROM dual;", ["FOR", "for"], false),
-      mcq(
+      { ...mcq(
         "sqlf-ctee-5",
-        "Seq Scan по 10 млн рядків, щоб знайти 1 рядок, означає:",
-        "A Seq Scan over 10M rows to find 1 row means:",
-        ["ймовірно бракує індексу", "запит оптимальний", "таблиця порожня", "індекс зламався завжди"],
+        "TABLE ACCESS FULL для вибіркового запиту на великій таблиці — привід:",
+        "TABLE ACCESS FULL for a selective query on a large table is a reason to:",
+        ["перевірити план, статистику та придатні індекси", "вважати запит гарантовано оптимальним", "вважати таблицю порожньою", "завжди вважати індекс пошкодженим"],
         0,
-      ),
+      ), optionsEn: ["Check the plan, statistics, and suitable indexes", "Assume the query is always optimal", "Assume the table is empty", "Always assume the index is corrupt"] },
     ]),
   ],
 );
