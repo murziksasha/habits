@@ -6,6 +6,7 @@ describe("gradeExercise", () => {
     const ex = { id: "1", type: "mcq", options: ["a", "b"], correctIndex: 1 };
     expect(gradeExercise(ex, 1).correct).toBe(true);
     expect(gradeExercise(ex, 0).correct).toBe(false);
+    expect(gradeExercise({ ...ex, correctIndex: 0 }, null).correct).toBe(false);
   });
 
   it("grades translate with normalization", () => {
@@ -66,13 +67,17 @@ int main(){ cout << 1; return 0; }`,
     };
     expect(gradeExercise(ex, ["I", "am", "here"]).correct).toBe(true);
     expect(gradeExercise(ex, ["am", "I", "here"]).correct).toBe(false);
+    expect(gradeExercise(ex, []).correct).toBe(false);
   });
 
   it("grades typing thresholds", () => {
     const ex = { id: "5", type: "typing", text: "hello" };
-    expect(gradeExercise(ex, { wpm: 30, accuracy: 0.9 }).correct).toBe(true);
-    expect(gradeExercise(ex, { wpm: 5, accuracy: 1 }).correct).toBe(false);
-    expect(gradeExercise(ex, { wpm: 40, accuracy: 0.5 }).correct).toBe(false);
+    expect(gradeExercise(ex, { wpm: 30, text: "hello" }).correct).toBe(true);
+    expect(gradeExercise(ex, { wpm: 5, text: "hello" }).correct).toBe(false);
+    expect(gradeExercise(ex, { wpm: 40, text: "xxxxx", accuracy: 1 }).correct).toBe(false);
+    expect(gradeExercise(ex, { wpm: 40, text: "hell", accuracy: 1 }).correct).toBe(false);
+    expect(gradeExercise(ex, { wpm: 40, accuracy: 1 }).correct).toBe(false);
+    expect(gradeExercise(ex, { wpm: Infinity, text: "hello" }).correct).toBe(false);
   });
 
   it("grades rsvp completion", () => {
@@ -213,15 +218,28 @@ int main(){ cout << 1; return 0; }`,
     ).toBe(true);
   });
 
-  it("grades chess_puzzle by san or solved flag", () => {
+  it("grades chess puzzles from the complete authored SAN sequence", () => {
     const ex = {
       id: "8",
       type: "chess_puzzle",
       solutionSans: ["Re8#"],
     };
-    expect(gradeExercise(ex, { solved: true }).correct).toBe(true);
+    expect(gradeExercise(ex, { solved: true }).correct).toBe(false);
     expect(gradeExercise(ex, { sans: ["Re8"] }).correct).toBe(true);
     expect(gradeExercise(ex, { sans: ["Re7"] }).correct).toBe(false);
+    expect(gradeExercise(ex, { sans: ["Re8", "extra"] }).correct).toBe(false);
+    expect(gradeExercise(ex, { sans: [null] }).correct).toBe(false);
+    expect(gradeExercise({ ...ex, solutionSans: [] }, { sans: [] }).correct).toBe(false);
+  });
+
+  it("requires every matching pair exactly once", () => {
+    const ex = { id: "match", type: "match", pairs: [{ left: "a", right: "1" }, { left: "b", right: "2" }] };
+    expect(gradeExercise(ex, [{ left: "b", right: "2" }, { left: "a", right: "1" }]).correct).toBe(true);
+    expect(gradeExercise(ex, [{ left: "a", right: "1" }, { left: "a", right: "1" }]).correct).toBe(false);
+    expect(gradeExercise(ex, [{ left: "a", right: "1" }]).correct).toBe(false);
+    expect(gradeExercise(ex, [{ left: "a", right: "2" }, { left: "b", right: "1" }]).correct).toBe(false);
+    expect(gradeExercise(ex, [null, null]).correct).toBe(false);
+    expect(gradeExercise({ ...ex, pairs: [] }, []).correct).toBe(false);
   });
 
   it("grades chess_lesson quiz", () => {

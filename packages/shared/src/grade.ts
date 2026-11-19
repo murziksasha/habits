@@ -397,13 +397,26 @@ export function gradeExercise(
       return { correct: accepted.some((a) => normText(a) === normText(text)) };
     }
     case "match": {
-      const pairs = (exercise.pairs as { left: string; right: string }[]) ?? [];
-      const ans = (answer as { left: string; right: string }[]) ?? [];
-      if (ans.length !== pairs.length) {
+      const pairs = Array.isArray(exercise.pairs) ? exercise.pairs : [];
+      const ans = Array.isArray(answer) ? answer : [];
+      if (!pairs.length || ans.length !== pairs.length) {
         return { correct: false, meta: { missing: [`pairs:${ans.length}/${pairs.length}`] } };
       }
-      const set = new Set(pairs.map((p) => `${p.left}::${p.right}`));
-      const wrong = ans.filter((p) => !set.has(`${p.left}::${p.right}`)).length;
+      const key = (p: { left: unknown; right: unknown }) => JSON.stringify([p.left, p.right]);
+      const remaining = new Map<string, number>();
+      for (const pair of pairs) {
+        if (!pair || typeof pair.left !== "string" || typeof pair.right !== "string") return { correct: false };
+        const k = key(pair);
+        remaining.set(k, (remaining.get(k) ?? 0) + 1);
+      }
+      let wrong = 0;
+      for (const pair of ans) {
+        if (!pair || typeof pair.left !== "string" || typeof pair.right !== "string") { wrong += 1; continue; }
+        const k = key(pair);
+        const count = remaining.get(k) ?? 0;
+        if (count === 0) wrong += 1;
+        else remaining.set(k, count - 1);
+      }
       return {
         correct: wrong === 0,
         meta: wrong ? { missing: [`wrong_pairs:${wrong}`] } : { ok: true },
@@ -423,10 +436,20 @@ export function gradeExercise(
       return { correct: false, meta: { missing: [`order_slots:${mismatch}`] } };
     }
     case "typing": {
-      const meta = answer as { wpm?: number; accuracy?: number };
-      const wpm = Number(meta?.wpm ?? 0);
-      const accuracy = Number(meta?.accuracy ?? 0);
-      return { correct: accuracy >= 0.85 && wpm >= 10, meta: { wpm, accuracy } };
+      const response = answer as { wpm?: unknown; text?: unknown } | null;
+      const expected = typeof exercise.text === "string" ? exercise.text : "";
+      const typed = typeof response?.text === "string" ? response.text : "";
+      const rawWpm = typeof response?.wpm === "number" ? response.wpm : 0;
+      const wpm = Number.isFinite(rawWpm) && rawWpm >= 0 ? rawWpm : 0;
+      let matches = 0;
+      for (let i = 0; i < Math.min(typed.length, expected.length); i += 1) {
+        if (typed[i] === expected[i]) matches += 1;
+      }
+      const accuracy = typed.length ? matches / typed.length : 0;
+      return {
+        correct: expected.length > 0 && typed.length >= expected.length && accuracy >= 0.85 && wpm >= 10,
+        meta: { wpm, accuracy },
+      };
     }
     case "rsvp": {
       const done = Boolean((answer as { completed?: boolean })?.completed);
@@ -447,15 +470,14 @@ export function gradeExercise(
       };
     }
     case "chess_puzzle": {
-      const a = answer as { solved?: boolean; sans?: string[] };
-      if (a?.solved) return { correct: true };
-      const solution = (exercise.solutionSans as string[]) ?? [];
-      const sans = a?.sans ?? [];
+      const a = answer as { sans?: unknown } | null;
+      const solution = Array.isArray(exercise.solutionSans) ? exercise.solutionSans : [];
+      const sans = Array.isArray(a?.sans) ? a.sans : [];
       const normSan = (s: string) => s.replace(/[+#]/g, "");
       return {
         correct:
-          sans.length >= solution.length &&
-          solution.every((s, i) => normSan(sans[i] ?? "") === normSan(s)),
+          solution.length > 0 && sans.length === solution.length &&
+          solution.every((s, i) => typeof s === "string" && typeof sans[i] === "string" && normSan(sans[i]) === normSan(s)),
       };
     }
     case "chess_lesson": {

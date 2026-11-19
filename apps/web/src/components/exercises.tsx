@@ -39,6 +39,7 @@ import {
 } from "@/lib/exercise-solution";
 import { hasOpenDialog, isTypingTarget, optionIndexFromKey } from "@/lib/answer-keys";
 import { stableOptionOrder } from "@/lib/option-order";
+import { selectedMatchLabel } from "@/lib/match-labels";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { FormattedFormulaText, KaTeXMath } from "@/components/circuit/katex-math";
@@ -633,7 +634,7 @@ function McqExercise({
         canCheck={selected !== null}
         onCheck={check}
         soft={soft}
-        skipAnswer={selected ?? 0}
+        skipAnswer={selected}
         onAnswer={onAnswer}
         tutorHref={isCodeMcq ? tutorHelpHref(exercise) : null}
         exercise={exercise}
@@ -720,9 +721,8 @@ function MatchExercise({
     [exercise, locale],
   );
   const rights = useMemo(
-    () => [...pairs].sort(() => Math.random() - 0.5),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [exercise.id, locale],
+    () => stableOptionOrder(`${String(exercise.id)}:match`, pairs.length).map((index) => pairs[index]!),
+    [exercise.id, pairs],
   );
   const [selectedLeft, setSelectedLeft] = useState<string | null>(null);
   const [matched, setMatched] = useState<{ left: string; right: string }[]>([]);
@@ -841,8 +841,7 @@ function MatchExercise({
         <p className="text-xs font-bold text-ink-muted">
           {matched
             .map((m) => {
-              const pair = pairs.find((p) => p.left === m.left);
-              return `${pair?.labelLeft ?? m.left}→${pair?.labelRight ?? m.right}`;
+              return selectedMatchLabel(pairs, m);
             })
             .join(" · ")}
         </p>
@@ -1342,10 +1341,8 @@ function OrderWordsExercise({
       (exercise.lines as string[] | undefined) ??
       (exercise.words as string[] | undefined) ??
       [];
-    const w = [...raw];
-    return w.sort(() => Math.random() - 0.5);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [exercise.id]);
+    return stableOptionOrder(`${String(exercise.id)}:order`, raw.length).map((index) => raw[index]!);
+  }, [exercise.id, exercise.lines, exercise.words]);
   const [pool, setPool] = useState(words);
   const [built, setBuilt] = useState<string[]>([]);
   const isCode = exercise.type === "code_order" || Boolean(exercise.language);
@@ -1478,7 +1475,7 @@ function OrderWordsExercise({
         canCheck={Boolean(built.length)}
         onCheck={check}
         soft={soft}
-        skipAnswer={built.length ? built : correct}
+        skipAnswer={built}
         onAnswer={onAnswer}
         tutorHref={isCode ? tutorHelpHref(exercise, built.join("\n")) : null}
         exercise={exercise}
@@ -1515,7 +1512,7 @@ function TypingExercise({
   }, [value, text]);
 
   const wpm = useMemo(() => {
-    if (!started || value.length < 2) return 0;
+    if (started === null || value.length < 2) return 0;
     const minutes = (Date.now() - started) / 60000;
     return Math.round(value.length / 5 / Math.max(minutes, 0.01));
   }, [value, started]);
@@ -1525,6 +1522,13 @@ function TypingExercise({
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
+      <p className="text-sm font-semibold text-ink-muted">
+        {t.typing.layoutLabel}: {String(exercise.layout ?? "").toUpperCase()}
+        {typeof exercise.targetWpm === "number" && exercise.targetWpm > 0
+          ? ` · ${t.typing.targetLabel}: ${exercise.targetWpm} ${t.typing.wpm}`
+          : null}
+      </p>
+      <p className="text-sm text-ink-muted">{t.typing.passRule}</p>
       <p className="rounded-2xl bg-slate-100 p-4 font-mono text-lg leading-relaxed tracking-wide">
         {text.split("").map((ch, i) => {
           let color = "text-slate-400";
@@ -1540,7 +1544,7 @@ function TypingExercise({
         className="input min-h-28 font-mono"
         value={value}
         onChange={(e) => {
-          if (!started) setStarted(Date.now());
+          if (started === null && e.target.value.length > 0) setStarted(Date.now());
           setValue(e.target.value);
         }}
         placeholder={locale === "en" ? "Start typing…" : "Почніть друкувати…"}
@@ -1556,7 +1560,7 @@ function TypingExercise({
       <button
         className="btn-primary"
         disabled={!done}
-        onClick={() => onAnswer({ wpm, accuracy, completed: true })}
+        onClick={() => onAnswer({ wpm, text: value, completed: true })}
       >
         {t.lesson.check}
       </button>
@@ -1571,11 +1575,17 @@ function RsvpExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
-  const { t } = useLocale();
-  const words = String(exercise.text ?? "").split(/\s+/).filter(Boolean);
+  const { t, locale } = useLocale();
+  const text = String(locale === "en" && exercise.textEn ? exercise.textEn : exercise.text ?? "");
+  const words = text.split(/\s+/).filter(Boolean);
   const wpm = Number(exercise.wpm ?? 240);
   const [i, setI] = useState(-1);
   const [running, setRunning] = useState(false);
+
+  useEffect(() => {
+    setI(-1);
+    setRunning(false);
+  }, [exercise.id, text]);
 
   useEffect(() => {
     if (!running || i < 0) return;
@@ -1603,11 +1613,21 @@ function RsvpExercise({
         <button
           className="btn-sky"
           onClick={() => {
-            setI(0);
+            if (i < 0) setI(0);
             setRunning(true);
           }}
         >
-          {t.reading.startRsvp}
+          {i < 0 ? t.reading.startRsvp : t.reading.resumeRsvp}
+        </button>
+      )}
+      {running && (
+        <button type="button" className="btn-secondary" onClick={() => setRunning(false)}>
+          {t.reading.pauseRsvp}
+        </button>
+      )}
+      {finished && (
+        <button type="button" className="btn-secondary" onClick={() => { setI(0); setRunning(true); }}>
+          {t.reading.restartRsvp}
         </button>
       )}
       {finished && (
@@ -1688,6 +1708,7 @@ function ChessPuzzleExercise({
   onAnswer: (a: unknown) => void;
 }) {
   const { t } = useLocale();
+  const onWrongAttempt = useContext(WrongAttemptCtx);
   const fen = String(exercise.fen);
   const solution = (exercise.solutionSans as string[]) ?? [];
   const [game, setGame] = useState(() => new Chess(fen));
@@ -1713,6 +1734,7 @@ function ChessPuzzleExercise({
       const expected = solution[nextSans.length - 1];
       const norm = (s: string) => s.replace(/[+#]/g, "");
       if (expected && norm(move.san) !== norm(expected)) {
+        onWrongAttempt?.();
         setMsg(t.chess.wrongMove);
         setTimeout(() => {
           setGame(new Chess(fen));
@@ -1769,8 +1791,9 @@ function ChessLessonExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
-  const { t } = useLocale();
-  const quiz = exercise.quiz as { q: string; options: string[]; correctIndex: number } | undefined;
+  const { t, locale } = useLocale();
+  const quiz = exercise.quiz as { q: string; qEn?: string; options: string[]; optionsEn?: string[]; correctIndex: number } | undefined;
+  const quizOptions = quiz ? localizeExerciseOptions(locale, quiz) : [];
   const order = useMemo(
     () => stableOptionOrder(`${String(exercise.id)}:quiz`, quiz?.options.length ?? 0),
     [exercise.id, quiz?.options.length],
@@ -1798,10 +1821,10 @@ function ChessLessonExercise({
           boardWidth={360}
         />
       </div>
-      <p className="rounded-2xl bg-slate-100 p-4 leading-relaxed">{String(exercise.notesUk)}</p>
+      <p className="rounded-2xl bg-slate-100 p-4 leading-relaxed">{String(locale === "en" && exercise.notesEn ? exercise.notesEn : exercise.notesUk)}</p>
       {quiz ? (
         <>
-          <p className="font-bold">{quiz.q}</p>
+          <p className="font-bold">{locale === "en" && quiz.qEn ? quiz.qEn : quiz.q}</p>
           <div className="grid gap-2">
             {order.map((original) => (
               <button
@@ -1813,7 +1836,7 @@ function ChessLessonExercise({
                 )}
                 onClick={() => setSelected(original)}
               >
-                {quiz.options[original]}
+                {quizOptions[original]}
               </button>
             ))}
           </div>

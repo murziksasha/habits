@@ -16,16 +16,16 @@ Oracle SQL along the public 1Z0-071 checklist: SELECT, functions, joins, subquer
 ### `select` — SELECT and the model
 
 - `sqlf-rel-model` — Tables, keys, NULL (4 exercises)
-- `sqlf-select` — SELECT / FROM (3 exercises)
+- `sqlf-select` — SELECT / FROM (4 exercises)
 - `sqlf-distinct-alias` — DISTINCT, aliases, expressions (4 exercises)
 - `sqlf-dual-quote` — DUAL, q-quote, concatenation (4 exercises)
-- `sqlf-where` — WHERE filters (3 exercises)
+- `sqlf-where` — WHERE filters (4 exercises)
 - `sqlf-select-exam` — Exam: SELECT [exam] (4 exercises)
 
 ### `order-limit` — Filters and sorting
 
-- `sqlf-order` — Sorting (3 exercises)
-- `sqlf-limit` — LIMIT / OFFSET (3 exercises)
+- `sqlf-order` — Sorting (4 exercises)
+- `sqlf-limit` — LIMIT / OFFSET (4 exercises)
 - `sqlf-between-like` — BETWEEN, IN, LIKE (4 exercises)
 - `sqlf-fetch-nulls` — FETCH, NULLS, ROWNUM (4 exercises)
 - `sqlf-order-exam` — Exam: order/limit [exam] (4 exercises)
@@ -46,15 +46,15 @@ Oracle SQL along the public 1Z0-071 checklist: SELECT, functions, joins, subquer
 
 ### `aggregates` — Aggregates
 
-- `sqlf-agg` — COUNT / SUM / AVG (3 exercises)
-- `sqlf-group` — GROUP BY / HAVING (3 exercises)
+- `sqlf-agg` — COUNT / SUM / AVG (4 exercises)
+- `sqlf-group` — GROUP BY / HAVING (4 exercises)
 - `sqlf-group-rules` — GROUP BY rules (4 exercises)
 - `sqlf-agg-exam` — Exam: aggregates [exam] (4 exercises)
 
 ### `joins` — JOINs
 
-- `sqlf-inner` — INNER JOIN (3 exercises)
-- `sqlf-left` — LEFT JOIN (3 exercises)
+- `sqlf-inner` — INNER JOIN (4 exercises)
+- `sqlf-left` — LEFT JOIN (4 exercises)
 - `sqlf-join-using` — USING, NATURAL, self join (4 exercises)
 - `sqlf-outer-traps` — OUTER, CROSS, WHERE traps (4 exercises)
 - `sqlf-join-exam` — Exam: JOINs [exam] (4 exercises)
@@ -74,16 +74,16 @@ Oracle SQL along the public 1Z0-071 checklist: SELECT, functions, joins, subquer
 
 ### `dml` — INSERT / UPDATE / DELETE
 
-- `sqlf-insert` — INSERT (2 exercises)
-- `sqlf-update-delete` — UPDATE / DELETE (3 exercises)
+- `sqlf-insert` — INSERT (3 exercises)
+- `sqlf-update-delete` — UPDATE / DELETE (4 exercises)
 - `sqlf-merge` — MERGE and INSERT ALL (4 exercises)
 - `sqlf-tx` — COMMIT, ROLLBACK, SAVEPOINT (4 exercises)
 - `sqlf-dml-exam` — Exam: DML [exam] (4 exercises)
 
 ### `modeling` — Keys & modeling
 
-- `sqlf-keys` — PRIMARY / FOREIGN KEY (3 exercises)
-- `sqlf-index` — Indexes intro (3 exercises)
+- `sqlf-keys` — PRIMARY / FOREIGN KEY (4 exercises)
+- `sqlf-index` — Indexes intro (4 exercises)
 - `sqlf-ddl-create` — CREATE TABLE and constraints (4 exercises)
 - `sqlf-ddl-alter` — ALTER, DROP, TRUNCATE (4 exercises)
 - `sqlf-model-exam` — Exam: modeling [exam] (4 exercises)
@@ -111,9 +111,9 @@ Oracle SQL along the public 1Z0-071 checklist: SELECT, functions, joins, subquer
 
 ### `query_repair_scenarios` — Scenario: Query Repair & Debugging
 
-- `sql-repair-group-having` — Repairing GROUP BY & HAVING errors (3 exercises)
-- `sql-repair-join-pitfalls` — Repairing Cartesian joins & predicate traps (3 exercises)
-- `sql-repair-null-subqueries` — Repairing NULL traps in NOT IN subqueries (3 exercises)
+- `sql-repair-group-having` — Repairing GROUP BY & HAVING errors (4 exercises)
+- `sql-repair-join-pitfalls` — Repairing Cartesian joins & predicate traps (4 exercises)
+- `sql-repair-null-subqueries` — Repairing NULL traps in NOT IN subqueries (4 exercises)
 - `sql-rep-exam` — Exam: query repair [exam] (4 exercises)
 
 ### `dataset_diagnosis` — Dataset Result Diagnosis & Dialect Notes

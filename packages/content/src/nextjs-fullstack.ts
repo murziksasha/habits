@@ -375,18 +375,18 @@ const deployDiagnosticsCapstone = unit(
         ),
         codeProject(
           "nx-fb2",
-          "Створіть розділення серверної проекції даних (DTO без приватних полів) і клієнтської кнопки фільтра для Next.js; завантажте M11 нижче для тестів меж, серіалізації й мутацій.",
-          "Separate server DTO serialization cleanly from client interactive island controls; download Milestone 11 below for automated boundary and mutation verification.",
+          "Створіть серверну проекцію DTO з id, title і status без приватного поля. Вбудована перевірка шукає фрагменти коду; M11 нижче перевіряє витоки та клієнтські межі.",
+          "Create a server DTO projection containing id, title, and status without the private field. The in-app check searches for code fragments; M11 below tests leaks and client boundaries.",
           [
             {
               id: "tsx",
               name: "board-boundary.tsx",
               language: "tsx",
-              starter: `export function toPublicTaskDto(row: { id: number; title: string; status: string; internalSecretNote?: string }) {\n  return { id: row.id, title: row.title, status: row.status };\n}\n`,
+              starter: `export function toPublicTaskDto(row: { id: number; title: string; status: string; internalSecretNote?: string }) {\n  // TODO: return only public fields\n  return {};\n}\n`,
             },
           ],
           [
-            { fileId: "tsx", contains: ["toPublicTaskDto", "id: row.id", "title: row.title"] },
+            { fileId: "tsx", contains: ["toPublicTaskDto", "id: row.id", "title: row.title", "status: row.status"] },
           ],
           {
             hintUk: "Завантажте локальний лаб-пакет M11 нижче для тестів витоку приватних полів, Server/Client меж та валідованих мутацій.",

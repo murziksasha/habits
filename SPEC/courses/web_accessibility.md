@@ -22,7 +22,7 @@ POUR principles, keyboard access, ARIA, contrast, and accessibility testing agai
 
 ### `keyboard_focus` — Keyboard and visible focus
 
-- `a11y-tab-order` — Tab order matches the visual order; avoid a tabindex greater than 0
+- `a11y-tab-order` — Focus order preserves meaning and operability; avoid positive tabindex when possible
 - `a11y-focus-visible` — Visible focus is not removed without a replacement; :focus-visible for mouse vs keyboard
 - `a11y-skip-trap` — A skip link, a focus trap in a modal, and restoring focus
 - `keyboard_focus-exam` — Exam: keyboard and focus [exam]
@@ -62,4 +62,6 @@ POUR principles, keyboard access, ARIA, contrast, and accessibility testing agai
 - `a11y_applied_checkout-exam` — Exam: accessible form [exam] (4 exercises)
 
 References: [W3C form error notification](https://www.w3.org/WAI/tutorials/forms/notifications/) and [modal dialog focus pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/).
+
+Focus-order guidance follows [W3C Understanding Focus Order](https://www.w3.org/WAI/WCAG22/Understanding/focus-order.html): a meaningful sequence need not exactly match the visual layout.
 

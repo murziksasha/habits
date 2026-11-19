@@ -206,7 +206,7 @@ describe("course content integrity", () => {
         const unit = course.units.find((item) => item.slug === unitSlug);
         const lesson = unit?.lessons.find((item) => item.slug === lessonSlug);
         expect(lesson, `${course.slug}: ${lessonSlug}`).toBeDefined();
-        expect(lesson?.exercises.filter((item) => item.type === "mcq")).toHaveLength(3);
+        expect(lesson?.exercises.filter((item) => item.type === "mcq").length).toBeGreaterThanOrEqual(3);
       }
     });
 
@@ -999,6 +999,29 @@ describe("js_fundamentals prompt quality (SPEC 92)", () => {
 
 
 describe("new and extended deep tracks (learning-improvements)", () => {
+  it("keeps English choices aligned in the assembled applied-track courses", () => {
+    for (const course of [
+      goFundamentalsContent,
+      frontendPerformanceContent,
+      restApiDesignContent,
+      browserWebApisContent,
+      webAccessibilityContent,
+    ]) {
+      for (const unit of course.units) {
+        for (const lesson of unit.lessons) {
+          for (const exercise of lesson.exercises) {
+            if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
+            expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
+            for (const option of exercise.optionsEn ?? []) {
+              expect(option.trim(), exercise.id).not.toBe("");
+              expect(option, exercise.id).not.toMatch(/[\u0400-\u04ff]/u);
+            }
+          }
+        }
+      }
+    }
+  });
+
   it("applied capstones teach before four-question transfer exams", () => {
     for (const course of [
       goFundamentalsContent,
@@ -1013,7 +1036,7 @@ describe("new and extended deep tracks (learning-improvements)", () => {
       for (const taught of [first!, second!]) {
         expect(taught.isExam, taught.slug).not.toBe(true);
         expect(taught.exercises[0]?.type, taught.slug).toBe("concept");
-        expect(taught.exercises, taught.slug).toHaveLength(4);
+        expect(taught.exercises.length, taught.slug).toBeGreaterThanOrEqual(4);
       }
       expect(control!.isExam, control!.slug).toBe(true);
       expect(control!.exercises, control!.slug).toHaveLength(4);

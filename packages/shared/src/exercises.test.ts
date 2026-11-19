@@ -4,11 +4,23 @@ import {
   courseSlugPattern,
   isKnownExerciseType,
   parseExerciseShape,
+  exerciseSchema,
   validateExercises,
 } from "./exercises.js";
 import { DEFAULT_PLATFORM_THEME, platformThemeSchema } from "./theme.js";
 
 describe("exercise shape schema", () => {
+  it("preserves an English RSVP passage through exercise validation", () => {
+    const parsed = exerciseSchema.parse({ id: "rsvp-locale", type: "rsvp", promptUk: "Читайте", text: "Український текст", textEn: "English text", wpm: 180 });
+    expect(parsed.type === "rsvp" && parsed.textEn).toBe("English text");
+  });
+  it("preserves translated chess quiz choices through exercise validation", () => {
+    const parsed = exerciseSchema.parse({
+      id: "chess-quiz", type: "chess_lesson", promptUk: "Позиція", fen: "position",
+      notesUk: "Пояснення", quiz: { q: "Питання", qEn: "Question", options: ["Так", "Ні"], optionsEn: ["Yes", "No"], correctIndex: 0 },
+    });
+    expect(parsed.type === "chess_lesson" && parsed.quiz?.optionsEn).toEqual(["Yes", "No"]);
+  });
   it("accepts known types with id", () => {
     for (const type of EXERCISE_TYPES) {
       const r = parseExerciseShape({ id: `x-${type}`, type, promptUk: "тест" });

@@ -15,33 +15,33 @@ Learn English through short interactive lessons.
 
 - `greetings` — Greetings (4 exercises)
 - `introductions` — Introductions (3 exercises)
-- `numbers` — Числа 1–10 (3 exercises)
-- `food-basics` — Їжа: основи (3 exercises)
-- `daily-phrases` — Щоденні фрази (3 exercises)
+- `numbers` — Numbers 1–10 (3 exercises)
+- `food-basics` — Food basics (3 exercises)
+- `daily-phrases` — Daily phrases (3 exercises)
 - `present-simple` — Present Simple (3 exercises)
-- `colors-family` — Кольори та сім'я (3 exercises)
-- `questions` — Питання (3 exercises)
+- `colors-family` — Colours and family (3 exercises)
+- `questions` — Questions (3 exercises)
 
-### `basics-2` — Основи 2
+### `basics-2` — Basics 2
 
-- `time` — Час (2 exercises)
-- `places` — Місця (2 exercises)
-- `past-simple-intro` — Past Simple (вступ) (2 exercises)
+- `time` — Time (2 exercises)
+- `places` — Places (2 exercises)
+- `past-simple-intro` — Past Simple introduction (2 exercises)
 
-### `travel` — Подорожі
+### `travel` — Travel
 
-- `airport` — В аеропорту (2 exercises)
-- `hotel` — У готелі (2 exercises)
-- `restaurant` — У ресторані (3 exercises)
-- `shopping` — Покупки (3 exercises)
+- `airport` — At the airport (2 exercises)
+- `hotel` — At the hotel (2 exercises)
+- `restaurant` — At the restaurant (3 exercises)
+- `shopping` — Shopping (3 exercises)
 
-### `work-life` — Робота та побут
+### `work-life` — Work and everyday life
 
-- `office` — В офісі (2 exercises)
+- `office` — At the office (2 exercises)
 - `present-continuous` — Present Continuous (3 exercises)
-- `future-plans` — Плани на майбутнє (2 exercises)
-- `opinions` — Думки та згода (2 exercises)
-- `review-basics` — Повторення основ (3 exercises)
+- `future-plans` — Future plans (2 exercises)
+- `opinions` — Opinions and agreement (2 exercises)
+- `review-basics` — Basics review (3 exercises)
 - `travel-phrases` — Travel phrases (3 exercises)
 - `email-soft-skills` — Email soft skills (3 exercises)
 - `idioms-boost` — Idioms boost (3 exercises)

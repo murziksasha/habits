@@ -1,3 +1,5 @@
+import { localizeExerciseOptions } from "@eduforge/shared";
+
 /**
  * Format a human-readable solution for reveal-after-skip UX.
  */
@@ -7,6 +9,7 @@ export type SolutionExercise = {
   promptUk?: string;
   promptEn?: string;
   options?: string[];
+  optionsEn?: string[];
   correctIndex?: number;
   accepted?: string[];
   correct?: string[];
@@ -43,7 +46,7 @@ export function formatExerciseSolution(
     (exercise.type === "code_output" && Array.isArray(exercise.options))
   ) {
     const idx = exercise.correctIndex;
-    const options = exercise.options ?? [];
+    const options = localizeExerciseOptions(locale, exercise);
     if (typeof idx === "number" && options[idx] != null) {
       const base = options[idx]!;
       return explanation ? `${base}\n\n${explanation}` : base;

@@ -27,7 +27,7 @@ export const englishContent: CourseContent = {
               id: "en-1-1",
               type: "mcq",
               promptUk: "Як сказати «Привіт» англійською?",
-              promptEn: "How do you say «Hello» in English?",
+              promptEn: "How do you greet someone in English?",
               options: ["Hello", "Goodbye", "Please", "Thanks"],
               correctIndex: 0,
               explanationUk: "Hello — найуніверсальніше привітання.",
@@ -57,7 +57,7 @@ export const englishContent: CourseContent = {
               id: "en-1-4",
               type: "order_words",
               promptUk: "Складіть речення: «Мене звати Анна»",
-              promptEn: "Build the sentence: «My name is Anna»",
+              promptEn: "Build the English sentence: «Мене звати Анна»",
               words: ["My", "name", "is", "Anna"],
               correct: ["My", "name", "is", "Anna"],
             },
@@ -98,7 +98,7 @@ export const englishContent: CourseContent = {
         {
           slug: "numbers",
           titleUk: "Числа 1–10",
-          titleEn: "Числа 1–10",
+          titleEn: "Numbers 1–10",
           baseXp: 15,
           difficulty: 1,
           isFree: true,
@@ -118,13 +118,17 @@ export const englishContent: CourseContent = {
               id: "en-3-2",
               type: "mcq",
               promptUk: "Як буде 3?",
+              promptEn: "Which English word means the number 3?",
               options: ["tree", "three", "free", "there"],
               correctIndex: 1,
+              explanationUk: "Three означає число три; tree — дерево.",
+              explanationEn: "Three is the number 3; tree means a plant.",
             },
             {
               id: "en-3-3",
               type: "order_words",
-              promptUk: "I have two cats",
+              promptUk: "Складіть англійське речення: «У мене два коти».",
+              promptEn: "Build the English sentence: «У мене два коти».",
               words: ["I", "have", "two", "cats"],
               correct: ["I", "have", "two", "cats"],
             },
@@ -133,7 +137,7 @@ export const englishContent: CourseContent = {
         {
           slug: "food-basics",
           titleUk: "Їжа: основи",
-          titleEn: "Їжа: основи",
+          titleEn: "Food basics",
           baseXp: 18,
           difficulty: 2,
           isFree: true,
@@ -142,8 +146,11 @@ export const englishContent: CourseContent = {
               id: "en-4-1",
               type: "mcq",
               promptUk: "apple — це:",
+              promptEn: "Which Ukrainian word means apple?",
               options: ["яблуко", "банан", "хліб", "вода"],
               correctIndex: 0,
+              explanationUk: "Apple українською — яблуко.",
+              explanationEn: "The Ukrainian word for apple is «яблуко».",
             },
             {
               id: "en-4-2",
@@ -165,7 +172,7 @@ export const englishContent: CourseContent = {
         {
           slug: "daily-phrases",
           titleUk: "Щоденні фрази",
-          titleEn: "Щоденні фрази",
+          titleEn: "Daily phrases",
           baseXp: 18,
           difficulty: 2,
           isFree: true,
@@ -176,11 +183,14 @@ export const englishContent: CourseContent = {
               promptUk: "How are you?",
               options: ["I'm fine, thanks", "I'm a book", "Yes, please", "Two o'clock"],
               correctIndex: 0,
+              explanationUk: "На запитання про самопочуття можна відповісти: I'm fine, thanks.",
+              explanationEn: "A natural response about how you feel is: I'm fine, thanks.",
             },
             {
               id: "en-5-2",
               type: "order_words",
-              promptUk: "Could you help me?",
+              promptUk: "Складіть англійською: «Чи могли б ви мені допомогти?»",
+              promptEn: "Build the English question: «Чи могли б ви мені допомогти?»",
               words: ["Could", "you", "help", "me?"],
               correct: ["Could", "you", "help", "me?"],
             },
@@ -213,14 +223,16 @@ export const englishContent: CourseContent = {
             {
               id: "en-6-2",
               type: "fill_blank",
-              promptUk: "They ___ football on Sundays.",
+              promptUk: "Вставте форму дієслова play: They ___ football on Sundays.",
+              promptEn: "Fill in the correct form of play: They ___ football on Sundays.",
               sentence: "They ___ football on Sundays.",
               accepted: ["play"],
             },
             {
               id: "en-6-3",
               type: "order_words",
-              promptUk: "He does not like tea",
+              promptUk: "Складіть англійською: «Він не любить чай».",
+              promptEn: "Build the English sentence: «Він не любить чай».",
               words: ["He", "does", "not", "like", "tea"],
               correct: ["He", "does", "not", "like", "tea"],
             },
@@ -229,7 +241,7 @@ export const englishContent: CourseContent = {
         {
           slug: "colors-family",
           titleUk: "Кольори та сім'я",
-          titleEn: "Кольори та сім'я",
+          titleEn: "Colours and family",
           baseXp: 18,
           difficulty: 2,
           exercises: [
@@ -247,8 +259,11 @@ export const englishContent: CourseContent = {
               id: "en-7-2",
               type: "mcq",
               promptUk: "mother — це:",
+              promptEn: "Which Ukrainian word means mother?",
               options: ["батько", "мати", "брат", "сестра"],
               correctIndex: 1,
+              explanationUk: "Mother — мати; father — батько.",
+              explanationEn: "Mother is «мати»; father is «батько».",
             },
             {
               id: "en-7-3",
@@ -263,7 +278,7 @@ export const englishContent: CourseContent = {
         {
           slug: "questions",
           titleUk: "Питання",
-          titleEn: "Питання",
+          titleEn: "Questions",
           baseXp: 20,
           difficulty: 3,
           exercises: [
@@ -273,11 +288,14 @@ export const englishContent: CourseContent = {
               promptUk: "___ is this? — This is a pen.",
               options: ["Who", "What", "Where", "When"],
               correctIndex: 1,
+              explanationUk: "What запитує про предмет; відповідь називає ручку.",
+              explanationEn: "What asks about a thing; the answer names a pen.",
             },
             {
               id: "en-8-2",
               type: "order_words",
-              promptUk: "Where do you live?",
+              promptUk: "Складіть англійською: «Де ти живеш?»",
+              promptEn: "Build the English question: «Де ти живеш?»",
               words: ["Where", "do", "you", "live?"],
               correct: ["Where", "do", "you", "live?"],
             },
@@ -295,12 +313,12 @@ export const englishContent: CourseContent = {
     {
       slug: "basics-2",
       titleUk: "Основи 2",
-      titleEn: "Основи 2",
+      titleEn: "Basics 2",
       lessons: [
         {
           slug: "time",
           titleUk: "Час",
-          titleEn: "Час",
+          titleEn: "Time",
           baseXp: 20,
           difficulty: 2,
           exercises: [
@@ -308,8 +326,11 @@ export const englishContent: CourseContent = {
               id: "en-9-1",
               type: "mcq",
               promptUk: "It's half past two =",
+              promptEn: "What time is 'half past two'?",
               options: ["2:30", "2:00", "3:30", "12:30"],
               correctIndex: 0,
+              explanationUk: "Half past two — пів години після другої, тобто 2:30.",
+              explanationEn: "Half past two is thirty minutes after two, or 2:30.",
             },
             {
               id: "en-9-2",
@@ -324,7 +345,7 @@ export const englishContent: CourseContent = {
         {
           slug: "places",
           titleUk: "Місця",
-          titleEn: "Місця",
+          titleEn: "Places",
           baseXp: 20,
           difficulty: 2,
           exercises: [
@@ -341,7 +362,8 @@ export const englishContent: CourseContent = {
             {
               id: "en-10-2",
               type: "fill_blank",
-              promptUk: "I go ___ the park.",
+              promptUk: "Вставте прийменник напрямку «до»: I go ___ the park.",
+              promptEn: "Fill in the preposition indicating destination: I go ___ the park.",
               sentence: "I go ___ the park.",
               accepted: ["to"],
             },
@@ -350,7 +372,7 @@ export const englishContent: CourseContent = {
         {
           slug: "past-simple-intro",
           titleUk: "Past Simple (вступ)",
-          titleEn: "Past Simple (вступ)",
+          titleEn: "Past Simple introduction",
           baseXp: 22,
           difficulty: 3,
           exercises: [
@@ -360,11 +382,14 @@ export const englishContent: CourseContent = {
               promptUk: "Yesterday I ___ home.",
               options: ["go", "went", "goes", "going"],
               correctIndex: 1,
+              explanationUk: "Yesterday вказує на минуле; неправильна форма go — went.",
+              explanationEn: "Yesterday places the action in the past; went is the past form of go.",
             },
             {
               id: "en-11-2",
               type: "order_words",
-              promptUk: "She watched a film",
+              promptUk: "Складіть англійською: «Вона подивилася фільм».",
+              promptEn: "Build the English sentence: «Вона подивилася фільм».",
               words: ["She", "watched", "a", "film"],
               correct: ["She", "watched", "a", "film"],
             },
@@ -375,12 +400,12 @@ export const englishContent: CourseContent = {
     {
       slug: "travel",
       titleUk: "Подорожі",
-      titleEn: "Подорожі",
+      titleEn: "Travel",
       lessons: [
         {
           slug: "airport",
           titleUk: "В аеропорту",
-          titleEn: "В аеропорту",
+          titleEn: "At the airport",
           baseXp: 22,
           difficulty: 3,
           exercises: [
@@ -390,6 +415,8 @@ export const englishContent: CourseContent = {
               promptUk: "boarding pass — це:",
               options: ["посадковий талон", "паспорт", "валіза", "квиток на автобус"],
               correctIndex: 0,
+              explanationUk: "Boarding pass — посадковий талон для проходу на рейс.",
+              explanationEn: "A boarding pass is the document used to board a flight: «посадковий талон».",
             },
             {
               id: "en-12-2",
@@ -404,14 +431,15 @@ export const englishContent: CourseContent = {
         {
           slug: "hotel",
           titleUk: "У готелі",
-          titleEn: "У готелі",
+          titleEn: "At the hotel",
           baseXp: 22,
           difficulty: 3,
           exercises: [
             {
               id: "en-13-1",
               type: "order_words",
-              promptUk: "I have a reservation",
+              promptUk: "Складіть англійською: «У мене є бронювання».",
+              promptEn: "Build the English sentence: «У мене є бронювання».",
               words: ["I", "have", "a", "reservation"],
               correct: ["I", "have", "a", "reservation"],
             },
@@ -426,13 +454,15 @@ export const englishContent: CourseContent = {
                 "Скільки коштує таксі?",
               ],
               correctIndex: 0,
+              explanationUk: "A room for two nights — номер на дві ночі.",
+              explanationEn: "A room for two nights means «номер на дві ночі».",
             },
           ],
         },
         {
           slug: "restaurant",
           titleUk: "У ресторані",
-          titleEn: "У ресторані",
+          titleEn: "At the restaurant",
           baseXp: 22,
           difficulty: 3,
           exercises: [
@@ -465,13 +495,15 @@ export const englishContent: CourseContent = {
                 "Я вегетаріанець",
               ],
               correctIndex: 0,
+              explanationUk: "Allergic to nuts означає «маю алергію на горіхи».",
+              explanationEn: "Allergic to nuts means «маю алергію на горіхи».",
             },
           ],
         },
         {
           slug: "shopping",
           titleUk: "Покупки",
-          titleEn: "Покупки",
+          titleEn: "Shopping",
           baseXp: 20,
           difficulty: 2,
           exercises: [
@@ -485,7 +517,8 @@ export const englishContent: CourseContent = {
             {
               id: "en-15-2",
               type: "order_words",
-              promptUk: "Can I try this on?",
+              promptUk: "Складіть англійською: «Можна це приміряти?»",
+              promptEn: "Build the English question: «Можна це приміряти?»",
               words: ["Can", "I", "try", "this", "on?"],
               correct: ["Can", "I", "try", "this", "on?"],
             },
@@ -495,6 +528,8 @@ export const englishContent: CourseContent = {
               promptUk: "size — це:",
               options: ["розмір", "ціна", "колір", "магазин"],
               correctIndex: 0,
+              explanationUk: "Size — розмір, наприклад розмір одягу.",
+              explanationEn: "Size means «розмір», for example a clothing size.",
             },
           ],
         },
@@ -503,12 +538,12 @@ export const englishContent: CourseContent = {
     {
       slug: "work-life",
       titleUk: "Робота та побут",
-      titleEn: "Робота та побут",
+      titleEn: "Work and everyday life",
       lessons: [
         {
           slug: "office",
           titleUk: "В офісі",
-          titleEn: "В офісі",
+          titleEn: "At the office",
           baseXp: 22,
           difficulty: 3,
           exercises: [
@@ -533,6 +568,8 @@ export const englishContent: CourseContent = {
                 "Я в відпустці",
               ],
               correctIndex: 0,
+              explanationUk: "I'll send означає «я надішлю»; email — електронний лист.",
+              explanationEn: "I'll send means «я надішлю»; an email is an electronic message.",
             },
           ],
         },
@@ -549,11 +586,14 @@ export const englishContent: CourseContent = {
               promptUk: "She ___ right now.",
               options: ["works", "is working", "worked", "work"],
               correctIndex: 1,
+              explanationUk: "Right now описує дію зараз: is + дієслово із закінченням -ing.",
+              explanationEn: "Right now describes an action in progress: is + the -ing form.",
             },
             {
               id: "en-17-2",
               type: "order_words",
-              promptUk: "They are watching a film",
+              promptUk: "Складіть англійською: «Вони зараз дивляться фільм».",
+              promptEn: "Build the English sentence: «Вони зараз дивляться фільм».",
               words: ["They", "are", "watching", "a", "film"],
               correct: ["They", "are", "watching", "a", "film"],
             },
@@ -569,7 +609,7 @@ export const englishContent: CourseContent = {
         {
           slug: "future-plans",
           titleUk: "Плани на майбутнє",
-          titleEn: "Плани на майбутнє",
+          titleEn: "Future plans",
           baseXp: 24,
           difficulty: 3,
           exercises: [
@@ -579,13 +619,15 @@ export const englishContent: CourseContent = {
               promptUk: "I ___ visit Lviv next week.",
               options: ["am going to", "goes to", "going", "gone"],
               correctIndex: 0,
+              explanationUk: "Для плану використовуйте am going to + початкову форму дієслова.",
+              explanationEn: "For a plan, use am going to followed by the base verb.",
             },
             {
               id: "en-18-2",
               type: "translate",
               promptUk: "Перекладіть",
               source: "What are you going to do?",
-              accepted: ["що ти збираєшся робити", "що ви збираєтесь робити", "що ти будеш робити"],
+              accepted: ["що ти збираєшся робити", "що ви збираєтесь робити", "що ви збираєтеся робити", "що ти будеш робити", "що ви будете робити"],
               direction: "en_uk",
             },
           ],
@@ -593,7 +635,7 @@ export const englishContent: CourseContent = {
         {
           slug: "opinions",
           titleUk: "Думки та згода",
-          titleEn: "Думки та згода",
+          titleEn: "Opinions and agreement",
           baseXp: 22,
           difficulty: 3,
           exercises: [
@@ -610,7 +652,8 @@ export const englishContent: CourseContent = {
             {
               id: "en-19-2",
               type: "order_words",
-              promptUk: "In my opinion it is great",
+              promptUk: "Складіть англійською: «На мою думку, це чудово».",
+              promptEn: "Build the English sentence: «На мою думку, це чудово».",
               words: ["In", "my", "opinion", "it", "is", "great"],
               correct: ["In", "my", "opinion", "it", "is", "great"],
             },
@@ -619,7 +662,7 @@ export const englishContent: CourseContent = {
         {
           slug: "review-basics",
           titleUk: "Повторення основ",
-          titleEn: "Повторення основ",
+          titleEn: "Basics review",
           baseXp: 25,
           difficulty: 3,
           exercises: [
@@ -629,11 +672,14 @@ export const englishContent: CourseContent = {
               promptUk: "He ___ coffee every morning.",
               options: ["drink", "drinks", "drinking", "drank"],
               correctIndex: 1,
+              explanationUk: "Для he у Present Simple до дієслова додаємо -s: drinks.",
+              explanationEn: "In the present simple, the verb takes -s with he: drinks.",
             },
             {
               id: "en-20-2",
               type: "fill_blank",
-              promptUk: "___ you like tea?",
+              promptUk: "Запитайте, чи подобається чай загалом: ___ you like tea?",
+              promptEn: "Ask whether someone likes tea in general: ___ you like tea?",
               sentence: "___ you like tea?",
               accepted: ["do"],
             },
@@ -663,7 +709,7 @@ export const englishContent: CourseContent = {
             {
               id: "en-21-1",
               type: "mcq",
-              promptUk: "Where is the station?",
+              promptUk: "Оберіть граматично правильне запитання.",
               promptEn: "Choose the natural question:",
               options: [
                 "Where is the station?",
@@ -672,11 +718,14 @@ export const englishContent: CourseContent = {
                 "Is where station?",
               ],
               correctIndex: 0,
+              explanationUk: "У запитанні дієслово is стоїть перед підметом the station.",
+              explanationEn: "In the question, is comes before the subject the station.",
             },
             {
               id: "en-21-2",
               type: "translate",
               promptUk: "Перекладіть: Скільки це коштує?",
+              promptEn: "Translate into English: Скільки це коштує?",
               source: "Скільки це коштує?",
               accepted: ["how much is it", "how much does it cost", "what's the price"],
               direction: "uk_en",
@@ -758,6 +807,7 @@ export const englishContent: CourseContent = {
               id: "en-23-3",
               type: "translate",
               promptUk: "Перекладіть: practice makes perfect",
+              promptEn: "Translate into Ukrainian: practice makes perfect",
               source: "practice makes perfect",
               accepted: [
                 "практика робить досконалим",

@@ -57,11 +57,11 @@ CMS-owned courses are not overwritten. See SPEC 72 for publish gates and SPEC 93
 | `fill_blank` | accepted strings | English |
 | `match` | set of left/right pairs | English |
 | `order_words` | ordered string array | English |
-| `typing` | wpm ≥ 10 and accuracy ≥ 0.85 | Typing |
+| `typing` | Submitted text must cover the target; server computes positional accuracy ≥ 0.85 and checks client-reported wpm ≥ 10 | Typing |
 | `rsvp` | `completed: true` | Speed reading |
 | `comprehension` | ≥ 50% questions correct | Speed reading |
 | `logic_puzzle` | `correctIndex` | Logic |
-| `chess_puzzle` | SAN sequence or `{ solved: true }` | Chess |
+| `chess_puzzle` | Complete authored SAN sequence, checked by the server | Chess |
 | `chess_lesson` | optional quiz MCQ | Chess |
 | `code_read` | snippet + `correctIndex` | Programming |
 | `code_output` | MCQ or accepted text | Programming |

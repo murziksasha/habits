@@ -93,6 +93,11 @@
 ## Learning-quality behavior (2026-11-15)
 
 - Choice exercises display a deterministic permutation keyed by exercise id (and nested question id where needed). Mouse and keyboard selection submit the original content index. Reload does not change the order for the same exercise.
+- Solution reveal uses the selected locale's choice label while retaining the canonical answer index. Chess lesson notes, quiz questions, and quiz choices also use the selected locale when translations are available.
+- Matching cards show the learner's selected pair, even when it is incorrect, and keep the right-hand choice order stable for the exercise across reloads and locale changes.
+- Ordering exercises use a stable permutation. Skipping a choice or ordering exercise submits the learner's current selection, including an empty selection, rather than filling in a correct answer.
+- RSVP reading supports pause, resume, and replay. When an English passage is supplied it follows the selected locale; changing the displayed passage resets playback.
+- Typing drills show their keyboard layout, optional target speed, and the actual pass requirements (10 WPM and 85% accuracy). The client submits typed text so the server computes positional accuracy. Speed uses five characters per word and remains client-reported.
 - `ExercisePlayer` reports hint use, solution reveal, and wrong soft attempts to the lesson/practice session. Lesson submission includes these signals per answer; they are currently held in memory and do not survive lesson reload.
 - Global Continue uses the server's unfinished current-version target; a learner is not automatically sent back to the last completed lesson.
 - The electrical laboratory replaces the editor instance when loading a template, restoring a draft, or loading a server version. Analysis settings follow the document. A save conflict pauses autosave and offers load-server, save-as-copy, and JSON export.

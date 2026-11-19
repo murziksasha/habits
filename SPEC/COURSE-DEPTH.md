@@ -6,6 +6,8 @@ Status: first full 36-course pass delivered. This document records the improveme
 
 Run `pnpm content:audit` after content changes. The command builds `@eduforge/content` and prints one row per seeded course. `--json` is available on `node scripts/course-depth-audit.mjs` after the build. The report counts non-exam lessons with fewer than three assessable items, lessons without a concept card, exams with fewer than four assessable items, and units without an interactive or submitted artifact from the existing exercise-type set. These are triage signals, not automatic failures: a typing drill is intentionally one task, and code reading, code filling, and case-based MCQ practice are useful even though they are not classified as artifacts.
 
+For the lesson-by-lesson review, `node scripts/course-depth-audit.mjs --lessons` outputs every lesson with its course, unit, assessment count, and exercise IDs needing locale or feedback review. Cyrillic choices can be intentional language-learning material, and an absent explanation is a review signal rather than proof of an error. The report cannot establish pedagogical correctness; each flagged item and its surrounding lesson still require human review.
+
 Baseline before this program: 36 courses, 558 units, 2,513 lessons and 513 exams. The initial audit showed 14/14 logic units without a practical artifact, 44/45 English units without one, and 6/6 units without one in each of Go, Web Accessibility, REST API Design, Frontend Performance, and Browser Web APIs. Short exams are concentrated in the newer specialist tracks. The existing quality gate protects structure, IDs, and bilingual prompts but cannot judge whether a distractor is plausible or a task transfers to a new situation.
 
 ## Content standard

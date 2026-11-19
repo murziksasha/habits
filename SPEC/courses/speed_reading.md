@@ -17,16 +17,16 @@ RSVP, chunking, and reading comprehension.
 - `reduce-subvocal` — Less subvocalization (2 exercises)
 - `chunking` — Chunking — word groups (2 exercises)
 - `comprehension-1` — Comprehension 1 (1 exercises)
-- `comprehension-2` — Розуміння 2 (2 exercises)
-- `peripheral` — Периферійний зір (2 exercises)
-- `meta-cognition` — Метапізнання (1 exercises)
-- `speed-burst` — Швидкісний ривок (2 exercises)
-- `long-passage` — Довший текст (1 exercises)
-- `review` — Повторення (2 exercises)
-- `skimming` — Скімінг (2 exercises)
-- `scanning` — Сканування (2 exercises)
-- `science-passage` — Науковий уривок (1 exercises)
-- `capstone-reading` — Капстоун (2 exercises)
+- `comprehension-2` — Comprehension 2 (2 exercises)
+- `peripheral` — Peripheral vision (2 exercises)
+- `meta-cognition` — Metacognition (1 exercises)
+- `speed-burst` — Speed burst (2 exercises)
+- `long-passage` — Longer passage (1 exercises)
+- `review` — Review (2 exercises)
+- `skimming` — Skimming (2 exercises)
+- `scanning` — Scanning (2 exercises)
+- `science-passage` — Science passage (1 exercises)
+- `capstone-reading` — Reading capstone (2 exercises)
 - `news-skim` — News skimming (2 exercises)
 - `dense-tech` — Dense tech text (2 exercises)
 
@@ -34,12 +34,12 @@ RSVP, chunking, and reading comprehension.
 
 - `rsvp-tier-200` — RSVP 200 WPM: baseline pace (2 exercises)
 - `rsvp-tier-260` — RSVP 260 WPM: analytical text (2 exercises)
-- `chunking-word-groups` — Chunking: 2-3 words per fixation (2 exercises)
+- `chunking-word-groups` — Reading in meaning groups (2 exercises)
 - `speed-checkpoint-comprehension-mid` — Checkpoint: 250 WPM comprehension test [exam] (2 exercises)
 - `rsvp-tier-320` — RSVP 320 WPM: factual overview (2 exercises)
 - `skimming-document-structure` — Skimming & structure scanning (2 exercises)
 - `rsvp-tier-380` — RSVP 380 WPM: high-velocity sprint (2 exercises)
-- `peripheral-expansion` — Peripheral vision field expansion (2 exercises)
+- `peripheral-expansion` — Attention to line structure (2 exercises)
 - `speed-checkpoint-comprehension-adv` — Checkpoint: 350 WPM comprehension test [exam] (2 exercises)
 
 ### `technical-docs-comprehension` — Technical Documentation & Constraint Extraction
@@ -57,6 +57,10 @@ RSVP, chunking, and reading comprehension.
 - Exercise types in seed: comprehension, concept, mcq, rsvp
 
 ## Expansion (Nov 2026)
+
+The news and technical-text comprehension exercises provide English passages, questions, and choices alongside the Ukrainian versions.
+
+The initial RSVP and comprehension lessons provide English reading passages and localized questions. RSVP playback supports pause and replay; the examples emphasize checking understanding rather than promising an outcome from a particular speed.
 
 Additional bilingual (uk+en) units in `packages/content/src/expansion/speed-reading-exp.ts`.
 

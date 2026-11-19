@@ -15,86 +15,86 @@ Deep testing theory: principles, levels, types, black/white-box, STLC, defects, 
 
 ### `foundations` — Quality foundations
 
-- `qt-what-quality` — What is software quality (3 exercises)
-- `qt-vv` — Verification vs Validation (3 exercises)
-- `qt-cost-bug` — Cost of a bug over time (3 exercises)
+- `qt-what-quality` — What is software quality (4 exercises)
+- `qt-vv` — Verification vs Validation (4 exercises)
+- `qt-cost-bug` — Cost of a bug over time (4 exercises)
 - `qt-f-exam` — Exam: foundations [exam] (5 exercises)
 
 ### `principles` — Testing principles
 
-- `qt-p-exhaustive` — Exhaustive testing is impossible (3 exercises)
-- `qt-p-early-cluster` — Early & pesticide & clusters (3 exercises)
-- `qt-p-context` — Context & absence of errors (3 exercises)
+- `qt-p-exhaustive` — Exhaustive testing is impossible (4 exercises)
+- `qt-p-early-cluster` — Early & pesticide & clusters (4 exercises)
+- `qt-p-context` — Context & absence of errors (4 exercises)
 - `qt-p-exam` — Exam: principles [exam] (5 exercises)
 
 ### `levels` — Test levels
 
-- `qt-l-unit` — Unit testing (3 exercises)
-- `qt-l-integration` — Integration (3 exercises)
-- `qt-l-system-acc` — System & acceptance (3 exercises)
-- `qt-l-pyramid` — Test pyramid (3 exercises)
+- `qt-l-unit` — Unit testing (4 exercises)
+- `qt-l-integration` — Integration (4 exercises)
+- `qt-l-system-acc` — System & acceptance (4 exercises)
+- `qt-l-pyramid` — Test pyramid (4 exercises)
 - `qt-l-exam` — Exam: levels [exam] (5 exercises)
 
 ### `types-func` — Functional types
 
-- `qt-tf-smoke-sanity` — Smoke & sanity (3 exercises)
-- `qt-tf-regression` — Regression & retest (3 exercises)
-- `qt-tf-exploratory` — Exploratory & UAT (3 exercises)
+- `qt-tf-smoke-sanity` — Smoke & sanity (4 exercises)
+- `qt-tf-regression` — Regression & retest (4 exercises)
+- `qt-tf-exploratory` — Exploratory & UAT (4 exercises)
 - `qt-tf-exam` — Exam: functional types [exam] (5 exercises)
 
 ### `types-nonfunc` — Non-functional
 
-- `qt-tn-perf` — Performance (3 exercises)
-- `qt-tn-security` — Security & usability (3 exercises)
-- `qt-tn-compat-rel` — Compatibility & reliability (3 exercises)
+- `qt-tn-perf` — Performance (4 exercises)
+- `qt-tn-security` — Security & usability (4 exercises)
+- `qt-tn-compat-rel` — Compatibility & reliability (4 exercises)
 - `qt-tn-exam` — Exam: non-functional [exam] (5 exercises)
 
 ### `black-box` — Black-box techniques
 
-- `qt-bb-ep` — Equivalence partitioning (3 exercises)
-- `qt-bb-bva` — Boundary value analysis (3 exercises)
-- `qt-bb-decision-state` — Decision tables & states (3 exercises)
-- `qt-bb-usecase` — Use case testing (3 exercises)
+- `qt-bb-ep` — Equivalence partitioning (4 exercises)
+- `qt-bb-bva` — Boundary value analysis (4 exercises)
+- `qt-bb-decision-state` — Decision tables & states (4 exercises)
+- `qt-bb-usecase` — Use case testing (4 exercises)
 - `qt-bb-exam` — Exam: black-box [exam] (5 exercises)
 
 ### `white-box` — White-box
 
-- `qt-wb-coverage` — Coverage basics (3 exercises)
-- `qt-wb-limits` — Coverage limits (3 exercises)
+- `qt-wb-coverage` — Coverage basics (4 exercises)
+- `qt-wb-limits` — Coverage limits (4 exercises)
 - `qt-wb-exam` — Exam: white-box [exam] (4 exercises)
 
 ### `stlc-process` — STLC / process
 
-- `qt-st-phases` — STLC phases (3 exercises)
-- `qt-st-entry-exit` — Entry / exit criteria (3 exercises)
-- `qt-st-shiftleft` — Shift-left in process (1 exercises)
+- `qt-st-phases` — STLC phases (4 exercises)
+- `qt-st-entry-exit` — Entry / exit criteria (4 exercises)
+- `qt-st-shiftleft` — Shift-left in process (2 exercises)
 - `qt-st-exam` — Exam: STLC [exam] (5 exercises)
 
 ### `artifacts` — Artifacts
 
-- `qt-ar-plan` — Test plan & strategy (3 exercises)
-- `qt-ar-cases` — Test cases & RTM (3 exercises)
-- `qt-ar-checklist` — Checklists (1 exercises)
+- `qt-ar-plan` — Test plan & strategy (4 exercises)
+- `qt-ar-cases` — Test cases & RTM (4 exercises)
+- `qt-ar-checklist` — Checklists (2 exercises)
 - `qt-ar-exam` — Exam: artifacts [exam] (4 exercises)
 
 ### `defects` — Defects
 
-- `qt-df-sev-pri` — Severity vs priority (3 exercises)
-- `qt-df-lifecycle` — Defect lifecycle (3 exercises)
-- `qt-df-report-practice` — Bug report practice (4 exercises)
-- `qt-df-report` — Good bug report (3 exercises)
+- `qt-df-sev-pri` — Severity vs priority (4 exercises)
+- `qt-df-lifecycle` — Defect lifecycle (4 exercises)
+- `qt-df-report-practice` — Bug report practice (5 exercises)
+- `qt-df-report` — Good bug report (4 exercises)
 - `qt-df-exam` — Exam: defects [exam] (5 exercises)
 
 ### `advanced-design` — Advanced design
 
-- `qt-ad-pairwise` — Pairwise intro (3 exercises)
-- `qt-ad-risk` — Risk-based testing (3 exercises)
+- `qt-ad-pairwise` — Pairwise intro (4 exercises)
+- `qt-ad-risk` — Risk-based testing (4 exercises)
 - `qt-ad-exam` — Exam: advanced [exam] (4 exercises)
 
 ### `automation-context` — Automation context
 
-- `qt-au-what` — What to automate (3 exercises)
-- `qt-au-roi` — ROI & pyramid (3 exercises)
+- `qt-au-what` — What to automate (4 exercises)
+- `qt-au-roi` — ROI & pyramid (4 exercises)
 - `qt-au-exam` — Exam: automation [exam] (4 exercises)
 
 ### `metrics-risk` — Metrics
@@ -112,7 +112,7 @@ Deep testing theory: principles, levels, types, black/white-box, STLC, defects, 
 
 ### `risk_plans_requirements` — Requirements, Risk Assessment, Test Plans & Reproducible Bug Reports
 
-- `qt-req-risk-plan` — From written requirements & risk matrix to a test plan (3 exercises)
+- `qt-req-risk-plan` — From written requirements & risk matrix to a test plan (4 exercises)
 - `qt-rpr-exam` — Exam: test strategy & bug reports [exam] (4 exercises)
 
 ### `capstone` — Capstone case

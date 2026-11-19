@@ -554,14 +554,14 @@ const indexesPlansCapstone = unit(
         ),
         codeProject(
           "pg-fb2",
-          "Створіть SQL-фрагмент міграції ForgeBoard (users, projects, tasks + CHECK); завантажте лаб M6 нижче для запуску реальних міграцій і Postgres-тестів.",
-          "Write the core ForgeBoard schema migration snippet; download the Milestone 6 lab below to run migrations and Postgres behavior tests.",
+          "Припустіть, що projects(id) вже існує. Створіть таблицю tasks з identity, зовнішнім ключем, CHECK, часовою міткою та індексом. Вбудована перевірка шукає фрагменти SQL; M6 нижче запускає реальні міграції й тести Postgres.",
+          "Assume projects(id) already exists. Create tasks with an identity, foreign key, CHECK, timestamp, and index. The in-app check searches SQL fragments; M6 below runs actual migrations and Postgres tests.",
           [
             {
               id: "sql",
               name: "001_init.sql",
               language: "sql",
-              starter: `CREATE TABLE tasks (\n  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n  project_id BIGINT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,\n  title TEXT NOT NULL CHECK (char_length(trim(title)) BETWEEN 1 AND 120),\n  status TEXT NOT NULL DEFAULT 'todo' CHECK (status IN ('todo', 'in_progress', 'done')),\n  created_at TIMESTAMPTZ NOT NULL DEFAULT now()\n);\nCREATE INDEX tasks_project_created_idx ON tasks (project_id, created_at DESC);\n`,
+              starter: `-- Assume projects(id) already exists. Create tasks and its index.\n`,
             },
           ],
           [

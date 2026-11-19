@@ -54,7 +54,7 @@ Build speed and accuracy with touch typing drills.
 - `drill-accuracy` — Drill: accuracy (1 exercises)
 - `drill-combo` — Drill: EN + symbols (1 exercises)
 - `drill-uk-flow` — Drill: UK flow (1 exercises)
-- `drill-sprint-60` — Drill: 60s sprint text (1 exercises)
+- `drill-sprint-60` — Drill: short passage (1 exercises; the stable slug is historical, and there is no 60-second timer)
 
 ### `punctuation-and-stamina` — Punctuation & Sustained Accuracy
 
@@ -76,6 +76,8 @@ Build speed and accuracy with touch typing drills.
 - `dev-typing-accuracy-checkpoint` — Checkpoint: Code & Docs Accuracy [exam] (1 exercises)
 
 ## Depth now
+
+Typing drills compare the submitted text with the prompt and pass at 85% accuracy and 10 WPM. Each exercise's `targetWpm` is an optional practice goal, not a separate passing threshold. Speed is client-reported and the short-passage drill is not time-limited.
 
 - Units: 7
 - Lessons: 82

@@ -19,38 +19,38 @@ Testable requirements, high-signal unit tests, boundary fixtures, React componen
 
 ### `st_testable_requirements` — Testable Requirements & Verification Pyramid
 
-- `st-req-behaviors` — Turning Specs into Testable Assertions (2 exercises)
-- `st-req-levels` — Choosing the Right Test Level (2 exercises)
+- `st-req-behaviors` — Turning Specs into Testable Assertions (3 exercises)
+- `st-req-levels` — Choosing the Right Test Level (3 exercises)
 - `st-req-exam` — Checkpoint: Testable Requirements [exam] (2 exercises)
 
 ### `st_unit_testing` — Unit Tests & Failure-Catching Assertions
 
-- `st-ut-tautology` — Spotting Tautological & Over-Mocked Tests (2 exercises)
-- `st-ut-pure-refactor` — Extracting Pure Logic for Deterministic Tests (2 exercises)
+- `st-ut-tautology` — Spotting Tautological & Over-Mocked Tests (3 exercises)
+- `st-ut-pure-refactor` — Extracting Pure Logic for Deterministic Tests (3 exercises)
 - `st-ut-exam` — Checkpoint: Unit Testing [exam] (2 exercises)
 
 ### `st_boundaries_fixtures` — Boundary Cases & Realistic Test Fixtures
 
-- `st-bf-boundaries` — Equivalence Partitions & Off-by-One Boundaries (2 exercises)
-- `st-bf-fixtures` — Fixture Builders & Test Isolation (2 exercises)
+- `st-bf-boundaries` — Equivalence Partitions & Off-by-One Boundaries (3 exercises)
+- `st-bf-fixtures` — Fixture Builders & Test Isolation (3 exercises)
 - `st-bf-exam` — Checkpoint: Boundaries & Fixtures [exam] (2 exercises)
 
 ### `st_react_component_tests` — React Component Tests & A11y Queries
 
-- `st-rct-user-event` — User-Centric Queries & Realistic Interactions (2 exercises)
-- `st-rct-states` — Testing Loading, Empty, Error & Retry States (1 exercises)
+- `st-rct-user-event` — User-Centric Queries & Realistic Interactions (3 exercises)
+- `st-rct-states` — Testing Loading, Empty, Error & Retry States (2 exercises)
 - `st-rct-exam` — Checkpoint: React Component Tests [exam] (2 exercises)
 
 ### `st_api_db_integration` — API & Database Integration Testing
 
-- `st-int-db-real` — Real HTTP Routes Against PostgreSQL (2 exercises)
-- `st-int-isolation` — State Isolation Between Integration Cases (1 exercises)
+- `st-int-db-real` — Real HTTP Routes Against PostgreSQL (3 exercises)
+- `st-int-isolation` — State Isolation Between Integration Cases (2 exercises)
 - `st-int-exam` — Checkpoint: API + DB Integration [exam] (2 exercises)
 
 ### `st_e2e_ci_capstone` — Browser E2E, CI Pipelines & ForgeBoard Suite
 
-- `st-e2e-locators-flaky` — Stable Playwright Locators & Eliminating Flakes (2 exercises)
-- `st-forgeboard-suite-lab` — Lab: ForgeBoard Test Suite vs Injected Bugs (M7) (2 exercises)
+- `st-e2e-locators-flaky` — Stable Playwright Locators & Eliminating Flakes (3 exercises)
+- `st-forgeboard-suite-lab` — Lab: ForgeBoard Test Suite vs Injected Bugs (M7) (3 exercises)
 - `st-e2e-exam` — Checkpoint: E2E & CI Quality Gates [exam] (2 exercises)
 
 ## Depth now

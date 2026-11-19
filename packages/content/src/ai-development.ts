@@ -337,14 +337,14 @@ const privacyDepsCapstone = unit(
         ),
         codeProject(
           "ai-fb2",
-          "Замініть фіктивну перевірку на справжню функцію перевірки пагінації та санітизації для ForgeBoard; завантажте M10 нижче для повного збереженого diff і тест-набору.",
-          "Repair the subtle AI-generated bug in limit clamping and record review findings; download Milestone 10 below for the full offline PR diff and test harness.",
+          "Виправте clampLimit: додатні цілі значення обмежте 50, а інші замініть на 20. Вбудована перевірка шукає фрагменти коду; M10 нижче містить повний diff і поведінкові тести.",
+          "Repair clampLimit: cap positive integers at 50 and use 20 for other values. The in-app check searches for code fragments; M10 below contains the full diff and behavioral tests.",
           [
             {
               id: "ts",
               name: "review-fix.ts",
               language: "typescript",
-              starter: `export function clampLimit(raw: unknown): number {\n  const n = Number(raw);\n  if (!Number.isInteger(n) || n < 1) return 20;\n  return Math.min(n, 50);\n}\n`,
+              starter: `export function clampLimit(raw: unknown): number {\n  return Number(raw);\n}\n`,
             },
           ],
           [

@@ -119,6 +119,7 @@ export const exerciseSchema = z.discriminatedUnion("type", [
     ...base,
     type: z.literal("rsvp"),
     text: z.string().min(1),
+    textEn: z.string().min(1).optional(),
     wpm: z.number().positive(),
   }),
   z.object({
@@ -167,6 +168,7 @@ export const exerciseSchema = z.discriminatedUnion("type", [
         q: z.string(),
         qEn: z.string().optional(),
         options: z.array(z.string()).min(2),
+        optionsEn: z.array(z.string()).min(2).optional(),
         correctIndex: z.number().int().min(0),
       })
       .optional(),

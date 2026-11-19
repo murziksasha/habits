@@ -67,6 +67,7 @@ type ExerciseBody =
       promptUk: string;
       promptEn?: string;
       text: string;
+      textEn?: string;
       wpm: number;
     }
   | {
@@ -133,6 +134,7 @@ type ExerciseBody =
       code: string;
       language: string;
       options?: string[];
+      optionsEn?: string[];
       correctIndex?: number;
       accepted?: string[];
       explanationUk?: string;

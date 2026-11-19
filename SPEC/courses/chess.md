@@ -74,6 +74,10 @@ Theory, puzzles, and live games with other players.
 
 ## Expansion (Nov 2026)
 
+The introductory tactics lessons now use an actual knight fork against king and rook, a concrete discovered attack position, and bilingual explanations and choices.
+
+The course-wide position check covers all chess lessons and solution sequences, including claimed checkmates. Five earlier puzzles were corrected: a queen was already on its destination, three rook-mate positions did not produce mate, and a proposed exchange contained an impossible recapture. Existing exercise IDs remain stable.
+
 Additional bilingual (uk+en) units in `packages/content/src/expansion/chess-exp.ts`.
 
 - `opening-principles-plus` — Opening principles in more depth

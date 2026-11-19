@@ -92,6 +92,10 @@ Sequences, patterns, and critical thinking puzzles.
 
 ## Expansion (Nov 2026)
 
+The advanced and deduction exercises now state probability assumptions and the letter encoding rule explicitly, and provide English prompts and localized choices where needed.
+
+The earlier pattern and analogy lessons now name the comparison criterion, clarify the custom numeric rule, and include English choices and hints. The former book-to-house analogy was replaced with a calendar analogy with a single intended answer.
+
 Additional bilingual (uk+en) units in `packages/content/src/expansion/logic-exp.ts`.
 
 - `propositional` — Propositional logic

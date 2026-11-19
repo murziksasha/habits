@@ -2,7 +2,7 @@
  * Deep-learning units (SPEC 90/91): every lesson opens with a concept card
  * (theory + key points + worked example), then retrieval practice, then a unit exam.
  */
-import type { UnitContent } from "./types.js";
+import type { Exercise, UnitContent } from "./types.js";
 import {
   codeFill,
   codeOrder,
@@ -79,7 +79,7 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
           explanationEn: "let creates a new binding on each iteration.",
         },
       ),
-      mcq(
+      { ...mcq(
         "jsf-cl-3",
         "Для чого найчастіше використовують замикання?",
         "What are closures most often used for?",
@@ -90,7 +90,7 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
           "Заміна HTTP-запитів",
         ],
         0,
-      ),
+      ), optionsEn: ["Private state and function factories", "Making CSS faster", "Creating database tables", "Replacing HTTP requests"] },
       explain(
         "jsf-cl-x1",
         "Поясніть своїми словами: що таке замикання і чому лічильник counter() памʼятає n?",
@@ -115,8 +115,8 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
         "Як визначається this",
         "How this is determined",
         {
-          uk: "Значення this у звичайній функції залежить від способу виклику: obj.method() → this = obj; просто fn() → undefined у strict mode. Стрілкові функції не мають власного this — вони беруть його з місця оголошення.\n\nbind/call/apply задають this явно.",
-          en: "In a regular function this depends on how it is called: obj.method() → this = obj; plain fn() → undefined in strict mode. Arrow functions have no own this — they take it from where they were defined.\n\nbind/call/apply set this explicitly.",
+          uk: "Значення this у звичайній функції залежить від способу виклику: obj.method() → this = obj; просто fn() → undefined у strict mode. Стрілкові функції не мають власного this — вони беруть його з місця оголошення.\n\nbind/call/apply задають this звичайної функції явно, але не змінюють лексичне this стрілки.",
+          en: "In a regular function this depends on how it is called: obj.method() → this = obj; plain fn() → undefined in strict mode. Arrow functions have no own this — they take it from where they were defined.\n\nbind/call/apply set a regular function's this explicitly, but do not change an arrow's lexical this.",
         },
         {
           keyPointsUk: [
@@ -130,10 +130,10 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
             "bind returns a new function with a fixed this",
           ],
           language: "javascript",
-          code: "const user = { name: 'Ann', hi() { return this.name; } };\nconst hi = user.hi;\nhi(); // undefined (strict) — lost this\nuser.hi.bind(user)(); // 'Ann'",
+          code: "'use strict';\nconst user = { name: 'Ann', hi() { return this.name; } };\nconst hi = user.hi;\n// hi() throws TypeError: this is undefined\nuser.hi.bind(user)(); // 'Ann'",
         },
       ),
-      codeRead(
+      { ...(codeRead(
         "jsf-cl-4",
         "Що поверне user.later() через 0 мс?",
         "What does user.later() resolve to?",
@@ -141,7 +141,7 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
         "const user = {\n  name: 'Ann',\n  later() {\n    return new Promise((r) => setTimeout(() => r(this.name), 0));\n  },\n};",
         ["'Ann' — стрілка бере this з later()", "undefined", "TypeError", "'' (порожній рядок)"],
         0,
-      ),
+      ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["'Ann' — the arrow captures this from later()", "undefined", "TypeError", "'' (empty string)"] },
       codeFill(
         "jsf-cl-5",
         "Зафіксуйте this для обробника кліку.",
@@ -163,8 +163,8 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
         "Черги задач",
         "Task queues",
         {
-          uk: "JS виконує один стек викликів. Коли стек порожній, event loop спершу виконує ВСІ мікрозадачі (Promise.then, queueMicrotask, await-продовження), а потім бере одну макрозадачу (setTimeout, I/O, події).\n\nТому Promise.then завжди спрацює раніше за setTimeout(..., 0).",
-          en: "JS runs one call stack. When the stack is empty, the event loop first drains ALL microtasks (Promise.then, queueMicrotask, await continuations), then takes one macrotask (setTimeout, I/O, events).\n\nThat is why Promise.then always runs before setTimeout(..., 0).",
+          uk: "У браузері після поточної задачі event loop спорожнює чергу мікрозадач (реакції Promise, queueMicrotask, продовження await), перш ніж перейти до наступної задачі таймера чи події.\n\nЯкщо реакцію вже виконаного Promise і таймер заплановано в одній синхронній задачі, реакція виконається раніше. Реакція невиконаного Promise може потрапити до черги значно пізніше.",
+          en: "In a browser, after the current task the event loop drains microtasks (Promise reactions, queueMicrotask, await continuations) before a subsequent timer or event task.\n\nIf a reaction to an already fulfilled Promise and a timer are scheduled in the same synchronous task, the reaction runs first. A pending Promise's reaction may be queued much later.",
         },
         {
           keyPointsUk: [
@@ -192,17 +192,17 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
       ),
       codeOrder(
         "jsf-cl-8",
-        "Розставте вивід у правильному порядку",
-        "Put the output in the correct order",
+        "Розставте вивід: setTimeout(() => log('timeout'), 0); Promise.resolve().then(() => log('then')); log('sync').",
+        "Order the output: setTimeout(() => log('timeout'), 0); Promise.resolve().then(() => log('then')); log('sync').",
         "javascript",
         ["timeout", "sync", "then"],
         ["sync", "then", "timeout"],
         {
-          explanationUk: "Код: setTimeout(timeout); Promise.then(then); console.log(sync).",
-          explanationEn: "Code: setTimeout(timeout); Promise.then(then); console.log(sync).",
+          explanationUk: "Синхронний log виконується першим, потім реакція виконаного промісу, потім колбек таймера.",
+          explanationEn: "The synchronous log runs first, then the fulfilled promise reaction, then the timer callback.",
         },
       ),
-      mcq(
+      { ...mcq(
         "jsf-cl-9",
         "Що блокує інтерфейс браузера?",
         "What blocks the browser UI?",
@@ -213,11 +213,11 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
           "Promise.resolve()",
         ],
         0,
-      ),
+      ), optionsEn: ["A long synchronous loop on the main thread", "await fetch()", "setTimeout with 1000 ms", "Promise.resolve()"] },
       explain(
         "jsf-cl-x2",
-        "Поясніть своїми словами, чому Promise.then спрацьовує раніше за setTimeout(..., 0).",
-        "Explain in your own words why Promise.then runs before setTimeout(..., 0).",
+        "Поясніть, чому реакція Promise.resolve().then(...) запускається раніше за setTimeout(..., 0), якщо обидва заплановані в одному синхронному коді.",
+        "Explain why Promise.resolve().then(...) runs before setTimeout(..., 0) when both are scheduled in the same synchronous code.",
         [
           { labelUk: "мікрозадачі", labelEn: "microtasks", anyOf: ["мікро", "micro"] },
           { labelUk: "макрозадачі / таймери", labelEn: "macrotasks / timers", anyOf: ["макро", "macro", "таймер", "timer", "settimeout", "task queue", "черг"] },
@@ -226,20 +226,20 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
         {
           minWords: 12,
           sampleAnswerUk:
-            "Коли стек викликів порожній, event loop спочатку виконує всі мікрозадачі (Promise.then), і лише потім бере наступну макрозадачу з черги таймерів (setTimeout). Тому then завжди раніше.",
+            "Коли стек викликів порожній, event loop спочатку виконує мікрозадачі, включно з реакцією вже виконаного Promise, і лише потім бере наступну задачу таймера setTimeout.",
           sampleAnswerEn:
-            "When the call stack is empty the event loop first drains all microtasks (Promise.then) and only then takes the next macrotask from the timer queue (setTimeout), so then always runs first.",
+            "When the call stack is empty the event loop drains microtasks, including the already fulfilled Promise's reaction, before taking the next timer task from the queue.",
         },
       ),
     ]),
     exam("jsf-closures-exam", "Контрольна: замикання й event loop", "Exam: closures & event loop", 4, [
-      mcq(
+      { ...mcq(
         "jsf-cle-1",
         "Замикання памʼятає:",
         "A closure remembers:",
         ["змінні лексичного оточення", "лише глобальні змінні", "DOM", "історію викликів"],
         0,
-      ),
+      ), optionsEn: ["Bindings in its lexical environment", "Only global variables", "The DOM", "Its call history"] },
       codeOutputMcq(
         "jsf-cle-2",
         "Який буде порядок виводу?",
@@ -250,13 +250,13 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
         0,
       ),
       codeFill("jsf-cle-3", "Допишіть стрілку з лексичним this.", "Complete the arrow with lexical this.", "javascript", "const f = () ___ this;", ["=>"], true),
-      mcq(
+      { ...mcq(
         "jsf-cle-4",
         "Мікрозадачі виконуються:",
         "Microtasks run:",
         ["усі, перед наступною макрозадачею", "по одній на секунду", "лише після setTimeout", "ніколи в браузері"],
         0,
-      ),
+      ), optionsEn: ["Drained before the next task", "One per second", "Only after setTimeout", "Never in a browser"] },
       codeFill("jsf-cle-5", "Блочна змінна в циклі", "Block binding in a loop", "javascript", "for (___ i = 0; i < n; i++) {}", ["let"], true),
     ]),
   ],
@@ -274,18 +274,18 @@ export const tsAdvancedTypesUnit: UnitContent = unit(
         "Умовні типи",
         "Conditional types",
         {
-          uk: "Умовний тип має форму T extends U ? X : Y — «якщо T сумісний з U, то X, інакше Y». Для union він розподіляється по кожному члену (distributive).\n\ninfer дозволяє «витягти» частину типу всередині умови, наприклад тип результату Promise.",
-          en: "A conditional type has the form T extends U ? X : Y — \"if T is assignable to U then X else Y\". On a union it distributes over each member.\n\ninfer lets you extract part of a type inside the condition, e.g. the value type of a Promise.",
+          uk: "Умовний тип T extends U ? X : Y обирає X, якщо T можна присвоїти U, інакше Y. Якщо ліворуч від extends стоїть безпосередньо параметр типу T, умовний тип розподіляється по членах union; обгортка [T] extends [U] вимикає такий розподіл.\n\ninfer виводить частину типу зі зразка, наприклад значення Promise. Наведений Awaited2 розгортає лише один рівень, на відміну від рекурсивної утиліти Awaited.",
+          en: "The conditional type T extends U ? X : Y selects X if T is assignable to U, otherwise Y. A conditional distributes over a union when the checked side is a naked type parameter T; wrapping it as [T] extends [U] prevents that distribution.\n\ninfer extracts a type from a pattern, such as a Promise's value. The shown Awaited2 unwraps only one level, unlike the recursive Awaited utility.",
         },
         {
           keyPointsUk: [
             "extends у типах = перевірка сумісності",
-            "Union розподіляється по членах",
+            "Голий параметр типу розподіляє union по членах",
             "infer оголошує змінну типу в шаблоні",
           ],
           keyPointsEn: [
             "extends in types = assignability check",
-            "Unions distribute over members",
+            "A naked type parameter distributes over union members",
             "infer declares a type variable inside the pattern",
           ],
           language: "typescript",
@@ -309,14 +309,14 @@ export const tsAdvancedTypesUnit: UnitContent = unit(
       ),
       codeRead(
         "tsc-adv-2",
-        "Чому дорівнює R?",
-        "What is R?",
+        "Чому дорівнює R за увімкненого strictNullChecks?",
+        "What is R with strictNullChecks enabled?",
         "typescript",
         "type NonNull<T> = T extends null | undefined ? never : T;\ntype R = NonNull<string | null | undefined>;",
         ["string", "never", "string | null", "unknown"],
         0,
       ),
-      mcq(
+      { ...mcq(
         "tsc-adv-3",
         "Distributive conditional type означає:",
         "A distributive conditional type means:",
@@ -327,7 +327,8 @@ export const tsAdvancedTypesUnit: UnitContent = unit(
           "умова виконується лише в JS",
         ],
         0,
-      ),
+      ), optionsEn: ["The condition applies separately to each union member", "The type is copied at runtime", "The type becomes any", "The condition runs only in JavaScript"] },
+      { ...mcq("tsc-adv-10", "Як вимкнути розподіл умовного типу по union у T extends U ? X : Y?", "How can you prevent distribution over a union in T extends U ? X : Y?", ["Використати [T] extends [U] ? X : Y", "Замінити extends на infer", "Додати async", "Додати readonly до значення"], 0), optionsEn: ["Use [T] extends [U] ? X : Y", "Replace extends with infer", "Add async", "Add readonly to the value"] },
       explain(
         "tsc-adv-x1",
         "Поясніть своїми словами, як працює infer в умовному типі Awaited2<T>.",
@@ -411,8 +412,8 @@ export const tsAdvancedTypesUnit: UnitContent = unit(
       ),
       codeFill(
         "tsc-adv-8",
-        "Ім'я обробника події",
-        "Event handler name",
+        "Допишіть утиліту, яка робить першою велику літеру імені події.",
+        "Fill in the utility that capitalizes the first letter of the event name.",
         "typescript",
         "type Handler<E extends string> = `on${___<E>}`;",
         ["Capitalize"],
@@ -430,30 +431,30 @@ export const tsAdvancedTypesUnit: UnitContent = unit(
     ]),
     exam("tsc-advanced-exam", "Контрольна: просунуті типи", "Exam: advanced types", 4, [
       codeFill("tsc-adve-1", "infer", "infer", "typescript", "type R<T> = T extends () => ___ U ? U : never;", ["infer"], true),
-      mcq(
+      { ...mcq(
         "tsc-adve-2",
         "-? у mapped type:",
         "-? in a mapped type:",
         ["знімає опціональність", "додає null", "робить поле readonly", "видаляє ключ"],
         0,
-      ),
+      ), optionsEn: ["Removes optionality", "Adds null", "Makes the field readonly", "Deletes the key"] },
       codeFill("tsc-adve-3", "keyof", "keyof", "typescript", "type Keys<T> = ___ T;", ["keyof"], true),
-      mcq(
+      { ...mcq(
         "tsc-adve-4",
         "`${'GET'|'POST'} /api` містить:",
         "`${'GET'|'POST'} /api` contains:",
         ["'GET /api' | 'POST /api'", "лише string", "never", "'GET' | 'POST'"],
         0,
-      ),
-      codeRead(
+      ), optionsEn: ["'GET /api' | 'POST /api'", "Only string", "never", "'GET' | 'POST'"] },
+      { ...(codeRead(
         "tsc-adve-5",
         "X = ?",
         "X = ?",
         "typescript",
         "type X = (string | number) extends string ? 'yes' : 'no';",
-        ["'no' — без generic немає розподілу", "'yes'", "'yes' | 'no'", "never"],
+        ["'no' — ліворуч немає голого параметра типу", "'yes'", "'yes' | 'no'", "never"],
         0,
-      ),
+      ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["'no' — the checked side is not a naked type parameter", "'yes'", "'yes' | 'no'", "never"] },
     ]),
   ],
 );

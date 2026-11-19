@@ -5,6 +5,7 @@ import {
   codeOutputMcq,
   codeProject,
   codeRead,
+  concept,
   exam,
   lesson,
   matchEx,
@@ -23,7 +24,11 @@ const testableRequirements = unit(
       "Перетворення вимог на перевірювані очікування",
       "Turning Specs into Testable Assertions",
       2, true, [
-        mcq(
+        concept("st-req-behaviors-concept", "Від очікування до перевірки", "From expectation to assertion", {
+          uk: "Перетворіть нечітку вимогу на вхідні дані, передумови та спостережуваний результат. Для пошуку визначте запит, очікувані збіги, обробку порожнього запиту й помилок; критерій швидкості має називати середовище та спосіб вимірювання. Перевіряйте публічний контракт, а не випадкові деталі реалізації.",
+          en: "Turn a vague requirement into inputs, preconditions, and observable results. For search, define the query, expected matches, empty-input and error behavior; a speed criterion needs an environment and measurement method. Assert the public contract rather than incidental implementation details.",
+        }),
+        { ...mcq(
           "st-req1",
           "Продуктова вимога: «Пошук ForgeBoard має бути швидким і надійним». Яке формулювання робить її тестованою для автотесту?",
           "A spec says: \"ForgeBoard search should be fast and reliable.\" Which rewrite makes it testable?",
@@ -38,8 +43,8 @@ const testableRequirements = unit(
             "Тестована вимога задає конкретні вхідні умови, статус-код, форму відповіді та границі поведінки.",
             "Testable specs state exact inputs, status codes, invariants, and failure contracts.",
           ),
-        ),
-        codeRead(
+        ), optionsEn: ["GET /api/tasks?q=auth returns HTTP 200 with case-insensitive matches; empty q returns at most 50 records; the request takes under 200 ms locally", "The designer likes the search button", "The code uses only short variable names", "The server never logs requests"] },
+        { ...codeRead(
           "st-req2",
           "Приклад хорошої та крихкої перевірки: Чому другий підхід виявляє реальні баги без хибних падінь при рефакторингу?",
           "Worked example: behavioral vs brittle assertion: Why does the second assertion catch real bugs without breaking on harmless refactors?",
@@ -56,14 +61,18 @@ const testableRequirements = unit(
             "Тести мають фіксувати поведінковий контракт, а не деталі реалізації чи згенеровані класи.",
             "Behavior assertions lock contracts rather than coupling suites to private internals.",
           ),
-        ),
+        ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["It checks the observable HTTP status and error code rather than generated classes or private names", "HTTP 400 is faster than checking a string", "toMatchObject ignores every error", "Refactoring never changes APIs"] },
       ], { baseXp: 22 },
     ),
     lesson(
       "st-req-levels",
-      "Обір рівня тесту: Unit, Component, Integration, E2E",
+      "Вибір рівня тесту: Unit, Component, Integration, E2E",
       "Choosing the Right Test Level",
       2, true, [
+        concept("st-req-levels-concept", "Рівень за ризиком і вартістю", "Choosing a level by risk and cost", {
+          uk: "Модульний тест швидко перевіряє ізольовану логіку, компонентний — поведінку інтерфейсу, інтеграційний — взаємодію частин, а наскрізний — важливий шлях через систему. Один дефект іноді можна виявити на кількох рівнях. Обирайте найкориснішу комбінацію з огляду на ризик, швидкість і впевненість.",
+          en: "Unit tests quickly check isolated logic, component tests check UI behavior, integration tests check interactions, and end-to-end tests exercise important paths through the system. A defect can sometimes be detected at several levels. Choose a useful mix based on risk, speed, and confidence.",
+        }),
         matchEx(
           "st-req3",
           "Зіставте тип дефекту з найшвидшим рівнем тесту, який його впевнено спіймає",
@@ -75,12 +84,12 @@ const testableRequirements = unit(
             { left: "Скрипт роутера блокує перехід після логіну в браузері", right: "Browser E2E test (Playwright)" },
           ],
         ),
-        mcq(
+        { ...mcq(
           "st-req4",
           "Передбачте: команда перенесла всі unit-перевірки формул у повільні Playwright E2E-тести через UI. Який наслідок найбільш імовірний?",
           "Predict: a team puts all formula checks into browser E2E instead of unit tests. What happens?",
           [
-            "CI стає у 20 разів повільнішим, а падіння важче локалізувати через стек браузера й бази",
+            "CI може працювати повільніше, а причину падіння важче локалізувати через більше залежностей",
             "Баги в математиці самі зникають",
             "E2E-тести починають виконуватись за 1 мілісекунду",
             "Unit-помилки перестають існувати у продакшені",
@@ -90,11 +99,11 @@ const testableRequirements = unit(
             "Перевернута піраміда (ice-cream cone) сповільнює розробку та замилює точність діагностики.",
             "Over-relying on E2E for pure logic makes builds slow and failures noisy to isolate.",
           ),
-        ),
+        ), optionsEn: ["CI may be slower and failures harder to isolate due to additional dependencies", "Math bugs disappear by themselves", "E2E tests execute in one millisecond", "Unit-level bugs can never occur in production"] },
       ], { baseXp: 22 },
     ),
     exam("st-req-exam", "Контрольна: тестовані вимоги", "Checkpoint: Testable Requirements", 2, [
-      mcq(
+      { ...mcq(
         "st-req-e1",
         "Яка властивість тесту робить його цінним сигналом у CI?",
         "Which property makes a test a reliable CI quality signal?",
@@ -105,7 +114,7 @@ const testableRequirements = unit(
           "Він перевіряє лише існування файлу на диску",
         ],
         0,
-      ),
+      ), optionsEn: ["It fails for a violated requirement and passes consistently for correct behavior", "It mocks its own function to always return true", "It skips assertions on timeout", "It checks only that a file exists"] },
       codeOrderAuto(
         "st-req-e2",
         "Впорядкуйте процес створення тесту до реалізації вимоги (Arrange-Act-Assert)",
@@ -131,7 +140,11 @@ const unitTestingUnit = unit(
       "Виявлення беззмістовних тестів (Tautology & Over-Mocking)",
       "Spotting Tautological & Over-Mocked Tests",
       3, true, [
-        codeRead(
+        concept("st-ut-tautology-concept", "Перевіряйте реальну логіку", "Exercise the real logic", {
+          uk: "Тест повинен запускати саме ту поведінку, яку перевіряє. Замінюйте зовнішні залежності контрольованими двійниками за потреби, але не підміняйте саму функцію під тестом фіксованою відповіддю. Перевірте, чи впаде тест, якщо порушити відповідне правило; одна така перевірка не доводить відсутності інших дефектів.",
+          en: "A test must execute the behavior it claims to verify. Replace external dependencies with controlled doubles when useful, but do not replace the function under test with a canned answer. Check whether the test fails when the relevant rule is broken; one such check does not prove the absence of other defects.",
+        }),
+        { ...codeRead(
           "st-ut1",
           "Чому цей тест зелений навіть коли фільтр зламаний? У чому критичний дефект тесту?",
           "Diagnose why this test passes on broken code: What is fundamentally broken about this test?",
@@ -148,11 +161,11 @@ const unitTestingUnit = unit(
             "Ніколи не мокайте систему під тестом (SUT); тест має виконувати реальну функцію й ламатися при внесенні дефекту.",
             "Never mock the Subject Under Test; run real logic so an injected bug actually breaks the assertion.",
           ),
-        ),
-        codeOutputMcq(
+        ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["It mocks the function under test and exercises the fake rather than production logic", "An empty array is forbidden in Vitest", "An array must always have length 2", "The function returns a promise"] },
+        { ...codeOutputMcq(
           "st-ut2",
-          "Передбачте результат суворої перевірки помилок",
-          "Predict what `expect(() => parseLimit(\"0\")).toThrow()` asserts",
+          "Як ця функція обробить значення 0, 101, 1.5 і abc?",
+          "How does this function handle 0, 101, 1.5, and abc?",
           "ts",
           "function parseLimit(raw: string): number {\n  const n = Number(raw);\n  if (!Number.isInteger(n) || n < 1 || n > 100) throw new RangeError(\"invalid_limit\");\n  return n;\n}",
           [
@@ -163,10 +176,10 @@ const unitTestingUnit = unit(
           ],
           0,
           why(
-            "Перевірка конкретних невалідних значень і точного типу/повідомлення помилки доводить, що валідація дійсно відхиляє межі.",
-            "Asserting exact error throwing across 0, 101, floats, and NaN confirms validation fails loudly.",
+            "Усі наведені значення не проходять умову й спричиняють RangeError; окремі assertions можуть перевірити кожен випадок.",
+            "Each listed input fails the condition and throws RangeError; separate assertions can verify each case.",
           ),
-        ),
+        ) as Extract<Exercise, { type: "code_output" }>, optionsEn: ["Throws RangeError(\"invalid_limit\") for \"0\", \"101\", \"1.5\", and \"abc\"", "Silently returns 0", "Returns NaN for \"abc\" without an error", "Accepts 101 and returns 100"] },
       ], { baseXp: 24 },
     ),
     lesson(
@@ -174,6 +187,10 @@ const unitTestingUnit = unit(
       "Відокремлення чистої логіки від побічних ефектів",
       "Extracting Pure Logic for Deterministic Tests",
       3, true, [
+        concept("st-ut-pure-refactor-concept", "Керуйте часом і станом", "Control time and state", {
+          uk: "Результат функції, що залежить від системного часу або змінює отриманий масив, складніше перевіряти ізольовано. Передайте поточний час параметром і зафіксуйте копію вхідних даних до виклику. Для перевірки мутації використовуйте вхід, порядок якого сортування справді змінить.",
+          en: "A function depending on system time or mutating its input is harder to test in isolation. Pass the current time as a parameter and save a copy of input data before calling it. To detect mutation, use input whose order sorting actually changes.",
+        }),
         codeFill(
           "st-ut3",
           "Передати детермінований годинник (`now`) для перевірки прострочених задач без `sleep`",
@@ -187,10 +204,10 @@ const unitTestingUnit = unit(
             "Injecting `now` makes boundary timestamps (dueAt === now vs now - 1ms) deterministic without sleeps.",
           ),
         ),
-        mcq(
+        { ...mcq(
           "st-ut4",
-          "Функція `sortTasks(tasks)` модифікує переданий масив через `.sort()` на місці. Який test invariant одразу виявить цей баг?",
-          "`sortTasks(tasks)` mutates the caller's array with in-place `.sort()`. Which test catches it immediately?",
+          "Функція `sortTasks(tasks)` сортує масив на місці. Якщо вхід не відсортований і порядок зміниться, яка перевірка виявить мутацію?",
+          "Given an unsorted input that changes order, which test detects that `sortTasks(tasks)` mutates the caller’s array?",
           [
             "`const copy = structuredClone(input); sortTasks(input); expect(input).toEqual(copy);`",
             "`expect(sortTasks([])).toEqual([])`",
@@ -202,11 +219,11 @@ const unitTestingUnit = unit(
             "Збереження знімка вхідного масиву до виклику гарантує відсутність прихованих мутацій.",
             "Snapshotting the caller array before invocation catches accidental in-place mutation bugs.",
           ),
-        ),
+        ), optionsEn: ["const copy = structuredClone(input); sortTasks(input); expect(input).toEqual(copy);", "expect(sortTasks([])).toEqual([])", "expect(typeof sortTasks).toBe(\"function\")", "expect(sortTasks([a]).length).toBe(1)"] },
       ], { baseXp: 24 },
     ),
     exam("st-ut-exam", "Контрольна: unit-тестування", "Checkpoint: Unit Testing", 3, [
-      mcq(
+      { ...mcq(
         "st-ut-e1",
         "Що означає фраза «цей тест спіймає регресію (mutation test)?»",
         "What does it mean that a test kills a mutant / catches a regression?",
@@ -217,7 +234,7 @@ const unitTestingUnit = unit(
           "Тест перевіряє лише TypeScript типи без виконання коду",
         ],
         0,
-      ),
+      ), optionsEn: ["The test fails when the relevant operator or authorization check is changed", "The test stays green after deleting the logic", "The test uses unseeded random numbers", "The test checks only TypeScript types without running code"] },
       codeFill(
         "st-ut-e2",
         "Вказати точний очікуваний код помилки в assertion",
@@ -241,7 +258,11 @@ const boundariesFixturesUnit = unit(
       "Класи еквівалентності та границі off-by-one",
       "Equivalence Partitions & Off-by-One Boundaries",
       3, true, [
-        mcq(
+        concept("st-bf-boundaries-concept", "Перевірки біля меж", "Checking near boundaries", {
+          uk: "Спершу зафіксуйте, чи включені межі та як нормалізується ввід. Для довжини 3–80 після trim перевірте 2, 3, 80 і 81 символ після нормалізації; додайте пробіли, щоб перевірити trim. Окремо визначте, як система рахує символи Unicode.",
+          en: "First establish whether limits are inclusive and how input is normalized. For a length of 3–80 after trimming, test 2, 3, 80, and 81 characters after normalization; add whitespace to exercise trimming. Specify separately how the system counts Unicode characters.",
+        }),
+        { ...mcq(
           "st-bf1",
           "Назва задачі дозволена від 3 до 80 символів включно (після trim). Який мінімальний набір перевіряє всі границі?",
           "Task title must be 3..80 trimmed chars inclusive. Which boundary set tests every edge?",
@@ -256,8 +277,8 @@ const boundariesFixturesUnit = unit(
             "Тестування на точках `min-1`, `min`, `max`, `max+1` та пробілах виявляє помилки `<=` проти `<` та забутий `.trim()`.",
             "Testing min-1, min, max, max+1, and whitespace catches off-by-one comparison bugs and missing trim.",
           ),
-        ),
-        codeRead(
+        ), optionsEn: ["\"  ab  \" (2 after trim), \"abc\" (3), a string of 80 characters, and a string of 81 characters", "\"Buy milk\", \"Fix bug\", \"Deploy\"", "Only a 20-character string", "Only an empty string"] },
+        { ...codeRead(
           "st-bf2",
           "Знайдіть прихований баг пагінації на межі: Яка перша перевірка виявить, що перші `pageSize` елементів зникають?",
           "Find the boundary bug in slice pagination: Which check catches that page 1 skips the first pageSize items?",
@@ -274,7 +295,7 @@ const boundariesFixturesUnit = unit(
             "Очікування `[a, b]` для `page=1` миттєво доводить, що забули `(page - 1) * pageSize`.",
             "Asserting `page=1` starts with item `a` immediately exposes missing `(page - 1)` normalization.",
           ),
-        ),
+        ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["expect(paginate([a, b, c], 1, 2)).toEqual([a, b])", "expect(paginate([], 1, 10)).toEqual([])", "expect(paginate([a], 0, 1)).toEqual([a])", "expect(Array.isArray(paginate([a], 2, 1))).toBe(true)"] },
       ], { baseXp: 24 },
     ),
     lesson(
@@ -282,7 +303,11 @@ const boundariesFixturesUnit = unit(
       "Фабрики фікстур і витік спільного стану",
       "Fixture Builders & Test Isolation",
       3, false, [
-        mcq(
+        concept("st-bf-fixtures-concept", "Дані для ізольованого тесту", "Data for an isolated test", {
+          uk: "Спільний змінюваний об’єкт переносить стан між тестами й робить результат залежним від порядку. Створюйте нову фікстуру для кожного випадку, а дані в базі прибирайте або ізолюйте. Лічильник у процесі не гарантує унікальності між паралельними воркерами чи окремими запусками.",
+          en: "A shared mutable object leaks state between tests and makes outcomes order-dependent. Create a fresh fixture for each case and clean up or isolate database data. A per-process counter does not guarantee uniqueness across parallel workers or separate runs.",
+        }),
+        { ...mcq(
           "st-bf3",
           "Чому глобальна константа `const sharedTask = { id: 1, title: \"A\" }`, яку мутує один тест, призводить до флаків при зміні порядку тестів?",
           "Why does mutating a module-level `sharedTask` object cause order-dependent flaky tests?",
@@ -297,20 +322,20 @@ const boundariesFixturesUnit = unit(
             "Фабрика `makeTask(overrides = {})` генерує свіжий ізольований об'єкт для кожного кейса.",
             "Using a fresh `makeTask(overrides)` factory prevents cross-test state pollution.",
           ),
-        ),
+        ), optionsEn: ["Later tests can read state changed by an earlier test and fail in certain execution orders", "Vitest forbids constants outside functions", "JavaScript automatically freezes all objects", "The test file name changes"] },
         codeFill(
           "st-bf4",
-          "Додати унікальний індекс у фікстуру користувача",
-          "Avoid unique-email collisions in DB fixtures",
+          "Додати лічильник для адрес у межах одного процесу",
+          "Add a per-process counter to fixture email addresses",
           "ts",
-          "let seq = 0;\nexport const makeUser = (over = {}) => ({ email: `user-${++___}@example.test`, ...over });",
+          "// Per-process counter; use a run/worker ID for shared parallel databases.\nlet seq = 0;\nexport const makeUser = (over = {}) => ({ email: `user-${++___}@example.test`, ...over });",
           ["seq"],
           true,
         ),
       ], { baseXp: 24 },
     ),
     exam("st-bf-exam", "Контрольна: межі та фікстури", "Checkpoint: Boundaries & Fixtures", 3, [
-      mcq(
+      { ...mcq(
         "st-bf-e1",
         "Який підхід найкраще показує реальні прогалини: Unicode (кирилиця/емодзі), null-поля та порожній масив чи `" + "foo/bar`?",
         "Which fixture data exposes real production bugs better: `" + "foo/bar` or Unicode strings, empty sets, and null fields?",
@@ -321,8 +346,8 @@ const boundariesFixturesUnit = unit(
           "Порожній файл фікстури без тестів",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Representative Unicode, long strings, URL special characters, empty and null states", "Only test1 and test2", "Only 123 for every string field", "An empty fixture file with no tests"] },
+      { ...mcq(
         "st-bf-e2",
         "Для поля `page` (допустимо `>= 1`) що має перевірити тест при передачі `page = 0` та `page = -3`?",
         "For 1-based `page`, what should happen when testing `page = 0` and `page = -3`?",
@@ -333,7 +358,7 @@ const boundariesFixturesUnit = unit(
           "Ігнорує фільтри безпеки",
         ],
         0,
-      ),
+      ), optionsEn: ["The API returns a deterministic error or clamps to the valid limit according to its contract", "Returns random rows from the end", "Fails with an unhandled 500", "Ignores security filters"] },
     ]),
   ],
 );
@@ -348,6 +373,10 @@ const reactComponentTestsUnit = unit(
       "Симуляція реальної взаємодії: Roles, Labels і `userEvent`",
       "User-Centric Queries & Realistic Interactions",
       3, false, [
+        concept("st-rct-user-event-concept", "Перевірка з погляду користувача", "Testing from the user’s perspective", {
+          uk: "Знаходьте елементи за доступними ролями та підписами й відтворюйте реальну взаємодію. Якщо інтерфейс оновлюється асинхронно, дочекайтеся потрібного стану через findBy або інше очікування умови. Перевірка семантичного запиту корисна, але не замінює повного аудиту доступності.",
+          en: "Find elements by accessible roles and labels, then simulate a real interaction. When the UI updates asynchronously, await the desired state with findBy or another condition-based wait. A semantic query is useful, but it does not replace a complete accessibility audit.",
+        }),
         codeOrderAuto(
           "st-rct1",
           "Складіть тест відправлення доступної форми задачі в React Testing Library",
@@ -364,7 +393,7 @@ const reactComponentTestsUnit = unit(
             "`getByLabelText` and `getByRole` test real DOM usability and fail if labels or accessible names break.",
           ),
         ),
-        codeRead(
+        { ...codeRead(
           "st-rct2",
           "Знайдіть причину, чому тест не перевіряє реальний асинхронний ререндер: Що не так із цим тестом для форми з клієнтською/асинхронною валідацією?",
           "Spot missing async wait after state update: What is broken if validation renders an alert asynchronously?",
@@ -381,7 +410,7 @@ const reactComponentTestsUnit = unit(
             "`findByRole` чекає асинхронного оновлення стану і робить тест стійким до мікрозадач/Promise.",
             "`await screen.findByRole(\"alert\")` properly awaits async validation feedback.",
           ),
-        ),
+        ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["Wait for the alert with await screen.findByRole(\"alert\"); if required, check aria-invalid on the input", "fireEvent.click never invokes React handlers", "role=\"alert\" does not exist", "Replace render with console.log"] },
       ], { baseXp: 25 },
     ),
     lesson(
@@ -389,10 +418,14 @@ const reactComponentTestsUnit = unit(
       "Покриття Loading, Empty, Error та Retry станів",
       "Testing Loading, Empty, Error & Retry States",
       3, false, [
-        mcq(
+        concept("st-rct-states-concept", "Перевіряйте переходи станів", "Test state transitions", {
+          uk: "Дані можуть завантажуватися, бути порожніми або завершитися помилкою. Керуйте результатом запиту в тесті: перевірте стан завантаження, повідомлення про помилку й відновлення після повторної спроби. Так тест описує поведінку, яку справді побачить користувач.",
+          en: "Data may be loading, empty, or fail to load. Control the request outcome in the test: check loading, the error message, and recovery after a retry. This describes behavior a user can actually observe.",
+        }),
+        { ...mcq(
           "st-rct3",
-          "Компонент показує спінер, але при мережевій помилці застрягає у «Loading...» назавжди. Який тест гарантовано виявить цей дефект?",
-          "A component hangs on \"Loading...\" forever when `fetch` rejects. Which test guarantees catching this?",
+          "Компонент показує спінер, але при мережевій помилці застрягає у «Loading...» назавжди. Який тест може виявити цей дефект і перевірити відновлення?",
+          "A component hangs on \"Loading...\" forever when `fetch` rejects. Which test can detect this and check recovery?",
           [
             "Підмінити мережевий клієнт помилкою (500/network), перевірити зникнення loading, появу error UI і те, що клік «Повторити» знову викликає завантаження та рендерить задачі",
             "Перевірити лише початковий спінер до завершення промісу",
@@ -404,17 +437,17 @@ const reactComponentTestsUnit = unit(
             "Перехід error -> retry -> success перевіряє відновлення застосунку без перезавантаження сторінки.",
             "Verifying error -> click Retry -> success ensures users can actually recover from transient faults.",
           ),
-        ),
+        ), optionsEn: ["Make the network request fail, check loading disappears and error appears, then retry and verify tasks render", "Check only the initial spinner before the promise resolves", "Mock useState", "Only check that a div renders"] },
       ], { baseXp: 25 },
     ),
     exam("st-rct-exam", "Контрольна: React-тести", "Checkpoint: React Component Tests", 3, [
-      mcq(
+      { ...mcq(
         "st-rct-e1",
         "Який запит Testing Library дає найкраще поєднання семантики та стійкості до зміни стилів?",
         "Which Testing Library query best verifies semantic accessibility?",
         ["getByRole / getByLabelText", "getByTestId для всього підряд", "container.firstChild.children[0]", "document.getElementsByTagName(\"div\")[4]"],
         0,
-      ),
+      ), optionsEn: ["getByRole / getByLabelText", "Use getByTestId for everything", "container.firstChild.children[0]", "document.getElementsByTagName(\"div\")[4]"] },
       codeFill(
         "st-rct-e2",
         "Асинхронно дочекатися повідомлення статусу в DOM",
@@ -438,7 +471,11 @@ const apiDbIntegrationUnit = unit(
       "Тестування реального HTTP-маршруту з PostgreSQL без фейкового SQL",
       "Real HTTP Routes Against PostgreSQL",
       4, false, [
-        mcq(
+        concept("st-int-db-real-concept", "Перевірка взаємодії з базою", "Testing database interactions", {
+          uk: "Мок драйвера корисний для ізольованої логіки, але не виконує SQL і не перевіряє обмеження реальної схеми. Інтеграційний тест використовує окрему тестову базу з міграціями, надсилає HTTP-запит і перевіряє відповідь та стан даних. Для перевірки доступу переконайтеся, що заборонена дія не змінила запис.",
+          en: "A driver mock helps isolate logic but does not execute SQL or check real schema constraints. An integration test uses a separate migrated test database, sends an HTTP request, and checks both response and data state. For authorization, verify a forbidden action did not mutate the record.",
+        }),
+        { ...mcq(
           "st-int1",
           "Якщо unit-тести маршруту мокають Drizzle/SQL-драйвер і повертають хардкоджений масив, які класи багів залишаються невидимими?",
           "If API route tests mock the SQL/Drizzle driver completely, which real failures slip through?",
@@ -453,7 +490,7 @@ const apiDbIntegrationUnit = unit(
             "Справжні інтеграційні тести перевіряють HTTP middleware + валідацію + реальний SQL проти тестової схеми Postgres.",
             "Integration tests against a real Postgres schema catch column mismatches, constraint faults, and SQL logic bugs mocks hide.",
           ),
-        ),
+        ), optionsEn: ["Column mismatches, FOREIGN KEY and NOT NULL violations, incorrect joins and SQL ordering", "Only README typos", "An outdated favicon", "VS Code theme settings"] },
         codeOrderAuto(
           "st-int2",
           "Складіть ізольований API-інтеграційний тест перевірки власника (ownership 403)",
@@ -477,7 +514,11 @@ const apiDbIntegrationUnit = unit(
       "Очищення стану між тестами та детермінований сидинг",
       "State Isolation Between Integration Cases",
       4, false, [
-        codeRead(
+        concept("st-int-isolation-concept", "Повторювані запуски", "Repeatable runs", {
+          uk: "Статична адреса з унікальним обмеженням може залишитися після першого запуску й зламати наступний. Ізолюйте фікстури за тестом або запуском і прибирайте їх чи відкочуйте транзакцію там, де це можливо. Очищення виконуйте лише в спеціальній тестовій базі.",
+          en: "A fixed address under a unique constraint may remain after the first run and break the next. Isolate fixtures by test or run, and clean them up or roll back a transaction where possible. Perform cleanup only in a dedicated test database.",
+        }),
+        { ...codeRead(
           "st-int3",
           "Знайдіть причину падіння другого запуску тестів: Чому локальний запуск падає з `duplicate key value violates unique constraint` на другому прогоні?",
           "Diagnose test suite failing on second run: Why does running the suite a second time fail with unique constraint violation?",
@@ -494,11 +535,11 @@ const apiDbIntegrationUnit = unit(
             "Кожен прогін має бути ідемпотентним: очищайте тестові дані або ізолюйте кожен кейс унікальним namespace/rollback.",
             "Repeatable suites clean tables before runs or isolate fixtures per test run cleanly.",
           ),
-        ),
+        ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["A fixed unique key is inserted again without cleanup, rollback, or a unique namespace", "PostgreSQL deletes indexes after the first run", "beforeAll runs only on Linux", "Drizzle does not support email"] },
       ], { baseXp: 26 },
     ),
     exam("st-int-exam", "Контрольна: API + БД інтеграційні тести", "Checkpoint: API + DB Integration", 4, [
-      mcq(
+      { ...mcq(
         "st-int-e1",
         "Що обов'язково перевірити в інтеграційному тесті створення ресурсу (POST /tasks) крім статусу 201?",
         "What must a POST /tasks integration test verify besides HTTP 201?",
@@ -509,7 +550,7 @@ const apiDbIntegrationUnit = unit(
           "Назву комп'ютера розробника",
         ],
         0,
-      ),
+      ), optionsEn: ["Verify the row persisted and GET returns the expected owner and fields; verify invalid input does not create a row", "Only that the server avoided an out-of-memory crash", "Browser FPS", "The developer computer name"] },
       codeFill(
         "st-int-e2",
         "Властивість перевірки заборони чужого доступу",
@@ -533,12 +574,16 @@ const e2eCiCapstoneUnit = unit(
       "Стійкі локатори Playwright та усунення Flaky-тестів",
       "Stable Playwright Locators & Eliminating Flakes",
       4, false, [
-        mcq(
+        concept("st-e2e-locators-flaky-concept", "Очікуйте спостережуваний стан", "Wait for an observable state", {
+          uk: "Наскрізний тест перевіряє ключовий шлях користувача через реальний браузер. Вибирайте локатори за роллю та доступним ім’ям і чекайте очікуваного стану через автоматично повторювані assertions. Фіксована затримка може бути недостатньою або зайвою; мережеву відповідь перевіряйте окремо, коли вона потрібна контракту.",
+          en: "An end-to-end test exercises an important user path in a real browser. Prefer locators based on role and accessible name, and await the expected state with auto-retrying assertions. A fixed delay may be too short or unnecessarily long; check the network response separately when the contract requires it.",
+        }),
+        { ...mcq(
           "st-e2e1",
           "Тест використовує `await page.waitForTimeout(2000)` після натискання Save і іноді падає в CI. Яке виправлення надійне?",
           "An E2E test calls `await page.waitForTimeout(2000)` after clicking Save and flakes under CI load. What fixes it properly?",
           [
-            "Прибрати фіксований sleep і чекати конкретний очікуваний стан: `await expect(page.getByText(\"Saved\")).toBeVisible()` + очікування відповіді мережі",
+            "Прибрати фіксований sleep і чекати конкретний очікуваний стан: `await expect(page.getByText(\"Saved\")).toBeVisible()`; за потреби окремо чекати відповідь мережі",
             "Збільшити таймаут до `waitForTimeout(15000)`",
             "Перезапускати CI 10 разів вручну",
             "Видалити тест із конфігу",
@@ -546,9 +591,9 @@ const e2eCiCapstoneUnit = unit(
           0,
           why(
             "Playwright web-first assertions автоматично повторюють перевірку до готовності UI без штучних затримок.",
-            "Web-first assertions eliminate race flakes without arbitrary sleeps that slow down CI.",
+            "Web-first assertions retry the expected UI condition; investigate other sources of flakiness separately.",
           ),
-        ),
+        ), optionsEn: ["Replace the fixed sleep with an assertion that waits for the expected visible state; wait for a network response separately when needed", "Increase the timeout to 15 seconds", "Manually rerun CI ten times", "Delete the test from configuration"] },
         codeFill(
           "st-e2e2",
           "Дочекатися видимого результату в Playwright",
@@ -565,12 +610,16 @@ const e2eCiCapstoneUnit = unit(
       "Лаб: набір тестів ForgeBoard проти інжектованих багів (M7)",
       "Lab: ForgeBoard Test Suite vs Injected Bugs (M7)",
       4, false, [
-        mcq(
+        concept("st-forgeboard-suite-lab-concept", "Перевірте чутливість набору", "Check the suite’s sensitivity", {
+          uk: "У лабораторній роботі створіть тести для узгоджених правил ForgeBoard: правильна реалізація має проходити, а наведені навмисні порушення — виявлятися. Порівнюйте результати на обох варіантах і досліджуйте причину невдачі. Вбудована вправа нижче перевіряє текст, а локальна лабораторна робота запускає тестовий набір.",
+          en: "In the lab, write tests for agreed ForgeBoard behavior: the correct implementation should pass, and the supplied intentional faults should be detected. Compare results on both variants and investigate failures. The embedded exercise below checks text; the local lab runs the test suite.",
+        }),
+        { ...mcq(
           "st-fb1",
           "Головний критерій якості вашого тест-набору для ForgeBoard в Milestone 7:",
           "What defines a strong test suite for ForgeBoard in Milestone 7?",
           [
-            "Тести проходять на коректній реалізації й гарантовано падають, коли в бізнес-логіку чи авторизацію внесено навмисні баги (broken variants)",
+            "Тести проходять на коректній реалізації й виявляють визначені навмисно зламані варіанти бізнес-логіки та авторизації",
             "Покриття рядків 100% без жодного `expect`",
             "Тести проходять навіть після видалення перевірок доступу",
             "Тести запускаються лише з пропущеними `.skip`",
@@ -578,19 +627,19 @@ const e2eCiCapstoneUnit = unit(
           0,
           why(
             "Валідація проти заздалегідь зламаних варіантів (mutation/fault injection) доводить, що тести реально охороняють поведінку.",
-            "Testing against intentionally broken variants proves your assertions truly guard real bugs.",
+            "Testing against intentionally broken variants provides evidence that assertions detect those particular faults.",
           ),
-        ),
+        ), optionsEn: ["Tests pass on the correct implementation and detect the specified intentionally broken business logic and authorization variants", "100% line coverage without assertions", "Tests pass after authorization checks are removed", "Tests run only when marked skip"] },
         codeProject(
           "st-fb2",
-          "Опишіть регресійний кейс для спійманого бага; для повних unit/DOM/API тестів завантажте локальний лаб-пакет M7 нижче.",
-          "Sketch a regression check catching an injected sorting/auth bug; download the M7 local lab below to verify your suite against all broken builds.",
+          "Додайте перевірку, що відповідь для чужої задачі має статус 403. Вбудована перевірка шукає текст, не виконує тест; M7 нижче дозволяє запускати повний набір проти зламаних варіантів.",
+          "Add an assertion that a response for another user's task has status 403. The in-app check searches text and does not execute the test; M7 below runs the full suite against broken variants.",
           [
             {
               id: "ts",
               name: "forgeboard.test.ts",
               language: "typescript",
-              starter: `import assert from "node:assert/strict";\n\nexport function verifyOwnershipCheck(handlerStatusForOtherUser: number) {\n  assert.equal(handlerStatusForOtherUser, 403);\n}\n`,
+              starter: `import assert from "node:assert/strict";\n\nexport function verifyOwnershipCheck(handlerStatusForOtherUser: number) {\n  // TODO: assert the expected response for another user's task\n}\n`,
             },
           ],
           [
@@ -604,25 +653,25 @@ const e2eCiCapstoneUnit = unit(
       ], { baseXp: 45 },
     ),
     exam("st-e2e-exam", "Контрольна: E2E та стратегія CI", "Checkpoint: E2E & CI Quality Gates", 4, [
-      mcq(
+      { ...mcq(
         "st-e2e-e1",
         "Яка комбінація кроків CI балансує швидкість зворотного зв'язку та впевненість у релізі?",
         "Which CI pipeline order gives the fastest feedback while preserving release confidence?",
         [
-          "Typecheck + Unit/Component tests першими (<1 хв), далі API+Postgres integration, далі smoke E2E на зібраному артефакті",
+          "Typecheck і швидкі Unit/Component tests першими, далі API+Postgres integration і smoke E2E на зібраному артефакті",
           "Лише 45-хвилинний E2E без unit-тестів і typecheck",
           "Запуск тестів вручну лише раз на рік",
           "Пропуск усіх падінь через `|| true`",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Run typecheck and fast unit/component tests first, then API/Postgres integration and smoke E2E on the built artifact", "Run only a 45-minute E2E suite without unit tests or typecheck", "Run tests manually once a year", "Ignore every failure with || true"] },
+      { ...mcq(
         "st-e2e-e2",
         "Якщо E2E впав у CI, який артефакт дає найбільше контексту без вгадування?",
         "Which CI artifact helps diagnose a failed headless browser test fastest?",
         ["Playwright trace / screenshot + логи API сервера", "Лише статус exit code 1", "Розмір node_modules", "Версія npm cache"],
         0,
-      ),
+      ), optionsEn: ["Playwright trace or screenshot plus API server logs", "Only exit code 1", "Size of node_modules", "npm cache version"] },
     ]),
   ],
 );
