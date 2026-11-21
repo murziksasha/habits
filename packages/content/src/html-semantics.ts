@@ -2,7 +2,6 @@ import type { CourseContent, Exercise } from "./types.js";
 import {
   codeFill,
   codeOrder,
-  codeOrderAuto,
   codeOutputMcq,
   codeProject,
   codeRead,
@@ -24,8 +23,8 @@ const document = unit("document", "Документ", "Document", [
     true,
     [
       concept("hs-document-concept", "Структура документа", "Document structure", {
-        uk: "<!DOCTYPE html> на початку документа вмикає стандартний режим браузера. Кореневий html містить head із метаданими та body з вмістом сторінки. Атрибут lang описує основну мову документа й допомагає, зокрема, програмам читання екрана вибрати вимову.",
-        en: "<!DOCTYPE html> at the start of a document enables the browser's standards mode. The root html contains head for metadata and body for page content. The lang attribute declares the document's primary language and helps, among other things, screen readers choose pronunciation.",
+        uk: "<!DOCTYPE html> на початку документа вмикає стандартний режим браузера; це оголошення, а не елемент із закривальним тегом. Кореневий html містить head із метаданими та body з вмістом сторінки. Атрибут lang описує основну мову документа й допомагає, зокрема, програмам читання екрана вибрати вимову. Якщо фрагмент має іншу мову, позначте її на відповідному елементі, наприклад <span lang=\"en\">Hello</span>.",
+        en: "<!DOCTYPE html> at the start of a document enables the browser's standards mode; it is a declaration, not an element with a closing tag. The root html contains head for metadata and body for page content. The lang attribute declares the document's primary language and helps screen readers choose pronunciation. If a passage uses another language, declare it on that element, for example <span lang=\"en\">Hello</span>.",
       }),
       { ...mcq(
         "hs-d1",
@@ -61,8 +60,8 @@ const document = unit("document", "Документ", "Document", [
     true,
     [
       concept("hs-head-concept", "Метадані сторінки", "Page metadata", {
-        uk: "head містить метадані: title називає документ у вкладці та закладках, а meta charset задає кодування тексту. viewport допомагає браузеру налаштувати ширину області перегляду на мобільних пристроях; адаптивний вигляд також залежить від CSS. Пошукова система може сформувати заголовок результату інакше, ніж текст title.",
-        en: "head contains metadata: title names the document in tabs and bookmarks, and meta charset declares text encoding. viewport helps the browser configure the viewport width on mobile devices; responsive presentation also depends on CSS. A search engine may display a result title that differs from the title element.",
+        uk: "head містить метадані: змістовний title називає документ у вкладці та закладках, а meta charset задає кодування тексту і має відповідати фактичному кодуванню файлу. viewport із width=device-width допомагає браузеру налаштувати ширину області перегляду на мобільних пристроях; адаптивний вигляд також залежить від CSS. Не вимикайте масштабування користувачем. Пошукова система може сформувати заголовок результату інакше, ніж текст title.",
+        en: "head contains metadata: a descriptive title names the document in tabs and bookmarks, and meta charset declares the text encoding and should match the actual file encoding. A viewport with width=device-width helps the browser configure its width on mobile devices; responsive presentation also depends on CSS. Do not disable user zoom. A search engine may display a result title that differs from the title element.",
       }),
       { ...mcq(
         "hs-d4",
@@ -99,8 +98,8 @@ const document = unit("document", "Документ", "Document", [
     false,
     [
       concept("hs-body-concept", "Вміст документа", "Document content", {
-        uk: "body містить основний вміст документа, який браузер представляє користувачу: заголовки, текст, посилання та елементи керування. Заголовки h1–h6 описують структуру тем; обирайте рівень за змістом і вкладеністю, а не лише за розміром шрифту.",
-        en: "body contains document content presented to the user, such as headings, text, links, and controls. Headings h1–h6 describe topic structure; choose a level based on meaning and nesting rather than font size alone.",
+        uk: "body містить вміст документа, який браузер представляє користувачу: навігацію, заголовки, текст, посилання та елементи керування. Основну тему сторінки позначайте в main; body охоплює також вміст поза ним. Заголовки h1–h6 описують структуру тем: наприклад, h1 називає сторінку, а h2 — її розділ. Обирайте рівень за змістом і вкладеністю, а не лише за розміром шрифту.",
+        en: "body contains document content presented to the user, including navigation, headings, text, links, and controls. Mark the page's primary content with main; body also includes content outside it. Headings h1–h6 describe topic structure: for example, h1 names the page and h2 a section. Choose a level based on meaning and nesting rather than font size alone.",
       }),
       mcq(
         "hs-d7",
@@ -128,8 +127,8 @@ const document = unit("document", "Документ", "Document", [
     true,
     [
       concept("hs-semantics-concept", "Значення елементів", "Element meaning", {
-        uk: "Семантичні елементи описують призначення вмісту: nav позначає навігацію, main — основний вміст, а button — дію. Вбудована семантика допомагає браузерам і допоміжним технологіям, але не замінює перевірку клавіатури, доступних назв і логіки інтерфейсу.",
-        en: "Semantic elements describe the purpose of content: nav marks navigation, main identifies primary content, and button represents an action. Native semantics help browsers and assistive technology, but do not replace checking keyboard behavior, accessible names, and interface logic.",
+        uk: "Семантичні елементи описують призначення вмісту: nav позначає навігацію, main — основний вміст, а button — дію. Наприклад, для надсилання форми використовуйте button, а для переходу на іншу сторінку — a з href. Нативні елементи надають браузеру та допоміжним технологіям семантику й поведінку, які довелося б окремо реалізувати для div. Вони не замінюють перевірку клавіатури, доступних назв і логіки інтерфейсу.",
+        en: "Semantic elements describe the purpose of content: nav marks navigation, main identifies primary content, and button represents an action. For example, use a button to submit a form and an a element with href to navigate to another page. Native elements provide semantics and behavior to browsers and assistive technology that a div would require you to implement separately. They do not replace checking keyboard behavior, accessible names, and interface logic.",
       }),
       { ...mcq(
         "hs-ds1",
@@ -186,8 +185,8 @@ const landmarks = unit("landmarks", "Landmarks", "Landmarks", [
     false,
     [
       concept("hs-landmarks-concept", "Основні області", "Primary landmarks", {
-        uk: "main позначає основний вміст, унікальний для сторінки; зазвичай доступний один видимий main. header і footer можуть описувати сторінку або окрему статтю чи секцію, тому їхнє значення залежить від контексту. Сторінкові орієнтири допомагають користувачам допоміжних технологій переходити між великими частинами документа.",
-        en: "main identifies the primary content unique to a page; normally one main is visible. header and footer can describe a page or an individual article or section, so their meaning depends on context. Page landmarks help assistive technology users move between major parts of a document.",
+        uk: "main позначає основний вміст, унікальний для сторінки; доступним має бути один видимий main. header і footer можуть описувати сторінку або окрему статтю чи секцію: вкладений header статті не є шапкою всього сайту. Сторінкові орієнтири допомагають користувачам допоміжних технологій переходити між великими частинами документа. Наприклад, розмістіть загальне меню поза main, а заголовок сторінки та її матеріал — усередині.",
+        en: "main identifies the primary content unique to a page; one visible main should be exposed. header and footer can describe a page or an individual article or section: an article's nested header is not the header of the whole site. Page landmarks help assistive technology users move between major parts of a document. For example, place the shared menu outside main and the page heading and content inside it.",
       }),
       { ...mcq(
         "hs-l1",
@@ -224,8 +223,8 @@ const landmarks = unit("landmarks", "Landmarks", "Landmarks", [
     false,
     [
       concept("hs-nav-aside-concept", "Навігація і пов'язаний вміст", "Navigation and related content", {
-        uk: "nav групує важливі навігаційні посилання; не кожне посилання потребує окремого nav. aside позначає вміст, опосередковано пов'язаний з основним, наприклад тематичні посилання, а не будь-яку візуальну колонку. Якщо на сторінці кілька навігаційних областей, надайте їм зрозумілі відмінні назви.",
-        en: "nav groups major navigation links; not every link needs its own nav. aside identifies content tangentially related to the main content, such as related links, rather than any visually separate column. When a page has multiple navigation regions, give them clear distinct names.",
+        uk: "nav групує важливі навігаційні посилання; не кожне посилання потребує окремого nav. aside позначає вміст, опосередковано пов'язаний з основним, наприклад тематичні посилання, а не будь-яку візуальну колонку. Кільком різним навігаційним областям надайте зрозумілі назви, наприклад aria-label=\"Основна\" та aria-label=\"Розділи\"; однаковим наборам посилань можна дати однакову назву.",
+        en: "nav groups major navigation links; not every link needs its own nav. aside identifies content tangentially related to the main content, such as related links, rather than any visually separate column. Give multiple distinct navigation regions clear names, for example aria-label=\"Primary\" and aria-label=\"Sections\"; identical sets of links can share a name.",
       }),
       { ...mcq(
         "hs-l4",
@@ -243,16 +242,16 @@ const landmarks = unit("landmarks", "Landmarks", "Landmarks", [
         ["aside"],
         true,
       ),
-      matchEx(
+      { ...matchEx(
         "hs-l6",
         "Зіставте landmarks",
         "Match landmarks",
         [
-          { left: "<main>", right: "primary content" },
-          { left: "<nav>", right: "navigation" },
-          { left: "<footer>", right: "page/section footer" },
+          { left: "<main>", right: "основний вміст" },
+          { left: "<nav>", right: "навігація" },
+          { left: "<footer>", right: "підвал сторінки або розділу" },
         ],
-      ),
+      ), pairsEn: [{ left: "<main>", right: "primary content" }, { left: "<nav>", right: "navigation" }, { left: "<footer>", right: "page or section footer" }] },
     ],
   ),
   lesson(
@@ -292,10 +291,10 @@ const landmarks = unit("landmarks", "Landmarks", "Landmarks", [
     ],
   ),
   exam("hs-lm-exam", "Контрольна: landmarks", "Exam: landmarks", 2, [
-    mcq("hs-le1", "main:", "main:", ["primary content", "meta only", "charset", "doctype"], 0),
+    { ...mcq("hs-le1", "Що позначає main?", "What does main identify?", ["Основний вміст сторінки", "Лише метадані", "Кодування символів", "Тип документа"], 0), optionsEn: ["The page's primary content", "Only metadata", "Character encoding", "The document type"] },
     codeFill("hs-le2", "Навігаційна область", "Navigation region", "html", "<___><a href=\"/\">Home</a></nav>", ["nav"], true),
-    mcq("hs-le3", "aside:", "aside:", ["tangentially related", "must be h1", "replaces body", "SQL"], 0),
-    mcq("hs-le4", "div:", "div:", ["no inherent meaning", "always landmark", "form", "title"], 0),
+    { ...mcq("hs-le3", "Який вміст підходить для aside?", "What content belongs in an aside?", ["Опосередковано пов'язаний із темою", "Завжди заголовок h1", "Увесь вміст замість body", "Лише SQL-запит"], 0), optionsEn: ["Content tangentially related to the topic", "Always an h1 heading", "All content instead of body", "Only an SQL query"] },
+    { ...mcq("hs-le4", "Яке значення має div?", "What meaning does div have?", ["Не має власної семантики", "Завжди є орієнтиром", "Завжди є формою", "Є назвою документа"], 0), optionsEn: ["It has no inherent semantics", "It is always a landmark", "It is always a form", "It is the document title"] },
     codeFill("hs-le5", "Нижній колонтитул", "Footer", "html", "<___>© 2026</footer>", ["footer"], true),
   ]),
 ]);
@@ -367,10 +366,10 @@ const headings = unit("heading-outline", "Заголовки", "Headings", [
     ],
   ),
   exam("hs-h-exam", "Контрольна: headings", "Exam: headings", 2, [
-    mcq("hs-he1", "h1 count ideally:", "h1 count ideally:", ["one primary", "unlimited mandatory", "zero", "only 6"], 0),
+    { ...mcq("hs-he1", "Який підхід до h1 зазвичай найзрозуміліший?", "Which approach to h1 is usually clearest?", ["Один заголовок головної теми", "Обов'язково багато заголовків h1", "Ніколи не використовувати h1", "Рівно шість заголовків h1"], 0), optionsEn: ["One heading for the main topic", "Many h1 headings are mandatory", "Never use h1", "Exactly six h1 headings"] },
     codeFill("hs-he2", "Заголовок другого рівня", "Second-level heading", "html", "<___>Section</h2>", ["h2"], true),
-    mcq("hs-he3", "heading skip bad for:", "heading skip bad for:", ["a11y outline", "PNG size", "npm", "SMTP"], 0),
-    mcq("hs-he4", "skip link:", "skip link:", ["jumps to main content", "deletes CSS", "runs tsc", "git push"], 0),
+    { ...mcq("hs-he3", "Чому небажано перескакувати від h1 до h4?", "Why avoid jumping from h1 to h4?", ["Ієрархію складніше зрозуміти під час навігації", "Це збільшує розмір PNG", "Це запускає npm", "Це змінює SMTP"], 0), optionsEn: ["It can make the hierarchy harder to navigate", "It increases PNG size", "It runs npm", "It changes SMTP"] },
+    { ...mcq("hs-he4", "Для чого потрібне skip-посилання?", "What is a skip link for?", ["Перейти до основного вмісту повз повторювану навігацію", "Видалити CSS", "Запустити компілятор", "Надіслати зміни до Git"], 0), optionsEn: ["Jump to main content past repeated navigation", "Delete CSS", "Run the compiler", "Push changes to Git"] },
   ]),
 ]);
 
@@ -383,16 +382,16 @@ const textMedia = unit("text-media", "Текст і медіа", "Text & media",
     false,
     [
       concept("hs-figure-concept", "Ілюстрація та підпис", "Figure and caption", {
-        uk: "figure групує самостійний матеріал, наприклад діаграму, фото або приклад коду, а figcaption надає йому видимий підпис. Підпис не завжди замінює alt зображення: текстова альтернатива має передавати призначення зображення в конкретному контексті, не повторюючи зайвого.",
-        en: "figure groups self-contained material such as a chart, photograph, or code example; figcaption supplies its visible caption. A caption does not always replace an image's alt: the text alternative should convey the image's purpose in context without unnecessary repetition.",
+        uk: "figure групує самостійний матеріал, наприклад діаграму, фото або приклад коду, а figcaption надає йому видимий підпис. Підпис не завжди замінює alt зображення: текстова альтернатива має передавати призначення зображення в контексті, не повторюючи зайвого. Для складної діаграми наведіть ключовий висновок в alt, а докладні дані — у доступному тексті або таблиці поруч.",
+        en: "figure groups self-contained material such as a chart, photograph, or code example; figcaption supplies its visible caption. A caption does not always replace an image's alt: the text alternative should convey the image's purpose in context without unnecessary repetition. For a complex chart, put the key takeaway in alt and provide detailed data in accessible nearby text or a table.",
       }),
       codeOrder(
         "hs-t1",
         "Figure block",
         "Figure block",
         "html",
-        ["</figure>", "<figure>", "<img src=\"a.jpg\" alt=\"Chart\">", "<figcaption>Q1</figcaption>"],
-        ["<figure>", "<img src=\"a.jpg\" alt=\"Chart\">", "<figcaption>Q1</figcaption>", "</figure>"],
+        ["</figure>", "<figure>", "<img src=\"sales.jpg\" alt=\"Sales rose from 20 to 30\">", "<figcaption>Q1 sales</figcaption>"],
+        ["<figure>", "<img src=\"sales.jpg\" alt=\"Sales rose from 20 to 30\">", "<figcaption>Q1 sales</figcaption>", "</figure>"],
       ),
       { ...mcq(
         "hs-t2",
@@ -443,10 +442,10 @@ const textMedia = unit("text-media", "Текст і медіа", "Text & media",
     ],
   ),
   exam("hs-tm-exam", "Контрольна: media", "Exam: media", 2, [
-    mcq("hs-te1", "figure groups:", "figure groups:", ["media + caption", "only scripts", "only meta", "SQL"], 0),
+    { ...mcq("hs-te1", "Що може групувати figure?", "What can figure group?", ["Ілюстрацію та її підпис", "Лише скрипти", "Лише метадані", "SQL-з'єднання"], 0), optionsEn: ["An illustration and its caption", "Only scripts", "Only metadata", "An SQL connection"] },
     codeFill("hs-te2", "Підпис figure", "Figure caption", "html", "<figure><___>Caption</figcaption></figure>", ["figcaption"], true),
     codeFill("hs-te3", "alt", "alt", "html", '<img src="x" ___="desc">', ["alt"], true),
-    mcq("hs-te4", "time element:", "time element:", ["dates/times with machine value", "only CSS animation", "git tag", "port"], 0),
+    { ...mcq("hs-te4", "Для чого використовують time з datetime?", "What is time with datetime used for?", ["Для дати чи часу з машиночитаним значенням", "Лише для CSS-анімації", "Для Git-тегу", "Для мережевого порту"], 0), optionsEn: ["A date or time with a machine-readable value", "Only CSS animation", "A Git tag", "A network port"] },
   ]),
 ]);
 
@@ -462,16 +461,16 @@ const listsTables = unit("lists-tables", "Списки і таблиці", "List
         uk: "ul використовують для переліку без значущого порядку, ol — коли порядок важливий, наприклад для кроків інструкції. Їхні елементи позначають li. dl групує терміни dt та їхні описи dd; вигляд маркерів налаштовують CSS, не змінюючи зміст списку.",
         en: "Use ul for items whose order is not meaningful and ol when sequence matters, such as instructions. Their items use li. dl groups terms in dt with descriptions in dd; CSS can change marker appearance without changing list meaning.",
       }),
-      matchEx(
+      { ...matchEx(
         "hs-lt1",
         "Типи списків",
         "List types",
         [
-          { left: "<ul>", right: "unordered" },
-          { left: "<ol>", right: "ordered" },
-          { left: "<dl>", right: "description list" },
+          { left: "<ul>", right: "невпорядкований список" },
+          { left: "<ol>", right: "впорядкований список" },
+          { left: "<dl>", right: "список описів" },
         ],
-      ),
+      ), pairsEn: [{ left: "<ul>", right: "unordered list" }, { left: "<ol>", right: "ordered list" }, { left: "<dl>", right: "description list" }] },
       codeFill(
         "hs-lt2",
         "Пункт списку",
@@ -523,9 +522,9 @@ const listsTables = unit("lists-tables", "Списки і таблиці", "List
   ),
   exam("hs-lt-exam", "Контрольна: lists/tables", "Exam: lists/tables", 2, [
     codeFill("hs-lte1", "Елемент списку", "List item", "html", "<ol><___>A</li></ol>", ["li"], true),
-    mcq("hs-lte2", "ol means:", "ol means:", ["ordered list", "optional link", "object layout", "oauth"], 0),
+    { ...mcq("hs-lte2", "Коли доречний ol?", "When is ol appropriate?", ["Коли порядок пунктів важливий", "Для будь-якого необов'язкового посилання", "Лише для макета", "Для авторизації OAuth"], 0), optionsEn: ["When item order matters", "For any optional link", "Only for layout", "For OAuth authorization"] },
     codeFill("hs-lte3", "Заголовок стовпця", "Column header", "html", "<tr><___>Col</th></tr>", ["th"], true),
-    mcq("hs-lte4", "scope helps:", "scope helps:", ["a11y of table headers", "minify JS", "tsc", "redis"], 0),
+    { ...mcq("hs-lte4", "Навіщо задають scope у заголовку таблиці?", "Why set scope on a table header?", ["Щоб пов'язати заголовок із рядком або стовпцем", "Щоб стиснути JavaScript", "Щоб запустити TypeScript", "Щоб підключити Redis"], 0), optionsEn: ["To associate the header with a row or column", "To minify JavaScript", "To run TypeScript", "To connect Redis"] },
   ]),
 ]);
 
@@ -566,8 +565,8 @@ const forms = unit("forms", "Форми a11y", "Accessible forms", [
     false,
     [
       concept("hs-fieldset-concept", "Група пов'язаних полів", "Grouping related controls", {
-        uk: "fieldset групує пов'язані поля, наприклад варіанти одного запитання, а legend називає групу. Для окремих полів залишаються потрібними власні підписи label; назва групи не замінює їх.",
-        en: "fieldset groups related controls, such as choices for one question, and legend names the group. Individual controls still need their own labels; the group name does not replace them.",
+        uk: "fieldset групує пов'язані поля, наприклад радіокнопки способу доставки, а legend називає групу. Для взаємовиключних радіокнопок задайте однаковий name; кожен варіант має окремий value і власний label. Назва групи не замінює підписи окремих полів.",
+        en: "fieldset groups related controls, such as radio buttons for a shipping method, and legend names the group. Give mutually exclusive radio buttons the same name; each choice has its own value and label. The group name does not replace individual labels.",
       }),
       codeFill(
         "hs-f3",
@@ -578,13 +577,13 @@ const forms = unit("forms", "Форми a11y", "Accessible forms", [
         ["fieldset"],
         true,
       ),
-      mcq(
+      { ...mcq(
         "hs-f4",
         "legend описує:",
         "legend describes:",
-        ["fieldset group", "entire website only", "CSS grid", "git branch"],
+        ["групу полів у fieldset", "лише весь сайт", "CSS-сітку", "гілку Git"],
         0,
-      ),
+      ), optionsEn: ["The fieldset's group of controls", "Only the entire website", "A CSS grid", "A Git branch"] },
     ],
   ),
   lesson(
@@ -598,16 +597,16 @@ const forms = unit("forms", "Форми a11y", "Accessible forms", [
         uk: "type=email дає браузеру семантику та базову перевірку формату, password приховує введені символи, checkbox дозволяє вмикати або вимикати вибір. required позначає обов'язкове поле в браузерній перевірці. Ці можливості допомагають користувачу, але сервер усе одно має перевірити отримані дані.",
         en: "type=email supplies browser semantics and basic format validation, password masks entered characters, and checkbox toggles a choice. required marks a control as mandatory in browser validation. These features help users, but the server must still validate submitted data.",
       }),
-      matchEx(
+      { ...matchEx(
         "hs-f5",
         "Типи input",
         "Input types",
         [
-          { left: "email", right: "e-mail keyboard/validation hint" },
-          { left: "password", right: "masked entry" },
-          { left: "checkbox", right: "увімкнути або вимкнути вибір / toggle a choice" },
+          { left: "email", right: "підказка клавіатурі та базова перевірка формату" },
+          { left: "password", right: "приховане введення символів" },
+          { left: "checkbox", right: "увімкнення або вимкнення вибору" },
         ],
-      ),
+      ), pairsEn: [{ left: "email", right: "Keyboard hint and basic format validation" }, { left: "password", right: "Masked character entry" }, { left: "checkbox", right: "Toggle a choice" }] },
       codeFill(
         "hs-f6",
         "required",
@@ -621,9 +620,9 @@ const forms = unit("forms", "Форми a11y", "Accessible forms", [
   ),
   exam("hs-f-exam", "Контрольна: forms", "Exam: forms", 2, [
     codeFill("hs-fe1", "for attr", "for attr", "html", '<label ___="n">N</label>', ["for"], true),
-    mcq("hs-fe2", "fieldset:", "fieldset:", ["groups related controls", "replaces form", "CSS only", "SQL"], 0),
+    { ...mcq("hs-fe2", "Для чого потрібен fieldset?", "What is fieldset for?", ["Групує пов'язані поля", "Замінює форму", "Лише задає стилі", "Підключає базу даних"], 0), optionsEn: ["Groups related controls", "Replaces the form", "Only supplies styles", "Connects a database"] },
     codeFill("hs-fe3", "Назва групи", "Group name", "html", "<fieldset><___>Title</legend></fieldset>", ["legend"], true),
-    mcq("hs-fe4", "label improves:", "label improves:", ["a11y & click target", "only minify", "Elo", "Docker"], 0),
+    { ...mcq("hs-fe4", "Чим допомагає пов'язаний label?", "How does an associated label help?", ["Називає поле та дозволяє активувати його натисканням підпису", "Зберігає значення на сервері", "Замінює перевірку даних", "Приховує поле"], 0), optionsEn: ["Names the control and lets users activate it by clicking its label", "Saves the value on the server", "Replaces data validation", "Hides the control"] },
     codeFill("hs-fe5", "type email", "type email", "html", '<input type="___">', ["email"], true),
   ]),
 ]);
@@ -640,20 +639,20 @@ const interactive = unit("interactive", "Інтерактив", "Interactive", [
         uk: "Посилання a з href веде до ресурсу або фрагмента сторінки. button запускає дію, наприклад відкриття меню чи надсилання форми. У формі явно задавайте type=\"button\" для дії, що не надсилає форму: кнопка без type зазвичай є submit. Нативні елементи вже підтримують відповідну взаємодію з клавіатури.",
         en: "An a element with href navigates to a resource or page fragment. A button performs an action, such as opening a menu or submitting a form. Inside a form, explicitly use type=\"button\" for an action that should not submit: a button without type is normally a submit button. Native elements already support appropriate keyboard interaction.",
       }),
-      mcq(
+      { ...mcq(
         "hs-i1",
         "Для навігації на URL краще:",
         "For navigating to a URL prefer:",
-        ["<a href>", "<button> always", "<div onclick> only", "<span>"],
+        ["<a href>", "завжди <button>", "лише <div onclick>", "<span>"],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["<a href>", "Always <button>", "Only <div onclick>", "<span>"] },
+      { ...mcq(
         "hs-i2",
         "Для дії без зміни URL краще:",
         "For an action without URL change prefer:",
-        ["<button type=\"button\">", "<a href=\"#\"> only", "plain div", "img"],
+        ["<button type=\"button\">", "лише <a href=\"#\">", "звичайний div", "img"],
         0,
-      ),
+      ), optionsEn: ["<button type=\"button\">", "Only <a href=\"#\">", "A plain div", "img"] },
     ],
   ),
   lesson(
@@ -685,10 +684,10 @@ const interactive = unit("interactive", "Інтерактив", "Interactive", [
     ],
   ),
   exam("hs-i-exam", "Контрольна: interactive", "Exam: interactive", 2, [
-    mcq("hs-ie1", "links use:", "links use:", ["a[href]", "button only", "meta", "title"], 0),
-    mcq("hs-ie2", "actions use:", "actions use:", ["button", "only h1", "doctype", "charset"], 0),
+    { ...mcq("hs-ie1", "Який елемент підходить для переходу за URL?", "Which element suits navigation to a URL?", ["a з href", "лише button", "meta", "title"], 0), optionsEn: ["a with href", "Only button", "meta", "title"] },
+    { ...mcq("hs-ie2", "Який елемент підходить для дії?", "Which element suits an action?", ["button", "лише h1", "doctype", "charset"], 0), optionsEn: ["button", "Only h1", "doctype", "charset"] },
     codeFill("hs-ie3", "Заголовок details", "Details heading", "html", "<details><___>Open</summary></details>", ["summary"], true),
-    mcq("hs-ie4", "details provides:", "details provides:", ["native disclosure", "SQL join", "tsc", "elo"], 0),
+    { ...mcq("hs-ie4", "Що надає details?", "What does details provide?", ["Нативне розгортання і згортання вмісту", "SQL join", "Компіляцію TypeScript", "Рейтинг Elo"], 0), optionsEn: ["Native expansion and collapse of content", "An SQL join", "TypeScript compilation", "An Elo rating"] },
   ]),
 ]);
 
@@ -730,8 +729,8 @@ const a11y = unit("a11y-aria", "A11y / ARIA", "A11y / ARIA", [
     false,
     [
       concept("hs-labelledby-concept", "Доступна назва за видимим текстом", "Naming from visible text", {
-        uk: "aria-labelledby посилається на id одного або кількох елементів, текст яких задає доступну назву. Це корисно, коли видимий заголовок уже називає область. Атрибут сам не реалізує модальність чи керування фокусом: для діалогу ці властивості та взаємодію потрібно забезпечити окремо.",
-        en: "aria-labelledby references the ids of one or more elements whose text supplies an accessible name. This is useful when a visible heading already names a region. The attribute does not implement modality or focus management: a dialog's behavior must be provided separately.",
+        uk: "aria-labelledby посилається на id одного або кількох елементів, текст яких задає доступну назву. Це корисно, коли видимий заголовок уже називає область. Для кнопки з коректними джерелами назви зазвичай спочатку враховується aria-labelledby, потім aria-label, текст кнопки і, за відсутності інших джерел, title. Перевіряйте обчислену назву в браузері та стежте, щоб вона містила видимий текст. Сам атрибут не реалізує модальність чи керування фокусом діалогу.",
+        en: "aria-labelledby references the ids of one or more elements whose text supplies an accessible name. This is useful when a visible heading already names a region. For a button with valid naming sources, aria-labelledby normally takes precedence, followed by aria-label, button text, and, if other sources are absent, title. Inspect the computed name in the browser and ensure it includes the visible text. The attribute itself does not implement a dialog's modality or focus management.",
       }),
       { ...(codeRead(
         "hs-a3",
@@ -742,20 +741,20 @@ const a11y = unit("a11y-aria", "A11y / ARIA", "A11y / ARIA", [
         ["id елемента з назвою", "CSS class only", "HTTP status", "npm package"],
         0,
       ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["The id of an element providing the name", "Only a CSS class", "An HTTP status", "An npm package"] },
-      mcq(
+      { ...mcq(
         "hs-a4",
+        "Яке перше правило використання ARIA?",
         "First rule of ARIA:",
-        "First rule of ARIA:",
-        ["prefer native HTML", "always role=button on divs", "remove semantics", "no labels"],
+        ["Надавати перевагу відповідному нативному HTML", "Завжди додавати role=button до div", "Прибирати семантику", "Не використовувати підписи"],
         0,
-      ),
+      ), optionsEn: ["Prefer appropriate native HTML", "Always use role=button on divs", "Remove semantics", "Use no labels"] },
     ],
   ),
   exam("hs-a-exam", "Контрольна: a11y", "Exam: a11y", 3, [
-    mcq("hs-ae1", "Prefer:", "Prefer:", ["semantic HTML first", "ARIA-only div soup", "no alt ever", "skip labels"], 0),
+    { ...mcq("hs-ae1", "З чого починати створення доступного елемента?", "Where should you start when creating an accessible control?", ["З відповідного семантичного HTML-елемента", "З div і лише ARIA", "Із видалення alt", "З відмови від підписів"], 0), optionsEn: ["With an appropriate semantic HTML element", "With a div and ARIA alone", "By removing alt", "By omitting labels"] },
     codeFill("hs-ae2", "aria-label", "aria-label", "html", '<button ___="Menu">☰</button>', ["aria-label"], true),
-    mcq("hs-ae3", "labelledby uses:", "labelledby uses:", ["element id", "CSS selector only", "SQL", "port"], 0),
-    mcq("hs-ae4", "icon-only button needs:", "icon-only button needs:", ["accessible name", "nothing", "doctype", "flex"], 0),
+    { ...mcq("hs-ae3", "На що посилається aria-labelledby?", "What does aria-labelledby reference?", ["На id елемента з текстом назви", "Лише на CSS-селектор", "На SQL-запит", "На мережевий порт"], 0), optionsEn: ["The id of an element containing the name", "Only a CSS selector", "An SQL query", "A network port"] },
+    { ...mcq("hs-ae4", "Що потрібно кнопці лише з іконкою?", "What does an icon-only button need?", ["Доступна назва, що описує дію", "Нічого", "Окремий doctype", "Властивість flex"], 0), optionsEn: ["An accessible name describing the action", "Nothing", "A separate doctype", "The flex property"] },
   ]),
 ]);
 
@@ -856,15 +855,15 @@ const appliedAccessibleMarkup = unit(
       false,
       [
         concept("hs-app-structure-concept", "Орієнтири та заголовки разом", "Landmarks and headings together", {
-          uk: "Landmarks допомагають перейти до великих областей сторінки, а заголовки описують теми всередині них. Для кількох nav використовуйте різні доступні назви. Перевіряйте структуру у списках орієнтирів і заголовків допоміжної технології, а не лише за зовнішнім виглядом.",
-          en: "Landmarks support navigation between major page regions, while headings describe the topics inside them. Give multiple nav regions distinct accessible names. Inspect the landmark and heading lists in assistive technology rather than relying only on visual appearance.",
+          uk: "Landmarks допомагають перейти до великих областей сторінки, а заголовки описують теми всередині них. Різним nav надавайте відмінні доступні назви; повторений однаковий набір посилань може мати ту саму назву. Перевіряйте структуру у списках орієнтирів і заголовків допоміжної технології, а не лише за зовнішнім виглядом.",
+          en: "Landmarks support navigation between major page regions, while headings describe the topics inside them. Give different nav regions distinct accessible names; repeated identical sets of links may share a name. Inspect the landmark and heading lists in assistive technology rather than relying only on visual appearance.",
         }),
         { ...(codeRead(
           "hs-app-6",
           "Семантична структура сторінки без пропуску рівнів заголовків",
           "Heading levels without skipping",
           "html",
-          "<header><h1>EduForge</h1></header>\n<main>\n  <section>\n    <h2>Мої курси</h2>\n    <article><h3>JavaScript</h3></article>\n  </section>\n</main>",
+          "<header>EduForge</header>\n<main>\n  <h1>My learning</h1>\n  <section>\n    <h2>My courses</h2>\n    <article><h3>JavaScript</h3></article>\n  </section>\n</main>",
           [
             "Ієрархія заголовків логічно спускається h1 → h2 → h3 без пропусків рівнів",
             "На сторінці має бути не менше п'яти h1",
@@ -903,15 +902,15 @@ const appliedAccessibleMarkup = unit(
           [
             "<article class=\"course-card\" aria-labelledby=\"card-title\">",
             "  <header><h3 id=\"card-title\">Deep JavaScript</h3></header>",
-            "  <p>Курс про замикання, чергу подій та прототипи.</p>",
-            "  <footer><a href=\"/js-fundamentals\" class=\"cta-link\">Вивчати JavaScript</a></footer>",
+            "  <p>Explore closures, the event loop, and prototypes.</p>",
+            "  <footer><a href=\"/js-fundamentals\" class=\"cta-link\">Study JavaScript</a></footer>",
             "</article>",
           ],
           [
             "<article class=\"course-card\" aria-labelledby=\"card-title\">",
             "  <header><h3 id=\"card-title\">Deep JavaScript</h3></header>",
-            "  <p>Курс про замикання, чергу подій та прототипи.</p>",
-            "  <footer><a href=\"/js-fundamentals\" class=\"cta-link\">Вивчати JavaScript</a></footer>",
+            "  <p>Explore closures, the event loop, and prototypes.</p>",
+            "  <footer><a href=\"/js-fundamentals\" class=\"cta-link\">Study JavaScript</a></footer>",
             "</article>",
           ],
         ),
@@ -973,16 +972,16 @@ const appliedAccessibleMarkup = unit(
           "For a button with valid naming sources, order aria-labelledby, aria-label, button text, and title by precedence.",
           "text",
           [
-            "1. aria-labelledby",
-            "2. aria-label",
-            "3. Button text content",
-            "4. title атрибут (найнижчий пріоритет)",
+            "title",
+            "aria-label",
+            "button text",
+            "aria-labelledby",
           ],
           [
-            "1. aria-labelledby",
-            "2. aria-label",
-            "3. Button text content",
-            "4. title атрибут (найнижчий пріоритет)",
+            "aria-labelledby",
+            "aria-label",
+            "button text",
+            "title",
           ],
         ),
       ],
@@ -1066,7 +1065,7 @@ const accessibleInteractions = unit(
           uk: "Поки модальний dialog відкритий, фон сторінки інертний, тому фокус не можна надійно перемістити до сусіднього елемента поза ним. Після підтвердження закрийте діалог, оновіть список і встановіть фокус на наявний логічний елемент, наприклад наступну задачу або кнопку додавання. Перевірте сценарій, коли видалений елемент був початковим тригером.",
           en: "While a modal dialog is open, the page background is inert, so focus cannot reliably move to a neighboring element outside it. After confirmation, close the dialog, update the list, and focus an existing logical target, such as the next task or the add button. Test the case where the deleted item was the original trigger.",
         }),
-        codeOutputMcq(
+        { ...codeOutputMcq(
           "hs-ai4",
           "Яка різниця між `dialog.show()` та `dialog.showModal()` у браузері?",
           "Predict the difference between `dialog.show()` and `dialog.showModal()`:",
@@ -1083,7 +1082,7 @@ const accessibleInteractions = unit(
             "Перевіряйте початковий фокус, закриття та повернення фокуса: поведінка Escape може бути змінена чи скасована.",
             "Check initial focus, closing, and focus return: Escape behavior can be configured or canceled.",
           ),
-        ),
+        ), optionsEn: ["showModal() opens a modal and makes background content inert", "show() automatically removes the page from history", "showModal() prevents activating buttons inside the dialog", "They behave exactly the same"] },
         codeFill(
           "hs-ai5",
           "Закрийте нативний `<dialog>` після підтвердження видалення задачі",
@@ -1094,22 +1093,18 @@ const accessibleInteractions = unit(
           true,
           why("`dialog.close(returnValue)` закриває діалог і записує `dialog.returnValue`.", "`dialog.close(returnValue)` closes the modal and records `returnValue`."),
         ),
-        codeOrderAuto(
+        { ...codeOrder(
           "hs-ai6",
-          "Порядок відновлення фокусу при видаленні елемента списку",
-          "Focus management sequence when deleting the currently focused task row",
+          "Впорядкуйте кроки видалення, якщо застосунок повідомляє про результат після відновлення фокуса.",
+          "Order the deletion steps for an app that announces the result after restoring focus.",
           "text",
-          [
-            "1. Користувач підтверджує видалення; застосунок закриває модальний dialog",
-            "2. Застосунок прибирає видалену задачу та оновлює список",
-            "3. Фокус переходить на наявну сусідню задачу або кнопку «Додати»",
-            "4. Оновлюється live region з повідомленням про видалення",
-          ],
+          ["Update the list after removing the task", "Move focus to an existing neighboring task or Add button", "Confirm deletion and close the modal", "Update the live region with the deletion message"],
+          ["Confirm deletion and close the modal", "Update the list after removing the task", "Move focus to an existing neighboring task or Add button", "Update the live region with the deletion message"],
           why(
             "Після закриття діалогу фон більше не інертний; виберіть наявну ціль фокусу після оновлення списку.",
             "After closing the dialog the background is no longer inert; choose an existing focus target after updating the list.",
           ),
-        ),
+        ), linesUk: ["Прибрати задачу та оновити список", "Перемістити фокус на наявну сусідню задачу або кнопку «Додати»", "Підтвердити видалення та закрити модальне вікно", "Оновити live region повідомленням про видалення"] },
       ],
     ),
     exam("hs-ai-exam", "Контрольна: інтерактивна доступність", "Exam: accessible interactions", 3, [
@@ -1136,7 +1131,7 @@ const accessibleInteractions = unit(
         true,
         why("showModal() відкриває dialog у верхньому шарі; перевіряйте налаштування закриття та фокус.", "showModal() opens dialog in the top layer; check closing behavior and focus."),
       ),
-      codeRead(
+      { ...codeRead(
         "hs-aie3",
         "Чому встановлювати `tabindex=\"5\"` на кнопки — погана практика?",
         "Why is positive `tabindex=\"5\"` an accessibility anti-pattern?",
@@ -1150,7 +1145,7 @@ const accessibleInteractions = unit(
         ],
         0,
         why("Позитивний `tabindex` ламає очікуваний порядок Tab-обходу.", "Positive `tabindex` overrides natural DOM tab order unexpectedly."),
-      ),
+      ), optionsEn: ["It overrides the natural tab order and can confuse keyboard users; prefer DOM order or 0/-1", "Browsers ignore CSS for positive tabindex", "tabindex only works on images", "It is forbidden on buttons"] },
       mcq(
         "hs-aie4",
         "Який регіон підходить для повідомлення «Задачу додано» після збереження?",
@@ -1262,12 +1257,12 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
     ],
   ),
   exam("hs-cap-exam", "Фінальна контрольна", "Final exam", 3, [
-    mcq("hs-ce1", "main is:", "main is:", ["primary content landmark", "meta", "doctype", "charset"], 0),
+    { ...mcq("hs-ce1", "Що позначає main?", "What does main identify?", ["Область основного вмісту", "Метадані", "Тип документа", "Кодування"], 0), optionsEn: ["The primary content landmark", "Metadata", "The document type", "The encoding"] },
     codeFill("hs-ce2", "Навігаційна область", "Navigation region", "html", "<___>…</nav>", ["nav"], true),
-    mcq("hs-ce3", "label for matches:", "label for matches:", ["input id", "class only", "href", "src"], 0),
-    mcq("hs-ce4", "article for:", "article for:", ["self-contained composition", "only CSS", "SQL row", "port"], 0),
+    { ...mcq("hs-ce3", "Із чим має збігатися for у label?", "What should label's for match?", ["З id пов'язаного поля", "Лише з class", "З href", "З src"], 0), optionsEn: ["The associated control's id", "Only its class", "Its href", "Its src"] },
+    { ...mcq("hs-ce4", "Для чого підходить article?", "What is article suited for?", ["Для самостійного матеріалу", "Лише для CSS", "Для рядка SQL", "Для мережевого порту"], 0), optionsEn: ["Self-contained content", "Only CSS", "An SQL row", "A network port"] },
     codeFill("hs-ce5", "alt", "alt", "html", '<img src="a" ___="desc">', ["alt"], true),
-    mcq("hs-ce6", "ARIA first rule:", "ARIA first rule:", ["native HTML first", "div everything", "no headings", "skip forms"], 0),
+    { ...mcq("hs-ce6", "Із чого починати доступну розмітку?", "Where should accessible markup start?", ["З відповідного нативного HTML", "Із div для всього", "Із видалення заголовків", "Із пропуску підписів форм"], 0), optionsEn: ["With appropriate native HTML", "With a div for everything", "By removing headings", "By omitting form labels"] },
   ]),
 ]);
 

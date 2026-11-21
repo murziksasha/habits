@@ -177,10 +177,10 @@ const validationOutput = unit(
           "Дані залишаються даними в кожному контексті",
           "Keep data as data in each context",
           {
-            uk: "Для тексту в JSX використовуйте звичайний текстовий вузол; вставка HTML потребує перевіреного санітайзера, налаштованого для потрібного набору тегів. URL перевіряють за призначенням: для звичайних посилань визначають допустимі схеми, а для завантаження ресурсів можуть знадобитися і дозволені походження. Значення SQL передають параметрами, не конкатенують у запит. Назви стовпців і напрямок сортування, які не є параметрами значень, обирають із фіксованої мапи дозволених варіантів.",
-            en: "For text in JSX, use a normal text node; inserting HTML requires a vetted sanitizer configured for the allowed markup. Validate URLs for their purpose: ordinary links need an allowed-scheme policy, while resource loads may also need an origin allowlist. Bind SQL values as parameters instead of concatenating them into the query. Column names and sort directions, which are not value parameters, must come from a fixed map of allowed choices.",
+            uk: "Для тексту в JSX використовуйте звичайний текстовий вузол; вставка HTML потребує перевіреного санітайзера, налаштованого для потрібного набору тегів. URL перевіряють за призначенням: для звичайних посилань визначають допустимі схеми, а для завантаження ресурсів можуть знадобитися і дозволені походження. Значення SQL передають параметрами, не конкатенують у запит. Назви стовпців і напрямок сортування не є параметрами значень: обирайте їх із фіксованої мапи та відхиляйте невідомі ключі. Звичайний JavaScript-об'єкт має успадковані властивості, тому використовуйте Map або перевірку власного ключа.",
+            en: "For text in JSX, use a normal text node; inserting HTML requires a vetted sanitizer configured for the allowed markup. Validate URLs for their purpose: ordinary links need an allowed-scheme policy, while resource loads may also need an origin allowlist. Bind SQL values as parameters instead of concatenating them into the query. Column names and sort directions are not value parameters: choose them from a fixed map and reject unknown keys. Ordinary JavaScript objects have inherited properties, so use a Map or an own-property check.",
           },
-          { code: "const sortColumns = { newest: 'created_at', title: 'title' };\nconst column = sortColumns[userChoice]; // reject unknown choices\n// Bind user values separately, e.g. WHERE owner_id = $1.", language: "ts" },
+          { code: "const sortColumns = new Map([['newest', 'created_at'], ['title', 'title']]);\nconst column = sortColumns.get(userChoice);\nif (column === undefined) throw new Error('invalid_sort');\n// Only interpolate this fixed identifier; bind values separately: WHERE owner_id = $1.", language: "ts" },
         ),
         withOptionsEn(codeRead(
           "ws-vo1",
@@ -216,11 +216,27 @@ const validationOutput = unit(
             "React 19 blocks `javascript:` in several URL props, but that does not replace application policy: parse URLs against a known base, allow the required schemes, and restrict origins separately where needed.",
           ),
         ),
+        withOptionsEn(mcq(
+          "ws-vo-sort-map",
+          "Чому для вибору SQL-стовпця недостатньо перевірити `if (allowed[userChoice])` у звичайному JavaScript-об'єкті?",
+          "Why is checking only `if (allowed[userChoice])` on an ordinary JavaScript object insufficient when selecting a SQL column?",
+          [
+            "Об'єкт може успадкувати ключі на кшталт `constructor`; використайте Map або перевірте власну властивість",
+            "Параметри SQL автоматично замінюють назви стовпців",
+            "Будь-який рядок є безпечним SQL-ідентифікатором",
+            "Map автоматично перевіряє право доступу користувача",
+          ],
+          0,
+          why(
+            "Дозволена мапа має повертати лише заздалегідь визначені ідентифікатори; окремо перевіряйте авторизацію та параметризуйте значення.",
+            "The allowlist must return only predefined identifiers; authorize separately and bind values as parameters.",
+          ),
+        ), ["An object can inherit keys such as constructor; use a Map or check for an own property", "SQL value parameters automatically substitute column names", "Every string is a safe SQL identifier", "A Map automatically checks user authorization"]),
       ], { baseXp: 25 },
     ),
     lesson(
       "ws-vo-zod-strict",
-      "Строга валідація схеми (Zod `.strict()` / типи) та санітизація тексту",
+      "Строга валідація схеми та захист від масового присвоєння",
       "Strict Payload Validation & Mass Assignment Prevention",
       3, true, [
         concept(
@@ -305,8 +321,8 @@ const sessionsAuthn = unit(
           "Токен сесії та межі захисту cookie",
           "Session tokens and cookie protections",
           {
-            uk: "Сервер генерує непередбачуваний токен із криптографічного джерела випадковості, надсилає його клієнту й зберігає лише його хеш. Під час запиту він хешує отриманий токен і шукає активну, не відкликану сесію. HttpOnly не дає JavaScript прочитати cookie, Secure обмежує її передавання HTTPS, а SameSite зменшує частину міжсайтових запитів. Ці атрибути не усувають XSS: шкідливий скрипт може виконувати дії від імені користувача. Також потрібні перевірки CSRF, строки життя та відкликання сесії на сервері.",
-            en: "The server generates an unpredictable token using a cryptographically secure random source, sends it to the client, and stores only its hash. On each request it hashes the received token and looks up an active, unrevoked session. HttpOnly prevents JavaScript from reading the cookie, Secure restricts its transmission to HTTPS, and SameSite reduces some cross-site requests. These attributes do not eliminate XSS: injected script can still act as the user. CSRF defenses, expiry, and server-side revocation are also needed.",
+            uk: "Сервер генерує високоентропійний токен криптографічним генератором, надсилає клієнту й зберігає лише його хеш. На кожен запит сервер перевіряє активність, строк дії та відкликання сесії. HttpOnly приховує cookie від JavaScript, Secure обмежує передавання HTTPS, а SameSite зменшує частину міжсайтових запитів; для cookie-сесій усе одно потрібен захист CSRF. Обмежуйте область cookie, наскільки дозволяє сценарій. Ці атрибути не усувають XSS: скрипт у довіреному походженні може надсилати автентифіковані запити. Хеш зменшує наслідки витоку самої бази, але не захищає викрадений із браузера сирий токен.",
+            en: "The server generates a high-entropy token with a cryptographically secure generator, sends it to the client, and stores only its hash. On each request the server checks that the session is active, unexpired, and unrevoked. HttpOnly hides the cookie from JavaScript, Secure restricts transmission to HTTPS, and SameSite reduces some cross-site requests; cookie sessions still need CSRF protection. Scope cookies as narrowly as the application allows. These attributes do not eliminate XSS: a script in the trusted origin can send authenticated requests. A hash reduces the impact of a database-only leak but does not protect a raw token stolen from the browser.",
           },
           { keyPointsUk: ["Випадковий токен клієнту, хеш серверу", "HttpOnly не усуває XSS", "Перевіряйте строк дії та відкликання"], keyPointsEn: ["Random token to the client, hash on the server", "HttpOnly does not eliminate XSS", "Check expiry and revocation"] },
         ),
@@ -335,6 +351,19 @@ const sessionsAuthn = unit(
           ["HttpOnly"],
           true,
         ),
+        withOptionsEn(mcq(
+          "ws-sa-cookie-xss",
+          "На сторінці є XSS, а сесійний cookie має HttpOnly. Що залишається можливим для шкідливого скрипту?",
+          "A page has XSS and its session cookie is HttpOnly. What can the injected script still do?",
+          [
+            "Надсилати запити від імені користувача, хоча прочитати cookie через JavaScript не може",
+            "Завжди прочитати HttpOnly через document.cookie",
+            "Лише змінити колір сторінки без мережевих запитів",
+            "Автоматично відкликати всі сесії інших користувачів",
+          ],
+          0,
+          why("HttpOnly зменшує ризик викрадення cookie через JavaScript, але не зупиняє дії в контексті сторінки.", "HttpOnly reduces JavaScript access to the cookie but does not stop actions in the page's context."),
+        ), ["Send authenticated requests as the user even though JavaScript cannot read the cookie", "Always read HttpOnly through document.cookie", "Only change page color without network requests", "Automatically revoke all other users' sessions"]),
       ], { baseXp: 26 },
     ),
     lesson(
@@ -347,8 +376,8 @@ const sessionsAuthn = unit(
           "Паролі та сесії мають різні моделі загроз",
           "Passwords and sessions have different threat models",
           {
-            uk: "Паролі, обрані людьми, часто можна вгадати, тому їх зберігають за допомогою спеціального повільного алгоритму хешування паролів із унікальною сіллю, наприклад Argon2id; робочі параметри підбирають і переглядають. Після перевірки пароля обліковий запис із MFA залишається в обмеженому стані до успішного другого фактора. При переході до автентифікованої сесії змініть її ідентифікатор, щоб запобігти фіксації сесії. Після скидання пароля відкличте існуючі сесії за політикою відновлення й запропонуйте звичайний вхід.",
-            en: "Human-chosen passwords are often guessable, so store them using a dedicated slow password-hashing algorithm with a unique salt, such as Argon2id, and review its work parameters. After the password check, an account with MFA stays in a restricted state until the second factor succeeds. Rotate the session identifier when transitioning to an authenticated session to prevent session fixation. After password reset, revoke existing sessions under the recovery policy and offer a normal sign-in.",
+            uk: "Паролі, обрані людьми, часто можна вгадати, тому їх зберігають за допомогою спеціального повільного алгоритму хешування паролів із унікальною сіллю, наприклад Argon2id; робочі параметри підбирають і переглядають. Після перевірки пароля обліковий запис із MFA залишається в обмеженому короткочасному стані до успішного другого фактора; спроби перевірки обмежують. При переході до автентифікованої сесії змініть її ідентифікатор і відкличте попередній, щоб протидіяти фіксації сесії. Після скидання пароля відкличте існуючі сесії за політикою відновлення й запропонуйте звичайний вхід; відновлення MFA також потребує окремого захисту.",
+            en: "Human-chosen passwords are often guessable, so store them using a dedicated slow password-hashing algorithm with a unique salt, such as Argon2id, and review its work parameters. After the password check, an account with MFA stays in a short-lived restricted state until the second factor succeeds; limit verification attempts. Rotate the session identifier and revoke the previous one when transitioning to an authenticated session to mitigate session fixation. After password reset, revoke existing sessions under the recovery policy and offer a normal sign-in; MFA recovery also needs separate protection.",
           },
         ),
         withOptionsEn(mcq(
@@ -378,6 +407,19 @@ const sessionsAuthn = unit(
           ],
           { sampleAnswerUk: "Пароль може бути вгаданим, тому потрібен повільний Argon2id; випадковий токен має високу ентропію. Після MFA оновлюють ідентифікатор сесії.", sampleAnswerEn: "A password is guessable and needs slow Argon2id; a random token has high entropy. After MFA, rotate the session identifier." },
         ),
+        withOptionsEn(mcq(
+          "ws-sa-fixation",
+          "Після MFA застосунок видав новий токен, але старий токен попередньої сесії все ще дає доступ. Чи завершена ротація?",
+          "After MFA the application issues a new token, but the previous session token still grants access. Is rotation complete?",
+          [
+            "Ні: попередню сесію потрібно відкликати, а нову перевіряти за серверним станом",
+            "Так: достатньо показати новий токен на екрані",
+            "Так: старий токен стає недійсним через HttpOnly",
+            "Ні: потрібно зберігати обидва сирі токени в URL",
+          ],
+          0,
+          why("Заміна ідентифікатора захищає лише тоді, коли попередній більше не працює як автентифікована сесія.", "Identifier rotation protects only when the previous credential no longer works as an authenticated session."),
+        ), ["No: revoke the previous session and validate the new one against server state", "Yes: displaying a new token is enough", "Yes: HttpOnly invalidates the old token", "No: store both raw tokens in the URL"]),
       ], { baseXp: 26 },
     ),
     exam("ws-sa-exam", "Контрольна: сесії та автентифікація", "Checkpoint: Sessions & Authentication", 4, [
@@ -467,6 +509,19 @@ const authorizationIdor = unit(
           ],
           { sampleAnswerUk: "UUID можна отримати з посилання, тому сервер перевіряє членство користувача в проєкті та дозвіл змінювати конкретну задачу.", sampleAnswerEn: "A UUID can be obtained from a link, so the server checks project membership and permission to update the specific task." },
         ),
+        withOptionsEn(mcq(
+          "ws-az-readonly",
+          "Користувач є учасником спільного проєкту з правом лише читання і надсилає PATCH задачі. Що має зробити сервер?",
+          "A shared-project member has read-only permission and sends a PATCH for a task. What should the server do?",
+          [
+            "Відхилити зміну: саме членство не дає права на запис",
+            "Дозволити зміну, бо користувач знає UUID задачі",
+            "Дозволити зміну, бо будь-який учасник має всі права",
+            "Змінити задачу й приховати результат у клієнті",
+          ],
+          0,
+          why("Авторизація залежить від конкретної дії та об'єкта, а не лише від членства або знання ID.", "Authorization depends on the specific action and object, not just membership or knowledge of an ID."),
+        ), ["Reject the update: membership alone does not grant write permission", "Allow the update because the user knows the task UUID", "Allow the update because every member has all permissions", "Update the task and hide the result in the client"]),
       ], { baseXp: 26 },
     ),
     lesson(
@@ -479,8 +534,8 @@ const authorizationIdor = unit(
           "Роль і свіжий доказ вирішують різні задачі",
           "Role and recent proof solve different problems",
           {
-            uk: "Роль адміністратора визначає, які дії дозволені; step-up додатково вимагає свіжого підтвердження особи перед чутливою операцією. Сервер перевіряє обидві умови, прив'язує підтвердження до сесії та обмежує час його дії. Прострочений або відсутній доказ не підвищує привілеї. Step-up не замінює перевірку ролі, захист від CSRF та журналювання без секретів.",
-            en: "An administrator role determines which actions are allowed; step-up additionally requires recent proof of identity before a sensitive operation. The server checks both conditions, binds the proof to the session, and limits its lifetime. Missing or expired proof does not grant elevated access. Step-up does not replace role checks, CSRF protection, or logging without secrets.",
+            uk: "Роль адміністратора визначає, які дії дозволені; step-up додатково вимагає свіжого підтвердження особи перед чутливою операцією. Сервер перевіряє обидві умови, прив'язує підтвердження до конкретної сесії та обмежує час його дії. Підтвердження іншої сесії, прострочений або відсутній доказ не підвищує привілеї. Перевіряйте актуальну роль і право на дію в момент виконання, навіть після успішного step-up. Він не замінює захист від CSRF та журналювання без секретів.",
+            en: "An administrator role determines which actions are allowed; step-up additionally requires recent proof of identity before a sensitive operation. The server checks both conditions, binds the proof to the specific session, and limits its lifetime. Proof from another session, or proof that is missing or expired, does not grant elevated access. Check the current role and permission at execution even after successful step-up. It does not replace CSRF protection or logging without secrets.",
           },
         ),
         withOptionsEn(mcq(
@@ -499,6 +554,19 @@ const authorizationIdor = unit(
             "Step-up reduces the risk of an old session being misused, but the server must still check the role, action, and freshness of the proof.",
           ),
         ), ["It limits damage from a temporarily unattended browser or an old stolen session", "It reduces the number of database tables", "It replaces HTTPS with HTTP", "It lets anonymous users into the admin area"]),
+        withOptionsEn(mcq(
+          "ws-az-stepup-session",
+          "Адміністратор підтвердив step-up у сесії A. Сесія B того самого акаунта не проходила підтвердження. Чи може B виконати чутливу дію?",
+          "An administrator completed step-up in session A. Session B for the same account has not completed it. Can B perform a sensitive action?",
+          [
+            "Ні: підтвердження має бути свіжим і прив'язаним до сесії B; роль також перевіряють",
+            "Так: підтвердження назавжди діє на всі сесії акаунта",
+            "Так: достатньо надіслати ID сесії A у запиті",
+            "Так: CSRF автоматично надає step-up",
+          ],
+          0,
+          why("Не переносіть привілейований стан між сесіями та не довіряйте клієнтському твердженню про підтвердження.", "Do not transfer privileged state between sessions or trust a client claim of verification."),
+        ), ["No: proof must be recent and bound to session B; check the role as well", "Yes: verification permanently applies to every account session", "Yes: send session A's ID in the request", "Yes: CSRF automatically grants step-up"]),
       ], { baseXp: 26 },
     ),
     exam("ws-az-exam", "Контрольна: авторизація та IDOR", "Checkpoint: Authorization & IDOR", 4, [
@@ -544,8 +612,8 @@ const browserSecurity = unit(
           "CORS і CSRF контролюють різні речі",
           "CORS and CSRF address different problems",
           {
-            uk: "CORS визначає, чи може браузерний скрипт прочитати відповідь іншого origin; для деяких запитів браузер спершу надсилає preflight і не надсилає основний запит без дозволу. Проста HTML-форма може надіслати POST без preflight, навіть якщо відповідь недоступна скрипту. Чи додасть браузер cookie, залежить від SameSite, налаштувань і контексту запиту. Для cookie-автентифікованих змін сервер застосовує CSRF-токен або сувору перевірку походження з визначеною політикою для відсутніх заголовків; SameSite — додатковий захист, не заміна авторизації.",
-            en: "CORS controls whether browser scripts can read cross-origin responses; for some requests the browser first sends a preflight and withholds the actual request if permission is denied. A simple HTML form can send a POST without a preflight even when a script cannot read the response. Whether cookies accompany it depends on SameSite, browser settings, and request context. For cookie-authenticated mutations, use a CSRF token or strict origin validation with a defined policy for missing headers; SameSite adds defense but does not replace authorization.",
+            uk: "CORS визначає, чи може браузерний скрипт прочитати відповідь іншого origin; для деяких запитів браузер спершу надсилає preflight і не надсилає основний запит без дозволу. Проста HTML-форма може надіслати POST без preflight, навіть якщо відповідь недоступна скрипту. Чи додасть браузер cookie, залежить від SameSite, налаштувань і контексту запиту. Same-site не означає same-origin: сусідній піддомен може належати тому самому сайту, але не бути довіреним origin. Для cookie-автентифікованих змін сервер застосовує CSRF-токен або сувору перевірку походження з визначеною політикою для відсутніх заголовків; SameSite — додатковий захист, не заміна авторизації.",
+            en: "CORS controls whether browser scripts can read cross-origin responses; for some requests the browser first sends a preflight and withholds the actual request if permission is denied. A simple HTML form can send a POST without a preflight even when a script cannot read the response. Whether cookies accompany it depends on SameSite, browser settings, and request context. Same-site does not mean same-origin: a sibling subdomain may belong to the same site without being a trusted origin. For cookie-authenticated mutations, use a CSRF token or strict origin validation with a defined policy for missing headers; SameSite adds defense but does not replace authorization.",
           },
         ),
         withOptionsEn(mcq(
@@ -582,6 +650,19 @@ const browserSecurity = unit(
             "Only echo origins strictly present in a server-side allowlist when credentials are enabled.",
           ),
         ), ["An external site may read a private response using the victim's cookies if browser rules allow those cookies to be sent", "The only problem is slower HTTPS", "It blocks requests from localhost", "This combination has no consequences"]),
+        withOptionsEn(mcq(
+          "ws-bs-sibling-origin",
+          "Додаток довіряє лише `https://app.example.com`. Скомпрометований `https://other.example.com` надсилає запит зі зміною даних. Чи достатньо SameSite як єдиного захисту?",
+          "An app trusts only `https://app.example.com`. A compromised `https://other.example.com` sends a mutating request. Is SameSite alone sufficient?",
+          [
+            "Ні: це різні origin, але вони можуть бути same-site; потрібна перевірка CSRF відповідно до політики",
+            "Так: різні піддомени завжди є cross-site",
+            "Так: CORS завжди зупинить надсилання HTML-форми",
+            "Так: ім'я cookie доводить право на зміну",
+          ],
+          0,
+          why("Перевіряйте точний дозволений origin або коректний CSRF-токен; не ототожнюйте межі origin та site.", "Validate the exact trusted origin or a valid CSRF token; do not conflate origin and site boundaries."),
+        ), ["No: these are distinct origins but may be same-site; enforce the CSRF policy", "Yes: different subdomains are always cross-site", "Yes: CORS always blocks an HTML form from being sent", "Yes: the cookie name proves permission to mutate"]),
       ], { baseXp: 26 },
     ),
     lesson(
@@ -594,8 +675,8 @@ const browserSecurity = unit(
           "Заголовки доповнюють безпечний код",
           "Headers complement secure code",
           {
-            uk: "CSP обмежує джерела ресурсів і виконання скриптів відповідно до заданої політики. `script-src 'self'` без дозволу inline блокує багато інжектованих inline-скриптів і сторонніх скриптів, але дозволені скрипти з того самого origin теж можуть бути небезпечними. `X-Content-Type-Options: nosniff` допомагає браузеру не інтерпретувати відповідь усупереч її MIME-типу, зокрема для script і style. Вказуйте коректний Content-Type, ізолюйте недовірені завантаження та тестуйте політику; заголовки не замінюють санітизацію або авторизацію.",
-            en: "CSP restricts resource sources and script execution according to the configured policy. `script-src 'self'` without inline permission blocks many injected inline and cross-origin scripts, but allowed scripts from the same origin can still be dangerous. `X-Content-Type-Options: nosniff` helps prevent the browser from interpreting a response contrary to its MIME type, particularly for script and style loads. Set the correct Content-Type, isolate untrusted uploads, and test the policy; headers do not replace sanitization or authorization.",
+            uk: "CSP обмежує джерела ресурсів і виконання скриптів відповідно до заданої політики. `script-src 'self'` без дозволу inline блокує багато інжектованих inline-скриптів і сторонніх скриптів, але дозволений same-origin скрипт теж може бути небезпечним, зокрема якщо зловмисник може завантажити його на цей origin. Для nonce-політики генеруйте непередбачуваний nonce окремо для кожної відповіді та додавайте лише довіреним скриптам. `X-Content-Type-Options: nosniff` допомагає браузеру не інтерпретувати відповідь усупереч MIME-типу, зокрема для script і style. Вказуйте коректний Content-Type, ізолюйте недовірені завантаження та тестуйте політику; заголовки не замінюють санітизацію або авторизацію.",
+            en: "CSP restricts resource sources and script execution according to the configured policy. `script-src 'self'` without inline permission blocks many injected inline and cross-origin scripts, but an allowed same-origin script can still be dangerous, especially if an attacker can upload it to that origin. For a nonce policy generate an unpredictable nonce per response and attach it only to trusted scripts. `X-Content-Type-Options: nosniff` helps prevent the browser from interpreting a response contrary to its MIME type, particularly for script and style loads. Set the correct Content-Type, isolate untrusted uploads, and test the policy; headers do not replace sanitization or authorization.",
           },
         ),
         codeFill(
@@ -611,6 +692,19 @@ const browserSecurity = unit(
             "Also set the correct Content-Type; this header does not make every untrusted file safe.",
           ),
         ),
+        withOptionsEn(mcq(
+          "ws-bs-csp-upload",
+          "Політика дозволяє `script-src 'self'`, а користувач може розмістити виконуваний JS на тому самому origin. Який ризик лишається?",
+          "The policy allows `script-src 'self'`, and a user can host executable JavaScript on that same origin. What risk remains?",
+          [
+            "Політика може дозволити завантажений скрипт; недовірені файли потрібно ізолювати й обробляти безпечно",
+            "CSP автоматично перевіряє, що кожен same-origin файл довірений",
+            "nosniff гарантує безпеку JavaScript із правильним MIME-типом",
+            "Файли на тому самому origin не можуть бути скриптами",
+          ],
+          0,
+          why("Дозволене походження не доводить довіру до кожного файлу на ньому; потрібна окрема політика для завантажень.", "An allowed origin does not establish trust in every file served from it; uploads need a separate policy."),
+        ), ["The policy may allow the uploaded script; isolate and safely handle untrusted files", "CSP automatically verifies that every same-origin file is trusted", "nosniff guarantees safety for JavaScript with the correct MIME type", "Same-origin files cannot be scripts"]),
       ], { baseXp: 25 },
     ),
     exam("ws-bs-exam", "Контрольна: браузерна безпека", "Checkpoint: Browser Security", 4, [
@@ -657,8 +751,8 @@ const depsConfigCapstone = unit(
           "Безпечне реагування на витік та оновлення залежностей",
           "Respond safely to leaks and dependency risks",
           {
-            uk: "Журналюйте подію, час і кореляційний ID, але не паролі, cookie, токени чи повне тіло запиту. Якщо ключ потрапив у Git, вважайте його скомпрометованим: відкличте або замініть у провайдера, перевірте використання та сповістіть відповідальних за процедурою інциденту. Видалення рядка новим комітом не видаляє стару історію; її можливе очищення і роботу з копіями координують із командою після стримування витоку. Аудит lockfile допомагає виявити відомі вразливості, але не гарантує безпеки пакета: перевіряйте походження, вплив і оновлення.",
-            en: "Log the event, time, and correlation ID, but not passwords, cookies, tokens, or the entire request body. If a key enters Git, treat it as compromised: revoke or replace it with the provider, investigate usage, and notify responsible people under the incident procedure. A new commit does not erase old history; coordinate any history cleanup and copies with the team after containment. A lockfile audit can reveal known vulnerabilities, but cannot guarantee a package is safe: review provenance, impact, and updates.",
+            uk: "Журналюйте подію, час і кореляційний ID, але не паролі, cookie, токени чи повне тіло запиту. Якщо ключ потрапив у Git, вважайте його скомпрометованим: відкличте або замініть у провайдера, перевірте використання та сповістіть відповідальних за процедурою інциденту. Новий коміт не видаляє стару історію; очищення історії й копій координують після стримування витоку. Аудит lockfile виявляє частину відомих вразливостей, але не гарантує безпеки пакета. `pnpm audit --prod` обмежує перевірку production-залежностями: dev-залежності теж можуть виконувати код у CI або під час збірки. Враховуйте їх у моделі загроз, перевіряйте походження, вплив і оновлення.",
+            en: "Log the event, time, and correlation ID, but not passwords, cookies, tokens, or the entire request body. If a key enters Git, treat it as compromised: revoke or replace it with the provider, investigate usage, and notify responsible people under the incident procedure. A new commit does not erase old history; coordinate cleanup of history and copies after containment. A lockfile audit finds some known vulnerabilities but cannot guarantee a package is safe. `pnpm audit --prod` limits the audit to production dependencies: dev dependencies can also execute code in CI or builds. Include them in the threat model and review provenance, impact, and updates.",
           },
         ),
         withOptionsEn(mcq(
@@ -693,6 +787,19 @@ const depsConfigCapstone = unit(
             "Revocation limits use of the key first; rewriting history does not remove independent clones or copies.",
           ),
         ), ["No: revoke or replace the key with the provider, investigate its use, and coordinate cleanup of history and copies", "Yes: a new commit automatically erases GitHub history", "Adding the key to .gitignore is enough", "Keys in .env.example never require attention"]),
+        withOptionsEn(mcq(
+          "ws-dc-dev-deps",
+          "CI встановлює dev-залежності й запускає збірку. Чи достатньо лише `pnpm audit --prod` для оцінки відомих ризиків усіх пакетів, що виконуються в CI?",
+          "CI installs dev dependencies and runs a build. Is `pnpm audit --prod` alone enough to assess known risks for every package executed in CI?",
+          [
+            "Ні: він обмежений production-залежностями; dev-залежності також потребують перевірки відповідно до моделі загроз",
+            "Так: dev-залежності ніколи не виконують код",
+            "Так: audit доводить відсутність шкідливих пакетів",
+            "Ні: достатньо видалити файл lockfile",
+          ],
+          0,
+          why("Dev-інструменти виконуються у збірці, а аудит охоплює лише відомі вразливості й заданий набір залежностей.", "Dev tools execute during builds, and an audit covers only known vulnerabilities in the selected dependency set."),
+        ), ["No: it is restricted to production dependencies; assess dev dependencies against the threat model too", "Yes: dev dependencies never execute code", "Yes: an audit proves packages are not malicious", "No: deleting the lockfile is enough"]),
       ], { baseXp: 26 },
     ),
     lesson(
@@ -726,6 +833,19 @@ const depsConfigCapstone = unit(
             "Tests provide evidence for the scenarios they cover; they do not prove the absence of every vulnerability.",
           ),
         ), ["Behavioral tests check denial to another user, safe text rendering, rejection of untrusted origins, and the owner's allowed actions", "Only the existence of .gitignore", "Disabling every HTTP route", "Renaming JSON columns to random letters"]),
+        withOptionsEn(mcq(
+          "ws-fb-regression",
+          "Після виправлення API відмовляє чужому користувачу, але також блокує власника задачі. Як оцінити результат?",
+          "After a fix, the API rejects another user but also blocks the task owner. How should the result be assessed?",
+          [
+            "Виправлення неповне: перевірте політику та відновіть дозволений сценарій власника",
+            "Виправлення завершено, бо всі запити відхилені",
+            "Дозвольте всім користувачам змінювати задачу",
+            "Видаліть тест власника",
+          ],
+          0,
+          why("Тестуйте як відмову недозволених дій, так і успіх дозволених відповідно до політики.", "Test both denial of unauthorized actions and success of authorized actions under the policy."),
+        ), ["The fix is incomplete: check the policy and restore the owner's permitted flow", "The fix is complete because all requests are rejected", "Allow every user to modify the task", "Delete the owner test"]),
         codeProject(
           "ws-fb2",
           "Реалізуйте перевірку власника та екранування тексту для HTML. Вбудована перевірка шукає фрагменти коду й не доводить безпечність; M9 нижче містить поведінкові перевірки.",

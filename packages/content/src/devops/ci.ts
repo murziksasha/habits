@@ -14,6 +14,7 @@ export const ci = unit("ci", "CI до образу", "CI through the image", [
         "Відкритий pull request у GitOps з новим тегом",
         "Зроблений rollback",
       ],
+      oEn: ["An image is built, scanned, and published to a registry; service delivery comes later", "The service is already running in the cluster", "A GitOps pull request is open with a new tag", "A rollback has happened"],
       i: 0,
       note: why(
         "Integration збирає і перевіряє. Delivery вміє викласти кандидат. Deployment сам міняє те, що бачать люди. Тут лише перше.",
@@ -26,20 +27,22 @@ export const ci = unit("ci", "CI до образу", "CI through the image", [
       en: "Match the word to the boundary.",
       pairs: [
         { left: "Continuous Integration", right: "Коміт збирається і тести зелені" },
-        { left: "Continuous Delivery", right: "Кандидат готовий, людину ще питають" },
-        { left: "Continuous Deployment", right: "Кандидат сам стає тим, що працює" },
+        { left: "Continuous Delivery", right: "Кандидат готовий до релізу; production може потребувати схвалення" },
+        { left: "Continuous Deployment", right: "Кандидат автоматично випускається після успішних перевірок" },
       ],
+      pairsEn: [{"left": "Continuous Integration", "right": "Integrate changes and run automated checks"}, {"left": "Continuous Delivery", "right": "Keep a candidate releasable; production release can require approval"}, {"left": "Continuous Deployment", "right": "Automatically release candidates that pass the pipeline"}],
     },
     {
       t: "mcq",
       uk: "Незмінний артефакт — це:",
       en: "An immutable artifact is:",
       o: [
-        "Той самий тег або digest, який ви вже перевірили. Його не перезбирають під іншим змістом",
+        "Той самий перевірений вміст образу за digest, який просувають без повторної збірки",
         "Тег latest, який перезаписують щовечора",
         "Тека на ноутбуці автора",
         "Лог збірки",
       ],
+      oEn: ["The exact verified image content identified by digest and promoted without rebuilding", "A latest tag overwritten nightly", "A folder on the author’s laptop", "A build log"],
       i: 0,
     },
     {
@@ -52,14 +55,15 @@ export const ci = unit("ci", "CI до образу", "CI through the image", [
         "Заборона pull request",
         "Один коміт на місяць",
       ],
+      oEn: ["Short-lived branches and a main branch kept releasable", "Quarter-long release branches", "Pull requests are forbidden", "One commit a month"],
       i: 0,
     },
   ]),
   teach("do-gha", "GitHub Actions до push", "GitHub Actions through the push", 4, "do-gha", [
     {
       t: "read",
-      uk: "Де закінчується цей workflow?",
-      en: "Where does this workflow stop?",
+      uk: "Де закінчується ця спрощена схема workflow? Це не виконуваний YAML.",
+      en: "Where does this simplified workflow diagram stop? It is not executable YAML.",
       lang: "yaml",
       code: "jobs:\n  test:\n    steps: [lint, unit]\n  image:\n    needs: test\n    steps: [build, trivy, push]",
       o: [
@@ -68,6 +72,7 @@ export const ci = unit("ci", "CI до образу", "CI through the image", [
         "На листі клієнтам",
         "На terraform apply",
       ],
+      oEn: ["At image publication after tests and scanning; there is no cluster change", "At a production database restart", "At an email to customers", "At terraform apply"],
       i: 0,
       note: why(
         "jobs test і image можуть йти так, що image чекає test через needs. Паралельно мають іти лише ті кроки, які не залежать одні від одних.",
@@ -84,6 +89,7 @@ export const ci = unit("ci", "CI до образу", "CI through the image", [
         "Замінити тести",
         "Приховати вразливості Trivy",
       ],
+      oEn: ["Previously downloaded dependencies can be reused", "To store Terraform state", "To replace tests", "To hide Trivy findings"],
       i: 0,
     },
     {
@@ -96,6 +102,7 @@ export const ci = unit("ci", "CI до образу", "CI through the image", [
         "Заміна CODEOWNERS",
         "Список pod у кластері",
       ],
+      oEn: ["Runs a job for multiple combinations, such as two Python versions", "Shares one unrestricted secret across the organization", "Replaces CODEOWNERS", "Lists cluster pods"],
       i: 0,
     },
     {
@@ -103,7 +110,7 @@ export const ci = unit("ci", "CI до образу", "CI through the image", [
       uk: "Порядок job image.",
       en: "Order of the image job.",
       lang: "text",
-      correct: ["Lint і тести зелені", "Зібрати образ", "Прогнати Trivy", "Push у registry"],
+      correct: ["Lint і тести пройшли / Lint and tests pass", "Зібрати образ / Build image", "Просканувати образ / Scan image", "Опублікувати образ / Push image"],
     },
   ]),
   teach("do-oidc", "OIDC замість довгого ключа", "OIDC instead of a long-lived key", 4, "do-oidc", [
@@ -112,11 +119,12 @@ export const ci = unit("ci", "CI до образу", "CI through the image", [
       uk: "Чому OIDC кращий за довгий ключ хмари в GitHub Actions?",
       en: "Why does OIDC beat a long-lived cloud key in GitHub Actions?",
       o: [
-        "GitHub отримує короткий токен під конкретний workflow. Ключ не лежить у секретах місяцями",
+        "Workflow обмінює короткоживучий OIDC-токен на тимчасові права хмари за обмеженою політикою довіри",
         "OIDC вимикає логи",
         "OIDC замінює Trivy",
         "Ключ у секреті ніколи не витікає, тому різниці немає",
       ],
+      oEn: ["A workflow exchanges a short-lived identity token for temporary cloud credentials", "OIDC disables logs", "OIDC replaces Trivy", "A stored key can never leak"],
       i: 0,
       note: why(
         "Довіра обмежена репозиторієм і гілкою. Чужий fork не має отримувати ту саму роль.",
@@ -133,6 +141,7 @@ export const ci = unit("ci", "CI до образу", "CI through the image", [
         "Живе вічно в бакеті",
         "Підписує образ cosign сам",
       ],
+      oEn: ["Should be restricted to permissions actually needed by each job", "Is an AWS key", "Lives forever in a bucket", "Automatically signs images with cosign"],
       i: 0,
     },
     {
@@ -145,15 +154,17 @@ export const ci = unit("ci", "CI до образу", "CI through the image", [
         "Замінює branch protection",
         "Ховає результати тестів",
       ],
+      oEn: ["Can gate a job pending approval; this unit does not deploy the service", "Automatically changes replicas", "Replaces branch protection", "Hides test results"],
       i: 0,
     },
     {
       t: "fill",
-      uk: "Секрети репозиторію не друкують у лог. Маска в GitHub зветься:",
-      en: "Repo secrets must not print in the log. The GitHub control is a:",
+      uk: "У workflow-команді GitHub допишіть назву команди маскування значення в логах.",
+      en: "Complete the GitHub workflow command that masks a value in logs.",
       lang: "text",
-      code: "___",
-      ok: ["secret"],
+      code: "::___::VALUE",
+      ok: ["add-mask"],
+      note: why("Маскування не замінює уникнення виводу секретів і не гарантує приховування кожної трансформації.", "Masking does not replace avoiding secret output and may not cover transformed values."),
     },
   ]),
   teach("do-jenkins", "GitLab і Jenkins оглядом", "GitLab and Jenkins, a survey", 4, "do-jenkins", [
@@ -167,6 +178,7 @@ export const ci = unit("ci", "CI до образу", "CI through the image", [
         "Тим, що він замінює Git",
         "Тим, що в нього немає registry",
       ],
+      oEn: [".gitlab-ci.yml, stages, and a runner; this example also ends at an image", "Mandatory Groovy for every step", "Replacing Git", "Having no registry"],
       i: 0,
     },
     {
@@ -179,6 +191,7 @@ export const ci = unit("ci", "CI до образу", "CI through the image", [
         "Заміну Kubernetes",
         "Секрет-менеджер",
       ],
+      oEn: ["A controller, agents, and Jenkinsfile; this course surveys rather than authors it", "The only CI able to build images", "A Kubernetes replacement", "A secrets manager"],
       i: 0,
       note: why(
         "Shared library в Jenkins — спосіб не копіювати Groovy. Цього досить, щоб читати чужий Jenkinsfile і не вигадувати свій.",
@@ -195,6 +208,7 @@ export const ci = unit("ci", "CI до образу", "CI through the image", [
         { left: "GitLab runner", right: "Агент, зареєстрований у GitLab" },
         { left: "Jenkins agent", right: "Вузол, який бере збірку в controller" },
       ],
+      pairsEn: [{"left": "GitHub-hosted runner", "right": "A runner provisioned by GitHub for a job"}, {"left": "self-hosted runner", "right": "A runner you operate and maintain"}, {"left": "GitLab runner", "right": "An agent registered with GitLab"}, {"left": "Jenkins agent", "right": "A worker that executes builds for the controller"}],
     },
     {
       t: "mcq",
@@ -206,6 +220,7 @@ export const ci = unit("ci", "CI до образу", "CI through the image", [
         "Збірку образу",
         "Trivy",
       ],
+      oEn: ["A step that changes a live service; delivery is covered later", "Lint", "Image build", "Trivy"],
       i: 0,
     },
   ]),
@@ -220,6 +235,7 @@ export const ci = unit("ci", "CI до образу", "CI through the image", [
         "Змінений Terraform state",
         "Лист клієнтам про простій",
       ],
+      oEn: ["An image digest in the registry", "New cluster replicas", "Changed Terraform state", "A downtime email to customers"],
       i: 0,
     },
     {
@@ -232,6 +248,7 @@ export const ci = unit("ci", "CI до образу", "CI through the image", [
         "Зберігати приватний ключ",
         "Замінити код-рев'ю",
       ],
+      oEn: ["Common steps need not be copied into every repository", "It bypasses GITHUB_TOKEN permissions", "It stores a private key", "It replaces code review"],
       i: 0,
     },
     {
@@ -239,7 +256,7 @@ export const ci = unit("ci", "CI до образу", "CI through the image", [
       uk: "Що відбувається на pull request.",
       en: "What happens on a pull request.",
       lang: "text",
-      correct: ["Запустити lint і тести", "Не пушити образ із чужого fork", "Показати статус у PR", "Мержити лише зелене"],
+      correct: ["Запустити lint і тести / Run lint and tests", "Не публікувати образ із чужого fork / Do not publish from an untrusted fork", "Показати статус у PR / Report status in PR", "Мержити після перевірок / Merge after required checks"],
     },
     {
       t: "mcq",
@@ -251,6 +268,7 @@ export const ci = unit("ci", "CI до образу", "CI through the image", [
         "Замінює OIDC",
         "Пише Helm values",
       ],
+      oEn: ["Can open pull requests for outdated or vulnerable dependencies", "Deploys the cluster", "Replaces OIDC", "Writes Helm values"],
       i: 0,
     },
     {
@@ -271,6 +289,7 @@ export const ci = unit("ci", "CI до образу", "CI through the image", [
         "Типи DNS-записів",
         "Режими cron",
       ],
+      oEn: ["Are traffic rollout strategies covered in the later delivery unit", "Are docker build commands", "Are DNS record types", "Are cron modes"],
       i: 0,
     },
   ]),

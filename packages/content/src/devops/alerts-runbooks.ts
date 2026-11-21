@@ -6,7 +6,7 @@ export const alertsRunbooks = unit("alerts-runbooks", "Алерти, на які
     {
       t: "read", uk: "Який рядок найкраще обґрунтовує терміновий виклик чергового forge-status?", en: "Which row best justifies urgently paging the forge-status on-call engineer?", lang: "text",
       code: "window: last 5 min, sustained\nA: CPU 91%, success 99.99%, p95 120ms\nB: CPU 25%, 5xx 18%, p95 4200ms\nnormal p95: 150ms; latency objective: 500ms",
-      o: ["A, бо CPU завжди дорівнює шкоді / A, because CPU always equals harm", "B, бо є помилки та затримка для користувачів / B, because users see errors and latency", "Жоден, бо всі Pod Running / Neither, because all Pods are Running"], i: 1,
+      o: ["A, бо CPU завжди дорівнює шкоді / A, because CPU always equals harm", "B, бо є помилки та затримка для користувачів / B, because users see errors and latency", "Жоден, бо всі Pod Running / Neither, because all Pods are Running"], oEn: ["A, because CPU always equals harm", "B, because users see errors and latency", "Neither, because all Pods are Running"], i: 1,
       note: why("5xx і затримка описують шкоду користувачам. CPU може пояснювати причину, але низький CPU не виключає блокування чи проблеми залежностей.", "5xx and latency describe user harm. CPU may explain a cause, but low CPU does not rule out blocking or dependency problems."),
     },
     {
@@ -16,7 +16,7 @@ export const alertsRunbooks = unit("alerts-runbooks", "Алерти, на які
     },
     {
       t: "mcq", uk: "CPU 95% під час дозволеної пакетної роботи, але SLI нормальні й негайної дії немає. Як поводитися з CPU-правилом?", en: "CPU is 95% during permitted batch work, SLIs are healthy, and no immediate action exists. How should the CPU rule be treated?",
-      o: ["Будити чергового щохвилини / Wake the on-call every minute", "Приховати всі майбутні симптоми / Hide all future symptoms", "Використати як діагностичний сигнал або задачу місткості за потреби / Use it as a diagnostic signal or capacity ticket when warranted"], i: 2,
+      o: ["Будити чергового щохвилини / Wake the on-call every minute", "Приховати всі майбутні симптоми / Hide all future symptoms", "Використати як діагностичний сигнал або задачу місткості за потреби / Use it as a diagnostic signal or capacity ticket when warranted"], oEn: ["Wake the on-call every minute", "Hide all future symptoms", "Use it as a diagnostic signal or capacity ticket when warranted"], i: 2,
       note: why("Page потребує термінової дії. Високий CPU без шкоди може вимагати планування, але не автоматичного нічного виклику.", "A page needs urgent action. High CPU without harm may require planning, not an automatic overnight wake-up."),
     },
     {
@@ -26,13 +26,13 @@ export const alertsRunbooks = unit("alerts-runbooks", "Алерти, на які
     },
     {
       t: "match", uk: "Зіставте показник із його роллю в цьому інциденті.", en: "Match each signal to its role in this incident.",
-      pairs: [{ left: "HTTP 5xx ratio", right: "Частка невдалих запитів користувачів / Fraction of failed user requests" }, { left: "request p95", right: "Затримка повільного хвоста запитів / Latency in the slower request tail" }, { left: "CPU utilization", right: "Можливе пояснення ресурсного тиску / Possible evidence of resource pressure" }],
+      pairs: [{ left: "HTTP 5xx ratio", right: "Частка невдалих запитів користувачів / Fraction of failed user requests" }, { left: "request p95", right: "Затримка повільного хвоста запитів / Latency in the slower request tail" }, { left: "CPU utilization", right: "Можливе пояснення ресурсного тиску / Possible evidence of resource pressure" }], pairsEn: [{"left": "HTTP 5xx ratio", "right": "Fraction of failed user requests"}, {"left": "request p95", "right": "Latency in the slower request tail"}, {"left": "CPU utilization", "right": "Possible evidence of resource pressure"}],
       note: why("Симптом задає пріоритет відповіді, ресурсні сигнали допомагають діагностувати. p95 не є ні середнім, ні максимумом.", "Symptoms set response priority; resource signals help diagnosis. p95 is neither the mean nor the maximum."),
     },
     {
       t: "read", uk: "5xx знизилися до нуля, але чи можна вважати цей шлях здоровим?", en: "5xx dropped to zero, but can this journey be considered healthy?", lang: "text",
       code: "HTTP 2xx: 100%\nrequest p95: 12s\nlatency objective: 500ms\nexternal probe: timeout at 5s",
-      o: ["Ні: успішний код не усуває шкоду від затримки / No: a success code does not remove latency harm", "Так: 2xx достатньо для всіх SLI / Yes: 2xx is sufficient for every SLI", "Так: треба прибрати probe / Yes: remove the probe"], i: 0,
+      o: ["Ні: успішний код не усуває шкоду від затримки / No: a success code does not remove latency harm", "Так: 2xx достатньо для всіх SLI / Yes: 2xx is sufficient for every SLI", "Так: треба прибрати probe / Yes: remove the probe"], oEn: ["No: a success code does not remove latency harm", "Yes: 2xx is sufficient for every SLI", "Yes: remove the probe"], i: 0,
       note: why("Запит може завершитися 2xx після того, як клієнт уже здався. Перевіряють доступність і затримку з відповідної точки користувача.", "A request may finish with 2xx after the client has given up. Check availability and latency from the relevant user perspective."),
     },
   ]),
@@ -40,7 +40,7 @@ export const alertsRunbooks = unit("alerts-runbooks", "Алерти, на які
     {
       t: "read", uk: "SLO успіху — 99%. Який burn rate відповідає частці помилок 6% за це вікно?", en: "The success SLO is 99%. What burn rate corresponds to a 6% error ratio in this window?", lang: "text",
       code: "allowed error fraction = 1 - 0.99 = 0.01\nobserved error fraction = 0.06\nburn rate = observed / allowed",
-      o: ["0.06", "6", "99"], i: 1,
+      o: ["0.06", "6", "99"], oEn: ["0.06", "6", "99"], i: 1,
       note: why("0.06 / 0.01 = 6: бюджет витрачається у шість разів швидше за сталий допустимий темп. Це не означає, що вже витрачено 6% місячного бюджету.", "0.06 / 0.01 = 6: the budget burns six times faster than its sustainable allowance. It does not mean 6% of the monthly budget is already spent."),
     },
     {
@@ -51,7 +51,7 @@ export const alertsRunbooks = unit("alerts-runbooks", "Алерти, на які
     {
       t: "read", uk: "Recording rules нижче — частки помилок для одного service. Коли спрацює ця fast-burn умова?", en: "The recording rules below are error ratios for one service. When does this fast-burn condition hold?", lang: "promql",
       code: "(forge:error_ratio:rate1h{service=\"forge-status\"} / 0.01 > 14.4)\nand\n(forge:error_ratio:rate5m{service=\"forge-status\"} / 0.01 > 14.4)",
-      o: ["Коли будь-яке одне вікно перевищило поріг / When either window exceeds the threshold", "Коли CPU нижче 14.4% / When CPU is below 14.4%", "Коли обидва узгоджені вікна перевищують burn 14.4 / When both matching windows exceed burn 14.4"], i: 2,
+      o: ["Коли будь-яке одне вікно перевищило поріг / When either window exceeds the threshold", "Коли CPU нижче 14.4% / When CPU is below 14.4%", "Коли обидва узгоджені вікна перевищують burn 14.4 / When both matching windows exceed burn 14.4"], oEn: ["When either window exceeds the threshold", "When CPU is below 14.4%", "When both matching windows exceed burn 14.4"], i: 2,
       note: why("Довге вікно виявляє суттєве витрачання, коротке підтверджує, що проблема ще триває. Потрібні узгоджені labels та визначена поведінка за відсутності даних.", "The long window detects material spending; the short window confirms it is ongoing. Labels must match and missing-data behavior must be defined."),
     },
     {
@@ -61,25 +61,25 @@ export const alertsRunbooks = unit("alerts-runbooks", "Алерти, на які
     },
     {
       t: "match", uk: "Зіставте поняття багатовіконного alerting.", en: "Match multi-window alerting concepts.",
-      pairs: [{ left: "fast burn", right: "Швидка загроза бюджету, що потребує термінової дії / Rapid budget threat requiring urgent action" }, { left: "slow burn", right: "Стійке менше відхилення на довшому вікні / Sustained smaller deviation over a longer window" }, { left: "short confirmation window", right: "Доказ, що погіршення ще триває / Evidence that degradation is still ongoing" }],
+      pairs: [{ left: "fast burn", right: "Швидка загроза бюджету, що потребує термінової дії / Rapid budget threat requiring urgent action" }, { left: "slow burn", right: "Стійке менше відхилення на довшому вікні / Sustained smaller deviation over a longer window" }, { left: "short confirmation window", right: "Доказ, що погіршення ще триває / Evidence that degradation is still ongoing" }], pairsEn: [{"left": "fast burn", "right": "Rapid budget threat requiring urgent action"}, {"left": "slow burn", "right": "Sustained smaller deviation over a longer window"}, {"left": "short confirmation window", "right": "Evidence that degradation is still ongoing"}],
       note: why("Одне миттєве значення не показує темп витрачання за тривалий час. Fast і slow доповнюють одне одного, а не дублюють лише CPU-поріг.", "One instantaneous value does not show sustained budget consumption. Fast and slow signals complement each other rather than duplicating a CPU threshold."),
     },
     {
       t: "out", uk: "За умов сталої інтенсивності трафіку яку частку 30-денного бюджету у відсотках витратить burn 14.4 за одну годину?", en: "Assuming constant traffic volume, what percentage of a 30-day budget does burn 14.4 consume in one hour?", lang: "python",
-      code: "burn = 14.4\nwindow_hours = 1\nperiod_hours = 30 * 24\nprint(round(100 * burn * window_hours / period_hours, 1))", o: ["2.0", "14.4", "100.0"], i: 0,
+      code: "burn = 14.4\nwindow_hours = 1\nperiod_hours = 30 * 24\nprint(round(100 * burn * window_hours / period_hours, 1))", o: ["2.0", "14.4", "100.0"], oEn: ["2.0", "14.4", "100.0"], i: 0,
       note: why("14.4 / 720 = 2% бюджету за годину за цих припущень. Для request-based SLO нерівномірний трафік змінює частку фактичних допустимих помилок.", "14.4 / 720 is 2% of the budget per hour under these assumptions. Uneven traffic changes the actual budget fraction for a request-based SLO."),
     },
   ]),
   teach("do-alert-use", "USE вузла та RED API", "Node USE and API RED", 4, "do-alert-use", [
     {
       t: "match", uk: "Підпорядкуйте діагностику golden signals із do-golden. Зіставте рамку з її об'єктом.", en: "Place diagnostics under the golden signals from do-golden. Match the framework to its subject.",
-      pairs: [{ left: "USE", right: "Ресурс: utilization, saturation, errors / Resource: utilization, saturation, errors" }, { left: "RED", right: "API: rate, errors, duration / API: rate, errors, duration" }, { left: "golden signals", right: "Огляд: latency, traffic, errors, saturation / Overview: latency, traffic, errors, saturation" }],
+      pairs: [{ left: "USE", right: "Ресурс: utilization, saturation, errors / Resource: utilization, saturation, errors" }, { left: "RED", right: "API: rate, errors, duration / API: rate, errors, duration" }, { left: "golden signals", right: "Огляд: latency, traffic, errors, saturation / Overview: latency, traffic, errors, saturation" }], pairsEn: [{"left": "USE", "right": "Resource: utilization, saturation, errors"}, {"left": "RED", "right": "API: rate, errors, duration / API: rate, errors, duration"}, {"left": "golden signals", "right": "Overview: latency, traffic, errors, saturation"}],
       note: why("RED деталізує запити сервісу, USE — ресурси вузла. Вони допомагають пояснити чотири golden signals, а не створюють три незалежні причини для однакових pages.", "RED details service requests; USE details node resources. They help explain the four golden signals rather than creating three independent reasons for duplicate pages."),
     },
     {
       t: "read", uk: "Який сигнал показує saturation, а не просто utilization вузла?", en: "Which signal shows node saturation rather than utilization alone?", lang: "text",
       code: "CPU busy: 70%\nCPU runnable queue: 18 tasks on 4 cores\nAPI requests: 300/s\nAPI 5xx: 0.1%",
-      o: ["API requests 300/s / API requests 300/s", "Черга 18 runnable tasks / The queue of 18 runnable tasks", "Назва вузла / The node name"], i: 1,
+      o: ["API requests 300/s / API requests 300/s", "Черга 18 runnable tasks / The queue of 18 runnable tasks", "Назва вузла / The node name"], oEn: ["API requests 300/s", "The queue of 18 runnable tasks", "The node name"], i: 1,
       note: why("Saturation показує роботу, що чекає ресурсу. Utilization показує його зайнятість; це пов'язані, але різні виміри.", "Saturation shows work waiting for a resource. Utilization shows how busy it is; these are related but distinct measurements."),
     },
     {
@@ -95,12 +95,12 @@ export const alertsRunbooks = unit("alerts-runbooks", "Алерти, на які
     {
       t: "read", uk: "Яке пояснення сумісне зі знімком, але ще потребує перевірки?", en: "Which explanation fits the snapshot but still needs verification?", lang: "text",
       code: "API rate: unchanged\nAPI p95: 3s\nnode CPU: 20%\ndisk await: elevated\napplication logs: database timeout",
-      o: ["Низький CPU виключає saturation / Low CPU rules out saturation", "Треба переписати SLO під CPU / Rewrite the SLO around CPU", "Очікування I/O або БД може пояснювати затримку / I/O or database waits may explain latency"], i: 2,
+      o: ["Низький CPU виключає saturation / Low CPU rules out saturation", "Треба переписати SLO під CPU / Rewrite the SLO around CPU", "Очікування I/O або БД може пояснювати затримку / I/O or database waits may explain latency"], oEn: ["Low CPU rules out saturation", "Rewrite the SLO around CPU", "I/O or database waits may explain latency"], i: 2,
       note: why("Saturation буває не лише CPU. Дані вказують напрям перевірки I/O і БД; вони не доводять конкретний винний диск.", "Saturation is not limited to CPU. These signals guide I/O and database investigation without proving a particular disk is responsible."),
     },
     {
       t: "mcq", uk: "Три дашборди показують один збій. Як уникнути трьох однакових нічних викликів?", en: "Three dashboards show the same failure. How can three duplicate overnight pages be avoided?",
-      o: ["Один actionable symptom page, USE/RED як пов'язані діагностичні дані / One actionable symptom page with USE/RED as linked diagnostics", "Page на кожен графік / Page on every chart", "Видалити всі ресурсні метрики / Delete all resource metrics"], i: 0,
+      o: ["Один actionable symptom page, USE/RED як пов'язані діагностичні дані / One actionable symptom page with USE/RED as linked diagnostics", "Page на кожен графік / Page on every chart", "Видалити всі ресурсні метрики / Delete all resource metrics"], oEn: ["One actionable symptom page with USE/RED as linked diagnostics", "Page on every chart", "Delete all resource metrics"], i: 0,
       note: why("Спостережність зберігає деталі, а маршрутизація має зменшувати дублікати. Одному черговому потрібні контекст і дія, а не число графіків.", "Observability retains detail while routing should reduce duplicates. The responder needs context and an action, not a count of charts."),
     },
   ]),
@@ -108,7 +108,7 @@ export const alertsRunbooks = unit("alerts-runbooks", "Алерти, на які
     {
       t: "read", uk: "Яка стратегія Loki збереже фільтрацію й не створить потік на кожен запит?", en: "Which Loki strategy preserves filtering without creating a stream for every request?", lang: "json",
       code: "{\"service\":\"forge-status\",\"env\":\"prod\",\"trace_id\":\"ab71\",\"level\":\"error\",\"event\":\"db_timeout\"}",
-      o: ["Індексувати кожен trace_id як label / Index every trace_id as a label", "Labels service/env; trace_id залишити JSON-полем або structured metadata / Use service/env labels; keep trace_id as a JSON field or structured metadata", "Видалити trace_id з усіх логів / Remove trace_id from every log"], i: 1,
+      o: ["Індексувати кожен trace_id як label / Index every trace_id as a label", "Labels service/env; trace_id залишити JSON-полем або structured metadata / Use service/env labels; keep trace_id as a JSON field or structured metadata", "Видалити trace_id з усіх логів / Remove trace_id from every log"], oEn: ["Index every trace_id as a label", "Use service/env labels; keep trace_id as a JSON field or structured metadata", "Remove trace_id from every log"], i: 1,
       note: why("service/env мають обмежену кардинальність. trace_id потрібен для кореляції, але як індексний label створює надто багато потоків.", "service/env have bounded cardinality. trace_id supports correlation but creates too many streams as an indexed label."),
     },
     {
@@ -118,7 +118,7 @@ export const alertsRunbooks = unit("alerts-runbooks", "Алерти, на які
     },
     {
       t: "match", uk: "Зіставте поля з призначенням.", en: "Match fields to their purpose.",
-      pairs: [{ left: "service", right: "Який сервіс створив подію / Which service produced the event" }, { left: "env", right: "Відокремлення prod від stage / Separating prod from stage" }, { left: "trace_id", right: "Зв'язок події з конкретною трасою / Linking the event to a specific trace" }],
+      pairs: [{ left: "service", right: "Який сервіс створив подію / Which service produced the event" }, { left: "env", right: "Відокремлення prod від stage / Separating prod from stage" }, { left: "trace_id", right: "Зв'язок події з конкретною трасою / Linking the event to a specific trace" }], pairsEn: [{"left": "service", "right": "Which service produced the event"}, {"left": "env", "right": "Separating prod from stage"}, {"left": "trace_id", "right": "Linking the event to a specific trace"}],
       note: why("service та env звужують пошук до правильного місця. trace_id зв'язує конкретні події між компонентами; він не має містити секретів.", "service and env narrow the search to the right scope. trace_id links particular events across components and must not contain secrets."),
     },
     {
@@ -129,12 +129,12 @@ export const alertsRunbooks = unit("alerts-runbooks", "Алерти, на які
     {
       t: "read", uk: "Який із цих рядків відповідає пошуку?", en: "Which row matches the query?", lang: "text",
       code: "query: service=forge-status, env=prod, trace_id=ab71\nA: forge-status stage ab71 db_timeout\nB: billing prod ab71 db_timeout\nC: forge-status prod ab71 db_timeout",
-      o: ["A", "B", "C"], i: 2,
+      o: ["A", "B", "C"], oEn: ["A", "B", "C"], i: 2,
       note: why("Лише C відповідає всім трьом обмеженням. Однаковий тип помилки у stage або іншому сервісі не є доказом production-інциденту forge-status.", "Only C matches all three constraints. The same error in stage or another service is not evidence for the forge-status production incident."),
     },
     {
       t: "mcq", uk: "У JSON-лог потрапив DSN із паролем. Що змінити в логуванні?", en: "A DSN containing a password entered JSON logs. What should change in logging?",
-      o: ["Санітизувати чутливі значення, зберігши service/env/trace_id / Sanitize sensitive values while preserving service/env/trace_id", "Індексувати пароль для швидкого пошуку / Index the password for fast searching", "Прибрати env, але залишити пароль / Remove env but keep the password"], i: 0,
+      o: ["Санітизувати чутливі значення, зберігши service/env/trace_id / Sanitize sensitive values while preserving service/env/trace_id", "Індексувати пароль для швидкого пошуку / Index the password for fast searching", "Прибрати env, але залишити пароль / Remove env but keep the password"], oEn: ["Sanitize sensitive values while preserving service/env/trace_id", "Index the password for fast searching", "Remove env but keep the password"], i: 0,
       note: why("Структуровані логи не повинні розкривати секрети. Витік також потребує ротації за процедурою; зміна формату не скасовує вже розкритий пароль.", "Structured logs must not expose secrets. A leak also requires procedural rotation; changing the format does not revoke an exposed password."),
     },
   ]),
@@ -142,12 +142,12 @@ export const alertsRunbooks = unit("alerts-runbooks", "Алерти, на які
     {
       t: "read", uk: "Це одна повільна траса. Який висновок обґрунтований?", en: "This is one slow trace. Which conclusion is justified?", lang: "text",
       code: "trace ab71\nAPI GET /status       0-920ms\n  auth                5-15ms\n  cache lookup       16-20ms\n  database span      MISSING\nlog at 900ms: db_timeout, trace_id=ab71",
-      o: ["БД точно працювала 880 мс / The database certainly ran for 880ms", "Відсутній span доводить відсутність SQL / A missing span proves no SQL happened", "Є прогалина доказів; треба перевірити інструментацію та логи / There is an evidence gap; inspect instrumentation and logs"], i: 2,
+      o: ["БД точно працювала 880 мс / The database certainly ran for 880ms", "Відсутній span доводить відсутність SQL / A missing span proves no SQL happened", "Є прогалина доказів; треба перевірити інструментацію та логи / There is an evidence gap; inspect instrumentation and logs"], oEn: ["The database certainly ran for 880ms", "A missing span proves no SQL happened", "There is an evidence gap; inspect instrumentation and logs"], i: 2,
       note: why("Час між spans може включати пул, SQL, мережу або роботу API. Лог підсилює гіпотезу БД, але не вимірює відсутній span.", "Time between spans may include pool waits, SQL, networking, or API work. The log supports a database hypothesis but does not measure the missing span."),
     },
     {
       t: "match", uk: "Зіставте частини траси.", en: "Match trace components.",
-      pairs: [{ left: "trace_id", right: "Спільний ідентифікатор шляху запиту / Shared request-journey identifier" }, { left: "span_id", right: "Ідентифікатор однієї операції / Identifier of one operation" }, { left: "parent span", right: "Причинний зв'язок вкладеної операції / Causal link for a nested operation" }],
+      pairs: [{ left: "trace_id", right: "Спільний ідентифікатор шляху запиту / Shared request-journey identifier" }, { left: "span_id", right: "Ідентифікатор однієї операції / Identifier of one operation" }, { left: "parent span", right: "Причинний зв'язок вкладеної операції / Causal link for a nested operation" }], pairsEn: [{"left": "trace_id", "right": "Shared request-journey identifier"}, {"left": "span_id", "right": "Identifier of one operation"}, {"left": "parent span", "right": "Causal link for a nested operation"}],
       note: why("Зв'язки spans показують структуру, а не лише набір часових міток. Для переходу між процесами потрібне передавання контексту.", "Span relationships show structure rather than just timestamps. Crossing process boundaries requires context propagation."),
     },
     {
@@ -163,12 +163,12 @@ export const alertsRunbooks = unit("alerts-runbooks", "Алерти, на які
     {
       t: "read", uk: "Після виправлення отримано цю трасу. На який етап вказує найбільше очікування?", en: "After the fix, this trace is available. Which stage contains the largest wait?", lang: "text",
       code: "API GET /status: 900ms\n  pool.acquire: 700ms\n  db SELECT: 120ms\n  serialize: 10ms",
-      o: ["Очікування з'єднання пулу / Waiting to acquire a pool connection", "Серіалізація / Serialization", "Лише виконання SELECT / Only SELECT execution"], i: 0,
+      o: ["Очікування з'єднання пулу / Waiting to acquire a pool connection", "Серіалізація / Serialization", "Лише виконання SELECT / Only SELECT execution"], oEn: ["Waiting to acquire a pool connection", "Serialization", "Only SELECT execution"], i: 0,
       note: why("700 мс припадає на pool.acquire, а SQL — 120 мс. Потрібно дослідити бюджет з'єднань і зайняті транзакції, а не називати весь час повільним SQL.", "700ms is pool.acquire while SQL takes 120ms. Investigate connection budgets and occupied transactions instead of calling all elapsed time slow SQL."),
     },
     {
       t: "mcq", uk: "Одна sampled траса швидка, але p95 усіх запитів поганий. Що можна стверджувати?", en: "One sampled trace is fast while all-request p95 is poor. What can be claimed?",
-      o: ["Усі запити здорові / Every request is healthy", "Одна траса не спростовує агрегований симптом; потрібні повільні приклади / One trace does not refute the aggregate symptom; seek slow examples", "Гістограму треба видалити / Delete the histogram"], i: 1,
+      o: ["Усі запити здорові / Every request is healthy", "Одна траса не спростовує агрегований симптом; потрібні повільні приклади / One trace does not refute the aggregate symptom; seek slow examples", "Гістограму треба видалити / Delete the histogram"], oEn: ["Every request is healthy", "One trace does not refute the aggregate symptom; seek slow examples", "Delete the histogram"], i: 1,
       note: why("Sampling може не захопити проблемні запити. Метрики показують поширеність, а траси — приклади конкретних шляхів.", "Sampling may miss problematic requests. Metrics show prevalence while traces illustrate particular journeys."),
     },
   ]),
@@ -176,7 +176,7 @@ export const alertsRunbooks = unit("alerts-runbooks", "Алерти, на які
     {
       t: "read", uk: "Якої частини бракує цьому alert, щоб черговий міг діяти?", en: "What is missing from this alert for the responder to act?", lang: "yaml",
       code: "alert: ForgeHigh5xx\nlabels:\n  service: forge-status\n  env: prod\nannotations:\n  summary: '5xx above objective'\n  dashboard: 'https://monitor.invalid/forge'",
-      o: ["Ще одного випадкового графіка / Another arbitrary chart", "Пароля БД у summary / Database password in the summary", "Посилання на перевірений runbook з діями й ескалацією / A link to a tested runbook with actions and escalation"], i: 2,
+      o: ["Ще одного випадкового графіка / Another arbitrary chart", "Пароля БД у summary / Database password in the summary", "Посилання на перевірений runbook з діями й ескалацією / A link to a tested runbook with actions and escalation"], oEn: ["Another arbitrary chart", "Database password in the summary", "A link to a tested runbook with actions and escalation"], i: 2,
       note: why("Дашборд показує дані, але не обов'язково визначає безпечну дію. Runbook задає перевірки, межі, критерій успіху та контакти.", "A dashboard shows data but may not define safe action. A runbook provides checks, bounds, success criteria, and contacts."),
     },
     {
@@ -191,18 +191,18 @@ export const alertsRunbooks = unit("alerts-runbooks", "Алерти, на які
     },
     {
       t: "match", uk: "Зіставте розділи runbook з питаннями чергового.", en: "Match runbook sections to responder questions.",
-      pairs: [{ left: "preconditions", right: "Чи це правильне середовище та гілка збою? / Is this the right environment and failure branch?" }, { left: "verification", right: "Який SLI підтвердить поліпшення? / Which SLI confirms improvement?" }, { left: "escalation", right: "Кого залучити й за якої умови? / Who joins and under what condition?" }],
+      pairs: [{ left: "preconditions", right: "Чи це правильне середовище та гілка збою? / Is this the right environment and failure branch?" }, { left: "verification", right: "Який SLI підтвердить поліпшення? / Which SLI confirms improvement?" }, { left: "escalation", right: "Кого залучити й за якої умови? / Who joins and under what condition?" }], pairsEn: [{"left": "preconditions", "right": "Is this the right environment and failure branch?"}, {"left": "verification", "right": "Which SLI confirms improvement?"}, {"left": "escalation", "right": "Who joins and under what condition?"}],
       note: why("Корисний runbook обмежує невизначеність під тиском. Контакти й доступ до інструкції перевіряють під час тренувань.", "A useful runbook reduces uncertainty under pressure. Validate contacts and instruction access during drills."),
     },
     {
       t: "mcq", uk: "Alert регулярно будить людину, але після перевірки немає жодної термінової дії. Що робити?", en: "An alert repeatedly wakes someone, but investigation offers no urgent action. What should happen?",
-      o: ["Переглянути поріг, маршрут або перетворити на задачу з власником / Review threshold and routing or turn it into an owned ticket", "Додати ще десять повторів / Add ten more repeats", "Прибрати історію спрацювань / Delete firing history"], i: 0,
+      o: ["Переглянути поріг, маршрут або перетворити на задачу з власником / Review threshold and routing or turn it into an owned ticket", "Додати ще десять повторів / Add ten more repeats", "Прибрати історію спрацювань / Delete firing history"], oEn: ["Review threshold and routing or turn it into an owned ticket", "Add ten more repeats", "Delete firing history"], i: 0,
       note: why("Відсутність дії робить page шумом. Перегляд має зберегти видимість справжньої шкоди, а не просто назавжди приглушити симптоми.", "A page with no action is noise. Review should preserve visibility of real harm rather than permanently silencing symptoms."),
     },
     {
       t: "read", uk: "Який запис робить дію runbook перевірюваною?", en: "Which entry makes a runbook action verifiable?", lang: "text",
       code: "A: restart services until green\nB: if errors align with digest d2 and rollback is schema-compatible, revert desired digest to d1; stop if healthy capacity falls; verify 5xx and p95 for 10 min\nC: wait and hope",
-      o: ["A", "B", "C"], i: 1,
+      o: ["A", "B", "C"], oEn: ["A", "B", "C"], i: 1,
       note: why("B задає умову, обмежену дію, stop condition та вимір успіху. Сумісність rollback перевіряють до зміни.", "B defines a precondition, bounded action, stop condition, and success measurement. Check rollback compatibility before changing anything."),
     },
   ]),
@@ -210,7 +210,7 @@ export const alertsRunbooks = unit("alerts-runbooks", "Алерти, на які
     {
       t: "read", uk: "О 03:00 це правило викликало чергового. Усі користувацькі SLI здорові. Яка помилка в обчисленні?", en: "At 03:00 this rule paged the responder. All user SLIs are healthy. What is wrong with the calculation?", lang: "promql",
       code: "rate(forge_cpu_utilization_ratio{service=\"forge-status\"}[5m]) > 0.8\n# forge_cpu_utilization_ratio is a gauge in [0,1]",
-      o: ["rate gauge вимірює зміну, а не поточну зайнятість; потрібна відповідна gauge-агрегація / rate on this gauge measures change, not utilization; use an appropriate gauge aggregation", "rate перетворює кожен gauge на точний SLI / rate turns every gauge into a precise SLI", "CPU gauge доводить 5xx / A CPU gauge proves 5xx"], i: 0,
+      o: ["rate gauge вимірює зміну, а не поточну зайнятість; потрібна відповідна gauge-агрегація / rate on this gauge measures change, not utilization; use an appropriate gauge aggregation", "rate перетворює кожен gauge на точний SLI / rate turns every gauge into a precise SLI", "CPU gauge доводить 5xx / A CPU gauge proves 5xx"], oEn: ["rate on this gauge measures change, not utilization; use an appropriate gauge aggregation", "rate turns every gauge into a precise SLI", "A CPU gauge proves 5xx"], i: 0,
       note: why("rate призначена для counter. Для цього gauge читають значення або, наприклад, avg_over_time; терміновість page окремо перевіряють за шкодою та дією.", "rate is intended for counters. Read this gauge directly or use, for example, avg_over_time; assess paging urgency separately from harm and action."),
     },
     {
@@ -221,7 +221,7 @@ export const alertsRunbooks = unit("alerts-runbooks", "Алерти, на які
     {
       t: "read", uk: "У наступному вікні SLO — 99%, частки помилок 0.16 і 0.17. Що показує fast-burn перевірка?", en: "In the next window, the SLO is 99% and error ratios are 0.16 and 0.17. What does the fast-burn check show?", lang: "text",
       code: "1h burn: 0.16 / 0.01 = 16\n5m burn: 0.17 / 0.01 = 17\ncondition: both > 14.4",
-      o: ["Значення — це CPU gauge / These values are a CPU gauge", "Лише коротке вікно перевищило поріг / Only the short window crossed", "Обидва вікна перевищили поріг; є симптом витрачання бюджету / Both windows crossed; there is a budget-consumption symptom"], i: 2,
+      o: ["Значення — це CPU gauge / These values are a CPU gauge", "Лише коротке вікно перевищило поріг / Only the short window crossed", "Обидва вікна перевищили поріг; є симптом витрачання бюджету / Both windows crossed; there is a budget-consumption symptom"], oEn: ["These values are a CPU gauge", "Only the short window crossed", "Both windows crossed; there is a budget-consumption symptom"], i: 2,
       note: why("На відміну від попереднього CPU page, це узгоджений симптом невдалих запитів. Потрібні actionable runbook та перевірка масштабу.", "Unlike the earlier CPU page, this is a consistent failed-request symptom. It needs an actionable runbook and impact validation."),
     },
     {
@@ -236,17 +236,17 @@ export const alertsRunbooks = unit("alerts-runbooks", "Алерти, на які
     },
     {
       t: "match", uk: "Зіставте спостереження з правильним використанням.", en: "Match observations to their proper use.",
-      pairs: [{ left: "node runnable queue", right: "USE: saturation ресурсу / USE: resource saturation" }, { left: "API errors and duration", right: "RED: симптоми запитів / RED: request symptoms" }, { left: "trace_id in JSON", right: "Кореляція без індексного label на кожен запит / Correlation without a per-request indexed label" }],
+      pairs: [{ left: "node runnable queue", right: "USE: saturation ресурсу / USE: resource saturation" }, { left: "API errors and duration", right: "RED: симптоми запитів / RED: request symptoms" }, { left: "trace_id in JSON", right: "Кореляція без індексного label на кожен запит / Correlation without a per-request indexed label" }], pairsEn: [{"left": "node runnable queue", "right": "USE: resource saturation"}, {"left": "API errors and duration", "right": "RED: request symptoms"}, {"left": "trace_id in JSON", "right": "Correlation without a per-request indexed label"}],
       note: why("Кожен сигнал має власну роль. Golden signals поєднують загальну картину, USE/RED деталізують її, trace_id зв'язує докази.", "Each signal has a role. Golden signals provide the overview, USE/RED add detail, and trace_id links evidence."),
     },
     {
       t: "out", uk: "Який burn rate буде за цих значень SLO й частки помилок?", en: "What burn rate results from this SLO and error ratio?", lang: "python",
-      code: "slo = 0.99\nerror_ratio = 0.03\nprint(round(error_ratio / (1 - slo)))", o: ["3", "30", "99"], i: 0,
+      code: "slo = 0.99\nerror_ratio = 0.03\nprint(round(error_ratio / (1 - slo)))", o: ["3", "30", "99"], oEn: ["3", "30", "99"], i: 0,
       note: why("3% помилок проти допустимого 1% означає burn 3. Невисокий проти fast-порога темп може бути суттєвим на slow-вікні.", "3% errors against a 1% allowance gives burn 3. A rate below the fast threshold can still matter over a slow window."),
     },
     {
       t: "mcq", uk: "Runbook для CPU має лише фразу «подивитися дашборд», без дії. Який наступний крок власника правила?", en: "The CPU runbook only says 'look at the dashboard' and defines no action. What should the rule owner do next?",
-      o: ["Додати повтор кожні 10 секунд / Repeat every 10 seconds", "Визначити термінову дію або змінити page на доречний маршрут із власником / Define urgent action or move the page to an appropriate owned route", "Приховати всі 5xx / Hide all 5xx"], i: 1,
+      o: ["Додати повтор кожні 10 секунд / Repeat every 10 seconds", "Визначити термінову дію або змінити page на доречний маршрут із власником / Define urgent action or move the page to an appropriate owned route", "Приховати всі 5xx / Hide all 5xx"], oEn: ["Repeat every 10 seconds", "Define urgent action or move the page to an appropriate owned route", "Hide all 5xx"], i: 1,
       note: why("Діагностичний сигнал може лишитися на графіку чи в задачі. Page потребує дії, меж, перевірки та ескалації, доступних черговому.", "A diagnostic signal may remain on a chart or ticket. A page needs action, bounds, validation, and escalation available to the responder."),
     },
   ]),

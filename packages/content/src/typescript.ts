@@ -1,5 +1,5 @@
 import type { CourseContent, Exercise, LessonContent, UnitContent } from "./types.js";
-import { codeFill, codeJudge, codeRead, codeOrder, codeOrderAuto, codeProject, concept, mcq, why } from "./builders.js";
+import { codeFill, codeJudge, codeRead, codeOrder, codeProject, concept, mcq, why } from "./builders.js";
 import { tsAdvancedTypesUnit } from "./deep-units.js";
 
 function lesson(
@@ -57,8 +57,8 @@ const basics = unit("basics", "Основи TS", "TS basics", [
     true,
     [
       concept("tsc-basics-concept", "TypeScript і JavaScript", "TypeScript and JavaScript", {
-        uk: "TypeScript додає до JavaScript статичну перевірку та синтаксис типів. Компілятор перевіряє сумісність типів і зазвичай перетворює вихідний код на JavaScript; анотації типів не перевіряють дані під час виконання. Зовнішні дані, наприклад відповідь API, потрібно перевіряти окремо в runtime.",
-        en: "TypeScript adds static checking and type syntax to JavaScript. The compiler checks type compatibility and usually emits JavaScript; type annotations do not validate data at runtime. External data, such as an API response, needs separate runtime validation.",
+        uk: "TypeScript додає до JavaScript статичну перевірку та синтаксис типів. Компілятор перевіряє сумісність типів і зазвичай перетворює вихідний код на JavaScript; анотації типів не перевіряють дані під час виконання. Наприклад, запис `const user = payload as User` не перевіряє відповідь API: спочатку сприймайте її як unknown, перевірте форму та лише тоді використовуйте значення. Статична перевірка доповнює тести, а не гарантує відсутності помилок у runtime.",
+        en: "TypeScript adds static checking and type syntax to JavaScript. The compiler checks type compatibility and usually emits JavaScript; type annotations do not validate data at runtime. For example, `const user = payload as User` does not validate an API response: treat it as unknown, check its shape, and only then use the value. Static checking complements tests; it does not guarantee the absence of runtime errors.",
       }),
       {
         id: "tsc-b1",
@@ -149,8 +149,8 @@ const basics = unit("basics", "Основи TS", "TS basics", [
     false,
     [
       concept("tsc-inference-concept", "Виведення й анотації", "Inference and annotations", {
-        uk: "Компілятор часто виводить тип із початкового значення або контексту: let count = 1 має тип number. Анотація, наприклад count: number, явно задає очікуваний тип і допомагає перевіряти присвоєння. Діагностика типів і створення JavaScript — різні результати: налаштування noEmitOnError визначає, чи припиняти генерацію за наявності помилок.",
-        en: "The compiler often infers a type from an initializer or context: let count = 1 has type number. An annotation such as count: number states the expected type and helps check assignments. Type diagnostics and JavaScript emission are separate outcomes: noEmitOnError controls whether errors prevent emission.",
+        uk: "Компілятор часто виводить тип із початкового значення або контексту: let count = 1 має тип number, а const status = 'ready' зазвичай зберігає літеральний тип 'ready'. Анотація, наприклад count: number, явно задає очікуваний тип і допомагає перевіряти присвоєння. Діагностика типів і створення JavaScript — різні результати: налаштування noEmitOnError визначає, чи припиняти генерацію за наявності помилок.",
+        en: "The compiler often infers a type from an initializer or context: let count = 1 has type number, while const status = 'ready' normally retains the literal type 'ready'. An annotation such as count: number states the expected type and helps check assignments. Type diagnostics and JavaScript emission are separate outcomes: noEmitOnError controls whether errors prevent emission.",
       }),
       {
         id: "tsc-b7",
@@ -180,7 +180,7 @@ const basics = unit("basics", "Основи TS", "TS basics", [
       {
         id: "tsc-b9",
         type: "code_fill",
-        promptUk: "Boolean flag",
+        promptUk: "Тип логічного прапорця",
         promptEn: "Boolean flag",
         language: "ts",
         code: "let ready: ___ = false;",
@@ -251,8 +251,8 @@ const objects = unit("objects", "Об'єкти й масиви", "Objects & arra
     false,
     [
       concept("tsc-objects-concept", "Форма об'єкта", "Object shapes", {
-        uk: "Тип об'єкта описує очікувані властивості та їхні типи: { id: number; name?: string }. Властивість із ? можна пропустити, тому за strictNullChecks при читанні її значення може бути undefined. TypeScript перевіряє сумісність форм статично; сам тип не створює об'єкт і не перевіряє дані під час виконання.",
-        en: "An object type describes expected properties and their types: { id: number; name?: string }. A property marked ? may be omitted, so with strictNullChecks reading it can yield undefined. TypeScript checks shape compatibility statically; the type itself neither creates an object nor validates runtime data.",
+        uk: "Тип об'єкта описує очікувані властивості та їхні типи: { id: number; name?: string }. Властивість із ? можна пропустити, тому за strictNullChecks при читанні її значення може бути undefined. Перед використанням, наприклад name.toUpperCase(), перевірте name на undefined або задайте запасне значення. exactOptionalPropertyTypes додатково впливає на присвоєння явного undefined, але не прибирає можливість відсутності при читанні. Тип не створює об'єкт і не перевіряє runtime-дані.",
+        en: "An object type describes expected properties and their types: { id: number; name?: string }. A property marked ? may be omitted, so with strictNullChecks reading it can yield undefined. Before using name.toUpperCase(), for example, check for undefined or supply a fallback. exactOptionalPropertyTypes additionally affects assigning explicit undefined, but does not remove possible absence when reading. The type neither creates an object nor validates runtime data.",
       }),
       {
         id: "tsc-o1",
@@ -283,8 +283,8 @@ const objects = unit("objects", "Об'єкти й масиви", "Objects & arra
     false,
     [
       concept("tsc-tuples-concept", "Масиви та кортежі", "Arrays and tuples", {
-        uk: "number[] описує масив чисел довільної довжини. Кортеж [string, number] описує дві позиції в заданому порядку; інші кортежі можуть мати необов'язкові або rest-елементи. Ці типи перевіряються компілятором і не створюють окремого типу масиву під час виконання; readonly допомагає заборонити мутації через відповідне посилання.",
-        en: "number[] describes a number array of arbitrary length. The tuple [string, number] describes two positions in order; other tuples can have optional or rest elements. These types are checked by the compiler and do not create a separate runtime array type; readonly helps prevent mutation through that reference.",
+        uk: "number[] описує масив чисел довільної довжини. Кортеж [string, number] описує дві позиції в заданому порядку; інші кортежі можуть мати необов'язкові або rest-елементи. Під час виконання це звичайний масив: змінюваний кортеж може змінитися через методи масиву. readonly забороняє мутації через відповідне типізоване посилання, але не заморожує значення під час виконання.",
+        en: "number[] describes a number array of arbitrary length. The tuple [string, number] describes two positions in order; other tuples can have optional or rest elements. At runtime it is an ordinary array: a mutable tuple can change through array methods. readonly prevents mutation through the corresponding typed reference, but does not freeze the value at runtime.",
       }),
       {
         id: "tsc-o3",
@@ -443,8 +443,8 @@ const interfaces = unit("interfaces", "Interface & type", "Interface & type", [
     false,
     [
       concept("tsc-extends-concept", "Розширення та перетин", "Extension and intersection", {
-        uk: "interface Admin extends User додає вимоги до форми User; успадковані властивості мають бути сумісними. Тип A & B вимагає виконання обох контрактів одночасно. Якщо одна й та сама властивість у складових несумісна, її перетин може стати never, а не вибрати один із типів.",
-        en: "interface Admin extends User adds requirements to User's shape; inherited properties must remain compatible. The type A & B requires both contracts at once. If a property has incompatible types in the components, its intersection may become never rather than choosing either type.",
+        uk: "interface Admin extends User додає вимоги до форми User; успадковані властивості мають бути сумісними. Тип A & B вимагає виконання обох контрактів одночасно. Наприклад, перетин { id: string } & { id: number } не вибирає один тип id: властивість має задовольнити обидва і стає never. Перевіряйте конфлікти в моделях замість припущення, що останнє оголошення перезаписує попереднє.",
+        en: "interface Admin extends User adds requirements to User's shape; inherited properties must remain compatible. The type A & B requires both contracts at once. For example, { id: string } & { id: number } does not choose one id type: the property must satisfy both and becomes never. Check model conflicts rather than assuming the last declaration overwrites the earlier one.",
       }),
       {
         id: "tsc-i3",
@@ -471,7 +471,8 @@ const interfaces = unit("interfaces", "Interface & type", "Interface & type", [
         type: "mcq",
         promptUk: "Declaration merging більше характерне для:",
         promptEn: "Declaration merging is more typical of:",
-        options: ["interface", "type alias", "const", "enum only"],
+        options: ["interface", "type alias", "const", "лише enum"],
+        optionsEn: ["interface", "type alias", "const", "Only enum"],
         correctIndex: 0,
       },
     ],
@@ -499,7 +500,7 @@ const interfaces = unit("interfaces", "Interface & type", "Interface & type", [
     {
       id: "tsc-ie3",
       type: "code_fill",
-      promptUk: "Intersection of types",
+      promptUk: "Перетин типів",
       promptEn: "Intersection of types",
       language: "ts",
       code: "type C = A ___ B;",
@@ -527,13 +528,13 @@ const functions = unit("functions", "Функції", "Functions", [
     false,
     [
       concept("tsc-functions-concept", "Контракт функції", "Function contracts", {
-        uk: "Типи параметрів описують допустимі аргументи, а тип після дужок — повернене значення. Наприклад, (a: number, b: number) => number описує функцію, що приймає два числа. void зазвичай означає, що результат виклику не слід використовувати; never описує функцію, яка не завершується нормально, наприклад завжди кидає помилку.",
-        en: "Parameter types describe accepted arguments, and the type after the parentheses describes the return value. For example, (a: number, b: number) => number describes a function taking two numbers. void usually means callers should not use the result; never describes a function that cannot complete normally, for example one that always throws.",
+        uk: "Типи параметрів описують допустимі аргументи, а тип після дужок — повернене значення. Наприклад, (a: number, b: number) => number описує функцію, що приймає два числа. void означає, що результат через цей тип виклику не призначений для використання: функція, призначена callback-типу з void, усе ще може повертати значення, яке ігнорується. never описує функцію, яка не завершується нормально, наприклад завжди кидає помилку.",
+        en: "Parameter types describe accepted arguments, and the type after the parentheses describes the return value. For example, (a: number, b: number) => number describes a function taking two numbers. void means the result is not intended for use through that call type: a function assigned to a void callback can still return a value that is ignored. never describes a function that cannot complete normally, for example one that always throws.",
       }),
       {
         id: "tsc-f1",
         type: "code_fill",
-        promptUk: "Return type",
+        promptUk: "Тип поверненого значення",
         promptEn: "Return type",
         language: "ts",
         code: "function add(a: number, b: number): ___ { return a + b; }",
@@ -559,13 +560,13 @@ const functions = unit("functions", "Функції", "Functions", [
     false,
     [
       concept("tsc-optional-params-concept", "Необов'язковий аргумент і значення за замовчуванням", "Optional arguments and defaults", {
-        uk: "Параметр name?: string можна пропустити; за strictNullChecks усередині функції він має тип string | undefined. Параметр n = 1 також можна не передавати: при пропуску або явному undefined підставляється 1, а всередині функції n має тип number. Значення null не запускає значення за замовчуванням.",
-        en: "A name?: string parameter may be omitted; with strictNullChecks its type inside the function is string | undefined. A parameter n = 1 may also be omitted: 1 is used for an omitted or explicitly undefined argument, and n is number inside the function. null does not trigger the default.",
+        uk: "Параметр name?: string можна пропустити; за strictNullChecks усередині функції він має тип string | undefined. Параметр n = 1 також можна не передавати: при пропуску або явному undefined підставляється 1, а всередині функції n має тип number. Значення null не запускає значення за замовчуванням; у такому виклику strictNullChecks також забороняє передати null до параметра типу number, якщо тип явно не дозволяє null.",
+        en: "A name?: string parameter may be omitted; with strictNullChecks its type inside the function is string | undefined. A parameter n = 1 may also be omitted: 1 is used for an omitted or explicitly undefined argument, and n is number inside the function. null does not trigger the default; strictNullChecks also rejects null for a number parameter unless its type explicitly allows null.",
       }),
       {
         id: "tsc-f3",
         type: "code_fill",
-        promptUk: "Optional param",
+        promptUk: "Необов'язковий параметр",
         promptEn: "Optional param",
         language: "ts",
         code: "function greet(name___: string) {}",
@@ -589,7 +590,7 @@ const functions = unit("functions", "Функції", "Functions", [
     {
       id: "tsc-fe1",
       type: "code_fill",
-      promptUk: "Return string",
+      promptUk: "Поверніть значення типу string",
       promptEn: "Return string",
       language: "ts",
       code: "function id(s: string): ___ { return s; }",
@@ -613,7 +614,7 @@ const functions = unit("functions", "Функції", "Functions", [
     {
       id: "tsc-fe3",
       type: "code_fill",
-      promptUk: "Optional arg",
+      promptUk: "Необов'язковий аргумент",
       promptEn: "Optional arg",
       language: "ts",
       code: "function log(msg___: string) {}",
@@ -625,7 +626,8 @@ const functions = unit("functions", "Функції", "Functions", [
       type: "mcq",
       promptUk: "Тип функції (call signature) можна описати через:",
       promptEn: "Function type can be written as:",
-      options: ["(a: number) => number", "only class", "only enum", "CSS"],
+      options: ["(a: number) => number", "лише class", "лише enum", "CSS"],
+      optionsEn: ["(a: number) => number", "Only class", "Only enum", "CSS"],
       correctIndex: 0,
     },
   ]),
@@ -641,8 +643,8 @@ const generics = unit("generics", "Generics", "Generics", [
     false,
     [
       concept("tsc-generic-function-concept", "Зв'язок типів", "Relating types", {
-        uk: "У function id<T>(x: T): T параметр типу T пов'язує тип аргументу з типом результату; компілятор часто виводить T із виклику. На відміну від any, цей зв'язок зберігає інформацію для наступних перевірок. Для порожнього масиву функція first повертає undefined, тому її результат описують як T | undefined.",
-        en: "In function id<T>(x: T): T the type parameter T relates the argument type to the result; the compiler often infers T from the call. Unlike any, this relationship preserves information for later checks. For an empty array first returns undefined, so its result is described as T | undefined.",
+        uk: "У function id<T>(x: T): T параметр типу T пов'язує тип аргументу з типом результату; компілятор часто виводить T із виклику. На відміну від any, цей зв'язок зберігає інформацію для наступних перевірок. Наприклад, first<T>(items: T[]): T | undefined повертає undefined для порожнього масиву; перед використанням результату перевірте його, а не стверджуйте без доказу, що значення існує.",
+        en: "In function id<T>(x: T): T the type parameter T relates the argument type to the result; the compiler often infers T from the call. Unlike any, this relationship preserves information for later checks. For example, first<T>(items: T[]): T | undefined returns undefined for an empty array; check the result before using it instead of asserting without evidence that a value exists.",
       }),
       {
         id: "tsc-g1",
@@ -658,7 +660,7 @@ const generics = unit("generics", "Generics", "Generics", [
       {
         id: "tsc-g2",
         type: "code_fill",
-        promptUk: "Generic param name",
+        promptUk: "Назва параметра типу",
         promptEn: "Generic param name",
         language: "ts",
         code: "function first<___>(arr: T[]): T | undefined { return arr[0]; }",
@@ -675,8 +677,8 @@ const generics = unit("generics", "Generics", "Generics", [
     false,
     [
       concept("tsc-generic-constraint-concept", "Обмеження параметра типу", "Constraining a type parameter", {
-        uk: "T extends { length: number } дозволяє передавати значення з числовою властивістю length і дозволяє функції читати цю властивість. Обмеження перевіряється статично та не створює runtime-перевірку. T зберігає конкретніший тип аргументу, а не обов'язково стає лише типом обмеження.",
-        en: "T extends { length: number } accepts values with a numeric length property and allows the function to read that property. The constraint is checked statically and does not create runtime validation. T retains the argument's more specific type rather than necessarily becoming just the constraint.",
+        uk: "T extends { length: number } дозволяє передавати значення з числовою властивістю length і дозволяє функції читати цю властивість. Наприклад, рядок і масив задовольняють обмеження, але число — ні. Обмеження перевіряється статично та не створює runtime-перевірку. T зберігає конкретніший тип аргументу, а не обов'язково стає лише типом обмеження.",
+        en: "T extends { length: number } accepts values with a numeric length property and allows the function to read that property. For example, strings and arrays satisfy the constraint, but numbers do not. The constraint is checked statically and does not create runtime validation. T retains the argument's more specific type rather than necessarily becoming just the constraint.",
       }),
       {
         id: "tsc-g3",
@@ -712,7 +714,7 @@ const generics = unit("generics", "Generics", "Generics", [
     {
       id: "tsc-ge2",
       type: "code_fill",
-      promptUk: "Constraint keyword",
+      promptUk: "Ключове слово обмеження",
       promptEn: "Constraint keyword",
       language: "ts",
       code: "function f<T ___ object>(x: T) { return x; }",
@@ -751,13 +753,13 @@ const narrowing = unit("narrowing", "Narrowing", "Narrowing", [
     false,
     [
       concept("tsc-union-concept", "Союзи та перевірки", "Unions and checks", {
-        uk: "Тип string | number дозволяє значення одного з цих типів. До перевірки доступні лише операції, безпечні для всіх варіантів; typeof x === 'string' звужує x до string у відповідній гілці. Сам тип не перетворює значення і не перевіряє зовнішні дані під час виконання.",
-        en: "The type string | number allows a value of either type. Before a check, only operations safe for every member are available; typeof x === 'string' narrows x to string in that branch. The type itself neither converts a value nor validates external data at runtime.",
+        uk: "Тип string | number дозволяє значення одного з цих типів. До перевірки доступні лише операції, безпечні для всіх варіантів; typeof x === 'string' звужує x до string у відповідній гілці, а після виходу з гілки тип залежить від потоку керування. Наприклад, якщо гілка string завершується return, нижче x буде number. Сам тип не перетворює значення і не перевіряє зовнішні дані під час виконання.",
+        en: "The type string | number allows a value of either type. Before a check, only operations safe for every member are available; typeof x === 'string' narrows x to string in that branch, and the type afterwards depends on control flow. For example, if the string branch returns, x is number below it. The type itself neither converts a value nor validates external data at runtime.",
       }),
       {
         id: "tsc-n1",
         type: "code_fill",
-        promptUk: "Union",
+        promptUk: "Оператор об'єднання типів",
         promptEn: "Union",
         language: "ts",
         code: "type Id = string ___ number;",
@@ -783,13 +785,13 @@ const narrowing = unit("narrowing", "Narrowing", "Narrowing", [
     false,
     [
       concept("tsc-guards-concept", "Перевірки та дискримінанти", "Guards and discriminants", {
-        uk: "Перевірки typeof, in та рівності допомагають компілятору звузити тип у відповідній гілці. Поле kind з різними літеральними значеннями може розрізняти варіанти union; після перевірки kind доступні поля відповідного варіанту. Оператор in перевіряє також успадковані властивості, тому не замінює повну перевірку недовірених даних.",
-        en: "Checks such as typeof, in, and equality help the compiler narrow a type in the corresponding branch. A kind field with different literal values can distinguish union variants; after checking kind, the matching variant's fields are available. The in operator also checks inherited properties, so it is not a complete validation of untrusted data.",
+        uk: "Перевірки typeof, in та рівності допомагають компілятору звузити тип у відповідній гілці. Поле kind з різними літеральними значеннями може розрізняти варіанти union; після перевірки kind доступні поля відповідного варіанту. Для невідомих даних пам'ятайте, що typeof null === 'object': перед використанням in перевірте, що значення не null і є об'єктом. in також знаходить успадковані властивості й не замінює перевірку їхніх значень.",
+        en: "Checks such as typeof, in, and equality help the compiler narrow a type in the corresponding branch. A kind field with different literal values can distinguish union variants; after checking kind, the matching variant's fields are available. For unknown data remember that typeof null === 'object': before using in, check that the value is non-null and an object. in also finds inherited properties and does not replace validation of their values.",
       }),
       {
         id: "tsc-n3",
         type: "mcq",
-        promptUk: "in operator guard:",
+        promptUk: "Перевірка оператором in:",
         promptEn: "in operator guard:",
         options: [
           "перевіряє наявність властивості для narrowing",
@@ -803,7 +805,7 @@ const narrowing = unit("narrowing", "Narrowing", "Narrowing", [
       {
         id: "tsc-n4",
         type: "code_read",
-        promptUk: "Discriminated union?",
+        promptUk: "Чи є це прикладом discriminated union?",
         promptEn: "Discriminated union?",
         language: "ts",
         code: "type S = { kind: 'a'; n: number } | { kind: 'b'; s: string };",
@@ -831,7 +833,7 @@ const narrowing = unit("narrowing", "Narrowing", "Narrowing", [
     {
       id: "tsc-ne1",
       type: "code_fill",
-      promptUk: "Union operator",
+      promptUk: "Оператор об'єднання типів",
       promptEn: "Union operator",
       language: "ts",
       code: "type U = A ___ B;",
@@ -863,8 +865,8 @@ const narrowing = unit("narrowing", "Narrowing", "Narrowing", [
     {
       id: "tsc-ne4",
       type: "code_read",
-      promptUk: "Після typeof",
-      promptEn: "After typeof",
+      promptUk: "Чи проходить функція перевірку типів після звуження typeof?",
+      promptEn: "Does the function typecheck after narrowing with typeof?",
       language: "ts",
       code: "function f(x: string | number) {\n  if (typeof x === 'string') return x.toUpperCase();\n  return x + 1;\n}",
       options: ["Завжди помилка", "Коректний код", "Потрібен any", "Лише JS"],
@@ -894,7 +896,7 @@ const utilities = unit("utilities", "Utility types", "Utility types", [
         promptEn: "Partial<T> makes:",
         options: [
           "усі поля required",
-          "усі поля optional",
+          "усі властивості верхнього рівня optional",
           "T = never",
           "видаляє T",
         ],
@@ -921,8 +923,8 @@ const utilities = unit("utilities", "Utility types", "Utility types", [
     false,
     [
       concept("tsc-omit-record-concept", "Виключення полів і словники", "Omitting fields and dictionaries", {
-        uk: "Omit<User, 'password'> описує тип без поля password, але не видаляє це поле з наявного об'єкта: перед відправленням даних його потрібно прибрати кодом. Record<'open' | 'done', number> описує об'єкт з обома заданими ключами та числовими значеннями; Record<string, number> описує рядковий індекс і сам не створює значень.",
-        en: "Omit<User, 'password'> describes a type without password, but does not remove that field from an existing object: remove it in code before sending data. Record<'open' | 'done', number> describes an object with both specified keys and numeric values; Record<string, number> describes a string index and does not create values.",
+        uk: "Omit<User, 'password'> описує тип без поля password, але не видаляє це поле з наявного об'єкта: перед відправленням даних його потрібно прибрати кодом. Record<'open' | 'done', number> описує об'єкт з обома заданими ключами та числовими значеннями; Record<string, number> описує рядковий індекс і сам не створює значень. Довільний ключ може бути відсутнім під час виконання: noUncheckedIndexedAccess додає undefined до типу такого індексованого читання.",
+        en: "Omit<User, 'password'> describes a type without password, but does not remove that field from an existing object: remove it in code before sending data. Record<'open' | 'done', number> describes an object with both specified keys and numeric values; Record<string, number> describes a string index and does not create values. An arbitrary key may be absent at runtime: noUncheckedIndexedAccess adds undefined to the type of such indexed reads.",
       }),
       {
         id: "tsc-u3",
@@ -965,7 +967,7 @@ const utilities = unit("utilities", "Utility types", "Utility types", [
       {
         id: "tsc-u5",
         type: "code_fill",
-        promptUk: "Pick name only",
+        promptUk: "Виберіть лише поле name",
         promptEn: "Pick name only",
         language: "ts",
         code: "type NameOnly = ___<User, 'name'>;",
@@ -975,7 +977,7 @@ const utilities = unit("utilities", "Utility types", "Utility types", [
       {
         id: "tsc-u6",
         type: "code_fill",
-        promptUk: "Make all required",
+        promptUk: "Зробіть властивості обов'язковими",
         promptEn: "Make all required",
         language: "ts",
         code: "type Full = ___<PartialUser>;",
@@ -987,8 +989,8 @@ const utilities = unit("utilities", "Utility types", "Utility types", [
         type: "mcq",
         promptUk: "Pick vs Omit:",
         promptEn: "Pick vs Omit:",
-        options: ["Pick залишає вказані ключі; Omit виключає їх", "Вони однакові", "Лише для масивів", "Лише для CSS"],
-        optionsEn: ["Pick keeps listed keys; Omit removes them", "They are identical", "Only for arrays", "Only for CSS"],
+        options: ["Pick залишає вказані ключі в типі; Omit виключає їх із типу", "Вони однакові", "Лише для масивів", "Лише для CSS"],
+        optionsEn: ["Pick keeps listed keys in the type; Omit excludes them from the type", "They are identical", "Only for arrays", "Only for CSS"],
         correctIndex: 0,
       },
       {
@@ -1054,13 +1056,13 @@ const modules = unit("modules", "Modules & tsconfig", "Modules & tsconfig", [
     false,
     [
       concept("tsc-modules-concept", "Значення й типи в модулях", "Values and types in modules", {
-        uk: "export відкриває оголошення для інших модулів, а import підключає його. import type позначає імпорт лише для перевірки типів і видаляється з JavaScript-виводу: через нього не можна використовувати значення як runtime-конструктор. Для коду, який має виконатися під час імпорту, потрібен звичайний імпорт відповідно до конфігурації проєкту.",
-        en: "export exposes a declaration to other modules, and import brings it in. import type marks an import for type checking only and is erased from JavaScript output: it cannot be used as a runtime constructor. Code that must run when imported needs a normal import appropriate to the project configuration.",
+        uk: "export відкриває оголошення для інших модулів, а import підключає його. import type позначає імпорт лише для перевірки типів і видаляється з JavaScript-виводу: через нього не можна використовувати значення як runtime-конструктор. Якщо модуль має виконати побічний ефект, явно імпортуйте його, наприклад import './setup'; і перевірте конфігурацію збирача. Імпорт типу сам по собі не виконує модуль.",
+        en: "export exposes a declaration to other modules, and import brings it in. import type marks an import for type checking only and is erased from JavaScript output: it cannot be used as a runtime constructor. If a module must run for a side effect, import it explicitly, for example import './setup'; and check the bundler configuration. A type-only import does not itself execute the module.",
       }),
       {
         id: "tsc-m1",
         type: "code_fill",
-        promptUk: "Named export",
+        promptUk: "Іменований експорт",
         promptEn: "Named export",
         language: "ts",
         code: "___ function add(a: number, b: number) { return a + b; }",
@@ -1091,8 +1093,8 @@ const modules = unit("modules", "Modules & tsconfig", "Modules & tsconfig", [
     false,
     [
       concept("tsc-config-concept", "Налаштування компілятора", "Compiler configuration", {
-        uk: "tsconfig.json задає налаштування проєкту. strict вмикає сімейство суворих перевірок, зокрема strictNullChecks; окремі прапорці можна налаштувати явно. target впливає на версію синтаксису JavaScript у виводі та стандартні бібліотечні типи за замовчуванням, але не додає автоматично всі відсутні API середовища.",
-        en: "tsconfig.json configures a project. strict enables a family of stricter checks, including strictNullChecks; individual flags can be configured explicitly. target affects the JavaScript syntax version in the output and default standard library types, but does not automatically polyfill all missing runtime APIs.",
+        uk: "tsconfig.json задає налаштування проєкту. strict вмикає сімейство суворих перевірок, зокрема strictNullChecks; окремі прапорці можна налаштувати явно. target впливає на синтаксис JavaScript у виводі та стандартні бібліотечні типи, але не додає автоматично всі відсутні API. Запуск tsc без файлів шукає конфігурацію; якщо передати файли напряму, tsconfig ігнорується. Для конкретного проєкту використовуйте tsc -p шлях/до/tsconfig.json. Спрощено роботу компілятора можна описати як розбір синтаксису, зв'язування символів, перевірку типів і генерацію, якщо вона ввімкнена; реальна реалізація складніша.",
+        en: "tsconfig.json configures a project. strict enables a family of stricter checks, including strictNullChecks; individual flags can be configured explicitly. target affects output JavaScript syntax and default library types, but does not automatically polyfill all missing APIs. Running tsc without files searches for a configuration; when files are passed directly, tsconfig is ignored. Use tsc -p path/to/tsconfig.json for a specific project. A simplified compiler model is parsing, binding symbols, type checking, and emission when enabled; the actual implementation is more complex.",
       }),
       {
         id: "tsc-m3",
@@ -1129,7 +1131,7 @@ const modules = unit("modules", "Modules & tsconfig", "Modules & tsconfig", [
     {
       id: "tsc-me1",
       type: "code_fill",
-      promptUk: "export keyword",
+      promptUk: "Ключове слово експорту",
       promptEn: "export keyword",
       language: "ts",
       code: "___ const PI = 3.14;",
@@ -1210,7 +1212,7 @@ const appliedErrorDiagnosis = unit(
           ["const"],
           true,
         ),
-        mcq(
+        { ...mcq(
           "ts-app-3",
           "Що таке Excess Property Check в об'єктних літералах TypeScript?",
           "What is an Excess Property Check in TypeScript object literals?",
@@ -1221,7 +1223,7 @@ const appliedErrorDiagnosis = unit(
             "Перевірка довжини імені властивості",
           ],
           0,
-        ),
+        ), optionsEn: ["A check for unexpected properties when a fresh object literal is assigned to a target type", "A check of object execution speed", "Automatic removal of keys during compilation", "A check of property-name length"] },
       ],
     ),
     lesson(
@@ -1314,13 +1316,13 @@ const appliedErrorDiagnosis = unit(
           "Build type-safe discriminated union for API results",
           "ts",
           [
-            "type ApiResponse<T> =",
-            "  | { status: 'success'; data: T }",
-            "  | { status: 'error'; message: string };",
-            "function handleResult<T>(res: ApiResponse<T>) {",
-            "  if (res.status === 'success') return res.data;",
             "  throw new Error(res.message);",
             "}",
+            "  | { status: 'error'; message: string };",
+            "  if (res.status === 'success') return res.data;",
+            "type ApiResponse<T> =",
+            "function handleResult<T>(res: ApiResponse<T>) {",
+            "  | { status: 'success'; data: T }",
           ],
           [
             "type ApiResponse<T> =",
@@ -1379,24 +1381,24 @@ const appliedErrorDiagnosis = unit(
           ["Record"],
           true,
         ),
-        codeOrder(
+        { ...codeOrder(
           "ts-app-13",
           "Спрощений порядок етапів tsc, коли перевірка та генерація увімкнені",
           "Simplified order of tsc stages when checking and emission are enabled",
           "text",
           [
-            "1. Парсинг вихідного коду в AST (Scanner + Parser)",
-            "2. Зв'язування символів та скоупів (Binder)",
-            "3. Перевірка типів та сумісності (Type Checker)",
-            "4. Генерація вихідних файлів за конфігурацією (Emitter)",
+            "Check types and compatibility",
+            "Parse source code into an AST",
+            "Emit output files according to configuration",
+            "Bind symbols and scopes",
           ],
           [
-            "1. Парсинг вихідного коду в AST (Scanner + Parser)",
-            "2. Зв'язування символів та скоупів (Binder)",
-            "3. Перевірка типів та сумісності (Type Checker)",
-            "4. Генерація вихідних файлів за конфігурацією (Emitter)",
+            "Parse source code into an AST",
+            "Bind symbols and scopes",
+            "Check types and compatibility",
+            "Emit output files according to configuration",
           ],
-        ),
+        ), linesUk: ["Перевірити типи та їхню сумісність", "Розібрати вихідний код в AST", "Згенерувати файли відповідно до конфігурації", "Зв'язати символи та області видимості"] },
       ],
     ),
   ],
@@ -1503,22 +1505,28 @@ const strictContractsUnions = unit(
           true,
           why("Якщо з'явиться новий варіант `status`, `tsc` підсвітить необроблений випадок.", "Adding a new union member causes `tsc` to flag the unhandled `never` assignment."),
         ),
-        codeOrderAuto(
+        { ...codeOrder(
           "tsc-sc6",
           "Порядок безпечної обробки відповіді API у клієнті",
           "Order of safely typing and handling an API response",
           "text",
           [
-            "1. Отримати payload із `await res.json()` у змінну типу `unknown`",
-            "2. Пропустити `unknown` через type guard / Zod-валідатор",
-            "3. Повернути типізований `Result<T, ApiError>` або `RequestState<T>`",
-            "4. Рендерити UI через вичерпний `switch (state.status)`",
+            "Validate unknown using a guard or schema",
+            "Render the UI with an exhaustive status switch",
+            "Receive the JSON payload as unknown",
+            "Return a typed Result or RequestState",
+          ],
+          [
+            "Receive the JSON payload as unknown",
+            "Validate unknown using a guard or schema",
+            "Return a typed Result or RequestState",
+            "Render the UI with an exhaustive status switch",
           ],
           why(
             "Перевіряйте всі потрібні поля на межі unknown і не обходьте валідатор: лише коректна перевірка забезпечує контракт.",
             "Check all required fields at the unknown boundary and do not bypass validation: the contract depends on a correct validator.",
           ),
-        ),
+        ), linesUk: ["Перевірити unknown за допомогою guard або схеми", "Відобразити UI через вичерпний switch за статусом", "Отримати JSON у змінну типу unknown", "Повернути типізований Result або RequestState"] },
       ],
     ),
     exam("tsc-sc-exam", "Контрольна: строгі контракти TypeScript", "Exam: strict TS contracts", 3, [
@@ -1588,9 +1596,9 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
         id: "tsc-c1",
         type: "code_project",
         promptUk:
-          "Вихідні файли: greet.ts та README.md. Очікуваний результат: типізована функція привітання користувача та опис інтерфейсу. Обов'язкові елементи: interface User з id (number) та name (string), greet(u: User): string; у README згадка interface. Обмеження: статичний аналіз файлів проекту без виконання tsc.",
+          "Вихідні файли: greet.ts та README.md. Створіть interface User з id (number) та name (string), функцію greet(u: User): string і згадайте interface у README. Перевірка шукає фрагменти тексту, зокрема в коментарях, і не запускає tsc; перевірте типи та поведінку окремо.",
         promptEn:
-          "Input files: greet.ts and README.md. Expected result: typed user greeting function and interface documentation. Mandatory elements: interface User with id (number) and name (string), greet(u: User): string; in README mention interface. Validation limits: static file checks without running tsc.",
+          "Input files: greet.ts and README.md. Create interface User with id (number) and name (string), greet(u: User): string, and mention interface in README. The checker searches text fragments, including comments, and does not run tsc; check types and behavior separately.",
         files: [
           {
             id: "ts",
@@ -1674,14 +1682,14 @@ console.log(formatUser(user));
           "Записати рядок у `window.alert`",
         ],
         0,
-        why("Явний `Result` змушує викликаючу сторону обробити помилку контракту.", "An explicit `Result` union enforces error handling at call sites."),
+        why("Явний `Result` робить помилку частиною контракту; безпечний доступ до даних потребує перевірки варіанта, хоча результат усе ще можна проігнорувати.", "An explicit `Result` makes failure part of the contract; safe access to data requires narrowing, although a caller can still ignore the result."),
       ), optionsEn: ["Return { ok: false, error: ... } in a Result<Task, ValidationError> union", "Cast raw as Task", "Return raw as any", "Write a string to window.alert"] },
       codeFill(
         "tsc-fb2",
         "Обмеження generic-ідентифікатора для записів із полем `id`",
         "Constrain generic helper to entities with an `id: string`",
         "ts",
-        "function indexById<T ___ { id: string }>(items: readonly T[]): Map<string, T> { return new Map(); }",
+        "function indexById<T ___ { id: string }>(items: readonly T[]): Map<string, T> {\n  return new Map(items.map(item => [item.id, item] as const));\n}",
         ["extends"],
         true,
         why("`T extends { id: string }` дає доступ до `item.id` без втрати конкретного типу `T`.", "`T extends { id: string }` preserves the concrete type `T` while requiring `id`."),
@@ -1701,7 +1709,7 @@ console.log(formatUser(user));
     {
       id: "tsc-ce2",
       type: "code_fill",
-      promptUk: "Generic identity",
+      promptUk: "Тип результату generic-функції identity",
       promptEn: "Generic identity",
       language: "ts",
       code: "function id<T>(x: T): ___ { return x; }",
@@ -1711,7 +1719,7 @@ console.log(formatUser(user));
     {
       id: "tsc-ce3",
       type: "code_fill",
-      promptUk: "Partial utility",
+      promptUk: "Зробіть властивості User необов'язковими",
       promptEn: "Partial utility",
       language: "ts",
       code: "type P = ___<User>;",
@@ -1730,7 +1738,7 @@ console.log(formatUser(user));
     {
       id: "tsc-ce5",
       type: "code_fill",
-      promptUk: "Union",
+      promptUk: "Оператор об'єднання типів",
       promptEn: "Union",
       language: "ts",
       code: "type R = 'ok' ___ 'err';",

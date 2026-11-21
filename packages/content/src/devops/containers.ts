@@ -13,10 +13,11 @@ export const containers = unit("containers", "Контейнери", "Containers
         "Не може слухати порт",
         "Завжди працює від root і це правильно",
       ],
+      oEn: ["It shares the host kernel and uses isolation such as namespaces and cgroups", "Every run has its own Linux kernel", "It cannot listen on a port", "It must always run as root"],
       i: 0,
       note: why(
-        "Шари образу — union FS. Зміна верхнього шару не переписує нижні. Тому кеш збірки тримається, поки рядок Dockerfile вище не змінився.",
-        "Image layers are a union filesystem. The top layer does not rewrite the ones under it, so the build cache holds until a Dockerfile line above it changes.",
+        "Шари образу — union FS. Кеш збірки залежить від інструкцій та їхніх входів, зокрема файлів COPY; не лише від тексту Dockerfile.",
+        "Image layers form a union filesystem. Build cache depends on instructions and their inputs, including COPY files, not only Dockerfile text.",
       ),
     },
     {
@@ -24,6 +25,7 @@ export const containers = unit("containers", "Контейнери", "Containers
       uk: "docker history показує:",
       en: "docker history shows:",
       o: ["Шари образу і команду, яка їх створила", "Логи працюючого контейнера", "Правила iptables", "Стан Terraform"],
+      oEn: ["Image layers and the instructions associated with them", "Logs of a running container", "iptables rules", "Terraform state"],
       i: 0,
     },
     {
@@ -35,6 +37,7 @@ export const containers = unit("containers", "Контейнери", "Containers
         { left: "host", right: "Контейнер бачить порти хоста напряму" },
         { left: "none", right: "Без мережі" },
       ],
+      pairsEn: [{"left": "bridge", "right": "Container network on the host"}, {"left": "host", "right": "Shares the host network namespace"}, {"left": "none", "right": "No external network interface"}],
     },
     {
       t: "mcq",
@@ -46,6 +49,7 @@ export const containers = unit("containers", "Контейнери", "Containers
         "Bind зникає разом із контейнером завжди",
         "Volume лежить у Git",
       ],
+      oEn: ["A named volume is managed by Docker and normally survives container removal; a bind mount uses a selected host path", "They are identical", "A bind mount always disappears with its container", "A volume lives in Git"],
       i: 0,
     },
   ]),
@@ -55,13 +59,14 @@ export const containers = unit("containers", "Контейнери", "Containers
       uk: "Що потрапить у фінальний образ?",
       en: "What lands in the final image?",
       lang: "dockerfile",
-      code: "FROM node:22 AS build\nWORKDIR /src\nCOPY package.json .\nRUN npm ci && npm run build\nFROM nginx:1.27-alpine\nCOPY --from=build /src/dist /usr/share/nginx/html\nCOPY nginx.conf /etc/nginx/conf.d/default.conf",
+      code: "FROM node:22 AS build\nWORKDIR /src\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\nFROM nginx:1.27-alpine\nCOPY --from=build /src/dist /usr/share/nginx/html\nCOPY nginx.conf /etc/nginx/conf.d/default.conf",
       o: [
         "Лише зібрані файли і Nginx, без компілятора Node",
         "Повний Node, npm і вихідні",
         "Лише package.json",
         "Хостова тека /src",
       ],
+      oEn: ["The Nginx base and copied build output and configuration, without the Node build stage", "The entire Node stage and source tree", "Only package.json", "The host /src directory"],
       i: 0,
       note: why(
         "Маленький фінальний образ менше тягне і менше містить інструментів для зловмисника.",
@@ -78,6 +83,7 @@ export const containers = unit("containers", "Контейнери", "Containers
         "CMD виконується лише під час build",
         "ENTRYPOINT пише шар FROM",
       ],
+      oEn: ["With an exec-form ENTRYPOINT, CMD can provide default arguments that docker run can replace", "They are always interchangeable", "CMD runs only at build time", "ENTRYPOINT writes the FROM layer"],
       i: 0,
     },
     {
@@ -90,6 +96,7 @@ export const containers = unit("containers", "Контейнери", "Containers
         "COPY не існує",
         "ADD заборонений у multi-stage",
       ],
+      oEn: ["Copying local files without ADD features such as URL fetching or archive extraction", "Always downloading an archive during the build", "COPY does not exist", "ADD is forbidden in multi-stage builds"],
       i: 0,
     },
     {
@@ -112,6 +119,7 @@ export const containers = unit("containers", "Контейнери", "Containers
         "TLS уже випущений",
         "Образ просканований",
       ],
+      oEn: ["Startup ordering does not establish that /health is ready", "The database has definitely applied migrations", "TLS has been issued", "The image has been scanned"],
       i: 0,
       note: why(
         "condition: service_healthy чекає перевірки, яку ви описали. Інакше додаток стартує в порожнечу.",
@@ -130,6 +138,7 @@ export const containers = unit("containers", "Контейнери", "Containers
         "Коли образ є в Hub",
         "Коли відкритий порт 22",
       ],
+      oEn: ["When its configured healthcheck reports success", "As soon as the container is created", "When the image is in Hub", "When port 22 opens"],
       i: 0,
     },
     {
@@ -137,11 +146,12 @@ export const containers = unit("containers", "Контейнери", "Containers
       uk: "Змінна з .env у Compose:",
       en: "A variable from a Compose .env file:",
       o: [
-        "Підставляється в файл compose. У контейнер вона потрапить, лише якщо ви записали environment",
+        "Використовується для підстановки в Compose; у контейнер значення передають явно через environment або env_file",
         "Автоматично стає секретом Kubernetes",
         "Комітиться як частина образу завжди",
         "Замінює healthcheck",
       ],
+      oEn: ["Can interpolate Compose configuration; explicit environment or env_file is needed to pass it to a container", "Automatically becomes a Kubernetes secret", "Is always committed into the image", "Replaces healthchecks"],
       i: 0,
     },
     {
@@ -154,6 +164,7 @@ export const containers = unit("containers", "Контейнери", "Containers
         "Зникла потреба в healthcheck",
         "Образ став меншим",
       ],
+      oEn: ["It limits container memory use; exceeding it can cause an OOM kill", "The disk becomes unlimited", "Healthchecks are unnecessary", "The image becomes smaller"],
       i: 0,
     },
   ]),
@@ -168,6 +179,7 @@ export const containers = unit("containers", "Контейнери", "Containers
         "Замінює healthcheck",
         "Підписує образ ключем хоста автоматично",
       ],
+      oEn: ["Runs the configured process as nginx; it needs access to writable paths", "Disables port 80", "Replaces healthchecks", "Automatically signs the image"],
       i: 0,
     },
     {
@@ -180,6 +192,7 @@ export const containers = unit("containers", "Контейнери", "Containers
         "Правила route53",
         "Текст postmortem",
       ],
+      oEn: ["Known vulnerabilities in image packages before publication", "Production CPU load", "Route 53 rules", "Postmortem text"],
       i: 0,
       note: why(
         "Read-only коренева файлова система і скинуті зайві capabilities зменшують шкоду, якщо процес зломлять. Повний розбір політик — у модулі DevSecOps.",
@@ -202,11 +215,12 @@ export const containers = unit("containers", "Контейнери", "Containers
       uk: "Тег latest як єдине ім'я релізу:",
       en: "latest as the only release name:",
       o: [
-        "Не каже, який саме зліпок крутиться. Лишайте незмінний тег з версією",
+        "Не визначає точний вміст. Записуйте digest: навіть тег із версією може змінюватися",
         "Це обов'язковий тег Kubernetes",
         "Він підписує шари",
         "Він замінює digest",
       ],
+      oEn: ["Does not identify the running content; record the immutable digest", "Is mandatory in Kubernetes", "Signs layers", "Replaces a digest"],
       i: 0,
     },
   ]),
@@ -221,6 +235,7 @@ export const containers = unit("containers", "Контейнери", "Containers
         "Контейнер перезапустили",
         "Healthcheck спрацював",
       ],
+      oEn: ["A relevant instruction or its inputs change, invalidating dependent build steps", "Only an unrelated Git comment outside the context changes", "The container restarts", "A healthcheck succeeds"],
       i: 0,
     },
     {
@@ -233,6 +248,7 @@ export const containers = unit("containers", "Контейнери", "Containers
         "Сканер CVE",
         "Планувальник Kubernetes",
       ],
+      oEn: ["A development mode that responds to file changes, not a production release definition", "A replacement for CI", "A CVE scanner", "A Kubernetes scheduler"],
       i: 0,
     },
     {
@@ -253,6 +269,7 @@ export const containers = unit("containers", "Контейнери", "Containers
         "Замінює Loki назавжди",
         "Вимикає stdout додатка",
       ],
+      oEn: ["Writes JSON logs on the host and can fill the disk without rotation", "Encrypts traffic automatically", "Permanently replaces Loki", "Disables application stdout"],
       i: 0,
     },
     {
@@ -265,6 +282,7 @@ export const containers = unit("containers", "Контейнери", "Containers
         "Те саме, що контейнер від root",
         "Вимикає volumes",
       ],
+      oEn: ["Runs its daemon without host root, with limitations that should be understood", "Prohibits USER in images", "Is the same as every container running as root", "Disables volumes"],
       i: 0,
     },
     {
@@ -275,8 +293,8 @@ export const containers = unit("containers", "Контейнери", "Containers
       correct: [
         "docker compose build",
         "docker compose up -d",
-        "Дочекатись healthy",
-        "curl на /health через проксі",
+        "Дочекатись healthy / Wait for healthy",
+        "Перевірити /health через проксі / Check /health via proxy",
       ],
     },
   ]),

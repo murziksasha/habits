@@ -8,10 +8,11 @@ export const networks = unit("networks", "Мережі", "Networks", [
       uk: "Три кроки встановлення TCP:",
       en: "The three steps that open a TCP connection:",
       o: ["SYN, SYN-ACK, ACK", "GET, POST, PUT", "ARP, ICMP, UDP", "TLS ClientHello одразу без TCP"],
+      oEn: ["SYN, SYN-ACK, ACK", "GET, POST, PUT", "ARP, ICMP, UDP", "TLS ClientHello directly without TCP"],
       i: 0,
       note: why(
-        "HTTP живе поверх TCP. UDP не будує це рукостискання і не гарантує доставку.",
-        "HTTP sits on TCP. UDP does not build this handshake and does not guarantee delivery.",
+        "HTTP/1.1 і HTTP/2 зазвичай використовують TCP; HTTP/3 використовує QUIC поверх UDP. Сам UDP не виконує TCP-рукостискання і не гарантує доставку.",
+        "HTTP/1.1 and HTTP/2 typically use TCP; HTTP/3 uses QUIC over UDP. UDP itself does not perform the TCP handshake or guarantee delivery.",
       ),
     },
     {
@@ -24,12 +25,13 @@ export const networks = unit("networks", "Мережі", "Networks", [
         "Мультикаст",
         "Адреса loopback",
       ],
+      oEn: ["An RFC 1918 private range not routed as public internet space", "The only public address of your home", "Multicast", "A loopback address"],
       i: 0,
     },
     {
       t: "fill",
-      uk: "Маска для /24 у звичній формі.",
-      en: "The dotted mask for /24.",
+      uk: "Допишіть довжину префікса для мережі з маскою 255.255.255.0.",
+      en: "Fill in the prefix length for mask 255.255.255.0.",
       lang: "text",
       code: "192.168.1.10/___",
       ok: ["24"],
@@ -44,6 +46,7 @@ export const networks = unit("networks", "Мережі", "Networks", [
         "Шифрує HTTP без сертифіката",
         "Видає імена з /etc/hosts усім у світі",
       ],
+      oEn: ["Maps multiple private addresses through an external address", "Replaces DNS", "Encrypts HTTP without a certificate", "Publishes /etc/hosts names worldwide"],
       i: 0,
     },
   ]),
@@ -58,6 +61,7 @@ export const networks = unit("networks", "Мережі", "Networks", [
         { left: "CNAME", right: "Ім'я на інше ім'я" },
         { left: "TXT", right: "Довільний текст, часто перевірка домену" },
       ],
+      pairsEn: [{"left": "A", "right": "Name to IPv4 address"}, {"left": "AAAA", "right": "Name to IPv6 address"}, {"left": "CNAME", "right": "Alias to another name"}, {"left": "TXT", "right": "Text, often used for domain verification"}],
     },
     {
       t: "mcq",
@@ -69,6 +73,7 @@ export const networks = unit("networks", "Мережі", "Networks", [
         "Він замінює TLS",
         "Він слухає лише порт 80",
       ],
+      oEn: ["It answers for its zones; the resolver finds answers for clients", "It only caches and is never a source", "It replaces TLS", "It listens only on port 80"],
       i: 0,
     },
     {
@@ -89,6 +94,7 @@ export const networks = unit("networks", "Мережі", "Networks", [
         "Видавати сертифікати Let's Encrypt у закриту мережу без перевірки",
         "Маршрутизувати пакети замість ядра",
       ],
+      oEn: ["Internal lab names can resolve without public DNS", "To replace Nginx", "To issue publicly trusted certificates without validation", "To route packets instead of the kernel"],
       i: 0,
       note: why(
         "MX і NS теж записи DNS, але для forge-status у лабі вистачає A на внутрішнє ім'я.",
@@ -107,12 +113,13 @@ export const networks = unit("networks", "Мережі", "Networks", [
         "Вимикає HTTPS",
         "Замінює ключ SSH",
       ],
+      oEn: ["Can encrypt traffic, but the client must explicitly establish trust in the certificate", "Is equivalent to a public CA certificate", "Disables HTTPS", "Replaces an SSH key"],
       i: 0,
     },
     {
       t: "order",
-      uk: "Перевірити, що forge-status слухає і відповідає.",
-      en: "Check that forge-status is listening and answers.",
+      uk: "У цій ізольованій лабі перевірте сокет, локальний health і тестовий TLS. Останній -k вимикає перевірку ідентичності.",
+      en: "In this isolated lab, inspect the listener, local health endpoint, and test TLS endpoint. The final -k skips identity verification.",
       lang: "bash",
       correct: ["ss -lnt", "curl -fsS http://127.0.0.1:8080/health", "curl -kI https://forge-status.lab"],
     },
@@ -121,11 +128,12 @@ export const networks = unit("networks", "Мережі", "Networks", [
       uk: "ss замість netstat у нових системах, бо:",
       en: "ss replaces netstat on current systems because:",
       o: [
-        "Він показує сокети з iproute2 і є в мінімальних образах",
+        "Це інструмент iproute2 для перегляду сокетів, поширений у сучасному Linux",
         "Він сканує чужі мережі",
         "Він підписує сертифікати",
         "Він замінює dig",
       ],
+      oEn: ["It is an iproute2 socket inspection tool commonly available on modern Linux", "It scans other people’s networks", "It signs certificates", "It replaces dig"],
       i: 0,
     },
     {
@@ -138,6 +146,7 @@ export const networks = unit("networks", "Мережі", "Networks", [
         "Змінити запис A у публічному DNS",
         "Зібрати образ",
       ],
+      oEn: ["See whether a SYN reaches the interface", "Guess a neighbor’s password", "Change a public DNS A record", "Build an image"],
       i: 0,
       note: why(
         "Скан і зняття трафіку — лише на машинах, які вам дозволені. Чужі мережі не чіпаємо.",
@@ -158,6 +167,7 @@ export const networks = unit("networks", "Мережі", "Networks", [
         "Лише на порт 22",
         "У файл /etc/hosts",
       ],
+      oEn: ["To one of the two upstream backends; TLS terminates at Nginx", "To both at once and combines responses", "Only to port 22", "To /etc/hosts"],
       i: 0,
       note: why(
         "least_conn і ip_hash — інші політики. Типовий приклад без них ділить по черзі.",
@@ -174,6 +184,7 @@ export const networks = unit("networks", "Мережі", "Networks", [
         "Балансувальник замість Nginx",
         "Клієнт SSH",
       ],
+      oEn: ["A convenient frontend for host firewall rules", "A replacement for DNS", "A load balancer replacing Nginx", "An SSH client"],
       i: 0,
     },
     {
@@ -185,17 +196,19 @@ export const networks = unit("networks", "Мережі", "Networks", [
         { left: "OUTPUT", right: "Пакети, які створив сам хост" },
         { left: "FORWARD", right: "Пакети, які хост лише передає" },
       ],
+      pairsEn: [{"left": "INPUT", "right": "Packets delivered to the local host"}, {"left": "OUTPUT", "right": "Packets generated locally"}, {"left": "FORWARD", "right": "Packets routed through the host"}],
     },
     {
       t: "mcq",
       uk: "Перед ufw enable на VM:",
       en: "Before ufw enable on the VM:",
       o: [
-        "Дозволити SSH, інакше відріжете собі вхід",
+        "Дозволити фактичний порт SSH із адреси керування і зберегти резервний доступ",
         "Вимкнути SSH назавжди",
         "Відкрити всі порти",
         "Поставити сертифікат у /root",
       ],
+      oEn: ["Allow the actual SSH port from the management source and retain recovery access", "Permanently disable SSH", "Open every port", "Put a certificate in /root"],
       i: 0,
     },
   ]),
@@ -205,6 +218,7 @@ export const networks = unit("networks", "Мережі", "Networks", [
       uk: "Порт у TCP ідентифікує:",
       en: "A TCP port identifies:",
       o: ["Сервіс на цьому хості", "Виробника диска", "Користувача sudo", "Гілку Git"],
+      oEn: ["An endpoint for a transport connection on a host", "A disk manufacturer", "A sudo user", "A Git branch"],
       i: 0,
     },
     {
@@ -217,6 +231,7 @@ export const networks = unit("networks", "Мережі", "Networks", [
         "CNAME замінює сертифікат",
         "DNS не має типу CNAME",
       ],
+      oEn: ["A CNAME cannot coexist with ordinary data at the same name", "CNAME disables IPv4", "CNAME replaces a certificate", "DNS has no CNAME type"],
       i: 0,
     },
     {
@@ -232,11 +247,12 @@ export const networks = unit("networks", "Мережі", "Networks", [
       uk: "curl -k на навчальному HTTPS:",
       en: "curl -k against the lab HTTPS:",
       o: [
-        "Ігнорує перевірку сертифіката. Для публічного сайту це маскує підміну",
+        "Вимикає перевірку сертифіката і може маскувати підміну; у навчанні краще довірити тестовий CA",
         "Вмикає перевірку суворіше за звичайну",
         "Друкує лише DNS",
         "Відкриває порт у firewall",
       ],
+      oEn: ["Skips certificate verification and can conceal impersonation", "Enables stricter verification", "Prints only DNS", "Opens a firewall port"],
       i: 0,
     },
     {
@@ -244,11 +260,12 @@ export const networks = unit("networks", "Мережі", "Networks", [
       uk: "least_conn у upstream обирає:",
       en: "least_conn on an upstream picks:",
       o: [
-        "Бекенд із найменшою кількістю активних з'єднань",
+        "Доступний бекенд із найменшою кількістю активних з’єднань з урахуванням ваг",
         "Завжди перший сервер у списку",
         "Випадковий порт SSH",
         "Запис MX",
       ],
+      oEn: ["An available backend with the fewest active connections, taking weights into account", "Always the first server in the list", "A random SSH port", "An MX record"],
       i: 0,
     },
     {
@@ -261,6 +278,7 @@ export const networks = unit("networks", "Мережі", "Networks", [
         "Заміна TLS",
         "Заборонений у Nginx",
       ],
+      oEn: ["Know that AAAA is its address record and do not confuse it with A", "Design an entire data center network", "Replace TLS", "Is forbidden in Nginx"],
       i: 0,
     },
   ]),

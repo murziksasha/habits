@@ -24,8 +24,8 @@ const historyCommits = unit(
       "Commit Graph, HEAD & Staging Area",
       2, true, [
         concept("gw-hc-graph-concept", "Робоче дерево, індекс і коміт", "Working tree, index, and commit", {
-          uk: "Робоче дерево містить поточні файли; індекс визначає вміст наступного коміту, а HEAD вказує на поточну позицію історії. Вибірково додайте потрібні зміни, перевірте індекс через git diff --staged і лише тоді створіть коміт.",
-          en: "The working tree holds current files; the index determines the next commit’s content, while HEAD identifies the current history position. Stage the intended changes, inspect them with git diff --staged, and then commit.",
+          uk: "Робоче дерево містить поточні файли; індекс визначає вміст наступного коміту, а HEAD зазвичай посилається на поточну гілку або безпосередньо на коміт у detached HEAD. Для відстежуваного файлу git add -p дозволяє вибрати фрагменти. Перевірте git status і git diff --staged перед комітом; неіндексовані зміни в робочому дереві до нього не потраплять.",
+          en: "The working tree holds current files; the index determines the next commit's content, while HEAD normally refers to the current branch or directly to a commit in detached HEAD. For a tracked file, git add -p lets you select hunks. Check git status and git diff --staged before committing; unstaged working-tree changes will not be included.",
         }),
         { ...mcq(
           "gw-hc1",
@@ -67,10 +67,10 @@ const historyCommits = unit(
           uk: "Позначте відомий поганий і відомий добрий коміти, запускайте відтворювану перевірку на запропонованих ревізіях і позначайте результат. Пошук припускає послідовний перехід від доброго стану до поганого; пропущені або нестабільні перевірки обмежують точність. Завершіть git bisect reset.",
           en: "Mark known bad and known good commits, run a reproducible check on each proposed revision, and report the result. The search assumes a consistent transition from good to bad; skipped or flaky checks limit certainty. Finish with git bisect reset.",
         }),
-        codeOrderAuto(
+        { ...codeOrderAuto(
           "gw-hc3",
-          "Впорядкуйте пошук першого зламаного коміту серед 64 попередніх комітів через `git bisect`",
-          "Order a `git bisect` regression search across 64 commits",
+          "Впорядкуйте пошук через `git bisect`: у цьому сценарії позначте поганий HEAD перед доброю версією v1.2.0.",
+          "Order this `git bisect` search: in this scenario mark bad HEAD before the good version v1.2.0.",
           "bash",
           [
             "git bisect start",
@@ -82,7 +82,7 @@ const historyCommits = unit(
             "За монотонної відтворюваної перевірки пошук серед 64 кандидатів потребує приблизно шість перевірок; пропущені коміти чи немонотонна помилка можуть ускладнити результат.",
             "With a reproducible monotonic check, bisect takes roughly O(log N) checks; skipped commits or non-monotonic behavior can complicate the result. `git bisect reset` returns to the original checkout.",
           ),
-        ),
+        ), linesUk: ["git bisect bad HEAD", "git bisect good v1.2.0", "Перевіряйте кожну запропоновану ревізію, позначайте bad/good; після результату виконайте git bisect reset", "git bisect start"] },
       ], { baseXp: 22 },
     ),
     exam("gw-hc-exam", "Контрольна: історія та атомарні коміти", "Checkpoint: History & Atomic Commits", 2, [
@@ -137,14 +137,14 @@ const branchesRebase = unit(
           ],
           0,
           why(
-            "Rebase доречний лише на власних локальних/PR-гілках до інтеграції (`--force-with-lease`), але не на спільних гілках.",
-            "Rebase belongs to private/feature work (`--force-with-lease`), never shared team branches.",
+            "Переписування приватної гілки менш ризиковане; для опублікованої спершу узгодьте дію. Lease допомагає виявити несподівані зміни, але сам не гарантує збереження роботи колег.",
+            "Rewriting a private branch is less risky; coordinate before rewriting a published branch. A lease helps detect unexpected updates but does not itself guarantee teammates' work is preserved.",
           ),
         ), optionsEn: ["Rewriting shared commit IDs makes teammates’ histories diverge and can overwrite work", "Rebase deletes .gitignore", "GitHub allows only two commits per week", "Force push erases node_modules"] },
         codeFill(
           "gw-br2",
-          "Безпечний примусовий push власної перебазованої PR-гілки (захист від перезапису чужих комітів)",
-          "Safer force-push flag protecting unexpected remote commits",
+          "Прапорець для перевірки очікуваного стану віддаленої гілки перед примусовим push",
+          "Force-push flag that checks the expected remote branch state",
           "bash",
           "git push --___-with-lease origin feat/tasks-filter",
           ["force"],
@@ -165,25 +165,26 @@ const branchesRebase = unit(
           uk: "git switch змінює гілку, git restore --staged прибирає зміни з індексу, зберігаючи робочий файл. Натомість git restore без --staged перезаписує незакомічені зміни у вказаному файлі. Перед командою перевірте git status і diff та збережіть потрібну роботу.",
           en: "git switch changes branches; git restore --staged removes changes from the index while keeping the working file. In contrast, git restore without --staged overwrites uncommitted changes in the named file. Inspect git status and diff and save work you need first.",
         }),
-        matchEx(
+        { ...matchEx(
           "gw-br3",
           "Зіставте завдання зі зрозумілою командою Git",
           "Match each workflow need to the focused Git command",
           [
-            { left: "Створити та перейти на нову гілку / Create and switch to a new branch", right: "git switch -c feat/auth" },
-            { left: "Відкинути незакомічені зміни у файлі / Discard uncommitted changes in a file", right: "git restore src/api.ts" },
-            { left: "Прибрати зміни файлу з індексу, залишивши робочий файл / Unstage file changes while keeping the working file", right: "git restore --staged src/api.ts" },
+            { left: "Створити та перейти на нову гілку", right: "git switch -c feat/auth" },
+            { left: "Відкинути незакомічені зміни у файлі", right: "git restore src/api.ts" },
+            { left: "Прибрати зміни файлу з індексу, залишивши робочий файл", right: "git restore --staged src/api.ts" },
           ],
-        ),
+        ), pairsEn: [{ left: "Create and switch to a new branch", right: "git switch -c feat/auth" }, { left: "Discard uncommitted changes in a file", right: "git restore src/api.ts" }, { left: "Unstage file changes while keeping the working file", right: "git restore --staged src/api.ts" }] },
       ], { baseXp: 24 },
     ),
     exam("gw-br-exam", "Контрольна: гілки та rebase", "Checkpoint: Branches & Rebase", 3, [
       { ...mcq(
         "gw-br-e1",
-        "Колега випадково запушив у вашу PR-гілку коміт. Яка команда вбереже вас від мовчазного знищення його роботи при оновленні?",
-        "A teammate pushed a commit to your shared PR branch. Which push safety check prevents silently overwriting it?",
+        "Який прапорець перевіряє, що віддалена гілка відповідає очікуваному значенню перед примусовим push?",
+        "Which flag checks that the remote branch has the expected value before a force-push?",
         ["--force-with-lease", "--force", "--delete", "--mirror"],
         0,
+        why("Lease не замінює узгодження та перевірку роботи колег; фоновий fetch може змінити неявне очікуване значення.", "A lease does not replace coordination or review of teammates' work; background fetch can change the implicit expected value."),
       ), optionsEn: ["--force-with-lease", "--force", "--delete", "--mirror"] },
       { ...mcq(
         "gw-br-e2",
@@ -217,10 +218,10 @@ const conflictResolution = unit(
         }),
         { ...codeRead(
           "gw-cr1",
-          "Розв'яжіть реальний конфлікт між двома гілками так, щоб не втратити жодного фіксу: Яке розв'язання є помилковим, а яке коректним?",
-          "Resolve this conflict keeping both fixes intact: Which resolution breaks the application vs preserves both requirements?",
+          "Обидві зміни потрібні; validatedLimit уже перевірено як додатне ціле число. Яке розв'язання збереже обидві вимоги?",
+          "Both changes are required; validatedLimit has already been validated as a positive integer. Which resolution preserves both requirements?",
           "ts",
-          "<<<<<<< HEAD\nif (!user) return res.status(401).json({ error: \"unauthorized\" });\n=======\nconst limit = Math.min(Number(req.query.limit ?? 20), 50);\n>>>>>>> feat/pagination",
+          "<<<<<<< HEAD\nif (!user) return res.status(401).json({ error: \"unauthorized\" });\n=======\nconst limit = Math.min(validatedLimit, 50);\n>>>>>>> feat/pagination",
           [
             "Потрібно зберегти Обидві частини (перевірку auth 401 AND ліміт пагінації), видалити маркери конфлікту й прогнати тести",
             "Натиснути «Accept Current» не дивлячись і видалити пагінацію",
@@ -233,7 +234,7 @@ const conflictResolution = unit(
             "Blindly picking one side drops fixes; combine both intents cleanly and run tests before staging.",
           ),
         ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["Keep both the 401 authorization check and the pagination limit, remove markers, and run tests", "Accept current blindly and remove pagination", "Leave conflict markers in the file and commit", "Accept incoming blindly and remove the 401 check"] },
-        codeOrderAuto(
+        { ...codeOrderAuto(
           "gw-cr2",
           "Повний безпечний порядок завершення конфліктного merge",
           "Order the steps to finish a conflicted merge safely",
@@ -244,7 +245,7 @@ const conflictResolution = unit(
             "Run typecheck and tests to verify merged behavior works",
             "Stage resolved file with git add and finish via git commit",
           ],
-        ),
+        ), linesUk: ["Об'єднати потрібні зміни у файлі та прибрати маркери конфлікту", "Запустити перевірку типів і тести об'єднаної поведінки", "Додати розв'язаний файл через git add і завершити git commit", "Перевірити конфліктні файли через git status і прочитати обидві сторони"] },
       ], { baseXp: 25 },
     ),
     exam("gw-cr-exam", "Контрольна: конфлікти", "Checkpoint: Conflict Resolution", 3, [
@@ -361,8 +362,8 @@ const recoveryReleaseCapstone = unit(
         ), optionsEn: ["Find the previous commit in git reflog and create a rescue branch at its hash", "Commits are destroyed permanently in the same millisecond", "Run git clean -fdx", "Reinstall Git"] },
         { ...mcq(
           "gw-rr2",
-          "Після мерджу в `main` і деплою виявили баг у релізному коміті `abc123`. Як безпечно відкотити зміну на спільній гілці?",
-          "A regression already merged to shared `main` needs rollback. Which command preserves history safely?",
+          "Після мерджу в `main` виявили баг у звичайному коміті `abc123` з одним батьком. Як скасувати зміну, зберігши історію?",
+          "A regression on shared `main` comes from an ordinary single-parent commit `abc123`. How can you undo it while preserving history?",
           [
             "`git revert abc123` (створює новий зворотній коміт без переписування публічної історії)",
             "`git reset --hard abc123~1 && git push --force` на `main`",
@@ -396,8 +397,8 @@ const recoveryReleaseCapstone = unit(
         ), optionsEn: ["Combine both changes, run tests, and follow the lab’s PR history requirements", "Remove ownership checks to resolve the conflict", "Leave conflict markers in README", "Force-push shared main"] },
         codeProject(
           "gw-fb2",
-          "Зберіть об'єднану функцію з двома правками без маркерів конфлікту; завантажте локальний Git-репозиторій лабу M8 нижче для справжньої практики merge/conflict + тестів.",
-          "Combine both conflicting validation changes cleanly without conflict markers; download Milestone 8 below for a real local Git conflict + verification lab.",
+          "Зберіть функцію з двома правками без маркерів конфлікту. Вбудована перевірка шукає фрагменти тексту, зокрема в коментарях, і не запускає код. Для справжньої практики merge та тестів скористайтеся локальним лабом M8 нижче.",
+          "Combine both validation changes without conflict markers. The embedded check searches text fragments, including comments, and does not run the code. Use the local M8 lab below for actual merge and test practice.",
           [
             {
               id: "js",

@@ -13,6 +13,7 @@ export const kubernetes = unit("kubernetes", "Kubernetes", "Kubernetes", [
         { left: "scheduler", right: "Обирає вузол для pod" },
         { left: "kubelet", right: "На вузлі запускає контейнери" },
       ],
+      pairsEn: [{"left": "API server", "right": "API entry point for clients and controllers"}, {"left": "etcd", "right": "Cluster state store"}, {"left": "scheduler", "right": "Selects a node for a pod"}, {"left": "kubelet", "right": "Ensures pod containers run on a node"}],
     },
     {
       t: "mcq",
@@ -24,6 +25,7 @@ export const kubernetes = unit("kubernetes", "Kubernetes", "Kubernetes", [
         "Лише на Docker Compose і це вже Kubernetes",
         "На одному контейнері без API",
       ],
+      oEn: ["kind or minikube; a cloud cluster is a separate decision", "Three regions immediately", "Only Docker Compose, which is already Kubernetes", "A single container without an API"],
       i: 0,
     },
     {
@@ -38,6 +40,7 @@ export const kubernetes = unit("kubernetes", "Kubernetes", "Kubernetes", [
         "Dockerfile",
         "Плейбук Ansible",
       ],
+      oEn: ["A reconcile function shape; this empty implementation does not change cluster state", "An HTTP server on port 80", "A Dockerfile", "An Ansible playbook"],
       i: 0,
       note: why(
         "Контролер дивиться на бажане і на живе. Порожній Reconcile нічого не лагодить, але форма та сама, що в операторах.",
@@ -49,11 +52,12 @@ export const kubernetes = unit("kubernetes", "Kubernetes", "Kubernetes", [
       uk: "kubeconfig — це:",
       en: "A kubeconfig is:",
       o: [
-        "Файл із кластерами, користувачами і поточним контекстом",
+        "Файл із кластерами, користувачами і контекстами; може містити облікові дані",
         "Маніфест Deployment",
         "Сертифікат сайту",
         "State Terraform",
       ],
+      oEn: ["A file describing clusters, users, and contexts; it can contain credentials", "A Deployment manifest", "A website certificate", "Terraform state"],
       i: 0,
     },
   ]),
@@ -68,6 +72,7 @@ export const kubernetes = unit("kubernetes", "Kubernetes", "Kubernetes", [
         "Readiness збільшує репліки",
         "Liveness відкриває Ingress",
       ],
+      oEn: ["Readiness controls eligibility for Service traffic; liveness failures can cause container restart", "They are two names for the same check", "Readiness adds replicas", "Liveness opens an Ingress"],
       i: 0,
       note: why(
         "Startup probe дає повільному старту час, щоб liveness не вбив його раніше. /health має відповідати саме на готовність приймати запити.",
@@ -81,11 +86,12 @@ export const kubernetes = unit("kubernetes", "Kubernetes", "Kubernetes", [
       lang: "yaml",
       code: "readinessProbe:\n  httpGet:\n    path: /health\n    port: 8080\n  periodSeconds: 5",
       o: [
-        "Після того як GET /health повертає успіх",
+        "Після успішної readiness-перевірки, якщо pod також готовий за іншими умовами",
         "Одразу після створення контейнера",
         "Після terraform apply",
         "Коли etcd порожній",
       ],
+      oEn: ["After the HTTP readiness probe succeeds and the pod is otherwise ready", "Immediately after the container is created", "After terraform apply", "When etcd is empty"],
       i: 0,
     },
     {
@@ -98,6 +104,7 @@ export const kubernetes = unit("kubernetes", "Kubernetes", "Kubernetes", [
         "StatefulSet не вміє PVC",
         "Deployment тримає по pod на кожен вузол",
       ],
+      oEn: ["Deployment usually manages interchangeable replicas; StatefulSet provides stable identity and storage association", "The reverse", "StatefulSet cannot use PVCs", "Deployment runs one pod on each node"],
       i: 0,
     },
     {
@@ -110,6 +117,7 @@ export const kubernetes = unit("kubernetes", "Kubernetes", "Kubernetes", [
         "Одноразової міграції",
         "Секрету",
       ],
+      oEn: ["An agent needed on eligible nodes, such as a log collector", "The forge-status website with three replicas", "A one-off migration", "A secret"],
       i: 0,
     },
   ]),
@@ -124,6 +132,7 @@ export const kubernetes = unit("kubernetes", "Kubernetes", "Kubernetes", [
         "Ім'я в Git",
         "Диск",
       ],
+      oEn: ["A stable virtual address intended for cluster-internal access", "A public address in every region", "A Git name", "A disk"],
       i: 0,
     },
     {
@@ -136,6 +145,7 @@ export const kubernetes = unit("kubernetes", "Kubernetes", "Kubernetes", [
         "Те саме, що NodePort на кожному вузлі без контролера",
         "Файл values, який ніхто не читає",
       ],
+      oEn: ["Host and path routing to a Service with TLS configuration, implemented by an ingress controller", "A replacement for kubelet", "Exactly NodePort on every node without a controller", "An unused values file"],
       i: 0,
       note: why(
         "cert-manager випускає сертифікат і кладе його в Secret, на який дивиться Ingress. Ручний self-signed лишається для локальної лаби.",
@@ -149,11 +159,12 @@ export const kubernetes = unit("kubernetes", "Kubernetes", "Kubernetes", [
       lang: "yaml",
       code: "replicaCount: 2\nimage:\n  repository: ghcr.io/edu/forge-status\n  tag: \"1.4.0\"\ningress:\n  enabled: true\n  host: status.lab",
       o: [
-        "Дві репліки конкретного тега і вхід по імені status.lab",
+        "Якщо шаблони чарту використовують ці значення: дві репліки, заданий тег і ingress host",
         "Збірку образa",
         "State Terraform",
         "Користувача sudo на хості",
       ],
+      oEn: ["If the chart templates consume these values, it requests two replicas, the given tag, and an ingress host", "It builds the image", "It changes Terraform state", "It creates a host sudo user"],
       i: 0,
     },
     {
@@ -166,6 +177,7 @@ export const kubernetes = unit("kubernetes", "Kubernetes", "Kubernetes", [
         "Secret видно в docker history",
         "ConfigMap замінює probe",
       ],
+      oEn: ["ConfigMap holds non-secret configuration; Secret is a separate object and needs access controls and encryption configuration", "Both are equally safe for passwords in Git", "Secret appears in docker history", "ConfigMap replaces probes"],
       i: 0,
     },
   ]),
@@ -180,6 +192,7 @@ export const kubernetes = unit("kubernetes", "Kubernetes", "Kubernetes", [
         "request вимикає OOM",
         "limit замінює readiness",
       ],
+      oEn: ["Requests inform scheduling; limits constrain runtime resource use", "They are comments", "A request disables OOM", "A limit replaces readiness"],
       i: 0,
     },
     {
@@ -187,15 +200,16 @@ export const kubernetes = unit("kubernetes", "Kubernetes", "Kubernetes", [
       uk: "Pod Security restricted для forge-status означає:",
       en: "The restricted Pod Security profile for forge-status means:",
       o: [
-        "Не від root, без зайвих capabilities, без hostPath без потреби",
+        "Не від root, із суворими правилами capabilities та без томів hostPath",
         "Будь-який privileged pod",
         "Вимкнені probes",
         "Відкритий доступ до API сервера з пода",
       ],
+      oEn: ["Non-root execution, strict capability rules, and no hostPath volumes", "Any privileged pod", "Disabled probes", "Open pod access to the API server"],
       i: 0,
       note: why(
-        "RBAC: Role каже, що можна в одному namespace, ClusterRole — ширше. Поду дають ServiceAccount, не особистий kubeconfig.",
-        "RBAC: a Role says what is allowed in one namespace, a ClusterRole is wider. A pod gets a ServiceAccount, not your kubeconfig.",
+        "RBAC: Role визначає права в namespace, ClusterRole — повторно використовуваний набір правил. RoleBinding може обмежити ClusterRole одним namespace; поду дають ServiceAccount.",
+        "RBAC: a Role defines rules in a namespace; a ClusterRole defines reusable rules. A RoleBinding can scope a ClusterRole to one namespace; pods use ServiceAccounts.",
       ),
     },
     {
@@ -206,7 +220,7 @@ export const kubernetes = unit("kubernetes", "Kubernetes", "Kubernetes", [
       correct: [
         "kubectl cordon node-a",
         "kubectl drain node-a --ignore-daemonsets",
-        "Полагодити вузол",
+        "Полагодити вузол / Maintain the node",
         "kubectl uncordon node-a",
       ],
     },
@@ -220,6 +234,7 @@ export const kubernetes = unit("kubernetes", "Kubernetes", "Kubernetes", [
         "Розмір образу",
         "Текст Ingress",
       ],
+      oEn: ["Metrics such as CPU and adjusts replicas within configured bounds", "A Git tag", "Image size", "Ingress text"],
       i: 0,
     },
   ]),
@@ -234,6 +249,7 @@ export const kubernetes = unit("kubernetes", "Kubernetes", "Kubernetes", [
         "etcd відкотиться",
         "Образ перезбереться",
       ],
+      oEn: ["A Service may still send it traffic if Kubernetes otherwise considers it ready", "Kubernetes invents its own health check", "etcd rolls back", "The image rebuilds"],
       i: 0,
     },
     {
@@ -246,6 +262,7 @@ export const kubernetes = unit("kubernetes", "Kubernetes", "Kubernetes", [
         "Обидва тримають сайт",
         "CronJob — це DaemonSet",
       ],
+      oEn: ["A Job runs work to completion; a CronJob schedules Jobs", "The reverse", "Both host a website", "CronJob is a DaemonSet"],
       i: 0,
     },
     {
@@ -266,6 +283,7 @@ export const kubernetes = unit("kubernetes", "Kubernetes", "Kubernetes", [
         "Замінює Ingress",
         "Шифрує etcd",
       ],
+      oEn: ["Exists in the API but is not enforced by that plugin", "Always blocks all traffic", "Replaces Ingress", "Encrypts etcd"],
       i: 0,
     },
     {
@@ -273,11 +291,12 @@ export const kubernetes = unit("kubernetes", "Kubernetes", "Kubernetes", [
       uk: "PDB (PodDisruptionBudget) потрібен, щоб:",
       en: "A PodDisruptionBudget exists so that:",
       o: [
-        "Під час drain не зникли всі репліки одразу",
+        "Обмежити добровільні порушення доступності через eviction API згідно з бюджетом; це не захист від усіх відмов",
         "Збільшити ліміт CPU",
         "Приховати Secret",
         "Замінити Helm",
       ],
+      oEn: ["Limits voluntary disruptions through the eviction API, subject to its rules", "Raises the CPU limit", "Hides a Secret", "Replaces Helm"],
       i: 0,
     },
     {
@@ -286,10 +305,10 @@ export const kubernetes = unit("kubernetes", "Kubernetes", "Kubernetes", [
       en: "Install the forge-status chart on the local cluster.",
       lang: "text",
       correct: [
-        "Перевірити контекст kubectl",
+        "Перевірити контекст kubectl / Check kubectl context",
         "helm upgrade --install forge ./chart -f values-dev.yaml",
-        "Дочекатись Ready",
-        "Відкрити /health через Ingress",
+        "Дочекатись Ready / Wait for Ready",
+        "Перевірити /health через Ingress / Check /health through Ingress",
       ],
     },
   ]),

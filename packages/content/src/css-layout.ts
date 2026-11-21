@@ -26,13 +26,13 @@ const boxFlow = unit("box-flow", "Box & flow", "Box & flow", [
         uk: "Блок складається з content, padding, border і зовнішнього margin. За content-box задана width описує вміст, а padding і border додаються до ширини. За border-box задана ширина включає вміст, padding і border; margin залишається зовні. Наприклад, width: 200px із padding: 10px і border: 2px зазвичай займає 224px у content-box і 200px у border-box без margin.",
         en: "A box consists of content, padding, border, and an outer margin. With content-box, width describes the content and padding and borders add to it. With border-box, the declared width includes content, padding, and borders; margin remains outside. For example, width: 200px with padding: 10px and border: 2px normally occupies 224px in content-box and 200px in border-box, excluding margin.",
       }),
-      mcq(
+      { ...mcq(
         "cl-b1",
         "Box model включає:",
         "Box model includes:",
-        ["content + padding + border + margin", "лише font-size", "лише z-index", "SQL columns"],
+        ["content + padding + border + margin", "лише font-size", "лише z-index", "стовпці SQL"],
         0,
-      ),
+      ), optionsEn: ["content + padding + border + margin", "Only font-size", "Only z-index", "SQL columns"] },
       codeFill(
         "cl-b2",
         "box-sizing border-box",
@@ -60,19 +60,19 @@ const boxFlow = unit("box-flow", "Box & flow", "Box & flow", [
     true,
     [
       concept("cl-display-concept", "Як елемент бере участь у макеті", "How an element participates in layout", {
-        uk: "display визначає тип зовнішнього блоку та спосіб компонування вмісту. display: flex і display: grid створюють відповідні контексти для дочірніх елементів; display: none прибирає елемент із макета й зазвичай із дерева доступності. Це відрізняється від лише візуального приховування з урахуванням доступності.",
-        en: "display determines an element's outer box and how its contents are laid out. display: flex and display: grid establish corresponding layout contexts for children; display: none removes the element from layout and generally from the accessibility tree. This differs from visually hiding content while keeping it accessible.",
+        uk: "display визначає тип зовнішнього блоку та спосіб компонування вмісту. display: flex і display: grid створюють відповідні контексти для дочірніх елементів у потоці; display: none прибирає елемент із макета й зазвичай із дерева доступності. Наприклад, прихований таким способом текст не можна вважати доступною інструкцією; за потреби лише візуально приховати текст використовуйте перевірений доступний спосіб і тестуйте його з клавіатурою та скрінрідером.",
+        en: "display determines an element's outer box and how its contents are laid out. display: flex and display: grid establish corresponding layout contexts for in-flow children; display: none removes the element from layout and generally from the accessibility tree. For example, text hidden this way cannot be assumed to be an accessible instruction; if text should only be visually hidden, use a tested accessible technique and check it with a keyboard and screen reader.",
       }),
-      matchEx(
+      { ...matchEx(
         "cl-b4",
         "display",
         "display",
         [
-          { left: "flex", right: "flex formatting context" },
-          { left: "grid", right: "grid formatting context" },
-          { left: "none", right: "not rendered" },
+          { left: "flex", right: "flex-контекст компонування" },
+          { left: "grid", right: "grid-контекст компонування" },
+          { left: "none", right: "елемент не відображається" },
         ],
-      ),
+      ), pairsEn: [{ left: "flex", right: "flex formatting context" }, { left: "grid", right: "grid formatting context" }, { left: "none", right: "not rendered" }] },
       codeFill(
         "cl-b5",
         "Увімкнути flex container",
@@ -130,23 +130,23 @@ const boxFlow = unit("box-flow", "Box & flow", "Box & flow", [
         ],
         0,
       ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["#header .btn (ID + class = 1-1-0)", ".nav .btn (2 classes = 0-2-0)", "button.btn (element + class = 0-1-1)", "All colors blend together"] },
-      matchEx(
+      { ...matchEx(
         "cl-pos4",
         "Зіставте значення position",
         "Match position values",
         [
-          { left: "relative", right: "зміщення від звичайного місця в потоці / offset from normal flow" },
-          { left: "fixed", right: "зазвичай відносно viewport / usually relative to viewport" },
-          { left: "sticky", right: "зміщення відносно scrollport з обмеженням контейнером / offset relative to scrollport, constrained by container" },
+          { left: "relative", right: "зміщення від звичайного місця в потоці" },
+          { left: "fixed", right: "зазвичай відносно viewport" },
+          { left: "sticky", right: "зміщення відносно scrollport з обмеженням контейнером" },
         ],
-      ),
+      ), pairsEn: [{ left: "relative", right: "Offset from its normal flow position" }, { left: "fixed", right: "Usually relative to the viewport" }, { left: "sticky", right: "Offset relative to the scrollport and constrained by its container" }] },
     ],
   ),
   exam("cl-box-exam", "Контрольна: box", "Exam: box", 1, [
-    mcq("cl-be1", "padding is:", "padding is:", ["inside border", "outside margin only", "SQL", "git"], 0),
+    { ...mcq("cl-be1", "Де розташований padding?", "Where is padding located?", ["Між вмістом і рамкою", "Лише за зовнішнім відступом", "У таблиці SQL", "У гілці Git"], 0), optionsEn: ["Between content and border", "Only outside the margin", "In an SQL table", "In a Git branch"] },
     codeFill("cl-be2", "border-box", "border-box", "css", "box-sizing: ___;", ["border-box"], true),
     codeFill("cl-be3", "display flex", "display flex", "css", "display: ___;", ["flex"], true),
-    mcq("cl-be4", "margin is:", "margin is:", ["outside border", "font property", "ARIA", "doctype"], 0),
+    { ...mcq("cl-be4", "Де розташований margin?", "Where is margin located?", ["Зовні рамки", "Усередині тексту", "Лише в ARIA", "У doctype"], 0), optionsEn: ["Outside the border", "Inside the text", "Only in ARIA", "In the doctype"] },
   ]),
 ]);
 
@@ -171,13 +171,13 @@ const flexCore = unit("flex-core", "Flex core", "Flex core", [
         ["flex"],
         true,
       ),
-      mcq(
+      { ...mcq(
         "cl-f2",
-        "Діти flex container стають:",
-        "Children of a flex container become:",
-        ["flex items", "grid areas only", "floats always", "absolute only"],
+        "Безпосередні діти flex-контейнера у звичайному потоці стають:",
+        "In-flow direct children of a flex container become:",
+        ["flex-елементами", "лише областями grid", "завжди float-елементами", "лише абсолютно позиціонованими елементами"],
         0,
-      ),
+      ), optionsEn: ["Flex items", "Only grid areas", "Always floats", "Only absolutely positioned elements"] },
       codeFill(
         "cl-f3",
         "direction row",
@@ -211,11 +211,11 @@ const flexCore = unit("flex-core", "Flex core", "Flex core", [
       ),
       codeFill(
         "cl-f5",
-        "gap між items",
-        "gap between items",
+        "Задайте проміжок 16px між елементами.",
+        "Set a 16px gap between items.",
         "css",
         "gap: ___px;",
-        ["16", "8"],
+        ["16"],
         false,
       ),
       { ...mcq(
@@ -256,16 +256,16 @@ const flexCore = unit("flex-core", "Flex core", "Flex core", [
         ["center"],
         true,
       ),
-      matchEx(
+      { ...matchEx(
         "cl-f9",
         "Властивості",
         "Properties",
         [
-          { left: "justify-content", right: "main axis distribution" },
-          { left: "align-items", right: "cross axis alignment" },
-          { left: "flex-direction", right: "main axis direction" },
+          { left: "justify-content", right: "розподіл уздовж головної осі" },
+          { left: "align-items", right: "вирівнювання на поперечній осі" },
+          { left: "flex-direction", right: "напрямок головної осі" },
         ],
-      ),
+      ), pairsEn: [{ left: "justify-content", right: "Distribution along the main axis" }, { left: "align-items", right: "Alignment on the cross axis" }, { left: "flex-direction", right: "Direction of the main axis" }] },
     ],
   ),
   lesson(
@@ -281,9 +281,9 @@ const flexCore = unit("flex-core", "Flex core", "Flex core", [
       }),
       { ...mcq(
         "cl-f10",
-        "space-between:",
-        "space-between:",
-        ["перший і останній по краях, простір між", "усі в центрі щільно", "column only", "absolute"],
+        "Як працює space-between для двох елементів, якщо є додатний вільний простір і немає інших проміжків?",
+        "How does space-between work with two items, positive free space, and no other gaps?",
+        ["перший і останній по краях, простір між ними", "усі в центрі щільно", "лише для column", "вмикає absolute"],
         0,
       ), optionsEn: ["The first and last items sit at the edges, with space between", "All items are packed tightly in the center", "Column only", "Absolute positioning"] },
       codeFill(
@@ -338,23 +338,23 @@ const flexCore = unit("flex-core", "Flex core", "Flex core", [
         ["center"],
         true,
       ),
-      mcq(
+      { ...mcq(
         "cl-fg4",
-        "To center one child in a flex container often use:",
+        "Як часто центрують один елемент у flex-контейнері по обох осях?",
         "To center one child in a flex container often use:",
         [
           "justify-content + align-items: center",
-          "only float:left",
-          "only position:fixed without flex",
-          "table-layout only",
+          "лише float:left",
+          "лише position:fixed без flex",
+          "лише table-layout",
         ],
         0,
-      ),
+      ), optionsEn: ["justify-content and align-items set to center", "Only float:left", "Only position:fixed without flex", "Only table-layout"] },
     ],
   ),
   exam("cl-flex-core-exam", "Контрольна: flex core", "Exam: flex core", 2, [
     codeFill("cl-fce1", "display", "display", "css", "display: ___;", ["flex"], true),
-    codeFill("cl-fce2", "direction", "direction", "css", "flex-direction: ___;", ["column", "row"], false),
+    codeFill("cl-fce2", "Вкажіть напрямок row або column.", "Choose the row or column direction.", "css", "flex-direction: ___;", ["column", "row"], false),
     codeFill("cl-fce3", "wrap", "wrap", "css", "flex-wrap: ___;", ["wrap"], true),
     codeFill("cl-fce4", "justify center", "justify center", "css", "justify-content: ___;", ["center"], true),
     codeFill("cl-fce5", "align center", "align center", "css", "align-items: ___;", ["center"], true),
@@ -382,8 +382,8 @@ const flexItems = unit("flex-items", "Flex items", "Flex items", [
       ), optionsEn: ["The item can receive a share of positive free space", "It never grows", "Absolute positioning", "Grid only"] },
       codeFill(
         "cl-fi2",
-        "grow",
-        "grow",
+        "Дозвольте елементу рости з коефіцієнтом 1.",
+        "Allow the item to grow with a factor of 1.",
         "css",
         "flex-grow: ___;",
         ["1"],
@@ -399,8 +399,8 @@ const flexItems = unit("flex-items", "Flex items", "Flex items", [
     false,
     [
       concept("cl-basis-concept", "Базовий розмір і стиснення", "Basis and shrinking", {
-        uk: "flex-basis задає початковий головний розмір для алгоритму Flexbox; auto зазвичай враховує відповідну властивість розміру або вміст. flex-shrink керує стисненням при нестачі простору, але на результат впливають базові й мінімальні розміри. flex: 1 у браузерах зазвичай розгортається до 1 1 0%; це не гарантує однакову кінцеву ширину в усіх випадках.",
-        en: "flex-basis supplies the initial main size for the flex algorithm; auto normally consults the relevant size property or content. flex-shrink controls shrinkage when space is insufficient, but base and minimum sizes affect the result. Browsers normally expand flex: 1 to 1 1 0%; this does not guarantee equal final widths in every case.",
+        uk: "flex-basis задає початковий головний розмір для алгоритму Flexbox; auto зазвичай враховує відповідну властивість розміру або вміст. flex-shrink керує стисненням при нестачі простору: його коефіцієнт враховується разом із базовим розміром, а мінімальні розміри можуть обмежити стиснення. Наприклад, довге слово може спричинити переповнення; перевірте min-width: 0 на flex-елементі та спосіб перенесення тексту. flex: 1 у браузерах зазвичай розгортається до 1 1 0%; це не гарантує однакову кінцеву ширину в усіх випадках.",
+        en: "flex-basis supplies the initial main size for the flex algorithm; auto normally consults the relevant size property or content. flex-shrink controls shrinkage when space is insufficient: its factor is weighted by the base size, and minimum sizes can constrain shrinking. For example, a long word can cause overflow; check min-width: 0 on the flex item and how the text wraps. Browsers normally expand flex: 1 to 1 1 0%; this does not guarantee equal final widths in every case.",
       }),
       codeFill(
         "cl-fi3",
@@ -420,13 +420,13 @@ const flexItems = unit("flex-items", "Flex items", "Flex items", [
         ["auto"],
         false,
       ),
-      mcq(
+      { ...mcq(
         "cl-fi5",
         "flex: 1 часто ≈",
         "flex: 1 often ≈",
-        ["grow 1 shrink 1 basis 0%", "display none", "position fixed", "float left only"],
+        ["grow 1, shrink 1, basis 0%", "display none", "position fixed", "лише float left"],
         0,
-      ),
+      ), optionsEn: ["grow 1, shrink 1, basis 0%", "display none", "position fixed", "Only float left"] },
     ],
   ),
   lesson(
@@ -461,8 +461,8 @@ const flexItems = unit("flex-items", "Flex items", "Flex items", [
   exam("cl-fi-exam", "Контрольна: flex items", "Exam: flex items", 3, [
     codeFill("cl-fie1", "Дозвольте елементу рости з коефіцієнтом 1", "Allow the item to grow with factor 1", "css", "flex-grow: ___;", ["1"], false),
     codeFill("cl-fie2", "shrink 0", "shrink 0", "css", "flex-shrink: ___;", ["0"], true),
-    mcq("cl-fie3", "flex:1 helps:", "flex:1 helps:", ["equal growth patterns", "SQL joins", "ARIA roles", "SMTP"], 0),
-    codeFill("cl-fie4", "align-self", "align-self", "css", "align-self: ___;", ["center", "flex-start", "stretch"], false),
+    { ...mcq("cl-fie3", "Що зазвичай задає flex: 1?", "What does flex: 1 usually set?", ["Коефіцієнти росту й стиснення 1 та базу 0%", "Гарантію однакової ширини за будь-яких умов", "З'єднання SQL", "Роль ARIA"], 0), optionsEn: ["Grow and shrink factors of 1 and a 0% basis", "A guarantee of equal widths in all conditions", "An SQL join", "An ARIA role"] },
+    codeFill("cl-fie4", "Вирівняйте елемент по центру поперечної осі.", "Align the item at the center of the cross axis.", "css", "align-self: ___;", ["center"], false),
   ]),
 ]);
 
@@ -527,10 +527,10 @@ const flexRecipes = unit("flex-recipes", "Flex patterns", "Flex patterns", [
     ],
   ),
   exam("cl-fr-exam", "Контрольна: flex recipes", "Exam: flex recipes", 2, [
-    mcq("cl-fre1", "navbar often uses:", "navbar often uses:", ["flex + space-between", "only SQL", "only canvas", "iframe"], 0),
+    { ...mcq("cl-fre1", "Що може розмістити дві групи навігації по краях?", "What can place two navigation groups at opposite edges?", ["flex + space-between", "лише SQL", "лише canvas", "iframe"], 0), optionsEn: ["flex + space-between", "Only SQL", "Only canvas", "iframe"] },
     codeFill("cl-fre2", "wrap", "wrap", "css", "flex-wrap: ___;", ["wrap"], true),
-    codeFill("cl-fre3", "gap", "gap", "css", "gap: ___;", ["1rem", "16px", "8px"], false),
-    mcq("cl-fre4", "centering a box in flex:", "centering a box in flex:", ["justify+align center", "only z-index", "only opacity", "git"], 0),
+    codeFill("cl-fre3", "Задайте проміжок 1rem.", "Set a gap of 1rem.", "css", "gap: ___;", ["1rem"], false),
+    { ...mcq("cl-fre4", "Як центрувати елемент на обох осях flex-контейнера?", "How do you center an item on both axes of a flex container?", ["justify-content і align-items зі значенням center", "лише z-index", "лише opacity", "за допомогою Git"], 0), optionsEn: ["Set justify-content and align-items to center", "Only z-index", "Only opacity", "Using Git"] },
   ]),
 ]);
 
@@ -557,8 +557,8 @@ const gridCore = unit("grid-core", "Grid core", "Grid core", [
       ),
       codeFill(
         "cl-g2",
-        "3 equal columns",
-        "3 equal columns",
+        "Задайте три стовпці з однаковим коефіцієнтом fr.",
+        "Define three columns with the same fr factor.",
         "css",
         "grid-template-columns: repeat(3, ___);",
         ["1fr"],
@@ -586,11 +586,11 @@ const gridCore = unit("grid-core", "Grid core", "Grid core", [
       }),
       codeFill(
         "cl-g4",
-        "gap",
-        "gap",
+        "Задайте проміжок 1rem.",
+        "Set a gap of 1rem.",
         "css",
         "gap: ___;",
-        ["1rem", "16px", "8px"],
+        ["1rem"],
         false,
       ),
       { ...(codeRead(
@@ -627,11 +627,11 @@ const gridCore = unit("grid-core", "Grid core", "Grid core", [
       }),
       codeFill(
         "cl-g7",
-        "template rows",
-        "template rows",
+        "Задайте першому рядку розмір auto.",
+        "Set the first row size to auto.",
         "css",
         "grid-template-rows: ___ 1fr;",
-        ["auto", "100px", "2rem"],
+        ["auto"],
         false,
       ),
       { ...mcq(
@@ -647,8 +647,8 @@ const gridCore = unit("grid-core", "Grid core", "Grid core", [
     codeFill("cl-gce1", "display grid", "display grid", "css", "display: ___;", ["grid"], true),
     codeFill("cl-gce2", "Допишіть другу рівну колонку", "Complete the second equal column", "css", "grid-template-columns: 1fr ___;", ["1fr"], false),
     codeFill("cl-gce3", "repeat", "repeat", "css", "grid-template-columns: ___(3, 1fr);", ["repeat"], true),
-    mcq("cl-gce4", "fr means:", "fr means:", ["fraction of free space", "font root only", "flex ratio HTML", "SQL"], 0),
-    codeFill("cl-gce5", "gap", "gap", "css", "gap: ___;", ["1rem", "8px", "16px"], false),
+    { ...mcq("cl-gce4", "Що описує одиниця fr у Grid?", "What does the fr unit describe in Grid?", ["Частку доступного простору для доріжок", "Лише розмір кореневого шрифту", "HTML-атрибут flex", "SQL-запит"], 0), optionsEn: ["A fraction of available space for tracks", "Only the root font size", "An HTML flex attribute", "An SQL query"] },
+    codeFill("cl-gce5", "Задайте проміжок 1rem.", "Set a gap of 1rem.", "css", "gap: ___;", ["1rem"], false),
   ]),
 ]);
 
@@ -710,11 +710,11 @@ const gridPlacement = unit("grid-placement", "Grid placement", "Grid placement",
       ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["Named layout areas", "Only flex", "Only absolute positioning", "An SQL view"] },
       codeFill(
         "cl-gp4",
-        "area name on item",
-        "area name on item",
+        "Призначте елемент області main.",
+        "Assign the item to the main area.",
         "css",
         "grid-area: ___;",
-        ["header", "main", "nav", "footer"],
+        ["main"],
         false,
       ),
     ],
@@ -750,9 +750,9 @@ const gridPlacement = unit("grid-placement", "Grid placement", "Grid placement",
   ),
   exam("cl-gp-exam", "Контрольна: placement", "Exam: placement", 3, [
     codeFill("cl-gpe1", "span", "span", "css", "grid-column: ___ 2;", ["span"], true),
-    codeFill("cl-gpe2", "grid-area", "grid-area", "css", "grid-area: ___;", ["main", "header", "sidebar"], false),
-    mcq("cl-gpe3", "template-areas:", "template-areas:", ["name layout regions", "only fonts", "ARIA", "SMTP"], 0),
-    mcq("cl-gpe4", "auto-fit helps:", "auto-fit helps:", ["responsive columns", "tsc emit", "Elo", "Docker only"], 0),
+    codeFill("cl-gpe2", "Призначте елемент області main.", "Assign the item to the main area.", "css", "grid-area: ___;", ["main"], false),
+    { ...mcq("cl-gpe3", "Що описує grid-template-areas?", "What does grid-template-areas describe?", ["Іменовані області макета", "Лише шрифти", "Ролі ARIA", "Протокол SMTP"], 0), optionsEn: ["Named layout areas", "Only fonts", "ARIA roles", "The SMTP protocol"] },
+    { ...mcq("cl-gpe4", "Для чого корисний auto-fit із minmax?", "What is auto-fit with minmax useful for?", ["Для адаптивної кількості колонок", "Для компіляції TypeScript", "Для рейтингу Elo", "Лише для Docker"], 0), optionsEn: ["A responsive number of columns", "Compiling TypeScript", "An Elo rating", "Only Docker"] },
   ]),
 ]);
 
@@ -781,11 +781,11 @@ const gridResponsive = unit("grid-responsive", "Responsive grid", "Responsive gr
       ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["Three flexible columns for .grid", "Always one column", "Disables grid", "Forbids flex"] },
       codeFill(
         "cl-gr2",
-        "min-width media",
-        "min-width media",
+        "Задайте медіазапит від 768px.",
+        "Set a media query starting at 768px.",
         "css",
         "@media (min-width: ___px) { }",
-        ["768", "640", "1024"],
+        ["768"],
         false,
       ),
     ],
@@ -810,19 +810,19 @@ const gridResponsive = unit("grid-responsive", "Responsive grid", "Responsive gr
       ), optionsEn: ["Bounds the preferred value using minimum and maximum", "Only colors", "Only an SQL function", "A git command"] },
       codeFill(
         "cl-gr4",
-        "clamp gap-like size",
-        "clamp for size",
+        "Задайте максимальну ширину 600px.",
+        "Set the maximum width to 600px.",
         "css",
         "width: clamp(200px, 50%, ___);",
-        ["600px", "40rem", "100%"],
+        ["600px"],
         false,
       ),
     ],
   ),
   exam("cl-gr-exam", "Контрольна: responsive", "Exam: responsive", 2, [
-    mcq("cl-gre1", "media queries adjust:", "media queries adjust:", ["layout by viewport", "SQL schema", "git remotes", "SMTP"], 0),
+    { ...mcq("cl-gre1", "Що може змінити медіазапит за шириною viewport?", "What can a viewport-width media query change?", ["Застосовані правила макета", "Схему SQL", "Віддалені репозиторії Git", "Протокол SMTP"], 0), optionsEn: ["Which layout rules apply", "The SQL schema", "Git remotes", "The SMTP protocol"] },
     codeFill("cl-gre2", "repeat fr", "repeat fr", "css", "grid-template-columns: repeat(2, ___);", ["1fr"], true),
-    mcq("cl-gre3", "clamp:", "clamp:", ["min/pref/max", "only display", "only position", "ARIA"], 0),
+    { ...mcq("cl-gre3", "Які аргументи приймає clamp?", "Which arguments does clamp take?", ["Мінімум, бажане значення, максимум", "Лише display", "Лише position", "Роль ARIA"], 0), optionsEn: ["Minimum, preferred value, maximum", "Only display", "Only position", "An ARIA role"] },
     codeFill("cl-gre4", "Використайте auto-fit", "Use auto-fit", "css", "repeat(___, minmax(12rem, 1fr))", ["auto-fit"], false),
   ]),
 ]);
@@ -885,10 +885,10 @@ const chooseTool = unit("choose-tool", "Flex vs Grid", "Flex vs Grid", [
     ],
   ),
   exam("cl-ct-exam", "Контрольна: choose tool", "Exam: choose tool", 2, [
-    mcq("cl-cte1", "1D UI chrome:", "1D UI chrome:", ["flex often", "only grid mandatory", "only float", "canvas"], 0),
-    mcq("cl-cte2", "2D page regions:", "2D page regions:", ["grid often", "only inline", "only br tags", "SVG only"], 0),
-    mcq("cl-cte3", "nesting flex in grid:", "nesting flex in grid:", ["common & fine", "forbidden", "breaks HTML", "needs WASM"], 0),
-    mcq("cl-cte4", "navbar:", "navbar:", ["flex classic", "only table", "only marquee", "blink"], 0),
+    { ...mcq("cl-cte1", "Що часто підходить для розподілу елементів уздовж однієї осі?", "What often suits distributing items along one axis?", ["Flexbox", "Обов'язково лише Grid", "Лише float", "Canvas"], 0), optionsEn: ["Flexbox", "Only Grid is mandatory", "Only float", "Canvas"] },
+    { ...mcq("cl-cte2", "Що часто підходить для спільних рядків і стовпців?", "What often suits shared rows and columns?", ["Grid", "Лише inline", "Лише теги br", "Лише SVG"], 0), optionsEn: ["Grid", "Only inline", "Only br tags", "Only SVG"] },
+    { ...mcq("cl-cte3", "Чи можна вкладати flex-контейнер у Grid?", "Can a flex container be nested in Grid?", ["Так, це поширена композиція", "Ні, це заборонено", "Це ламає HTML", "Лише з WebAssembly"], 0), optionsEn: ["Yes, it is a common composition", "No, it is forbidden", "It breaks HTML", "Only with WebAssembly"] },
+    { ...mcq("cl-cte4", "Що може розташувати посилання в навігаційній панелі?", "What can arrange links in a navigation bar?", ["Flexbox", "Лише таблиця", "Лише marquee", "blink"], 0), optionsEn: ["Flexbox", "Only a table", "Only marquee", "blink"] },
   ]),
 ]);
 
@@ -1034,10 +1034,10 @@ const appliedResponsiveTroubleshooting = unit(
           "Responsive dashboard CSS: mobile stacked → desktop columns",
           "css",
           [
-            ".dashboard { display: flex; flex-direction: column; gap: 1rem; }",
-            "@media (min-width: 1024px) {",
             "  .dashboard { display: grid; grid-template-columns: 240px 1fr 300px; }",
             "}",
+            ".dashboard { display: flex; flex-direction: column; gap: 1rem; }",
+            "@media (min-width: 1024px) {",
           ],
           [
             ".dashboard { display: flex; flex-direction: column; gap: 1rem; }",
@@ -1070,20 +1070,20 @@ const appliedResponsiveTroubleshooting = unit(
           ["fr", "em", "%", "ch"],
           0,
         ),
-        codeRead(
+        { ...codeRead(
           "cl-app-11",
           "Як спрацює властивість aspect-ratio: 16 / 9?",
           "How does aspect-ratio: 16 / 9 behave?",
           "css",
-          ".video-embed { width: 100%; aspect-ratio: 16 / 9; }",
+          ".video-embed { width: 100%; height: auto; aspect-ratio: 16 / 9; }",
           [
-            "Автоматично розраховує висоту відповідно до пропорції 16 до 9 без 'padding hack'",
+            "Допомагає визначити автоматичну висоту за пропорцією 16 до 9, якщо інші обмеження не заважають",
             "Вимагає обов'язкового встановлення height: 100%",
             "Працює лише для відеофайлів у форматі mp4",
             "Зменшує роздільну здатність екрана",
           ],
           0,
-        ),
+        ), optionsEn: ["Helps determine the automatic height at a 16:9 ratio when other constraints allow it", "Requires height: 100%", "Works only for MP4 video files", "Reduces screen resolution"] },
         codeFill(
           "cl-app-12",
           "Властивість для створення відступів між flex або grid елементами",
@@ -1093,24 +1093,24 @@ const appliedResponsiveTroubleshooting = unit(
           ["gap"],
           true,
         ),
-        codeOrder(
+        { ...codeOrder(
           "cl-app-13",
-          "Специфічність CSS селекторів за спаданням сили",
-          "CSS specificity order from highest to lowest",
+          "Впорядкуйте за пріоритетом звичайні авторські правила одного шару, які задають ту саму властивість і збігаються з елементом.",
+          "Order matching normal author declarations in the same layer by precedence when they set the same property.",
           "text",
           [
-            "1. Inline стилі (style=...)",
-            "2. ID селектори (#header)",
-            "3. Класи, псевдокласи та атрибути (.card, :hover, [type])",
-            "4. Теги та псевдоелементи (div, p, ::before)",
+            "Class selector (.card)",
+            "Inline style (style=...)",
+            "Type selector (div)",
+            "ID selector (#header)",
           ],
           [
-            "1. Inline стилі (style=...)",
-            "2. ID селектори (#header)",
-            "3. Класи, псевдокласи та атрибути (.card, :hover, [type])",
-            "4. Теги та псевдоелементи (div, p, ::before)",
+            "Inline style (style=...)",
+            "ID selector (#header)",
+            "Class selector (.card)",
+            "Type selector (div)",
           ],
-        ),
+        ), linesUk: ["Селектор класу (.card)", "Вбудований стиль (style=...)", "Селектор типу (div)", "Селектор ID (#header)"] },
       ],
     ),
   ],
@@ -1234,7 +1234,7 @@ const modernCssResilience = unit(
       ],
     ),
     exam("cl-mod-exam", "Контрольна: сучасний стійкий CSS", "Exam: modern resilient CSS", 3, [
-      mcq(
+      { ...mcq(
         "cl-me1",
         "Чим `@container` краще за `@media (min-width: ...)` для перевикористовуваної картки задачі?",
         "Why choose `@container` over `@media` for a reusable task card?",
@@ -1246,7 +1246,7 @@ const modernCssResilience = unit(
         ],
         0,
         why("Container queries роблять компоненти по-справжньому портативними.", "Container queries decouple component layout from global viewport width."),
-      ),
+      ), optionsEn: ["The card responds to its container width, such as a sidebar or main region", "@container automatically loads fonts", "@media no longer works in browsers", "@container cancels the box model"] },
       codeFill(
         "cl-me2",
         "Плавне масштабування шрифту між мінімумом і максимумом",
@@ -1255,9 +1255,9 @@ const modernCssResilience = unit(
         "font-size: ___(1rem, 2.5vw, 1.5rem);",
         ["clamp"],
         true,
-        why("`clamp(min, preferred, max)` не дає тексту стати замалим при 200% зумі або гігантським на десктопі.", "`clamp(min, preferred, max)` keeps headings readable across zoom levels."),
+        why("`clamp(min, preferred, max)` обмежує обчислене значення, але сам не гарантує читабельності при зумі: перевіряйте реальний макет і масштабування тексту.", "`clamp(min, preferred, max)` bounds the computed value, but does not guarantee readability at zoom: test the actual layout and text scaling."),
       ),
-      codeRead(
+      { ...codeRead(
         "cl-me3",
         "Який рядок не дасть flex-елементу з довгим заголовком витиснути кнопку «Видалити» за межі екрана?",
         "Which property stops a long flex title from pushing the Delete button off-screen?",
@@ -1271,11 +1271,11 @@ const modernCssResilience = unit(
         ],
         0,
         why("`min-width: 0` дозволяє flex-дитячій області стискатися нижче ширини свого контенту.", "`min-width: 0` allows a flex item to shrink below its intrinsic content size."),
-      ),
+      ), optionsEn: ["min-width: 0", "z-index: 99", "flex-grow: 10", "display: inline"] },
       codeOrderAuto(
         "cl-me4",
-        "Порядок каскадних шарів від базових токенів до утиліт",
-        "Cascade layer order from lowest to highest priority",
+        "Впорядкуйте перше оголошення шарів від reset до utilities, щоб звичайні правила utilities мали вищий пріоритет.",
+        "Order the first layer declarations from reset to utilities so normal utilities rules have higher precedence.",
         "css",
         [
           "@layer reset;",
@@ -1283,7 +1283,7 @@ const modernCssResilience = unit(
           "@layer components;",
           "@layer utilities;",
         ],
-        why("Базовий скид і токени оголошуються першими, а точкові утиліти — останніми.", "Declare reset/tokens first and override utilities last."),
+        why("Для звичайних правил пізніші шари мають вищий пріоритет; для !important порядок шарів зворотний.", "For normal rules later layers have higher precedence; for !important the layer order reverses."),
       ),
     ]),
   ],
@@ -1359,10 +1359,10 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
   ),
   exam("cl-cap-exam", "Фінальна контрольна", "Final exam", 3, [
     codeFill("cl-ce1", "Увімкніть Flexbox", "Enable Flexbox", "css", "display: ___;", ["flex"], false),
-    codeFill("cl-ce2", "justify", "justify", "css", "justify-content: ___;", ["center", "space-between", "flex-start"], false),
+    codeFill("cl-ce2", "Центруйте елементи на головній осі.", "Center the items along the main axis.", "css", "justify-content: ___;", ["center"], false),
     codeFill("cl-ce3", "grid", "grid", "css", "display: ___;", ["grid"], true),
     codeFill("cl-ce4", "1fr", "1fr", "css", "grid-template-columns: repeat(3, ___);", ["1fr"], true),
-    mcq("cl-ce5", "flex vs grid:", "flex vs grid:", ["1D vs 2D sweet spots", "identical always", "grid is HTML", "flex is SQL"], 0),
+    { ...mcq("cl-ce5", "Коли часто обирають Flexbox і Grid?", "When are Flexbox and Grid often chosen?", ["Flexbox для однієї осі, Grid для спільних рядків і стовпців", "Вони завжди однакові", "Grid — це HTML", "Flexbox — це SQL"], 0), optionsEn: ["Flexbox for one axis, Grid for shared rows and columns", "They are always identical", "Grid is HTML", "Flexbox is SQL"] },
     codeFill("cl-ce6", "wrap", "wrap", "css", "flex-wrap: ___;", ["wrap"], true),
   ]),
 ]);

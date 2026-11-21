@@ -3,6 +3,7 @@ import {
   codeFill,
   codeOrderAuto,
   codeRead,
+  concept,
   exam,
   lesson,
   matchEx,
@@ -23,23 +24,32 @@ const apRoute = unit(
       3,
       true,
       [
-        mcq(
+        concept(
+          "ap-rt-matrix-concept",
+          "Вибір за вимогами та вимірюванням",
+          "Choose using requirements and measurement",
+          {
+            uk: "Для точно заданих правил почніть із детермінованого коду й тестів: наприклад, перевірки формату або розрахунку за явно визначеним правилом округлення. Модель може допомогти з неоднозначним текстом, але потребує оцінки якості та захисних перевірок. Локальний і зовнішній варіанти порівнюють за приватністю, затримкою, вартістю, експлуатацією та помилками на представницькому наборі. Локальний запуск сам по собі не доводить відсутності витоку, а каскад не гарантує економії чи кращої якості без вимірювань.",
+            en: "For precisely defined rules, start with deterministic code and tests: for example, format validation or a calculation with an explicit rounding rule. A model can help with ambiguous text, but needs quality evaluation and safeguards. Compare local and hosted options on privacy, latency, cost, operations, and errors using a representative set. Local deployment alone does not prove data cannot leak, and a cascade does not guarantee savings or better quality without measurement.",
+          },
+        ),
+        ({ ...mcq(
           "ap-r1",
           "Застосунок щохвилини перевіряє валідність дат ISO, рахує ПДВ і фільтрує замовлення з чеком > 1 000 грн. Яке рішення правильне?",
           "An app validates ISO dates, calculates VAT, and filters orders over $100 every minute. Which tool belongs here?",
           [
-            "Звичайний Python (без жодної LLM): миттєво, безкоштовно та 100% точно",
+            "Детермінований код із перевірками формату, правил округлення та тестами",
             "Найсильніша хмарна модель із chain-of-thought",
             "Локальна 8B-модель на GPU",
             "Мультиагентний граф із 3 ролей",
           ],
           0,
           why(
-            "Моделі потрібні там, де вхід неструктурований або двозначний. Детерміновані правила завжди дешевші, швидші й надійніші в коді.",
-            "Use models only for unstructured or ambiguous inputs; deterministic rules belong in plain code.",
+            "Визначені правила зручніше явно реалізувати й перевірити; оцінюйте затримку та вартість для конкретного середовища.",
+            "Explicit code is suitable for defined rules; test it and measure latency and cost in the actual environment.",
           ),
-        ),
-        matchEx(
+        ), optionsEn: ["Deterministic code with format checks, explicit rounding rules, and tests","The strongest hosted model with chain of thought","A local 8B model on a GPU","A multi-agent graph with three roles"] }),
+        ({ ...matchEx(
           "ap-r2",
           "Зіставте продуктову задачу з оптимальним виконавцем",
           "Match each product workload to the right runtime tier",
@@ -48,19 +58,19 @@ const apRoute = unit(
             { left: "Тегування приватних внутрішніх тикетів на власному сервері", right: "Компактна локальна модель (Ollama / vLLM)" },
             { left: "Складний синтез суперечливих політик із рідкісними винятками", right: "Потужна хмарна модель (якщо дані дозволено)" },
           ],
-        ),
-        mcq(
+        ), pairsEn: [{"left":"Calculate invoice totals and validate IBAN format","right":"Plain Python or TypeScript without a model"},{"left":"Tag private internal tickets on an approved server","right":"A compact local model"},{"left":"Synthesize conflicting policies and rare exceptions","right":"A capable hosted model when data transfer is authorized"}] }),
+        ({ ...mcq(
           "ap-r3",
-          "Чому каскадна маршрутизація (спочатку правила Python -> потім легка/локальна модель -> і лише за потреби сильна модель) покращує і бюджет, і UX?",
-          "Why does tiered routing (deterministic rules first -> lightweight/local model -> frontier model only when escalated) improve both unit economics and UX?",
+          "Як каскадна маршрутизація може вплинути на бюджет і UX за умови перевірки якості?",
+          "How can tiered routing affect cost and UX when quality is evaluated?",
           [
-            "Більшість типових запитів закривається за мілісекунди за мінімальну ціну, залишаючи повільну дорогу модель лише для справді складних випадків",
+            "Прості випадки можна обробити без моделі, а складні ескалювати; економію, затримку та помилки потрібно виміряти",
             "Це змушує кожен запит проходити через три моделі підряд обов'язково",
             "Це вимикає кешування у браузері",
             "Це прибирає необхідність у тестуванні граничних випадків",
           ],
           0,
-        ),
+        ), optionsEn: ["Handle simple cases without a model and escalate difficult ones; measure cost, latency, and errors","Require every request to traverse three models","Disable browser caching","Remove the need for edge-case tests"] }),
       ],
       { baseXp: 24 },
     ),
@@ -71,36 +81,45 @@ const apRoute = unit(
       3,
       true,
       [
-        codeRead(
+        concept(
+          "ap-rt-code-concept",
+          "Короткий шлях і перевірка приватності",
+          "A fast path and privacy checks",
+          {
+            uk: "Точна команда може мати заздалегідь визначену відповідь без виклику моделі. Для решти запитів перевіряйте дозволи на обробку й передачу даних до маршрутизації; автоматичне виявлення PII може помилитися. За невідомого або забороненого статусу зовнішню передачу блокують чи передають запит на безпечний альтернативний шлях. Локальна обробка також потребує контролю доступу, логів і мережі.",
+            en: "An exact command may have a predefined answer without a model call. For other requests, check processing and data-transfer permissions before routing; automated PII detection can miss data. When the status is unknown or transfer is prohibited, block external transmission or use an approved safe fallback. Local processing also requires access, logging, and network controls.",
+          },
+        ),
+        ({ ...codeRead(
           "ap-r4",
           "Оцініть цей маршрутизатор запитів підтримки: що він робить до звернення до моделі?",
           "Inspect this support router. What advantage does the deterministic fast path provide?",
           "python",
-          "EXACT_COMMANDS = {\"/hours\": HOURS_TEXT, \"/status\": STATUS_HELP}\n\ndef route_support(text: str, has_pii: bool) -> str:\n    clean = text.strip().lower()\n    if clean in EXACT_COMMANDS:\n        return EXACT_COMMANDS[clean]\n    return \"local_triage\" if has_pii else \"hosted_frontier\"",
+          "EXACT_COMMANDS = {\"/hours\": HOURS_TEXT, \"/status\": STATUS_HELP}\n\ndef route_support(text: str, privacy: str) -> str:\n    clean = text.strip().lower()\n    if clean in EXACT_COMMANDS:\n        return EXACT_COMMANDS[clean]\n    if privacy == \"restricted\": return \"local_triage\"\n    if privacy == \"external_allowed\": return \"hosted_frontier\"\n    return \"human_review\"  # unknown policy: no external call",
           [
-            "Миттєво відповідає на відомі точні команди без витрати токенів, а чутливі PII-запити направляє в локальний контур замість зовнішнього API",
+            "Повертає готову відповідь для точних команд, а решту маршрутизує за політикою; невідомий статус передає на перевірку",
             "Пересилає всі паролі в `hosted_frontier`",
             "Видаляє пробіли з усіх документів бази",
             "Не дозволяє використовувати словник `EXACT_COMMANDS`",
           ],
           0,
           why(
-            "Детермінований префільтр знімає рутинне навантаження, а правило маршрутизації тримає дані з PII у локальному контурі.",
-            "Deterministic short-circuits eliminate wasted token calls while policy routing keeps PII inside the local perimeter.",
+            "Точні команди обходяться без моделі. Надійність визначення політики та захист локального контуру треба перевіряти окремо.",
+            "Exact commands avoid model calls. Policy classification and local-boundary protection require separate checks.",
           ),
-        ),
-        codeOrderAuto(
+        ), optionsEn: ["Return a predefined answer for exact commands and route other requests by policy; unknown status goes for review","Send every password to the hosted model","Remove spaces from every database document","Disallow the EXACT_COMMANDS dictionary"] }),
+        ({ ...codeOrderAuto(
           "ap-r5",
           "Впорядкуйте дерево продуктової маршрутизації від найдешевшого шляху до найпотужнішого",
           "Order a product routing cascade from cheapest deterministic check to strongest model",
           "text",
           [
-            "1. Match exact commands, regex IDs, and deterministic business rules in code",
-            "2. Check privacy constraint: keep restricted PII on local/private serving",
-            "3. Use fast small/local model for routine classification or extraction",
-            "4. Escalate only ambiguous multi-document reasoning to strong hosted model",
+            "Match exact commands and deterministic business rules in code",
+            "Check privacy policy and whether external processing is allowed",
+            "Use an approved small or local model for suitable routine cases",
+            "Escalate complex cases only to an authorized and evaluated destination",
           ],
-        ),
+        ), linesUk: ["Перевірте політику приватності та дозвіл на зовнішню обробку","Для відповідних простих випадків використайте дозволену малу або локальну модель","Складні випадки ескалуйте лише до дозволеного й перевіреного виконавця","Зіставте точні команди й детерміновані бізнес-правила в коді"] }),
         codeFill(
           "ap-r6",
           "Поверніть готову відповідь зі словника `RULE_MAP` для точного збігу `exact_code`, не викликаючи модель",
@@ -119,10 +138,10 @@ const apRoute = unit(
       "Checkpoint: Model vs Code Routing",
       3,
       [
-        mcq(
+        ({ ...mcq(
           "ap-r-e1",
-          "Коли звичайний Python завжди перемагає будь-яку мовну модель?",
-          "When does plain deterministic Python beat every LLM?",
+          "Для яких задач зазвичай доречно починати з детермінованого коду?",
+          "For which tasks is deterministic code usually a suitable starting point?",
           [
             "Для арифметики, перевірки форматів, фільтрів прав доступу та чітких бізнес-таблиць рішень",
             "Для перекладу художніх текстів",
@@ -130,8 +149,8 @@ const apRoute = unit(
             "Ніколи, модель завжди швидша",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["Arithmetic, format validation, access filters, and explicit business decision tables","Literary translation","Summarizing arbitrary customer feedback","Never; a model is always faster"] }),
+        ({ ...mcq(
           "ap-r-e2",
           "Коли доречніша компактна локальна модель, а коли потужна хмарна?",
           "When does a local Llama-class model earn its spot versus a strong hosted model?",
@@ -142,21 +161,21 @@ const apRoute = unit(
             "Обидві не потребують перевірки виходу",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["Local can suit approved residency or routine workloads; hosted can suit complex analysis when external transfer is permitted","A local model is always smarter than hosted models","Use a hosted model to calculate string length","Neither option needs output validation"] }),
+        ({ ...codeRead(
           "ap-r-e3",
           "Яка очевидна марнотратність є в цьому коді обробки номера накладної?",
           "Spot the wasted model call in this tracking-number handler:",
           "python",
           "def is_valid_tracking(code: str) -> bool:\n    # Format is always TRK- followed by 8 digits\n    return ask_frontier_llm(f\"Is {code} valid? Reply true/false\") == \"true\"",
           [
-            "Чіткий формат `TRK-\\d{8}` перевіряється за мікросекунди регулярним виразом у Python, без грошей, затримки та ризику помилки LLM",
+            "Чітко визначений формат можна перевірити детермінованим валідатором і тестами без виклику LLM",
             "Треба викликати модель двічі для надійності",
             "Рядок `TRK-` не можна передавати у функцію",
             "Булева функція в Python не може повертати `bool`",
           ],
           0,
-        ),
+        ), optionsEn: ["A defined format can be checked by deterministic validation and tests without an LLM call","Call the model twice for reliability","TRK- cannot be passed to a function","A Python boolean function cannot return bool"] }),
       ],
     ),
   ],
@@ -174,7 +193,16 @@ const apBrief = unit(
       3,
       true,
       [
-        mcq(
+        concept(
+          "ap-br-spec-concept",
+          "Від запиту до перевірюваного брифу",
+          "From a request to a testable brief",
+          {
+            uk: "Почніть із конкретної задачі користувача та ознаки успіху. Визначте допустимі входи, джерела, права на дані, заборонені дії, затримку й поведінку за відсутності інформації. Наприклад, бот може створити чернетку з дозволених статей або передати запит оператору, але не змінює баланс самостійно. Складіть приклади успіху й відмови та перевірте їх; наявність ID джерела ще не доводить, що воно підтверджує відповідь.",
+            en: "Start with a specific user job and a measurable success outcome. Define allowed inputs, sources, data permissions, forbidden actions, latency, and behavior when information is missing. For example, a bot can draft from authorized articles or hand off to an operator, but cannot change a balance on its own. Prepare success and refusal cases and test them; a source ID alone does not prove it supports the answer.",
+          },
+        ),
+        ({ ...mcq(
           "ap-b1",
           "Стейкхолдер просить: «Додай AI у підтримку, щоб клієнти одразу отримували відповіді». Який бриф перетворює це на реальний продукт?",
           "A stakeholder asks: \"Add AI to support so customers get instant answers.\" Which brief makes this buildable and verifiable?",
@@ -189,8 +217,8 @@ const apBrief = unit(
             "Хороший AI-бриф фіксує точні входи, дозволені джерела, жорсткі заборони (non-goals) та критерій, коли система зобов'язана зупинитися чи впасти.",
             "A sharp product brief defines exact inputs, trusted sources, non-goals, and concrete conditions where the system must abstain or fail.",
           ),
-        ),
-        codeOrderAuto(
+        ), optionsEn: ["An authorized request up to 1000 characters and approved guide; no balance changes without a human; cite or hand off","Build a smart bot that always decides and answers confidently","Use the newest model with unlimited tokens and no knowledge base","Remove human operators before testing"] }),
+        ({ ...codeOrderAuto(
           "ap-b2",
           "Впорядкуйте перетворення розмитої бізнес-ідеї у чіткий інженерний бриф",
           "Order the steps turning a vague AI request into a testable product brief",
@@ -201,8 +229,8 @@ const apBrief = unit(
             "State explicit failure/abstention rules when data is missing or low-confidence",
             "Write pass/fail acceptance checks runnable against offline fixture cases",
           ],
-        ),
-        matchEx(
+        ), linesUk: ["Опишіть точні входи, дозволені джерела й заборонені дії","Вкажіть умови відмови або передачі оператору","Створіть перевірки приймання на фікстурах","Визначте вузьку задачу користувача й вимірюваний результат"] }),
+        ({ ...matchEx(
           "ap-b3",
           "Зіставте елемент продуктового брифу з конкретним прикладом",
           "Match each AI product brief element to a concrete example",
@@ -212,7 +240,7 @@ const apBrief = unit(
             { left: "Умова відмови (Fail check)", right: "Якщо знайдено 0 релевантних статей — не вгадувати, а створити тикет" },
             { left: "Бюджет UX", right: "Максимум 1 виклик моделі, таймаут 6с, ціна <= $0.005 за звернення" },
           ],
-        ),
+        ), pairsEn: [{"left":"Input contract","right":"Authenticated userId, text up to 1000 characters, uk/en language"},{"left":"Hard limit (non-goal)","right":"The assistant does not change invoice amounts or passwords on its own"},{"left":"Abstention condition","right":"When no relevant articles are found, create a ticket rather than guess"},{"left":"UX budget","right":"At most one model call, a six-second timeout, and cost at most $0.005 per request"}] }),
       ],
       { baseXp: 24 },
     ),
@@ -223,7 +251,16 @@ const apBrief = unit(
       3,
       true,
       [
-        mcq(
+        concept(
+          "ap-br-checks-concept",
+          "Перевірки та їхні межі",
+          "Checks and their limits",
+          {
+            uk: "Для відсутнього джерела, помилки схеми чи недоступного сервісу визначте безпечний fallback і шлях передачі людині. Поріг схожості пошуку треба калібрувати на розмічених даних; це не ймовірність правильності відповіді. Непорожній список цитат і високий score не гарантують, що документ дозволений, актуальний або підтверджує твердження. Перевіряйте ці властивості окремо та тестуйте некоректні значення, зокрема NaN.",
+            en: "Define a safe fallback and human handoff for missing sources, schema errors, or unavailable services. Calibrate retrieval-score thresholds on labeled data; the score is not the probability that an answer is correct. Nonempty citations and a high score do not guarantee that a document is authorized, current, or supports a claim. Check these properties separately and test malformed values, including NaN.",
+          },
+        ),
+        ({ ...mcq(
           "ap-b4",
           "Навіщо в продуктових вимогах окремо описувати умови, за яких AI-функція має ВІДМОВИТИСЯ відповідати (abstain/handoff)?",
           "Why specify explicit conditions where an AI feature must FAIL or abstain rather than generating a reply?",
@@ -236,23 +273,23 @@ const apBrief = unit(
           0,
           why(
             "Критерій приймання — це не лише те, що система робить при успіху, а й детерміновані чеки, на яких вона не пропускає сумнівний вихід.",
-            "Define fail-closed product gates (missing source, low score, schema error) so bad outputs never reach customers.",
+            "Define fail-closed gates for known failure cases; evaluate their limitations because no gate catches every bad output.",
           ),
-        ),
-        codeRead(
+        ), optionsEn: ["When sources or confidence are insufficient, handoff avoids inventing promises and supports user trust","To show a blank 500 screen more often","To hide database errors","Because users never read more than one sentence"] }),
+        ({ ...codeRead(
           "ap-b5",
-          "Перевірте контракт перевірки перед показом чернетки відповіді клієнту. Яку прогалину це закриває?",
-          "Inspect this TypeScript pre-delivery check. Which product risk does it block?",
+          "Перевірте умову перед показом чернетки. Яке важливе обмеження вона має?",
+          "Inspect this pre-delivery check. What important limitation does it have?",
           "typescript",
           "function gateDraftReply(draft: { text: string; citedDocIds: string[]; topScore: number }) {\n  if (draft.topScore < 0.65 || draft.citedDocIds.length === 0) {\n    return { action: \"handoff\" as const, reason: \"insufficient_grounding\" };\n  }\n  return { action: \"ready\" as const, text: draft.text };\n}",
           [
-            "Блокує відправку впевненої вигаданої відповіді, коли пошук не дав релевантних джерел або модель не процитувала жодного документа",
+            "Score і непорожній список ID не перевіряють права на джерело, його актуальність чи підтвердження твердження; NaN також обійде поріг",
             "Зменшує розмір шрифту на мобільному",
             "Автоматично переписує документацію",
-            "Дозволяє пусті відповіді при високому `topScore`",
+            "Перевіряє, що кожна цитата підтверджує відповідне твердження",
           ],
           0,
-        ),
+        ), optionsEn: ["Score and nonempty IDs do not validate source authorization, freshness, or claim support; NaN also bypasses the threshold","It reduces font size on mobile","It automatically rewrites documentation","It verifies that every citation supports its claim"] }),
         codeFill(
           "ap-b6",
           "Поверніть режим передачі людині `\"handoff\"`, якщо впевненість нижча за поріг",
@@ -271,7 +308,7 @@ const apBrief = unit(
       "Checkpoint: AI Product Brief",
       3,
       [
-        mcq(
+        ({ ...mcq(
           "ap-b-e1",
           "Що робить бізнес-завдання готовим до інженерної реалізації AI-фічі?",
           "What makes a business request ready to build as an AI feature?",
@@ -282,8 +319,8 @@ const apBrief = unit(
             "Відсутність будь-якого fallback-сценарію",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["Defined inputs, sources, prohibited actions, latency/cost budget, and refusal criteria","Only the model name without constraints","A promise that the model knows everything without sources","No fallback scenario"] }),
+        ({ ...codeRead(
           "ap-b-e2",
           "Якого обов'язкового захисного поля бракує в цьому продуктовому контракті бота підтримки?",
           "Which essential fail-check boundary is missing in this support-bot config?",
@@ -296,8 +333,8 @@ const apBrief = unit(
             "Потрібно дозволити боту змінювати паролі",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["Require citations and hand off when no documents are found rather than inventing from general knowledge","Increase inputMaxChars to ten million","Remove sources","Allow the bot to change passwords"] }),
+        ({ ...mcq(
           "ap-b-e3",
           "Навіщо в AI-брифі формулювати окремий пункт Non-Goals (чого фіча НЕ робить)?",
           "Why include explicit Non-Goals in an AI feature brief?",
@@ -308,7 +345,7 @@ const apBrief = unit(
             "Щоб виключити інтерфейс користувача",
           ],
           0,
-        ),
+        ), optionsEn: ["Prevent the feature from silently expanding into unauthorized mutations without approval and checks","Avoid writing any tests","Increase system prompt tokens","Exclude the user interface"] }),
       ],
     ),
   ],
@@ -326,7 +363,16 @@ const apHitl = unit(
       3,
       true,
       [
-        mcq(
+        concept(
+          "ap-hl-patterns-concept",
+          "Контроль відповідно до наслідків",
+          "Control proportional to consequences",
+          {
+            uk: "Для дії з істотними або незворотними наслідками покажіть людині точні параметри й отримайте схвалення до виконання. Чернетку повідомлення можна дати відредагувати перед надсиланням. Автоматичне виконання з Undo підходить лише там, де скасування справді відновлює стан і не залишає незворотних побічних ефектів; перевірте строк та права на скасування. Часті непотрібні підтвердження можуть спричинити втому, тому рівень контролю визначають за ризиком, а не однаково для всіх дій.",
+            en: "For consequential or irreversible actions, show exact parameters and obtain human approval before execution. A message draft can be edited before sending. Automatic execution with undo fits only where reversal actually restores state without irreversible side effects; check the undo window and permissions. Frequent unnecessary approvals can cause fatigue, so choose controls by risk rather than applying identical friction to every action.",
+          },
+        ),
+        ({ ...mcq(
           "ap-h1",
           "Клієнт просить повернення $350, або менеджер відповідає на складний VIP-лист, або бот проставляє внутрішній тег тикета. Чому для цих трьох задач потрібні різні патерни HITL?",
           "Why do a $350 refund, a VIP email reply, and a reversible internal ticket tag require different HITL UX controls?",
@@ -341,8 +387,8 @@ const apHitl = unit(
             "Approve тримає незворотні рішення; Edit прискорює роботу з текстом при збереженні авторства людини; Undo підходить лише для безпечних зворотних кроків.",
             "Match friction to reversibility: Approve for irreversible mutations, Edit for human-authored drafts, Undo for safe reversible defaults.",
           ),
-        ),
-        matchEx(
+        ), optionsEn: ["High irreversible risk needs explicit approval; a customer draft benefits from editing; a safe reversible change may use automation and undo","All three actions should run without human review","Even a simple tag requires three directors to sign","Edit means deleting data without saving"] }),
+        ({ ...matchEx(
           "ap-h2",
           "Зіставте сценарій продукту з правильним патерном контролю людиною",
           "Match each product action to the fitting HITL pattern",
@@ -352,8 +398,8 @@ const apHitl = unit(
             { left: "Проставляння внутрішньої категорії на тикеті", right: "Undo (автоматично з аудитом і кнопкою «Змінити/Скасувати»)" },
             { left: "Масове видалення робочого простору клієнта", right: "Ручний захищений процес адміна (поза діями агента)" },
           ],
-        ),
-        mcq(
+        ), pairsEn: [{"left":"Refund $350 to a customer card","right":"Approve explicitly with amount and recipient"},{"left":"Draft a customer reply with a discount","right":"Edit: a human reviews the draft and sends it"},{"left":"Set an internal ticket category","right":"Undo: automate with audit and a change or undo control"},{"left":"Delete a customer workspace in bulk","right":"A protected manual administrator process outside agent actions"}] }),
+        ({ ...mcq(
           "ap-h3",
           "Чому поганий інтерфейс «Approve» перетворює людину на сліпого клікера («approval fatigue»)?",
           "What causes \"approval fatigue\" where humans blindly rubber-stamp AI actions?",
@@ -364,7 +410,7 @@ const apHitl = unit(
             "Можливість відредагувати текст перед надсиланням",
           ],
           0,
-        ),
+        ), optionsEn: ["Too many trivial approvals or unreadable cards that hide amount, recipient, and before/after changes","A reject button","Showing exact transaction fields","Allowing a draft to be edited before sending"] }),
       ],
       { baseXp: 24 },
     ),
@@ -375,25 +421,34 @@ const apHitl = unit(
       4,
       false,
       [
-        codeRead(
+        concept(
+          "ap-hl-state-concept",
+          "Схвалення прив'язане до конкретної пропозиції",
+          "Approval is bound to a specific proposal",
+          {
+            uk: "Сервер зберігає незмінні параметри та версію пропозиції, перевіряє повноваження того, хто схвалює й виконує, і строк дії схвалення. Зміна суми чи одержувача потребує нового підтвердження. Перед виконанням повторно перевіряють стан і права, атомарно резервують дію та використовують ідемпотентність для повторних запитів. Сам запис status=approved не доводить, що схвалення авторизоване, параметри незмінні або операція не виконувалась раніше.",
+            en: "The server stores immutable proposal parameters and version, checks the authority of both approver and executor, and expires approvals. A changed amount or recipient requires new approval. Before execution, recheck state and authorization, atomically claim the action, and use idempotency for retries. A status=approved record alone does not prove authorized approval, unchanged parameters, or that the action has not already run.",
+          },
+        ),
+        ({ ...codeRead(
           "ap-h4",
-          "Огляньте життєвий цикл пропозиції повернення коштів. Яку гарантію дає серверна перевірка `proposal.status === \"approved\"`?",
-          "Inspect this refund proposal executor. What guarantee does checking `proposal.status === \"approved\"` server-side enforce?",
+          "Огляньте виконавець повернення. Чого ще бракує після перевірки `proposal.status === \"approved\"`?",
+          "Inspect this refund executor. What is still missing after checking `proposal.status === \"approved\"`?",
           "typescript",
           "async function executeRefundProposal(proposalId: string, actorId: string) {\n  const proposal = await db.findProposal(proposalId);\n  if (!proposal || proposal.status !== \"approved\" || !proposal.approvedByUserId) {\n    return { ok: false, error: \"human_approval_required\" };\n  }\n  return runPaymentRefund(proposal.orderId, proposal.amountCents, actorId);\n}",
           [
-            "Гарантує, що модель чи підроблений клієнтський запит не виконає незворотний платіж, минаючи зафіксоване в БД схвалення людиною",
-            "Дозволяє моделі самій ставити `status = \"approved\"`",
-            "Видаляє запис про оплату після виконання",
-            "Скасовує аудит-лог транзакції",
+            "Перевірки прав схвалювача й виконавця, незмінності та строку схвалення і захисту від повторного виконання",
+            "Дозволу моделі самій ставити `status = \"approved\"`",
+            "Видалення запису про оплату після виконання",
+            "Скасування аудит-логу транзакції",
           ],
           0,
           why(
-            "Людина залишається власником незворотного кроку лише тоді, коли статус схвалення зберігається на сервері за `approvedByUserId` і перевіряється перед мутацією.",
-            "Humans truly own the irreversible step only when server state tracks `approvedByUserId` and rejects execution without it.",
+            "Статус — лише один контроль; потрібні авторизація, прив'язка параметрів та ідемпотентне виконання.",
+            "Status is only one control; authorization, parameter binding, and idempotent execution are also needed.",
           ),
-        ),
-        codeOrderAuto(
+        ), optionsEn: ["Check approver and executor authorization, immutable and unexpired approval, and protection against repeat execution","Allow the model to set approved status itself","Delete the payment record after execution","Remove the transaction audit log"] }),
+        ({ ...codeOrderAuto(
           "ap-h5",
           "Впорядкуйте життєвий цикл пропозиції з явним людським затвердженням",
           "Order the lifecycle of an irreversible action proposal with HITL",
@@ -404,7 +459,7 @@ const apHitl = unit(
             "Human submits explicit Approve (or edits draft / rejects proposal)",
             "Server verifies persisted human approval and executes action once idempotently",
           ],
-        ),
+        ), linesUk: ["Рецензент перевіряє суму, одержувача та причину в інтерфейсі","Людина явно схвалює, редагує чернетку або відхиляє пропозицію","Сервер перевіряє збережене схвалення й виконує дію ідемпотентно","Агент створює збережену пропозицію pending_approval з фіксованими параметрами"] }),
         codeFill(
           "ap-h6",
           "Відхиліть виконання незворотної операції, якщо статус пропозиції не `\"approved\"`",
@@ -423,7 +478,7 @@ const apHitl = unit(
       "Checkpoint: Human-in-the-Loop Controls",
       4,
       [
-        mcq(
+        ({ ...mcq(
           "ap-h-e1",
           "Який патерн найкраще підходить для ситуації, коли AI готує відповідь клієнту, але тон і деталі має фінально проконтролювати оператор?",
           "Which HITL control fits best when AI drafts a customer email and an operator should verify and tweak wording before sending?",
@@ -434,8 +489,8 @@ const apHitl = unit(
             "Випадкове видалення чернетки",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["Edit: a human reviews and may change the draft before sending","Send automatically without review","Run silently without logging","Delete the draft at random"] }),
+        ({ ...codeRead(
           "ap-h-e2",
           "Знайдіть прогалину в цьому начебто HITL-ендпоїнті:",
           "Spot the broken HITL gate in this API endpoint:",
@@ -448,8 +503,8 @@ const apHitl = unit(
             "`res.json` не приймає Promise",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["The server trusts autoApproved from the request instead of an authorized human-approved stored proposal","Pass the amount as a string with a dollar sign","Remove authMiddleware","res.json cannot accept a Promise"] }),
+        ({ ...mcq(
           "ap-h-e3",
           "Як зменшити втому від підтверджень (approval fatigue) у продуктовій команді?",
           "How should product teams prevent approval fatigue?",
@@ -460,7 +515,7 @@ const apHitl = unit(
             "Перекласти все на автоматику без можливості відміни",
           ],
           0,
-        ),
+        ), optionsEn: ["Avoid unnecessary approval for low-risk reversible steps and show key fields and consequences for important decisions","Add four dialogs to every click","Hide amount and recipient behind details","Automate everything without undo"] }),
       ],
     ),
   ],
@@ -478,12 +533,21 @@ const apFailure = unit(
       4,
       false,
       [
-        mcq(
+        concept(
+          "ap-fl-modes-concept",
+          "Відмова як зрозумілий наступний крок",
+          "A refusal with a useful next step",
+          {
+            uk: "Розрізняйте відсутність джерел, неоднозначний запит, збій сервісу та виявлену помилку: для кожного випадку потрібен зрозумілий стан і наступний крок, наприклад уточнення або передача оператору. Порожній пошук може бути помилкою індексу, а не доказом, що відповіді ніде не існує. Чесна відмова зменшує ризик вигаданого факту, але не гарантує, що система ніколи не помилиться в інших випадках.",
+            en: "Distinguish missing sources, an ambiguous request, a service failure, and a detected mistake: each needs a clear state and next step, such as clarification or human handoff. An empty retrieval result may indicate an index problem rather than proving that no answer exists. Honest abstention reduces the risk of an invented fact but does not guarantee the system will never err elsewhere.",
+          },
+        ),
+        ({ ...mcq(
           "ap-f1",
-          "Якщо примусити систему підтримки завжди видавати впевнений абзац навіть при 0 знайдених статей у базі, який побічний ефект гарантований?",
+          "Який ризик виникає, якщо система підтримки завжди видає впевнений абзац навіть при 0 знайдених статей?",
           "If a support assistant is forced to always generate a polished paragraph even when 0 help articles matched, what happens?",
           [
-            "Модель почне переконливо вигадувати неіснуючі умови тарифу або повернення, руйнуючи довіру та створюючи юридичні ризики",
+            "Модель може переконливо вигадати умови тарифу або повернення, створюючи ризик для користувача",
             "Користувачі отримають точнішу відповідь без бази",
             "Час відповіді скоротиться до нуля",
             "Кількість звернень у підтримку впаде вдвічі назавжди",
@@ -491,10 +555,10 @@ const apFailure = unit(
           0,
           why(
             "«Я не знаю» + зрозумілий наступний крок (уточнити питання чи передати оператору) — це ознака зрілого продукту, а не збій.",
-            "\"I don't know\" plus a helpful next step (clarifying question or operator handoff) builds trust and stops confident hallucinations.",
+            "An honest abstention with a useful next step reduces unsupported answers, but does not eliminate all model errors.",
           ),
-        ),
-        matchEx(
+        ), optionsEn: ["The model may confidently invent tariff or return conditions, creating risk for the user","Users obtain a more accurate answer without sources","Response time drops to zero","Support requests fall by half forever"] }),
+        ({ ...matchEx(
           "ap-f2",
           "Зіставте ситуацію відмови AI-продукту з коректною реакцією інтерфейсу",
           "Match each AI failure mode to the right product UX fallback",
@@ -504,8 +568,8 @@ const apFailure = unit(
             { left: "Модель повернула невалідний JSON замість структури", right: "Обмежений повтор/fallback без показу сирого сміття клієнту" },
             { left: "Знайдено статтю, але користувач не згоден з фактом", right: "Показати посилання на першоджерело і кнопку «Повідомити про помилку»" },
           ],
-        ),
-        codeRead(
+        ), pairsEn: [{"left":"Search returned no relevant excerpts","right":"Say no match was found and offer a human handoff"},{"left":"The request is ambiguous","right":"Ask a short clarifying question with options"},{"left":"The model returned invalid JSON","right":"Use a bounded retry or fallback without showing raw output"},{"left":"The user disputes a cited fact","right":"Show the source and offer an error-reporting control"}] }),
+        ({ ...codeRead(
           "ap-f3",
           "Огляньте цю функцію відповіді по базі знань. Чому перевірка `if not chunks:` перед викликом моделі критична?",
           "Inspect this grounded Q&A helper. Why is checking `if not chunks:` before calling the model crucial?",
@@ -518,7 +582,7 @@ const apFailure = unit(
             "У Python порожній список кидає `MemoryError`",
           ],
           0,
-        ),
+        ), optionsEn: ["It avoids invoking the model with no documents and returns an abstention status","generate_cited_answer cannot accept lists","It only speeds up CSS","An empty Python list raises MemoryError"] }),
       ],
       { baseXp: 25 },
     ),
@@ -529,7 +593,16 @@ const apFailure = unit(
       4,
       false,
       [
-        mcq(
+        concept(
+          "ap-fl-evals-concept",
+          "Невеликий eval із відомими межами",
+          "A small eval with known limitations",
+          {
+            uk: "Зберіть дозволені синтетичні або належно знеособлені приклади успіху, межових випадків і відмов. Для кожного зафіксуйте очікувану поведінку та критерій оцінки; приховуйте варіант відповіді від оцінювача, коли це можливо. Порівнюйте версії на однаковому наборі й повідомляйте кількість прикладів: 30 випадків допоможуть знайти регресії, але не доведуть безпеку для всієї аудиторії. Частка чернеток без правок — лише непрямий сигнал, який слід доповнювати вибірковим рев'ю та причинами змін.",
+            en: "Collect authorized synthetic or properly anonymized success, edge, and abstention cases. Record the expected behavior and scoring rule for each; blind reviewers to the candidate where possible. Compare versions on the same set and report sample size: 30 cases can uncover regressions but cannot prove safety for the whole audience. The share of drafts accepted without edits is only a proxy and should be complemented by sampled review and reasons for changes.",
+          },
+        ),
+        ({ ...mcq(
           "ap-f4",
           "Невелика команда ще не має складної платформи оцінки моделей. Як product owner може побудувати високоефективний набір перевірок за один день?",
           "A small team has no dedicated LLM metrics platform yet. How can a product owner build a high-signal eval set in one day?",
@@ -541,11 +614,11 @@ const apFailure = unit(
           ],
           0,
           why(
-            "Проста таблиця або JSON із 30–50 реальними кейсами (включно з випадками «має сказати Я не знаю») б'є складні абстрактні метрики без прив'язки до продукту.",
-            "A 30–50 row spreadsheet or fixture file of real anonymized tickets—including cases that must abstain—outperforms complex vanity metrics.",
+            "Таблиця з явними критеріями й випадками відмови корисна для регресії, але мала вибірка не доводить загальну якість.",
+            "A small table with explicit criteria and abstention cases helps detect regressions but does not establish overall quality.",
           ),
-        ),
-        codeOrderAuto(
+        ), optionsEn: ["Collect 30–50 properly anonymized cases including boundaries and abstentions with expected routes, sources, forbidden claims, and pass/fail criteria","Evaluate once every six months on one demo","Ask the model for a score from 1 to 10 on one prompt","Sort answers by exclamation marks"] }),
+        ({ ...codeOrderAuto(
           "ap-f5",
           "Впорядкуйте запуск легкого продуктового eval-циклу без спеціальної платформи",
           "Order a lightweight product-owner eval workflow without an eval platform",
@@ -556,8 +629,8 @@ const apFailure = unit(
             "Score candidate outputs blindly before and after prompt/retrieval changes",
             "Track weekly human edit rate on live drafts to add new regressions to the 30-case set",
           ],
-        ),
-        mcq(
+        ), linesUk: ["Для кожного запишіть явні правила pass/fail і очікуване джерело","Оцініть відповіді до та після зміни, за можливості без знання версії","Відстежуйте правки операторів і додавайте перевірені регресії","Виберіть 30 дозволених знеособлених прикладів успіху, межових випадків і відмов"] }),
+        ({ ...mcq(
           "ap-f6",
           "Яка проста продуктова метрика після запуску функції «Edit чернетки» найкраще показує реальну якість AI для операторів?",
           "After shipping an AI-drafted reply feature with human editing, which simple product metric signals real-world quality?",
@@ -568,7 +641,7 @@ const apFailure = unit(
             "Кількість натискань клавіші F5",
           ],
           0,
-        ),
+        ), optionsEn: ["The share of drafts accepted without substantial edits and operators reasons for changes","CSS bundle size","Average draft length without edits","Number of F5 presses"] }),
       ],
       { baseXp: 25 },
     ),
@@ -578,7 +651,7 @@ const apFailure = unit(
       "Checkpoint: Failure Modes and Product Evals",
       4,
       [
-        mcq(
+        ({ ...mcq(
           "ap-f-e1",
           "Чому чесний стан «Я не знаю» з переходом до людини підвищує цінність AI-продукту?",
           "Why does an explicit \"I don't know\" fallback increase trust in an AI product?",
@@ -589,8 +662,8 @@ const apFailure = unit(
             "Тому що це забороняє передавати тикети людям",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["The user sees an honest limit and a path to resolution rather than an unsupported answer","It disables all logging","The model stops using memory","It forbids handing tickets to humans"] }),
+        ({ ...codeRead(
           "ap-f-e2",
           "Який ризик містить цей код генерації відповіді при порожньому пошуку?",
           "What product risk does this function create when retrieval returns zero chunks?",
@@ -603,8 +676,8 @@ const apFailure = unit(
             "Треба прибрати питання `q` з промпта",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["With no chunks, the model still runs and may invent an answer instead of abstaining or handing off","An empty list cannot be formatted in a Python f-string","search_kb must return a dictionary","Remove the question from the prompt"] }),
+        ({ ...mcq(
           "ap-f-e3",
           "Що обов'язково включити до 30-кейсового продуктового eval-набору, який веде product owner?",
           "What must be included in a lightweight 30-case product-owner eval sheet?",
@@ -615,7 +688,7 @@ const apFailure = unit(
             "Виключно думку моделі про саму себе без еталону",
           ],
           0,
-        ),
+        ), optionsEn: ["Success, edge, and abstention or escalation cases","Only 30 identical greetings","Real users secret passwords","Only the model self-rating without a reference"] }),
       ],
     ),
   ],
@@ -633,7 +706,16 @@ const apCapstone = unit(
       4,
       false,
       [
-        mcq(
+        concept(
+          "ap-cp-review-concept",
+          "Межі агента підтримки",
+          "Support-agent boundaries",
+          {
+            uk: "Побудуйте потік від запиту до результату: визначте, які інструменти читають дані, як вони перевіряють права на конкретне замовлення і які дії потребують людини. Модель може підготувати відповідь із дозволених джерел або запропонувати передачу оператору; вона не повинна отримувати довільний доступ до платежів. Для повернення коштів перевіряйте незмінні параметри схвалення, повноваження й повторне виконання. Наявність ID цитати сама по собі не підтверджує її змісту.",
+            en: "Map the flow from request to outcome: identify read tools, how each authorizes access to a specific order, and which actions require a person. The model can draft from authorized sources or propose a handoff; it should not receive arbitrary payment access. For refunds verify immutable approved parameters, authorization, and replay protection. A citation ID alone does not prove that its content supports the answer.",
+          },
+        ),
+        ({ ...mcq(
           "ap-c1",
           "Ви проводите дизайн-рев'ю агента підтримки для магазину: клієнти питають «Де моє замовлення?», просять пояснити політику повернення або вимагають рефанд. Який розподіл ролей правильний?",
           "You are reviewing a small shop support agent handling \"Where is my order?\", return-policy Q&A, and refund requests. Which split is right?",
@@ -648,22 +730,22 @@ const apCapstone = unit(
             "Це об'єднує всі принципи стеку: детерміновані інструменти з авторизацією, цитована відповідь моделі з фолбеком, людина на незворотному кроці та прозорий аудит.",
             "This ties the stack together: scoped read tools, cited drafting with abstention, human confirmation on refunds, and structured audit logging.",
           ),
-        ),
-        matchEx(
+        ), optionsEn: ["Use scoped read-only order and knowledge tools, model-drafted answers, human refund approval, and structured audit records","Let the model update payments directly and trust an unauthenticated order status","Use unrestricted SQL for all tasks without logs","Forbid operators from seeing sources"] }),
+        ({ ...matchEx(
           "ap-c2",
           "Зіставте функцію агента підтримки з правильним власником шару",
           "Match each support-agent capability to the right layer owner",
           [
             { left: "Отримати трекінг замовлення поточного клієнта", right: "Детермінований read-tool з перевіркою `session.userId`" },
-            { left: "Пояснити правило повернення з посиланням на статтю", right: "Модель + RAG з перевіркою ID цитат або «Я не знаю»" },
+            { left: "Пояснити правило повернення з посиланням на статтю", right: "Модель + дозволені джерела й перевірка підтримки тверджень або «Я не знаю»" },
             { left: "Затвердити реальний переказ повернення коштів", right: "Людина-оператор (HITL Approve з точними полями)" },
             { left: "Зафіксувати ID кроків, цитати, токени й рішення людини", right: "Санітизований trace & audit log" },
           ],
-        ),
-        codeRead(
+        ), pairsEn: [{"left":"Get the current customer order tracking status","right":"A deterministic read tool checking session.userId"},{"left":"Explain a return policy and cite an article","right":"A model with authorized sources and claim-support checks, or an abstention"},{"left":"Approve a real refund transfer","right":"A human operator approves exact parameters"},{"left":"Record step IDs, citations, token usage, and human decisions","right":"A sanitized trace and audit log"}] }),
+        ({ ...codeRead(
           "ap-c3",
-          "Проведіть дизайн-рев'ю конфігурації невеликого агента підтримки та вкажіть дві архітектурні вади:",
-          "Review this support-agent config and spot the two critical architectural flaws:",
+          "Проведіть дизайн-рев'ю конфігурації невеликого агента підтримки та вкажіть критичні вади:",
+          "Review this support-agent config and identify its critical flaws:",
           "typescript",
           "const supportAgentConfig = {\n  tools: {\n    lookupOrder: { authRequired: false, scopeBySessionUser: false },\n    executeRefund: { maxAutoUsd: 500, requiresHumanApproval: false },\n  },\n  logFields: [\"traceId\", \"rawPromptWithCookies\"],\n};",
           [
@@ -673,7 +755,7 @@ const apCapstone = unit(
             "Поріг `$500` треба підвищити до `$5000`",
           ],
           0,
-        ),
+        ), optionsEn: ["Order lookup lacks session-owner authorization; refunds run without human approval; cookies enter the log","traceId cannot be logged","Rename tools to plugins","Raise the threshold to $5000"] }),
       ],
       { baseXp: 26 },
     ),
@@ -684,9 +766,18 @@ const apCapstone = unit(
       4,
       false,
       [
-        mcq(
+        concept(
+          "ap-cp-logging-concept",
+          "Аудит без зайвого розкриття",
+          "Audit without unnecessary disclosure",
+          {
+            uk: "Для розслідування зберігайте лише потрібні ідентифікатори, версії, результати перевірок і рішення схвалювача; вилучайте секрети до запису. Навіть ID документів та операторів можуть бути чутливими, тому обмежуйте доступ і строк зберігання. Версії й ID допомагають простежити контекст, але не гарантують точного відтворення стохастичної відповіді або доступності старого вмісту. Перевіряйте журналювання й процедуру інциденту на тестових даних.",
+            en: "For investigation retain only necessary identifiers, versions, check results, and approval decisions; remove secrets before writing. Document and operator IDs can themselves be sensitive, so restrict access and retention. Versions and IDs help trace context, but do not guarantee exact reproduction of a stochastic response or availability of old content. Test logging and the incident procedure with fixture data.",
+          },
+        ),
+        ({ ...mcq(
           "ap-c4",
-          "Через тиждень після запуску клієнт оскаржує невірну відповідь про повернення товару. Які поля в логах дозволять інженеру й власнику продукту точно відтворити інцидент без зберігання секретів?",
+          "Клієнт оскаржує відповідь про повернення товару. Які поля допоможуть простежити інцидент без зберігання секретів?",
           "A week after launch, a customer disputes a support-agent reply. Which audit fields let the team trace what happened without storing secrets?",
           [
             "`traceId`, версія моделі та промпта, ID повернутих чанків RAG, імена й статуси викликаних інструментів, `approvedByUserId` (якщо була дія) та витрата токенів",
@@ -695,8 +786,8 @@ const apCapstone = unit(
             "Лише статус HTTP 200 без деталей пошуку",
           ],
           0,
-        ),
-        codeOrderAuto(
+        ), optionsEn: ["Trace ID, model and prompt versions, retrieved chunk IDs, tool statuses, approver ID if applicable, and token usage","The full .env, customer cookie, and raw password","Only a timestamp without step IDs","Only HTTP 200 without retrieval details"] }),
+        ({ ...codeOrderAuto(
           "ap-c5",
           "Впорядкуйте фінальний чекліст дизайн-рев'ю перед запуском агента підтримки",
           "Order the final pre-launch architecture review checklist for the support agent",
@@ -708,7 +799,7 @@ const apCapstone = unit(
             "Verify HITL approval gates irreversible steps and audit logs scrub secrets",
             "Run golden-fixture CI evals plus budget/rate-limit checks before release",
           ],
-        ),
+        ), linesUk: ["Перевірте allowlist інструментів, схеми та ідемпотентність змін","Перевірте передачу оператору за відсутності джерел або низької впевненості","Перевірте схвалення незворотних дій і видалення секретів із журналів","Запустіть оцінку на фікстурах і перевірте бюджет та обмеження частоти","Перевірте детерміновані правила й обмеження доступу в коді"] }),
         codeFill(
           "ap-c6",
           "Запишіть ідентифікатор людини-оператора, яка схвалила дію, у поле `approvedBy` аудит-логу",
@@ -727,7 +818,7 @@ const apCapstone = unit(
       "Checkpoint: Support Agent Design Review",
       4,
       [
-        mcq(
+        ({ ...mcq(
           "ap-c-e1",
           "У малому агенті підтримки що належить інструменту, що людині, а що логу?",
           "In a well-designed small support agent, what belongs to tools, what to a person, and what to logs?",
@@ -738,8 +829,8 @@ const apCapstone = unit(
             "Усе робить модель самостійно без авторизації",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["Tools provide scoped reads and search; humans approve refunds and handle escalation; logs record minimal trace, source, step, and approver metadata without secrets","Tools run arbitrary SQL and transfers; humans only read quarterly reports; logs contain raw credentials","No tools; a human copies all RAG data; logs are disabled","The model does everything without authorization"] }),
+        ({ ...codeRead(
           "ap-c-e2",
           "Які дві помилки дизайн-рев'ю треба виправити перед випуском цього сценарію підтримки?",
           "Identify two design-review blockers in this support-agent flow before launch:",
@@ -752,19 +843,19 @@ const apCapstone = unit(
             "Треба прибрати параметр `userId` зовсім",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["Order lookup is not scoped to the authenticated user, and the model triggers an autonomous refund without approval or limits","The function must return HTML instead of a Promise","Rename text to body","Remove userId entirely"] }),
+        ({ ...mcq(
           "ap-c-e3",
           "Навіщо в аудит-лозі фіксувати конкретні ID використаних документів і версію моделі?",
           "Why log retrieved document IDs and pinned model version on every support-agent run?",
           [
-            "Щоб при скарзі клієнта точно побачити, на якому застарілому фрагменті чи моделі базувалась відповідь, і перетворити інцидент на регресійну фікстуру",
+            "Щоб простежити версії та джерела інциденту й допомогти підготувати регресійний кейс, з обмеженням доступу до журналу",
             "Щоб прискорити SQL-запит",
             "Щоб обійти обмеження токенів",
             "Щоб зберігати паролі користувачів",
           ],
           0,
-        ),
+        ), optionsEn: ["To trace versions and sources during an incident and help prepare a regression case while restricting log access","To speed up SQL","To bypass token limits","To store user passwords"] }),
       ],
     ),
   ],

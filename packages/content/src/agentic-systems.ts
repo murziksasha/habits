@@ -3,6 +3,7 @@ import {
   codeFill,
   codeOrderAuto,
   codeRead,
+  concept,
   exam,
   lesson,
   matchEx,
@@ -23,23 +24,32 @@ const agChoose = unit(
       3,
       true,
       [
-        mcq(
+        concept(
+          "ag-ch-ladder-concept",
+          "Обирайте найпростіший спосіб, що відповідає вимогам",
+          "Choose the simplest approach that meets requirements",
+          {
+            uk: "Для чітких правил почніть із коду та тестів, зокрема для форматів, десяткової арифметики й округлення. Один виклик моделі може допомогти з неоднозначним текстом, якщо контекст уже відомий; фіксований workflow підходить для наперед відомих кроків. Агент із обмеженими інструментами доречний, коли наступний крок справді залежить від результату попереднього. Порівнюйте якість, ризик, затримку та витрати на прикладах: жодна архітектура не гарантує правильність автоматично.",
+            en: "For explicit rules, start with code and tests, including format, decimal arithmetic, and rounding cases. A single model call can help with ambiguous text when context is already available; a fixed workflow suits known steps. An agent with bounded tools may be useful when the next step genuinely depends on previous results. Compare quality, risk, latency, and cost on representative cases: no architecture guarantees correctness automatically.",
+          },
+        ),
+        ({ ...mcq(
           "ag-c1",
           "Потрібно провалідувати формат дати у 5 000 рядках CSV і порахувати суму податку 20%. Що обрати?",
           "You need to validate date formats in 5,000 CSV rows and compute a 20% tax total. What should you build?",
           [
-            "Звичайний детермінований Python-скрипт: нуль витрат на токени, мікросекунди та 100% відтворюваність",
+            "Детермінований Python-скрипт із визначеним округленням, перевіркою формату й тестами",
             "Мультиагентний цикл із трьома ролями та векторною базою",
             "Один виклик великої моделі на кожен рядок у циклі",
             "Автономний планувальник із веб-браузером",
           ],
           0,
           why(
-            "Кожен перехід від скрипта до моделі й далі до циклу агента додає затримку, вартість і нові сценарії відмов.",
-            "Each step from deterministic script to single model call to agent loop multiplies latency, token spend, and failure surface.",
+            "Додаткові виклики й інструменти створюють нові сценарії відмов; фактичні витрати та затримку вимірюють.",
+            "Additional calls and tools create failure modes; measure actual latency and cost rather than assuming a fixed multiplier.",
           ),
-        ),
-        matchEx(
+        ), optionsEn: ["A deterministic Python script with defined rounding, format validation, and tests","A three-role multi-agent loop with a vector database","One large-model call per row","An autonomous planner with a browser"] }),
+        ({ ...matchEx(
           "ag-c2",
           "Зіставте задачу продукту з найпростішою надійною архітектурою",
           "Match each product task to the simplest reliable architecture",
@@ -48,8 +58,8 @@ const agChoose = unit(
             { left: "Класифікувати скаргу клієнта за 5 категоріями у JSON", right: "Один структурований виклик моделі" },
             { left: "Знайти замовлення, перевірити статус доставки й підготувати чернетку відповіді", right: "Обмежений агент із 2–3 інструментами" },
           ],
-        ),
-        mcq(
+        ), pairsEn: [{"left":"Calculate a discount and round to cents","right":"Plain Python or TypeScript code without a model"},{"left":"Classify a customer complaint into five JSON categories","right":"One structured model call"},{"left":"Find an order, check delivery, and draft a reply","right":"A bounded agent with two or three tools"}] }),
+        ({ ...mcq(
           "ag-c3",
           "Чому цикл агента (`model -> tool -> model -> tool`) має значно вищу поверхню відмов, ніж один структурований виклик моделі?",
           "Why does an iterative agent loop have a larger failure surface than one structured model call?",
@@ -60,7 +70,7 @@ const agChoose = unit(
             "Моделі не підтримують виклик функцій по HTTP",
           ],
           0,
-        ),
+        ), optionsEn: ["An early error can cascade, repeated history can increase token use, and the loop may not terminate","A single model call cannot return JSON","Tools do not work in Python","Models cannot call functions over HTTP"] }),
       ],
       { baseXp: 22 },
     ),
@@ -71,14 +81,23 @@ const agChoose = unit(
       3,
       true,
       [
-        codeRead(
+        concept(
+          "ag-ch-surface-concept",
+          "Обмеження циклу та безпечне завершення",
+          "Bound a loop and finish safely",
+          {
+            uk: "Цикл із викликами моделі та інструментів може повторювати помилки або не досягти фінального стану. Визначте ліміти кроків, часу, викликів і бюджету та перевіряйте їх перед новою дією. На вичерпанні збережіть дозволений проміжний результат і повідомте про обмеження; уже запущену зовнішню дію може знадобитися звірити окремо. Тестуйте помилки інструментів, повтори й переривання, а не лише успішний шлях.",
+            en: "A model-and-tool loop can repeat errors or fail to reach a final state. Define step, time, call, and budget limits and check them before starting another action. On exhaustion preserve an authorized partial result and report the limitation; an already-started external action may need separate reconciliation. Test tool errors, retries, and interruptions as well as the happy path.",
+          },
+        ),
+        ({ ...codeRead(
           "ag-c4",
           "Агент застряг на неоднозначному запиті й спалив 40 000 токенів за хвилину. Чому?",
           "This agent loop burned 40,000 tokens in a minute on an ambiguous query. Why?",
           "python",
           "while True:\n    reply = call_model(messages)\n    if reply.is_final:\n        return reply.text\n    messages.append(run_tool(reply.tool_call))",
           [
-            "`while True` не має ліміту кроків (`max_steps`) і бюджету; будь-який повтор помилки інструмента крутить цикл нескінченно",
+            "`while True` не має ліміту кроків і бюджету; повтор помилки може не завершитися без зовнішнього втручання",
             "У `messages.append` не передали температуру",
             "Ключове слово `return` не виходить із `while`",
             "`call_model` треба викликати двічі за ітерацію",
@@ -88,11 +107,11 @@ const agChoose = unit(
             "Кожен агентний цикл повинен мати фіксовану верхню межу кроків (`for step in range(MAX_STEPS):`) і явний вихід у fallback.",
             "Every agent loop requires a hard step cap (`for step in range(MAX_STEPS):`) and explicit fallback on exhaustion.",
           ),
-        ),
-        codeOrderAuto(
+        ), optionsEn: ["The unbounded while loop has no step or budget cap and may repeat a tool error indefinitely","messages.append lacks a temperature","return cannot exit a while loop","Call the model twice each iteration"] }),
+        ({ ...codeOrderAuto(
           "ag-c5",
-          "Впорядкуйте ескалацію архітектур від найдешевшої та найнадійнішої до найскладнішої",
-          "Order architectural choices from lowest cost/risk to highest",
+          "Впорядкуйте варіанти від меншої кількості компонентів до керованого агентного циклу",
+          "Order architectural choices from fewer components to a bounded agent loop",
           "text",
           [
             "Deterministic code (rules, regex, SQL, validation)",
@@ -100,7 +119,7 @@ const agChoose = unit(
             "Fixed pipeline of code + model steps (workflows)",
             "Autonomous loop agent with bounded tools and step cap",
           ],
-        ),
+        ), linesUk: ["Один виклик моделі зі структурованим JSON-виходом","Фіксований процес із кроками коду й моделі","Агентний цикл з обмеженими інструментами та числом кроків","Детермінований код: правила, перевірки формату та SQL"] }),
         codeFill(
           "ag-c6",
           "Обмежте кількість кроків циклу агента константою `MAX_STEPS`",
@@ -119,7 +138,7 @@ const agChoose = unit(
       "Checkpoint: Choosing the Right Pattern",
       3,
       [
-        mcq(
+        ({ ...mcq(
           "ag-c-e1",
           "Коли один виклик моделі з фіксованою JSON-схемою кращий за агента?",
           "When does a single model call with a JSON schema beat an agent?",
@@ -130,8 +149,8 @@ const agChoose = unit(
             "Ніколи, агент завжди дешевший за один виклик",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["When all necessary context is available and dynamic tool selection is unnecessary","When ten dependent external-service calls are needed","When the task is adding two numbers","Never; an agent is always cheaper"] }),
+        ({ ...codeRead(
           "ag-c-e2",
           "Який захист відсутній у цьому циклі запуску агента?",
           "Which essential safeguard is missing from this agent runner?",
@@ -144,8 +163,8 @@ const agChoose = unit(
             "Сортування `history` за алфавітом",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["A maximum iteration count and token or time budget","An empty system message","Deleting the user message after one step","Sorting history alphabetically"] }),
+        ({ ...mcq(
           "ag-c-e3",
           "Яка прихована ціна заміни 20 рядків звичайного коду парсингу на LLM-агента?",
           "What is the hidden cost of replacing 20 lines of deterministic parsing code with an LLM agent?",
@@ -156,7 +175,7 @@ const agChoose = unit(
             "Зникає потреба в моніторингу",
           ],
           0,
-        ),
+        ), optionsEn: ["Output uncertainty, potential latency, API limits, and more complex regression testing","Python stops supporting modules","Code becomes ten times shorter without cost","Monitoring is no longer needed"] }),
       ],
     ),
   ],
@@ -174,7 +193,16 @@ const agTools = unit(
       3,
       true,
       [
-        codeRead(
+        concept(
+          "ag-tl-schema-concept",
+          "Контракт і безпечна помилка інструмента",
+          "A tool contract and safe errors",
+          {
+            uk: "Схема визначає дозволені поля, типи та межі до виконання інструмента. Валідація формату не доводить право користувача на ресурс: сервер окремо перевіряє сесію й авторизацію. На відомі помилки повертайте короткий структурований код і безпечну підказку, а не stack trace чи секрети. Не виправляйте критичні аргументи мовчки; обмежте повторні спроби й тестуйте невалідний ввід та доступ до чужих даних.",
+            en: "A schema defines allowed fields, types, and bounds before a tool runs. Format validation does not prove that the user can access a resource: the server must check session and authorization separately. Return a short structured code and safe hint for known errors, not a stack trace or secrets. Do not silently replace critical arguments; bound retries and test invalid input and cross-user access.",
+          },
+        ),
+        ({ ...codeRead(
           "ag-t1",
           "Оцініть цей TypeScript-контракт інструмента: чим чіткий enum/діапазон кращий за загальне поле `query: z.string()`?",
           "Compare this typed tool schema against a vague `query: z.string()` catch-all. Why is it better?",
@@ -191,8 +219,8 @@ const agTools = unit(
             "Вузька типізована схема (`.strict()`, `enum`, межі чисел) — це перший щит між вибором моделі та вашою функцією.",
             "Strict schemas with enums and numeric bounds prevent hallucinated keys and oversized queries before execution.",
           ),
-        ),
-        mcq(
+        ), optionsEn: ["It constrains statuses and page size before business logic and rejects unexpected arguments","It forbids the model from calling the tool","It automatically runs SQL on the client","It removes the need for authorization"] }),
+        ({ ...mcq(
           "ag-t2",
           "Інструмент отримав невалідний формат дати від моделі. Що краще повернути у відповідь інструмента?",
           "A tool receives an invalid date format from the model. What should the tool return?",
@@ -207,7 +235,7 @@ const agTools = unit(
             "Зрозуміле поле `error` та підказка очікуваного формату дозволяють моделі виправитися без витоку внутрішньої інфраструктури.",
             "Actionable structured error objects let the model recover cleanly without leaking internal stack traces.",
           ),
-        ),
+        ), optionsEn: ["Return a short structured invalid_date error with the expected format so the model can correct or stop","Return a 60-line server stack trace","Return an empty string","Silently substitute today"] }),
         codeFill(
           "ag-t3",
           "Обмежте параметр `priority` у Zod-схемі інструмента фіксованим набором значень",
@@ -227,44 +255,53 @@ const agTools = unit(
       3,
       true,
       [
-        mcq(
+        concept(
+          "ag-tl-idempotent-concept",
+          "Повтор без дублювання побічної дії",
+          "Retries without duplicate side effects",
+          {
+            uk: "Після тайм-ауту результат може бути невідомим: операція вже могла виконатись. Прив'яжіть стабільний ключ до користувача, операції та незмінного payload; атомарно зарезервуйте його й збережіть результат. Повтор із тим самим ключем і даними повертає результат або стан очікування, а інші дані — конфлікт. Для зовнішньої дії потрібна дедуплікація на стороні провайдера або звіряння невизначених результатів; проста перевірка ключа до запису має гонку між паралельними викликами.",
+            en: "After a timeout the outcome can be unknown: the action may already have happened. Bind a stable key to the user, operation, and immutable payload; atomically reserve it and persist the result. A retry with the same key and data returns the result or pending state; different data produces a conflict. External side effects require provider deduplication or reconciliation of uncertain outcomes; a simple check before a write races under concurrent calls.",
+          },
+        ),
+        ({ ...mcq(
           "ag-t4",
           "Модель викликала інструмент `create_support_credit`, але мережа обірвалась до отримання відповіді, і цикл повторив той самий крок. Як уникнути подвійного нарахування?",
           "The agent calls `create_support_credit`, the network drops before the response returns, and the runner retries. How do you prevent double credit?",
           [
-            "Передавати стабільний `idempotency_key` (прив'язаний до кроку/заявки) і перевіряти унікальний ключ у БД перед записом",
+            "Атомарно резервувати стабільний ключ, прив'язаний до операції та payload, і забезпечити дедуплікацію зовнішньої дії",
             "Попросити модель у промпті ніколи не повторювати інструменти",
             "Збільшити таймаут до 10 хвилин",
             "Видалити запис про попереднє нарахування без перевірки",
           ],
           0,
           why(
-            "Ретраї в агентних системах неминучі. Будь-який інструмент зі зміною стану мусить бути ідемпотентним за ключем.",
-            "Retries happen in distributed agent loops. State-changing tools must deduplicate via an idempotency key.",
+            "Ключ разом із атомарним станом і підтримкою зовнішнього сервісу або звірянням захищає від дублювання.",
+            "A key needs atomic state and downstream deduplication or reconciliation to protect against duplicate effects.",
           ),
-        ),
-        matchEx(
+        ), optionsEn: ["Atomically reserve a stable key bound to the operation and payload, and deduplicate the external side effect","Tell the model never to retry in the prompt","Increase the timeout to ten minutes","Delete the previous credit without checking"] }),
+        ({ ...matchEx(
           "ag-t5",
           "Зіставте дефект інструмента з правильним інженерним виправленням",
           "Match each tool design flaw to the proper engineering fix",
           [
             { left: "Повертає `None` при відсутньому записі", right: "Повернути {\"ok\": false, \"error\": \"not_found\"}" },
-            { left: "Повторний виклик створює дублікат запису", right: "Додати idempotency_key у таблицю/сервіс" },
+            { left: "Повторний виклик створює дублікат запису", right: "Атомарно резервувати ключ і зберігати результат з урахуванням зовнішньої дії" },
             { left: "Один мега-інструмент `do_anything(cmd)`", right: "Розділити на 2–3 вузькі інструменти зі строгими схемами" },
             { left: "Безлімітний список результатів пошуку", right: "Жорстко обмежити `limit <= 20` у схемі та коді" },
           ],
-        ),
+        ), pairsEn: [{"left":"Returns None for a missing record","right":"Return a structured not_found error"},{"left":"A retry creates a duplicate record","right":"Atomically reserve a key and store the result while handling external effects"},{"left":"One do_anything(cmd) mega-tool","right":"Split it into narrow tools with strict schemas"},{"left":"An unbounded list of search results","right":"Enforce limit <= 20 in the schema and code"}] }),
         codeOrderAuto(
           "ag-t6",
           "Впорядкуйте безпечну обгортку виконання інструмента",
           "Order a safe tool execution wrapper",
           "python",
           [
-            "parsed = validate_args(raw_args)",
-            "if cached := find_by_idempotency(parsed.idempotency_key):",
-            "    return cached",
-            "res = execute_bounded_action(parsed)",
-            "return {\"ok\": True, \"data\": res}",
+            "parsed = validate_and_authorize(raw_args, caller)",
+            "claim = claim_key_atomically(caller, parsed.key, hash_request(parsed))",
+            "if claim.status != 'new': return result_pending_or_conflict(claim)",
+            "result = execute_with_downstream_deduplication(parsed, claim.key)",
+            "return persist_result_and_reply(claim, result)",
           ],
         ),
       ],
@@ -276,7 +313,7 @@ const agTools = unit(
       "Checkpoint: Agent Tools",
       3,
       [
-        codeRead(
+        ({ ...codeRead(
           "ag-t-e1",
           "Чому така відповідь інструмента змушує модель вигадувати дані або крутитися по колу?",
           "Why does this tool implementation cause the model to loop or hallucinate?",
@@ -289,8 +326,8 @@ const agTools = unit(
             "Функція повинна сама надсилати лист клієнту",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["None does not distinguish a missing customer from a failure and provides no structured not_found code","Python cannot return the row dictionary","email must be a number","The function must send an email itself"] }),
+        ({ ...mcq(
           "ag-t-e2",
           "Яке головне призначення `idempotency_key` в інструменті створення чи оплати?",
           "What is the primary purpose of an `idempotency_key` on a mutating tool?",
@@ -301,7 +338,7 @@ const agTools = unit(
             "Автоматично оновлювати схему JSON",
           ],
           0,
-        ),
+        ), optionsEn: ["Prevent duplicate effects when the same operation is delivered or retried, with proper atomic and downstream handling","Speed up prompt tokenization","Encrypt system instructions","Automatically update the JSON schema"] }),
         codeFill(
           "ag-t-e3",
           "Заповніть стандартне поле структурованої відмови у словнику відповіді інструмента",
@@ -328,7 +365,16 @@ const agPlanReflect = unit(
       3,
       true,
       [
-        mcq(
+        concept(
+          "ag-pr-split-concept",
+          "План із перевірюваними межами",
+          "A plan with verifiable boundaries",
+          {
+            uk: "Розділіть складну задачу на кроки з явними входами, результатами й перевірками: пошук дозволених джерел, формування чернетки, перевірка структури та показ. Це допомагає локалізувати збій, але додає затримку й передачу стану між компонентами. Перевірка існування ID цитати не доводить, що документ підтверджує твердження; перевіряйте доступність і зміст окремо. Не розглядайте зовнішній текст як інструкцію для агента.",
+            en: "Split a complex task into steps with explicit inputs, outputs, and checks: retrieve authorized sources, draft, validate structure, and display. This helps isolate failures but adds latency and state transfer. Checking that a citation ID exists does not prove its document supports the claim; check authorization and content separately. Do not treat external text as agent instructions.",
+          },
+        ),
+        ({ ...mcq(
           "ag-p1",
           "Замість одного величезного промпта «прочитай тикет, знайди політику, збери JSON і перевір тональність» ми розбиваємо потік на окремі кроки. У чому перевага?",
           "Why split a complex workflow into explicit steps (retrieve -> structure -> validate -> draft) instead of one mega-prompt?",
@@ -343,20 +389,20 @@ const agPlanReflect = unit(
             "Розбиття задачі дає спостережуваність і дозволяє вставити детерміновану перевірку між кроками.",
             "Explicit task splitting gives observability and creates checkpoints where deterministic code can validate state.",
           ),
-        ),
-        codeOrderAuto(
+        ), optionsEn: ["Each step has a narrower task and checkpoints, so retrieval failures can be seen before drafting","No step needs tests","The model no longer has a context window","JSON validation is disabled"] }),
+        ({ ...codeOrderAuto(
           "ag-p2",
           "Впорядкуйте потік «план + перевірка» з детермінованим контролем посередині",
           "Order a plan-and-verify workflow with deterministic validation in the middle",
           "text",
           [
-            "1. Extract user intent and required entity IDs into typed schema",
-            "2. Run deterministic retrieval and authorization filters in code",
-            "3. Generate draft referencing only retrieved citation IDs",
-            "4. Verify citations and schema in code before showing draft",
+            "Extract user intent and required entity IDs into a typed schema",
+            "Run retrieval and authorization filters in code",
+            "Generate a draft referencing authorized retrieved citation IDs",
+            "Validate schema and citation IDs, then assess claim support before showing the draft",
           ],
-        ),
-        mcq(
+        ), linesUk: ["Виконайте пошук і перевірку прав у коді","Створіть чернетку з ID дозволених знайдених джерел","Перевірте схему й ID цитат, а потім підтримку тверджень","Виділіть намір користувача та потрібні ID у типізовану схему"] }),
+        ({ ...mcq(
           "ag-p3",
           "Команда додала другий виклик LLM: «Перевір, чи твоя перша відповідь хороша й правильна». Чому така «рефлексія по відчуттях» часто марна?",
           "Why does asking a model \"Does your previous answer look accurate?\" without external signals often fail?",
@@ -367,7 +413,7 @@ const agPlanReflect = unit(
             "Це заборонено протоколом HTTP",
           ],
           0,
-        ),
+        ), optionsEn: ["Without a new fact, test, or parser error the model may repeat the same mistaken confidence while consuming tokens","The model cannot read its own words","The second call always returns an empty string","HTTP forbids it"] }),
       ],
       { baseXp: 24 },
     ),
@@ -378,12 +424,21 @@ const agPlanReflect = unit(
       4,
       false,
       [
-        codeRead(
+        concept(
+          "ag-pr-check-concept",
+          "Виправлення на основі конкретного сигналу",
+          "Repair using a concrete signal",
+          {
+            uk: "Валідатор схеми, компілятор чи тест дає конкретну помилку, яку можна передати в обмежений цикл виправлення. Перед передачею прибирайте секрети та недовірені інструкції з діагностики. Після ліміту спроб явно завершуйте роботу або передавайте людині. Перевірка ID цитати підтверджує лише належність до дозволеного набору, а тест — лише задані випадки; зелений результат не доводить правдивість усіх тверджень.",
+            en: "A schema validator, compiler, or test provides a specific error for a bounded repair loop. Remove secrets and untrusted instructions from diagnostics before passing them on. After the retry limit, fail explicitly or hand off to a person. A citation-ID check only establishes membership in the allowed set, and a test covers only its cases; green checks do not prove every claim is true.",
+          },
+        ),
+        ({ ...codeRead(
           "ag-p4",
           "Порівняйте сніпет рефлексії з кодом перевірки: що саме запускає корисне самовиправлення?",
           "In this repair loop, what turns reflection from guesswork into a real fix?",
           "python",
-          "for attempt in range(max_retries):\n    draft = generate_json(prompt, feedback)\n    errors = validate_against_schema_and_citations(draft, allowed_ids)\n    if not errors:\n        return draft\n    feedback = f\"Fix exact errors: {errors}\"",
+          "for attempt in range(max_retries):\n    draft = generate_json(prompt, feedback)\n    errors = validate_schema_and_citation_ids(draft, allowed_ids)\n    if not errors:\n        return draft  # claim support needs a separate check\n    feedback = sanitize_errors(errors)\nreturn {\"status\": \"handoff\"}",
           [
             "Детермінований валідатор повертає конкретні помилки схеми й неіснуючих цитат `allowed_ids`, і повтор обмежено `max_retries`",
             "Модель оцінює власний настрій від 1 до 10",
@@ -395,7 +450,7 @@ const agPlanReflect = unit(
             "Рефлексія працює лише тоді, коли вона спирається на зовнішній оракул: схему JSON, перевірку ID джерел, компілятор чи тест.",
             "Reflection adds real signal only when grounded in an external check: schema validation, citation ID checks, typecheck, or tests.",
           ),
-        ),
+        ), optionsEn: ["A validator provides specific schema and unauthorized citation-ID errors, and retries are bounded","The model rates its mood from one to ten","The loop has no retry cap","Errors are hidden from the next step"] }),
         codeFill(
           "ag-p5",
           "Обмежте цикл виправлення за лічильником `max_retries`",
@@ -405,17 +460,17 @@ const agPlanReflect = unit(
           ["max_retries"],
           true,
         ),
-        matchEx(
+        ({ ...matchEx(
           "ag-p6",
           "Зіставте сигнал зворотного зв'язку з тим, чи є він об'єктивною перевіркою",
           "Classify each feedback signal as a real check vs vibes",
           [
             { left: "Pydantic ValidationError: missing field 'currency'", right: "Реальна перевірка контракту даних" },
-            { left: "Citation ID 'doc-99' absent in retrieved chunks", right: "Реальна перевірка заземлення джерел" },
+            { left: "Citation ID 'doc-99' absent in retrieved chunks", right: "Перевірка належності ID, але не змістовної підтримки" },
             { left: "pytest failed on test_edge_zero_tax", right: "Реальна перевірка поведінки" },
             { left: "LLM critique: 'looks solid and helpful!'", right: "Ненадійна оцінка без зовнішнього факту" },
           ],
-        ),
+        ), pairsEn: [{"left":"Pydantic ValidationError: missing field 'currency'","right":"A real data-contract check"},{"left":"Citation ID 'doc-99' absent in retrieved chunks","right":"An ID-membership check, not proof of claim support"},{"left":"pytest failed on test_edge_zero_tax","right":"A behavioral check"},{"left":"LLM critique: 'looks solid and helpful!'","right":"An unreliable assessment without external evidence"}] }),
       ],
       { baseXp: 25 },
     ),
@@ -425,7 +480,7 @@ const agPlanReflect = unit(
       "Checkpoint: Planning and Reflection",
       4,
       [
-        mcq(
+        ({ ...mcq(
           "ag-p-e1",
           "Що робить крок рефлексії корисним у продакшен-агенті?",
           "What makes a reflection step genuinely useful in production?",
@@ -436,8 +491,8 @@ const agPlanReflect = unit(
             "Видалення обмеження на кількість спроб",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["Specific errors from a programmatic check are fed into a bounded repair attempt","Add five unrestricted think-again steps with no validator","Raise temperature to 1.5","Remove the retry cap"] }),
+        ({ ...codeRead(
           "ag-p-e2",
           "Знайдіть дефект у цьому циклі самоперевірки чернетки:",
           "Spot the flaw in this draft-critique loop:",
@@ -450,8 +505,8 @@ const agPlanReflect = unit(
             "Чернетка повинна бути цілим числом",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["There is no objective criterion or retry cap, and exit depends on the free-form word yes","critique.lower does not work in Python","Loop over characters in draft","Draft must be an integer"] }),
+        ({ ...mcq(
           "ag-p-e3",
           "Навіщо зберігати проміжний план / артефакт кожного етапу окремо?",
           "Why keep explicit intermediate artifacts between plan stages?",
@@ -462,7 +517,7 @@ const agPlanReflect = unit(
             "Щоб збільшити витрату токенів",
           ],
           0,
-        ),
+        ), optionsEn: ["To locate failures and test stages independently","To hide errors from logs","To bypass the JSON schema","To increase token consumption"] }),
       ],
     ),
   ],
@@ -480,7 +535,16 @@ const agMulti = unit(
       4,
       false,
       [
-        mcq(
+        concept(
+          "ag-ma-roles-concept",
+          "Додаткова роль має виправдовувати складність",
+          "An extra role must justify its complexity",
+          {
+            uk: "Почніть із задачі й порівняйте один виклик, фіксований процес та окремі ролі на однакових прикладах. Роль може бути корисною для ізоляції контексту, прав або незалежної перевірки за конкретними критеріями, але додає передачу даних, витрати й точки відмови. Окрема сесія тієї самої моделі не гарантує незалежності помилок; перевіряйте результати зовнішніми тестами та залучайте людину для ризикових рішень.",
+            en: "Start with the task and compare a single call, a fixed workflow, and separate roles on the same cases. A role may help isolate context, permissions, or review against explicit criteria, but adds data transfer, cost, and failure points. A separate session of the same model does not guarantee independent errors; use external checks and human review for consequential decisions.",
+          },
+        ),
+        ({ ...mcq(
           "ag-m1",
           "Команда створила трьох чат-агентів (Manager, Researcher, Reviewer) для простої задачі сумаризації одного документа. Яка найчастіша проблема?",
           "A team spawns three chatting agents (Manager, Researcher, Reviewer) to summarize one document. What usually goes wrong?",
@@ -495,8 +559,8 @@ const agMulti = unit(
             "Починайте з одного агента або фіксованого пайплайна; розводьте ролі лише тоді, коли різні кроки потребують різних прав, моделей чи ізольованого контексту.",
             "Start with one agent or fixed pipeline; split roles only when tasks genuinely need separate context windows, permissions, or models.",
           ),
-        ),
-        matchEx(
+        ), optionsEn: ["Agents may spend extra tokens and time paraphrasing each other without a measured quality benefit","One Python agent cannot call two tools","Three agents automatically divide latency by three","A model forbids passing strings between functions"] }),
+        ({ ...matchEx(
           "ag-m2",
           "Зіставте популярний агентний підхід / фреймворк з його архітектурною ідеєю (коли обирати)",
           "Match each framework to its core architectural model (when to pick it)",
@@ -506,8 +570,8 @@ const agMulti = unit(
             { left: "AutoGen", right: "Мультиагентний обмін повідомленнями та діалогові цикли обговорення" },
             { left: "Semantic Kernel", right: "Планувальник + підключення плагінів і функцій у корпоративних сервісах (.NET/Python)" },
           ],
-        ),
-        mcq(
+        ), pairsEn: [{"left":"LangGraph","right":"An explicit state graph with controlled transitions and checkpoints"},{"left":"CrewAI","right":"Delegation between defined team roles and goals"},{"left":"AutoGen","right":"Multi-agent message exchange and conversational loops"},{"left":"Semantic Kernel","right":"Planning and plugin/function integration in services"}] }),
+        ({ ...mcq(
           "ag-m3",
           "Коли окрема роль рев'ювера (окрема сесія без повного чернеткового промпта автора) справді виправдана?",
           "When does a separate reviewer role actually earn its complexity?",
@@ -518,7 +582,7 @@ const agMulti = unit(
             "Щоб вимкнути журналювання кроків",
           ],
           0,
-        ),
+        ), optionsEn: ["When distinct context, permissions, or explicit policy review justify a separate reviewer role","When one Python if is enough","To repeat the same prompt twice without change","To disable step logging"] }),
       ],
       { baseXp: 25 },
     ),
@@ -529,12 +593,21 @@ const agMulti = unit(
       4,
       false,
       [
-        codeRead(
+        concept(
+          "ag-ma-pick-concept",
+          "Явні переходи й завершення після помилки",
+          "Explicit transitions and failure handling",
+          {
+            uk: "Опишіть стан, допустимі переходи, обмеження повторів і відповідального за передачу людині. Якщо перевірка не пройшла й спроби вичерпано, не завершуйте роботу як успішну: поверніть помилку або поставте задачу на паузу. Зберігайте лише потрібний стан із перевіркою доступу. Граф полегшує тестування переходів, але сам по собі не робить перевірки правильними чи безпечними.",
+            en: "Define state, allowed transitions, retry limits, and ownership of human handoff. If validation fails and retries are exhausted, do not finalize as success: return a failure or pause the job. Persist only necessary state with access controls. A graph makes transitions easier to test, but does not itself make the checks correct or safe.",
+          },
+        ),
+        ({ ...codeRead(
           "ag-m4",
           "Огляньте явний перехід стану на кшталт графа: чим він надійніший за вільний груповий чат між ролями?",
           "Inspect this explicit state-graph transition function. Why is it more predictable than free-form multi-agent chat?",
           "python",
-          "def route_next(state: dict) -> str:\n    if state.get(\"needs_human\"):\n        return \"hitl_pause\"\n    if state.get(\"errors\") and state[\"retries\"] < 2:\n        return \"repair\"\n    return \"finalize\"",
+          "def route_next(state: dict) -> str:\n    if state.get(\"needs_human\"):\n        return \"hitl_pause\"\n    if state.get(\"errors\"):\n        return \"repair\" if state[\"retries\"] < 2 else \"hitl_pause\"\n    return \"finalize\"",
           [
             "Умова переходу написана детермінованим кодом із лічильником повторів і точкою зупинки HITL, а не вгадується текстом у чаті",
             "Вона автоматично тренує нову модель",
@@ -546,8 +619,8 @@ const agMulti = unit(
             "Перевага графа станів у тому, що контрольна логіка переходів і бюджетів лишається у звичайному тестованому коді.",
             "State-graph orchestration keeps branching, retry budgets, and human-pause transitions inside plain testable code.",
           ),
-        ),
-        codeOrderAuto(
+        ), optionsEn: ["Transitions use deterministic code, a retry counter, and a human pause rather than free-form chat guesses","It trains a new model automatically","It removes the need to test nodes","It permits unlimited repair loops"] }),
+        ({ ...codeOrderAuto(
           "ag-m5",
           "Впорядкуйте рішення перед вибором агентного фреймворку",
           "Order the engineering check before adopting an agent framework",
@@ -558,8 +631,8 @@ const agMulti = unit(
             "Pick graph, role, conversation, or planner pattern matching workflow shape",
             "Keep business logic and tool checks framework-agnostic so code stays portable",
           ],
-        ),
-        mcq(
+        ), linesUk: ["Перевірте, чи достатньо простих функцій і структурованого виклику SDK","Оберіть граф, ролі, діалог або планувальник відповідно до процесу","Залиште бізнес-логіку та перевірки інструментів незалежними від фреймворку","Опишіть стан, переходи та умови відмови"] }),
+        ({ ...mcq(
           "ag-m6",
           "Чому небезпечно жорстко вплітати бізнес-логіку та перевірки прав у промпти конкретної бібліотеки агентів?",
           "Why avoid burying core business rules and auth checks inside framework-specific agent prompts?",
@@ -570,7 +643,7 @@ const agMulti = unit(
             "Модель не читає назви функцій",
           ],
           0,
-        ),
+        ), optionsEn: ["Framework or model changes become harder, and core rules are difficult to unit test","Libraries cannot import json","All frameworks require Rust","The model cannot read function names"] }),
       ],
       { baseXp: 25 },
     ),
@@ -580,7 +653,7 @@ const agMulti = unit(
       "Checkpoint: Multi-Agent Patterns",
       4,
       [
-        matchEx(
+        ({ ...matchEx(
           "ag-m-e1",
           "Зіставте потребу проєкту з архітектурним вибором",
           "Match each project requirement to the fitting orchestration choice",
@@ -590,8 +663,8 @@ const agMulti = unit(
             { left: "Симуляція діалогу кількох персон для тестування сценарію", right: "Conversation-driven agents (наприклад AutoGen)" },
             { left: "Проста 2-крокова класифікація й відповідь", right: "Один агент / прямий виклик SDK без важкого фреймворку" },
           ],
-        ),
-        mcq(
+        ), pairsEn: [{"left":"Pause for human approval and resume from a checkpoint","right":"A state graph, for example LangGraph"},{"left":"Distinct research and drafting roles","right":"A role-based crew, for example CrewAI"},{"left":"Simulate a conversation between personas","right":"Conversation-driven agents, for example AutoGen"},{"left":"A simple two-step classification and reply","right":"A single agent or direct SDK calls without a heavy framework"}] }),
+        ({ ...mcq(
           "ag-m-e2",
           "Яка головна ознака, що систему даремно ускладнили кількома агентами?",
           "What is the clearest sign you over-split a simple workflow into multiple agents?",
@@ -602,8 +675,8 @@ const agMulti = unit(
             "Кожен крок має фіксовану схему JSON",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["Agents mostly paraphrase the same input while spending tokens instead of performing justified distinct steps","There is one search tool","Unit tests run in 20 ms","Each step has a fixed JSON schema"] }),
+        ({ ...codeRead(
           "ag-m-e3",
           "Чого бракує між вузлами `writer` і `reviewer` у цьому графі переходів?",
           "What is missing between the `writer` and `reviewer` nodes in this transition function?",
@@ -616,7 +689,7 @@ const agMulti = unit(
             "Видалення поля `\"approved\"`",
           ],
           0,
-        ),
+        ), optionsEn: ["A retry limit and failure or handoff transition, otherwise rejected drafts can loop","Convert state to a tuple","Randomly choose the next node","Delete the approved field"] }),
       ],
     ),
   ],
@@ -630,11 +703,20 @@ const agRag = unit(
     lesson(
       "ag-rg-chunk-hybrid",
       "Розумний чанкінг і чому векторного пошуку самого недостатньо",
-      "Chunking and Why Hybrid Search Beats Vector-Only",
+      "Chunking and When Hybrid Search Can Help",
       4,
       false,
       [
-        mcq(
+        concept(
+          "ag-rg-chunk-concept",
+          "Чанки й пошук перевіряють на реальних запитах",
+          "Evaluate chunks and retrieval on real queries",
+          {
+            uk: "Розбивайте документ за змістовними межами й зберігайте джерело, версію та правила доступу. Перекриття допомагає не втратити контекст на межі, але збільшує дублювання і вартість. Лексичний пошук може краще знаходити точні ідентифікатори, а векторний — перефразування; результат залежить від токенізації та даних. Гібридне об'єднання й reranking оцінюйте на розмічених запитах, не вважайте їх гарантовано кращими. Перевіряйте права доступу до фрагментів до передачі моделі.",
+            en: "Split documents at meaningful boundaries and preserve source, version, and access metadata. Overlap can retain boundary context but increases duplication and cost. Lexical retrieval can help with exact identifiers and dense retrieval with paraphrases; results depend on tokenization and data. Evaluate hybrid fusion and reranking on labeled queries rather than assuming they always win. Enforce access to chunks before sending them to the model.",
+          },
+        ),
+        ({ ...mcq(
           "ag-r1",
           "Якщо порізати технічну документацію фіксованими кусками рівно по 500 символів без урахування заголовків і таблиць, що псується в RAG?",
           "If you slice technical docs every 500 characters blindly without respecting headings or code blocks, what degrades?",
@@ -649,11 +731,11 @@ const agRag = unit(
             "Ріжте документи за структурою (заголовки, абзаци, функції), тримайте помірний overlap і додавайте назву розділу в метадані чанка.",
             "Split along structural boundaries (headings, paragraphs, functions) with modest overlap and section metadata.",
           ),
-        ),
-        mcq(
+        ), optionsEn: ["Conditions and exceptions can be split across chunks, leaving the model an incomplete rule without its heading","Embeddings always take ten times more disk space","The document is automatically deleted","Search stops working in English"] }),
+        ({ ...mcq(
           "ag-r2",
           "Користувач шукає точний код помилки `ERR_POOL_429` або номер деталі `XK-904`. Чому чистий пошук за векторними ембедінгами інколи програє ключовому BM25, і що робить гібридний пошук?",
-          "A user searches exact code `ERR_POOL_429` or part number `XK-904`. Why does hybrid search (BM25 + dense embeddings) outperform vector-only search?",
+          "A user searches exact code `ERR_POOL_429` or part number `XK-904`. How can hybrid search (BM25 + dense embeddings) help?",
           [
             "Ембедінги добре ловлять семантику, але змазують рідкісні точні коди; гібрид поєднує лексичний BM25 і векторну близькість",
             "BM25 генерує відповідь замість LLM",
@@ -662,11 +744,11 @@ const agRag = unit(
           ],
           0,
           why(
-            "Гібридний пошук (лексичний + семантичний + rerank) дає високу точність і для перефразованих питань, і для точних ідентифікаторів.",
-            "Hybrid search blends lexical matching (exact IDs/codes) with semantic vectors (paraphrases) before reranking.",
+            "Гібрид поєднує сигнали; якість на кодах залежить від токенізації й має бути перевірена на наборі запитів.",
+            "Hybrid retrieval combines signals; performance on codes depends on tokenization and must be evaluated.",
           ),
-        ),
-        codeRead(
+        ), optionsEn: ["Dense embeddings capture semantics but may miss rare exact codes; hybrid search combines lexical and vector signals","BM25 generates the answer instead of an LLM","Vector stores cannot handle digits","Hybrid search removes the need for chunking"] }),
+        ({ ...codeRead(
           "ag-r3",
           "Знайдіть нескінченний цикл у цьому чанкері з перекриттям:",
           "Spot the infinite loop / zero-progress bug in this sliding-window chunker:",
@@ -679,7 +761,7 @@ const agRag = unit(
             "Змінна `out` повинна бути `set`",
           ],
           0,
-        ),
+        ), optionsEn: ["If overlap >= size, the step is zero or negative and the loop may never terminate","The final Python slice raises IndexError","Python lists do not support slices","out must be a set"] }),
       ],
       { baseXp: 25 },
     ),
@@ -690,7 +772,16 @@ const agRag = unit(
       4,
       false,
       [
-        matchEx(
+        concept(
+          "ag-rg-graphrag-concept",
+          "Коли потрібні зв'язки між сутностями",
+          "When entity relationships matter",
+          {
+            uk: "Граф може допомогти пройти кілька зв'язків між сутностями, коли потрібна відповідь не міститься в одному фрагменті. Але витягнуті ребра можуть бути помилковими, застарілими або недоступними користувачу; зберігайте походження і перевіряйте права на кожному переході. Порівнюйте графовий підхід із простішим пошуком на розмічених багатокрокових запитах, враховуючи якість, оновлення, затримку й вартість.",
+            en: "A graph can help traverse several entity relationships when an answer is not contained in one chunk. Extracted edges can be wrong, stale, or unauthorized; retain provenance and enforce access at each hop. Compare graph-based retrieval with simpler search on labeled multi-hop queries, accounting for quality, updates, latency, and cost.",
+          },
+        ),
+        ({ ...matchEx(
           "ag-r4",
           "Зіставте запит користувача з оптимальним механізмом пошуку",
           "Match each retrieval query shape to the best retrieval strategy",
@@ -699,8 +790,8 @@ const agRag = unit(
             { left: "«Як повернути квиток, якщо рейс затримали?»", right: "Гібридний пошук + фільтр політики" },
             { left: "«Які підрядники постачають деталі для всіх систем під санкцією Х?»", right: "GraphRAG (багатокроковий обхід зв'язків сутностей)" },
           ],
-        ),
-        mcq(
+        ), pairsEn: [{"left":"Exact ECONNREFUSED error code or product SKU","right":"Lexical BM25 or an exact index"},{"left":"How do I return a ticket after a delayed flight?","right":"Hybrid retrieval with a policy filter"},{"left":"Which contractors supply parts for all systems under sanction X?","right":"Graph-based retrieval across entity relationships"}] }),
+        ({ ...mcq(
           "ag-r5",
           "Чому не варто впроваджувати GraphRAG для звичайної бази знань на 400 сторінок FAQ?",
           "Why avoid GraphRAG for a straightforward 400-page FAQ knowledge base?",
@@ -712,11 +803,11 @@ const agRag = unit(
           ],
           0,
           why(
-            "GraphRAG окупається тоді, коли відповідь реально вимагає багатокрокового з'єднання сутностей крізь десятки розрізнених документів.",
-            "GraphRAG earns its extra indexing cost only when questions genuinely span multi-hop relationships across many documents.",
+            "Багатокрокові зв'язки — причина оцінити GraphRAG; користь і витрати порівнюють із простішим підходом.",
+            "Multi-hop relationships are a reason to evaluate GraphRAG; compare its measured benefit and cost against simpler approaches.",
           ),
-        ),
-        codeOrderAuto(
+        ), optionsEn: ["Extracting and maintaining a graph adds cost when simpler hybrid retrieval already meets the need","Graphs cannot be stored on disk","FAQs forbid metadata","GraphRAG only works on images"] }),
+        ({ ...codeOrderAuto(
           "ag-r6",
           "Впорядкуйте етапи заземленого RAG-пайплайна з перевіркою джерел",
           "Order a grounded RAG pipeline from ingestion to cited answer",
@@ -727,7 +818,7 @@ const agRag = unit(
             "Run filtered hybrid search and rerank top candidates",
             "Generate answer citing only retrieved chunk IDs (or abstain if empty)",
           ],
-        ),
+        ), linesUk: ["Індексуйте фрагменти з лексичними термінами, ембедингами й метаданими доступу та версії","Виконайте гібридний пошук із фільтрами й rerank кандидатів","Створіть відповідь із дозволених знайдених джерел або відмовте за відсутності даних","Розберіть документ, зберігши заголовки та ID джерел"] }),
       ],
       { baseXp: 25 },
     ),
@@ -737,7 +828,7 @@ const agRag = unit(
       "Checkpoint: RAG and Retrieval",
       4,
       [
-        mcq(
+        ({ ...mcq(
           "ag-r-e1",
           "У чому головна перевага гібридного пошуку перед чисто векторним?",
           "What is the main advantage of hybrid search over vector-only retrieval?",
@@ -748,8 +839,8 @@ const agRag = unit(
             "Працює без жодних індексів у пам'яті",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["It combines lexical matches on codes and terms with semantic similarity for paraphrases","It guarantees all source facts are true","It eliminates chunking","It uses no indexes"] }),
+        ({ ...codeRead(
           "ag-r-e2",
           "Яка перевірка аргументів потрібна на початку цієї функції чанкінгу?",
           "Which input guard is missing at the top of this chunking helper?",
@@ -762,8 +853,8 @@ const agRag = unit(
             "Повертати `0` при будь-якому `overlap`",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["Require size > 0 and 0 <= overlap < size so the step is positive and overlap valid","Allow overlap to equal twice the size","Convert size to float","Always return zero"] }),
+        ({ ...mcq(
           "ag-r-e3",
           "Коли GraphRAG виправданий інженерно?",
           "When is GraphRAG engineeringly justified?",
@@ -774,7 +865,7 @@ const agRag = unit(
             "Щоб приховати помилки прав доступу",
           ],
           0,
-        ),
+        ), optionsEn: ["When measured queries require multi-hop entity relationships across documents and justify the extra complexity","For ten unrelated short notes","To replace a simple SQL SUM","To hide authorization bugs"] }),
       ],
     ),
   ],
@@ -792,7 +883,16 @@ const agVectors = unit(
       4,
       false,
       [
-        matchEx(
+        concept(
+          "ag-vs-stores-concept",
+          "Фільтрація до вибору результатів",
+          "Filter before selecting results",
+          {
+            uk: "Якщо обрати глобальний top-k і лише потім відкинути чужі записи, дозволених результатів може не залишитися, хоча вони є нижче. Передавайте обов'язкові обмеження орендаря та ACL із довіреної сесії в запит і перевіряйте їх підтримку конкретним сховищем. Сам pre-filter не доводить безпеки: потрібні серверна авторизація, ізоляція, тести між орендарями та відмова при помилці політики. Порівнюйте керовані й власні сховища за доступом, експлуатацією, вартістю та вимогами до даних.",
+            en: "Selecting global top-k before discarding other tenants can leave no authorized results even when relevant ones rank lower. Pass mandatory tenant and ACL constraints from the trusted session into the query and verify the store's filtering behavior. A pre-filter alone does not prove security: server authorization, isolation, cross-tenant tests, and denial on policy errors are also needed. Compare managed and self-hosted stores on access, operations, cost, and data requirements.",
+          },
+        ),
+        ({ ...matchEx(
           "ag-v1",
           "Зіставте векторне сховище з його типовим профілем вибору",
           "Match each vector store to its typical deployment profile",
@@ -802,8 +902,8 @@ const agVectors = unit(
             { left: "Milvus", right: "Розподілене сховище під високі масштаби й кластери (self-host/cloud)" },
             { left: "Chroma", right: "Легке локальне / вбудоване сховище для прототипів і малих індексів" },
           ],
-        ),
-        codeRead(
+        ), pairsEn: [{"left":"Pinecone","right":"A managed cloud service"},{"left":"Qdrant","right":"A Rust-based engine with self-hosted and cloud options and payload filtering"},{"left":"Milvus","right":"A distributed vector store with self-hosted and cloud deployments"},{"left":"Chroma","right":"A lightweight local or embedded option often used for prototypes"}] }),
+        ({ ...codeRead(
           "ag-v2",
           "Знайдіть одразу проблему порожньої відповіді та ризик витоку в цьому запиті пошуку:",
           "Spot the empty-result and cross-tenant bug in this retrieval snippet:",
@@ -820,8 +920,8 @@ const agVectors = unit(
             "Авторизацію та `tenant_id` передавайте у pre-filter усередині самого запиту до сховища, щоб поверталися `top_k` саме дозволених чанків.",
             "Pass `tenant_id` and ACL predicates as pre-filters inside the store query so `top_k` selects strictly from permitted chunks.",
           ),
-        ),
-        mcq(
+        ), optionsEn: ["Filtering tenant_id after global top-k can return no authorized hits and can expose other tenants if filtering fails","query cannot accept top_k=5","A list comprehension deletes vectors","current_org must be a list"] }),
+        ({ ...mcq(
           "ag-v3",
           "Що насамперед порівнюють при виборі managed (напр. Pinecone) проти self-host (напр. Qdrant/Milvus або pgvector поруч із Postgres)?",
           "What primarily drives choosing managed (e.g., Pinecone) vs self-host (e.g., Qdrant/Milvus/pgvector)?",
@@ -832,7 +932,7 @@ const agVectors = unit(
             "Чи підтримує база CSS-стилі",
           ],
           0,
-        ),
+        ), optionsEn: ["Data residency, operational capacity, filtering needs, and the existing database environment","The database logo color","The number of letters in the collection name","Whether the database supports CSS"] }),
       ],
       { baseXp: 25 },
     ),
@@ -843,7 +943,16 @@ const agVectors = unit(
       4,
       false,
       [
-        mcq(
+        concept(
+          "ag-vs-freshness-concept",
+          "Безпечне перемикання версії індексу",
+          "Safely switch index versions",
+          {
+            uk: "Підготуйте нові фрагменти з версією, джерелом і метаданими доступу окремо від активної версії. Перевірте повноту й сумісність ембедингів, потім атомарно перемкніть активний вказівник, якщо сховище це підтримує, або використайте еквівалентний контрольований механізм. Запити мають фільтрувати активну версію й права орендаря. Лише після перевірки перемикання видаляйте застарілі фрагменти відповідно до політики; план відкату й узгодженість із видаленням даних залишаються потрібними.",
+            en: "Prepare new chunks with version, source, and access metadata separately from the active version. Verify completeness and embedding compatibility, then atomically switch the active pointer if supported, or use an equivalent controlled mechanism. Queries must filter by active version and tenant permissions. Only after verifying the switch retire old chunks according to policy; rollback and consistency with data deletion still require a plan.",
+          },
+        ),
+        ({ ...mcq(
           "ag-v4",
           "Компанія змінила термін повернення коштів з 30 днів на 14 днів, завантажила новий PDF, але старі чанки не видалила. Що поверне векторний пошук?",
           "A company updates its refund policy from 30 days to 14 days and indexes the new PDF without deleting old chunks. What happens?",
@@ -858,19 +967,20 @@ const agVectors = unit(
             "Векторне сховище ранжує схожість, а не правдивість чи актуальність. Потрібні версіонування, видалення/tombstone старих документів і фільтр `is_active`.",
             "Vector stores score similarity, not truth or freshness. Track doc versions, delete superseded chunks, and filter active records.",
           ),
-        ),
-        codeOrderAuto(
+        ), optionsEn: ["The store may return an obsolete rule because it ranks similarity rather than knowing truth or freshness","It automatically reads dates and deletes old chunks","The new PDF always has a lower cosine score","Old chunks expire automatically after 24 hours"] }),
+        ({ ...codeOrderAuto(
           "ag-v5",
           "Впорядкуйте безпечне оновлення документа у векторному індексі",
           "Order a freshness-safe document re-indexing workflow",
           "text",
           [
-            "Assign new doc_version and mark incoming chunks with source_id",
-            "Upsert new chunk vectors and metadata atomically or by version batch",
-            "Filter queries strictly to active version / tenant_id",
-            "Delete superseded chunks from previous doc_version after switch",
+            "Prepare new chunks with doc_version, source_id, and access metadata",
+            "Index and verify the complete new version before activation",
+            "Switch the active version using a controlled atomic mechanism",
+            "Query the active version with tenant and ACL filters",
+            "Retire superseded chunks according to retention and rollback policy",
           ],
-        ),
+        ), linesUk: ["Проіндексуйте й перевірте повноту нової версії до активації","Перемкніть активну версію контрольованим атомарним механізмом","Шукайте в активній версії з фільтрами орендаря та ACL","Вилучайте старі фрагменти за політикою зберігання й відкату","Підготуйте нові фрагменти з версією, джерелом і метаданими доступу"] }),
         codeFill(
           "ag-v6",
           "Додайте обов'язковий pre-filter по `tenant_id` прямо в запит пошуку",
@@ -889,7 +999,7 @@ const agVectors = unit(
       "Checkpoint: Vector Stores",
       4,
       [
-        mcq(
+        ({ ...mcq(
           "ag-v-e1",
           "Чому не можна реалізовувати ізоляцію клієнтів (`tenant_id`) шляхом фільтрації після `top_k` у пам'яті Python?",
           "Why is filtering `tenant_id` in Python after `top_k` broken?",
@@ -900,8 +1010,8 @@ const agVectors = unit(
             "Ембедінги змінюються після фільтрування",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["Global top-k may be occupied by other tenants, leaving fewer authorized hits; filtering failures can expose data","Python cannot filter lists of dictionaries","The database ignores top_k","Embeddings change after filtering"] }),
+        ({ ...mcq(
           "ag-v-e2",
           "Чому cosine similarity `0.91` не гарантує достовірності факту?",
           "Why does a cosine similarity score of `0.91` never guarantee factual truth?",
@@ -912,8 +1022,8 @@ const agVectors = unit(
             "Моделі самі знищують застарілі документи",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["Similarity does not establish version freshness, source authority, or whether documents contradict each other","Cosine similarity only works up to 0.5","A high score means a syntax error","Models destroy old documents automatically"] }),
+        ({ ...codeRead(
           "ag-v-e3",
           "Чого бракує в цьому оновленні бази знань, через що бот відповідає суперечливими старими правилами?",
           "What is missing in this knowledge-base update script, causing the bot to cite outdated rules?",
@@ -926,7 +1036,7 @@ const agVectors = unit(
             "Вимкнення метаданих `doc_id`",
           ],
           0,
-        ),
+        ), optionsEn: ["Retire or deactivate previous chunks for the document and filter by the active version","Insert the old chunks again","Change vector dimension for every record","Disable doc_id metadata"] }),
       ],
     ),
   ],

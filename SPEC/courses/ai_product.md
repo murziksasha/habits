@@ -15,32 +15,32 @@ Routing between strong hosted models, local models, and plain Python; turning bu
 
 ### `ap_route` — Routing: Strong Hosted Model vs Local Model vs Plain Python
 
-- `ap-rt-matrix` — Choosing Between Frontier Model, Local Model, and Plain Python (3 exercises)
-- `ap-rt-code` — Short-Circuiting Deterministic Cases in Code First (3 exercises)
+- `ap-rt-matrix` — Choosing Between Frontier Model, Local Model, and Plain Python (4 exercises, including a concept card)
+- `ap-rt-code` — Short-Circuiting Deterministic Cases in Code First (4 exercises, including a concept card)
 - `ap-rt-exam` — Checkpoint: Model vs Code Routing [exam] (3 exercises)
 
 ### `ap_brief` — Product Brief: Boundaries, Inputs, and System Failure Checks
 
-- `ap-br-spec` — Turning a Business Ask into Boundaries, Inputs, and Pass/Fail Checks (3 exercises)
-- `ap-br-checks` — Checks a System Can Explicitly Fail On (3 exercises)
+- `ap-br-spec` — Turning a Business Ask into Boundaries, Inputs, and Pass/Fail Checks (4 exercises, including a concept card)
+- `ap-br-checks` — Checks a System Can Explicitly Fail On (4 exercises, including a concept card)
 - `ap-br-exam` — Checkpoint: AI Product Brief [exam] (3 exercises)
 
 ### `ap_hitl` — Approve, Edit, Undo: Humans Own the Irreversible Step
 
-- `ap-hl-patterns` — Three Core HITL Patterns: Approve, Edit, and Undo (3 exercises)
-- `ap-hl-state` — Proposal State Machines and Server-Verified Approval (3 exercises)
+- `ap-hl-patterns` — Three Core HITL Patterns: Approve, Edit, and Undo (4 exercises, including a concept card)
+- `ap-hl-state` — Proposal State Machines and Server-Verified Approval (4 exercises, including a concept card)
 - `ap-hl-exam` — Checkpoint: Human-in-the-Loop Controls [exam] (3 exercises)
 
 ### `ap_failure` — Empty, Wrong, "I Don't Know", and Product-Owner Evals
 
-- `ap-fl-modes` — Designing First-Class Empty, Wrong, and "I Don't Know" States (3 exercises)
-- `ap-fl-evals` — Lightweight Evals a Product Owner Can Run Without a Platform (3 exercises)
+- `ap-fl-modes` — Designing First-Class Empty, Wrong, and "I Don't Know" States (4 exercises, including a concept card)
+- `ap-fl-evals` — Lightweight Evals a Product Owner Can Run Without a Platform (4 exercises, including a concept card)
 - `ap-fl-exam` — Checkpoint: Failure Modes and Product Evals [exam] (3 exercises)
 
 ### `ap_capstone` — Capstone: Design Review of a Small Support Agent
 
-- `ap-cp-review` — What Is a Tool, What Is a Person, and What Is Logged (3 exercises)
-- `ap-cp-logging` — Audit Logging for Incident Review Without Leaking Secrets (3 exercises)
+- `ap-cp-review` — What Is a Tool, What Is a Person, and What Is Logged (4 exercises, including a concept card)
+- `ap-cp-logging` — Audit Logging for Incident Review Without Leaking Secrets (4 exercises, including a concept card)
 - `ap-cp-exam` — Checkpoint: Support Agent Design Review [exam] (3 exercises)
 
 ## Depth now
@@ -49,7 +49,7 @@ Routing between strong hosted models, local models, and plain Python; turning bu
 - Lessons: 27
 - Exams: 9
 - Free non-exam lessons: 5
-- Exercise types in seed: code_fill, code_order, code_read, match, mcq
+- Exercise types in seed: code_fill, code_order, code_read, concept, match, mcq
 
 ## Expansion (Nov 2026)
 

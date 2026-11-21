@@ -40,6 +40,8 @@ Electrical engineering lessons in `stage2-rest.ts` through `stage6.ts`, `stage7-
 
 ## Exercise types
 
+For `code_order`, `lines` and `correct` remain canonical answer values. When the canonical steps are English prose, optional `linesUk` provides Ukrainian display labels aligned by index with `lines`; it must have the same length and unambiguous labels for distinct canonical lines. The player submits canonical values for server grading. Actual code lines should generally remain unchanged.
+
 Canonical list: `@eduforge/shared` `EXERCISE_TYPES` / `packages/content` integrity tests.
 
 ### Concept cards (deep lessons)

@@ -40,6 +40,7 @@ import {
 import { hasOpenDialog, isTypingTarget, optionIndexFromKey } from "@/lib/answer-keys";
 import { stableOptionOrder } from "@/lib/option-order";
 import { selectedMatchLabel } from "@/lib/match-labels";
+import { orderLabel } from "@/lib/order-labels";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { FormattedFormulaText, KaTeXMath } from "@/components/circuit/katex-math";
@@ -1348,6 +1349,8 @@ function OrderWordsExercise({
   const isCode = exercise.type === "code_order" || Boolean(exercise.language);
   const prompt = usePrompt(exercise);
   const { locale } = useLocale();
+  const canonicalLines = exercise.lines as string[] | undefined;
+  const ukrainianLines = exercise.linesUk as string[] | undefined;
   const hint = useExerciseHint(exercise);
   const soft = useSoftAttempts(hint.setOpen);
   const correct =
@@ -1446,29 +1449,29 @@ function OrderWordsExercise({
               soft.resetSoft();
             }}
           >
-            {w}
+            {orderLabel(w, locale, canonicalLines, ukrainianLines)}
           </button>
         ))}
       </div>
       <div className="flex flex-wrap gap-2" role="list" aria-label="word pool">
         {pool.map((w, i) => (
-          <button
-            key={`${w}-${i}`}
-            type="button"
-            role="listitem"
-            className={clsx(
-              "rounded-xl border-2 border-slate-200 px-3 py-1 font-bold dark:border-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky",
-              isCode && "font-mono text-sm",
-            )}
-            onClick={() => {
-              setPool((p) => p.filter((_, j) => j !== i));
-              setBuilt((b) => [...b, w]);
-              soft.resetSoft();
-            }}
-          >
-            <span className="mr-1 text-[10px] text-ink-muted">{i + 1}.</span>
-            {w}
-          </button>
+          <div key={`${w}-${i}`} role="listitem">
+            <button
+              type="button"
+              className={clsx(
+                "rounded-xl border-2 border-slate-200 px-3 py-1 font-bold dark:border-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky",
+                isCode && "font-mono text-sm",
+              )}
+              onClick={() => {
+                setPool((p) => p.filter((_, j) => j !== i));
+                setBuilt((b) => [...b, w]);
+                soft.resetSoft();
+              }}
+            >
+              <span className="mr-1 text-[10px] text-ink-muted">{i + 1}.</span>
+              {orderLabel(w, locale, canonicalLines, ukrainianLines)}
+            </button>
+          </div>
         ))}
       </div>
       <DrillFooter

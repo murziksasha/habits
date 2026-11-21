@@ -88,7 +88,7 @@ Components, props, useState, lists/keys, useEffect, forms, composition, advanced
 
 ### `capstone` — Capstone
 
-- `rf-capstone-toggle` — Mini: toggle component (1 exercises)
+- `rf-capstone-toggle` — Mini: toggle component (2 exercises)
 - `rf-forgeboard-client-lab` — Lab: Multi-View ForgeBoard Client (M4) (3 exercises)
 - `rf-cap-exam` — Final React exam [exam] (6 exercises)
 

@@ -23,8 +23,8 @@ const intro = unit("intro", "React intro", "React intro", [
     true,
     [
       concept("rf-what-concept", "Компоненти описують інтерфейс", "Components describe the interface", {
-        uk: "React допомагає будувати інтерфейс із компонентів. Компонент отримує props і може мати стан; React повторно обчислює його опис, коли дані змінюються. Відокремлюйте обчислення вигляду від побічних дій, як-от мережевих запитів.",
-        en: "React helps build an interface from components. A component receives props and may have state; React recalculates its description when data changes. Keep rendering calculations separate from side effects such as network requests.",
+        uk: "React допомагає будувати інтерфейс із компонентів. Компонент отримує props і може мати стан; під час рендеру він обчислює опис UI з поточних даних. React може повторно викликати компонент і застосовує потрібні зміни до інтерфейсу; повторний рендер не означає, що весь DOM буде перебудовано. Рендер має залишатися чистим: побічні дії, як-от відправлення запиту після натискання, виконують в обробнику події або, коли потрібна синхронізація із зовнішньою системою, в effect.",
+        en: "React helps build an interface from components. A component receives props and may have state; during render it calculates a UI description from current data. React may call the component again and apply necessary interface changes; a re-render does not mean the whole DOM is rebuilt. Keep rendering pure: perform side effects such as a request triggered by a click in an event handler, or in an effect when synchronizing with an external system.",
       }),
       { ...mcq(
         "rf-i1",
@@ -51,8 +51,8 @@ const intro = unit("intro", "React intro", "React intro", [
     true,
     [
       concept("rf-jsx-concept", "Розмітка в JavaScript", "Markup in JavaScript", {
-        uk: "JSX — синтаксис для опису React-елементів. JavaScript-вирази записують у фігурних дужках, а CSS-клас задають через className. Кілька сусідніх елементів можна об’єднати фрагментом <>...</>, який не додає окремого DOM-вузла.",
-        en: "JSX is syntax for describing React elements. Put JavaScript expressions in braces and specify a CSS class with className. Wrap adjacent elements in a fragment <>...</>, which does not add a separate DOM node.",
+        uk: "JSX — синтаксис для опису React-елементів. JavaScript-вирази записують у фігурних дужках, а CSS-клас задають через className; наприклад, <p className=\"greeting\">{name}</p>. Сусідні JSX-елементи в одному виразі можна об'єднати фрагментом <>...</>, який не додає окремого DOM-вузла. У фігурних дужках потрібен вираз, а не оператор if; умовний вигляд можна обчислити до return або через тернарний вираз.",
+        en: "JSX is syntax for describing React elements. Put JavaScript expressions in braces and specify a CSS class with className; for example, <p className=\"greeting\">{name}</p>. Adjacent JSX elements in one expression can be wrapped in a fragment <>...</>, which does not add a separate DOM node. Braces require an expression, not an if statement; calculate conditional content before return or use a conditional expression.",
       }),
       { ...mcq(
         "rf-i4",
@@ -64,8 +64,8 @@ const intro = unit("intro", "React intro", "React intro", [
       codeFill("rf-i5", "className", "className", "tsx", "<div ___=\"card\">", ["className"], true),
       { ...codeRead(
         "rf-i6",
-        "Один root?",
-        "One root?",
+        "Чи коректно об'єднано сусідні JSX-елементи в цьому return?",
+        "Are the adjacent JSX elements correctly grouped in this return?",
         "tsx",
         "return (<><h1>A</h1><p>B</p></>);",
         ["Коректно: фрагмент об’єднує сусідні елементи", "Завжди некоректно", "Потрібна таблиця", "Потрібен CSS"],
@@ -90,8 +90,8 @@ const components = unit("components", "Components", "Components", [
     false,
     [
       concept("rf-fn-comp-concept", "Функція як компонент", "A function as a component", {
-        uk: "React-компонент — функція, що повертає опис інтерфейсу. Її назва зазвичай починається з великої літери, щоб JSX розрізняв компонент і вбудований HTML-елемент. Компонент можна перевикористати та передати йому вхідні дані.",
-        en: "A React component is a function that returns a UI description. Its name usually starts with a capital letter so JSX can distinguish it from a built-in HTML element. Components can be reused and receive inputs.",
+        uk: "Функціональний React-компонент повертає опис інтерфейсу. У JSX назва локального компонента починається з великої літери: <Profile /> позначає компонент, а <profile /> — вбудований або користувацький DOM-елемент. Використовуйте <Profile />, а не викликайте Profile() як звичайну функцію: React має керувати ідентичністю компонента та його хуками.",
+        en: "A React function component returns a UI description. In JSX a local component name starts with a capital: <Profile /> refers to a component, while <profile /> refers to a built-in or custom DOM element. Use <Profile /> instead of calling Profile() as an ordinary function: React needs to manage component identity and its Hooks.",
       }),
       codeFill(
         "rf-c1",
@@ -104,7 +104,7 @@ const components = unit("components", "Components", "Components", [
       ),
       { ...mcq(
         "rf-c2",
-        "Component name convention:",
+        "Який стиль назви зазвичай використовують для React-компонента?",
         "Component name convention:",
         ["PascalCase", "snake_case only", "kebab-case required", "ALLCAPS"],
         0,
@@ -127,8 +127,8 @@ const components = unit("components", "Components", "Components", [
     false,
     [
       concept("rf-props-concept", "Вхідні дані компонента", "Component inputs", {
-        uk: "Props передають дані від батьківського компонента до дочірнього. Компонент читає їх як незмінні вхідні значення; якщо дані мають змінюватися, власник стану передає нові props або обробник події. Деструктуризація лише змінює спосіб читання props.",
-        en: "Props pass data from a parent component to a child. Treat them as read-only inputs; when data needs to change, the state owner passes new props or an event handler. Destructuring only changes how props are read.",
+        uk: "Props передають дані від батьківського компонента до дочірнього. Компонент читає їх як незмінні вхідні значення; якщо дані мають змінюватися, власник стану передає нові props та за потреби обробник події. Наприклад, дочірня кнопка викликає onSelect(id), а батьківський компонент оновлює стан. Не мутуйте об'єкти props: створюйте нове значення у власника стану. Деструктуризація лише змінює спосіб читання props.",
+        en: "Props pass data from a parent component to a child. Treat them as read-only inputs; when data needs to change, the state owner passes new props and, when needed, an event handler. For example, a child button calls onSelect(id), and the parent updates its state. Do not mutate prop objects: create a new value in the state owner. Destructuring only changes how props are read.",
       }),
       { ...mcq(
         "rf-c4",
@@ -174,8 +174,8 @@ const stateU = unit("state", "State", "State", [
     false,
     [
       concept("rf-useState-concept", "Стан як знімок рендеру", "State as a render snapshot", {
-        uk: "useState повертає поточне значення й функцію оновлення. Виклик setter ставить зміну в чергу; поточний обробник усе ще бачить значення свого рендеру. Коли наступне значення залежить від попереднього, використовуйте функцію setN(n => n + 1).",
-        en: "useState returns the current value and a setter. Calling the setter queues an update; the current handler still sees the value from its render. When the next value depends on the previous one, use an updater such as setN(n => n + 1).",
+        uk: "useState повертає поточне значення й функцію оновлення. Виклик setter ставить зміну в чергу; поточний обробник усе ще бачить знімок значення свого рендеру. Якщо n дорівнює 0, два виклики setN(n + 1) в одному обробнику ставлять у чергу значення 1, а два setN(prev => prev + 1) послідовно застосовують обидва оновлення і дають 2. Об'єкти й масиви стану не мутуйте: створюйте нове значення перед передаванням setter.",
+        en: "useState returns the current value and a setter. Calling the setter queues an update; the current handler still sees the snapshot from its render. If n is 0, two setN(n + 1) calls in one handler queue the value 1, while two setN(prev => prev + 1) calls apply both updates in order and yield 2. Do not mutate state objects or arrays: create a new value before passing it to the setter.",
       }),
       codeFill(
         "rf-s1",
@@ -195,11 +195,11 @@ const stateU = unit("state", "State", "State", [
       ), optionsEn: ["Queues a state update for a subsequent render", "Only mutates the DOM synchronously", "Updates SQL", "Creates a Git commit"] },
       { ...codeRead(
         "rf-s3",
-        "Правильний інкремент?",
-        "Correct increment?",
+        "Як працює це оновлення?",
+        "How does this update work?",
         "tsx",
         "setN(n => n + 1)",
-        ["OK functional update", "illegal", "needs class", "needs Redux"],
+        ["Функція отримує попередній стан і повертає наступний", "Некоректний синтаксис", "Потрібен клас", "Потрібен Redux"],
         0,
       ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["Valid functional update using the previous state", "Invalid", "Requires a class", "Requires Redux"] },
     ],
@@ -212,15 +212,15 @@ const stateU = unit("state", "State", "State", [
     false,
     [
       concept("rf-events-concept", "Події та обробники", "Events and handlers", {
-        uk: "Передавайте функцію в onClick, а не результат її негайного виклику. У відповідь на дію обробник може поставити оновлення стану в чергу. React надає об’єкт події з інтерфейсом, подібним до браузерного.",
-        en: "Pass a function to onClick rather than the result of calling it immediately. An event handler can queue a state update in response to an action. React provides an event object with an interface similar to the browser event.",
+        uk: "Передавайте функцію в onClick, а не результат її негайного виклику: onClick={save} або onClick={() => save(id)}. У відповідь на дію обробник може поставити оновлення стану в чергу. React надає об'єкт події з інтерфейсом, подібним до браузерного. Кнопці всередині форми задайте type=\"button\", якщо вона не має надсилати форму.",
+        en: "Pass a function to onClick rather than the result of calling it immediately: onClick={save} or onClick={() => save(id)}. An event handler can queue a state update in response to an action. React provides an event object with an interface similar to the browser event. Give a button inside a form type=\"button\" when it should not submit the form.",
       }),
       codeFill(
         "rf-s4",
         "onClick",
         "onClick",
         "tsx",
-        "<button ___={() => setN(n + 1)}>Inc</button>",
+        "<button type=\"button\" ___={() => setN(prev => prev + 1)}>Inc</button>",
         ["onClick"],
         true,
       ),
@@ -250,8 +250,8 @@ const lists = unit("lists", "Lists & keys", "Lists & keys", [
     false,
     [
       concept("rf-map-concept", "Стабільна ідентичність елементів", "Stable item identity", {
-        uk: "Масив даних можна перетворити на JSX через map. Ключ має бути стабільним і унікальним серед сусідів, наприклад ID запису. Індекс як ключ небезпечний при додаванні, видаленні чи перестановці: React може зберегти стан за позицією іншого елемента.",
-        en: "Use map to turn data into JSX. A key should be stable and unique among siblings, such as a record ID. Index keys are risky when inserting, deleting, or reordering: React can associate state with a different item at the same position.",
+        uk: "Масив даних можна перетворити на JSX через map. Ключ має бути стабільним і унікальним серед сусідів, наприклад ID запису. Індекс як ключ небезпечний при додаванні, видаленні чи перестановці: React може зберегти стан за позицією іншого елемента. key використовується React і не передається компоненту як звичайний prop; якщо Row потрібен ID, передайте його окремо: <Row key={item.id} id={item.id} />.",
+        en: "Use map to turn data into JSX. A key should be stable and unique among siblings, such as a record ID. Index keys are risky when inserting, deleting, or reordering: React can associate state with a different item at the same position. React uses key itself and does not pass it as an ordinary prop; if Row needs the ID, pass it separately: <Row key={item.id} id={item.id} />.",
       }),
       codeFill(
         "rf-l1",
@@ -333,25 +333,25 @@ const effects = unit("effects", "Effects", "Effects", [
     false,
     [
       concept("rf-effect-deps-concept", "Залежності описують використані значення", "Dependencies describe reactive values", {
-        uk: "У масиві залежностей указують реактивні значення, які використовує ефект. Після зміни залежності React очищує попереднє налаштування й запускає нове. Порожній масив не означає, що можна приховати використовуваний id: це призведе до застарілого значення.",
-        en: "The dependency array lists reactive values used by the effect. When a dependency changes, React cleans up the previous setup and runs a new one. An empty array does not justify omitting an id the effect uses: that can leave stale values.",
+        uk: "У масиві залежностей указують реактивні значення, які використовує ефект. Після зміни залежності React очищує попереднє налаштування й запускає нове. Порожній масив не означає, що можна приховати використовуваний id: це призведе до застарілого значення. Для запитів із змінним id передбачте очищення: скасуйте запит через AbortController або ігноруйте застарілий результат, щоб попередня відповідь не перезаписала нову.",
+        en: "The dependency array lists reactive values used by the effect. When a dependency changes, React cleans up the previous setup and runs a new one. An empty array does not justify omitting an id the effect uses: that can leave stale values. For requests with a changing id, provide cleanup: abort the request with AbortController or ignore a stale result so an earlier response cannot overwrite a newer one.",
       }),
       { ...mcq(
         "rf-e4",
-        "Missing deps risk:",
+        "Який ризик пропущеної залежності?",
         "Missing deps risk:",
         ["Застарілі значення та помилки синхронізації", "Швидші типи", "Завжди краще SEO", "Додаткова підписка"],
         0,
       ), optionsEn: ["Stale values or incorrect synchronization", "Faster types", "Always better SEO", "A free subscription"] },
       { ...codeRead(
         "rf-e5",
-        "Effect with [id]:",
-        "Effect with [id]:",
+        "Як поводиться ефект, якщо load — стабільна функція з модуля?",
+        "How does the effect behave if load is a stable module-level function?",
         "tsx",
         "useEffect(() => { load(id); }, [id]);",
-        ["Запускається після монтування і повторно при зміні id", "Ніколи не запускається", "Лише при зміні CSS", "Завжди викидає помилку"],
+        ["Запускається після монтування і повторно при зміні id; у Strict Mode розробки можливий додатковий цикл", "Ніколи не запускається", "Лише при зміні CSS", "Завжди викидає помилку"],
         0,
-      ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["Runs after mount and reruns after id changes", "Never runs", "Runs only when CSS changes", "Always throws"] },
+      ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["Runs after mount and after id changes; development Strict Mode may add a cycle", "Never runs", "Runs only when CSS changes", "Always throws"] },
     ],
   ),
   exam("rf-fx-exam", "Контрольна: effects", "Exam: effects", 3, [
@@ -371,8 +371,8 @@ const forms = unit("forms", "Controlled inputs", "Controlled inputs", [
     false,
     [
       concept("rf-controlled-concept", "Стан керує полем", "State controls the field", {
-        uk: "У контрольованому текстовому полі value надходить зі стану, а onChange оновлює його з поточного значення input. Почніть з рядкового значення й не перемикайте поле між контрольованим і неконтрольованим режимами протягом його життя.",
-        en: "For a controlled text input, value comes from state and onChange updates it from the input’s current value. Start with a string and avoid switching the input between controlled and uncontrolled modes during its lifetime.",
+        uk: "У контрольованому текстовому полі value надходить зі стану, а onChange оновлює його з поточного значення input. Почніть з рядка, наприклад useState(''), і не перемикайте поле між контрольованим і неконтрольованим режимами протягом його життя. Для checkbox керуйте checked і читайте e.target.checked, а не value. Додайте пов'язаний label і перевіряйте помилки введення текстом, а не лише кольором.",
+        en: "For a controlled text input, value comes from state and onChange updates it from the input's current value. Start with a string, such as useState(''), and avoid switching between controlled and uncontrolled modes during its lifetime. For a checkbox control checked and read e.target.checked rather than value. Add an associated label and communicate validation errors in text, not only color.",
       }),
       codeFill(
         "rf-f1",
@@ -435,18 +435,18 @@ const composition = unit("composition", "Composition", "Composition", [
         "tsx",
         "function Box({ children }: { children: React.___ }) { return <div>{children}</div>; }",
         ["ReactNode"],
-        false,
+        true,
       ),
-      matchEx(
+      { ...matchEx(
         "rf-co3",
         "Patterns",
         "Patterns",
         [
-          { left: "props", right: "configure component" },
-          { left: "children", right: "nest content" },
-          { left: "state", right: "local interactive data" },
+          { left: "props", right: "передавати вхідні дані компонента" },
+          { left: "children", right: "вкладати вміст" },
+          { left: "state", right: "зберігати інтерактивні дані" },
         ],
-      ),
+      ), pairsEn: [{ left: "props", right: "Pass component inputs" }, { left: "children", right: "Nest content" }, { left: "state", right: "Store interactive data" }] },
     ],
   ),
   exam("rf-comp-exam2", "Контрольна: composition", "Exam: composition", 2, [
@@ -534,7 +534,7 @@ const appliedReactResilience = unit(
             "filter не можна передавати через props",
           ],
           0,
-        ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["visible is derived during each render without additional state", "visible must be stored in localStorage", "useEffect must always write visible to state", "It permanently mutates the original array"] },
+        ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["visible is derived during each render without additional state", "visible must be stored in useState through useEffect", "The component renders infinitely", "filter cannot be passed through props"] },
         codeFill(
           "rc-res-5",
           "Оптимізація важкого обчислення похідного стану через useMemo",
@@ -590,8 +590,8 @@ const appliedReactResilience = unit(
       false,
       [
         concept("react-app-cumulative-task-concept", "Узгоджений список пошуку", "A consistent search list", {
-          uk: "Оголошуйте хуки до умовних повернень, щоб порядок викликів був стабільним. Потім відобразіть loading або помилку, а для успішного результату — відфільтрований список і зрозумілий порожній стан. Мемоізація потрібна лише за наявності причини.",
-          en: "Declare hooks before conditional returns so their call order is stable. Then show loading or an error, and on success show the filtered list and a clear empty state. Memoize only when there is a reason.",
+          uk: "Оголошуйте хуки до умовних повернень, щоб порядок викликів був стабільним. Потім відобразіть loading або помилку, а для успішного результату — відфільтрований список і зрозумілий порожній стан. Мемоізація потрібна лише за наявності причини. Спрощено React обчислює опис UI під час рендеру, узгоджує зміни, застосовує потрібні DOM-оновлення у commit і запускає useEffect на клієнті після commit. Рендер може бути перерваний без commit, а ефекти не запускаються під час серверного рендеру.",
+          en: "Declare hooks before conditional returns so their call order is stable. Then show loading or an error, and on success show the filtered list and a clear empty state. Memoize only when there is a reason. In a simplified model, React calculates a UI description during render, reconciles changes, applies necessary DOM updates in commit, and runs useEffect on the client after commit. A render can be interrupted without a commit, and effects do not run during server rendering.",
         }),
         codeOrder(
           "rc-res-8",
@@ -665,24 +665,24 @@ const appliedReactResilience = unit(
           ["useReducer"],
           true,
         ),
-        codeOrder(
+        { ...codeOrder(
           "rc-res-13",
-          "Життєвий цикл рендеру React-компонента",
-          "React component render cycle order",
+          "Впорядкуйте спрощену модель клієнтського оновлення, яке дійшло до commit.",
+          "Order the simplified model of a client update that reaches commit.",
           "text",
           [
-            "1. Виклик функції компонента (Render phase)",
-            "2. Узгодження віртуального DOM (Reconciliation / Diffing)",
-            "3. Оновлення реального DOM (Commit phase)",
-            "4. Виконання побічних ефектів useEffect",
+            "Apply necessary DOM updates in commit",
+            "Run useEffect setup on the client",
+            "Call the component to calculate the UI",
+            "Reconcile the new description with the previous one",
           ],
           [
-            "1. Виклик функції компонента (Render phase)",
-            "2. Узгодження віртуального DOM (Reconciliation / Diffing)",
-            "3. Оновлення реального DOM (Commit phase)",
-            "4. Виконання побічних ефектів useEffect",
+            "Call the component to calculate the UI",
+            "Reconcile the new description with the previous one",
+            "Apply necessary DOM updates in commit",
+            "Run useEffect setup on the client",
           ],
-        ),
+        ), linesUk: ["Застосувати потрібні оновлення DOM у commit", "Запустити налаштування useEffect на клієнті", "Викликати компонент для обчислення UI", "Узгодити новий опис із попереднім"] },
       ],
     ),
   ],
@@ -696,13 +696,17 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
     3,
     false,
     [
+      concept("rf-capstone-toggle-concept", "Перемикач і перевірка поведінки", "Toggle behavior and verification", {
+        uk: "Кнопка перемикає логічний стан функціональним оновленням і показує On або Off. Додайте type=\"button\" та aria-pressed={on}, щоб стан був доступний допоміжним технологіям. Перевірте клік і клавіатурну активацію: автоматична перевірка цієї вправи шукає фрагменти тексту, зокрема в коментарях, і не виконує компонент.",
+        en: "The button toggles boolean state with a functional update and displays On or Off. Add type=\"button\" and aria-pressed={on} to expose the state to assistive technology. Test click and keyboard activation: this exercise's automatic check searches text fragments, including comments, and does not run the component.",
+      }),
       {
         id: "rf-cap1",
         type: "code_project",
         promptUk:
-          "Вихідні файли: Toggle.tsx та README.md. Очікуваний результат: React-компонент перемикача з хуком стану. Обов'язкові елементи: useState, function Toggle, button, текст On та Off; у README розділ про state. Обмеження: статичний аналіз структури коду без запуску bundler чи live DOM.",
+          "Вихідні файли: Toggle.tsx та README.md. Створіть перемикач із useState, function Toggle, button та текстом On і Off; додайте type=\"button\" і aria-pressed, опишіть state у README. Перевірка шукає фрагменти тексту, включно з коментарями, і не запускає компонент; перевірте поведінку окремо.",
         promptEn:
-          "Input files: Toggle.tsx and README.md. Expected result: a stateful React toggle component. Mandatory elements: useState, function Toggle, button, On and Off labels; in README explain state. Validation limits: static component structure analysis without a live bundler or DOM renderer.",
+          "Input files: Toggle.tsx and README.md. Build a toggle with useState, function Toggle, a button, and On and Off labels; add type=\"button\" and aria-pressed, and explain state in README. The checker searches text fragments, including comments, and does not run the component; test behavior separately.",
         files: [
           {
             id: "tsx",
@@ -762,8 +766,8 @@ export function Toggle() {
       ), optionsEn: ["URL search parameters or router query, so filters can be shared and navigated", "Only sessionStorage without updating the URL", "A global window.__filter variable", "CSS custom properties"] },
       codeProject(
         "rf-fb2",
-        "Складіть оболонку станів loading/empty/error/retry для ForgeBoard; локальний пакет M4 нижче містить повні React Testing Library перевірки.",
-        "Sketch a loading/empty/error/retry task board view for ForgeBoard; download Milestone 4 below for full React component tests.",
+        "Складіть оболонку станів loading/empty/error/retry для ForgeBoard. Вбудована перевірка шукає текстові фрагменти, зокрема в коментарях, і не запускає компонент; локальний пакет M4 нижче містить компонентні тести.",
+        "Sketch a loading/empty/error/retry task board view for ForgeBoard. The embedded checker searches text fragments, including comments, and does not run the component; the local M4 package below contains component tests.",
         [
           {
             id: "tsx",
@@ -802,14 +806,14 @@ const hooksAdv = unit("hooks_adv", "Hooks advanced", "Hooks advanced", [
     false,
     [
       concept("rf-usememo-concept", "Мемоізація як оптимізація", "Memoization as an optimization", {
-        uk: "useMemo кешує результат обчислення між рендерами, а useCallback — посилання на функцію, поки залежності не змінилися. Це оптимізації, а не гарантія правильності: спершу напишіть коректний код, потім виміряйте потребу в кешуванні.",
-        en: "useMemo caches a calculation and useCallback caches a function reference between renders while dependencies stay unchanged. These are optimizations, not correctness guarantees: first write correct code, then measure whether caching helps.",
+        uk: "useMemo кешує результат обчислення між рендерами, а useCallback — посилання на функцію, поки залежності не змінилися. Залежності порівнюються через Object.is: новий об'єкт, створений на кожному рендері, може щоразу звести кеш нанівець. React також може відкинути кеш за певних умов. Це оптимізації, а не гарантія правильності: спершу напишіть коректний код, потім виміряйте потребу в кешуванні.",
+        en: "useMemo caches a calculation and useCallback caches a function reference between renders while dependencies stay unchanged. Dependencies are compared with Object.is: an object recreated on every render can invalidate the cache each time. React may also discard a cache in certain circumstances. These are optimizations, not correctness guarantees: first write correct code, then measure whether caching helps.",
       }),
       { ...mcq(
         "rf-h1",
+        "Що кешує useMemo?",
         "useMemo caches:",
-        "useMemo caches:",
-        ["computed value", "DOM node forever", "CSS only", "SQL query always"],
+        ["результат обчислення за незмінних залежностей", "DOM-вузол назавжди", "лише CSS", "завжди SQL-запит"],
         0,
       ), optionsEn: ["A calculated value between renders when dependencies are unchanged", "A DOM node forever", "Only CSS", "Always a SQL query"] },
       codeFill(
@@ -840,12 +844,12 @@ const hooksAdv = unit("hooks_adv", "Hooks advanced", "Hooks advanced", [
     false,
     [
       concept("rf-custom-hook-concept", "Повторне використання логіки", "Reusing logic", {
-        uk: "Власний хук — функція з назвою use..., яка може викликати інші хуки на верхньому рівні. Він повторно використовує логіку, а не автоматично спільний стан: кожен виклик зазвичай має власний стан.",
-        en: "A custom hook is a function named use... that can call other hooks at the top level. It reuses logic, not automatically shared state: each call generally has its own state.",
+        uk: "Власний хук — функція з назвою use..., яка може викликати інші хуки на верхньому рівні. Він повторно використовує логіку, а не автоматично спільний стан: два компоненти, що викликають useToggle(), отримують окремі значення. Якщо стан має бути спільним, розмістіть його у спільному власнику й передайте через props або context.",
+        en: "A custom hook is a function named use... that can call other hooks at the top level. It reuses logic, not automatically shared state: two components calling useToggle() get separate values. If state must be shared, put it in a common owner and pass it through props or context.",
       }),
       { ...mcq(
         "rf-h4",
-        "Custom hook name starts with:",
+        "З чого починається назва власного хука?",
         "Custom hook name starts with:",
         ["use", "get", "make", "hook"],
         0,
@@ -861,9 +865,9 @@ const hooksAdv = unit("hooks_adv", "Hooks advanced", "Hooks advanced", [
       ),
       { ...mcq(
         "rf-h6",
+        "Як викликають звичайні хуки, наприклад useState?",
         "Hooks rules:",
-        "Hooks rules:",
-        ["top-level only, same order", "inside if freely", "in class methods", "only in CSS"],
+        ["на верхньому рівні в однаковому порядку", "довільно всередині умов", "у методах класу", "лише в CSS"],
         0,
       ), optionsEn: ["Call hooks at the top level in a consistent order", "Call hooks freely inside conditions", "Call hooks in class methods", "Use hooks only in CSS"] },
     ],
@@ -876,8 +880,8 @@ const hooksAdv = unit("hooks_adv", "Hooks advanced", "Hooks advanced", [
     false,
     [
       concept("rf-context-concept", "Значення найближчого провайдера", "The nearest provider’s value", {
-        uk: "Context дозволяє передавати значення глибоким нащадкам без явної передачі через кожен проміжний компонент. useContext читає найближчий відповідний provider вище в дереві; без нього повертається значення за замовчуванням, задане при створенні context.",
-        en: "Context lets deep descendants read a value without passing it through every intermediate component. useContext reads the nearest matching provider above it; without one it returns the default supplied when the context was created.",
+        uk: "Context дозволяє передавати значення глибоким нащадкам без явної передачі через кожен проміжний компонент. useContext читає найближчий відповідний provider вище в дереві; без нього повертається значення за замовчуванням, задане при створенні context. Якщо provider існує, але його value дорівнює undefined, повернеться саме undefined, а не значення за замовчуванням. Зміна значення провайдера оновлює споживачів цього контексту.",
+        en: "Context lets deep descendants read a value without passing it through every intermediate component. useContext reads the nearest matching provider above it; without one it returns the default supplied when the context was created. If a provider exists but its value is undefined, consumers receive undefined rather than the default. Changing the provider value updates consumers of that context.",
       }),
       codeFill(
         "rf-h7",
@@ -890,9 +894,9 @@ const hooksAdv = unit("hooks_adv", "Hooks advanced", "Hooks advanced", [
       ),
       { ...mcq(
         "rf-h8",
+        "Що читає useContext?",
         "useContext reads:",
-        "useContext reads:",
-        ["nearest Provider value", "localStorage only", "URL only", "Redux always"],
+        ["значення найближчого відповідного provider", "лише localStorage", "лише URL", "завжди Redux"],
         0,
       ), optionsEn: ["The nearest matching provider value", "Only localStorage", "Only the URL", "Always Redux"] },
       codeFill(
@@ -920,8 +924,8 @@ const hooksAdv = unit("hooks_adv", "Hooks advanced", "Hooks advanced", [
     false,
     [
       concept("rf-hooks-pattern-concept", "Правила виклику хуків", "Rules for calling hooks", {
-        uk: "Викликайте хуки на верхньому рівні компонента або власного хука до умовних return, а не в циклах, умовах чи вкладених обробниках. Стабільний порядок викликів дозволяє React пов’язувати стан із правильним хуком.",
-        en: "Call hooks at the top level of a component or custom hook before conditional returns, not in loops, conditions, or nested handlers. A stable call order lets React associate state with the correct hook.",
+        uk: "Викликайте звичайні хуки, наприклад useState і useEffect, на верхньому рівні компонента або власного хука до умовних return, а не в циклах, умовах чи вкладених обробниках. Стабільний порядок викликів дозволяє React пов'язувати стан із правильним хуком. API use має окремі правила й може викликатися в умовах і циклах; це не поширюється на useState.",
+        en: "Call ordinary hooks such as useState and useEffect at the top level of a component or custom hook before conditional returns, not in loops, conditions, or nested handlers. A stable call order lets React associate state with the correct hook. The use API has separate rules and can be called in conditions and loops; this exception does not apply to useState.",
       }),
       codeFill(
         "rf-hp1",
@@ -934,9 +938,9 @@ const hooksAdv = unit("hooks_adv", "Hooks advanced", "Hooks advanced", [
       ),
       { ...mcq(
         "rf-hp2",
+        "Як власні хуки викликають useState та інші звичайні хуки?",
         "Custom hooks should:",
-        "Custom hooks should:",
-        ["call other hooks at top level", "be classes only", "replace JSX always", "ban useState"],
+        ["на верхньому рівні", "лише в класах", "завжди замінюють JSX", "забороняють useState"],
         0,
       ), optionsEn: ["Call hooks at the top level", "Be classes only", "Always replace JSX", "Ban useState"] },
       codeFill(
@@ -950,9 +954,9 @@ const hooksAdv = unit("hooks_adv", "Hooks advanced", "Hooks advanced", [
       ),
       { ...mcq(
         "rf-hp4",
+        "Як повторно використовувати логіку з хуками в компонентах?",
         "Share logic across components via:",
-        "Share logic across components via:",
-        ["custom hooks", "only CSS", "only HTML comments", "SQL views"],
+        ["через власні хуки", "лише через CSS", "лише через HTML-коментарі", "через SQL views"],
         0,
       ), optionsEn: ["Custom hooks", "Only CSS", "Only HTML comments", "SQL views"] },
     ],
@@ -968,8 +972,8 @@ const hooksMore = unit("hooks_more", "Хуки: useRef, useReducer та стан
     false,
     [
       concept("rf-useref-concept", "Значення, що не запускає рендер", "A value that does not trigger rendering", {
-        uk: "useRef зберігає той самий об’єкт між рендерами. Зміна current не запускає рендер, тому ref підходить для DOM-вузла або ID таймера, але не для даних, які мають оновлювати інтерфейс. Для таймера перевіряйте null явно та очищуйте його, коли він більше не потрібен.",
-        en: "useRef retains the same object between renders. Changing current does not trigger a render, so a ref suits a DOM node or timer ID but not data that must update the UI. Check null explicitly and clear timers when no longer needed.",
+        uk: "useRef зберігає той самий об'єкт між рендерами. Зміна current не запускає рендер, тому ref підходить для DOM-вузла або ID таймера, але не для даних, які мають оновлювати інтерфейс. Для таймера перевіряйте null явно, очищуйте попередній таймер перед повторним запуском і під час демонтування. Не читайте та не змінюйте current під час рендеру, крім дозволеної передбачуваної ініціалізації; використовуйте обробник події або effect.",
+        en: "useRef retains the same object between renders. Changing current does not trigger a render, so a ref suits a DOM node or timer ID but not data that must update the UI. Check null explicitly, clear an existing timer before restarting, and clean up on unmount. Do not read or write current during render except for permitted predictable initialization; use an event handler or effect instead.",
       }),
       codeFill(
         "rf-hm-r1",
@@ -997,7 +1001,7 @@ const hooksMore = unit("hooks_more", "Хуки: useRef, useReducer та стан
         "Що зберігає timerRef у цьому коді?",
         "What does timerRef hold in this code?",
         "tsx",
-        "const timerRef = useRef<number | null>(null);\nconst start = () => { timerRef.current = window.setTimeout(tick, 1000); };\nconst stop = () => { if (timerRef.current !== null) clearTimeout(timerRef.current); };",
+        "const timerRef = useRef<number | null>(null);\nconst stop = () => {\n  if (timerRef.current !== null) clearTimeout(timerRef.current);\n  timerRef.current = null;\n};\nconst start = () => {\n  stop();\n  timerRef.current = window.setTimeout(() => { timerRef.current = null; tick(); }, 1000);\n};\nuseEffect(() => () => {\n  if (timerRef.current !== null) clearTimeout(timerRef.current);\n}, []);",
         [
           "Мутабельний ID таймера між рендерами без виклику перемальовування",
           "Текстовий рядок 'tick'",
@@ -1025,8 +1029,8 @@ const hooksMore = unit("hooks_more", "Хуки: useRef, useReducer та стан
     false,
     [
       concept("rf-usereducer-concept", "Стан через reducer", "State through a reducer", {
-        uk: "useReducer повертає стан і dispatch. Reducer отримує попередній стан та action і має чисто повернути наступний стан без мутації. Об’єкт із type — поширена домовленість, а не обов’язкова форма для всіх reducers.",
-        en: "useReducer returns state and dispatch. A reducer receives previous state and an action and should return the next state purely without mutation. An object with type is a common convention, not a required shape for every reducer.",
+        uk: "useReducer повертає стан і dispatch. Reducer отримує попередній стан та action і має чисто повернути наступний стан без мутації: наприклад, {...state, count: state.count + 1}. Запити й інші побічні дії виконуйте поза reducer. Об'єкт із type — поширена домовленість, а не обов'язкова форма для всіх reducers; у Strict Mode розробки React може додатково викликати reducer для виявлення нечистого коду.",
+        en: "useReducer returns state and dispatch. A reducer receives previous state and an action and should return the next state purely without mutation, for example {...state, count: state.count + 1}. Run requests and other side effects outside the reducer. An object with type is a common convention, not a required action shape; development Strict Mode may call the reducer extra times to reveal impurities.",
       }),
       codeFill(
         "rf-hm-rd1",
@@ -1070,8 +1074,8 @@ const hooksMore = unit("hooks_more", "Хуки: useRef, useReducer та стан
     false,
     [
       concept("rf-derived-state-concept", "Обчислюйте те, що вже відомо", "Derive what is already known", {
-        uk: "Якщо список можна обчислити з items і filter, зробіть це під час рендеру замість дублювання стану та синхронізації ефектом. Локальна копія props доречна як навмисна незалежна чернетка, але пізніші зміни props не перезапишуть її автоматично.",
-        en: "If a list can be computed from items and filter, derive it during rendering instead of duplicating state and synchronizing it with an effect. A local copy of props can be appropriate as an intentional independent draft, but later prop changes do not automatically overwrite it.",
+        uk: "Якщо список можна обчислити з items і filter, зробіть це під час рендеру замість дублювання стану та синхронізації ефектом. Локальна копія props доречна як навмисна незалежна чернетка, але пізніші зміни props не перезапишуть її автоматично. Заздалегідь визначте, що станеться при переході до іншого запису й при новій відповіді сервера: не стирайте незбережені правки непомітною синхронізацією.",
+        en: "If a list can be computed from items and filter, derive it during rendering instead of duplicating state and synchronizing it with an effect. A local copy of props can be appropriate as an intentional independent draft, but later prop changes do not automatically overwrite it. Decide what happens when navigating to another record and when a new server response arrives: do not silently erase unsaved edits through synchronization.",
       }),
       { ...codeRead(
         "rf-hm-ds1",
@@ -1196,15 +1200,15 @@ const architectureRoutingForms = unit(
           "tsx",
           "function TaskEditor({ initialTitle }: { initialTitle: string }) {\n  const [title, setTitle] = useState(initialTitle);\n  return <input value={title} onChange={(e) => setTitle(e.target.value)} />;\n}",
           [
-            "Інпут показуватиме старий `title` першої задачі, бо `useState(initialTitle)` читається лише при монтуванні",
+            "Інпут може зберегти поточну локальну чернетку першої задачі, бо `initialTitle` ініціалізує стан при монтуванні",
             "React автоматично скине `title` при зміні будь-якого prop",
             "Компонент впаде з ErrorBoundary",
             "`onChange` перестане працювати",
           ],
           0,
           why(
-            "Передайте `key={task.id}` при зміні сутності або керуйте полем повністю через контрольовані props.",
-            "Reset component state cleanly on entity switch via `key={task.id}` or lift controlled state up.",
+            "Ключ за id може скинути весь локальний стан при зміні задачі; перед цим визначте, що робити з незбереженою чернеткою. Інший варіант — керувати полем через власника стану.",
+            "A key based on id can reset all local state on a task change; first decide what happens to an unsaved draft. Another option is a controlled field owned by the parent.",
           ),
         ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["The input can retain the first task’s local title because initialTitle initializes state only on mount", "React resets title on every prop change", "The component throws an ErrorBoundary", "onChange stops working"] },
       ], { baseXp: 24 },
@@ -1220,8 +1224,8 @@ const architectureRoutingForms = unit(
       }),
         codeOrderAuto(
           "rf-arf3",
-          "Впорядкуйте стани UI при завантаженні списку з API так, щоб жоден стан не маскував помилку",
-          "Order the UI state checks so empty never masks loading or error",
+          "Для статусів loading, error і success впорядкуйте перевірки: loading, потім error, а порожній список — лише після них.",
+          "For loading, error, and success statuses, order the checks: loading first, then error, and empty data only after them.",
           "tsx",
           [
             "if (status === \"loading\") return <LoadingBanner />;",
@@ -1263,8 +1267,8 @@ const architectureRoutingForms = unit(
       }),
         { ...mcq(
           "rf-arf5",
-          "У тесті React Testing Library замість пошуку за внутрішньою CSS-назвою `.btn-submit-1` який запит найкраще перевіряє реальну доступність для користувача?",
-          "In React Testing Library, instead of querying brittle class `.btn-submit-1`, which query validates both behavior and accessibility?",
+          "У тесті React Testing Library який запит перевіряє роль і доступну назву кнопки замість внутрішнього CSS-класу?",
+          "In React Testing Library, which query checks a button's role and accessible name instead of an internal CSS class?",
           [
             "`screen.getByRole(\"button\", { name: /save task/i })`",
             "`container.querySelector(\"div > div:nth-child(3)\")`",
@@ -1273,8 +1277,8 @@ const architectureRoutingForms = unit(
           ],
           0,
           why(
-            "Запити за ARIA role та доступною назвою перевіряють контракт, яким користується людина та скрінрідер.",
-            "`getByRole` with accessible name verifies both visible UX and screen-reader semantics.",
+            "Запит за роллю та доступною назвою перевіряє частину семантики; поведінку натискання й роботу з допоміжними технологіями перевіряйте окремо.",
+            "A role-and-name query checks part of the semantics; test click behavior and assistive technology separately.",
           ),
         ), optionsEn: ["screen.getByRole(\"button\", { name: /save task/i })", "container.querySelector(\"div > div:nth-child(3)\")", "wrapper.state(\"isSubmitting\")", "document.getElementsByClassName(\"btn-submit-1\")[0]"] },
         codeFill(

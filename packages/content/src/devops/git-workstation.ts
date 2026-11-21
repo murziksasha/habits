@@ -13,15 +13,16 @@ export const gitWorkstation = unit(
         uk: "Куди кладуть приватний ключ для доступу до репозиторію forge-status?",
         en: "Where does the private key for the forge-status repo live?",
         o: [
-          "Лише на вашій машині, файл не в Git",
+          "У захищеному приватному сховищі власника, поза Git",
           "У README, щоб команда скопіювала",
           "У публічному репозиторії поруч із кодом",
           "У коментарі першого коміту",
         ],
+        oEn: ["In protected private storage controlled by the owner, outside Git", "In the README for the team to copy", "In the public repository beside the code", "In the first commit message"],
         i: 0,
         note: why(
-          "Приватний ключ — секрет. У Git потрапляє щонайбільше публічний .pub.",
-          "The private key is a secret. Git may hold the .pub file at most.",
+          "Приватний ключ — секрет: зберігайте його у захищеному сховищі або апаратному ключі, а не в Git. Публічний ключ можна зареєструвати у провайдера.",
+          "The private key is secret: keep it in protected storage or hardware, not Git. Register the public key with the provider.",
         ),
       },
       {
@@ -42,6 +43,7 @@ export const gitWorkstation = unit(
           "Він вимикає пароль sudo",
           "Він публікує образ у registry",
         ],
+        oEn: ["To collect an alias, user, key, and port in one place", "It replaces git commit", "It disables the sudo password", "It publishes an image to a registry"],
         i: 0,
       },
       {
@@ -54,6 +56,7 @@ export const gitWorkstation = unit(
           "Заміна TLS-сертифіката",
           "Користувач root без ключа",
         ],
+        oEn: ["An intermediate machine used to reach an internal host", "The company public DNS", "A replacement for a TLS certificate", "A root user without a key"],
         i: 0,
       },
     ]),
@@ -66,8 +69,9 @@ export const gitWorkstation = unit(
           { left: "blob", right: "Вміст файлу" },
           { left: "tree", right: "Імена і посилання на blob/tree" },
           { left: "commit", right: "Автор, батьки і корінь tree" },
-          { left: "tag", right: "Іменована мітка на коміт" },
+          { left: "tag", right: "Анотований об’єкт мітки з посиланням на інший об’єкт" },
         ],
+        pairsEn: [{"left": "blob", "right": "File contents"}, {"left": "tree", "right": "Names and references to blobs or trees"}, {"left": "commit", "right": "Author, parents, and root tree"}, {"left": "tag", "right": "Annotated tag object pointing to another object"}]
       },
       {
         t: "mcq",
@@ -79,6 +83,7 @@ export const gitWorkstation = unit(
           "Копія робочої теки на кожен коміт",
           "Лише повідомлення без вмісту файлів",
         ],
+        oEn: ["A DAG: commits refer to parents, not a next commit", "A single linear file with no branches", "A working-directory copy for every commit", "Only messages without file content"],
         i: 0,
         note: why(
           "Коміт знає батьків. Гілки — це рухомі вказівники на коміти.",
@@ -95,6 +100,7 @@ export const gitWorkstation = unit(
           "Треба відкрити порт 443",
           "Треба зашифрувати диск",
         ],
+        oEn: ["A branch moved and an old commit is no longer visible in log", "Building a Docker image", "Opening port 443", "Encrypting a disk"],
         i: 0,
       },
       {
@@ -109,6 +115,7 @@ export const gitWorkstation = unit(
           "Пароль від registry",
           "Список усіх blob у репозиторії",
         ],
+        oEn: ["A reference to the current branch, not the commit itself", "The complete diff of the last commit", "The registry password", "All repository blobs"],
         i: 0,
       },
     ]),
@@ -123,6 +130,7 @@ export const gitWorkstation = unit(
           "Коміти одразу в main без рев'ю",
           "Один коміт на весь модуль без гілок",
         ],
+        oEn: ["A short feature branch, pull request, review, and merge into main", "A permanent release fork for every person", "Commits directly to main without review", "One commit for the whole module without branches"],
         i: 0,
       },
       {
@@ -135,6 +143,7 @@ export const gitWorkstation = unit(
           "Видаляє remote назавжди",
           "Підписує коміти чужим ключем",
         ],
+        oEn: ["Replays your commits onto the new main, creating rewritten commits", "Creates a merge commit and preserves history unchanged", "Permanently deletes the remote", "Signs commits with someone else’s key"],
         i: 0,
         note: why(
           "Rebase вже опублікованої гілки, яку хтось тягне, ламає їм історію. Для своєї короткої гілки це звичайний спосіб.",
@@ -158,6 +167,7 @@ export const gitWorkstation = unit(
           "Лише файли з .gitignore",
           "Образ з registry",
         ],
+        oEn: ["An existing commit’s changes and applies them as a new commit on the current branch", "The entire remote including issues", "Only .gitignore files", "An image from the registry"],
         i: 0,
       },
     ]),
@@ -172,6 +182,7 @@ export const gitWorkstation = unit(
           "Купити домен",
           "Вимкнути branch protection",
         ],
+        oEn: ["Run formatting, lint, and secret checks before committing", "Deploy the cluster", "Buy a domain", "Disable branch protection"],
         i: 0,
       },
       {
@@ -179,22 +190,24 @@ export const gitWorkstation = unit(
         uk: "Зіставте файл і роль.",
         en: "Match the file to its job.",
         pairs: [
-          { left: ".gitignore", right: "Не комітити секрети і сміття збірки" },
+          { left: ".gitignore", right: "Ігнорувати відповідні невідстежувані файли" },
           { left: ".gitattributes", right: "Єдині кінці рядків і тип файлу" },
           { left: "CODEOWNERS", right: "Хто має схвалити теку" },
           { left: "commit-msg hook", right: "Перевірити форму повідомлення" },
         ],
+        pairsEn: [{"left": ".gitignore", "right": "Ignore matching untracked files"}, {"left": ".gitattributes", "right": "Configure file attributes such as line endings"}, {"left": "CODEOWNERS", "right": "Identify reviewers for paths"}, {"left": "commit-msg hook", "right": "Check the message format"}]
       },
       {
         t: "mcq",
         uk: "Branch protection на main вимагає:",
         en: "Branch protection on main requires:",
         o: [
-          "Рев'ю і зелені перевірки, прямий push закритий",
+          "У цьому курсі: рев'ю і зелені перевірки, прямий push закритий",
           "Лише красивий README",
           "Щоб кожен коміт був merge-комітом",
           "Вимкнений SSH",
         ],
+        oEn: ["For this course, review and passing checks while direct push is restricted", "Only a polished README", "Every commit to be a merge commit", "SSH to be disabled"],
         i: 0,
         note: why(
           "Підписаний коміт (SSH або GPG) показує, чий ключ його зробив. Захист гілки не пускає неперевірений код у main.",
@@ -211,6 +224,7 @@ export const gitWorkstation = unit(
           "Достатньо .gitignore після факту",
           "Git сам забуває blob через годину",
         ],
+        oEn: ["Treat it as compromised: revoke or rotate it, notify the team, and remediate history", "A new commit deleting the file is enough", "Adding .gitignore afterward is enough", "Git forgets the blob after an hour"],
         i: 0,
       },
     ]),
@@ -220,6 +234,7 @@ export const gitWorkstation = unit(
         uk: "Що є вказівником, а не знімком файлів?",
         en: "Which one is a pointer, not a snapshot of files?",
         o: ["Ім'я гілки", "blob", "tree", "Повідомлення коміту"],
+        oEn: ["A branch name", "blob", "tree", "A commit message"],
         i: 0,
       },
       {
@@ -227,11 +242,12 @@ export const gitWorkstation = unit(
         uk: "Fast-forward merge можливий, коли:",
         en: "A fast-forward merge is possible when:",
         o: [
-          "main не має своїх нових комітів після відгалуження",
+          "поточний коміт main є предком коміту гілки, яку зливають",
           "Є конфлікт у кожному файлі",
           "Репозиторій без жодного коміту",
           "Увімкнено rebase для чужої опублікованої гілки",
         ],
+        oEn: ["The current branch tip is an ancestor of the branch being merged", "Every file has a conflict", "The repository has no commits", "A shared published branch has been rebased"],
         i: 0,
       },
       {
@@ -252,6 +268,7 @@ export const gitWorkstation = unit(
           "Замінити CODEOWNERS",
           "Підписати тег чужим ключем",
         ],
+        oEn: ["Temporarily storing uncommitted changes for later", "Publishing a release", "Replacing CODEOWNERS", "Signing a tag with another person’s key"],
         i: 0,
       },
       {
@@ -264,6 +281,7 @@ export const gitWorkstation = unit(
           "Шифрування blob",
           "Автоматичний деплой",
         ],
+        oEn: ["Another working directory of the same repository, normally on another branch", "A new remote server", "Blob encryption", "Automatic deployment"],
         i: 0,
       },
       {
@@ -272,10 +290,10 @@ export const gitWorkstation = unit(
         en: "Safe path after a secret reached main.",
         lang: "text",
         correct: [
-          "Ротувати секрет у системі, де він діє",
-          "Прибрати файл з історії",
-          "Додати шаблон у .gitignore",
-          "Повідомити команду",
+          "Ротувати секрет / Rotate the secret",
+          "Повідомити відповідальних / Notify the team",
+          "Узгоджено прибрати з історії / Coordinate history remediation",
+          "Ігнорувати майбутні файли / Ignore future secret files",
         ],
       },
     ]),

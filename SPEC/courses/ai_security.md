@@ -15,38 +15,38 @@ Defensive agent security: tool trust boundaries, indirect prompt injection separ
 
 ### `as_threat` — Threat Model and Trust Boundaries for Agent Tools
 
-- `as-th-boundary` — Tools Can Delete Files, Send Mail, or Move Money: Draw the Trust Boundary (3 exercises)
-- `as-th-blast` — Fail-Closed Defaults and Scoping Tool Permissions (3 exercises)
+- `as-th-boundary` — Tools Can Delete Files, Send Mail, or Move Money: Draw the Trust Boundary (4 exercises, including a concept card)
+- `as-th-blast` — Fail-Closed Defaults and Scoping Tool Permissions (4 exercises, including a concept card)
 - `as-th-exam` — Checkpoint: Threat Model and Boundaries [exam] (3 exercises)
 
 ### `as_injection` — Prompt Injection Defense: Separating Data from Instructions
 
-- `as-in-indirect` — Indirect Prompt Injection Through External Content (3 exercises)
-- `as-in-controls` — Defense-in-Depth When Processing Untrusted Sources (3 exercises)
+- `as-in-indirect` — Indirect Prompt Injection Through External Content (4 exercises, including a concept card)
+- `as-in-controls` — Defense-in-Depth When Processing Untrusted Sources (4 exercises, including a concept card)
 - `as-in-exam` — Checkpoint: Prompt Injection Controls [exam] (3 exercises)
 
 ### `as_tools` — Allowlists, Least Privilege, and Human Confirmation
 
-- `as-tl-allowlist` — Allowlists Over Denylists and Least Privilege (3 exercises)
-- `as-tl-hitl` — Irreversible Actions Require Human Confirmation (3 exercises)
+- `as-tl-allowlist` — Allowlists Over Denylists and Least Privilege (4 exercises, including a concept card)
+- `as-tl-hitl` — Irreversible Actions Require Human Confirmation (4 exercises, including a concept card)
 - `as-tl-exam` — Checkpoint: Allowlists and HITL [exam] (3 exercises)
 
 ### `as_guardrails` — Output Policy: NeMo Guardrails and Llama Guard
 
-- `as-gr-policy` — The Role of Output Policy Rails and Safety Classifiers (3 exercises)
-- `as-gr-enforce` — Fail-Closed Output Enforcement and Policy Auditing (3 exercises)
+- `as-gr-policy` — The Role of Output Policy Rails and Safety Classifiers (4 exercises, including a concept card)
+- `as-gr-enforce` — Fail-Closed Output Enforcement and Policy Auditing (4 exercises, including a concept card)
 - `as-gr-exam` — Checkpoint: Output Policy Guardrails [exam] (3 exercises)
 
 ### `as_secrets` — Secrets Out of Prompts and Data Minimization
 
-- `as-sc-prompt` — Secrets Never Belong Inside Any Prompt (3 exercises)
-- `as-sc-hosted` — Data Minimization Before Outbound Hosted Model Calls (3 exercises)
+- `as-sc-prompt` — Secrets Never Belong Inside Any Prompt (4 exercises, including a concept card)
+- `as-sc-hosted` — Data Minimization Before Outbound Hosted Model Calls (4 exercises, including a concept card)
 - `as-sc-exam` — Checkpoint: Secrets and Data Minimization [exam] (3 exercises)
 
 ### `as_local` — Local Models: Ollama and vLLM Boundaries
 
-- `as-lc-runtime` — When Ollama or vLLM Fits—and What It Does Not Solve (3 exercises)
-- `as-lc-limits` — Securing Local Serving Endpoints and Keeping Guardrails (3 exercises)
+- `as-lc-runtime` — When Ollama or vLLM Fits—and What It Does Not Solve (4 exercises, including a concept card)
+- `as-lc-limits` — Securing Local Serving Endpoints and Keeping Guardrails (4 exercises, including a concept card)
 - `as-lc-exam` — Checkpoint: Local Models and Limits [exam] (3 exercises)
 
 ## Depth now
@@ -55,7 +55,7 @@ Defensive agent security: tool trust boundaries, indirect prompt injection separ
 - Lessons: 30
 - Exams: 10
 - Free non-exam lessons: 5
-- Exercise types in seed: code_fill, code_order, code_read, match, mcq
+- Exercise types in seed: code_fill, code_order, code_read, concept, match, mcq
 
 ## Expansion (Nov 2026)
 

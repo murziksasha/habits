@@ -19,36 +19,36 @@ Clear specifications, safe context curation, reviewing saved AI diffs, catching 
 
 ### `ai_task_specs` — Task Specification & Constraints (No Paid AI Required)
 
-- `ai-ts-spec` — Turning Vague Prompts into Testable Contracts (2 exercises)
-- `ai-ts-non-goals` — Stating Non-Goals & Preserving Contracts (1 exercises)
+- `ai-ts-spec` — Turning Vague Prompts into Testable Contracts (3 exercises, including a concept card)
+- `ai-ts-non-goals` — Stating Non-Goals & Preserving Contracts (2 exercises, including a concept card)
 - `ai-ts-exam` — Checkpoint: Task Specifications [exam] (1 exercises)
 
 ### `ai_context_selection` — Context Selection & Privacy Boundaries
 
-- `ai-cs-signal` — Curating High-Signal Context Over Raw File Dumps (2 exercises)
+- `ai-cs-signal` — Curating High-Signal Context Over Raw File Dumps (3 exercises, including a concept card)
 - `ai-cs-exam` — Checkpoint: Context Selection [exam] (1 exercises)
 
 ### `ai_small_diffs_review` — Small Diffs & Reviewing Saved AI Code
 
-- `ai-sd-diff-inspection` — Reading Plausible-Looking Diffs Critically (2 exercises)
-- `ai-sd-chunking` — Small Reviewable Increments (1 exercises)
+- `ai-sd-diff-inspection` — Reading Plausible-Looking Diffs Critically (3 exercises, including a concept card)
+- `ai-sd-chunking` — Small Reviewable Increments (2 exercises, including a concept card)
 - `ai-sd-exam` — Checkpoint: Reviewing AI Diffs [exam] (1 exercises)
 
 ### `ai_verification_debugging` — Verification Loops & Catching Hallucinated APIs
 
-- `ai-vd-hallucinations` — Catching Invented Flags, Library Methods & Fake Claims (2 exercises)
+- `ai-vd-hallucinations` — Catching Invented Flags, Library Methods & Fake Claims (3 exercises, including a concept card)
 - `ai-vd-exam` — Checkpoint: Evidence & Debugging [exam] (1 exercises)
 
 ### `ai_privacy_deps_capstone` — Privacy, Dependencies & ForgeBoard Review Lab
 
-- `ai-pd-hygiene` — Supply Chain Risks & Author Accountability (2 exercises)
-- `ai-forgeboard-review-lab` — Lab: ForgeBoard Saved AI Diff Review, Fix & Verification (M10) (2 exercises)
+- `ai-pd-hygiene` — Supply Chain Risks & Author Accountability (3 exercises, including a concept card)
+- `ai-forgeboard-review-lab` — Lab: ForgeBoard Saved AI Diff Review, Fix & Verification (M10) (3 exercises, including a concept card)
 - `ai-pd-exam` — Checkpoint: Privacy & Review Accountability [exam] (2 exercises)
 
 ### `ai_coder_control` — Controlling the AI coder
 
-- `ai-cc-packet` — The Context Packet: Goal, Files, Invariants, and How You Will Check (3 exercises)
-- `ai-cc-diff-test` — Read the Generated Diff, Reject Drive-By Refactors, Fix With a Test (3 exercises)
+- `ai-cc-packet` — The Context Packet: Goal, Files, Invariants, and How You Will Check (4 exercises, including a concept card)
+- `ai-cc-diff-test` — Read the Generated Diff, Reject Drive-By Refactors, Fix With a Test (4 exercises, including a concept card)
 - `ai-cc-exam` — Checkpoint: Controlling the AI coder [exam] (3 exercises)
 
 ## Depth now

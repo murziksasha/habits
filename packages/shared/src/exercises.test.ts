@@ -10,6 +10,14 @@ import {
 import { DEFAULT_PLATFORM_THEME, platformThemeSchema } from "./theme.js";
 
 describe("exercise shape schema", () => {
+  it("preserves Ukrainian ordering labels while retaining canonical answers", () => {
+    const parsed = exerciseSchema.parse({
+      id: "localized-order", type: "code_order", promptUk: "Впорядкуйте",
+      lines: ["second", "first"], linesUk: ["другий", "перший"], correct: ["first", "second"],
+    });
+    expect(parsed.type === "code_order" && parsed.linesUk).toEqual(["другий", "перший"]);
+    expect(parsed.type === "code_order" && parsed.correct).toEqual(["first", "second"]);
+  });
   it("preserves an English RSVP passage through exercise validation", () => {
     const parsed = exerciseSchema.parse({ id: "rsvp-locale", type: "rsvp", promptUk: "Читайте", text: "Український текст", textEn: "English text", wpm: 180 });
     expect(parsed.type === "rsvp" && parsed.textEn).toBe("English text");

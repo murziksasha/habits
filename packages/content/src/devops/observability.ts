@@ -13,17 +13,19 @@ export const observability = unit("observability", "Спостережність
         { left: "Errors", right: "Частка відповідей 5xx" },
         { left: "Saturation", right: "Наскільки близькі CPU, пам'ять, черга" },
       ],
+      pairsEn: [{"left": "Latency", "right": "Request duration"}, {"left": "Traffic", "right": "Incoming request rate"}, {"left": "Errors", "right": "Fraction or rate of failed requests"}, {"left": "Saturation", "right": "How close resources or queues are to capacity"}],
     },
     {
       t: "mcq",
       uk: "SLI — це:",
       en: "An SLI is:",
       o: [
-        "Вимірювана частка, наприклад успішні запити за хвилину",
+        "Вимірювана характеристика сервісу, наприклад частка успішних запитів за хвилину",
         "Договір із штрафом",
         "Дашборд сам по собі",
         "Ім'я pod",
       ],
+      oEn: ["A quantitative measure of service behavior, such as the fraction of successful requests", "A contract with penalties", "A dashboard by itself", "A pod name"],
       i: 0,
       note: why(
         "SLO — ціль на SLI. SLA — обіцянка зовні, часто з наслідками. Бюджет помилок рахують від SLO, це наступний модуль.",
@@ -40,6 +42,7 @@ export const observability = unit("observability", "Спостережність
         "Обидва лише про логи",
         "USE замінює трейси",
       ],
+      oEn: ["RED covers request rate, errors, duration; USE covers resource utilization, saturation, errors", "They are synonyms", "Both concern only logs", "USE replaces traces"],
       i: 0,
     },
     {
@@ -52,6 +55,7 @@ export const observability = unit("observability", "Спостережність
         "Повний Terraform plan",
         "Список зірок GitHub",
       ],
+      oEn: ["The four signals and probe status, emphasizing useful information", "Every log from the past year", "The entire Terraform plan", "GitHub stars"],
       i: 0,
     },
   ]),
@@ -66,6 +70,7 @@ export const observability = unit("observability", "Спостережність
         "Читає лише логи",
         "Замінює Ingress",
       ],
+      oEn: ["It scrapes targets and stores samples in its time-series database", "Every server pushes anonymous UDP packets to it", "It reads only logs", "It replaces Ingress"],
       i: 0,
     },
     {
@@ -75,15 +80,16 @@ export const observability = unit("observability", "Спостережність
       lang: "promql",
       code: "sum(rate(http_requests_total{job=\"forge-status\",code=~\"5..\"}[5m]))",
       o: [
-        "Швидкість 5xx за п'ять хвилин, не сирий лічильник",
+        "Сумарна середня швидкість 5xx за секунду за останні п’ять хвилин",
         "Поточну температуру CPU",
         "Кількість комітів",
         "Вільне місце на диску в байтах без rate",
       ],
+      oEn: ["The summed average per-second rate of 5xx requests over the last five minutes", "Current CPU temperature", "Number of commits", "Free disk bytes without rate"],
       i: 0,
       note: why(
-        "Лічильник лише росте. rate перетворює його на швидкість. Порівнювати голий counter між подами безглуздо.",
-        "A counter only goes up. rate turns it into a speed. Comparing a raw counter across pods is meaningless.",
+        "Лічильник зростає, але може скинутися при перезапуску. rate оцінює середню швидкість за секунду з урахуванням скидань.",
+        "A counter increases but can reset after a restart. rate estimates the average per-second rate and adjusts for counter resets.",
       ),
     },
     {
@@ -96,6 +102,7 @@ export const observability = unit("observability", "Спостережність
         "Він зберігає логи",
         "Він збирає образи",
       ],
+      oEn: ["It groups, deduplicates, silences, and routes alerts", "It draws graphs instead of Grafana", "It stores logs", "It builds images"],
       i: 0,
     },
     {
@@ -103,11 +110,12 @@ export const observability = unit("observability", "Спостережність
       uk: "node_exporter і метрика додатка:",
       en: "node_exporter and an application metric:",
       o: [
-        "Перший бачить машину. Другу forge-status має віддати сам, інакше ви не знаєте про 5xx",
+        "Перший віддає метрики хоста. Для 5xx потрібні метрики програми або іншого джерела, що бачить запити",
         "Це одне і те саме",
         "node_exporter читає /health за вас",
         "Додатку метрики заборонені",
       ],
+      oEn: ["node_exporter exposes host metrics; 5xx data requires an application or another request-level source", "They are the same thing", "node_exporter checks /health for you", "Applications cannot expose metrics"],
       i: 0,
     },
   ]),
@@ -122,6 +130,7 @@ export const observability = unit("observability", "Спостережність
         "Лише слово error",
         "Бінарний дамп",
       ],
+      oEn: ["A structured JSON line with time, level, and request identifier", "A multiline paragraph without time", "Only the word error", "A binary dump"],
       i: 0,
       note: why(
         "Однаковий id у логу і в трасі дозволяє стрибнути з графіка на конкретний запит.",
@@ -133,10 +142,11 @@ export const observability = unit("observability", "Спостережність
       uk: "Шматки стеку логів.",
       en: "Pieces of the log stack.",
       pairs: [
-        { left: "Promtail", right: "Читає файли або pod і шле рядки" },
+        { left: "Grafana Alloy", right: "Збирає і надсилає записи логів" },
         { left: "Loki", right: "Зберігає рядки за мітками, не повнотекстовий гігант" },
         { left: "Grafana", right: "Місце, де рядок дивляться поруч із графіком" },
       ],
+      pairsEn: [{"left": "Grafana Alloy", "right": "Collects and forwards log records"}, {"left": "Loki", "right": "Stores and queries logs using labels and other indexes"}, {"left": "Grafana", "right": "Displays logs alongside graphs"}],
     },
     {
       t: "mcq",
@@ -148,6 +158,7 @@ export const observability = unit("observability", "Спостережність
         "Логів немає взагалі",
         "Треба лише CPU хоста",
       ],
+      oEn: ["Full-text search is important and the operational cost is acceptable", "The smallest stack next to Grafana is required", "There are no logs", "Only host CPU is needed"],
       i: 0,
     },
     {
@@ -160,6 +171,7 @@ export const observability = unit("observability", "Спостережність
         "Замінює метрики",
         "Безкоштовний, бо логи не займають місце",
       ],
+      oEn: ["Can increase volume and obscure important events; choose levels and retention deliberately", "Is mandatory for SLOs", "Replaces metrics", "Is free because logs take no space"],
       i: 0,
     },
   ]),
@@ -174,6 +186,7 @@ export const observability = unit("observability", "Спостережність
         "Файл access.log цілком",
         "План Terraform",
       ],
+      oEn: ["Related spans across components sharing a trace ID", "The average CPU for a day", "The whole access.log", "A Terraform plan"],
       i: 0,
     },
     {
@@ -186,6 +199,7 @@ export const observability = unit("observability", "Спостережність
         "Сертифікат TLS",
         "Плагін Git",
       ],
+      oEn: ["Instruments and exports telemetry; a backend such as Jaeger or Tempo can display traces", "Must replace Prometheus for all metrics", "A TLS certificate", "A Git plugin"],
       i: 0,
       note: why(
         "Контекст треба передати в наступний виклик. Інакше ви бачите три окремі уривки замість одного шляху.",
@@ -198,10 +212,10 @@ export const observability = unit("observability", "Спостережність
       en: "From a symptom to a line.",
       lang: "text",
       correct: [
-        "Алерт на частку 5xx",
-        "Графік latency цього сервісу",
-        "Трейс повільного запиту",
-        "Лог із тим самим id",
+        "Алерт на 5xx / 5xx alert",
+        "Графік latency / Latency graph",
+        "Трейс запиту / Request trace",
+        "Лог із тим самим id / Log with the same ID",
       ],
     },
     {
@@ -214,6 +228,7 @@ export const observability = unit("observability", "Спостережність
         "Пише логи",
         "Замінює Alertmanager",
       ],
+      oEn: ["It exposes Kubernetes object state, such as pod readiness", "It sees only node disks", "It writes logs", "It replaces Alertmanager"],
       i: 0,
     },
   ]),
@@ -228,6 +243,7 @@ export const observability = unit("observability", "Спостережність
         "Те саме, що increase на гістограмі без потреби",
         "Замінює recording rule завжди",
       ],
+      oEn: ["Usually inappropriate: rate is intended for counters", "The only correct approach", "Always the same as increase on a histogram", "Always replaces a recording rule"],
       i: 0,
     },
     {
@@ -240,12 +256,13 @@ export const observability = unit("observability", "Спостережність
         "Зупиняє Prometheus",
         "Міняє код додатка",
       ],
+      oEn: ["Temporarily suppresses notifications for matching alerts", "Deletes metrics", "Stops Prometheus", "Changes application code"],
       i: 0,
     },
     {
       t: "fill",
-      uk: "Поле JSON, за яким шукають один запит.",
-      en: "The JSON field you search to find one request.",
+      uk: "У цій схемі поле JSON для зв’язку логу з трейсом називається trace_id. Допишіть назву.",
+      en: "In this schema the JSON field linking a log to a trace is trace_id. Fill in its name.",
       lang: "text",
       code: "___",
       ok: ["trace_id"],
@@ -260,6 +277,7 @@ export const observability = unit("observability", "Спостережність
         "Тег Git",
         "Ліміт пам'яті pod",
       ],
+      oEn: ["Precomputes an expression as a new time series", "Is a firewall rule", "Is a Git tag", "Is a pod memory limit"],
       i: 0,
     },
     {
@@ -272,6 +290,7 @@ export const observability = unit("observability", "Спостережність
         "Треба зібрати образ",
         "Треба ключ SSH",
       ],
+      oEn: ["Longer retention or querying across clusters exceeds a single Prometheus setup", "Building the first kind dashboard", "Building an image", "Creating an SSH key"],
       i: 0,
     },
     {
@@ -280,10 +299,10 @@ export const observability = unit("observability", "Спостережність
       en: "Assemble the small stack around forge-status.",
       lang: "text",
       correct: [
-        "Експортер хоста і метрики додатка",
-        "Prometheus збирає",
-        "Grafana показує чотири сигнали",
-        "Alertmanager пише, якщо 5xx тримаються",
+        "Метрики хоста і програми / Host and application metrics",
+        "Prometheus збирає / Prometheus scrapes",
+        "Grafana показує сигнали / Grafana shows signals",
+        "Alertmanager надсилає алерт / Alertmanager routes the alert",
       ],
     },
   ]),

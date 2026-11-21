@@ -1,4 +1,5 @@
 import { localizeExerciseOptions } from "@eduforge/shared";
+import { orderLabel } from "./order-labels";
 
 /**
  * Format a human-readable solution for reveal-after-skip UX.
@@ -14,6 +15,7 @@ export type SolutionExercise = {
   accepted?: string[];
   correct?: string[];
   lines?: string[];
+  linesUk?: string[];
   explanationUk?: string;
   explanationEn?: string;
   hintUk?: string;
@@ -64,7 +66,7 @@ export function formatExerciseSolution(
   if (exercise.type === "code_order" || exercise.type === "order_words") {
     const correct = exercise.correct ?? exercise.lines ?? [];
     if (correct.length) {
-      const body = correct.join("\n");
+      const body = correct.map((value) => orderLabel(value, locale, exercise.lines, exercise.linesUk)).join("\n");
       return explanation ? `${body}\n\n${explanation}` : body;
     }
   }

@@ -13,6 +13,7 @@ export const pythonOps = unit("python-ops", "Python для ops", "Python for ops
         "Він замінює pytest",
         "Він підписує коміти",
       ],
+      oEn: ["It provides path objects and platform-aware operations without manually assembling separators", "It calls AWS", "It replaces pytest", "It signs commits"],
       i: 0,
     },
     {
@@ -27,6 +28,7 @@ export const pythonOps = unit("python-ops", "Python для ops", "Python for ops
         "Створює файл і пише туди root",
         "Йде в S3",
       ],
+      oEn: ["Raises FileNotFoundError; an uncaught exception terminates the script", "Returns an empty dictionary without error", "Creates the file and writes root", "Calls S3"],
       i: 0,
       note: why(
         "Ловіть очікуваний виняток і кажіть людині, якого файлу бракує. Голий traceback у cron ніхто не читає.",
@@ -38,11 +40,12 @@ export const pythonOps = unit("python-ops", "Python для ops", "Python for ops
       uk: "PyYAML safe_load замість load, бо:",
       en: "PyYAML safe_load instead of load, because:",
       o: [
-        "Звичайний load може виконати довільні об'єкти з файлу",
+        "Небезпечний loader може створювати довільні Python-об’єкти з YAML",
         "safe_load не читає рядки",
         "load швидший у десять разів і тому обов'язковий",
         "safe_load ходить у мережу",
       ],
+      oEn: ["Unsafe loaders can construct arbitrary Python objects from YAML", "safe_load cannot read strings", "load is ten times faster and mandatory", "safe_load calls the network"],
       i: 0,
     },
     {
@@ -65,6 +68,7 @@ export const pythonOps = unit("python-ops", "Python для ops", "Python for ops
         "Будь-якої 4xx без лічильника",
         "Успішної 200, щоб зібрати дублікати",
       ],
+      oEn: ["A transient network failure or 503, with backoff and a retry limit", "A 404 that should be retried forever", "Any 4xx without a limit", "A successful 200 to generate duplicates"],
       i: 0,
       note: why(
         "Таймаут на кожну спробу обов'язковий. Інакше один завислий сокет тримає cron.",
@@ -83,6 +87,7 @@ export const pythonOps = unit("python-ops", "Python для ops", "Python for ops
         "Ключа AWS",
         "Декоратора pytest",
       ],
+      oEn: ["A timeout; without one the call may wait indefinitely", "A json import", "An AWS key", "A pytest decorator"],
       i: 0,
     },
     {
@@ -95,6 +100,7 @@ export const pythonOps = unit("python-ops", "Python для ops", "Python for ops
         "Шифрування YAML",
         "Заміна віртуального оточення",
       ],
+      oEn: ["Splitting results across pages, using a next marker or another pagination scheme", "One POST with no body", "YAML encryption", "A replacement for a virtual environment"],
       i: 0,
     },
     {
@@ -107,6 +113,7 @@ export const pythonOps = unit("python-ops", "Python для ops", "Python for ops
         "Імені пакета",
         "Поля status у /health",
       ],
+      oEn: ["A protected environment variable or secret provider, not a source-code literal", "A Git comment", "A package name", "The status field in /health"],
       i: 0,
     },
   ]),
@@ -121,10 +128,11 @@ export const pythonOps = unit("python-ops", "Python для ops", "Python for ops
         "Без capture_output і без перевірки коду",
         "Через os.system і ігнор stderr",
       ],
+      oEn: ["Use an argument list, a timeout, and exit-status checking", "Use shell=True with a user-provided path interpolated into a string", "Omit exit-status checking", "Use os.system and ignore stderr"],
       i: 0,
       note: why(
-        "shell=True з чужим рядком — це команда, яку ви не збирали. Список аргументів цього не робить.",
-        "shell=True plus an untrusted string is a command you did not assemble. An argument list is not.",
+        "shell=True з недовіреним рядком створює ризик ін’єкції оболонки. Список аргументів її уникає, але значення все одно треба перевіряти за правилами викликаної програми.",
+        "shell=True with untrusted text risks shell injection. An argument list avoids shell parsing, but values must still be validated for the invoked program.",
       ),
     },
     {
@@ -136,14 +144,15 @@ export const pythonOps = unit("python-ops", "Python для ops", "Python for ops
     },
     {
       t: "mcq",
-      uk: "requirements.txt фіксує:",
-      en: "requirements.txt pins:",
+      uk: "requirements.txt фіксує версії, якщо:",
+      en: "A requirements.txt file pins:",
       o: [
-        "Версії пакетів, з якими CLI вже перевіряли",
+        "У файлі явно задані точні версії; сам формат цього не гарантує",
         "Ім'я гілки",
         "Пароль sudo",
         "Розмір диска VM",
       ],
+      oEn: ["Only versions explicitly constrained or pinned in the file", "The branch name", "The sudo password", "The VM disk size"],
       i: 0,
     },
     {
@@ -156,6 +165,7 @@ export const pythonOps = unit("python-ops", "Python для ops", "Python for ops
         "Треба вимкнути venv",
         "Треба зберігати логи",
       ],
+      oEn: ["The project declares package metadata, entry points, or dependencies", "Bash must be replaced", "The virtual environment must be disabled", "Logs must be stored"],
       i: 0,
     },
   ]),
@@ -170,6 +180,7 @@ export const pythonOps = unit("python-ops", "Python для ops", "Python for ops
         "Читає бойовий ~/.aws",
         "Пушить образ",
       ],
+      oEn: ["Uses a temporary directory and checks the table written to stdout", "Starts a real EC2 instance", "Reads production ~/.aws credentials", "Pushes an image"],
       i: 0,
     },
     {
@@ -184,6 +195,7 @@ export const pythonOps = unit("python-ops", "Python для ops", "Python for ops
         "Сертифікат TLS",
         "Планувальник Kubernetes",
       ],
+      oEn: ["Configuration loading, preventing the test from reading the real home file", "The Linux kernel", "A TLS certificate", "The Kubernetes scheduler"],
       i: 0,
       note: why(
         "monkeypatch і tmp_path — фікстури pytest. Мок лишається всередині тесту.",
@@ -200,6 +212,7 @@ export const pythonOps = unit("python-ops", "Python для ops", "Python for ops
         "Вимкнути тести",
         "Стати веб-сервером",
       ],
+      oEn: ["Commands can parse arguments and provide help and errors", "Replace YAML with a binary file", "Disable tests", "Become a web server"],
       i: 0,
     },
     {
@@ -212,6 +225,7 @@ export const pythonOps = unit("python-ops", "Python для ops", "Python for ops
         "Заміна коду виходу",
         "Секрет",
       ],
+      oEn: ["Human-readable output; offer JSON separately for machines", "Terraform state format", "A replacement for exit codes", "A secret"],
       i: 0,
     },
   ]),
@@ -226,12 +240,13 @@ export const pythonOps = unit("python-ops", "Python для ops", "Python for ops
         "Конкатенація завжди безпечніша для shell",
         "Обидва пишуть у journald самі",
       ],
+      oEn: ["An f-string can be readable, but do not put secrets in logs", "An f-string disables exceptions", "Concatenation is always safer for shell", "Both automatically write to journald"],
       i: 0,
     },
     {
       t: "fill",
-      uk: "Обмежити очікування HTTP.",
-      en: "Bound the HTTP wait.",
+      uk: "Задайте 5 секунд для connect і read timeout у requests.",
+      en: "Set a 5-second connect and read timeout in requests.",
       lang: "python",
       code: "requests.get(url, timeout=___) ",
       ok: ["5"],
@@ -246,6 +261,7 @@ export const pythonOps = unit("python-ops", "Python для ops", "Python for ops
         "200",
         "Код гілки Git",
       ],
+      oEn: ["Nonzero, with a concise message on stderr", "Always 0 because the exception is text", "200", "A Git branch code"],
       i: 0,
     },
     {
@@ -258,6 +274,7 @@ export const pythonOps = unit("python-ops", "Python для ops", "Python for ops
         "Лише на Windows",
         "Лише якщо там є секрети",
       ],
+      oEn: ["No: commit requirements or a lock file and ignore .venv", "Yes, including site-packages", "Only on Windows", "Only when it contains secrets"],
       i: 0,
     },
     {
@@ -266,10 +283,10 @@ export const pythonOps = unit("python-ops", "Python для ops", "Python for ops
       en: "Order a careful external command.",
       lang: "text",
       correct: [
-        "Зібрати список аргументів",
-        "Викликати run з timeout",
-        "Перевірити returncode",
-        "Прочитати stdout, якщо код нуль",
+        "Зібрати аргументи / Build the argument list",
+        "Викликати run з timeout / Run with a timeout",
+        "Перевірити returncode / Check returncode",
+        "Прочитати stdout при успіху / Read stdout on success",
       ],
     },
     {
@@ -282,6 +299,7 @@ export const pythonOps = unit("python-ops", "Python для ops", "Python for ops
         "pytest",
         "timeout у requests",
       ],
+      oEn: ["Managing live EC2 instances; cloud is covered separately", "Reading local YAML", "pytest", "requests timeouts"],
       i: 0,
     },
   ]),

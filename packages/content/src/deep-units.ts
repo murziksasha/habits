@@ -274,8 +274,8 @@ export const tsAdvancedTypesUnit: UnitContent = unit(
         "Умовні типи",
         "Conditional types",
         {
-          uk: "Умовний тип T extends U ? X : Y обирає X, якщо T можна присвоїти U, інакше Y. Якщо ліворуч від extends стоїть безпосередньо параметр типу T, умовний тип розподіляється по членах union; обгортка [T] extends [U] вимикає такий розподіл.\n\ninfer виводить частину типу зі зразка, наприклад значення Promise. Наведений Awaited2 розгортає лише один рівень, на відміну від рекурсивної утиліти Awaited.",
-          en: "The conditional type T extends U ? X : Y selects X if T is assignable to U, otherwise Y. A conditional distributes over a union when the checked side is a naked type parameter T; wrapping it as [T] extends [U] prevents that distribution.\n\ninfer extracts a type from a pattern, such as a Promise's value. The shown Awaited2 unwraps only one level, unlike the recursive Awaited utility.",
+          uk: "Умовний тип T extends U ? X : Y обирає X, якщо T можна присвоїти U, інакше Y. Якщо ліворуч від extends стоїть безпосередньо параметр типу T, умовний тип розподіляється по членах union; обгортка [T] extends [U] перевіряє union як ціле. Наприклад, IsStr<'a' | 1> дає true | false, тоді як ['a' | 1] extends [string] дає false.\n\ninfer виводить частину типу зі зразка, наприклад значення Promise. Наведений Awaited2 розгортає лише один рівень, на відміну від рекурсивної утиліти Awaited; обидва є перетвореннями типів і не очікують проміс під час виконання.",
+          en: "The conditional type T extends U ? X : Y selects X if T is assignable to U, otherwise Y. A conditional distributes over a union when the checked side is a naked type parameter T; wrapping it as [T] extends [U] checks the union as a whole. For example, IsStr<'a' | 1> gives true | false, while ['a' | 1] extends [string] gives false.\n\ninfer extracts a type from a pattern, such as a Promise's value. The shown Awaited2 unwraps only one level, unlike the recursive Awaited utility; both transform types and do not await a promise at runtime.",
         },
         {
           keyPointsUk: [
@@ -353,8 +353,8 @@ export const tsAdvancedTypesUnit: UnitContent = unit(
         "Типи-відображення",
         "Mapped types",
         {
-          uk: "Mapped type проходить по ключах іншого типу: { [K in keyof T]: … }. Так побудовані Partial, Readonly, Record.\n\nМодифікатори ? і readonly можна додавати (+) або знімати (-), а через as — перейменовувати ключі.",
-          en: "A mapped type iterates over the keys of another type: { [K in keyof T]: … }. Partial, Readonly and Record are built this way.\n\nThe ? and readonly modifiers can be added (+) or removed (-), and keys can be remapped with as.",
+          uk: "Mapped type проходить по ключах іншого типу: { [K in keyof T]: … }. Так побудовані Partial, Readonly, Record.\n\nМодифікатори ? і readonly можна додавати (+) або знімати (-), а через as — перейменовувати чи відфільтровувати ключі. У прикладі Getters перетин string & K залишає лише рядкові ключі, які приймає Capitalize; числові та symbol-ключі не створюють відповідних getter-ключів. Це лише тип: функції-гетери потрібно реалізувати окремо.",
+          en: "A mapped type iterates over the keys of another type: { [K in keyof T]: … }. Partial, Readonly and Record are built this way.\n\nThe ? and readonly modifiers can be added (+) or removed (-), and keys can be remapped or filtered with as. In Getters, string & K keeps only string keys accepted by Capitalize; numeric and symbol keys do not produce corresponding getter keys. This is only a type: getter functions must be implemented separately.",
         },
         {
           keyPointsUk: ["keyof T — union ключів", "-? робить поле обовʼязковим", "as дозволяє фільтрувати/перейменовувати ключі"],
@@ -393,8 +393,8 @@ export const tsAdvancedTypesUnit: UnitContent = unit(
         "Шаблонні рядкові типи",
         "Template literal types",
         {
-          uk: "Template literal types складають рядкові типи як шаблонні рядки: `on${Capitalize<E>}`. Union у шаблоні дає всі комбінації.\n\nЦе дозволяє типізувати імена подій, CSS-змінні, маршрути API.",
-          en: "Template literal types compose string types like template strings: `on${Capitalize<E>}`. A union inside the template yields every combination.\n\nThey type event names, CSS variables and API routes.",
+          uk: "Template literal types складають рядкові типи як шаблонні рядки: `on${Capitalize<E>}`. Union у шаблоні дає всі комбінації.\n\nЦе дозволяє типізувати імена подій, CSS-змінні чи маршрути API. Такий тип не перевіряє рядок із мережі під час виконання; перед використанням зовнішнього маршруту потрібна окрема перевірка. Великі добутки union також можуть ускладнювати перевірку компілятором.",
+          en: "Template literal types compose string types like template strings: `on${Capitalize<E>}`. A union inside the template yields every combination.\n\nThey can type event names, CSS variables, or API routes. Such a type does not validate a string from the network at runtime; validate an external route separately before use. Large union products can also make compiler checking more expensive.",
         },
         {
           keyPointsUk: ["Union × union = декартів добуток", "Uppercase / Lowercase / Capitalize — вбудовані", "Працює разом з infer для парсингу"],

@@ -160,6 +160,8 @@ type ExerciseBody =
       promptEn?: string;
       language?: string;
       lines: string[];
+      /** Ukrainian labels aligned with the canonical lines; answers remain canonical. */
+      linesUk?: string[];
       correct: string[];
       explanationUk?: string;
       explanationEn?: string;

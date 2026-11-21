@@ -247,6 +247,7 @@ export const exerciseSchema = z.discriminatedUnion("type", [
     type: z.literal("code_order"),
     language: z.string().optional(),
     lines: z.array(z.string()).min(1),
+    linesUk: z.array(z.string()).min(1).optional(),
     correct: z.array(z.string()).min(1),
     explanationUk: z.string().optional(),
     explanationEn: z.string().optional(),

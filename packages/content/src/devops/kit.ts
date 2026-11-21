@@ -14,18 +14,19 @@ import type { Exercise, LessonContent } from "../types.js";
 type Note = { explanationUk?: string; explanationEn?: string };
 
 export type Step =
-  | { t: "mcq"; uk: string; en: string; o: string[]; i: number; note?: Note }
-  | { t: "read"; uk: string; en: string; lang: string; code: string; o: string[]; i: number; note?: Note }
-  | { t: "out"; uk: string; en: string; lang: string; code: string; o: string[]; i: number; note?: Note }
+  | { t: "mcq"; uk: string; en: string; o: string[]; oEn?: string[]; i: number; note?: Note }
+  | { t: "read"; uk: string; en: string; lang: string; code: string; o: string[]; oEn?: string[]; i: number; note?: Note }
+  | { t: "out"; uk: string; en: string; lang: string; code: string; o: string[]; oEn?: string[]; i: number; note?: Note }
   | { t: "fill"; uk: string; en: string; lang: string; code: string; ok: string[]; note?: Note }
   | { t: "order"; uk: string; en: string; lang: string; correct: string[]; note?: Note }
-  | { t: "match"; uk: string; en: string; pairs: { left: string; right: string }[]; note?: Note }
+  | { t: "match"; uk: string; en: string; pairs: { left: string; right: string }[]; pairsEn?: { left: string; right: string }[]; note?: Note }
   | {
       t: "comprehension";
       uk: string;
       en: string;
       passage: string;
-      questions: { q: string; qEn?: string; options: string[]; correctIndex: number }[];
+      passageEn?: string;
+      questions: { q: string; qEn?: string; options: string[]; optionsEn?: string[]; correctIndex: number }[];
       note?: Note;
     }
   | {
@@ -55,11 +56,11 @@ export function steps(prefix: string, items: Step[]): Exercise[] {
     const id = `${prefix}-${idx + 1}`;
     switch (item.t) {
       case "mcq":
-        return mcq(id, item.uk, item.en, item.o, item.i, item.note);
+        return { ...mcq(id, item.uk, item.en, item.o, item.i, item.note), optionsEn: item.oEn };
       case "read":
-        return codeRead(id, item.uk, item.en, item.lang, item.code, item.o, item.i, item.note);
+        return { ...codeRead(id, item.uk, item.en, item.lang, item.code, item.o, item.i, item.note), optionsEn: item.oEn };
       case "out":
-        return codeOutputMcq(id, item.uk, item.en, item.lang, item.code, item.o, item.i, item.note);
+        return { ...codeOutputMcq(id, item.uk, item.en, item.lang, item.code, item.o, item.i, item.note), optionsEn: item.oEn };
       case "fill":
         return codeFill(id, item.uk, item.en, item.lang, item.code, item.ok, true, item.note);
       case "order": {
@@ -68,7 +69,7 @@ export function steps(prefix: string, items: Step[]): Exercise[] {
         return codeOrder(id, item.uk, item.en, item.lang, lines, item.correct, item.note);
       }
       case "match":
-        return { ...matchEx(id, item.uk, item.en, item.pairs), ...item.note };
+        return { ...matchEx(id, item.uk, item.en, item.pairs), pairsEn: item.pairsEn, ...item.note };
       case "comprehension":
         return {
           id,
@@ -76,6 +77,7 @@ export function steps(prefix: string, items: Step[]): Exercise[] {
           promptUk: item.uk,
           promptEn: item.en,
           passage: item.passage,
+          passageEn: item.passageEn,
           questions: item.questions,
           ...item.note,
         };
