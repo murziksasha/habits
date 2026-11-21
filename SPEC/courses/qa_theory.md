@@ -67,14 +67,14 @@ Deep testing theory: principles, levels, types, black/white-box, STLC, defects, 
 
 - `qt-st-phases` — STLC phases (4 exercises)
 - `qt-st-entry-exit` — Entry / exit criteria (4 exercises)
-- `qt-st-shiftleft` — Shift-left in process (2 exercises)
+- `qt-st-shiftleft` — Shift-left in process (4 exercises)
 - `qt-st-exam` — Exam: STLC [exam] (5 exercises)
 
 ### `artifacts` — Artifacts
 
 - `qt-ar-plan` — Test plan & strategy (4 exercises)
 - `qt-ar-cases` — Test cases & RTM (4 exercises)
-- `qt-ar-checklist` — Checklists (2 exercises)
+- `qt-ar-checklist` — Checklists (4 exercises)
 - `qt-ar-exam` — Exam: artifacts [exam] (4 exercises)
 
 ### `defects` — Defects
@@ -99,15 +99,15 @@ Deep testing theory: principles, levels, types, black/white-box, STLC, defects, 
 
 ### `metrics-risk` — Metrics
 
-- `qt-m-passrate` — Pass rate traps (3 exercises)
-- `qt-m-escaped` — Escaped defects (3 exercises)
+- `qt-m-passrate` — Pass rate traps (4 exercises)
+- `qt-m-escaped` — Escaped defects (4 exercises)
 - `qt-m-exam` — Exam: metrics [exam] (4 exercises)
 
 ### `applied-qa-scenarios` — Applied QA Scenarios & Artifacts
 
-- `qa-scen-bug-report-audit` — Bug report audit & quality triage (3 exercises)
-- `qa-scen-boundary-matrix-design` — Boundary matrix & decision table design (3 exercises)
-- `qa-scen-api-test-matrix` — REST API status & contract test matrix (3 exercises)
+- `qa-scen-bug-report-audit` — Bug report audit & quality triage (4 exercises)
+- `qa-scen-boundary-matrix-design` — Boundary matrix & decision table design (4 exercises)
+- `qa-scen-api-test-matrix` — REST API status & contract test matrix (4 exercises)
 - `qa-scen-exam` — Exam: applied QA scenario analysis [exam] (4 exercises)
 
 ### `risk_plans_requirements` — Requirements, Risk Assessment, Test Plans & Reproducible Bug Reports
@@ -117,7 +117,7 @@ Deep testing theory: principles, levels, types, black/white-box, STLC, defects, 
 
 ### `capstone` — Capstone case
 
-- `qt-cap-feature` — Case: new checkout (4 exercises)
+- `qt-cap-feature` — Case: new checkout (6 exercises)
 - `qt-cap-exam` — Final QA exam [exam] (8 exercises)
 
 ## Depth now

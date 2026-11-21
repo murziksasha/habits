@@ -33,7 +33,7 @@ const testableRequirements = unit(
           "Продуктова вимога: «Пошук ForgeBoard має бути швидким і надійним». Яке формулювання робить її тестованою для автотесту?",
           "A spec says: \"ForgeBoard search should be fast and reliable.\" Which rewrite makes it testable?",
           [
-            "GET /api/tasks?q=auth повертає HTTP 200 зі збігами без урахування регістру; порожній q повертає сторінку з лімітом до 50 записів; запит < 200ms локально",
+            "GET /api/tasks?q=auth повертає HTTP 200 зі збігами без урахування регістру; порожній q повертає до 50 записів. Для погодженого набору даних і середовища p95 за 100 запитів < 200 мс",
             "Кнопка пошуку має подобатися дизайнеру",
             "Код повинен використовувати лише короткі змінні",
             "Сервер ніколи не повинен логувати запити",
@@ -43,25 +43,25 @@ const testableRequirements = unit(
             "Тестована вимога задає конкретні вхідні умови, статус-код, форму відповіді та границі поведінки.",
             "Testable specs state exact inputs, status codes, invariants, and failure contracts.",
           ),
-        ), optionsEn: ["GET /api/tasks?q=auth returns HTTP 200 with case-insensitive matches; empty q returns at most 50 records; the request takes under 200 ms locally", "The designer likes the search button", "The code uses only short variable names", "The server never logs requests"] },
+        ), optionsEn: ["GET /api/tasks?q=auth returns HTTP 200 with case-insensitive matches; empty q returns at most 50 records. For an agreed dataset and environment, p95 over 100 requests is under 200 ms", "The designer likes the search button", "The code uses only short variable names", "The server never logs requests"] },
         { ...codeRead(
           "st-req2",
-          "Приклад хорошої та крихкої перевірки: Чому другий підхід виявляє реальні баги без хибних падінь при рефакторингу?",
-          "Worked example: behavioral vs brittle assertion: Why does the second assertion catch real bugs without breaking on harmless refactors?",
+          "Обидва приклади перевіряють помилку відсутнього заголовка. Чому перевірка HTTP-контракту зазвичай менш крихка?",
+          "Both examples check a missing-title error. Why is the HTTP contract assertion usually less brittle?",
           "ts",
-          "// Bad: expect(componentHtml).toContain('class=\"css-91fa\"')\n// Good:\nexpect(await res.json()).toMatchObject({ error: \"title_required\" });\nexpect(res.status).toBe(400);",
+          "// Implementation-coupled: expect(taskService.privateErrors[0].internalId).toBe(17)\n// Public contract for the same invalid request:\nexpect(await res.json()).toMatchObject({ error: \"title_required\" });\nexpect(res.status).toBe(400);",
           [
-            "Він перевіряє спостережуваний HTTP-контракт (статус і код помилки), а не внутрішні CSS-хеші чи назви приватних змінних",
+            "Він перевіряє спостережуваний HTTP-контракт, а не внутрішній ідентифікатор помилки",
             "Тому що HTTP 400 швидший за перевірку рядка",
             "Тому що `toMatchObject` пропускає будь-які помилки",
             "Бо рефакторинг ніколи не змінює API",
           ],
           0,
           why(
-            "Тести мають фіксувати поведінковий контракт, а не деталі реалізації чи згенеровані класи.",
-            "Behavior assertions lock contracts rather than coupling suites to private internals.",
+            "Публічний статус і код помилки лишаються перевірними після внутрішнього рефакторингу, якщо контракт не змінився.",
+            "The public status and error code remain testable after an internal refactor if the contract has not changed.",
           ),
-        ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["It checks the observable HTTP status and error code rather than generated classes or private names", "HTTP 400 is faster than checking a string", "toMatchObject ignores every error", "Refactoring never changes APIs"] },
+        ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["It checks the observable HTTP contract rather than an internal error identifier", "HTTP 400 is faster than checking a string", "toMatchObject ignores every error", "Refactoring never changes APIs"] },
       ], { baseXp: 22 },
     ),
     lesson(
@@ -73,17 +73,22 @@ const testableRequirements = unit(
           uk: "Модульний тест швидко перевіряє ізольовану логіку, компонентний — поведінку інтерфейсу, інтеграційний — взаємодію частин, а наскрізний — важливий шлях через систему. Один дефект іноді можна виявити на кількох рівнях. Обирайте найкориснішу комбінацію з огляду на ризик, швидкість і впевненість.",
           en: "Unit tests quickly check isolated logic, component tests check UI behavior, integration tests check interactions, and end-to-end tests exercise important paths through the system. A defect can sometimes be detected at several levels. Choose a useful mix based on risk, speed, and confidence.",
         }),
-        matchEx(
+        { ...matchEx(
           "st-req3",
-          "Зіставте тип дефекту з найшвидшим рівнем тесту, який його впевнено спіймає",
-          "Match each bug class to the fastest effective test level",
+          "Для цих прикладів зіставте дефект із відповідним рівнем перевірки; інші рівні також можуть бути корисними",
+          "For these examples, match each defect to a suitable test level; other levels can also be useful",
           [
-            { left: "Невірний розрахунок знижки / offset-пагінації", right: "Unit test (pure function)" },
-            { left: "Помилка валідації форми та ARIA-стану кнопки", right: "Component test (React Testing Library)" },
-            { left: "Помилка SQL-фільтрації або перевірки власника 403", right: "API + DB Integration test" },
-            { left: "Скрипт роутера блокує перехід після логіну в браузері", right: "Browser E2E test (Playwright)" },
+            { left: "Невірний розрахунок знижки в чистій функції", right: "Модульний тест функції" },
+            { left: "Помилка валідації форми та ARIA-стану кнопки", right: "Компонентний тест інтерфейсу" },
+            { left: "Помилка SQL-фільтрації в API", right: "Інтеграційний тест API з базою" },
+            { left: "Роутер блокує перехід після входу в браузері", right: "Наскрізний тест у браузері" },
           ],
-        ),
+        ), pairsEn: [
+          { left: "Incorrect discount calculation in a pure function", right: "Unit test of the function" },
+          { left: "Form validation and button ARIA-state defect", right: "UI component test" },
+          { left: "Incorrect SQL filtering in the API", right: "API and database integration test" },
+          { left: "Router blocks navigation after browser login", right: "Browser end-to-end test" },
+        ] },
         { ...mcq(
           "st-req4",
           "Передбачте: команда перенесла всі unit-перевірки формул у повільні Playwright E2E-тести через UI. Який наслідок найбільш імовірний?",
@@ -149,7 +154,7 @@ const unitTestingUnit = unit(
           "Чому цей тест зелений навіть коли фільтр зламаний? У чому критичний дефект тесту?",
           "Diagnose why this test passes on broken code: What is fundamentally broken about this test?",
           "ts",
-          "vi.mock(\"./filterTasks\", () => ({ filterTasks: () => [{ id: \"1\" }] }));\nit(\"filters tasks\", () => {\n  expect(filterTasks([], \"bug\")).toHaveLength(1);\n});",
+          "import { filterTasks } from './filterTasks';\nvi.mock('./filterTasks', () => ({ filterTasks: () => [{ id: '1' }] }));\nit('filters tasks', () => {\n  expect(filterTasks([], 'bug')).toHaveLength(1);\n});",
           [
             "Тест замокав саму функцію, яку нібито тестує, тож реально перевіряє лише вигаданий мок замість продакшн-коду",
             "Масив `[]` заборонений у Vitest",
@@ -158,8 +163,8 @@ const unitTestingUnit = unit(
           ],
           0,
           why(
-            "Ніколи не мокайте систему під тестом (SUT); тест має виконувати реальну функцію й ламатися при внесенні дефекту.",
-            "Never mock the Subject Under Test; run real logic so an injected bug actually breaks the assertion.",
+            "Тут підмінено саме функцію під тестом, тому її реальна логіка не виконується. Зовнішні залежності за потреби можна підмінити окремо.",
+            "Here the function under test itself is replaced, so its real logic never runs. External dependencies can still be replaced separately when useful.",
           ),
         ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["It mocks the function under test and exercises the fake rather than production logic", "An empty array is forbidden in Vitest", "An array must always have length 2", "The function returns a promise"] },
         { ...codeOutputMcq(
@@ -216,8 +221,8 @@ const unitTestingUnit = unit(
           ],
           0,
           why(
-            "Збереження знімка вхідного масиву до виклику гарантує відсутність прихованих мутацій.",
-            "Snapshotting the caller array before invocation catches accidental in-place mutation bugs.",
+            "Знімок до виклику виявить зміну порядку в цьому прикладі; одного входу недостатньо, щоб довести відсутність усіх можливих мутацій.",
+            "The pre-call snapshot detects the order change in this example; one input cannot prove the absence of every possible mutation.",
           ),
         ), optionsEn: ["const copy = structuredClone(input); sortTasks(input); expect(input).toEqual(copy);", "expect(sortTasks([])).toEqual([])", "expect(typeof sortTasks).toBe(\"function\")", "expect(sortTasks([a]).length).toBe(1)"] },
       ], { baseXp: 24 },
@@ -225,16 +230,17 @@ const unitTestingUnit = unit(
     exam("st-ut-exam", "Контрольна: unit-тестування", "Checkpoint: Unit Testing", 3, [
       { ...mcq(
         "st-ut-e1",
-        "Що означає фраза «цей тест спіймає регресію (mutation test)?»",
-        "What does it mean that a test kills a mutant / catches a regression?",
+        "Що означає, що тест убив конкретного мутанта?",
+        "What does it mean that a test killed a particular mutant?",
         [
-          "Якщо змінити оператор `<` на `<=` або пропустити перевірку прав у коді, тест гарантовано впаде",
+          "Тест проходить на оригіналі та падає після конкретної внесеної зміни",
           "Тест завжди зелений навіть при видаленні логіки",
           "Тест використовує випадкові числа без seed",
           "Тест перевіряє лише TypeScript типи без виконання коду",
         ],
         0,
-      ), optionsEn: ["The test fails when the relevant operator or authorization check is changed", "The test stays green after deleting the logic", "The test uses unseeded random numbers", "The test checks only TypeScript types without running code"] },
+        why("Цей результат стосується конкретної мутації й не гарантує виявлення всіх інших дефектів.", "This result applies to that particular mutation and does not guarantee detection of all other defects."),
+      ), optionsEn: ["The test passes on the original and fails after the particular injected change", "The test stays green after deleting the logic", "The test uses unseeded random numbers", "The test checks only TypeScript types without running code"] },
       codeFill(
         "st-ut-e2",
         "Вказати точний очікуваний код помилки в assertion",
@@ -274,8 +280,8 @@ const boundariesFixturesUnit = unit(
           ],
           0,
           why(
-            "Тестування на точках `min-1`, `min`, `max`, `max+1` та пробілах виявляє помилки `<=` проти `<` та забутий `.trim()`.",
-            "Testing min-1, min, max, max+1, and whitespace catches off-by-one comparison bugs and missing trim.",
+            "Цей набір може виявити помилки порівняння й відсутній trim; очікувані результати треба перевірити для кожного входу.",
+            "This set can expose comparison mistakes and a missing trim; assert the expected result for each input.",
           ),
         ), optionsEn: ["\"  ab  \" (2 after trim), \"abc\" (3), a string of 80 characters, and a string of 81 characters", "\"Buy milk\", \"Fix bug\", \"Deploy\"", "Only a 20-character string", "Only an empty string"] },
         { ...codeRead(
@@ -383,14 +389,15 @@ const reactComponentTestsUnit = unit(
           "Order an accessible form submission test in React Testing Library",
           "tsx",
           [
+            "const user = userEvent.setup();",
             "render(<TaskForm onCreate={onCreate} />);",
             "await user.type(screen.getByLabelText(/task title/i), \"Write tests\");",
             "await user.click(screen.getByRole(\"button\", { name: /add task/i }));",
             "expect(onCreate).toHaveBeenCalledWith({ title: \"Write tests\" });",
           ],
           why(
-            "`getByLabelText` і `getByRole` одночасно перевіряють, що інпут реально пов'язаний із `<label>`, а кнопка має доступне ім'я.",
-            "`getByLabelText` and `getByRole` test real DOM usability and fail if labels or accessible names break.",
+            "Запити використовують підпис поля та доступне ім'я кнопки; це корисний сигнал семантики, але не повний аудит доступності.",
+            "The queries use the field label and button's accessible name; this is a useful semantic signal, not a complete accessibility audit.",
           ),
         ),
         { ...codeRead(
@@ -400,7 +407,7 @@ const reactComponentTestsUnit = unit(
           "tsx",
           "it(\"shows validation error\", async () => {\n  render(<TaskForm />);\n  fireEvent.click(screen.getByRole(\"button\", { name: /save/i }));\n  expect(screen.queryByRole(\"alert\")).toBeNull(); // WRONG expectation!\n});",
           [
-            "Потрібно чекати появу повідомлення через `await screen.findByRole(\"alert\")` і перевіряти `toHaveAttribute(\"aria-invalid\", \"true\")`",
+            "Потрібно чекати повідомлення через `await screen.findByRole(\"alert\")`; якщо це вимагає контракт, окремо перевірити `aria-invalid` на полі",
             "`fireEvent.click` ніколи не викликає React обробники",
             "`role=\"alert\"` не існує в HTML",
             "Треба замінити `render` на `console.log`",
@@ -419,15 +426,15 @@ const reactComponentTestsUnit = unit(
       "Testing Loading, Empty, Error & Retry States",
       3, false, [
         concept("st-rct-states-concept", "Перевіряйте переходи станів", "Test state transitions", {
-          uk: "Дані можуть завантажуватися, бути порожніми або завершитися помилкою. Керуйте результатом запиту в тесті: перевірте стан завантаження, повідомлення про помилку й відновлення після повторної спроби. Так тест описує поведінку, яку справді побачить користувач.",
-          en: "Data may be loading, empty, or fail to load. Control the request outcome in the test: check loading, the error message, and recovery after a retry. This describes behavior a user can actually observe.",
+        uk: "Дані можуть завантажуватися, бути порожніми або завершитися помилкою. Керуйте результатом запиту в тесті: перевірте стан завантаження, повідомлення про помилку й відновлення після повторної спроби. Мережевий збій відхиляє fetch, але HTTP 500 зазвичай повертає Response з ok=false; перевірте обидва випадки відповідно до коду клієнта. Повторний виклик у тесті має отримати успішну відповідь, щоб перевірка справді дійшла до відновлення.",
+        en: "Data may be loading, empty, or fail to load. Control the request outcome in the test: check loading, the error message, and recovery after a retry. A network failure rejects fetch, whereas HTTP 500 normally returns a Response with ok=false; check both cases according to the client code. The retry in the test must receive a successful response to exercise recovery.",
         }),
         { ...mcq(
           "st-rct3",
           "Компонент показує спінер, але при мережевій помилці застрягає у «Loading...» назавжди. Який тест може виявити цей дефект і перевірити відновлення?",
           "A component hangs on \"Loading...\" forever when `fetch` rejects. Which test can detect this and check recovery?",
           [
-            "Підмінити мережевий клієнт помилкою (500/network), перевірити зникнення loading, появу error UI і те, що клік «Повторити» знову викликає завантаження та рендерить задачі",
+            "Змоделювати мережевий збій, потім успішну відповідь: перевірити зникнення loading, повідомлення про помилку та задачі після повторної спроби",
             "Перевірити лише початковий спінер до завершення промісу",
             "Замокати `useState`",
             "Перевірити, що компонент рендерить `<div>`",
@@ -437,7 +444,7 @@ const reactComponentTestsUnit = unit(
             "Перехід error -> retry -> success перевіряє відновлення застосунку без перезавантаження сторінки.",
             "Verifying error -> click Retry -> success ensures users can actually recover from transient faults.",
           ),
-        ), optionsEn: ["Make the network request fail, check loading disappears and error appears, then retry and verify tasks render", "Check only the initial spinner before the promise resolves", "Mock useState", "Only check that a div renders"] },
+        ), optionsEn: ["Simulate a network failure followed by success: check loading disappears, the error appears, and tasks render after retry", "Check only the initial spinner before the promise resolves", "Mock useState", "Only check that a div renders"] },
       ], { baseXp: 25 },
     ),
     exam("st-rct-exam", "Контрольна: React-тести", "Checkpoint: React Component Tests", 3, [
@@ -491,10 +498,10 @@ const apiDbIntegrationUnit = unit(
             "Integration tests against a real Postgres schema catch column mismatches, constraint faults, and SQL logic bugs mocks hide.",
           ),
         ), optionsEn: ["Column mismatches, FOREIGN KEY and NOT NULL violations, incorrect joins and SQL ordering", "Only README typos", "An outdated favicon", "VS Code theme settings"] },
-        codeOrderAuto(
+        { ...codeOrderAuto(
           "st-int2",
-          "Складіть ізольований API-інтеграційний тест перевірки власника (ownership 403)",
-          "Order an API integration test verifying cross-user 403 rejection",
+          "За контрактом API чужа зміна повертає 403. Упорядкуйте інтеграційну перевірку",
+          "Under this API contract, a cross-user update returns 403. Order the integration check",
           "ts",
           [
             "Seed userA + task owned by userA and session for userB",
@@ -503,10 +510,15 @@ const apiDbIntegrationUnit = unit(
             "Query DB directly to assert task title in Postgres remained unchanged",
           ],
           why(
-            "Перевірка не лише HTTP 403, а й незмінності рядка в БД виключає баг, коли мутація спрацювала до відповіді про помилку.",
-            "Verifying DB state wasn't altered after a 403 rules out mutate-before-returning bugs.",
+            "Перевірка HTTP 403 та незмінності конкретного рядка допомагає виявити мутацію до відповіді; інші можливі побічні ефекти перевіряють окремо.",
+            "Checking both HTTP 403 and the specific unchanged row can reveal mutation before the response; check other possible side effects separately.",
           ),
-        ),
+        ), linesUk: [
+          "Надіслати PATCH /api/tasks/:id із cookie користувача B та новою назвою",
+          "Перевірити HTTP-статус 403",
+          "Перевірити в PostgreSQL, що назва задачі не змінилася",
+          "Створити користувача A, його задачу та сесію користувача B",
+        ] },
       ], { baseXp: 26 },
     ),
     lesson(
@@ -515,13 +527,13 @@ const apiDbIntegrationUnit = unit(
       "State Isolation Between Integration Cases",
       4, false, [
         concept("st-int-isolation-concept", "Повторювані запуски", "Repeatable runs", {
-          uk: "Статична адреса з унікальним обмеженням може залишитися після першого запуску й зламати наступний. Ізолюйте фікстури за тестом або запуском і прибирайте їх чи відкочуйте транзакцію там, де це можливо. Очищення виконуйте лише в спеціальній тестовій базі.",
-          en: "A fixed address under a unique constraint may remain after the first run and break the next. Isolate fixtures by test or run, and clean them up or roll back a transaction where possible. Perform cleanup only in a dedicated test database.",
+          uk: "Статична адреса з унікальним обмеженням може залишитися після першого запуску й зламати наступний. Ізолюйте фікстури за тестом або запуском і прибирайте їх чи відкочуйте транзакцію там, де це можливо. Транзакція тесту не відкотить запис, який HTTP-сервер закомітив через інше з'єднання. Для такого сценарію потрібна узгоджена ізоляція з'єднання або окрема база чи схема й надійне очищення. Очищення виконуйте лише в спеціальній тестовій базі.",
+          en: "A fixed address under a unique constraint may remain after the first run and break the next. Isolate fixtures by test or run, and clean them up or roll back a transaction where possible. A test transaction cannot roll back a write committed by the HTTP server through another connection. That scenario needs coordinated connection isolation or a separate database or schema and reliable cleanup. Perform cleanup only in a dedicated test database.",
         }),
         { ...codeRead(
           "st-int3",
-          "Знайдіть причину падіння другого запуску тестів: Чому локальний запуск падає з `duplicate key value violates unique constraint` на другому прогоні?",
-          "Diagnose test suite failing on second run: Why does running the suite a second time fail with unique constraint violation?",
+          "Перший запуск залишив користувача в тестовій базі. Чому другий падає з `duplicate key value violates unique constraint`?",
+          "The first run left the user in the test database. Why does the second run fail with `duplicate key value violates unique constraint`?",
           "ts",
           "beforeAll(async () => {\n  await db.insert(users).values({ email: \"qa@forgeboard.local\" });\n});",
           [
@@ -536,6 +548,7 @@ const apiDbIntegrationUnit = unit(
             "Repeatable suites clean tables before runs or isolate fixtures per test run cleanly.",
           ),
         ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["A fixed unique key is inserted again without cleanup, rollback, or a unique namespace", "PostgreSQL deletes indexes after the first run", "beforeAll runs only on Linux", "Drizzle does not support email"] },
+        { ...mcq("st-int4", "HTTP-сервер використовує окреме з'єднання та комітить запис. Чи прибере його rollback транзакції тесту?", "The HTTP server uses a separate connection and commits a write. Will rolling back the test's transaction remove it?", ["Ні; потрібна спільна ізоляція з'єднання або окрема тестова база чи схема з очищенням", "Так, rollback автоматично охоплює всі з'єднання", "Так, якщо відповідь має статус 201", "Ні, але наступний запуск завжди видалить запис сам"], 0, why("Транзакції прив'язані до з'єднань; окремо закомічений запис не відкочується транзакцією тесту.", "Transactions are bound to connections; a separately committed write is not rolled back by the test transaction.")), optionsEn: ["No; use coordinated connection isolation or a separate test database or schema with cleanup", "Yes, rollback automatically covers every connection", "Yes, if the response is 201", "No, but the next run always deletes the record automatically"] },
       ], { baseXp: 26 },
     ),
     exam("st-int-exam", "Контрольна: API + БД інтеграційні тести", "Checkpoint: API + DB Integration", 4, [
@@ -575,8 +588,8 @@ const e2eCiCapstoneUnit = unit(
       "Stable Playwright Locators & Eliminating Flakes",
       4, false, [
         concept("st-e2e-locators-flaky-concept", "Очікуйте спостережуваний стан", "Wait for an observable state", {
-          uk: "Наскрізний тест перевіряє ключовий шлях користувача через реальний браузер. Вибирайте локатори за роллю та доступним ім’ям і чекайте очікуваного стану через автоматично повторювані assertions. Фіксована затримка може бути недостатньою або зайвою; мережеву відповідь перевіряйте окремо, коли вона потрібна контракту.",
-          en: "An end-to-end test exercises an important user path in a real browser. Prefer locators based on role and accessible name, and await the expected state with auto-retrying assertions. A fixed delay may be too short or unnecessarily long; check the network response separately when the contract requires it.",
+          uk: "Наскрізний тест перевіряє ключовий шлях користувача через реальний браузер. Вибирайте локатори за роллю та доступним ім’ям і чекайте очікуваного стану через автоматично повторювані assertions. Фіксована затримка може бути недостатньою або зайвою. Якщо контракт вимагає перевірки мережевої відповіді, налаштуйте її очікування до кліку, уточніть метод і шлях запиту, потім перевірте статус і стан інтерфейсу. Так швидка відповідь не промайне до початку прослуховування.",
+          en: "An end-to-end test exercises an important user path in a real browser. Prefer locators based on role and accessible name, and await the expected state with auto-retrying assertions. A fixed delay may be too short or unnecessarily long. If the contract requires checking a network response, start waiting before the click, match the request method and path, then check the status and UI state. This avoids missing a fast response before the listener starts.",
         }),
         { ...mcq(
           "st-e2e1",
@@ -603,6 +616,7 @@ const e2eCiCapstoneUnit = unit(
           ["toBeVisible"],
           true,
         ),
+        { ...mcq("st-e2e3", "Тест натискає Save, а потім починає чекати відповідь POST. Швидка відповідь іноді вже минула. Як усунути цю гонку?", "A test clicks Save and only then waits for the POST response. The fast response sometimes already occurred. How should it avoid this race?", ["Почати очікування потрібної відповіді до кліку, потім перевірити статус і стан інтерфейсу", "Додати довший sleep після кліку", "Прибрати всі перевірки відповіді", "Змінити колір кнопки"], 0, why("Підписка до дії не пропустить швидку відповідь; перевіряйте метод і шлях, щоб не спіймати сторонній запит.", "Registering the wait before the action avoids missing a fast response; match method and path to avoid an unrelated request.")), optionsEn: ["Start waiting for the matching response before the click, then check its status and the UI state", "Add a longer sleep after the click", "Remove all response assertions", "Change the button color"] },
       ], { baseXp: 26 },
     ),
     lesson(
@@ -626,7 +640,7 @@ const e2eCiCapstoneUnit = unit(
           ],
           0,
           why(
-            "Валідація проти заздалегідь зламаних варіантів (mutation/fault injection) доводить, що тести реально охороняють поведінку.",
+            "Перевірка на навмисно зламаних варіантах показує, що тести виявляють саме ці дефекти, але не всі можливі помилки.",
             "Testing against intentionally broken variants provides evidence that assertions detect those particular faults.",
           ),
         ), optionsEn: ["Tests pass on the correct implementation and detect the specified intentionally broken business logic and authorization variants", "100% line coverage without assertions", "Tests pass after authorization checks are removed", "Tests run only when marked skip"] },
@@ -647,7 +661,7 @@ const e2eCiCapstoneUnit = unit(
           ],
           {
             hintUk: "У локальному пакеті M7 є broken-варіанти для перевірки чутливості ваших тестів.",
-            hintEn: "The M7 local lab package includes deliberately broken variants so you can verify your suite catches every bug.",
+            hintEn: "The M7 local lab package includes deliberately broken variants so you can check whether your suite catches those specific faults.",
           },
         ),
       ], { baseXp: 45 },

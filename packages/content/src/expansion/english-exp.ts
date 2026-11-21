@@ -826,8 +826,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Перенос, скасування, перейняття",
             "promptEn": "Postpone, cancel, take over",
-            "bodyUk": "put off — відкласти на пізніше (put off a meeting). call off — скасувати взагалі (call off the strike). take over — перейняти відповідальність або компанію (take over the project). Не плутайте put off і call off: перше лишає подію в календарі, друге її прибирає.",
-            "bodyEn": "put off means to postpone (put off a meeting). call off means to cancel entirely (call off the strike). take over means to assume responsibility or a company (take over the project). Do not confuse put off and call off: the first keeps the event in the calendar, the second removes it.",
+            "bodyUk": "put off — відкласти на пізніше (put off a meeting), навіть якщо нової дати ще немає. call off — скасувати подію (call off the strike). take over — перебрати відповідальність або керування (take over the project). Із займенником ставте його між дієсловом і частинкою: put it off, call it off, take it over; не *put off it. З іменником можливі обидва порядки: put off the meeting / put the meeting off.",
+            "bodyEn": "put off means to postpone (put off a meeting), even if a new date has not been set. call off means to cancel an event (call off the strike). take over means to assume responsibility or control (take over the project). Put an object pronoun between the verb and particle: put it off, call it off, take it over; not *put off it. With a noun, both orders are possible: put off the meeting / put the meeting off.",
             "keyPointsUk": [
               "put off — відкласти",
               "call off — скасувати",
@@ -875,6 +875,21 @@ const newUnits: UnitContent[] = [
               "вона очолить команду в червні"
             ],
             "direction": "en_uk"
+          },
+          {
+            "id": "en-pv2-4",
+            "type": "mcq",
+            "promptUk": "Оберіть природний порядок слів: They postponed the meeting. They ___ until Friday.",
+            "promptEn": "Choose the natural word order: They postponed the meeting. They ___ until Friday.",
+            "options": [
+              "put it off",
+              "put off it",
+              "put it over",
+              "call off it"
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Із займенником it частинка off стоїть після нього: put it off.",
+            "explanationEn": "With the pronoun it, the particle off follows it: put it off."
           }
         ],
       },

@@ -1044,8 +1044,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "had + V3",
             "promptEn": "had + past participle",
-            "bodyUk": "Past Perfect: had + третя форма для всіх осіб: I had left, she had left. Він потрібен, коли в минулому є дві дії, і ви хочете ясно показати, яка була першою. When I arrived, the meeting had already started — зустріч почалася раніше від мого приходу.\n\nУкраїнською часто обидві дії стоять у минулому часі («коли я прийшов, зустріч уже почалася»), тому Past Perfect легко пропустити. Англійська використовує його як «минуле в минулому». Якщо порядок і так очевидний завдяки after / before, іноді досить Past Simple: After I finished, I went home. Але already, just, never, by the time дуже часто тягнуть Past Perfect: By the time we got to the station, the train had left.\n\nНе ставте Past Perfect усюди в оповіді — лише для дії, ранішої за інший минулий орієнтир. *I had gone to school yesterday, then I had eaten, then I had slept — це помилка: звичайна історія йде в Past Simple.",
-            "bodyEn": "Past Perfect is had + past participle for every person: I had left, she had left. You need it when there are two past actions and you want to show clearly which happened first. When I arrived, the meeting had already started — the meeting started before my arrival.\n\nIn Ukrainian both actions often sit in a simple past (“when I arrived, the meeting had already started”), so Past Perfect is easy to omit. English uses it as “the past in the past”. If the order is already obvious with after / before, Past Simple is sometimes enough: After I finished, I went home. But already, just, never, and by the time very often pull in Past Perfect: By the time we got to the station, the train had left.\n\nDo not sprinkle Past Perfect through a whole story — only on the action that is earlier than another past anchor. *I had gone to school yesterday, then I had eaten, then I had slept is wrong: a normal narrative uses Past Simple.",
+            "bodyUk": "Past Perfect: had + третя форма для всіх осіб: I had left, she had left. Він допомагає показати, що дія відбулася до іншого минулого моменту: When I arrived, the meeting had already started — зустріч почалася до мого приходу.\n\nЯкщо порядок зрозумілий із контексту або after / before, іноді достатньо Past Simple: After I finished, I went home. Слова already, just чи by the time можуть з'являтися з Past Perfect, але самі по собі не визначають час. Порівняйте: When I arrived, the meeting started (зустріч почалася в момент приходу) і When I arrived, the meeting had started (до приходу).\n\nДля простої послідовності вчорашніх подій без іншого минулого орієнтира природний Past Simple: I went to work, wrote emails and came home. Past Perfect також може описувати стан або період до минулого моменту, а не тільки окрему дію.",
+            "bodyEn": "Past Perfect is had + past participle for every person: I had left, she had left. It helps show that an event happened before another past reference point: When I arrived, the meeting had already started — it began before my arrival.\n\nWhen the order is clear from context or after / before, Past Simple is sometimes enough: After I finished, I went home. Words such as already, just, or by the time can appear with Past Perfect but do not determine the tense by themselves. Compare: When I arrived, the meeting started (at my arrival) and When I arrived, the meeting had started (before my arrival).\n\nFor a simple sequence of yesterday's events without another past reference point, Past Simple is natural: I went to work, wrote emails and came home. Past Perfect can also describe a state or period up to a past point, not just a single action.",
             "keyPointsUk": [
               "Форма: had + V3 для всіх осіб",
               "Показує дію, ранішу за іншу минулу",
@@ -1103,8 +1103,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-past-perf-r4",
             "type": "mcq",
-            "promptUk": "Який варіант — зайве використання Past Perfect?",
-            "promptEn": "Which option overuses Past Perfect?",
+            "promptUk": "Який варіант неприродно вживає Past Perfect для простої послідовності вчорашніх подій без іншого минулого орієнтира?",
+            "promptEn": "Which option uses Past Perfect unnaturally for a simple sequence of yesterday's events with no other past reference point?",
             "options": [
               "Yesterday I had gone to work, I had written emails, I had come home.",
               "When I came home, I realised I had left my laptop at work.",
@@ -1794,17 +1794,17 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Сполучники часу",
             "promptEn": "Time conjunctions",
-            "bodyUk": "when може стояти і з короткою подією, і з процесом: When I arrived (точка), When I was living in Kyiv (період). while майже завжди вводить процес: While I was waiting, I read a book. as теж може вводити одночасний процес: As I was leaving, it started to rain.\n\nПісля when, while, as, before, after, until, as soon as у значенні часу англійська НЕ ставить will і зазвичай не ставить would: When he arrived, we started — не *When he would arrive. Це окрема пастка, якщо ви думаєте про майбутнє (When he arrives, we will start — present у підрядному).\n\nКома: якщо підрядне на початку, після нього часто кома: While I was waiting, I read. Якщо підрядне в кінці, кома не обов'язкова: I read while I was waiting. Не пишіть *during I was waiting — during потребує іменника (during the meeting), для процесу — while.",
-            "bodyEn": "when can take either a short event or a process: When I arrived (a point), When I was living in Kyiv (a period). while almost always introduces a process: While I was waiting, I read a book. as can also introduce a simultaneous process: As I was leaving, it started to rain.\n\nAfter when, while, as, before, after, until, as soon as in a time meaning, English does NOT use will and usually does not use would: When he arrived, we started — not *When he would arrive. This is a separate trap when you talk about the future (When he arrives, we will start — a present tense in the time clause).\n\nComma: if the clause comes first, a comma is common: While I was waiting, I read. If it comes last, a comma is optional: I read while I was waiting. Do not write *during I was waiting — during takes a noun (during the meeting); for a process use while.",
+            "bodyUk": "when може стояти і з короткою подією, і з процесом: When I arrived (подія), When I was living in Kyiv (період). while часто поєднує одночасні дії: While I was waiting, I read a book. as також може вводити одночасну дію: As I was leaving, it started to rain.\n\nДля звичайної майбутньої події в часовому підрядному після when зазвичай уживають теперішню форму: When he arrives, we will start. Порівняйте непряме запитання I wonder when he will arrive: тут when означає «коли саме», а не «коли відбудеться подія». Для одноразової минулої події: When he arrived, we started.\n\nЯкщо підрядне стоїть на початку, після нього часто ставлять кому: While I was waiting, I read. Після during вживають іменник (during the meeting), а while може вводити речення (while I was waiting).",
+            "bodyEn": "when can take either a short event or a process: When I arrived (an event), When I was living in Kyiv (a period). while often links simultaneous actions: While I was waiting, I read a book. as can also introduce a simultaneous action: As I was leaving, it started to rain.\n\nFor an ordinary future event in a time clause after when, a present form is normally used: When he arrives, we will start. Compare the indirect question I wonder when he will arrive: here when asks 'at what time', rather than introducing the time at which an event happens. For a single past event: When he arrived, we started.\n\nWhen the subordinate clause comes first, a comma is common: While I was waiting, I read. During takes a noun (during the meeting); while can introduce a clause (while I was waiting).",
             "keyPointsUk": [
               "while + процес; when — і точка, і процес",
-              "after when/while у часовому значенні немає will",
+              "для звичайного майбутнього після when у часовому підрядному — теперішня форма",
               "during + іменник, while + речення",
               "Підрядне на початку часто з комою"
             ],
             "keyPointsEn": [
               "while plus a process; when can be a point or a process",
-              "No will after when/while in a time meaning",
+              "For an ordinary future event, use a present form in a when time clause",
               "during plus a noun; while plus a clause",
               "A clause at the start often takes a comma"
             ]
@@ -1847,8 +1847,8 @@ const newUnits: UnitContent[] = [
               "When he arriving, we will start."
             ],
             "correctIndex": 0,
-            "explanationUk": "У часовому підрядному — present (arrives), не will.",
-            "explanationEn": "A time clause takes a present (arrives), not will."
+            "explanationUk": "Тут when вводить час майбутньої події, тому вживаємо arrives; непряме запитання про час може мати will.",
+            "explanationEn": "Here when introduces the time of a future event, so use arrives; an indirect question about the time can use will."
           },
           {
             "id": "en-d-when-while-r4",
@@ -1867,8 +1867,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-when-while-e",
             "type": "explain",
-            "promptUk": "Чим while відрізняється від during і чому після when у часовому значенні немає will?",
-            "promptEn": "How is while different from during, and why is there no will after when in a time meaning?",
+            "promptUk": "Чим while відрізняється від during і яку форму зазвичай вживають після when для майбутньої події?",
+            "promptEn": "How is while different from during, and what form is normally used after when for a future event?",
             "keyIdeas": [
               {
                 "labelUk": "while",
@@ -1904,8 +1904,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "While вводить речення-процес, а during — іменник, наприклад during the meeting. Після when у часовому значенні will не ставлять: When he arrives, we will start.",
-            "sampleAnswerEn": "While introduces a process clause, while during takes a noun, for example during the meeting. After when in a time meaning we do not use will: When he arrives, we will start."
+            "sampleAnswerUk": "While може вводити речення, а during — іменник, наприклад during the meeting. Для майбутньої події в часовому підрядному зазвичай вживають теперішню форму: When he arrives, we will start.",
+            "sampleAnswerEn": "While can introduce a clause, whereas during takes a noun, for example during the meeting. For a future event, a when time clause normally uses a present form: When he arrives, we will start."
           }
         ]
       },

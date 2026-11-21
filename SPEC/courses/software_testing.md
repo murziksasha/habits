@@ -44,12 +44,12 @@ Testable requirements, high-signal unit tests, boundary fixtures, React componen
 ### `st_api_db_integration` — API & Database Integration Testing
 
 - `st-int-db-real` — Real HTTP Routes Against PostgreSQL (3 exercises)
-- `st-int-isolation` — State Isolation Between Integration Cases (2 exercises)
+- `st-int-isolation` — State Isolation Between Integration Cases (3 exercises)
 - `st-int-exam` — Checkpoint: API + DB Integration [exam] (2 exercises)
 
 ### `st_e2e_ci_capstone` — Browser E2E, CI Pipelines & ForgeBoard Suite
 
-- `st-e2e-locators-flaky` — Stable Playwright Locators & Eliminating Flakes (3 exercises)
+- `st-e2e-locators-flaky` — Stable Playwright Locators & Eliminating Flakes (4 exercises)
 - `st-forgeboard-suite-lab` — Lab: ForgeBoard Test Suite vs Injected Bugs (M7) (3 exercises)
 - `st-e2e-exam` — Checkpoint: E2E & CI Quality Gates [exam] (2 exercises)
 

@@ -13,12 +13,12 @@ Learn English through short interactive lessons.
 
 ### `basics-1` — Basics 1
 
-- `greetings` — Greetings (4 exercises)
+- `greetings` — Greetings (5 exercises, including an introductory concept card)
 - `introductions` — Introductions (3 exercises)
 - `numbers` — Numbers 1–10 (3 exercises)
 - `food-basics` — Food basics (3 exercises)
 - `daily-phrases` — Daily phrases (3 exercises)
-- `present-simple` — Present Simple (3 exercises)
+- `present-simple` — Present Simple (4 exercises, including an introductory concept card)
 - `colors-family` — Colours and family (3 exercises)
 - `questions` — Questions (3 exercises)
 

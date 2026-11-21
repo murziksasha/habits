@@ -431,7 +431,7 @@ describe("course content integrity", () => {
         for (const l of u.lessons) {
           expect(l.slug.length).toBeLessThanOrEqual(64);
           if (!advanced.has(u.slug)) {
-            if (!l.isExam) expect(l.exercises).toHaveLength(4);
+            if (!l.isExam) expect(l.exercises).toHaveLength(l.slug === "do-fin-unit" ? 5 : 4);
             continue;
           }
           expect([4, 5]).toContain(l.difficulty);
@@ -979,6 +979,42 @@ describe("explain exercises (SPEC 92)", async () => {
       }
     }
     expect(n).toBeGreaterThanOrEqual(5);
+  });
+});
+
+describe("QA exercise localization", async () => {
+  const { localizeMatchPairs } = await import("@eduforge/shared");
+
+  it("keeps translated match labels attached to their canonical answers", () => {
+    const exercises = collectExercises(qaTheoryContent);
+    const ids = ["qt-f6", "qt-art-1", "qt-art-6", "qt-art-8", "qt-art-11", "qt-art-14", "qt-art-15", "qt-bb8", "qt-st2", "qt-art-20", "qt-art-23", "qt-art-24", "qt-df-p4", "qt-df7", "qt-art-27", "qa-scen-2", "qa-scen-3", "qa-scen-5", "qa-scen-8", "qa-scen-10", "qt-rpr2"];
+    for (const id of ids) {
+      const ex = exercises.find((item) => item.id === id);
+      expect(ex?.type, id).toBe("match");
+      if (!ex || ex.type !== "match") throw new Error(`Missing match: ${id}`);
+      expect(ex.pairsEn?.length, id).toBe(ex.pairs.length);
+      const uk = localizeMatchPairs("uk", ex);
+      const en = localizeMatchPairs("en", ex);
+      for (let i = 0; i < ex.pairs.length; i++) {
+        expect({ left: en[i]!.left, right: en[i]!.right }, id).toEqual(ex.pairs[i]);
+        expect({ left: uk[i]!.labelLeft, right: uk[i]!.labelRight }, id).toEqual(ex.pairs[i]);
+        expect({ left: en[i]!.labelLeft, right: en[i]!.labelRight }, id).toEqual(ex.pairsEn![i]);
+        expect(en[i]!.labelLeft + en[i]!.labelRight, id).not.toMatch(/[А-Яа-яІіЇїЄєҐґ]/u);
+      }
+    }
+  });
+
+  it("aligns localized report sections with their canonical order values", () => {
+    const ex = collectExercises(qaTheoryContent).find((item) => item.id === "qt-rpr3");
+    expect(ex?.type).toBe("code_order");
+    if (!ex || ex.type !== "code_order") throw new Error("Missing report order exercise");
+    expect(ex.linesUk).toEqual([
+      "Надати передумови та кроки відтворення",
+      "Порівняти очікуваний і фактичний результат",
+      "Вказати тяжкість і вплив",
+      "Зафіксувати середовище: версію, браузер, ОС та роль",
+    ]);
+    expect(ex.lines.map((line) => ex.correct.indexOf(line))).toEqual([1, 2, 3, 0]);
   });
 });
 

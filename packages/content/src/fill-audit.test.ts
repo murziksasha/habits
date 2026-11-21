@@ -1725,7 +1725,7 @@ it("provides English choices in the assembled FinOps unit", () => {
       expect(exercise.optionsEn!.join(" "), exercise.id).not.toMatch(/[\u0400-\u04ff]/u);
     }
   }
-  expect(choices).toBe(12);
+  expect(choices).toBe(13);
 });
 
 
