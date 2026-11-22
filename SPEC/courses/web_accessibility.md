@@ -22,7 +22,7 @@ POUR principles, keyboard access, ARIA, contrast, and accessibility testing agai
 
 ### `keyboard_focus` — Keyboard and visible focus
 
-- `a11y-tab-order` — Tab order matches the visual order; avoid a tabindex greater than 0
+- `a11y-tab-order` — Focus order preserves meaning and operability; avoid positive tabindex when possible
 - `a11y-focus-visible` — Visible focus is not removed without a replacement; :focus-visible for mouse vs keyboard
 - `a11y-skip-trap` — A skip link, a focus trap in a modal, and restoring focus
 - `keyboard_focus-exam` — Exam: keyboard and focus [exam]
@@ -36,7 +36,7 @@ POUR principles, keyboard access, ARIA, contrast, and accessibility testing agai
 
 ### `aria_patterns` — ARIA: when it is needed and typical patterns
 
-- `a11y-aria-when` — The first rule of ARIA: do not set a role when native HTML exists
+- `a11y-aria-when` — The first rule of ARIA: use native HTML when it fits
 - `a11y-live-announce` — aria-live announces a change without focus: polite for most cases, assertive rarely
 - `a11y-dialog-modal` — A dialog: role, name, modality, focus, and close
 - `aria_patterns-exam` — Exam: ARIA patterns [exam]
@@ -54,4 +54,16 @@ POUR principles, keyboard access, ARIA, contrast, and accessibility testing agai
 - `a11y-keyboard-pass` — A keyboard pass: the whole scenario without a mouse, visible focus, no traps
 - `a11y-sr-manual` — A screen reader and people: a short manual pass plus real users
 - `testing_a11y-exam` — Exam: a11y testing [exam]
+
+### `a11y_applied_checkout` — Accessible checkout flow
+
+- `a11y-applied-errors` — Repairable form errors and focus (5 exercises)
+- `a11y-applied-dialog` — Dialog focus and return (6 exercises)
+- `a11y_applied_checkout-exam` — Exam: accessible form [exam] (4 exercises)
+
+References: [W3C form error notification](https://www.w3.org/WAI/tutorials/forms/notifications/) and [modal dialog focus pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/).
+
+Focus-order guidance follows [W3C Understanding Focus Order](https://www.w3.org/WAI/WCAG22/Understanding/focus-order.html): a meaningful sequence need not exactly match the visual layout. Text contrast and complete process conformance follow [WCAG 2.2](https://www.w3.org/TR/WCAG22/); image alternatives follow the [W3C alt decision tree](https://www.w3.org/WAI/tutorials/images/decision-tree/).
+
+Accessible name, description, and visible label guidance follows [W3C Label in Name](https://www.w3.org/WAI/WCAG22/Understanding/label-in-name.html).
 

@@ -40,6 +40,8 @@ Electrical engineering lessons in `stage2-rest.ts` through `stage6.ts`, `stage7-
 
 ## Exercise types
 
+For `code_order`, `lines` and `correct` remain canonical answer values. When the canonical steps are English prose, optional `linesUk` provides Ukrainian display labels aligned by index with `lines`; it must have the same length and unambiguous labels for distinct canonical lines. The player submits canonical values for server grading. Actual code lines should generally remain unchanged.
+
 Canonical list: `@eduforge/shared` `EXERCISE_TYPES` / `packages/content` integrity tests.
 
 ### Concept cards (deep lessons)
@@ -155,5 +157,7 @@ needs `promptEn`. Explain samples are checked by `content.test.ts`
 against their own rubric.
 
 ## Quality gate
+
+Run `pnpm content:audit` to measure section depth across all seeded courses before selecting the next content slice. The audit is diagnostic; its short-lesson count deliberately includes single-task typing drills.
 
 `packages/content/src/quality-gate.test.ts` fails CI on missing uk/en titles or prompts, unpaired empty explanations, duplicate slugs or exercise ids, and malformed exercises. Run it with `pnpm --filter @eduforge/content test`. It is part of `pnpm test:unit` and the `content-gate` GitHub Actions job.

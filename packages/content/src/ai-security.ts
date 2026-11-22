@@ -3,6 +3,7 @@ import {
   codeFill,
   codeOrderAuto,
   codeRead,
+  concept,
   exam,
   lesson,
   matchEx,
@@ -23,7 +24,16 @@ const asThreat = unit(
       3,
       true,
       [
-        mcq(
+        concept(
+          "as-th-boundary-concept",
+          "Модель пропонує дію, сервер вирішує",
+          "The model proposes; the server decides",
+          {
+            uk: "Модель загроз описує активи, джерела недовірених даних, можливі дії та наслідки помилки. Наприклад, лист клієнта може містити інструкцію зробити повернення, але сам лист не надає на це права. Модель може запропонувати виклик, а сервер окремо перевіряє особу, право на конкретне замовлення, параметри й необхідність підтвердження. Не покладайте контроль доступу на текст промпта чи на саме знання ID ресурсу.",
+            en: "A threat model identifies assets, untrusted inputs, possible actions, and the consequences of failure. For example, a customer email can request a refund, but the email itself does not authorize one. The model may propose a call; the server separately checks identity, access to the specific order, parameters, and required approval. Do not rely on prompt wording or knowledge of a resource ID for authorization.",
+          },
+        ),
+        ({ ...mcq(
           "as-t1",
           "Агент підтримки читає зовнішні листи та має підключені інструменти `delete_file`, `send_email`, `refund_order`. Чому сама текстова інструкція моделі «ніколи не зловживай інструментами» не є межею безпеки?",
           "A support agent reads external tickets and can call `delete_file`, `send_email`, and `refund_order`. Why is telling the model \"never misuse tools\" NOT a security boundary?",
@@ -38,8 +48,8 @@ const asThreat = unit(
             "Модель — недовірений планувальник. Усе, що змінює стан, витрачає гроші чи надсилає дані назовні, мусить охоронятися детермінованими перевірками поза моделлю.",
             "Treat model tool proposals as untrusted suggestions. Every destructive or external action requires deterministic server-side checks.",
           ),
-        ),
-        matchEx(
+        ), optionsEn: ["The model processes untrusted text and can err or be manipulated; the server must check before executing privileged tools","System prompts are limited to 50 characters","Tools run faster without server checks","The model cannot read function names"] }),
+        ({ ...matchEx(
           "as-t2",
           "Зіставте дію інструмента з необхідним рівнем межі довіри",
           "Match each agent capability to the required trust boundary control",
@@ -49,8 +59,8 @@ const asThreat = unit(
             { left: "Надсилання зовнішнього листа клієнту", right: "Allowlist отримувачів/шаблону + підтвердження людини" },
             { left: "Видалення файлів або повернення коштів", right: "Явне підтвердження людини, ліміти сум і аудит-лог" },
           ],
-        ),
-        mcq(
+        ), pairsEn: [{"left":"Search a public FAQ","right":"A read-only index without access to private tables"},{"left":"Read a customer order status","right":"Check order.userId === session.userId in the tool code"},{"left":"Send an external customer email","right":"Recipient and template allowlists plus human confirmation"},{"left":"Delete files or refund money","right":"Explicit human approval, amount limits, and an audit log"}] }),
+        ({ ...mcq(
           "as-t3",
           "Що таке «радіус ураження» (blast radius) при проєктуванні інструментів агента?",
           "What does \"blast radius\" mean when scoping an agent's tools?",
@@ -61,7 +71,7 @@ const asThreat = unit(
             "Довжина контекстного вікна в токенах",
           ],
           0,
-        ),
+        ), optionsEn: ["The maximum harm an error or malicious input can cause given the session permissions and tools","The number of lines in the prompt file","Database response time in milliseconds","Context window length in tokens"] }),
       ],
       { baseXp: 24 },
     ),
@@ -72,7 +82,16 @@ const asThreat = unit(
       3,
       true,
       [
-        codeRead(
+        concept(
+          "as-th-blast-concept",
+          "Зменшуйте можливу шкоду заздалегідь",
+          "Limit potential harm in advance",
+          {
+            uk: "Радіус ураження — це масштаб можливої шкоди в межах фактичних прав і доступних дій. Замість загального адміністративного SQL надайте вузький параметризований метод, обмежте поля й перевірте право поточного користувача на кожен ресурс. Невідомі ролі, відсутні дані або недоступна перевірка прав мають призводити до відмови. Перевірте також міжкористувацькі спроби доступу й повторні виклики, а не лише правильний запит.",
+            en: "Blast radius is the potential harm within the permissions and actions actually available. Replace general administrative SQL with a narrow parameterized method, limit returned fields, and check the current user's authorization for each resource. Unknown roles, missing data, or an unavailable authorization check must deny access. Test cross-user access attempts and repeated calls as well as the successful case.",
+          },
+        ),
+        ({ ...codeRead(
           "as-t4",
           "Знайдіть помилку широкого радіуса ураження в цьому коді налаштування інструмента:",
           "Spot the excessive blast-radius flaw in this TypeScript tool setup:",
@@ -89,8 +108,8 @@ const asThreat = unit(
             "Ніколи не давайте агенту вільний `runSql` чи адмін-пул БД. Надавайте вузькі бізнес-методи (`getMyOrderById`), прив'язані до сесії користувача.",
             "Never expose raw SQL or admin DB pools to an agent; wrap narrow read/write methods scoped to the authenticated caller.",
           ),
-        ),
-        codeOrderAuto(
+        ), optionsEn: ["The model receives arbitrary SQL with database administrator privileges instead of a narrow parameterized method with ownership checks","The function must return a string rather than a Promise","adminPgPool.query only works in a browser","The name runDbQuery cannot be sent in JSON"] }),
+        ({ ...codeOrderAuto(
           "as-t5",
           "Впорядкуйте кроки побудови моделі загроз перед додаванням нового інструмента агенту",
           "Order the threat-modeling pass before granting an agent a new tool",
@@ -101,8 +120,8 @@ const asThreat = unit(
             "Restrict inputs via strict schema, allowlists, and caller authorization in code",
             "Gate irreversible side effects behind human confirmation and audit logs",
           ],
-        ),
-        mcq(
+        ), linesUk: ["Припустіть, що зовнішній текст чи ввід користувача може перенаправити інструмент","Обмежте вхід схемою, allowlist і перевіркою прав у коді","Для незворотних дій вимагайте підтвердження та ведіть аудит","Визначте, які активи інструмент може читати, змінювати, видаляти або надсилати"] }),
+        ({ ...mcq(
           "as-t6",
           "Що означає принцип fail-closed для авторизації інструмента агента?",
           "What does a fail-closed authorization rule mean for an agent tool?",
@@ -113,7 +132,7 @@ const asThreat = unit(
             "Усі інструменти відкриті, доки адміністратор не закриє їх вручну",
           ],
           0,
-        ),
+        ), optionsEn: ["An unknown role, missing owner parameter, or failed authorization check immediately denies the call","Execute the tool anyway when authorization fails","Check permissions only after deleting the record","Leave all tools open until an administrator closes them"] }),
       ],
       { baseXp: 24 },
     ),
@@ -123,7 +142,7 @@ const asThreat = unit(
       "Checkpoint: Threat Model and Boundaries",
       3,
       [
-        mcq(
+        ({ ...mcq(
           "as-t-e1",
           "Чому текстова заборона в системному промпті не замінює серверну перевірку прав перед викликом `delete_file` або `refund`?",
           "Why can a system prompt rule never replace server-side checks before executing `delete_file` or `refund`?",
@@ -134,8 +153,8 @@ const asThreat = unit(
             "Тому що локальні моделі не читають англійську",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["The probabilistic model can be misled by external text, while server code enforces deterministic authorization checks","The system prompt disappears after the first tool","JSON does not support boolean values","Local models cannot read English"] }),
+        ({ ...codeRead(
           "as-t-e2",
           "Чому цей обробник інструмента відкриває IDOR-витік між користувачами?",
           "Why does this tool handler expose a cross-user data leak (IDOR)?",
@@ -148,8 +167,8 @@ const asThreat = unit(
             "Функція мусить приймати пароль адміністратора",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["It ignores the current user ID and returns any invoice ID supplied by the model or ticket text","invoiceId cannot use camelCase","findFirst always returns an array of every table","The function must accept the administrator password"] }),
+        ({ ...mcq(
           "as-t-e3",
           "Який перший крок зменшення радіуса ураження, коли інструменту потрібен доступ лише до читання двох полів замовлення?",
           "What is the first step to minimize blast radius when a tool only needs to read two order fields?",
@@ -160,7 +179,7 @@ const asThreat = unit(
             "Кешувати чужі замовлення в загальний системний промпт",
           ],
           0,
-        ),
+        ), optionsEn: ["Use a read-only query projecting the two fields and filtering by the current user ID","Give the agent write access to the entire database","Allow arbitrary SQL","Cache other users orders in the shared system prompt"] }),
       ],
     ),
   ],
@@ -178,7 +197,17 @@ const asInjection = unit(
       3,
       true,
       [
-        mcq(
+        concept(
+          "as-in-indirect-concept",
+          "Коли дані намагаються керувати агентом",
+          "When data tries to control an agent",
+          {
+            uk: "Непряма prompt injection виникає, коли інструкція в недовіреному джерелі намагається змінити поведінку агента. Наприклад, сторінка для підсумку просить надіслати клієнтські дані назовні: це вміст сторінки, а не дозвіл користувача. Передавайте джерело окремо від системної політики й не надавайте етапу підсумку інструментів для зайвих дій. Позначення даних допомагає моделі, але саме по собі не гарантує, що вона проігнорує інструкцію.",
+            en: "Indirect prompt injection occurs when an instruction in an untrusted source attempts to redirect an agent. For example, a page being summarized asks it to send customer data externally: that is page content, not user authorization. Keep the source separate from system policy and do not give the summarization step unnecessary action tools. Labeling data helps the model but does not guarantee it will ignore the instruction.",
+          },
+          { keyPointsUk: ["Джерело даних не надає повноважень", "Мітки й ролі не замінюють перевірок у коді"], keyPointsEn: ["A data source cannot grant authority", "Labels and roles do not replace code-level checks"] },
+        ),
+        ({ ...mcq(
           "as-i1",
           "Агент читає зовнішню вебсторінку для підсумку, і прихований блок на сторінці наказує агенту ігнорувати його правила та надіслати список клієнтів на сторонню пошту. Який це клас атаки і який захист правильний?",
           "An agent fetches a web page to summarize it; text on that page tells the agent to ignore its rules and email the customer list externally. What attack class is this, and what defends against it?",
@@ -193,8 +222,8 @@ const asInjection = unit(
             "Зовнішні вебсторінки, PDF, листи й коментарі — це недовірені дані. Ніколи не дозволяйте їм ставати керуючими командами або запускати привілейовані інструменти без перевірки політики.",
             "Fetched pages, uploaded docs, and emails are untrusted data. Never let retrieved text execute outbound or mutating tools without code-level policy and confirmation.",
           ),
-        ),
-        mcq(
+        ), optionsEn: ["Indirect prompt injection: separate source data from policy, block unrequested outbound actions, and enforce tool allowlists in code","An HTML syntax error fixed by minifying CSS","A DNS cache error fixed by changing the port","A UTF-8 encoding problem fixed by converting to Base64"] }),
+        ({ ...mcq(
           "as-i2",
           "Чому не можна склеювати вміст вхідного листа клієнта безпосередньо в `system` повідомлення разом із правилами агента?",
           "Why must untrusted email or document text never be concatenated into the `system` instruction message?",
@@ -205,8 +234,8 @@ const asInjection = unit(
             "Це заборонено стандартом JSON",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["It mixes trusted rules and untrusted data in a privileged message, weakening the boundary between policy and input","System messages in Python do not support newlines","The model ignores everything in a system message","JSON prohibits this"] }),
+        ({ ...codeRead(
           "as-i3",
           "Порівняйте спосіб формування повідомлень для сумаризації зовнішньої сторінки. У чому критична помилка?",
           "Spot the trust-separation flaw in how this function builds model messages from a fetched page:",
@@ -223,7 +252,7 @@ const asInjection = unit(
             "Тримайте системні правила окремо в `system`, позначайте зовнішній текст як недовірені дані у `user`-блоці й обмежуйте доступні інструменти на сервері.",
             "Keep trusted policy isolated in `system`, place external content strictly in tagged `user` data blocks, and enforce tool restrictions in code.",
           ),
-        ),
+        ), optionsEn: ["Fetched page text is placed in the privileged system role; keep it as untrusted user data and restrict tools in code","The messages list must contain at least five entries","The role key must be capitalized","Remove policy entirely"] }),
       ],
       { baseXp: 24 },
     ),
@@ -234,7 +263,17 @@ const asInjection = unit(
       3,
       true,
       [
-        matchEx(
+        concept(
+          "as-in-controls-concept",
+          "Шари захисту для читання зовнішніх джерел",
+          "Layers of protection for external sources",
+          {
+            uk: "Перевіряйте адреси й кожен редірект перед завантаженням, обмежуйте доступ до внутрішніх мереж і використовуйте лише потрібні інструменти. Текст документа передавайте як недовірені дані. Якщо пізніше пропонується дія, сервер повторно перевіряє користувача, ресурс і параметри; для визначених ризикових дій потрібне підтвердження. Наприклад, підсумок листа не дає права автоматично виконати рефанд. Перевіряйте схему й посилання відповіді перед показом, але не вважайте ці фільтри гарантією безпеки.",
+            en: "Validate addresses and every redirect before fetching, restrict access to internal networks, and expose only necessary tools. Pass document text as untrusted data. If an action is proposed later, the server checks the user, resource, and parameters again; defined high-risk actions require approval. For example, summarizing an email does not authorize an automatic refund. Validate the response schema and links before display, but do not treat these filters as a safety guarantee.",
+          },
+          { keyPointsUk: ["Перевірка адреси включає редіректи", "Дію авторизують окремо від читання"], keyPointsEn: ["URL validation includes redirects", "Authorize actions separately from reading"] },
+        ),
+        ({ ...matchEx(
           "as-i4",
           "Зіставте недовірене джерело з точним захисним контролем",
           "Match each untrusted input source to the right defensive control",
@@ -244,8 +283,8 @@ const asInjection = unit(
             { left: "Вкладений файл у корпоративному RAG", right: "Зберігати метадані джерела + вимикати автозапуск URL/інструментів із фрагмента" },
             { left: "Посилання Markdown у відповіді моделі", right: "Фільтрувати схеми до `https:`/`http:` і блокувати довільні зовнішні редіректи" },
           ],
-        ),
-        codeOrderAuto(
+        ), pairsEn: [{"left":"A web page fetched by the agent","right":"Read-only mode without email or mutating tools at that step"},{"left":"A customer email in the support queue","right":"Treat the body as data; require human approval for refunds or sending"},{"left":"An attachment in corporate RAG","right":"Keep source metadata and disable automatic URL or tool execution from the fragment"},{"left":"A Markdown link in a model response","right":"Restrict schemes to https or http and block arbitrary external redirects"}] }),
+        ({ ...codeOrderAuto(
           "as-i5",
           "Впорядкуйте безпечну архітектуру сумаризації зовнішніх вебсторінок",
           "Order a defense-in-depth pipeline for summarizing untrusted web pages",
@@ -256,7 +295,7 @@ const asInjection = unit(
             "Attach zero mutating or outbound-email tools to the summarization call",
             "Sanitize output links and validate schema before rendering in UI",
           ],
-        ),
+        ), linesUk: ["Помістіть отриманий текст у позначений блок недовірених даних у повідомленні користувача","Не надавайте виклику сумаризації інструментів зміни даних чи надсилання пошти","Перевірте посилання та схему відповіді перед відображенням","Перевірте URL за allowlist доменів і заблокуйте приватні IP для захисту від SSRF"] }),
         codeFill(
           "as-i6",
           "Помістіть недовірений текст документа в окреме повідомлення ролі даних (`\"user\"`), а не в `\"system\"`",
@@ -275,7 +314,7 @@ const asInjection = unit(
       "Checkpoint: Prompt Injection Controls",
       3,
       [
-        mcq(
+        ({ ...mcq(
           "as-i-e1",
           "Під час аналізу зовнішнього документа агент раптом намагається викликати інструмент пересилання бази клієнтів, бо таку вимогу містив сам документ. Що це за клас загрози та який базовий захист?",
           "While summarizing an external document, an agent attempts to call a customer-export tool requested inside the document text. What class of threat is this and what is the core defense?",
@@ -286,8 +325,8 @@ const asInjection = unit(
             "Випадкова колізія UUID; захист — змінити версію на UUIDv4",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["Indirect prompt injection; separate data from policy, omit dangerous tools while reading, and enforce server-side allowlists and approval","TCP buffer overflow; increase the MTU","B-tree index error; run VACUUM in Postgres","UUID collision; switch to UUIDv4"] }),
+        ({ ...codeRead(
           "as-i-e2",
           "Чому конкатенація `f\"{SYSTEM_PROMPT}\\n{ticket_body}\"` у полі `system` ослаблює захист?",
           "Why does formatting `f\"{SYSTEM_PROMPT}\\n{ticket_body}\"` into the `system` message weaken trust boundaries?",
@@ -300,8 +339,8 @@ const asInjection = unit(
             "`ticket_body` завжди видаляє `SYSTEM_PROMPT` із пам'яті",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["Untrusted ticket text is placed at the same trust level as system policy","Python cannot interpolate multiline variables","It automatically sends requests to two regions","The ticket body always erases the system prompt from memory"] }),
+        ({ ...mcq(
           "as-i-e3",
           "Чому одних лише тегів на кшталт `<untrusted_data>` у тексті промпта недостатньо без обмежень на рівні інструментів?",
           "Why are delimiter tags like `<untrusted_data>` alone insufficient without code-level tool gating?",
@@ -312,7 +351,7 @@ const asInjection = unit(
             "Модель повністю пропускає все всередині тегів",
           ],
           0,
-        ),
+        ), optionsEn: ["Tags help structure data but do not guarantee compliance; enforce tool restrictions, parameter checks, and human confirmation in code","XML tags are unsupported in UTF-8","Tags automatically encrypt text","The model completely skips everything inside tags"] }),
       ],
     ),
   ],
@@ -330,28 +369,37 @@ const asTools = unit(
       4,
       false,
       [
-        mcq(
+        concept(
+          "as-tl-allowlist-concept",
+          "Обмеження інструмента й перевірка ресурсу",
+          "Scope tools and authorize the resource",
+          {
+            uk: "Allowlist визначає дозволені інструменти, але не замінює перевірку аргументів і прав користувача на конкретний ресурс. Наприклад, доступний lookup_order має повертати лише замовлення, які дозволено читати поточній сесії. Для запитів назовні перевіряйте схему, точний хост і метод, кожен редірект та адреси фактичного підключення; DNS може змінитися після первинної перевірки. Додатково обмежуйте мережевий вихід на рівні інфраструктури.",
+            en: "An allowlist identifies permitted tools, but it does not replace argument validation or authorization for a specific resource. For example, lookup_order should return only orders the current session may read. For outbound requests validate the scheme, exact host and method, each redirect, and the addresses actually connected to; DNS can change after an initial check. Also restrict network egress at the infrastructure layer.",
+          },
+        ),
+        ({ ...mcq(
           "as-a1",
           "Інструмент HTTP-довідки повинен читати статус доставки лише з двох партнерських доменів, але зараз приймає будь-який `url` і блокує тільки слово `localhost`. Чому потрібен allowlist замість denylist?",
           "A shipping-lookup tool should only query two partner domains, yet currently accepts any `url` and merely blocks the word `localhost`. Why replace the denylist with an allowlist?",
           [
-            "Denylist легко пропустити через альтернативні формати IP, редіректи чи внутрішні хмарні адреси (SSRF); allowlist дозволяє виключно два точні хости та HTTPS GET",
+            "Denylist легко обійти альтернативними адресами; allowlist обмежує хости й методи та потребує перевірки редіректів і адрес підключення",
             "Allowlist дозволяє викликати будь-який внутрішній порт для тестів",
             "Denylist заборонений стандартом TLS",
             "Модель краще знає внутрішні IP компанії",
           ],
           0,
           why(
-            "Списки заборон (denylist) майже завжди неповні. Allowlist задає вичерпний список дозволених інструментів, хостів, методів і таблиць.",
-            "Denylists miss alternative encodings and redirects; allowlists strictly enumerate the exact permitted tools, hosts, and methods.",
+            "Дозволені хости й методи доповнюють перевіркою кожного редіректу та фактичної адреси підключення, а також мережевими обмеженнями.",
+            "Allowed hosts and methods need redirect and actual connection-address checks, plus network egress restrictions.",
           ),
-        ),
-        codeRead(
+        ), optionsEn: ["A denylist can miss alternate addresses; an allowlist restricts hosts and methods but also needs redirect and connection-address checks","An allowlist permits access to every internal port for tests","TLS prohibits denylists","The model knows internal company IPs better"] }),
+        ({ ...codeRead(
           "as-a2",
           "Перевірте функцію виклику інструмента: як саме вона забезпечує найменші привілеї?",
           "Inspect this Python tool dispatcher. How does it enforce least privilege?",
           "python",
-          "ALLOWED_TOOLS = frozenset({\"get_order_status\", \"search_public_faq\"})\n\ndef dispatch_tool(name: str, args: dict, user_id: str):\n    if name not in ALLOWED_TOOLS:\n        raise PermissionError(\"tool_not_allowed\")\n    return TOOLS[name](args, user_id=user_id)",
+          "ALLOWED_TOOLS = frozenset({\"get_order_status\", \"search_public_faq\"})\n\ndef dispatch_tool(name: str, args: dict, session):\n    if name not in ALLOWED_TOOLS:\n        raise PermissionError(\"tool_not_allowed\")\n    user_id = require_authenticated_user(session)\n    return TOOLS[name](args, user_id=user_id)  # each tool validates args and resource access",
           [
             "Доступні лише явно перелічені read-only інструменти з `ALLOWED_TOOLS`, а `user_id` передається з серверної сесії, а не з аргументів моделі",
             "Модель сама передає `user_id` через `args`",
@@ -359,7 +407,7 @@ const asTools = unit(
             "Помилка `PermissionError` тихо ігнорується",
           ],
           0,
-        ),
+        ), optionsEn: ["Only listed read-only tools are available and the user ID comes from the server session, not model arguments","The model passes the user ID through args","Every new method is automatically added to ALLOWED_TOOLS","PermissionError is silently ignored"] }),
         codeFill(
           "as-a3",
           "Перевірте ім'я інструмента проти білого списку `ALLOWED_TOOLS` перед виконанням",
@@ -379,7 +427,16 @@ const asTools = unit(
       4,
       false,
       [
-        mcq(
+        concept(
+          "as-tl-hitl-concept",
+          "Підтвердження конкретної дії",
+          "Approve a specific action",
+          {
+            uk: "Сервер зберігає пропозицію з точними параметрами та показує людині отримувача, ресурс, суму й інші наслідки. Підтвердження прив'язують до користувача, незмінної версії пропозиції та обмеженого строку. Перед виконанням повторно перевіряють повноваження й актуальний стан; змінені параметри потребують нового підтвердження. Одноразове споживання або ідемпотентність запобігає дублюванню при повторному запиті, а журнал допомагає розслідуванню.",
+            en: "The server stores a proposal with exact parameters and shows the human the recipient, resource, amount, and other consequences. Bind approval to the user, an immutable proposal version, and an expiry. Recheck authorization and current state before execution; changed parameters require new approval. Single-use consumption or idempotency prevents duplicate execution on retry, and an audit log supports investigation.",
+          },
+        ),
+        ({ ...mcq(
           "as-a4",
           "Агент підготував дію `send_external_email` або `issue_refund`. Яку інформацію має побачити людина на екрані підтвердження, щоб не натиснути «ОК» наосліп?",
           "An agent proposes `send_external_email` or `issue_refund`. What must the confirmation UI display so the human does not rubber-stamp an unsafe action?",
@@ -394,8 +451,8 @@ const asTools = unit(
             "Людина підтверджує конкретні серверні аргументи дії. Те саме значення, яке показано користувачу, повинно бути зафіксовано за ID пропозиції.",
             "Humans must confirm the exact structured arguments bound server-side to the proposal ID—not a fuzzy model summary.",
           ),
-        ),
-        codeOrderAuto(
+        ), optionsEn: ["The exact structured parameters the server will execute, such as recipient, amount, order ID, and message","Only a confirm button without recipient or amount","Only a database trace ID","A random model confidence percentage"] }),
+        ({ ...codeOrderAuto(
           "as-a5",
           "Впорядкуйте безпечний потік підтвердження незворотної дії інструмента",
           "Order a human-confirmed execution flow for an irreversible tool action",
@@ -406,18 +463,18 @@ const asTools = unit(
             "UI displays exact recipient/amount/target fields for human confirmation",
             "Only after explicit Confirm click does server execute saved proposal once",
           ],
-        ),
-        matchEx(
+        ), linesUk: ["Сервер перевіряє права й зберігає пропозицію з точними аргументами","Інтерфейс показує отримувача, суму й ціль для підтвердження","Після явного підтвердження сервер виконує збережену пропозицію один раз","Модель пропонує структуровану дію й аргументи за дозволеною схемою"] }),
+        ({ ...matchEx(
           "as-a6",
           "Зіставте небезпечне налаштування прав інструмента з точним захистом",
           "Match each over-privileged tool setup to the least-privilege fix",
           [
-            { left: "Дозвіл писати у будь-який шлях диска", right: "Обмежити єдиною робочою текою й перевіряти `resolve()` без `..`" },
+            { left: "Дозвіл писати у будь-який шлях диска", right: "Обмежити робочою текою, перевіряти реальний шлях і захищатися від symlink та гонок" },
             { left: "Агент використовує адмінський API-токен для всіх операцій", right: "Токени з вузьким scope, прокинуті поза контекстом моделі" },
             { left: "Автоматичний переказ грошей або видалення без запиту", right: "Обов'язковий крок Human-in-the-Loop перед виконанням" },
             { left: "Виконання довільного shell-рядка", right: "Замінити на фіксовані типізовані функції без `shell=True`" },
           ],
-        ),
+        ), pairsEn: [{"left":"Permission to write to any disk path","right":"Restrict the workspace, verify the real path, and defend against symlinks and races"},{"left":"An agent uses an admin API token for every operation","right":"Use narrowly scoped tokens kept outside model context"},{"left":"Automatic money transfer or deletion without a request","right":"Require human approval before execution"},{"left":"Execution of an arbitrary shell string","right":"Replace it with fixed typed functions without shell=True"}] }),
       ],
       { baseXp: 25 },
     ),
@@ -427,7 +484,7 @@ const asTools = unit(
       "Checkpoint: Allowlists and HITL",
       4,
       [
-        mcq(
+        ({ ...mcq(
           "as-a-e1",
           "Чим allowlist інструментів принципово надійніший за denylist?",
           "Why is a tool allowlist fundamentally stronger than a denylist?",
@@ -438,8 +495,8 @@ const asTools = unit(
             "Allowlist не потребує перевірки типів аргументів",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["Everything is denied by default except explicitly allowed methods, hosts, and arguments","New unknown functions can run without code changes","A denylist is 100 times faster because it blocks everything","An allowlist requires no argument type validation"] }),
+        ({ ...codeRead(
           "as-a-e2",
           "Знайдіть прогалину контролю привілеїв у цьому коді обробки вхідного тикета:",
           "Spot the privilege and confirmation flaw in this ticket-processing handler:",
@@ -452,8 +509,8 @@ const asTools = unit(
             "Потрібно додати `send_email` у чорний список лише по п'ятницях",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["The model sends email to an arbitrary action.to based on untrusted ticket text without a recipient allowlist or human approval","mailer.send cannot accept keyword arguments","ticket_text must be a list of characters","Block send_email only on Fridays"] }),
+        ({ ...mcq(
           "as-a-e3",
           "Яка умова обов'язкова для екрану підтвердження (HITL) перед незворотною мутацією?",
           "Which requirement is mandatory on a HITL confirmation step before an irreversible mutation?",
@@ -464,7 +521,7 @@ const asTools = unit(
             "Передавати дозвіл через параметр URL `?confirm=true` від клієнта без перевірки сесії",
           ],
           0,
-        ),
+        ), optionsEn: ["Show the exact server-stored target, amount, and recipient and execute only what was approved","Let the model click confirm after two seconds","Show only the statement that the operation is safe","Accept ?confirm=true from the client without checking the session"] }),
       ],
     ),
   ],
@@ -482,7 +539,16 @@ const asGuardrails = unit(
       4,
       false,
       [
-        mcq(
+        concept(
+          "as-gr-policy-concept",
+          "Класифікатор — один із шарів захисту",
+          "A classifier is one defensive layer",
+          {
+            uk: "Окрема політика може перевіряти вхід або відповідь за категоріями ризику, а програмні правила — спрямовувати діалог чи повертати відмову. Класифікатор помиляється: хибний дозвіл пропускає порушення, хибна відмова заважає безпечному запиту. Оцінюйте обидва типи помилок на репрезентативних прикладах і різних мовах. Перевірка схеми підтверджує структуру, але не правдивість змісту; авторизація та контроль інструментів залишаються на сервері.",
+            en: "A separate policy can classify input or output by risk category, while programmable rules can route a conversation or return a refusal. Classifiers make mistakes: false allows miss violations and false refusals block benign requests. Evaluate both on representative examples and across languages. Schema validation checks structure, not factual truth; authorization and tool controls remain on the server.",
+          },
+        ),
+        ({ ...mcq(
           "as-g1",
           "Яке інженерне завдання вирішують NeMo Guardrails та Llama Guard в архітектурі AI-сервісу?",
           "What architectural role do NeMo Guardrails and Llama Guard serve in an AI application?",
@@ -497,8 +563,8 @@ const asGuardrails = unit(
             "Llama Guard класифікує відповідність тексту категоріям безпеки, а NeMo Guardrails описує декларативні правила діалогу, тем і виходу. Разом це один з шарів контролю, а не заміна allowlist-ів чи auth.",
             "Llama Guard acts as a safety policy classifier and NeMo Guardrails enforces programmable dialog/output rails—working alongside, never replacing, code-level tool and auth controls.",
           ),
-        ),
-        mcq(
+        ), optionsEn: ["A separate layer for safety policy, topic restrictions, and input/output moderation before showing an answer","Replace PostgreSQL for session storage","Compile TypeScript to WebAssembly","Automatically grant administrator rights on timeout"] }),
+        ({ ...mcq(
           "as-g2",
           "Коли доцільно додавати окремий output-класифікатор (на кшталт Llama Guard) поверх системного промпта?",
           "When is adding a dedicated output policy classifier (like Llama Guard) worth the extra latency?",
@@ -509,8 +575,8 @@ const asGuardrails = unit(
             "Щоб дозволити моделі викликати будь-який shell-скрипт",
           ],
           0,
-        ),
-        matchEx(
+        ), optionsEn: ["For a broad audience or strict output policy where separate moderation is needed","To remove JSON schema validation and database authorization","To calculate sales tax in a cart","To let the model call any shell script"] }),
+        ({ ...matchEx(
           "as-g3",
           "Зіставте контрольний шар із його точною відповідальністю",
           "Match each defensive control layer to its exact responsibility",
@@ -520,7 +586,7 @@ const asGuardrails = unit(
             { left: "JSON / Zod schema validator", right: "Гарантія структури, типів і числових меж відповіді" },
             { left: "Server tool allowlist + authz", right: "Детермінований дозвіл на виклик функцій і доступ до даних" },
           ],
-        ),
+        ), pairsEn: [{"left":"Llama Guard (policy classifier)","right":"Classify input or output against safety policy categories"},{"left":"NeMo Guardrails (dialog/output rails)","right":"Programmable rules for allowed topics, refusals, and routing"},{"left":"JSON / Zod schema validator","right":"Validate structure, types, and numeric bounds"},{"left":"Server tool allowlist + authz","right":"Enforce tool invocation permissions and data access"}] }),
       ],
       { baseXp: 25 },
     ),
@@ -531,14 +597,23 @@ const asGuardrails = unit(
       4,
       false,
       [
-        codeRead(
+        concept(
+          "as-gr-enforce-concept",
+          "Що робити, коли перевірка недоступна",
+          "When a policy check is unavailable",
+          {
+            uk: "Якщо політика вимагає перевірки перед показом, тайм-аут, виняток або невідомий результат не повинні пропускати неперевірений текст. Поверніть безпечну відмову або повідомлення про недоступність, зафіксуйте мінімальну подію без секретів і контролюйте частоту помилок. Перевіряйте негативні сценарії, зокрема некоректний результат і збій логування. Не передавайте користувачу потік відповіді до обов'язкової перевірки: вже відправлені фрагменти неможливо відкликати.",
+            en: "If policy requires a check before display, a timeout, exception, or unknown verdict must not release unchecked text. Return a safe refusal or unavailable message, record a minimal event without secrets, and monitor errors. Test negative cases, including malformed verdicts and logging failures. Do not stream output to the user before a required check: chunks already sent cannot be recalled.",
+          },
+        ),
+        ({ ...codeRead(
           "as-g4",
           "Огляньте пайплайн перевірки відповіді перед віддачею користувачу. Чому поведінка в цьому прикладі безпечна?",
           "Inspect this output guardrail pipeline. Why is its failure handling safe?",
           "python",
-          "def deliver_reply(candidate: str) -> str:\n    verdict = policy_guard.classify(candidate)\n    if verdict.status != \"safe\":\n        audit_policy_block(verdict.category)\n        return SAFE_REFUSAL_TEMPLATE\n    return candidate",
+          "def deliver_reply(candidate: str) -> str:\n    try:\n        verdict = policy_guard.classify(candidate)\n        if verdict.status != \"safe\":\n            audit_policy_block(\"non_safe\")\n            return SAFE_REFUSAL_TEMPLATE\n        return candidate\n    except Exception:\n        return SAFE_REFUSAL_TEMPLATE",
           [
-            "Воно працює fail-closed: будь-який статус, відмінний від `\"safe\"`, логує подію без витоку секретів і повертає нейтральний шаблон відмови",
+            "Лише явний статус `\"safe\"` пропускає текст; інші статуси й винятки повертають нейтральну відмову",
             "Воно передає сирий стектрейс користувачу",
             "Воно дозволяє вихід, якщо `verdict.status` дорівнює `\"error\"`",
             "Воно вимикає логування при блокуванні",
@@ -548,8 +623,8 @@ const asGuardrails = unit(
             "Перевірка політики виходу має бути fail-closed: якщо класифікатор позначив порушення або сам повернув помилку, відповідь блокується на користь безпечної відмови.",
             "Enforce output policies fail-closed: non-safe verdicts or classifier errors trigger a safe canned refusal and an audit event.",
           ),
-        ),
-        codeOrderAuto(
+        ), optionsEn: ["Only an explicit safe status releases the text; other statuses and exceptions return a neutral refusal","It passes raw stack traces to the user","It allows output when verdict.status is error","It disables logging on a block"] }),
+        ({ ...codeOrderAuto(
           "as-g5",
           "Впорядкуйте fail-closed проходження відповіді через output-політику",
           "Order fail-closed output policy enforcement before returning a response",
@@ -560,7 +635,7 @@ const asGuardrails = unit(
             "Run output policy rail / classifier (e.g. NeMo Guardrails or Llama Guard)",
             "Return candidate only on explicit safe verdict; otherwise log and return safe refusal",
           ],
-        ),
+        ), linesUk: ["Перевірте схему, ідентифікатори посилань і видалення секретів","Запустіть перевірку вихідної політики або класифікатор","Поверніть текст лише за явного дозволу; інакше зафіксуйте подію й відмовте","Згенеруйте варіант відповіді з обмеженим набором інструментів"] }),
         codeFill(
           "as-g6",
           "Застосуйте fail-closed перевірку: пропускайте текст лише при явному статусі `\"safe\"`",
@@ -579,7 +654,7 @@ const asGuardrails = unit(
       "Checkpoint: Output Policy Guardrails",
       4,
       [
-        mcq(
+        ({ ...mcq(
           "as-g-e1",
           "Яку роль відіграють NeMo Guardrails і Llama Guard у захисті застосунку?",
           "What role do NeMo Guardrails and Llama Guard play in securing an AI app?",
@@ -590,8 +665,8 @@ const asGuardrails = unit(
             "Гарантують 100% фактологічну точність без RAG",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["They add programmable or classification policy controls alongside server-side tool authorization","They make password hashing and ownership checks unnecessary","They accelerate vector database indexing","They guarantee 100% factual accuracy without RAG"] }),
+        ({ ...codeRead(
           "as-g-e2",
           "Знайдіть небезпечну fail-open помилку в обгортці output-класифікатора:",
           "Spot the fail-open vulnerability in this output policy wrapper:",
@@ -604,8 +679,8 @@ const asGuardrails = unit(
             "Оператор `try` не працює з викликом функції",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["On timeout the code sets allowed to true and releases an unchecked response; it should deny on failure","Catch KeyError and also set allowed to true","SAFE_REFUSAL is too short","try cannot be used around a function call"] }),
+        ({ ...mcq(
           "as-g-e3",
           "Чому навіть за наявності output-класифікатора сервер усе одно мусить обмежувати інструменти агента?",
           "Why must the server still enforce strict tool allowlists even with an output guardrail active?",
@@ -616,7 +691,7 @@ const asGuardrails = unit(
             "Тому що output-класифікатор редагує базу даних",
           ],
           0,
-        ),
+        ), optionsEn: ["A dangerous tool action can happen before the final response is checked","The classifier works only on odd-numbered days","Tools do not return text","The output classifier edits the database"] }),
       ],
     ),
   ],
@@ -634,7 +709,16 @@ const asSecrets = unit(
       4,
       false,
       [
-        mcq(
+        concept(
+          "as-sc-prompt-concept",
+          "Секрет не потрібен моделі для виклику інструмента",
+          "A model does not need a tool credential",
+          {
+            uk: "Модель пропонує назву інструмента й бізнес-параметри; сервер перевіряє користувача та ресурс і лише потім додає короткоживучі, обмежені за правами облікові дані зі сховища секретів. Не повертайте ключі в результатах інструмента або трейсах. Якщо ключ потрапив у контекст чи відповідь, вважайте його скомпрометованим, відкличте або замініть і перевірте журнали доступу. Інструкція не розкривати ключ не є контролем доступу.",
+            en: "The model proposes a tool and business parameters; the server verifies the user and resource, then attaches short-lived, narrowly scoped credentials from a secret store. Do not return keys in tool results or traces. If a key enters context or an answer, treat it as compromised, revoke or rotate it, and review access logs. An instruction not to reveal the key is not an access control.",
+          },
+        ),
+        ({ ...mcq(
           "as-s1",
           "Розробник поклав службовий `API_TOKEN` у системний промпт із фразою «Нікому не показуй цей токен, але використовуй його у викликах». Чому це грубе порушення безпеки?",
           "A developer puts a service `API_TOKEN` into the system prompt with instructions never to reveal it. Why is this fundamentally broken?",
@@ -649,8 +733,8 @@ const asSecrets = unit(
             "Модель узагалі не повинна знати облікові дані чи ключі. Вона передає ім'я інструмента й бізнес-параметри, а серверна обгортка додає заголовок секрету зі сховища/env.",
             "The model should never hold credentials. It proposes business parameters; the server-side tool wrapper attaches secrets from env/vault.",
           ),
-        ),
-        codeRead(
+        ), optionsEn: ["Context can leak in answers, tool arguments, or provider logs; credentials belong in protected server-side tool code","The model cannot read uppercase letters in tokens","The system prompt disappears after ten seconds","Tokens cannot be sent over HTTPS"] }),
+        ({ ...codeRead(
           "as-s2",
           "Знайдіть надлишкове розкриття чутливих даних при підготовці контексту для зовнішньої моделі:",
           "Spot the data-minimization failure when assembling prompt context for a hosted model:",
@@ -667,7 +751,7 @@ const asSecrets = unit(
             "Мінімізуйте текст, який покидає ваш сервер: відбирайте тільки необхідні поля (allowlist полів) та редагуйте токени, картки й персональні дані.",
             "Send the minimum viable fields to any hosted model: allowlist safe fields and scrub PII/tokens before outbound calls.",
           ),
-        ),
+        ), optionsEn: ["The entire database row, including password hash, reset token, and PII, is sent; project only fields needed for the task","json.dumps does not work on dictionaries","The function must return bytes","The password hash improves the model writing style"] }),
         codeFill(
           "as-s3",
           "Передайте у безпечний контекст лише `order_id` та `status` без решти приватних полів",
@@ -687,7 +771,16 @@ const asSecrets = unit(
       4,
       false,
       [
-        mcq(
+        concept(
+          "as-sc-hosted-concept",
+          "Мінімізуйте дані до зовнішнього виклику",
+          "Minimize data before an external call",
+          {
+            uk: "Визначте мету та дозвіл на обробку, виберіть лише потрібні поля й видаліть секрети до передачі провайдеру. Автоматична редакція може пропустити нестандартний токен або ідентифікатор, тому перевіряйте її різними прикладами й не надсилайте заборонені дані навіть після маскування. Псевдонімізація знижує розкриття, але дані, які можна зв'язати з людиною через окрему таблицю, не стають анонімними. Перевірте умови провайдера, регіон, зберігання та доступ до трейсів.",
+            en: "Define the purpose and authorization for processing, select only necessary fields, and remove secrets before sending data to a provider. Automated redaction can miss unusual tokens or identifiers, so test it with varied examples and do not send prohibited data merely because it was masked. Pseudonymization reduces exposure, but data linkable to a person through a separate mapping is not anonymous. Review provider terms, region, retention, and access to traces.",
+          },
+        ),
+        ({ ...mcq(
           "as-s4",
           "Служба підтримки пересилає логи помилок у зовнішню LLM для пояснення причини збою. Що обов'язково зробити перед викликом API?",
           "A support helper sends error logs to an external hosted LLM for triage. What must happen before the outbound API call?",
@@ -698,19 +791,19 @@ const asSecrets = unit(
             "Передати лог у заголовку `User-Agent`",
           ],
           0,
-        ),
-        matchEx(
+        ), optionsEn: ["Redact credentials and PII, including authorization headers, cookies, emails, passwords, and tokens, and remove unnecessary lines","Send a full process memory dump","Encode .env as Base64 and add it to the prompt","Put the log in the User-Agent header"] }),
+        ({ ...matchEx(
           "as-s5",
           "Зіставте чутливий артефакт з правилом поводження в AI-системі",
           "Match each sensitive artifact to its safe handling rule",
           [
             { left: "API-ключ платіжного шлюзу", right: "Зберігати у серверному vault/env; підставляти тільки у коді інструмента" },
-            { left: "Повний запис таблиці `users`", right: "Замінити на мінімальний DTO з 2–3 нечутливих полів" },
+            { left: "Повний запис таблиці `users`", right: "Передати лише дозволені й необхідні для задачі поля" },
             { left: "Кукі сесії або `Bearer` токен у логах", right: "Автоматично маскувати до будь-якої відправки в модель або трейс" },
-            { left: "Конфіденційні документи без дозволу на хмарний egress", right: "Не надсилати на зовнішній SaaS; лишити в локальному контурі" },
+            { left: "Конфіденційні документи без дозволу на хмарний egress", right: "Не надсилати на зовнішній SaaS; локальний доступ також перевіряти" },
           ],
-        ),
-        codeOrderAuto(
+        ), pairsEn: [{"left":"Payment gateway API key","right":"Keep it in server-side secret storage and attach it only in tool code"},{"left":"A complete users table record","right":"Send only fields authorized and needed for the task"},{"left":"A session cookie or Bearer token in logs","right":"Redact it before sending to a model or trace"},{"left":"Confidential documents without cloud egress permission","right":"Do not send to an external SaaS; check local access too"}] }),
+        ({ ...codeOrderAuto(
           "as-s6",
           "Впорядкуйте дизайн інструмента, де модель ніколи не бачить секретний ключ",
           "Order a secret-safe tool wrapper where credentials never enter model context",
@@ -721,7 +814,7 @@ const asSecrets = unit(
             "Server tool wrapper reads API credential from protected env/secret store",
             "Wrapper executes HTTPS request and returns only redacted status fields to model",
           ],
-        ),
+        ), linesUk: ["Сервер перевіряє схему й права на ресурс","Серверна обгортка отримує ключ із захищеного сховища","Обгортка робить HTTPS-запит і повертає моделі лише очищені поля статусу","Модель запитує інструмент лише з бізнес-ідентифікатором"] }),
       ],
       { baseXp: 25 },
     ),
@@ -731,7 +824,7 @@ const asSecrets = unit(
       "Checkpoint: Secrets and Data Minimization",
       4,
       [
-        mcq(
+        ({ ...mcq(
           "as-s-e1",
           "Чому покладатися на інструкцію в системному промпті «не розголошуй секретний ключ» небезпечно?",
           "Why is placing a secret in the system prompt with \"never reveal this\" unsafe?",
@@ -742,8 +835,8 @@ const asSecrets = unit(
             "Користувач і так має права адміністратора",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["A secret in context may leak through generation, tool calls, or provider logs; keep it out of the model","System prompts do not support digits","The key is automatically encrypted backwards","The user already has administrator rights"] }),
+        ({ ...codeRead(
           "as-s-e2",
           "Знайдіть помилку витоку при передачі контексту зовнішньому хмарному провайдеру:",
           "Spot the over-sharing leak in this prompt context builder:",
@@ -756,8 +849,8 @@ const asSecrets = unit(
             "Потрібно також додати файл `.git/config`",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["It sends every environment variable, including database and API keys; remove debug_env and send only sanitized ticket fields","json.dumps is forbidden before hosted_llm.ask","The ticket field must appear first in the file","Also add the .git/config file"] }),
+        ({ ...mcq(
           "as-s-e3",
           "Де повинні зберігатися ключі доступу до зовнішніх API, які викликає агент?",
           "Where must external API credentials live in an agent system?",
@@ -768,7 +861,7 @@ const asSecrets = unit(
             "У тілі відповіді інструмента для наочності",
           ],
           0,
-        ),
+        ), optionsEn: ["In a protected server environment or secret store, attached only by server-side tool code","In a hidden system prompt field","In browser localStorage","In the tool response for clarity"] }),
       ],
     ),
   ],
@@ -786,7 +879,16 @@ const asLocal = unit(
       4,
       false,
       [
-        mcq(
+        concept(
+          "as-lc-runtime-concept",
+          "Локальний інференс і межі приватності",
+          "Local inference and privacy boundaries",
+          {
+            uk: "Локальне розгортання дає більше контролю над розміщенням ваг і обробкою запитів, але не гарантує відсутності витоків. Перевіряйте мережеві підключення, завантаження моделей, телеметрію, логи, резервні копії та інструменти агента. Враховуйте вартість GPU, оновлення й експлуатацію. Локальна модель усе одно може помилятися або виконувати шкідливі інструкції з документа; перевірки прав і ризикових дій залишаються потрібними.",
+            en: "Local deployment gives more control over where weights and requests are processed, but does not guarantee that data cannot leave. Review network connections, model downloads, telemetry, logs, backups, and agent tools. Account for GPU cost, updates, and operations. A local model can still make mistakes or follow malicious instructions in a document; authorization and controls on risky actions remain necessary.",
+          },
+        ),
+        ({ ...mcq(
           "as-l1",
           "Коли запуск відкритих ваг через Ollama або vLLM у власному контурі справді обґрунтований?",
           "When is self-hosting open-weight models via Ollama or vLLM genuinely the right choice?",
@@ -798,22 +900,22 @@ const asLocal = unit(
           ],
           0,
           why(
-            "Локальне розгортання закриває проблему витоку даних назовні (egress), але не робить модель непідвладною помилкам чи недовіреним інструкціям у тексті.",
-            "Local serving solves data egress and residency, not accuracy or untrusted-input safety.",
+            "Локальний інференс дозволяє контролювати розміщення даних, якщо також перевірено мережу, логи та інструменти; помилки й ін'єкції залишаються можливими.",
+            "Local inference enables control of data placement when networking, logs, and tools are also reviewed; errors and injection remain possible.",
           ),
-        ),
-        matchEx(
+        ), optionsEn: ["When sensitive data must stay within an approved private environment or a predictable local GPU budget is needed","When tool authorization and JSON validation can be removed","To ensure a local model never hallucinates without RAG","When a simple Python regular expression is sufficient"] }),
+        ({ ...matchEx(
           "as-l2",
           "Зіставте рушій запуску або підхід із його практичною нішею",
           "Match each runtime choice to its operational niche",
           [
             { left: "Ollama", right: "Швидкий локальний запуск моделей на робочій машині чи одному вузлі" },
             { left: "vLLM", right: "Продуктивний сервер виводу з continuous batching і OpenAI-сумісним API" },
-            { left: "Hosted Frontier API", right: "Максимальне міркування для складних задач без чутливих заборонених даних" },
+            { left: "Hosted Frontier API", right: "Керований зовнішній сервіс для задач, де дозволено передачу даних" },
             { left: "Plain Python logic", right: "Детерміновані правила, математика й перевірки з нульовою затримкою моделі" },
           ],
-        ),
-        mcq(
+        ), pairsEn: [{"left":"Ollama","right":"Quick local model execution on a workstation or single node"},{"left":"vLLM","right":"High-throughput inference serving with continuous batching and an OpenAI-compatible API"},{"left":"Hosted Frontier API","right":"A managed external service for tasks where data transfer is permitted"},{"left":"Plain Python logic","right":"Deterministic rules, arithmetic, and checks without model inference latency"}] }),
+        ({ ...mcq(
           "as-l3",
           "Команда перенесла агента на локальний vLLM і прибрала всі обмеження на інструмент `read_file`, бо «модель тепер наша, на своєму сервері». Чому це помилка?",
           "A team moves an agent to local vLLM and removes tool safeguards because \"the model runs in-house now.\" Why is this wrong?",
@@ -824,7 +926,7 @@ const asLocal = unit(
             "Помилка лише в тому, що не поставили Ollama замість vLLM",
           ],
           0,
-        ),
+        ), optionsEn: ["A local model can still make mistakes or follow malicious instructions and read other users files or .env","vLLM automatically encrypts every local file","Local models do not support function calling","The only problem is not using Ollama instead"] }),
       ],
       { baseXp: 25 },
     ),
@@ -835,12 +937,21 @@ const asLocal = unit(
       4,
       false,
       [
-        codeRead(
+        concept(
+          "as-lc-limits-concept",
+          "Захист локального сервера та інструментів",
+          "Protect local serving and tools",
+          {
+            uk: "Прив'язка до loopback зменшує мережеву доступність, але не захищає від усіх процесів на тому самому хості. Для доступу через мережу застосовуйте ізоляцію, автентифікацію, шифрування та обмеження частоти. Файловий інструмент має перевіряти права користувача й реальний шлях, захищатися від символьних посилань і гонок та працювати з мінімальними правами ОС. Перевіряйте завантажені ваги й залежності та оцінюйте відповіді моделі на відповідних задачах.",
+            en: "Loopback binding reduces network exposure but does not protect against every process on the same host. For network access use isolation, authentication, encryption, and rate limits. A file tool must check user authorization and the real path, defend against symlinks and races, and run with minimal OS privileges. Verify downloaded weights and dependencies and evaluate model answers on relevant tasks.",
+          },
+        ),
+        ({ ...codeRead(
           "as-l4",
           "Знайдіть дві помилки безпеки в цьому запуску локальної моделі для роботи з приватними файлами:",
           "Spot two security flaws in this local-model tool setup:",
           "python",
-          "# Local Ollama exposed on 0.0.0.0:11434 with no auth\nLOCAL_URL = \"http://0.0.0.0:11434/api/chat\"\ndef run_local_tool(cmd_path: str):\n    return Path(cmd_path).read_text(encoding=\"utf-8\")  # any file on host!",
+          "# Server listens on 0.0.0.0:11434 without authentication\nLOCAL_URL = \"http://127.0.0.1:11434/api/chat\"\ndef run_local_tool(cmd_path: str):\n    return Path(cmd_path).read_text(encoding=\"utf-8\")  # any file on host!",
           [
             "1) Порт локальної моделі відкрито на `0.0.0.0` без автентифікації/фаєрволу; 2) `Path(cmd_path)` читає довільний шлях на хості без прив'язки до дозволеної директорії",
             "`encoding=\"utf-8\"` заборонений для локальних файлів",
@@ -852,8 +963,8 @@ const asLocal = unit(
             "Локальні сервери моделей прив'язуйте до `127.0.0.1` або закритої приватної мережі з токеном, а файлові інструменти жорстко замикайте на дозволену робочу директорію.",
             "Bind local model engines to loopback or authenticated private networks, and confine file tools to an explicit allowed directory.",
           ),
-        ),
-        codeOrderAuto(
+        ), optionsEn: ["The server listens on all interfaces without authentication or firewall protection, and the file tool reads arbitrary host paths","UTF-8 encoding is forbidden for local files","A local model must respond over FTP","Port 11434 is too small for HTTP"] }),
+        ({ ...codeOrderAuto(
           "as-l5",
           "Впорядкуйте чекліст запуску локальної моделі (Ollama/vLLM) на приватних документах",
           "Order the security checklist for serving local models on sensitive internal data",
@@ -864,19 +975,19 @@ const asLocal = unit(
             "Enforce identical tool allowlists, tenant filters, and schema checks in code",
             "Require human confirmation before any external or irreversible side effect",
           ],
-        ),
-        mcq(
+        ), linesUk: ["Зберігайте дані, індекси та ваги в дозволеному мережевому контурі","Застосовуйте allowlist інструментів, фільтри орендарів і перевірки схеми","Вимагайте підтвердження людини для зовнішніх або незворотних дій","Прив’яжіть сервер інференсу до localhost або приватної мережі з автентифікацією"] }),
+        ({ ...mcq(
           "as-l6",
           "Чи гарантує перехід на локальну модель відсутність галюцинацій у відповідях?",
           "Does running a model locally via Ollama or vLLM eliminate hallucinations?",
           [
-            "Ні — локальні (особливо менші) моделі навіть частіше помиляються без якісного RAG, суворих схем і перевірок у коді",
+            "Ні — модель може помилятися; RAG, перевірки фактів і схеми допомагають, але не гарантують правильності",
             "Так, локальна модель перевіряє факти в пам'яті RAM без RAG",
             "Так, якщо використовувати порт 11434",
             "Так, якщо вимкнути логування",
           ],
           0,
-        ),
+        ), optionsEn: ["No; models can make mistakes, and RAG, fact checks, and schemas help but do not guarantee correctness","Yes, local models verify facts in RAM without RAG","Yes, if port 11434 is used","Yes, if logging is disabled"] }),
       ],
       { baseXp: 25 },
     ),
@@ -886,19 +997,19 @@ const asLocal = unit(
       "Checkpoint: Local Models and Limits",
       4,
       [
-        mcq(
+        ({ ...mcq(
           "as-l-e1",
           "Що реально змінюється при заміні зовнішнього API на локальний Ollama/vLLM, а що лишається незмінним?",
           "What changes when switching from a hosted API to local Ollama/vLLM, and what stays the same?",
           [
-            "Дані не покидають ваш периметр (вирішує egress/residency), але модель усе ще може помилятися і реагувати на недовірений текст — усі межі інструментів і перевірки коду лишаються обов'язковими",
+            "Місце інференсу під вашим контролем, але egress треба окремо обмежити; модель може помилятися й реагувати на недовірений текст, тому межі інструментів лишаються потрібними",
             "Зникає потреба в allowlist інструментів та валідації JSON",
             "Локальні моделі ніколи не роблять помилок",
             "Не потрібно обмежувати мережевий доступ до сервера моделі",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["Inference location is controlled locally, but egress must be restricted separately; model errors and untrusted instructions still require tool boundaries","Tool allowlists and JSON validation are no longer necessary","Local models never make mistakes","Network access to the model server need not be restricted"] }),
+        ({ ...codeRead(
           "as-l-e2",
           "Чому цей начебто приватний агент із локальною моделлю все одно небезпечний?",
           "Why is this \"private local-model\" agent still unsafe?",
@@ -911,8 +1022,8 @@ const asLocal = unit(
             "Назву функції `db_dump` треба скоротити",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["The agent processes an untrusted email and sends a database dump externally without confirmation or an allowed URL","local_vllm_chat does not support JSON","The email must be converted to uppercase","The db_dump function must have a shorter name"] }),
+        ({ ...mcq(
           "as-l-e3",
           "Коли інженер скоріше обере vLLM замість Ollama?",
           "When would an engineer choose vLLM over Ollama?",
@@ -923,7 +1034,7 @@ const asLocal = unit(
             "Щоб писати CSS-анімації",
           ],
           0,
-        ),
+        ), optionsEn: ["For multi-user production serving with concurrent batching and high throughput","To replace database migrations","To avoid checking API user permissions","To write CSS animations"] }),
       ],
     ),
   ],

@@ -140,12 +140,14 @@ C++ for constrained systems and miltech stack: memory, CMake, networking, FreeRT
 ## Depth now
 
 - Units: 21
-- Lessons: 84
+- Lessons: 85
 - Exams: 21
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, code_run, match, mcq
 
 ## Expansion (Nov 2026)
+
+Applied transfer: `embedded-transfer-telemetry` in `bootloader_ota` checks bounded input, telemetry deadlines, safe state, and verified rollback.
 
 Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
 

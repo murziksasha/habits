@@ -68,7 +68,7 @@ const insertions: Record<string, LessonContent[]> = {
         language: "javascript",
         retrieval: [
           { kind: "mcq", promptUk: "Чому n = data.n || 10 поганий, якщо n може бути 0?", promptEn: "Why is n = data.n || 10 a poor choice if n can be 0?", options: ["0 хибний, тож спрацює 10; ?? залишив би 0", "|| заборонений із числами", "?? теж замінює 0", "0 не є валідним JSON"], correctIndex: 0, explanationUk: "|| дивиться на truthiness, ?? — на nullish.", explanationEn: "|| looks at truthiness, ?? at nullish." },
-          { kind: "fill", promptUk: "Допишіть безпечне читання вкладеного поля", promptEn: "Fill in a safe read of a nested field", language: "javascript", code: "const city = user___address___city;", accepted: ["?.", "?.address?."], caseSensitive: true, explanationUk: "Опціональний ланцюжок — ?.", explanationEn: "Optional chaining is ?." },
+          { kind: "fill", promptUk: "Допишіть безпечне читання вкладеного поля", promptEn: "Fill in a safe read of a nested field", language: "javascript", code: "const city = user?.address___city;", accepted: ["?."], caseSensitive: true, explanationUk: "Опціональний ланцюжок — ?.", explanationEn: "Optional chaining is ?." },
           { kind: "read", promptUk: "Що поверне цей вираз, якщо user дорівнює null?", promptEn: "What does this expression return if user is null?", language: "javascript", code: "user?.name", options: ["undefined, без винятку", "кидає TypeError", "порожній рядок", "null.name"], correctIndex: 0, explanationUk: "Ланцюжок коротко замикається.", explanationEn: "The chain short-circuits." }
         ],
         whyUk: "Коли поставити ??, а коли ||, після опціонального ланцюжка?",

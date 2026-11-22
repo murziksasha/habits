@@ -15,7 +15,7 @@ Critical rendering path, main-thread work, bundles and code splitting, images, H
 
 ### `perf_critical_path` — The critical rendering path
 
-- `perf-crp-steps` — The browser paints the page after HTML, the CSSOM, and, often, blocking JS
+- `perf-crp-steps` — The critical path: HTML, CSS, and script execution
 - `perf-preload-discover` — Preload and early hints help the browser find a critical resource earlier
 - `perf-html-ttfb` — Fast HTML and TTFB: the server, streaming, and the document cache
 - `perf_critical_path-exam` — Exam: the critical path [exam]
@@ -29,7 +29,7 @@ Critical rendering path, main-thread work, bundles and code splitting, images, H
 
 ### `perf_bundles` — Bundles and code splitting
 
-- `perf-tree-shake` — The bundle contains what you import: tree-shaking removes the dead part
+- `perf-tree-shake` — Import graphs and tree-shaking: inspect the build output
 - `perf-dynamic-import` — A dynamic import() defers route code that is not needed now
 - `perf-budget` — A size budget: a limit in CI, not 'we will look after the release'
 - `perf_bundles-exam` — Exam: bundles [exam]
@@ -54,4 +54,12 @@ Critical rendering path, main-thread work, bundles and code splitting, images, H
 - `perf-inp-cls` — INP is input responsiveness; CLS is layout stability without surprise shifts
 - `perf-measure-rum` — The lab finds the cause, the field is the user's truth: RUM, CrUX, PerformanceObserver
 - `perf_vitals-exam` — Exam: Web Vitals [exam]
+
+### `perf_applied_product_page` — Product page performance triage
+
+- `perf-applied-hero` — Diagnose the LCP resource and calculate byte savings (4 exercises)
+- `perf-applied-interaction` — Split main-thread work and verify INP (4 exercises)
+- `perf_applied_product_page-exam` — Exam: page performance [exam] (4 exercises)
+
+Reference for diagnosing interaction latency: [web.dev INP guidance](https://web.dev/articles/optimize-inp).
 

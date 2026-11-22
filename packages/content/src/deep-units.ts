@@ -2,7 +2,7 @@
  * Deep-learning units (SPEC 90/91): every lesson opens with a concept card
  * (theory + key points + worked example), then retrieval practice, then a unit exam.
  */
-import type { UnitContent } from "./types.js";
+import type { Exercise, UnitContent } from "./types.js";
 import {
   codeFill,
   codeOrder,
@@ -79,7 +79,7 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
           explanationEn: "let creates a new binding on each iteration.",
         },
       ),
-      mcq(
+      { ...mcq(
         "jsf-cl-3",
         "Для чого найчастіше використовують замикання?",
         "What are closures most often used for?",
@@ -90,7 +90,7 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
           "Заміна HTTP-запитів",
         ],
         0,
-      ),
+      ), optionsEn: ["Private state and function factories", "Making CSS faster", "Creating database tables", "Replacing HTTP requests"] },
       explain(
         "jsf-cl-x1",
         "Поясніть своїми словами: що таке замикання і чому лічильник counter() памʼятає n?",
@@ -115,8 +115,8 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
         "Як визначається this",
         "How this is determined",
         {
-          uk: "Значення this у звичайній функції залежить від способу виклику: obj.method() → this = obj; просто fn() → undefined у strict mode. Стрілкові функції не мають власного this — вони беруть його з місця оголошення.\n\nbind/call/apply задають this явно.",
-          en: "In a regular function this depends on how it is called: obj.method() → this = obj; plain fn() → undefined in strict mode. Arrow functions have no own this — they take it from where they were defined.\n\nbind/call/apply set this explicitly.",
+          uk: "Значення this у звичайній функції залежить від способу виклику: obj.method() → this = obj; просто fn() → undefined у strict mode. Стрілкові функції не мають власного this — вони беруть його з місця оголошення.\n\nbind/call/apply задають this звичайної функції явно, але не змінюють лексичне this стрілки.",
+          en: "In a regular function this depends on how it is called: obj.method() → this = obj; plain fn() → undefined in strict mode. Arrow functions have no own this — they take it from where they were defined.\n\nbind/call/apply set a regular function's this explicitly, but do not change an arrow's lexical this.",
         },
         {
           keyPointsUk: [
@@ -130,10 +130,10 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
             "bind returns a new function with a fixed this",
           ],
           language: "javascript",
-          code: "const user = { name: 'Ann', hi() { return this.name; } };\nconst hi = user.hi;\nhi(); // undefined (strict) — lost this\nuser.hi.bind(user)(); // 'Ann'",
+          code: "'use strict';\nconst user = { name: 'Ann', hi() { return this.name; } };\nconst hi = user.hi;\n// hi() throws TypeError: this is undefined\nuser.hi.bind(user)(); // 'Ann'",
         },
       ),
-      codeRead(
+      { ...(codeRead(
         "jsf-cl-4",
         "Що поверне user.later() через 0 мс?",
         "What does user.later() resolve to?",
@@ -141,7 +141,7 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
         "const user = {\n  name: 'Ann',\n  later() {\n    return new Promise((r) => setTimeout(() => r(this.name), 0));\n  },\n};",
         ["'Ann' — стрілка бере this з later()", "undefined", "TypeError", "'' (порожній рядок)"],
         0,
-      ),
+      ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["'Ann' — the arrow captures this from later()", "undefined", "TypeError", "'' (empty string)"] },
       codeFill(
         "jsf-cl-5",
         "Зафіксуйте this для обробника кліку.",
@@ -163,8 +163,8 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
         "Черги задач",
         "Task queues",
         {
-          uk: "JS виконує один стек викликів. Коли стек порожній, event loop спершу виконує ВСІ мікрозадачі (Promise.then, queueMicrotask, await-продовження), а потім бере одну макрозадачу (setTimeout, I/O, події).\n\nТому Promise.then завжди спрацює раніше за setTimeout(..., 0).",
-          en: "JS runs one call stack. When the stack is empty, the event loop first drains ALL microtasks (Promise.then, queueMicrotask, await continuations), then takes one macrotask (setTimeout, I/O, events).\n\nThat is why Promise.then always runs before setTimeout(..., 0).",
+          uk: "У браузері після поточної задачі event loop спорожнює чергу мікрозадач (реакції Promise, queueMicrotask, продовження await), перш ніж перейти до наступної задачі таймера чи події.\n\nЯкщо реакцію вже виконаного Promise і таймер заплановано в одній синхронній задачі, реакція виконається раніше. Реакція невиконаного Promise може потрапити до черги значно пізніше.",
+          en: "In a browser, after the current task the event loop drains microtasks (Promise reactions, queueMicrotask, await continuations) before a subsequent timer or event task.\n\nIf a reaction to an already fulfilled Promise and a timer are scheduled in the same synchronous task, the reaction runs first. A pending Promise's reaction may be queued much later.",
         },
         {
           keyPointsUk: [
@@ -192,17 +192,17 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
       ),
       codeOrder(
         "jsf-cl-8",
-        "Розставте вивід у правильному порядку",
-        "Put the output in the correct order",
+        "Розставте вивід: setTimeout(() => log('timeout'), 0); Promise.resolve().then(() => log('then')); log('sync').",
+        "Order the output: setTimeout(() => log('timeout'), 0); Promise.resolve().then(() => log('then')); log('sync').",
         "javascript",
         ["timeout", "sync", "then"],
         ["sync", "then", "timeout"],
         {
-          explanationUk: "Код: setTimeout(timeout); Promise.then(then); console.log(sync).",
-          explanationEn: "Code: setTimeout(timeout); Promise.then(then); console.log(sync).",
+          explanationUk: "Синхронний log виконується першим, потім реакція виконаного промісу, потім колбек таймера.",
+          explanationEn: "The synchronous log runs first, then the fulfilled promise reaction, then the timer callback.",
         },
       ),
-      mcq(
+      { ...mcq(
         "jsf-cl-9",
         "Що блокує інтерфейс браузера?",
         "What blocks the browser UI?",
@@ -213,11 +213,11 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
           "Promise.resolve()",
         ],
         0,
-      ),
+      ), optionsEn: ["A long synchronous loop on the main thread", "await fetch()", "setTimeout with 1000 ms", "Promise.resolve()"] },
       explain(
         "jsf-cl-x2",
-        "Поясніть своїми словами, чому Promise.then спрацьовує раніше за setTimeout(..., 0).",
-        "Explain in your own words why Promise.then runs before setTimeout(..., 0).",
+        "Поясніть, чому реакція Promise.resolve().then(...) запускається раніше за setTimeout(..., 0), якщо обидва заплановані в одному синхронному коді.",
+        "Explain why Promise.resolve().then(...) runs before setTimeout(..., 0) when both are scheduled in the same synchronous code.",
         [
           { labelUk: "мікрозадачі", labelEn: "microtasks", anyOf: ["мікро", "micro"] },
           { labelUk: "макрозадачі / таймери", labelEn: "macrotasks / timers", anyOf: ["макро", "macro", "таймер", "timer", "settimeout", "task queue", "черг"] },
@@ -226,20 +226,20 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
         {
           minWords: 12,
           sampleAnswerUk:
-            "Коли стек викликів порожній, event loop спочатку виконує всі мікрозадачі (Promise.then), і лише потім бере наступну макрозадачу з черги таймерів (setTimeout). Тому then завжди раніше.",
+            "Коли стек викликів порожній, event loop спочатку виконує мікрозадачі, включно з реакцією вже виконаного Promise, і лише потім бере наступну задачу таймера setTimeout.",
           sampleAnswerEn:
-            "When the call stack is empty the event loop first drains all microtasks (Promise.then) and only then takes the next macrotask from the timer queue (setTimeout), so then always runs first.",
+            "When the call stack is empty the event loop drains microtasks, including the already fulfilled Promise's reaction, before taking the next timer task from the queue.",
         },
       ),
     ]),
     exam("jsf-closures-exam", "Контрольна: замикання й event loop", "Exam: closures & event loop", 4, [
-      mcq(
+      { ...mcq(
         "jsf-cle-1",
         "Замикання памʼятає:",
         "A closure remembers:",
         ["змінні лексичного оточення", "лише глобальні змінні", "DOM", "історію викликів"],
         0,
-      ),
+      ), optionsEn: ["Bindings in its lexical environment", "Only global variables", "The DOM", "Its call history"] },
       codeOutputMcq(
         "jsf-cle-2",
         "Який буде порядок виводу?",
@@ -250,13 +250,13 @@ export const jsClosuresEventLoopUnit: UnitContent = unit(
         0,
       ),
       codeFill("jsf-cle-3", "Допишіть стрілку з лексичним this.", "Complete the arrow with lexical this.", "javascript", "const f = () ___ this;", ["=>"], true),
-      mcq(
+      { ...mcq(
         "jsf-cle-4",
         "Мікрозадачі виконуються:",
         "Microtasks run:",
         ["усі, перед наступною макрозадачею", "по одній на секунду", "лише після setTimeout", "ніколи в браузері"],
         0,
-      ),
+      ), optionsEn: ["Drained before the next task", "One per second", "Only after setTimeout", "Never in a browser"] },
       codeFill("jsf-cle-5", "Блочна змінна в циклі", "Block binding in a loop", "javascript", "for (___ i = 0; i < n; i++) {}", ["let"], true),
     ]),
   ],
@@ -274,18 +274,18 @@ export const tsAdvancedTypesUnit: UnitContent = unit(
         "Умовні типи",
         "Conditional types",
         {
-          uk: "Умовний тип має форму T extends U ? X : Y — «якщо T сумісний з U, то X, інакше Y». Для union він розподіляється по кожному члену (distributive).\n\ninfer дозволяє «витягти» частину типу всередині умови, наприклад тип результату Promise.",
-          en: "A conditional type has the form T extends U ? X : Y — \"if T is assignable to U then X else Y\". On a union it distributes over each member.\n\ninfer lets you extract part of a type inside the condition, e.g. the value type of a Promise.",
+          uk: "Умовний тип T extends U ? X : Y обирає X, якщо T можна присвоїти U, інакше Y. Якщо ліворуч від extends стоїть безпосередньо параметр типу T, умовний тип розподіляється по членах union; обгортка [T] extends [U] перевіряє union як ціле. Наприклад, IsStr<'a' | 1> дає true | false, тоді як ['a' | 1] extends [string] дає false.\n\ninfer виводить частину типу зі зразка, наприклад значення Promise. Наведений Awaited2 розгортає лише один рівень, на відміну від рекурсивної утиліти Awaited; обидва є перетвореннями типів і не очікують проміс під час виконання.",
+          en: "The conditional type T extends U ? X : Y selects X if T is assignable to U, otherwise Y. A conditional distributes over a union when the checked side is a naked type parameter T; wrapping it as [T] extends [U] checks the union as a whole. For example, IsStr<'a' | 1> gives true | false, while ['a' | 1] extends [string] gives false.\n\ninfer extracts a type from a pattern, such as a Promise's value. The shown Awaited2 unwraps only one level, unlike the recursive Awaited utility; both transform types and do not await a promise at runtime.",
         },
         {
           keyPointsUk: [
             "extends у типах = перевірка сумісності",
-            "Union розподіляється по членах",
+            "Голий параметр типу розподіляє union по членах",
             "infer оголошує змінну типу в шаблоні",
           ],
           keyPointsEn: [
             "extends in types = assignability check",
-            "Unions distribute over members",
+            "A naked type parameter distributes over union members",
             "infer declares a type variable inside the pattern",
           ],
           language: "typescript",
@@ -309,14 +309,14 @@ export const tsAdvancedTypesUnit: UnitContent = unit(
       ),
       codeRead(
         "tsc-adv-2",
-        "Чому дорівнює R?",
-        "What is R?",
+        "Чому дорівнює R за увімкненого strictNullChecks?",
+        "What is R with strictNullChecks enabled?",
         "typescript",
         "type NonNull<T> = T extends null | undefined ? never : T;\ntype R = NonNull<string | null | undefined>;",
         ["string", "never", "string | null", "unknown"],
         0,
       ),
-      mcq(
+      { ...mcq(
         "tsc-adv-3",
         "Distributive conditional type означає:",
         "A distributive conditional type means:",
@@ -327,7 +327,8 @@ export const tsAdvancedTypesUnit: UnitContent = unit(
           "умова виконується лише в JS",
         ],
         0,
-      ),
+      ), optionsEn: ["The condition applies separately to each union member", "The type is copied at runtime", "The type becomes any", "The condition runs only in JavaScript"] },
+      { ...mcq("tsc-adv-10", "Як вимкнути розподіл умовного типу по union у T extends U ? X : Y?", "How can you prevent distribution over a union in T extends U ? X : Y?", ["Використати [T] extends [U] ? X : Y", "Замінити extends на infer", "Додати async", "Додати readonly до значення"], 0), optionsEn: ["Use [T] extends [U] ? X : Y", "Replace extends with infer", "Add async", "Add readonly to the value"] },
       explain(
         "tsc-adv-x1",
         "Поясніть своїми словами, як працює infer в умовному типі Awaited2<T>.",
@@ -352,8 +353,8 @@ export const tsAdvancedTypesUnit: UnitContent = unit(
         "Типи-відображення",
         "Mapped types",
         {
-          uk: "Mapped type проходить по ключах іншого типу: { [K in keyof T]: … }. Так побудовані Partial, Readonly, Record.\n\nМодифікатори ? і readonly можна додавати (+) або знімати (-), а через as — перейменовувати ключі.",
-          en: "A mapped type iterates over the keys of another type: { [K in keyof T]: … }. Partial, Readonly and Record are built this way.\n\nThe ? and readonly modifiers can be added (+) or removed (-), and keys can be remapped with as.",
+          uk: "Mapped type проходить по ключах іншого типу: { [K in keyof T]: … }. Так побудовані Partial, Readonly, Record.\n\nМодифікатори ? і readonly можна додавати (+) або знімати (-), а через as — перейменовувати чи відфільтровувати ключі. У прикладі Getters перетин string & K залишає лише рядкові ключі, які приймає Capitalize; числові та symbol-ключі не створюють відповідних getter-ключів. Це лише тип: функції-гетери потрібно реалізувати окремо.",
+          en: "A mapped type iterates over the keys of another type: { [K in keyof T]: … }. Partial, Readonly and Record are built this way.\n\nThe ? and readonly modifiers can be added (+) or removed (-), and keys can be remapped or filtered with as. In Getters, string & K keeps only string keys accepted by Capitalize; numeric and symbol keys do not produce corresponding getter keys. This is only a type: getter functions must be implemented separately.",
         },
         {
           keyPointsUk: ["keyof T — union ключів", "-? робить поле обовʼязковим", "as дозволяє фільтрувати/перейменовувати ключі"],
@@ -392,8 +393,8 @@ export const tsAdvancedTypesUnit: UnitContent = unit(
         "Шаблонні рядкові типи",
         "Template literal types",
         {
-          uk: "Template literal types складають рядкові типи як шаблонні рядки: `on${Capitalize<E>}`. Union у шаблоні дає всі комбінації.\n\nЦе дозволяє типізувати імена подій, CSS-змінні, маршрути API.",
-          en: "Template literal types compose string types like template strings: `on${Capitalize<E>}`. A union inside the template yields every combination.\n\nThey type event names, CSS variables and API routes.",
+          uk: "Template literal types складають рядкові типи як шаблонні рядки: `on${Capitalize<E>}`. Union у шаблоні дає всі комбінації.\n\nЦе дозволяє типізувати імена подій, CSS-змінні чи маршрути API. Такий тип не перевіряє рядок із мережі під час виконання; перед використанням зовнішнього маршруту потрібна окрема перевірка. Великі добутки union також можуть ускладнювати перевірку компілятором.",
+          en: "Template literal types compose string types like template strings: `on${Capitalize<E>}`. A union inside the template yields every combination.\n\nThey can type event names, CSS variables, or API routes. Such a type does not validate a string from the network at runtime; validate an external route separately before use. Large union products can also make compiler checking more expensive.",
         },
         {
           keyPointsUk: ["Union × union = декартів добуток", "Uppercase / Lowercase / Capitalize — вбудовані", "Працює разом з infer для парсингу"],
@@ -411,8 +412,8 @@ export const tsAdvancedTypesUnit: UnitContent = unit(
       ),
       codeFill(
         "tsc-adv-8",
-        "Ім'я обробника події",
-        "Event handler name",
+        "Допишіть утиліту, яка робить першою велику літеру імені події.",
+        "Fill in the utility that capitalizes the first letter of the event name.",
         "typescript",
         "type Handler<E extends string> = `on${___<E>}`;",
         ["Capitalize"],
@@ -430,30 +431,30 @@ export const tsAdvancedTypesUnit: UnitContent = unit(
     ]),
     exam("tsc-advanced-exam", "Контрольна: просунуті типи", "Exam: advanced types", 4, [
       codeFill("tsc-adve-1", "infer", "infer", "typescript", "type R<T> = T extends () => ___ U ? U : never;", ["infer"], true),
-      mcq(
+      { ...mcq(
         "tsc-adve-2",
         "-? у mapped type:",
         "-? in a mapped type:",
         ["знімає опціональність", "додає null", "робить поле readonly", "видаляє ключ"],
         0,
-      ),
+      ), optionsEn: ["Removes optionality", "Adds null", "Makes the field readonly", "Deletes the key"] },
       codeFill("tsc-adve-3", "keyof", "keyof", "typescript", "type Keys<T> = ___ T;", ["keyof"], true),
-      mcq(
+      { ...mcq(
         "tsc-adve-4",
         "`${'GET'|'POST'} /api` містить:",
         "`${'GET'|'POST'} /api` contains:",
         ["'GET /api' | 'POST /api'", "лише string", "never", "'GET' | 'POST'"],
         0,
-      ),
-      codeRead(
+      ), optionsEn: ["'GET /api' | 'POST /api'", "Only string", "never", "'GET' | 'POST'"] },
+      { ...(codeRead(
         "tsc-adve-5",
         "X = ?",
         "X = ?",
         "typescript",
         "type X = (string | number) extends string ? 'yes' : 'no';",
-        ["'no' — без generic немає розподілу", "'yes'", "'yes' | 'no'", "never"],
+        ["'no' — ліворуч немає голого параметра типу", "'yes'", "'yes' | 'no'", "never"],
         0,
-      ),
+      ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["'no' — the checked side is not a naked type parameter", "'yes'", "'yes' | 'no'", "never"] },
     ]),
   ],
 );
@@ -497,13 +498,13 @@ export const sqlCtePerformanceUnit: UnitContent = unit(
         ["SELECT * FROM top_users;", "WITH top_users AS (", ")", "  SELECT user_id FROM orders GROUP BY user_id HAVING count(*) > 5"],
         ["WITH top_users AS (", "  SELECT user_id FROM orders GROUP BY user_id HAVING count(*) > 5", ")", "SELECT * FROM top_users;"],
       ),
-      mcq(
+      { ...mcq(
         "sqlf-cte-3",
-        "Для дерева категорій (parent_id) потрібен:",
-        "To walk a category tree (parent_id) you need:",
+        "Який із варіантів підтримує обхід дерева категорій (parent_id) в Oracle?",
+        "Which option can traverse a category tree (parent_id) in Oracle?",
         ["WITH … UNION ALL без слова RECURSIVE", "GROUP BY", "DISTINCT", "FETCH FIRST"],
         0,
-      ),
+      ), optionsEn: ["WITH … UNION ALL without the RECURSIVE keyword", "GROUP BY", "DISTINCT", "FETCH FIRST"] },
     ]),
     lesson("sqlf-indexes", "Індекси", "Indexes", 3, false, [
       concept(
@@ -511,12 +512,12 @@ export const sqlCtePerformanceUnit: UnitContent = unit(
         "Як працює B-tree індекс",
         "How a B-tree index works",
         {
-          uk: "Індекс — відсортована структура (зазвичай B-tree), що дозволяє знайти рядки за O(log n) замість повного сканування таблиці.\n\nСкладений індекс (a, b) допомагає умовам на a або на a і b, але не лише на b (правило лівого префікса). Кожен індекс сповільнює INSERT/UPDATE.",
-          en: "An index is a sorted structure (usually a B-tree) that finds rows in O(log n) instead of a full table scan.\n\nA composite index (a, b) helps filters on a, or on a and b, but not on b alone (leftmost-prefix rule). Every index slows down INSERT/UPDATE.",
+          uk: "B-tree індекс підтримує впорядкований пошук і може скоротити читання даних, але загальна вартість залежить від кількості збігів та звернень до таблиці.\n\nІндекс (a, b) зазвичай найкраще підтримує умови, що починаються з a. У деяких випадках оптимізатор Oracle може обрати index skip scan і за умовою лише на b. Індекси займають місце та потребують підтримки під час запису.",
+          en: "A B-tree index supports ordered lookups and can reduce data reads, but total cost depends on matches and table access.\n\nAn index on (a, b) usually best supports predicates starting with a. In some cases the Oracle optimizer can choose an index skip scan for a predicate on b alone. Indexes consume space and require maintenance during writes.",
         },
         {
-          keyPointsUk: ["Індексуйте колонки з WHERE / JOIN / ORDER BY", "Правило лівого префікса", "Функція над колонкою (lower(email)) вимикає звичайний індекс"],
-          keyPointsEn: ["Index columns used in WHERE / JOIN / ORDER BY", "Leftmost-prefix rule", "A function on the column (lower(email)) disables a plain index"],
+          keyPointsUk: ["Розглядайте індекси за запитами та вибірковістю", "Правило лівого префікса", "Для lower(email) розгляньте function-based index і перевірте план"],
+          keyPointsEn: ["Consider indexes based on workload and selectivity", "Leftmost-prefix rule", "For lower(email), consider a function-based index and inspect the plan"],
           language: "sql",
           code: "CREATE INDEX orders_user_created_idx\n  ON orders (user_id, created_at);",
         },
@@ -530,10 +531,10 @@ export const sqlCtePerformanceUnit: UnitContent = unit(
         ["INDEX", "index"],
         false,
       ),
-      mcq(
+      { ...mcq(
         "sqlf-cte-5",
-        "Індекс (user_id, created_at) НЕ допоможе запиту:",
-        "Index (user_id, created_at) will NOT help:",
+        "Для якого фільтра складений індекс (user_id, created_at) не має обмеження за провідною колонкою?",
+        "Which filter on index (user_id, created_at) has no predicate on its leading column?",
         [
           "WHERE created_at > DATE '2026-01-01' (без user_id)",
           "WHERE user_id = 7",
@@ -541,14 +542,14 @@ export const sqlCtePerformanceUnit: UnitContent = unit(
           "WHERE user_id = 7 ORDER BY created_at",
         ],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["WHERE created_at > DATE '2026-01-01' without user_id", "WHERE user_id = 7", "WHERE user_id = 7 AND created_at > SYSDATE - 1", "WHERE user_id = 7 ORDER BY created_at"] },
+      { ...mcq(
         "sqlf-cte-6",
         "Ціна зайвих індексів:",
         "The cost of extra indexes:",
         ["повільніші INSERT/UPDATE і більше місця", "повільніший SELECT завжди", "втрата даних", "неможливість JOIN"],
         0,
-      ),
+      ), optionsEn: ["More write maintenance and storage", "Every SELECT is always slower", "Data loss", "JOIN becomes impossible"] },
       explain(
         "sqlf-cte-x1",
         "Поясніть своїми словами, коли індекс прискорює запит і чому не варто індексувати все.",
@@ -573,8 +574,8 @@ export const sqlCtePerformanceUnit: UnitContent = unit(
         "Читаємо план запиту",
         "Reading a query plan",
         {
-          uk: "В Oracle план знімають так: EXPLAIN PLAN FOR і ваш SELECT, потім SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY). Це не команда EXPLAIN ANALYZE і саме по собі не друкує фактичний час.\n\nTABLE ACCESS FULL на великій таблиці, коли потрібні лічені рядки, — сигнал додати індекс. INDEX RANGE SCAN означає, що індекс використано. Повне читання нормальне, якщо потрібна велика частка рядків.",
-          en: "In Oracle you capture a plan with EXPLAIN PLAN FOR and your SELECT, then SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY). That is not EXPLAIN ANALYZE, and by itself it does not print actual time.\n\nTABLE ACCESS FULL on a large table when you need a handful of rows is a hint to add an index. INDEX RANGE SCAN means the index is used. A full read is normal when you need a large fraction of the rows.",
+          uk: "В Oracle план знімають так: EXPLAIN PLAN FOR і ваш SELECT, потім SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY). Це не команда EXPLAIN ANALYZE і саме по собі не друкує фактичний час.\n\nTABLE ACCESS FULL на великій таблиці за малої вибірки — привід перевірити статистику, план і можливий індекс, а не доказ, що індекс обов’язково допоможе. INDEX RANGE SCAN означає, що індекс використано. Повне читання нормальне, якщо потрібна велика частка рядків.",
+          en: "In Oracle you capture a plan with EXPLAIN PLAN FOR and your SELECT, then SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY). That is not EXPLAIN ANALYZE, and by itself it does not print actual time.\n\nTABLE ACCESS FULL on a large table for a small result warrants checking statistics, the plan and a possible index; it does not prove an index will help. INDEX RANGE SCAN means the index is used. A full read is normal when you need a large fraction of the rows.",
         },
         {
           keyPointsUk: ["EXPLAIN PLAN FOR не є EXPLAIN ANALYZE", "План друкує DBMS_XPLAN.DISPLAY", "TABLE ACCESS FULL доречний, коли потрібна велика частка рядків"],
@@ -592,43 +593,47 @@ export const sqlCtePerformanceUnit: UnitContent = unit(
         ["FOR", "for"],
         false,
       ),
-      matchEx("sqlf-cte-8", "Вузол плану → значення", "Plan node → meaning", [
+      { ...matchEx("sqlf-cte-8", "Вузол плану → значення", "Plan node → meaning", [
         { left: "TABLE ACCESS FULL", right: "читає всю таблицю" },
         { left: "INDEX RANGE SCAN", right: "шукає через індекс" },
         { left: "HASH JOIN", right: "зʼєднання через хеш-таблицю" },
-      ]),
-      mcq(
+      ]), pairsEn: [
+        { left: "TABLE ACCESS FULL", right: "Reads the whole table" },
+        { left: "INDEX RANGE SCAN", right: "Searches using an index" },
+        { left: "HASH JOIN", right: "Joins using a hash table" },
+      ] },
+      { ...mcq(
         "sqlf-cte-9",
-        "WHERE lower(email) = 'a@b.c' не використовує індекс на email. Рішення:",
-        "WHERE lower(email) = 'a@b.c' ignores the email index. Fix:",
+        "Для частого пошуку за lower(email) потрібен придатний шлях доступу. Що варто перевірити?",
+        "A frequent lower(email) lookup needs a suitable access path. What should you consider?",
         ["індекс на вираз: CREATE INDEX ... ON users (lower(email))", "додати ROWNUM = 1", "DISTINCT", "ORDER BY email"],
         0,
-      ),
+      ), optionsEn: ["A function-based index on lower(email)", "Add ROWNUM = 1", "DISTINCT", "ORDER BY email"] },
     ]),
     exam("sqlf-cte-exam", "Контрольна: CTE і продуктивність", "Exam: CTEs & performance", 4, [
-      codeFill("sqlf-ctee-1", "CTE", "CTE", "sql", "___ t AS (SELECT 1) SELECT * FROM t;", ["WITH", "with"], false),
-      mcq(
+      codeFill("sqlf-ctee-1", "CTE", "CTE", "sql", "___ t AS (SELECT 1 FROM dual) SELECT * FROM t;", ["WITH", "with"], false),
+      { ...mcq(
         "sqlf-ctee-2",
         "Ієрархію обходять через:",
         "Hierarchies are walked with:",
         ["рекурсивний WITH … UNION ALL", "HAVING", "UNION без ALL лише", "CROSS JOIN"],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["Recursive WITH … UNION ALL", "HAVING", "Only UNION without ALL", "CROSS JOIN"] },
+      { ...mcq(
         "sqlf-ctee-3",
         "Правило лівого префікса стосується:",
         "The leftmost-prefix rule is about:",
         ["складених індексів", "назв таблиць", "транзакцій", "GRANT"],
         0,
-      ),
+      ), optionsEn: ["Composite indexes", "Table names", "Transactions", "GRANT"] },
       codeFill("sqlf-ctee-4", "Зняти план", "Capture a plan", "sql", "EXPLAIN PLAN ___ SELECT 1 FROM dual;", ["FOR", "for"], false),
-      mcq(
+      { ...mcq(
         "sqlf-ctee-5",
-        "Seq Scan по 10 млн рядків, щоб знайти 1 рядок, означає:",
-        "A Seq Scan over 10M rows to find 1 row means:",
-        ["ймовірно бракує індексу", "запит оптимальний", "таблиця порожня", "індекс зламався завжди"],
+        "TABLE ACCESS FULL для вибіркового запиту на великій таблиці — привід:",
+        "TABLE ACCESS FULL for a selective query on a large table is a reason to:",
+        ["перевірити план, статистику та придатні індекси", "вважати запит гарантовано оптимальним", "вважати таблицю порожньою", "завжди вважати індекс пошкодженим"],
         0,
-      ),
+      ), optionsEn: ["Check the plan, statistics, and suitable indexes", "Assume the query is always optimal", "Assume the table is empty", "Always assume the index is corrupt"] },
     ]),
   ],
 );

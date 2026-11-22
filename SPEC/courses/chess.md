@@ -67,12 +67,16 @@ Theory, puzzles, and live games with other players.
 ## Depth now
 
 - Units: **34**
-- Lessons: **188**
+- Lessons: **189**
 - Exams: **24**
 - Free non-exam lessons: 14
 - Exercise types in seed: chess_lesson, chess_puzzle, mcq, explain
 
 ## Expansion (Nov 2026)
+
+The introductory tactics lessons now use an actual knight fork against king and rook, a concrete discovered attack position, and bilingual explanations and choices.
+
+The course-wide position check covers all chess lessons and solution sequences, including claimed checkmates. Five earlier puzzles were corrected: a queen was already on its destination, three rook-mate positions did not produce mate, and a proposed exchange contained an impossible recapture. Existing exercise IDs remain stable.
 
 Additional bilingual (uk+en) units in `packages/content/src/expansion/chess-exp.ts`.
 
@@ -137,6 +141,7 @@ deep parts below.
 - `ch-deep-famous-1` — Classic games (Greco, Morphy Opera build-up, Immortal, Evergreen, Byrne–Fischer 1956)
 - `ch-deep-famous-2` — Modern model games (Fischer–Spassky, Kasparov–Topalov, Karpov, Tal, study method)
 - `ch-deep-tournament` — Tournament practice and psychology
+- `ch-transfer-mate-check` — Verify mate by checking legal replies (board puzzle and reasoning)
 
 Flashcard decks: `chess-tactics-patterns`, `chess-opening-ideas`.
 Learning path: `chess-mastery`. `/placement/chess` uses the course-agnostic

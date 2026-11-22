@@ -13,10 +13,11 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
         "Кількість pod",
         "Розмір образу",
       ],
+      oEn: ["The remaining 1% of eligible requests may fail without violating the objective", "Money for servers", "The number of pods", "The image size"],
       i: 0,
       note: why(
-        "Поки бюджет є, реліз можна везти. Коли він вичерпаний, наступна зміна — це ремонт надійності, не нова кнопка.",
-        "While the budget remains, a release can ship. When it is gone, the next change is reliability work, not a new button.",
+        "Політика бюджету помилок допомагає визначати темп релізів; конкретні дії команди залежать від ризику, впливу та домовленостей.",
+        "An error-budget policy helps guide release pace; the team’s actual decision depends on risk, impact, and agreed rules.",
       ),
     },
     {
@@ -29,6 +30,7 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
         "Написання дизайну",
         "Код-рев'ю",
       ],
+      oEn: ["Manual, repetitive operational work that can often be automated", "Any interesting outage", "Writing a design", "Code review"],
       i: 0,
     },
     {
@@ -41,6 +43,7 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
         "Підписати образ",
         "Знести VPC",
       ],
+      oEn: ["A controlled load test can identify where latency and errors violate objectives", "Replace unit tests", "Sign an image", "Delete a VPC"],
       i: 0,
     },
     {
@@ -50,11 +53,12 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
       lang: "text",
       code: "SLO 99% success\nrequests = 30000\nbudget = 1%",
       o: [
-        "Близько 300 неуспішних запитів на місяць, далі ціль провалена",
+        "До 300 неуспішних запитів із 30 000; понад це ціль порушено",
         "30000 помилок ще норма",
         "Жодної помилки ніколи",
         "1 помилка на рік",
       ],
+      oEn: ["Up to 300 failed requests out of 30,000; more would violate the objective", "30,000 failures are acceptable", "No errors ever", "One error per year"],
       i: 0,
     },
   ]),
@@ -69,6 +73,7 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
         "Переписати все з нуля",
         "Вимкнути моніторинг, щоб не шуміло",
       ],
+      oEn: ["Mitigate user harm and communicate what is known while investigating", "Find someone to blame", "Rewrite everything from scratch", "Disable monitoring"],
       i: 0,
     },
     {
@@ -77,10 +82,10 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
       en: "Order of the first hour.",
       lang: "text",
       correct: [
-        "Визначити важкість",
-        "Написати в канал, що зламано і хто веде",
-        "Повернути сервіс",
-        "Лише потім збирати хронологію",
+        "Визначити важкість / Assess severity",
+        "Повідомити про вплив і відповідального / Communicate impact and incident lead",
+        "Пом’якшити збій і відновити сервіс / Mitigate and restore service",
+        "Фіксувати спостереження і дії / Record observations and actions",
       ],
     },
     {
@@ -93,6 +98,7 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
         "Покарання в кінці документа",
         "Приховати логи",
       ],
+      oEn: ["Examine system conditions and identify actions that reduce recurrence", "Mention nobody and change nothing", "Punish someone at the end", "Hide logs"],
       i: 0,
       note: why(
         "Хронологія з годинами, вплив, причина, дії з власником і датою. Без дати дія не існує.",
@@ -109,6 +115,7 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
         "Імена on-call",
         "Ключі доступу",
       ],
+      oEn: ["State the impact, workaround if any, and next update time without exposing sensitive internals", "Publish a full log dump", "List on-call names", "Publish access keys"],
       i: 0,
     },
   ]),
@@ -123,6 +130,7 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
         "Обидва про ціну NAT",
         "Це типи DNS",
       ],
+      oEn: ["RPO is the target maximum data-loss interval; RTO is the target recovery time", "The reverse", "Both describe NAT cost", "They are DNS types"],
       i: 0,
       note: why(
         "Бекап, який ніхто не відновлював, не рахується. Перевірка — це відновити копію і прочитати рядок.",
@@ -139,6 +147,7 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
         "Прискорити pod",
         "Підписати образ",
       ],
+      oEn: ["Costs can be allocated to forge-status rather than viewed only as one total", "Replace IAM", "Speed up a pod", "Sign an image"],
       i: 0,
     },
     {
@@ -151,6 +160,7 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
         "Видалити state без копії",
         "Відкрити security group усьому інтернету",
       ],
+      oEn: ["In an authorized lab, remove one replica and observe service and alerts", "Disable another company’s production", "Delete state without a backup", "Open the security group to the internet"],
       i: 0,
     },
     {
@@ -158,10 +168,11 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
       uk: "Що чим міряють.",
       en: "What measures what.",
       pairs: [
-        { left: "RPO", right: "Втрачені хвилини даних" },
-        { left: "RTO", right: "Хвилини до повернення сервісу" },
+        { left: "RPO", right: "Цільова максимальна втрата даних у часі" },
+        { left: "RTO", right: "Цільовий час відновлення сервісу" },
         { left: "error budget", right: "Скільки ненадійності ще можна витратити" },
       ],
+      pairsEn: [{"left": "RPO", "right": "Target maximum acceptable data-loss interval"}, {"left": "RTO", "right": "Target time to restore the service"}, {"left": "error budget", "right": "Allowed unreliability under the SLO"}],
     },
   ]),
   teach("do-path", "Увесь шлях forge-status", "The whole forge-status path", 5, "do-path", [
@@ -194,6 +205,7 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
         "Він лежить усередині Dockerfile",
         "Він пише postmortem",
       ],
+      oEn: ["It can provision the network and cluster; it does not build images or review code", "It replaces GitOps", "It lives inside a Dockerfile", "It writes the postmortem"],
       i: 0,
     },
     {
@@ -206,6 +218,7 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
         "Remote state",
         "Підпис образу",
       ],
+      oEn: ["Writing Go, Jenkinsfiles, Terragrunt, and service mesh internals", "Readiness", "Remote state", "Image signing"],
       i: 0,
     },
     {
@@ -218,6 +231,7 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
         "Argo CD",
         "PromQL",
       ],
+      oEn: ["Office workstations, RAID, and VPN access", "Helm values", "Argo CD", "PromQL"],
       i: 0,
     },
   ]),
@@ -238,6 +252,7 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
           "Docker сам змінює localhost на RDS",
           "TLS забороняє змінні середовища",
         ],
+        oEn: ["A wrong default can let a bad release start and fail later instead of surfacing the misconfiguration", "localhost is faster in a container", "Docker automatically changes localhost to RDS", "TLS forbids environment variables"],
         i: 0,
         note: why(
           "Fail-fast конфіг одразу зупиняє дефектний реліз до перемикання трафіку.",
@@ -249,13 +264,14 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
         uk: "Діагностуйте failed rollout з логів:",
         en: "Diagnose the failed rollout from logs:",
         lang: "text",
-        code: "GET /health -> 503 {\"db\":false,\"error\":\"relation tasks does not exist\"}\nContainer stays restarting on readiness check.",
+        code: "GET /health -> 503 {\"db\":false,\"error\":\"relation tasks does not exist\"}\nPod remains Running but is not Ready; readiness returns 503.",
         o: [
-          "Новий образ стартував без застосування міграцій БД перед перемиканням трафіку",
+          "Можлива непройдена міграція або підключення до неправильної схеми; перевірте обидва варіанти",
           "Бракує CSS-файлів у nginx",
           "DNS не резолвить домен",
           "Проблема лише в розмірі бандлу",
         ],
+        oEn: ["An unapplied migration or an incorrect database/schema could explain the missing table", "CSS files are missing in nginx", "DNS cannot resolve the domain", "Only bundle size is at fault"],
         i: 0,
         note: why(
           "Missing table після деплою вказує на невиконаний крок міграції або невірну схему.",
@@ -268,10 +284,10 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
         en: "Order the pre-release PostgreSQL restore drill:",
         lang: "text",
         correct: [
-          "Take timestamped dump or snapshot from source DB",
-          "Restore into an isolated scratch Postgres instance",
-          "Run row-count and smoke query checks against ForgeBoard schema",
-          "Record measured RTO/RPO and destroy scratch artifacts",
+          "Створити тестову копію / Take an authorized test backup",
+          "Відновити ізольовано / Restore to an isolated Postgres instance",
+          "Перевірити дані і запити / Validate data and smoke queries",
+          "Записати фактичні показники та порівняти з RTO/RPO / Record actual recovery metrics and compare with RTO/RPO",
         ],
         note: why(
           "Ізольований restore drill доводить відновлюваність без ризику для живої БД.",
@@ -281,7 +297,7 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
       {
         t: "fill",
         uk: "Який endpoint перевіряє готовність сервісу та бази перед переключенням трафіку в rollout?",
-        en: "Which probe verifies service + DB readiness before rollout traffic shifts?",
+        en: "Which endpoint can be configured for service and DB readiness before traffic shifts?",
         lang: "text",
         code: "GET /___",
         ok: ["health", "ready"],
@@ -308,6 +324,7 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
       lang: "text",
       code: "forge-status: image digest verified\nArgo CD: Synced / Healthy\nbackup: completed\nrestore drill: never",
       o: ["Restore an isolated copy and measure RPO/RTO / Відновити ізольовану копію й виміряти RPO/RTO", "Rebuild for prod / Перезібрати для prod", "Restart every pod / Перезапустити всі pod"],
+      oEn: ["Restore an isolated copy and compare observed recovery against RPO and RTO objectives", "Rebuild for prod", "Restart every pod"],
       i: 0,
       note: why("Зелена доставка не доводить відновлюваність даних. Копію відновлюють окремо, без перемикання живого DSN.", "A green delivery does not prove data recovery. Restore separately without switching the live DSN."),
     },
@@ -328,11 +345,12 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
       uk: "Образ без підпису, CI зелений, GitOps готовий синхронізувати:",
       en: "An unsigned image, CI green, GitOps ready to sync:",
       o: [
-        "Не пускати. Зелені тести не замінюють підпис",
+        "Не пускати, якщо політика вимагає довірений підпис; зелені тести не замінюють його перевірку",
         "Пускати, бо тести зелені",
         "Пускати лише в п'ятницю",
         "Перейменувати тег на latest і пускати",
       ],
+      oEn: ["Reject it if the admission policy requires trusted signatures; green tests do not replace signature verification", "Allow it because tests passed", "Allow it only on Friday", "Rename the tag latest and allow it"],
       i: 0,
     },
     {
@@ -345,6 +363,7 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
         "Він потрібен Git",
         "Він замінює бекап",
       ],
+      oEn: ["It incurs hourly charges and belongs on the authorized teardown inventory", "It is free after EC2 stops", "It is needed by Git", "It replaces a backup"],
       i: 0,
     },
     {
@@ -357,6 +376,7 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
         "Argo сам його зашифрує заднім числом",
         "Можна лишити, репозиторій приватний",
       ],
+      oEn: ["Revoke or rotate it and coordinate history remediation; a deletion commit is insufficient", "Add .gitignore only", "Argo encrypts it retroactively", "Leave it because the repo is private"],
       i: 0,
     },
     {
@@ -377,10 +397,30 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
         "helm upgrade на кластер",
         "Відкат тега в Git",
       ],
+      oEn: ["A workflow ending with an image push", "Argo CD synchronization", "helm upgrade on a cluster", "Reverting the desired image reference in Git"],
       i: 0,
       note: why(
         "CI віддає незмінний образ. Живий сервіс змінює лише те, що читає Git: чарт, тег, синхронізація.",
         "CI hands over an immutable image. The live service changes only through what reads Git: the chart, the tag, the sync.",
+      ),
+    },
+    {
+      t: "read",
+      uk: "Після релізу B кількість 5xx зросла. Argo показує Synced, але міграція БД не завершена, а останню копію жодного разу не відновлювали. Який наступний крок підтверджується доказами?",
+      en: "After release B, 5xx rises. Argo says Synced, but the DB migration is incomplete and the latest backup has never been restored. Which next action is supported by the evidence?",
+      lang: "text",
+      code: "release A: healthy; schema v1\nrelease B: 5xx 12%; schema migration incomplete\nArgo: Synced\nbackup: completed, restore: untested",
+      o: [
+        "Зупинити просування B, перевірити сумісність схеми для відкату A та відновити копію лише в ізоляції / Stop promoting B, check schema compatibility for rollback to A, and restore a copy only in isolation",
+        "Вважати Synced доказом здоров'я та продовжити rollout / Treat Synced as proof of health and continue rollout",
+        "Одразу підключити неперевірену копію до живого сервісу / Attach the untested backup directly to the live service",
+        "Видалити міграцію та журнали / Delete the migration and logs",
+      ],
+      oEn: ["Stop promoting B, check schema compatibility for rollback to A, and restore a copy only in isolation", "Treat Synced as proof of health and continue rollout", "Attach the untested backup directly to the live service", "Delete the migration and logs"],
+      i: 0,
+      note: why(
+        "Синхронізація конфігурації не доводить працездатності. Відкат залежить від сумісності схеми, а резервну копію перевіряють без ризику для живих даних.",
+        "Configuration sync does not prove service health. Rollback depends on schema compatibility, and the backup should be tested without risking live data.",
       ),
     },
   ]),

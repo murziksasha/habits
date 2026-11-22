@@ -55,3 +55,11 @@ Packages, modules, types, slices, interfaces, goroutines, and testing — a bili
 - `go-cross-build` — Cross-compilation and ldflags: one CI builds linux/amd64 without extra CGO
 - `go_tooling_release-exam` — Exam: Go builds [exam]
 
+### `go_applied_service` — Reliable HTTP service
+
+- `go-applied-request-boundary` — Bound request input and propagate cancellation (4 exercises)
+- `go-applied-shutdown` — Graceful shutdown and handler verification (4 exercises)
+- `go_applied_service-exam` — Exam: HTTP service [exam] (4 exercises)
+
+Reference for the HTTP API behavior: [Go `net/http`](https://pkg.go.dev/net/http).
+

@@ -119,18 +119,21 @@ export const exerciseSchema = z.discriminatedUnion("type", [
     ...base,
     type: z.literal("rsvp"),
     text: z.string().min(1),
+    textEn: z.string().min(1).optional(),
     wpm: z.number().positive(),
   }),
   z.object({
     ...base,
     type: z.literal("comprehension"),
     passage: z.string().min(1),
+    passageEn: z.string().min(1).optional(),
     questions: z
       .array(
         z.object({
           q: z.string(),
           qEn: z.string().optional(),
           options: z.array(z.string()).min(2),
+          optionsEn: z.array(z.string()).min(2).optional(),
           correctIndex: z.number().int().min(0),
         }),
       )
@@ -165,6 +168,7 @@ export const exerciseSchema = z.discriminatedUnion("type", [
         q: z.string(),
         qEn: z.string().optional(),
         options: z.array(z.string()).min(2),
+        optionsEn: z.array(z.string()).min(2).optional(),
         correctIndex: z.number().int().min(0),
       })
       .optional(),
@@ -243,6 +247,7 @@ export const exerciseSchema = z.discriminatedUnion("type", [
     type: z.literal("code_order"),
     language: z.string().optional(),
     lines: z.array(z.string()).min(1),
+    linesUk: z.array(z.string()).min(1).optional(),
     correct: z.array(z.string()).min(1),
     explanationUk: z.string().optional(),
     explanationEn: z.string().optional(),

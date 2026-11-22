@@ -85,12 +85,16 @@ Sequences, patterns, and critical thinking puzzles.
 ## Depth now
 
 - Units: 14
-- Lessons: 77
+- Lessons: 78
 - Exams: 3
 - Free non-exam lessons: 6
-- Exercise types in seed: logic_puzzle
+- Exercise types in seed: concept, logic_puzzle
 
 ## Expansion (Nov 2026)
+
+The advanced and deduction exercises now state probability assumptions and the letter encoding rule explicitly, and provide English prompts and localized choices where needed.
+
+The earlier pattern and analogy lessons now name the comparison criterion, clarify the custom numeric rule, and include English choices and hints. The former book-to-house analogy was replaced with a calendar analogy with a single intended answer.
 
 Additional bilingual (uk+en) units in `packages/content/src/expansion/logic-exp.ts`.
 
@@ -100,3 +104,4 @@ Additional bilingual (uk+en) units in `packages/content/src/expansion/logic-exp.
 - `graphs-invariants` — Graphs and invariants
 - `quantifiers` — Quantifiers
 - `necessary-sufficient` — Necessary and sufficient conditions
+- `lg-transfer-counterexample` — Refute universal claims with a concrete counterexample

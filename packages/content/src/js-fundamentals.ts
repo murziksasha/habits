@@ -7,6 +7,7 @@ import {
   codeOutputMcq,
   codeProject,
   codeRead,
+  concept,
   exam,
   lesson,
   matchEx,
@@ -16,21 +17,22 @@ import {
 } from "./builders.js";
 import { jsClosuresEventLoopUnit } from "./deep-units.js";
 
-const values = unit("values", "Values & types", "Values & types", [
+const values = unit("values", "Значення та типи", "Values & types", [
   lesson(
     "jsf-values",
-    "typeof & primitives",
+    "typeof і примітиви",
     "typeof & primitives",
     1,
     true,
     [
-      mcq("jsf-v1", "Що повертає typeof null у JavaScript?", "What does typeof null return in JavaScript?", ['"object" (historical bug)', '"null"', '"undefined"', '"number"'], 0),
-      codeFill("jsf-v2", "Допишіть рядок типу, щоб перевірка повернула true.", "Fill in the type name so the check returns true.", "js", "typeof 'hi' === '___'", ["string"], true),
-      matchEx("jsf-v3", "Зіставте примітивний тип з прикладом значення.", "Match each primitive type to an example value.", [
-        { left: "number", right: "42" },
-        { left: "boolean", right: "true/false" },
-        { left: "undefined", right: "missing value" },
-      ]),
+      concept("jsf-values-concept", "Значення й typeof", "Values and typeof", {
+        uk: "JavaScript має примітивні значення string, number, bigint, boolean, undefined, symbol і null; об'єкти та масиви не є примітивами. typeof повертає рядок із назвою типу, наприклад 'string' для тексту. Історичний виняток: typeof null повертає 'object', тому null перевіряють через value === null. Для масиву typeof теж повертає 'object'; використовуйте Array.isArray(value), коли потрібна саме перевірка масиву.",
+        en: "JavaScript has the primitive values string, number, bigint, boolean, undefined, symbol, and null; objects and arrays are not primitives. typeof returns a type-name string, such as 'string' for text. A historical exception: typeof null returns 'object', so check null with value === null. typeof also returns 'object' for an array; use Array.isArray(value) when specifically checking for an array.",
+      }),
+      { ...mcq("jsf-v1", "Що повертає typeof null у JavaScript?", "What does typeof null return in JavaScript?", ['"object" (історична особливість)', '"null"', '"undefined"', '"number"'], 0, why("Для перевірки null використовуйте суворе порівняння з null.", "Use strict comparison with null to check for null.")), optionsEn: ['"object" (historical behavior)', '"null"', '"undefined"', '"number"'] },
+      codeFill("jsf-v2", "Допишіть рядок типу для текстового значення.", "Complete the type-name string for a text value.", "js", "typeof 'hi' === '___'", ["string"], true, why("typeof повертає рядок 'string'.", "typeof returns the string 'string'.")),
+      { id: "jsf-v3", type: "match", promptUk: "Зіставте примітивний тип з прикладом значення.", promptEn: "Match each primitive type to an example value.", pairs: [{ left: "number", right: "42" }, { left: "boolean", right: "true" }, { left: "undefined", right: "undefined" }], pairsEn: [{ left: "number", right: "42" }, { left: "boolean", right: "true" }, { left: "undefined", right: "undefined" }] },
+      { ...mcq("jsf-v7", "Як перевірити, чи value є масивом?", "How can you check whether value is an array?", ["Array.isArray(value)", "typeof value === 'array'", "value === 'array'", "typeof value === 'number'"], 0, why("typeof масиву повертає 'object', тому використовуйте Array.isArray.", "typeof an array returns 'object', so use Array.isArray.")), optionsEn: ["Array.isArray(value)", "typeof value === 'array'", "value === 'array'", "typeof value === 'number'"] },
     ],
   ),
   lesson(
@@ -40,20 +42,25 @@ const values = unit("values", "Values & types", "Values & types", [
     1,
     true,
     [
-      mcq("jsf-v4", "Що насправді гарантує const?", "What does const actually guarantee?", ["не можна reassign binding", "immutable deep always", "global only", "var alias"], 0),
-      codeFill("jsf-v5", "Яке ключове слово дає блокову область видимості замість var?", "Which keyword gives block scope instead of var?", "js", "let x = 1; // use ___ not var for block scope", ["let"], true),
-      codeRead("jsf-v6", "Що станеться, якщо змінити масив, оголошений через const?", "What happens when you mutate an array declared with const?", "js", "const a = []; a.push(1);", ["OK — mutate array", "throw always", "syntax error", "a becomes 1"], 0),
+      concept("jsf-bindings-concept", "Прив'язка та зміна об'єкта", "Bindings and object mutation", {
+        uk: "let і const створюють блокові прив'язки. Значення let можна переприсвоїти; const вимагає ініціалізації й не дозволяє переприсвоїти саму прив'язку. Якщо const посилається на масив або об'єкт, його вміст усе ще може змінюватися: const не робить його автоматично незмінним. До оголошення let або const звернення до них у тій самій області призводить до ReferenceError через тимчасову мертву зону.",
+        en: "let and const create block-scoped bindings. A let binding can be reassigned; const requires initialization and does not permit reassignment of the binding itself. If const refers to an array or object, its contents can still change: const does not automatically make it immutable. Accessing let or const in the same scope before its declaration causes ReferenceError due to the temporal dead zone.",
+      }),
+      { ...mcq("jsf-v4", "Що гарантує const після ініціалізації?", "What does const guarantee after initialization?", ["Прив'язку не можна переприсвоїти", "Вкладені об'єкти завжди незмінні", "Змінна завжди глобальна", "Це синонім var"], 0, why("const не заморожує вміст об'єкта.", "const does not freeze an object's contents.")), optionsEn: ["The binding cannot be reassigned", "Nested objects are always immutable", "The variable is always global", "It is an alias for var"] },
+      codeFill("jsf-v5", "Оголосіть змінну блокової області, яку пізніше переприсвоять, через let.", "Declare a block-scoped variable that will later be reassigned using let.", "js", "___ x = 1; x = 2;", ["let"], true),
+      { ...(codeRead("jsf-v6", "Що станеться, якщо змінити масив, оголошений через const?", "What happens when you mutate an array declared with const?", "js", "const a = []; a.push(1);", ["Масив міститиме 1; прив'язка a не переприсвоюється", "Завжди виникне помилка", "Синтаксична помилка", "a стане числом 1"], 0, why("push змінює масив, а не прив'язку a.", "push mutates the array, not the binding a.")) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["The array contains 1; the a binding is not reassigned", "It always throws", "A syntax error occurs", "a becomes the number 1"] },
+      { ...mcq("jsf-v8", "Що станеться при доступі до let x до його оголошення в тому самому блоці?", "What happens when let x is accessed before its declaration in the same block?", ["ReferenceError через тимчасову мертву зону", "Завжди повертається 0", "Завжди повертається null", "Значення автоматично ініціалізується"], 0), optionsEn: ["ReferenceError due to the temporal dead zone", "It always returns 0", "It always returns null", "The value is automatically initialized"] },
     ],
   ),
   exam("jsf-values-exam", "Контрольна: values", "Exam: values", 1, [
     mcq("jsf-ve1", "Що повертає typeof [] (масив)?", "What does typeof [] (an array) return?", ['"object"', '"array"', '"list"', '"undefined"'], 0),
     codeFill("jsf-ve2", "Присвойте змінній булеве значення.", "Assign a boolean literal to the variable.", "js", "const ok = ___;", ["true", "false"], false),
-    mcq("jsf-ve3", "Яка область видимості у let?", "What kind of scope does let have?", ["block-scoped", "function-scoped only like var", "const alias", "global only"], 0),
+    { ...mcq("jsf-ve3", "Яка область видимості у let?", "What kind of scope does let have?", ["Блокова", "Лише функції, як у var", "Це синонім const", "Лише глобальна"], 0), optionsEn: ["Block scope", "Only function scope, like var", "An alias of const", "Only global scope"] },
     codeFill("jsf-ve4", "Допишіть тип, який повертає typeof 3.", "Fill in the type that typeof 3 returns.", "js", "typeof 3 === '___'", ["number"], true),
   ]),
 ]);
 
-const operators = unit("operators", "Operators", "Operators", [
+const operators = unit("operators", "Оператори", "Operators", [
   lesson(
     "jsf-eq",
     "== vs ===",
@@ -61,65 +68,85 @@ const operators = unit("operators", "Operators", "Operators", [
     2,
     false,
     [
-      mcq("jsf-o1", "Чим === відрізняється від ==?", "How is === different from ==?", ["без coercion", "з coercion always", "only strings", "only refs"], 0),
-      codeRead("jsf-o2", "Що поверне вираз 0 == '0' і чому?", "What does 0 == '0' evaluate to, and why?", "js", "0 == '0'", ["true (coercion)", "false always", "throw", "undefined"], 0),
+      concept("jsf-equality-concept", "Строга й нестрога рівність", "Strict and loose equality", {
+        uk: "=== порівнює значення без приведення різних типів: 0 === '0' дає false. == має правила приведення: 0 == '0' дає true, бо рядок перетворюється на число. Об'єкти порівнюються за тотожністю, тому два окремі літерали {} не рівні через ===, навіть якщо їхній вміст схожий. NaN не дорівнює самому собі через ===; для його перевірки використовуйте Number.isNaN. Обирайте явні перетворення та зрозумілий контракт типів.",
+        en: "=== compares without coercing different types: 0 === '0' is false. == has coercion rules: 0 == '0' is true because the string is converted to a number. Objects are compared by identity, so two separate {} literals are not === even if their contents look alike. NaN is not equal to itself under ===; use Number.isNaN to check it. Prefer explicit conversions and a clear type contract.",
+      }),
+      { ...mcq("jsf-o1", "Чим === відрізняється від ==?", "How is === different from ==?", ["Не приводить різні типи перед порівнянням", "Завжди приводить типи", "Працює лише з рядками", "Порівнює лише посилання"], 0), optionsEn: ["It does not coerce different types before comparison", "It always coerces types", "It works only with strings", "It compares only references"] },
+      { ...(codeRead("jsf-o2", "Що поверне вираз і чому?", "What does the expression return and why?", "js", "0 == '0'", ["true: рядок приводиться до числа", "false без перетворення", "Виникне помилка", "undefined"], 0, why("Нестрога рівність застосовує правила приведення типів.", "Loose equality applies type-coercion rules.")) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["true: the string is coerced to a number", "false without conversion", "An error is thrown", "undefined"] },
       codeFill("jsf-o3", "Вставте оператор строгої рівності.", "Insert the strict equality operator.", "js", "a ___ b", ["==="], true),
+      { ...mcq("jsf-o7", "Який результат {} === {} для двох окремих літералів?", "What is the result of {} === {} for two separate object literals?", ["false: це різні об'єкти", "true: обидва порожні", "undefined", "Завжди синтаксична помилка"], 0, why("Для об'єктів === перевіряє тотожність посилань.", "For objects, === checks reference identity.")), optionsEn: ["false: they are different objects", "true: both are empty", "undefined", "Always a syntax error"] },
     ],
   ),
   lesson(
     "jsf-truthy",
-    "Truthy / falsy",
+    "Істинність і nullish-значення",
     "Truthy / falsy",
     2,
     false,
     [
-      mcq("jsf-o4", "Які значення в JS є falsy?", "Which values are falsy in JS?", ["0, '', null, undefined, NaN, false", "only false", "only null", "[] and {}"], 0),
-      codeRead("jsf-o5", "Що поверне Boolean([]) для порожнього масиву?", "What does Boolean([]) return for an empty array?", "js", "Boolean([])", ["true", "false", "null", "throw"], 0),
+      concept("jsf-truthy-concept", "Булеве перетворення та ??", "Boolean conversion and ??", {
+        uk: "У булевому контексті false, 0, -0, 0n, порожній рядок, null, undefined і NaN є falsy; об'єкти, зокрема [] і {}, є truthy. У браузері document.all — історичний виняток. Оператор || повертає правий операнд, якщо лівий falsy; ?? — лише якщо лівий null або undefined. Тому 0 || 10 дає 10, а 0 ?? 10 зберігає 0. Не використовуйте || для значення за замовчуванням, якщо нуль чи порожній рядок мають значення.",
+        en: "In a boolean context false, 0, -0, 0n, the empty string, null, undefined, and NaN are falsy; objects including [] and {} are truthy. In browsers document.all is a historical exception. || returns the right operand when the left is falsy; ?? does so only when the left is null or undefined. Thus 0 || 10 gives 10, whereas 0 ?? 10 preserves 0. Avoid || for defaults when zero or an empty string is meaningful.",
+      }),
+      { ...mcq("jsf-o4", "Який набір містить лише приклади falsy-значень?", "Which set contains only examples of falsy values?", ["0, '', null, undefined, NaN, false", "false і []", "null і {}", "[] і {}"], 0), optionsEn: ["0, '', null, undefined, NaN, false", "false and []", "null and {}", "[] and {}"] },
+      codeRead("jsf-o5", "Що поверне Boolean([]) для порожнього масиву?", "What does Boolean([]) return for an empty array?", "js", "Boolean([])", ["true", "false", "null", "undefined"], 0, why("Масив — об'єкт і тому truthy навіть тоді, коли порожній.", "An array is an object and is truthy even when empty.")),
       codeFill("jsf-o6", "Вставте оператор, що підставляє 1 лише коли x — null або undefined.", "Insert the operator that falls back to 1 only when x is null or undefined.", "js", "x ___ 1", ["??"], true),
+      { ...(codeRead("jsf-o8", "Яке значення поверне вираз?", "What value does this expression return?", "js", "0 ?? 10", ["0", "10", "false", "undefined"], 0, why("0 не є null або undefined, тому ?? зберігає його.", "0 is neither null nor undefined, so ?? preserves it.")) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["0", "10", "false", "undefined"] },
     ],
   ),
   exam("jsf-ops-exam", "Контрольна: operators", "Exam: operators", 2, [
-    mcq("jsf-oe1", "Що означає оператор ===?", "What does the === operator mean?", ["strict equality", "assign", "spread", "await"], 0),
+    { ...mcq("jsf-oe1", "Що означає оператор ===?", "What does the === operator mean?", ["Строга рівність", "Присвоєння", "Оператор spread", "Очікування проміса"], 0), optionsEn: ["Strict equality", "Assignment", "The spread operator", "Awaiting a promise"] },
     codeFill("jsf-oe2", "Вставте оператор нульового злиття (nullish coalescing).", "Insert the nullish coalescing operator.", "js", "a ___ b", ["??"], true),
-    mcq("jsf-oe3", "Яким є порожній рядок '' у булевому контексті?", "What is the empty string '' in a boolean context?", ["falsy", "truthy", "number", "symbol"], 0),
+    { ...mcq("jsf-oe3", "Яким є порожній рядок '' у булевому контексті?", "What is the empty string '' in a boolean context?", ["Falsy", "Truthy", "Числом", "Символом"], 0), optionsEn: ["Falsy", "Truthy", "A number", "A symbol"] },
     codeFill("jsf-oe4", "Вставте оператор строгої нерівності.", "Insert the strict inequality operator.", "js", "a ___ b", ["!=="], true),
   ]),
 ]);
 
-const functionsU = unit("functions", "Functions", "Functions", [
+const functionsU = unit("functions", "Функції", "Functions", [
   lesson(
     "jsf-fn-decl",
-    "Declarations & arrows",
+    "Оголошення та стрілкові функції",
     "Declarations & arrows",
     2,
     false,
     [
+      concept("jsf-function-concept", "Функції та повернення", "Functions and return values", {
+        uk: "Оголошення function задає іменовану функцію, а стрілкову функцію можна зберегти в змінній: const add = (a, b) => a + b. Вираз після => повертається неявно; у тілі з фігурними дужками потрібен явний return. Якщо функція не повертає значення явно, результат — undefined. Стрілкова функція не має власного this: вона бере його з навколишньої області, на відміну від звичайної функції, this якої залежить від виклику.",
+        en: "A function declaration defines a named function; an arrow function can be stored in a variable: const add = (a, b) => a + b. An expression after => is returned implicitly; a brace body needs an explicit return. If no value is returned explicitly, the result is undefined. An arrow function has no own this: it captures it from the surrounding scope, unlike an ordinary function whose this depends on how it is called.",
+      }),
       codeFill("jsf-f1", "Яке ключове слово оголошує функцію?", "Which keyword declares a function?", "js", "___ add(a, b) { return a + b; }", ["function"], true),
       codeFill("jsf-f2", "Допишіть синтаксис стрілкової функції.", "Complete the arrow function syntax.", "js", "const add = (a, b) ___ a + b;", ["=>"], true),
-      mcq("jsf-f3", "Чого НЕ мають власного стрілкові функції?", "What do arrow functions NOT have of their own?", ["this (lexical this)", "parameters", "return", "name always"], 0),
+      { ...mcq("jsf-f3", "Чого НЕ мають власного стрілкові функції?", "What do arrow functions NOT have of their own?", ["this — воно береться з навколишньої області", "Параметрів", "Можливості повертати значення", "Змінних у тілі"], 0), optionsEn: ["this — it is captured from the surrounding scope", "Parameters", "The ability to return a value", "Local variables"] },
+      { ...(codeRead("jsf-f7", "Що поверне виклик f()?", "What does calling f() return?", "js", "const f = () => { 42; };\nf();", ["undefined", "42", "null", "Помилку синтаксису"], 0, why("У тілі з дужками немає return.", "The brace body has no return.")) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["undefined", "42", "null", "A syntax error"] },
     ],
   ),
   lesson(
     "jsf-fn-params",
-    "Default & rest",
+    "Параметри за замовчуванням і rest",
     "Default & rest",
     2,
     false,
     [
-      codeFill("jsf-f4", "Задайте значення параметра за замовчуванням.", "Give the parameter a default value.", "js", "function f(n = ___) {}", ["0", "1", "null"], false),
-      codeFill("jsf-f5", "Назвіть rest-параметр, що збере решту аргументів.", "Name the rest parameter that collects the remaining arguments.", "js", "function f(...___) {}", ["args", "rest"], false),
-      mcq("jsf-f6", "Що збирає rest-параметр ...args?", "What does the rest parameter ...args collect?", ["remaining args into array", "only first arg", "object keys", "DOM nodes"], 0),
+      concept("jsf-params-concept", "Значення за замовчуванням і решта аргументів", "Defaults and remaining arguments", {
+        uk: "Параметр за замовчуванням спрацьовує, якщо аргумент пропущено або передано undefined; null, 0 і false не запускають значення за замовчуванням. Rest-параметр ...args збирає решту аргументів у новий масив і має бути останнім параметром. Наприклад, function sum(first, ...rest) отримує перший аргумент окремо, а решту в rest.",
+        en: "A default parameter is used when an argument is omitted or explicitly undefined; null, 0, and false do not trigger the default. A rest parameter ...args collects remaining arguments into a new array and must be the last parameter. For example, function sum(first, ...rest) receives the first argument separately and the remainder in rest.",
+      }),
+      codeFill("jsf-f4", "Задайте n значення 0 за замовчуванням.", "Give n the default value 0.", "js", "function f(n = ___) {}", ["0"], true),
+      codeFill("jsf-f5", "Назвіть rest-параметр args, щоб повернути його в тілі.", "Name the rest parameter args so the body can return it.", "js", "function f(...___) { return args; }", ["args"], true),
+      { ...mcq("jsf-f6", "Що збирає rest-параметр ...args?", "What does the rest parameter ...args collect?", ["Решту аргументів у масив", "Лише перший аргумент", "Ключі об'єкта", "Вузли DOM"], 0), optionsEn: ["Remaining arguments into an array", "Only the first argument", "Object keys", "DOM nodes"] },
+      { ...(codeRead("jsf-f8", "Що повернуть ці два виклики відповідно?", "What do these two calls return respectively?", "js", "function f(n = 5) { return n; }\n[f(undefined), f(null)]", ["[5, null]", "[5, 5]", "[undefined, null]", "[null, 5]"], 0, why("undefined запускає значення за замовчуванням, null — ні.", "undefined triggers the default; null does not.")) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["[5, null]", "[5, 5]", "[undefined, null]", "[null, 5]"] },
     ],
   ),
   exam("jsf-fn-exam", "Контрольна: functions", "Exam: functions", 2, [
     codeFill("jsf-fe1", "Допишіть стрілкову функцію identity.", "Complete the identity arrow function.", "js", "const id = x ___ x;", ["=>"], true),
-    mcq("jsf-fe2", "З чого виходить оператор return?", "What does return exit from?", ["function", "program always", "loop only", "module"], 0),
+    { ...mcq("jsf-fe2", "З чого виходить оператор return?", "What does return exit from?", ["Із поточної функції", "З усієї програми завжди", "Лише з циклу", "Із модуля"], 0), optionsEn: ["The current function", "The entire program always", "Only a loop", "A module"] },
     codeFill("jsf-fe3", "Оголосіть функцію через ключове слово.", "Declare a function with the keyword.", "js", "___ f() {}", ["function"], true),
-    mcq("jsf-fe4", "Коли спрацьовує значення параметра за замовчуванням?", "When is a default parameter value used?", ["arg undefined", "arg 0 always", "always", "never"], 0),
+    { ...mcq("jsf-fe4", "Коли спрацьовує значення параметра за замовчуванням?", "When is a default parameter value used?", ["Коли аргумент пропущено або він undefined", "Завжди для 0", "Для будь-якого аргументу", "Ніколи"], 0), optionsEn: ["When the argument is omitted or undefined", "Always for 0", "For any argument", "Never"] },
   ]),
 ]);
 
-const arrays = unit("arrays", "Arrays", "Arrays", [
+const arrays = unit("arrays", "Масиви", "Arrays", [
   lesson(
     "jsf-arr-basics",
     "push / map / filter",
@@ -127,9 +154,14 @@ const arrays = unit("arrays", "Arrays", "Arrays", [
     2,
     false,
     [
+      concept("jsf-array-concept", "Перетворення та зміна масиву", "Transforming and mutating arrays", {
+        uk: "push додає елементи в кінець наявного масиву й повертає його нову довжину. map створює новий масив результатів callback-а, а filter — новий масив елементів, для яких callback повернув truthy. Для звичайних щільних масивів ці методи не змінюють сам вихідний масив, якщо callback не робить цього окремо. Копія є поверхневою: вкладені об'єкти можуть лишатися спільними.",
+        en: "push adds elements to the end of the existing array and returns its new length. map creates a new array of callback results, while filter creates a new array of elements for which the callback returns a truthy value. For ordinary dense arrays these methods do not mutate the source array themselves, unless the callback does so separately. The copy is shallow: nested objects can remain shared.",
+      }),
       codeFill("jsf-a1", "Який метод створить новий масив з подвоєними числами?", "Which method creates a new array with doubled numbers?", "js", "[1,2].___(x => x * 2)", ["map"], true),
       codeFill("jsf-a2", "Який метод залишить лише додатні числа?", "Which method keeps only the positive numbers?", "js", "arr.___(x => x > 0)", ["filter"], true),
-      mcq("jsf-a3", "Що повертає map?", "What does map return?", ["new array", "mutates always only", "number", "void"], 0),
+      { ...mcq("jsf-a3", "Що повертає map?", "What does map return?", ["Новий масив результатів callback-а", "Завжди змінений вихідний масив", "Лише число", "Завжди undefined"], 0), optionsEn: ["A new array of callback results", "Always the mutated original array", "Only a number", "Always undefined"] },
+      { ...(codeRead("jsf-a7", "Які значення матимуть result і xs після виконання?", "What are result and xs after execution?", "js", "const xs = [1, 2];\nconst result = xs.map(x => x * 2);", ["result: [2, 4], xs: [1, 2]", "result: [2, 4], xs: [2, 4]", "result: 4, xs: [1, 2]", "result: undefined, xs: []"], 0, why("map повертає новий масив; цей callback не змінює xs.", "map returns a new array; this callback does not mutate xs.")) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["result: [2, 4], xs: [1, 2]", "result: [2, 4], xs: [2, 4]", "result: 4, xs: [1, 2]", "result: undefined, xs: []"] },
     ],
   ),
   lesson(
@@ -139,40 +171,54 @@ const arrays = unit("arrays", "Arrays", "Arrays", [
     2,
     false,
     [
+      concept("jsf-find-concept", "Пошук і довжина", "Searching and length", {
+        uk: "find повертає перший елемент, для якого предикат truthy, або undefined, якщо збігів немає. includes повертає boolean і перевіряє наявність значення; об'єкти порівнюються за ідентичністю, а NaN можна знайти через includes. length масиву — ціле число, більше за кожен його індекс; його можна змінити явно. Це не завжди кількість заповнених слотів: розріджений масив може містити порожні позиції.",
+        en: "find returns the first element for which the predicate is truthy, or undefined if nothing matches. includes returns a boolean for value membership; objects are compared by identity and includes can find NaN. An array's length is an integer greater than every array index and can be set explicitly. It is not necessarily the number of occupied slots: a sparse array can contain holes.",
+      }),
       codeFill("jsf-a4", "Який метод перевіряє, чи є 2 у масиві?", "Which method checks whether 2 is in the array?", "js", "[1,2].___(2)", ["includes"], true),
-      codeFill("jsf-a5", "Яка властивість дає кількість елементів масиву?", "Which property gives the number of elements?", "js", "arr.___", ["length"], true),
+      codeFill("jsf-a5", "Прочитайте властивість length масиву.", "Read the array's length property.", "js", "arr.___", ["length"], true, why("У розріджених масивах length може перевищувати кількість заповнених слотів.", "In sparse arrays, length can exceed the number of occupied slots.")),
       codeRead("jsf-a6", "Що поверне find з цієї умови?", "What does find return for this condition?", "js", "[1,2,3].find(x => x > 1)", ["2", "true", "[2,3]", "undefined"], 0),
+      { ...(codeRead("jsf-a8", "Що поверне find, якщо жоден елемент не відповідає умові?", "What does find return if no element matches?", "js", "[1, 2].find(x => x > 5)", ["undefined", "false", "[]", "null"], 0, why("find повертає undefined, а не порожній масив.", "find returns undefined, not an empty array.")) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["undefined", "false", "[]", "null"] },
     ],
   ),
   exam("jsf-arr-exam", "Контрольна: arrays", "Exam: arrays", 2, [
     codeFill("jsf-ae1", "Перетворіть кожен елемент функцією f.", "Transform every element with f.", "js", "xs.___(f)", ["map"], true),
     codeFill("jsf-ae2", "Залиште лише елементи, для яких f повертає true.", "Keep only the elements for which f returns true.", "js", "xs.___(f)", ["filter"], true),
-    mcq("jsf-ae3", "Що робить push?", "What does push do?", ["adds to end", "removes first", "sorts", "freezes"], 0),
+    { ...mcq("jsf-ae3", "Що робить push?", "What does push do?", ["Додає елемент у кінець наявного масиву", "Видаляє перший елемент", "Сортує масив", "Заморожує масив"], 0), optionsEn: ["Adds an element to the end of the existing array", "Removes the first element", "Sorts the array", "Freezes the array"] },
     codeFill("jsf-ae4", "Перевірте, чи масив містить значення v.", "Check whether the array contains v.", "js", "xs.___(v)", ["includes"], true),
   ]),
 ]);
 
-const objects = unit("objects", "Objects", "Objects", [
+const objects = unit("objects", "Об'єкти", "Objects", [
   lesson(
     "jsf-obj-lit",
-    "Literals & access",
+    "Літерали та доступ до властивостей",
     "Literals & access",
     2,
     false,
     [
-      codeFill("jsf-ob1", "Прочитайте властивість name через крапку.", "Read the name property with dot notation.", "js", "user.___", ["name", "id"], false),
-      codeFill("jsf-ob2", "Прочитайте властивість name через квадратні дужки.", "Read the name property with bracket notation.", "js", "user['___']", ["name", "id"], false),
-      mcq("jsf-ob3", "Якого типу ключі звичайного обʼєкта?", "What type are the keys of a plain object?", ["strings/symbols", "only numbers", "only arrays", "functions only"], 0),
+      concept("jsf-object-concept", "Властивості об'єктів", "Object properties", {
+        uk: "Об'єкт групує властивості з ключами-рядками або символами. user.name читає властивість із буквальним ім'ям name, а user[key] використовує значення змінної key; user['name'] еквівалентний user.name. Відсутня властивість зазвичай дає undefined, але це не доводить, що властивість відсутня: її значення може бути явно undefined. Для перевірки власної властивості використовуйте Object.hasOwn(user, 'name').",
+        en: "An object groups properties keyed by strings or symbols. user.name reads the property literally named name, while user[key] uses the value of the variable key; user['name'] is equivalent to user.name. A missing property usually yields undefined, but that does not prove absence: its value may explicitly be undefined. Use Object.hasOwn(user, 'name') to check for an own property.",
+      }),
+      codeFill("jsf-ob1", "Прочитайте властивість name через крапку.", "Read the name property with dot notation.", "js", "user.___", ["name"], true),
+      codeFill("jsf-ob2", "Прочитайте властивість name через квадратні дужки.", "Read the name property with bracket notation.", "js", "user['___']", ["name"], true),
+      { ...mcq("jsf-ob3", "Якого типу ключі властивостей звичайного об'єкта?", "What types are property keys on an ordinary object?", ["Рядки або символи", "Лише числа", "Лише масиви", "Лише функції"], 0, why("Числові ключі звичайного об'єкта перетворюються на рядки.", "Numeric property keys on ordinary objects are converted to strings.")), optionsEn: ["Strings or symbols", "Only numbers", "Only arrays", "Only functions"] },
+      { ...(codeRead("jsf-ob7", "Який результат доступу до обчисленого ключа?", "What does access by this computed key return?", "js", "const user = { name: 'Ada', key: 'other' };\nconst key = 'name';\nuser[key]", ["'Ada'", "'other'", "'name'", "undefined"], 0, why("У дужках використовується значення змінної key.", "Bracket notation uses the value of the key variable.")) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["'Ada'", "'other'", "'name'", "undefined"] },
     ],
   ),
   lesson(
     "jsf-destruct",
-    "Destructuring",
+    "Деструктуризація",
     "Destructuring",
     2,
     false,
     [
-      codeFill("jsf-ob4", "Деструктуруйте властивість name з user.", "Destructure the name property from user.", "js", "const { ___ } = user;", ["name", "id"], false),
+      concept("jsf-destruct-concept", "Деструктуризація та поверхнева копія", "Destructuring and shallow copies", {
+        uk: "const { name } = user створює локальну змінну name зі значення властивості user.name. Псевдонім задають як { name: displayName }, а значення за замовчуванням спрацьовує для undefined, не для null. {...user} створює новий об'єкт із власними перелічуваними властивостями; вкладені об'єкти залишаються спільними посиланнями. У {...user, name: 'Ada'} пізніша властивість name замінює скопійовану.",
+        en: "const { name } = user creates a local name binding from user.name. An alias is written as { name: displayName }, and a default applies to undefined, not null. {...user} creates a new object from own enumerable properties; nested objects remain shared references. In {...user, name: 'Ada'}, the later name property overrides the copied one.",
+      }),
+      codeFill("jsf-ob4", "Деструктуруйте властивість name з user.", "Destructure the name property from user.", "js", "const { ___ } = user;", ["name"], true),
       codeOrder(
         "jsf-ob5",
         "Складіть рядок деструктуризації в правильному порядку.",
@@ -181,18 +227,19 @@ const objects = unit("objects", "Objects", "Objects", [
         ["} = point;", "const { x, y"],
         ["const { x, y", "} = point;"],
       ),
-      mcq("jsf-ob6", "Що дає spread {...a, b: 1}?", "What does the spread {...a, b: 1} produce?", ["shallow copy + override", "deep clone always", "deletes a", "async"], 0),
+      { ...mcq("jsf-ob6", "Що дає spread {...a, b: 1}?", "What does the spread {...a, b: 1} produce?", ["Новий об'єкт із поверхнево скопійованими властивостями та b: 1", "Завжди глибоку копію всіх вкладених даних", "Видалення a", "Асинхронну операцію"], 0), optionsEn: ["A new object with shallow-copied properties and b: 1", "Always a deep copy of all nested data", "Deletion of a", "An asynchronous operation"] },
+      { ...(codeRead("jsf-ob8", "Що станеться після зміни b.profile.name?", "What happens after changing b.profile.name?", "js", "const a = { profile: { name: 'Ada' } };\nconst b = { ...a };\nb.profile.name = 'Lin';\na.profile.name", ["'Lin': вкладений об'єкт спільний", "'Ada': вкладений об'єкт глибоко скопійований", "undefined", "Завжди помилка"], 0, why("Spread копіює посилання на вкладений об'єкт.", "Spread copies the reference to the nested object.")) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["'Lin': the nested object is shared", "'Ada': the nested object was deeply copied", "undefined", "Always an error"] },
     ],
   ),
   exam("jsf-obj-exam", "Контрольна: objects", "Exam: objects", 2, [
-    codeFill("jsf-obe1", "Задайте властивості a значення 1.", "Set property a to 1.", "js", "const o = { a: ___ };", ["1", "true", "'x'"], false),
-    mcq("jsf-obe2", "Що таке деструктуризація?", "What is destructuring?", ["pull fields out", "only arrays", "SQL", "CSS"], 0),
-    codeFill("jsf-obe3", "Скопіюйте обʼєкт a через spread.", "Copy object a using spread.", "js", "const b = { ...___ };", ["a", "obj"], false),
-    mcq("jsf-obe4", "Чим obj.a відрізняється від obj['a']?", "How is obj.a different from obj['a']?", ["often same for string keys", "always different", "illegal", "only in TS"], 0),
+    codeFill("jsf-obe1", "Задайте властивості a значення 1.", "Set property a to 1.", "js", "const o = { a: ___ };", ["1"], true),
+    { ...mcq("jsf-obe2", "Що робить деструктуризація об'єкта?", "What does object destructuring do?", ["Дозволяє отримати властивості в окремі змінні", "Працює лише з масивами", "Автоматично видаляє об'єкт", "Створює SQL-таблицю"], 0), optionsEn: ["Extracts properties into bindings", "Works only on arrays", "Automatically deletes the object", "Creates a SQL table"] },
+    codeFill("jsf-obe3", "Скопіюйте власні перелічувані властивості об'єкта a через spread.", "Copy object a's own enumerable properties using spread.", "js", "const b = { ...___ };", ["a"], true),
+    { ...mcq("jsf-obe4", "Як співвідносяться obj.a та obj['a']?", "How are obj.a and obj['a'] related?", ["Обидва звертаються до властивості з ключем 'a'", "Вони завжди звертаються до різних властивостей", "Доступ через дужки заборонений", "Це працює лише в TypeScript"], 0), optionsEn: ["Both access the property keyed 'a'", "They always access different properties", "Bracket access is forbidden", "It works only in TypeScript"] },
   ]),
 ]);
 
-const asyncU = unit("async", "Async", "Async", [
+const asyncU = unit("async", "Асинхронність", "Async", [
   lesson(
     "jsf-promise",
     "Promises",
@@ -200,9 +247,14 @@ const asyncU = unit("async", "Async", "Async", [
     3,
     false,
     [
-      mcq("jsf-as1", "У яких станах може бути Promise?", "Which states can a Promise be in?", ["pending/fulfilled/rejected", "only done", "open/closed", "200/404"], 0),
+      concept("jsf-promise-concept", "Стан і ланцюжок Promise", "Promise state and chaining", {
+        uk: "Promise представляє результат, який може бути pending, fulfilled або rejected. then обробляє успіх і повертає новий проміс; catch обробляє відхилення й теж повертає новий проміс. Якщо callback кидає помилку, новий проміс відхиляється. Обробляйте помилки в кінці ланцюжка або передавайте їх викликачеві. Сам проміс не гарантує скасування вже розпочатої операції.",
+        en: "A Promise represents a result that can be pending, fulfilled, or rejected. then handles success and returns a new promise; catch handles rejection and also returns a new promise. If a callback throws, the new promise rejects. Handle errors at the end of the chain or propagate them to the caller. A promise itself does not guarantee cancellation of an operation already started.",
+      }),
+      { ...mcq("jsf-as1", "У яких станах може бути Promise?", "Which states can a Promise be in?", ["pending, fulfilled або rejected", "Лише done", "Тільки open або closed", "Лише 200 або 404"], 0), optionsEn: ["pending, fulfilled, or rejected", "Only done", "Only open or closed", "Only 200 or 404"] },
       codeFill("jsf-as2", "Який метод отримує значення виконаного Promise?", "Which method receives a fulfilled Promise's value?", "js", "p.___(v => v)", ["then"], true),
       codeFill("jsf-as3", "Який метод обробляє відхилений Promise?", "Which method handles a rejected Promise?", "js", "p.___(e => e)", ["catch"], true),
+      { ...mcq("jsf-as10", "Що повертає p.then(handler)?", "What does p.then(handler) return?", ["Новий Promise, результат якого залежить від handler", "Завжди початковий p", "Лише boolean", "Готовий результат синхронно в усіх випадках"], 0), optionsEn: ["A new Promise whose outcome depends on handler", "Always the original p", "Only a boolean", "The final result synchronously in every case"] },
     ],
   ),
   lesson(
@@ -212,33 +264,43 @@ const asyncU = unit("async", "Async", "Async", [
     3,
     false,
     [
+      concept("jsf-await-concept", "Очікування та обробка помилки", "Awaiting and handling errors", {
+        uk: "async-функція повертає Promise. await у ній призупиняє виконання цієї функції до результату проміса, не блокуючи весь потік; відхилення поводиться як throw, який можна обробити через try/catch. Await доступний і на верхньому рівні ES-модуля за підтримки середовища. Незалежні запити можна очікувати разом через Promise.all; його відхилення не скасовує інші операції автоматично.",
+        en: "An async function returns a Promise. await inside it suspends that function until the promise settles without blocking the whole thread; rejection behaves like a throw that try/catch can handle. Await is also available at the top level of an ES module when supported by the environment. Independent requests can be awaited together using Promise.all; its rejection does not automatically cancel the other operations.",
+      }),
       codeFill("jsf-as4", "Зробіть функцію асинхронною.", "Make the function asynchronous.", "js", "___ function load() {}", ["async"], true),
       codeFill("jsf-as5", "Дочекайтеся результату fetch.", "Wait for the result of fetch.", "js", "const data = ___ fetch(url);", ["await"], true),
-      mcq("jsf-as6", "Де можна використовувати await?", "Where can you use await?", ["async functions (and modules)", "any function always", "only CSS", "only class fields never"], 0),
+      { ...mcq("jsf-as6", "Де можна використовувати await?", "Where can you use await?", ["В async-функції та на верхньому рівні ES-модуля за підтримки середовища", "Завжди в будь-якій звичайній функції", "Лише в CSS", "Тільки в назві класу"], 0), optionsEn: ["Inside an async function and at ES-module top level where supported", "Always in any ordinary function", "Only in CSS", "Only in a class name"] },
+      { ...mcq("jsf-as11", "Що станеться, якщо await отримає відхилений проміс усередині try?", "What happens when await receives a rejected promise inside try?", ["Причину відхилення можна обробити в catch", "await завжди поверне null", "catch не працює з await", "Проміс автоматично повторить запит"], 0), optionsEn: ["The rejection reason can be handled in catch", "await always returns null", "catch cannot handle await", "The promise automatically retries the request"] },
     ],
   ),
   lesson(
     "jsf-fetch",
-    "fetch intro",
+    "Основи fetch",
     "fetch intro",
     3,
     false,
     [
+      concept("jsf-fetch-concept", "HTTP-відповідь і мережеві помилки", "HTTP responses and network errors", {
+        uk: "fetch повертає Promise<Response>. HTTP-статус 404 або 500 зазвичай не відхиляє цей проміс: перевіряйте response.ok або status до обробки відповіді. Мережева помилка чи скасування можуть відхилити fetch. response.json() асинхронно читає й розбирає тіло та може відхилитися для некоректного JSON; обробляйте обидва типи помилок і перевіряйте отримані дані.",
+        en: "fetch returns a Promise<Response>. An HTTP 404 or 500 normally does not reject that promise: check response.ok or status before processing the response. A network failure or cancellation can reject fetch. response.json() asynchronously reads and parses the body and can reject for invalid JSON; handle both kinds of failure and validate the resulting data.",
+      }),
       codeRead("jsf-as7", "Що повертає fetch('/api')?", "What does fetch('/api') return?", "js", "fetch('/api')", ["Promise<Response>", "string", "number", "void"], 0),
       codeFill("jsf-as8", "Який метод відповіді розбирає тіло як JSON?", "Which response method parses the body as JSON?", "js", "await res.___()", ["json"], true),
-      mcq("jsf-as9", "Що означає res.ok?", "What does res.ok mean?", ["status 200–299", "always true", "network offline", "CORS fail"], 0),
+      { ...mcq("jsf-as9", "Що означає res.ok?", "What does res.ok mean?", ["HTTP-статус у діапазоні 200–299", "Завжди true", "Мережа недоступна", "Сталася помилка CORS"], 0), optionsEn: ["The HTTP status is in the 200–299 range", "It is always true", "The network is offline", "A CORS error occurred"] },
+      { ...mcq("jsf-as12", "Сервер повернув HTTP 404 на fetch. Що зазвичай станеться?", "The server returns HTTP 404 to fetch. What normally happens?", ["Проміс виконається з Response, у якого ok === false", "Проміс обов'язково відхилиться лише через статус 404", "Автоматично повернеться порожній масив", "Браузер закриє сторінку"], 0, why("Статус HTTP потрібно перевірити явно; мережевий збій — окремий випадок.", "Check HTTP status explicitly; network failure is a separate case.")), optionsEn: ["The promise fulfills with a Response whose ok is false", "The promise must reject solely because of status 404", "An empty array is returned automatically", "The browser closes the page"] },
     ],
   ),
   exam("jsf-async-exam", "Контрольна: async", "Exam: async", 3, [
     codeFill("jsf-ase1", "Оголосіть асинхронну функцію.", "Declare an async function.", "js", "___ function f() {}", ["async"], true),
     codeFill("jsf-ase2", "Отримайте значення Promise p.", "Get the value of Promise p.", "js", "const x = ___ p;", ["await"], true),
-    mcq("jsf-ase3", "Promise reject handled by:", "reject handled by:", ["catch", "map", "filter", "typeof"], 0),
+    { ...mcq("jsf-ase3", "Який метод може обробити відхилення Promise?", "Which method can handle a Promise rejection?", ["catch", "map", "filter", "typeof"], 0), optionsEn: ["catch", "map", "filter", "typeof"] },
     codeFill("jsf-ase4", "Розберіть тіло відповіді як JSON.", "Parse the response body as JSON.", "js", "await response.___()", ["json"], true),
-    mcq("jsf-ase5", "Що таке fetch?", "What is fetch?", ["async HTTP API", "SQL client", "CSS parser", "git"], 0),
+    { ...mcq("jsf-ase5", "Як fetch зазвичай реагує на HTTP 500?", "How does fetch normally react to HTTP 500?", ["Повертає Response з ok === false", "Завжди відхиляє проміс лише через статус", "Повертає SQL-таблицю", "Перезапускає сервер"], 0), optionsEn: ["It returns a Response with ok === false", "It always rejects solely due to the status", "It returns a SQL table", "It restarts the server"] },
   ]),
 ]);
 
-const domU = unit("dom", "DOM basics", "DOM basics", [
+const domU = unit("dom", "Основи DOM", "DOM basics", [
   lesson(
     "jsf-dom-select",
     "querySelector",
@@ -246,9 +308,14 @@ const domU = unit("dom", "DOM basics", "DOM basics", [
     2,
     false,
     [
+      concept("jsf-dom-select-concept", "Пошук елементів", "Finding elements", {
+        uk: "DOM представляє документ як дерево вузлів. querySelector(selector) повертає перший відповідний елемент або null, якщо збігів немає; querySelectorAll повертає статичний NodeList усіх збігів. getElementById приймає сам id без #. Перевіряйте null перед доступом до властивостей і враховуйте момент завантаження документа. Для недовіреного тексту використовуйте textContent, а не вставку рядка як HTML.",
+        en: "The DOM represents a document as a node tree. querySelector(selector) returns the first matching element or null if none matches; querySelectorAll returns a static NodeList of matches. getElementById takes the id itself without #. Check for null before accessing properties and consider when the document loads. For untrusted text, use textContent rather than inserting a string as HTML.",
+      }),
       codeFill("jsf-d1", "Знайдіть перший елемент button за CSS-селектором.", "Find the first button element by CSS selector.", "js", "document.___('button')", ["querySelector"], true),
       codeFill("jsf-d2", "Знайдіть елемент з id=\"app\".", "Find the element with id=\"app\".", "js", "document.___('app')", ["getElementById"], true),
-      mcq("jsf-d3", "Що повертає querySelectorAll?", "What does querySelectorAll return?", ["NodeList", "single Element always", "string", "number"], 0),
+      { ...mcq("jsf-d3", "Що повертає querySelectorAll?", "What does querySelectorAll return?", ["Статичний NodeList відповідних елементів", "Завжди один Element", "Рядок", "Число"], 0), optionsEn: ["A static NodeList of matching elements", "Always one Element", "A string", "A number"] },
+      { ...mcq("jsf-d7", "Що повертає querySelector('.missing'), якщо елемента немає?", "What does querySelector('.missing') return if no element matches?", ["null", "Порожній масив", "false", "Завжди помилку"], 0, why("Перевірте результат перед викликом методів елемента.", "Check the result before calling element methods.")), optionsEn: ["null", "An empty array", "false", "Always an error"] },
     ],
   ),
   lesson(
@@ -258,6 +325,10 @@ const domU = unit("dom", "DOM basics", "DOM basics", [
     2,
     false,
     [
+      concept("jsf-dom-events-concept", "Події та поведінка браузера", "Events and browser behavior", {
+        uk: "addEventListener реєструє функцію для події, наприклад click. event.target позначає джерело події, а currentTarget — елемент, на якому виконується поточний слухач. preventDefault() просить скасувати дію браузера за замовчуванням для скасовуваної події, але не зупиняє поширення; stopPropagation() керує поширенням окремо. Для доступності використовуйте семантичну кнопку та перевіряйте роботу клавіатури.",
+        en: "addEventListener registers a function for an event such as click. event.target identifies the event's target, while currentTarget identifies the element whose listener is running. preventDefault() requests cancellation of a cancelable default browser action, but does not stop propagation; stopPropagation() controls propagation separately. For accessibility use a semantic button and test keyboard operation.",
+      }),
       codeFill("jsf-d4", "Підпишіться на подію кліку.", "Subscribe to the click event.", "js", "el.addEventListener('___', handler)", ["click"], true),
       codeOrder(
         "jsf-d5",
@@ -267,18 +338,19 @@ const domU = unit("dom", "DOM basics", "DOM basics", [
         ["console.log('hi');", "btn.addEventListener('click', () => {", "});"],
         ["btn.addEventListener('click', () => {", "console.log('hi');", "});"],
       ),
-      mcq("jsf-d6", "Що робить event.preventDefault()?", "What does event.preventDefault() do?", ["stops default browser action", "deletes DOM", "closes tab", "compiles TS"], 0),
+      { ...mcq("jsf-d6", "Що робить event.preventDefault() для скасовуваної події?", "What does event.preventDefault() do for a cancelable event?", ["Скасовує дію браузера за замовчуванням", "Видаляє DOM", "Закриває вкладку", "Компілює TypeScript"], 0), optionsEn: ["Cancels the default browser action", "Deletes the DOM", "Closes the tab", "Compiles TypeScript"] },
+      { ...mcq("jsf-d8", "Чи зупиняє preventDefault() поширення події до інших елементів?", "Does preventDefault() stop event propagation to other elements?", ["Ні, поширення керується окремо", "Так, завжди", "Так, якщо подія click", "Ні, тому що події не поширюються"], 0, why("preventDefault і stopPropagation мають різне призначення.", "preventDefault and stopPropagation have different purposes.")), optionsEn: ["No, propagation is controlled separately", "Yes, always", "Yes, for a click event", "No, because events never propagate"] },
     ],
   ),
   exam("jsf-dom-exam", "Контрольна: DOM", "Exam: DOM", 2, [
     codeFill("jsf-de1", "Знайдіть елемент з класом x.", "Find the element with class x.", "js", "document.___('.x')", ["querySelector"], true),
     codeFill("jsf-de2", "Яку подію слухати для натискання?", "Which event do you listen to for a press?", "js", "addEventListener('___', fn)", ["click"], true),
-    mcq("jsf-de3", "Що встановлює textContent?", "What does textContent set?", ["text of node", "CSS only", "SQL", "HTTP"], 0),
+    { ...mcq("jsf-de3", "Що встановлює textContent?", "What does textContent set?", ["Текстовий вміст вузла", "Лише CSS", "SQL-запит", "HTTP-заголовок"], 0), optionsEn: ["A node's text content", "Only CSS", "A SQL query", "An HTTP header"] },
     codeFill("jsf-de4", "Знайдіть елемент за його id.", "Find an element by its id.", "js", "document.___('id')", ["getElementById"], true),
   ]),
 ]);
 
-const modulesU = unit("modules", "Modules", "Modules", [
+const modulesU = unit("modules", "Модулі", "Modules", [
   lesson(
     "jsf-mod-export",
     "export / import",
@@ -286,10 +358,14 @@ const modulesU = unit("modules", "Modules", "Modules", [
     2,
     false,
     [
+      concept("jsf-modules-concept", "Імпорт та експорт ES-модулів", "ES module imports and exports", {
+        uk: "Модуль може експортувати іменовані значення через export та імпортувати їх через import { name } from './file.js'. Default-експорт імпортують без фігурних дужок: import value from './file.js'. У браузері модуль підключають як script type='module'; шлях має відповідати реальному URL файла. Side-effect import виконує модуль без створення локальної імпортованої змінної. Інструменти збірки можуть розв'язувати та оптимізувати граф модулів, але це залежить від конфігурації.",
+        en: "A module can export named values with export and import them with import { name } from './file.js'. Import a default export without braces: import value from './file.js'. In a browser load a module with script type='module'; the path must match the actual file URL. A side-effect import executes a module without introducing a local imported binding. Build tools can resolve and optimize the module graph, depending on configuration.",
+      }),
       codeFill("jsf-m1", "Зробіть функцію доступною для інших модулів.", "Make the function available to other modules.", "js", "___ function add() {}", ["export"], true),
-      codeFill("jsf-m2", "Вкажіть шлях до модуля math.", "Give the path to the math module.", "js", "import { add } from './___';", ["math.js", "math", "lib"], false),
-      mcq("jsf-m3", "Як імпортувати default-експорт?", "How do you import a default export?", ["import x from './m'", "import {default as} only illegal", "require only", "include"], 0),
-      mcq(
+      codeFill("jsf-m2", "Файл math.js лежить поруч. Допишіть його ім'я в браузерному ES-імпорті.", "The file math.js is alongside this module. Complete its name in the browser ES import.", "js", "import { add } from './___';", ["math.js"], true, why("Браузер має отримати шлях до наявного файла math.js.", "The browser needs the path to the existing math.js file.")),
+      { ...mcq("jsf-m3", "Як імпортувати default-експорт із m.js?", "How do you import the default export from m.js?", ["import x from './m.js'", "import { x } from './m.js' як default без alias", "include './m.js'", "delete './m.js'"], 0), optionsEn: ["import x from './m.js'", "import { x } from './m.js' as default without an alias", "include './m.js'", "delete './m.js'"] },
+      { ...mcq(
         "jsf-m4",
         "Що робить збирач модулів (bundler, напр. Vite/Webpack/Rollup)?",
         "What does a module bundler (e.g. Vite/Webpack/Rollup) do?",
@@ -304,14 +380,15 @@ const modulesU = unit("modules", "Modules", "Modules", [
           explanationUk: "Бандлер збирає граф модулів, мініфікує код і готує асети до продакшену.",
           explanationEn: "A bundler resolves module graphs, minifies code, and prepares production assets.",
         },
-      ),
+      ), optionsEn: ["Resolves module graphs and can transform and optimize code for a target", "Creates a relational database schema", "Manages domain DNS records", "Only fixes indentation"] },
+      { ...mcq("jsf-m5", "Що робить import './setup.js' без імпортованих імен?", "What does import './setup.js' do without imported names?", ["Завантажує модуль і виконує його побічні ефекти", "Видаляє файл", "Оголошує глобальну змінну setup автоматично", "Пропускає виконання модуля"], 0), optionsEn: ["Loads the module and executes its side effects", "Deletes the file", "Automatically declares a global setup variable", "Skips module execution"] },
     ],
   ),
   exam("jsf-mod-exam", "Контрольна: modules", "Exam: modules", 2, [
     codeFill("jsf-me1", "Експортуйте константу PI.", "Export the PI constant.", "js", "___ const PI = 3;", ["export"], true),
-    mcq("jsf-me2", "Який синтаксис використовують ES-модулі?", "What syntax do ES modules use?", ["import/export", "only #include", "only CSS @import for JS", "FTP"], 0),
+    { ...mcq("jsf-me2", "Який синтаксис використовують ES-модулі?", "What syntax do ES modules use?", ["import/export", "Лише #include", "Лише CSS @import для JavaScript", "FTP"], 0), optionsEn: ["import/export", "Only #include", "Only CSS @import for JavaScript", "FTP"] },
     codeFill("jsf-me3", "Яке ключове слово вказує, звідки імпортувати?", "Which keyword says where to import from?", "js", "import x ___ './a.js'", ["from"], true),
-    mcq("jsf-me4", "Що таке side-effect import (import './x.js')?", "What is a side-effect import (import './x.js')?", ["import './polyfill.js'", "export type only", "delete module", "eval"], 0),
+    { ...mcq("jsf-me4", "Що робить side-effect import?", "What does a side-effect import do?", ["Виконує модуль без локальної імпортованої прив'язки", "Видаляє модуль", "Імпортує лише CSS", "Завжди повертає Promise"], 0), optionsEn: ["Executes the module without a local imported binding", "Deletes the module", "Imports only CSS", "Always returns a Promise"] },
   ]),
 ]);
 
@@ -323,18 +400,22 @@ const scopeClosures = unit("scope_closures", "Область видимості 
     2,
     false,
     [
-      mcq(
+      concept("jsf-scope-concept", "Блоки, функції та затінення", "Blocks, functions, and shadowing", {
+        uk: "let і const, оголошені всередині блоку, доступні в ньому та вкладених областях. var у звичайному блоці належить області функції, що його містить, або області скрипта чи модуля на верхньому рівні. Внутрішня прив'язка з тим самим ім'ям затінює зовнішню, не змінюючи її автоматично. Доступ до let або const до ініціалізації в їхній області викликає ReferenceError через тимчасову мертву зону.",
+        en: "let and const declared inside a block are available there and in nested scopes. var in an ordinary block belongs to the enclosing function scope, or to the script or module scope at top level. An inner binding with the same name shadows the outer binding without automatically changing it. Accessing let or const before initialization in their scope throws ReferenceError due to the temporal dead zone.",
+      }),
+      { ...mcq(
         "jsf-sc1",
-        "Різниця між блочним scope (let/const) та var:",
-        "Difference between block scope (let/const) and var:",
+        "Як відрізняється область видимості let і var, оголошених усередині звичайного блоку функції?",
+        "How do scopes differ for let and var declared inside an ordinary block in a function?",
         [
-          "let/const видимі лише всередині блоку {...}; var має функціональну область видимості",
+          "let належить блоку, а var — функції, що його містить",
           "var видимий лише в межах if, а let доступний глобально",
           "let не дозволяє створювати масиви",
           "вони абсолютно ідентичні в ES6+",
         ],
         0,
-      ),
+      ), optionsEn: ["let belongs to the block; var belongs to the enclosing function", "var is limited to if while let is global", "let cannot hold arrays", "They are identical in ES6+"] },
       codeRead(
         "jsf-sc2",
         "Що виведе console.log?",
@@ -350,13 +431,14 @@ const scopeClosures = unit("scope_closures", "Область видимості 
       ),
       codeFill(
         "jsf-sc3",
-        "Оголосіть змінну блочної видимості",
+        "Оголосіть змінну блочної видимості, яку можна переприсвоїти, через let.",
         "Declare a block-scoped reassignable variable",
         "js",
         "if (valid) {\n  ___ count = 1;\n}",
         ["let"],
         true,
       ),
+      { ...(codeRead("jsf-sc7", "Що станеться при зверненні до x до його ініціалізації?", "What happens when x is accessed before its initialization?", "js", "{ console.log(x); let x = 1; }", ["ReferenceError", "undefined", "1", "0"], 0, why("x перебуває в тимчасовій мертвій зоні до ініціалізації.", "x is in the temporal dead zone until initialization.")) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["ReferenceError", "undefined", "1", "0"] },
     ],
   ),
   lesson(
@@ -366,6 +448,10 @@ const scopeClosures = unit("scope_closures", "Область видимості 
     2,
     false,
     [
+      concept("jsf-closure-concept", "Функція з доступом до оточення", "A function with access to its environment", {
+        uk: "Замикання — функція разом із лексичним оточенням, до прив'язок якого вона має доступ. Повернута функція може читати та змінювати зовнішню змінну і після завершення зовнішнього виклику. Окремі виклики фабрики створюють окремі прив'язки; функції, створені одним викликом, можуть розділяти стан. У for з let кожна ітерація має окрему прив'язку, тоді як var у прикладі нижче спільний для callback-ів.",
+        en: "A closure is a function together with the lexical environment whose bindings it can access. A returned function can read and change an outer variable after the outer call returns. Separate factory calls create separate bindings; functions created by one call can share state. In a for loop with let each iteration has its own binding, whereas var is shared by callbacks in the example below.",
+      }),
       codeRead(
         "jsf-sc4",
         "Що виведе виклик greet('Alice')?",
@@ -379,10 +465,10 @@ const scopeClosures = unit("scope_closures", "Область видимості 
           explanationEn: "The closure retains access to outer prefix even after makeGreeter returns.",
         },
       ),
-      codeRead(
+      { ...(codeRead(
         "jsf-sc5",
-        "Чому let у циклі for створює окреме замикання для кожного кола?",
-        "Why does let in a for loop create a distinct binding per iteration?",
+        "Що виведе fns[0]() і чому?",
+        "What does fns[0]() print, and why?",
         "js",
         "const fns = [];\nfor (let i = 0; i < 3; i++) {\n  fns.push(() => i);\n}\nconsole.log(fns[0]());",
         [
@@ -392,20 +478,21 @@ const scopeClosures = unit("scope_closures", "Область видимості 
           "throw ReferenceError",
         ],
         0,
-      ),
+      ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["0 — let creates a new i binding for each iteration", "3 — all callbacks share the final i", "undefined — i is deleted after the loop", "A ReferenceError is thrown"] },
       codeFill(
         "jsf-sc6",
-        "Функція, що повертає замикання лічильника",
-        "Function returning counter closure",
+        "Поверніть функцію лічильника за допомогою return.",
+        "Return the counter function using return.",
         "js",
         "function createCounter() {\n  let n = 0;\n  ___ () => ++n;\n}",
         ["return"],
         true,
       ),
+      { ...(codeRead("jsf-sc8", "Що повернуть два послідовні виклики a()?", "What do two consecutive calls to a() return?", "js", "function counter() { let n = 0; return () => ++n; }\nconst a = counter();\n[a(), a()]", ["[1, 2]", "[1, 1]", "[0, 0]", "[undefined, undefined]"], 0, why("Обидва виклики використовують одну прив'язку n цього екземпляра замикання.", "Both calls use the same n binding of this closure instance.")) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["[1, 2]", "[1, 1]", "[0, 0]", "[undefined, undefined]"] },
     ],
   ),
   exam("jsf-scope-exam", "Контрольна: scope & closures", "Exam: scope & closures", 2, [
-    mcq(
+    { ...mcq(
       "jsf-sce1",
       "Замикання (closure) в JavaScript — це:",
       "A closure in JavaScript is:",
@@ -416,7 +503,7 @@ const scopeClosures = unit("scope_closures", "Область видимості 
         "HTML-тег для закриття блоку",
       ],
       0,
-    ),
+    ), optionsEn: ["A function together with its lexical environment", "A method for closing a browser tab", "Garbage collection", "An HTML closing tag"] },
     codeFill(
       "jsf-sce2",
       "Ключове слово для оголошення блочної константи",
@@ -435,10 +522,12 @@ const scopeClosures = unit("scope_closures", "Область видимості 
       ["42", "undefined", "ReferenceError", "NaN"],
       0,
     ),
-    mcq(
+    { ...(codeRead(
       "jsf-sce4",
-      "Що станеться, якщо використати var замість let у циклі for із setTimeout?",
-      "What happens if var is used instead of let in a for loop with setTimeout?",
+      "Що виведуть ці callback-и після завершення циклу?",
+      "What will these callbacks print after the loop completes?",
+      "js",
+      "for (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 0);\n}",
       [
         "Усі таймери виведуть одне й те саме кінцеве значення var",
         "Кожен таймер отримає своє окреме число як з let",
@@ -446,7 +535,7 @@ const scopeClosures = unit("scope_closures", "Область видимості 
         "Синтаксична помилка при компіляції",
       ],
       0,
-    ),
+    ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["Each timer prints the shared final value 3", "Each timer prints its own value as with let", "The timers never run", "A syntax error occurs"] },
   ]),
 ]);
 
@@ -458,18 +547,23 @@ const recursionUnit = unit("recursion", "Рекурсія", "Recursion", [
     2,
     false,
     [
-      mcq(
+      concept("jsf-recursion-concept", "Базовий випадок і рекурсивний крок", "Base case and recursive step", {
+        uk: "Рекурсивна функція викликає себе для меншої підзадачі. Базовий випадок повертає результат без нового виклику, а рекурсивний крок має наближати коректний ввід до цієї умови. Кожен незавершений виклик зазвичай займає місце в стеку; навіть коректна рекурсія може перевищити його для дуже великої глибини. Перевіряйте область допустимого вводу й для глибоких структур розгляньте ітерацію з явним стеком.",
+        en: "A recursive function calls itself on a smaller subproblem. The base case returns without another call, and the recursive step must bring valid input closer to that condition. Each unfinished call usually uses stack space; even correct recursion can exceed it at great depth. Validate the input domain and consider iteration with an explicit stack for deep structures.",
+      }),
+      { ...mcq(
         "jsf-rec1",
         "Для чого у рекурсивній функції потрібен базовий випадок (base case)?",
         "Why is a base case required in a recursive function?",
         [
-          "Зупиняє рекурсію та запобігає переповненню call stack",
+          "Задає умову повернення без подальших рекурсивних викликів",
           "Прискорює роботу DOM-дерева",
           "Ініціалізує базу даних",
           "Конвертує код у TypeScript",
         ],
         0,
-      ),
+        why("Базовий випадок необхідний для завершення цього шаблону, але сам не гарантує відсутності переповнення на великій глибині.", "A base case enables this pattern to terminate, but does not guarantee against overflow at great depth."),
+      ), optionsEn: ["It defines a return without further recursive calls", "It accelerates the DOM tree", "It initializes a database", "It converts code to TypeScript"] },
       codeFill(
         "jsf-rec2",
         "Заповніть базовий випадок зупинки рекурсії",
@@ -479,10 +573,10 @@ const recursionUnit = unit("recursion", "Рекурсія", "Recursion", [
         ["return"],
         true,
       ),
-      codeRead(
+      { ...(codeRead(
         "jsf-rec3",
-        "Що викличе функція без базового випадку?",
-        "What does a function without a base case cause?",
+        "Що зазвичай станеться при виконанні цього коду без оптимізації хвостових викликів?",
+        "What normally happens when this code runs without tail-call optimization?",
         "js",
         "function forever() {\n  return forever();\n}\nforever();",
         [
@@ -492,7 +586,8 @@ const recursionUnit = unit("recursion", "Рекурсія", "Recursion", [
           "Зависання сервера на рівні ОС",
         ],
         0,
-      ),
+      ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["A stack overflow, typically RangeError", "A normal undefined return", "0", "An operating-system-level server hang"] },
+      { ...mcq("jsf-rec7", "Базовий випадок існує, але кожен крок віддаляє n від нього. Що це означає?", "A base case exists, but each step moves n away from it. What does that mean?", ["Виклик може не досягти базового випадку", "Рекурсія обов'язково завершиться", "Стек автоматично очищується", "Аргумент перетвориться на масив"], 0, why("Перевіряйте і базовий випадок, і прогрес до нього для заданого вводу.", "Check both the base case and progress toward it for the given input.")), optionsEn: ["The call may never reach the base case", "Recursion must terminate", "The stack is automatically cleared", "The argument becomes an array"] },
     ],
   ),
   lesson(
@@ -502,6 +597,10 @@ const recursionUnit = unit("recursion", "Рекурсія", "Recursion", [
     2,
     false,
     [
+      concept("jsf-recursion-tree-concept", "Рекурсивний обхід дерева", "Recursive tree traversal", {
+        uk: "Факторіал для невід'ємного цілого n визначають як 1 для n = 0 та n × factorial(n - 1) інакше. Для дерева з необов'язковими left і right можна повернути 0 для відсутнього вузла, а інакше додати значення вузла й суми піддерев. Приклад припускає скінченне ациклічне дерево з числовими val; циклічний граф потребує окремого обліку відвіданих вузлів.",
+        en: "For a nonnegative integer n, factorial is 1 at n = 0 and n × factorial(n - 1) otherwise. For a tree with optional left and right, return 0 for a missing node; otherwise add the node value and the sums of its subtrees. The example assumes a finite acyclic tree with numeric val; a cyclic graph requires separate visited-node tracking.",
+      }),
       codeRead(
         "jsf-rec4",
         "Що поверне factorial(4)?",
@@ -530,17 +629,18 @@ const recursionUnit = unit("recursion", "Рекурсія", "Recursion", [
       ),
       codeFill(
         "jsf-rec6",
-        "Крок рекурсивного виклику зі зменшенням аргументу",
-        "Recursive step decreasing the argument",
+        "Допишіть 1, щоб на кожному кроці зменшувати n на одиницю.",
+        "Complete 1 so each recursive step decreases n by one.",
         "js",
         "function sumDown(n) {\n  if (n <= 0) return 0;\n  return n + sumDown(n - ___);\n}",
         ["1"],
         true,
       ),
+      { ...mcq("jsf-rec8", "Яка додаткова умова потрібна для коректного обходу довільного графа з циклами?", "What additional measure is needed to traverse an arbitrary graph with cycles safely?", ["Відстежувати відвідані вузли", "Завжди видаляти корінь", "Ігнорувати всі ребра", "Замінити всі значення на рядки"], 0, why("Без відстеження відвіданих вузлів обхід може нескінченно повторювати цикл.", "Without visited tracking, traversal can repeatedly follow a cycle.")), optionsEn: ["Track visited nodes", "Always delete the root", "Ignore all edges", "Convert every value to a string"] },
     ],
   ),
   exam("jsf-rec-exam", "Контрольна: рекурсія", "Exam: recursion", 2, [
-    mcq(
+    { ...mcq(
       "jsf-rece1",
       "Кожен виклик рекурсивної функції до моменту повернення:",
       "Each recursive function call prior to return:",
@@ -551,7 +651,7 @@ const recursionUnit = unit("recursion", "Рекурсія", "Recursion", [
         "перезавантажує сторінку браузера",
       ],
       0,
-    ),
+    ), optionsEn: ["Adds a new call frame to the stack", "Clears the entire call stack", "Creates a new HTTP request", "Reloads the browser page"] },
     codeFill(
       "jsf-rece2",
       "Базова умова для рекурсивного підрахунку довжини масиву",
@@ -570,7 +670,7 @@ const recursionUnit = unit("recursion", "Рекурсія", "Recursion", [
       ["4 (exp = 3, 2, 1, 0)", "3", "1", "8"],
       0,
     ),
-    mcq(
+    { ...mcq(
       "jsf-rece4",
       "Головний ризик занадто глибокої рекурсії без оптимізації:",
       "Main risk of deep recursion without tail call optimization:",
@@ -581,7 +681,7 @@ const recursionUnit = unit("recursion", "Рекурсія", "Recursion", [
         "Неможливість зберегти файл",
       ],
       0,
-    ),
+    ), optionsEn: ["Call stack overflow, commonly a RangeError", "Data types reverse", "A parser syntax error", "The file cannot be saved"] },
   ]),
 ]);
 
@@ -593,16 +693,20 @@ const thisClasses = unit("this_classes", "this, конструктори та к
     2,
     false,
     [
-      codeRead(
+      concept("jsf-this-concept", "Контекст виклику", "Call context", {
+        uk: "У звичайному методі this визначається способом виклику: user.getName() передає user як this. Якщо зберегти метод у змінну й викликати як fn(), зв'язок з об'єктом не зберігається; у strict mode this буде undefined. fn.bind(user) створює нову функцію з прив'язаним this. Стрілкова функція не має власного this і бере його з лексичного оточення, тому bind не змінює її this.",
+        en: "In an ordinary method, this is determined by the call: user.getName() supplies user as this. Saving the method in a variable and calling fn() loses that receiver; in strict mode this is undefined. fn.bind(user) creates a new function with a bound this. An arrow function has no own this and captures it lexically, so bind does not change its this.",
+      }),
+      { ...(codeRead(
         "jsf-tc1",
-        "Чому дорівнює this при виклику user.getName()?",
-        "What is this inside user.getName() call?",
+        "Що виведе console.log і який об'єкт є this у методі?",
+        "What does console.log print, and which object is this in the method?",
         "js",
         "const user = {\n  name: 'Anna',\n  getName() { return this.name; }\n};\nconsole.log(user.getName());",
         ["'Anna' (об'єкт user перед крапкою)", "window / undefined", "null", "NaN"],
         0,
-      ),
-      mcq(
+      ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["'Anna'; this is the user object", "window / undefined", "null", "NaN"] },
+      { ...mcq(
         "jsf-tc2",
         "Особливість стрілкових функцій (arrow functions) щодо this:",
         "Arrow function property regarding this:",
@@ -613,8 +717,8 @@ const thisClasses = unit("this_classes", "this, конструктори та к
           "У них this завжди вказує на document",
         ],
         0,
-      ),
-      codeRead(
+      ), optionsEn: ["Arrow functions have no own this and capture it lexically", "Arrow functions always have this = null", "They create their own this only in strict mode", "Their this always points to document"] },
+      { ...(codeRead(
         "jsf-tc3",
         "Що станеться при втраті контексту?",
         "What happens when context is lost?",
@@ -627,7 +731,7 @@ const thisClasses = unit("this_classes", "this, конструктори та к
           "ReferenceError: val is not defined",
         ],
         0,
-      ),
+      ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["TypeError because this is undefined in strict mode", "42", "0", "ReferenceError: val is not defined"] },
       codeFill(
         "jsf-tc4",
         "Прив'яжіть контекст функції до obj",
@@ -637,6 +741,7 @@ const thisClasses = unit("this_classes", "this, конструктори та к
         ["bind"],
         true,
       ),
+      { ...mcq("jsf-tc8", "Чи змінює bind(obj) лексичне this стрілкової функції?", "Does bind(obj) change an arrow function's lexical this?", ["Ні, стрілкова функція бере this з оточення", "Так, завжди встановлює obj", "Так, якщо obj не порожній", "Ні, бо bind видаляє функцію"], 0, why("bind не перевизначає лексичне this стрілкової функції.", "bind does not override an arrow function's lexical this.")), optionsEn: ["No, the arrow captures this from its environment", "Yes, it always sets obj", "Yes, if obj is not empty", "No, because bind deletes the function"] },
     ],
   ),
   lesson(
@@ -646,6 +751,10 @@ const thisClasses = unit("this_classes", "this, конструктори та к
     2,
     false,
     [
+      concept("jsf-classes-concept", "Класи й успадкування", "Classes and inheritance", {
+        uk: "class визначає конструктор і методи; new створює екземпляр, пов'язаний із прототипом класу. extends задає батьківський клас. У похідному конструкторі super(...) викликає батьківський конструктор та ініціалізує this; звертатися до this до super не можна. Методи класу використовують прототипи та виконуються в strict mode; новий синтаксис не перетворює JavaScript на Java.",
+        en: "class defines a constructor and methods; new creates an instance linked to the class prototype. extends specifies a parent class. In a derived constructor super(...) calls the parent constructor and initializes this; this cannot be accessed before super. Class methods use prototypes and run in strict mode; the syntax does not turn JavaScript into Java.",
+      }),
       codeFill(
         "jsf-tc5",
         "Оголошення класу",
@@ -664,7 +773,7 @@ const thisClasses = unit("this_classes", "this, конструктори та к
         ["extends"],
         true,
       ),
-      codeRead(
+      { ...(codeRead(
         "jsf-tc7",
         "Що робить виклик super() у конструкторі дочірнього класу?",
         "What does calling super() do in a subclass constructor?",
@@ -677,7 +786,8 @@ const thisClasses = unit("this_classes", "this, конструктори та к
           "Працює як CSS-селектор",
         ],
         0,
-      ),
+      ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["It calls the Animal constructor and initializes this", "It creates an instance without inheritance", "It deletes parent fields", "It acts as a CSS selector"] },
+      { ...mcq("jsf-tc9", "Що станеться при зверненні до this до super() у конструкторі похідного класу?", "What happens when this is accessed before super() in a derived constructor?", ["Виникне ReferenceError", "this автоматично стане window", "Повернеться порожній об'єкт", "Батьківський конструктор викличеться двічі"], 0), optionsEn: ["A ReferenceError occurs", "this automatically becomes window", "An empty object is returned", "The parent constructor is called twice"] },
     ],
   ),
   exam("jsf-this-exam", "Контрольна: this & classes", "Exam: this & classes", 2, [
@@ -690,7 +800,7 @@ const thisClasses = unit("this_classes", "this, конструктори та к
       ["super"],
       true,
     ),
-    mcq(
+    { ...mcq(
       "jsf-tce2",
       "Що буде, якщо звернутися до this до виклику super() у derived конструкторі?",
       "What happens if this is accessed before super() in a derived constructor?",
@@ -701,8 +811,8 @@ const thisClasses = unit("this_classes", "this, конструктори та к
         "this автоматично стане глобальним window",
       ],
       0,
-    ),
-    codeRead(
+    ), optionsEn: ["ReferenceError: super() must initialize this first", "It works with an empty object", "It returns undefined without an error", "this automatically becomes window"] },
+    { ...(codeRead(
       "jsf-tce3",
       "Що виведе виклик timer.show()?",
       "What does calling timer.show() output?",
@@ -710,8 +820,8 @@ const thisClasses = unit("this_classes", "this, конструктори та к
       "const timer = {\n  seconds: 5,\n  show() {\n    const getSec = () => this.seconds;\n    return getSec();\n  }\n};\nconsole.log(timer.show());",
       ["5 (arrow бере this з методу show)", "undefined", "NaN", "TypeError"],
       0,
-    ),
-    mcq(
+    ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["5 (the arrow captures this from show)", "undefined", "NaN", "TypeError"] },
+    { ...mcq(
       "jsf-tce4",
       "Синтаксис class у JavaScript:",
       "class syntax in JavaScript:",
@@ -722,7 +832,7 @@ const thisClasses = unit("this_classes", "this, конструктори та к
         "Повністю замінює прототипи іншим механізмом",
       ],
       0,
-    ),
+    ), optionsEn: ["Class syntax uses prototype-based inheritance", "It is a separate Java virtual machine", "It only works on a Node.js backend", "It completely replaces prototypes with a different mechanism"] },
   ]),
 ]);
 
@@ -734,6 +844,10 @@ const collectionsUnit = unit("collections", "Колекції та копіюв�
     2,
     false,
     [
+      concept("jsf-collections-concept", "Колекції за призначенням", "Choosing a collection", {
+        uk: "Set зберігає унікальні значення: add додає значення, has перевіряє наявність, size повертає кількість. Map зберігає пари ключ–значення: set записує, get читає, has перевіряє ключ. Ключем Map може бути об'єкт, причому різні об'єкти з однаковим вмістом залишаються різними ключами.",
+        en: "Set stores unique values: add inserts a value, has checks membership, and size gives the count. Map stores key–value pairs: set writes, get reads, and has checks a key. An object can be a Map key, and distinct objects remain distinct keys even if their contents match.",
+      }),
       codeFill(
         "jsf-col1",
         "Створення Set для унікальних значень",
@@ -784,6 +898,10 @@ const collectionsUnit = unit("collections", "Колекції та копіюв�
     2,
     false,
     [
+      concept("jsf-nullish-clone-concept", "Відсутні значення та копії", "Missing values and copies", {
+        uk: "Оператор ?. зупиняє доступ, якщо значення ліворуч дорівнює null або undefined; ?? підставляє запасне значення лише для цих двох випадків, зберігаючи 0, false і порожній рядок. Spread створює поверхневу копію, тому вкладені об'єкти залишаються спільними. structuredClone створює незалежну копію підтримуваних даних, але не може клонувати функції.",
+        en: "The ?. operator stops access when the value on its left is null or undefined; ?? uses its fallback only for those two values, preserving 0, false, and the empty string. Spread makes a shallow copy, so nested objects remain shared. structuredClone makes an independent copy of supported data, but cannot clone functions.",
+      }),
       codeFill(
         "jsf-col5",
         "Безпечний доступ до вкладеного поля (optional chaining)",
@@ -793,7 +911,7 @@ const collectionsUnit = unit("collections", "Колекції та копіюв�
         ["?."],
         true,
       ),
-      codeRead(
+      { ...(codeRead(
         "jsf-col6",
         "Різниця між ?. та ??",
         "Difference between ?. and ??",
@@ -806,8 +924,8 @@ const collectionsUnit = unit("collections", "Колекції та копіюв�
           "undefined 10",
         ],
         0,
-      ),
-      mcq(
+      ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["0 10 (?? preserves 0 and replaces missing)", "10 10", "0 0", "undefined 10"] },
+      { ...mcq(
         "jsf-col7",
         "Різниця між поверхневим копіюванням {...obj} та structuredClone(obj):",
         "Difference between shallow {...obj} and structuredClone(obj):",
@@ -818,7 +936,7 @@ const collectionsUnit = unit("collections", "Колекції та копіюв�
           "вони однакові в усіх версіях JS",
         ],
         0,
-      ),
+      ), optionsEn: ["structuredClone copies supported nested data; spread copies only the first level", "Spread always copies every level deeply", "structuredClone only works with numbers", "They are identical in every JavaScript version"] },
     ],
   ),
   exam("jsf-collections-exam", "Контрольна: collections", "Exam: collections", 2, [
@@ -874,6 +992,10 @@ const timeUnit = unit("time", "Час та таймери", "Time & timers", [
     2,
     false,
     [
+      concept("jsf-date-concept", "Дата і тривалість", "Dates and durations", {
+        uk: "Date.now() повертає кількість мілісекунд від початку епохи Unix і залежить від системного годинника. У new Date(year, month, day) місяці рахуються від 0, а дата інтерпретується в локальному часовому поясі. Для вимірювання тривалості в доступних середовищах зазвичай краще performance.now(): його монотонний годинник не змінюється через переведення системного часу.",
+        en: "Date.now() returns milliseconds since the Unix epoch and depends on the system clock. In new Date(year, month, day), months start at 0 and the date uses the local time zone. For elapsed time, prefer performance.now() when available: its monotonic clock is not affected by system clock adjustments.",
+      }),
       codeFill(
         "jsf-tm1",
         "Поточний timestamp у мілісекундах",
@@ -883,7 +1005,7 @@ const timeUnit = unit("time", "Час та таймери", "Time & timers", [
         ["now"],
         true,
       ),
-      mcq(
+      { ...mcq(
         "jsf-tm2",
         "Як індексуються місяці в об'єкті Date у JavaScript (new Date(2025, m, 1))?",
         "How are months indexed in JavaScript Date (new Date(2025, m, 1))?",
@@ -894,21 +1016,22 @@ const timeUnit = unit("time", "Час та таймери", "Time & timers", [
           "З 100",
         ],
         0,
-      ),
-      codeRead(
+      ), optionsEn: ["From 0 (January is 0, December is 11)", "From 1 (January is 1, December is 12)", "As strings ('jan', 'feb')", "From 100"] },
+      { ...(codeRead(
         "jsf-tm3",
         "Що вимірює цей код?",
         "What does this code measure?",
         "js",
         "const start = Date.now();\ndoHeavyWork();\nconst duration = Date.now() - start;\nconsole.log(duration);",
         [
-          "Час виконання doHeavyWork у мілісекундах",
+          "Приблизну тривалість синхронного виклику doHeavyWork у мілісекундах",
           "Номер поточного місяця",
           "Кількість викликів функції",
           "Залишок оперативної пам'яті",
         ],
         0,
-      ),
+      ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["Approximate duration of the synchronous doHeavyWork call in milliseconds", "The current month number", "The number of function calls", "Available memory"] },
+      { ...mcq("jsf-tm7", "Який годинник краще підходить для вимірювання тривалості, якщо він доступний?", "Which clock is better suited to measuring elapsed time when available?", ["performance.now(), бо він монотонний", "Date.now(), бо він не залежить від системного годинника", "new Date().getMonth(), бо це таймер", "setTimeout(), бо він повертає тривалість"], 0, why("Монотонний годинник не змінюється через коригування системного часу.", "A monotonic clock is unaffected by system clock adjustments.")), optionsEn: ["performance.now(), because it is monotonic", "Date.now(), because it is independent of the system clock", "new Date().getMonth(), because it is a timer", "setTimeout(), because it returns elapsed time"] },
     ],
   ),
   lesson(
@@ -918,6 +1041,10 @@ const timeUnit = unit("time", "Час та таймери", "Time & timers", [
     2,
     false,
     [
+      concept("jsf-timers-concept", "Планування і скасування", "Scheduling and cancellation", {
+        uk: "setTimeout планує одноразовий колбек, а setInterval — повторний. Затримка в мілісекундах задає мінімальний час очікування, а не точний момент виконання: зайнятий потік або обмеження середовища можуть відкласти колбек. Зберігайте ідентифікатор та викликайте clearTimeout або clearInterval, коли відповідний таймер більше не потрібен.",
+        en: "setTimeout schedules a one-time callback, while setInterval schedules a repeated one. The delay in milliseconds is a minimum wait, not an exact execution time: a busy thread or environment restrictions can postpone the callback. Keep the handle and call clearTimeout or clearInterval when that timer is no longer needed.",
+      }),
       codeFill(
         "jsf-tm4",
         "Скасування запланованого setTimeout",
@@ -927,19 +1054,19 @@ const timeUnit = unit("time", "Час та таймери", "Time & timers", [
         ["clearTimeout"],
         true,
       ),
-      mcq(
+      { ...mcq(
         "jsf-tm5",
-        "Чому при створенні таймера/countdown не можна запускати новий setInterval без очищення старого?",
-        "Why must a countdown timer never stack setInterval without clearing the previous one?",
+        "Чому перед повторним запуском того самого зворотного відліку варто зупинити попередній інтервал?",
+        "Why stop the previous interval before restarting the same countdown?",
         [
-          "Інтервали нашаровуються: кілька таймерів тікають одночасно, прискорюючи зворотний відлік і створюючи витік пам'яті",
+          "Кілька інтервалів можуть одночасно змінювати відлік і прискорювати його",
           "JavaScript блокує запуск другого таймера помилкою SyntaxError",
           "Браузер автоматично очищає старий інтервал без участі коду",
           "Це змінює системний час комп'ютера",
         ],
         0,
-      ),
-      codeRead(
+      ), optionsEn: ["Multiple intervals can update the countdown at once and speed it up", "JavaScript rejects a second timer with a SyntaxError", "The browser automatically clears the previous interval", "It changes the computer's system time"] },
+      { ...(codeRead(
         "jsf-tm6",
         "Який порядок виведення логів?",
         "What is the output log order?",
@@ -956,7 +1083,8 @@ const timeUnit = unit("time", "Час та таймери", "Time & timers", [
           explanationUk: "Синхронний код виконується першим, setTimeout(..., 0) ставиться в чергу подій.",
           explanationEn: "Synchronous code runs first, setTimeout(..., 0) queues in the event loop.",
         },
-      ),
+      ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["A C B (the timer callback runs after the synchronous code)", "A B C", "B A C", "C B A"] },
+      { ...mcq("jsf-tm8", "Чи гарантує setTimeout(callback, 1000) виконання рівно через 1000 мс?", "Does setTimeout(callback, 1000) guarantee execution exactly after 1000 ms?", ["Ні, колбек може виконатися пізніше", "Так, незалежно від завантаження потоку", "Так, якщо callback є стрілковою функцією", "Ні, він завжди виконується раніше"], 0), optionsEn: ["No, the callback can run later", "Yes, regardless of thread workload", "Yes, if callback is an arrow function", "No, it always runs earlier"] },
     ],
   ),
   exam("jsf-time-exam", "Контрольна: time & timers", "Exam: time & timers", 2, [
@@ -969,7 +1097,7 @@ const timeUnit = unit("time", "Час та таймери", "Time & timers", [
       ["clearInterval"],
       true,
     ),
-    mcq(
+    { ...mcq(
       "jsf-tme2",
       "В яких одиницях вказується затримка в setTimeout(fn, ms)?",
       "What units is delay specified in for setTimeout(fn, ms)?",
@@ -980,8 +1108,8 @@ const timeUnit = unit("time", "Час та таймери", "Time & timers", [
         "Мікросекунди",
       ],
       0,
-    ),
-    codeRead(
+    ), optionsEn: ["Milliseconds (1 second = 1000 ms)", "Seconds", "Minutes", "Microseconds"] },
+    { ...(codeRead(
       "jsf-tme3",
       "Що станеться при виклику clearTimeout(id) до настання таймауту?",
       "What happens when calling clearTimeout(id) before the timeout elapses?",
@@ -994,7 +1122,7 @@ const timeUnit = unit("time", "Час та таймери", "Time & timers", [
         "Таймер перезапуститься на 2000 мс",
       ],
       0,
-    ),
+    ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["The scheduled 'Fire' callback will not run", "The callback runs immediately", "A TypeError occurs", "The timer restarts for 2000 ms"] },
     codeFill(
       "jsf-tme4",
       "Запуск функції через 2 секунди",
@@ -1015,6 +1143,10 @@ const pageWidgets = unit("page_widgets", "Віджети сторінки: кл�
     2,
     false,
     [
+      concept("jsf-widgets-concept", "Класи та делегування", "Classes and delegation", {
+        uk: "classList додає, видаляє та перемикає CSS-класи елемента. При делегуванні слухач контейнера отримує події, що спливають від його нащадків: event.target вказує на початковий елемент, а event.currentTarget — на контейнер під час обробки. closest(selector) перевіряє сам елемент і його предків та повертає null, якщо збігів немає; за потреби перевіряйте, що знайдений елемент належить контейнеру.",
+        en: "classList adds, removes, and toggles an element's CSS classes. With delegation, a container listener receives events bubbling from descendants: event.target identifies the originating element, while event.currentTarget is the container during the handler. closest(selector) checks the element itself and its ancestors and returns null if there is no match; check that the match belongs to the container when needed.",
+      }),
       codeFill(
         "jsf-pw1",
         "Перемикання CSS-класу (toggle)",
@@ -1026,14 +1158,14 @@ const pageWidgets = unit("page_widgets", "Віджети сторінки: кл�
       ),
       codeFill(
         "jsf-pw2",
-        "Пошук найближчого батьківського елемента за селектором",
-        "Find nearest ancestor matching selector",
+        "Пошук самого елемента або найближчого предка за селектором",
+        "Find the element itself or its nearest ancestor matching a selector",
         "js",
         "const card = event.target.___('.card');",
         ["closest"],
         true,
       ),
-      mcq(
+      { ...mcq(
         "jsf-pw3",
         "Головна перевага делегування подій (event delegation) на контейнері:",
         "Main advantage of event delegation on a container:",
@@ -1044,7 +1176,8 @@ const pageWidgets = unit("page_widgets", "Віджети сторінки: кл�
           "Дозволяє обходити CORS",
         ],
         0,
-      ),
+      ), optionsEn: ["One parent listener can handle bubbling clicks from dynamically added descendants", "The browser automatically disables CSS animations", "Events no longer bubble", "It bypasses CORS"] },
+      { ...mcq("jsf-pw7", "Що поверне element.closest('.card'), якщо ні сам елемент, ні його предки не відповідають селектору?", "What does element.closest('.card') return when neither the element nor its ancestors match?", ["null", "undefined", "Порожній масив", "document"], 0), optionsEn: ["null", "undefined", "An empty array", "document"] },
     ],
   ),
   lesson(
@@ -1054,12 +1187,16 @@ const pageWidgets = unit("page_widgets", "Віджети сторінки: кл�
     2,
     false,
     [
-      codeRead(
+      concept("jsf-tabs-modal-concept", "Стан віджета і доступність", "Widget state and accessibility", {
+        uk: "CSS-клас може показувати активну кнопку, але сам по собі не перемикає вміст вкладок і не повідомляє допоміжні технології про вибір. Синхронізуйте видимість панелі, стан aria-selected і керування з клавіатури. Для модального діалогу задайте доступну назву, перемістіть фокус усередину, утримуйте його там і поверніть на елемент відкриття після закриття; підтримуйте Escape, коли це доречно.",
+        en: "A CSS class can mark an active button, but it does not by itself switch tab content or communicate selection to assistive technology. Synchronize panel visibility, aria-selected, and keyboard interaction. Give a modal dialog an accessible name, move focus inside, keep it there, and return focus to the opener after closing; support Escape when appropriate.",
+      }),
+      { ...(codeRead(
         "jsf-pw4",
-        "Як працює перемикання вкладок у цьому коді?",
-        "How does tab switching work in this code?",
+        "Що саме робить цей код із кнопками вкладок?",
+        "What does this code do to the tab buttons?",
         "js",
-        "tabsContainer.addEventListener('click', (e) => {\n  const btn = e.target.closest('.tab-button');\n  if (!btn) return;\n  tabsContainer.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));\n  btn.classList.add('active');\n});",
+        "tabsContainer.addEventListener('click', (e) => {\n  const btn = e.target.closest('.tab-button');\n  if (!btn || !tabsContainer.contains(btn)) return;\n  tabsContainer.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));\n  btn.classList.add('active');\n});",
         [
           "Знімає клас active з усіх кнопок і додає його до натиснутої вкладки за допомогою closest",
           "Видаляє весь DOM сторінки",
@@ -1067,7 +1204,7 @@ const pageWidgets = unit("page_widgets", "Віджети сторінки: кл�
           "Працює лише для першої вкладки",
         ],
         0,
-      ),
+      ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["It removes active from all tab buttons and adds it to the matching clicked button", "It removes the entire page DOM", "It reloads the page at a new URL", "It only works for the first tab"] },
       codeFill(
         "jsf-pw5",
         "Закриття модального вікна при натисканні Escape",
@@ -1077,7 +1214,7 @@ const pageWidgets = unit("page_widgets", "Віджети сторінки: кл�
         ["Escape"],
         true,
       ),
-      mcq(
+      { ...mcq(
         "jsf-pw6",
         "Для доступності (a11y) модального вікна важливо:",
         "For modal dialog accessibility (a11y), it is important to:",
@@ -1088,7 +1225,8 @@ const pageWidgets = unit("page_widgets", "Віджети сторінки: кл�
           "Заборонити взаємодію мишкою",
         ],
         0,
-      ),
+      ), optionsEn: ["Support Escape and keep focus inside the dialog", "Disable keyboard use", "Set display:none on the body", "Disable mouse interaction"] },
+      { ...mcq("jsf-pw8", "Що зазвичай потрібно зробити з фокусом після закриття модального діалогу?", "What should usually happen to focus after closing a modal dialog?", ["Повернути його на елемент, що відкрив діалог", "Завжди перемістити його на body", "Заборонити подальше фокусування", "Залишити його у прихованому діалозі"], 0), optionsEn: ["Return it to the element that opened the dialog", "Always move it to body", "Prevent further focus", "Leave it in the hidden dialog"] },
     ],
   ),
   exam("jsf-widgets-exam", "Контрольна: page widgets", "Exam: page widgets", 2, [
@@ -1119,10 +1257,10 @@ const pageWidgets = unit("page_widgets", "Віджети сторінки: кл�
       ["add"],
       true,
     ),
-    mcq(
+    { ...mcq(
       "jsf-pwe4",
-      "Чому event delegation використовує bubbling (спливання подій)?",
-      "Why does event delegation rely on event bubbling?",
+      "Як спливання допомагає делегуванню з типовим слухачем контейнера?",
+      "How does bubbling help delegation with a typical container listener?",
       [
         "Подія від дочірнього елемента спливає вгору по дереву DOM до батьківського слухача",
         "Подія блокується браузером на рівні вікна",
@@ -1130,7 +1268,7 @@ const pageWidgets = unit("page_widgets", "Віджети сторінки: кл�
         "Bubbling працює лише в мобільних додатках",
       ],
       0,
-    ),
+    ), optionsEn: ["The descendant's event bubbles up the DOM to the parent listener", "The browser blocks the event at the window", "Bubbling prevents screen repainting", "Bubbling works only in mobile apps"] },
   ]),
 ]);
 
@@ -1146,20 +1284,24 @@ const asyncDomDebugging = unit(
       3,
       false,
       [
-        codeRead(
+        concept("js-dbg-race-concept", "Застарілі результати", "Stale results", {
+          uk: "Відповіді пошуку можуть надійти не в порядку запуску запитів. Лічильник версій дозволяє показувати результат лише найновішого запиту; він не скасовує старі запити. AbortController може скасувати запит, але його відхилення потрібно обробити. Promise.all відхиляється після першого відхилення, не скасовуючи інші операції.",
+          en: "Search responses can arrive in a different order from requests. A version counter allows only the latest request to render; it does not cancel older requests. AbortController can cancel a request, but its rejection must be handled. Promise.all rejects on the first rejection without cancelling the other operations.",
+        }),
+        { ...(codeRead(
           "js-dbg-1",
           "Діагностика гонки запитів при швидкому введенні (race condition)",
           "Diagnose race condition on fast typing",
           "js",
-          "let lastId = 0;\nasync function search(q) {\n  const currentId = ++lastId;\n  const res = await fetch('/search?q=' + q);\n  const data = await res.json();\n  if (currentId !== lastId) return; // ignore stale\n  render(data);\n}",
+          "let lastId = 0;\nasync function search(q) {\n  const currentId = ++lastId;\n  const res = await fetch('/search?q=' + encodeURIComponent(q));\n  const data = await res.json();\n  if (currentId !== lastId) return; // ignore stale\n  render(data);\n}",
           [
-            "currentId перевіряє, чи не завершився новіший запит раніше за старий",
+            "Порівняння не дає показати результат, якщо після цього запиту вже запущено новіший",
             "lastId скидається до нуля на кожному виклику",
             "render викликається двічі",
             "fetch кешує всі відповіді",
           ],
           0,
-        ),
+        ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["The comparison suppresses the result if a newer request has started", "lastId resets to zero on every call", "render is called twice", "fetch caches every response"] },
         codeFill(
           "js-dbg-2",
           "Скасування попереднього HTTP-запиту через AbortController",
@@ -1169,18 +1311,18 @@ const asyncDomDebugging = unit(
           ["signal"],
           true,
         ),
-        mcq(
+        { ...mcq(
           "js-dbg-3",
           "Як поводиться Promise.all() при помилці в одному з промісів?",
           "How does Promise.all() behave when one promise rejects?",
           [
-            "Негайно відхиляється (fail-fast) з першою ж помилкою",
+            "Відхиляється з причиною першого відхилення, не скасовуючи інші операції",
             "Чекає завершення решти і повертає null для помилкового",
             "Ігнорує помилку і повертає тільки успішні",
             "Перезапускає невдалий проміс тричі",
           ],
           0,
-        ),
+        ), optionsEn: ["It rejects with the first rejection reason without cancelling the other operations", "It waits for the rest and returns null for the rejected one", "It ignores the rejection and returns only successes", "It retries the failed promise three times"] },
       ],
     ),
     lesson(
@@ -1190,6 +1332,10 @@ const asyncDomDebugging = unit(
       3,
       false,
       [
+        concept("js-dbg-events-concept", "Діагностика подій", "Diagnosing events", {
+          uk: "Під час обробки event.target позначає джерело події, а event.currentTarget — елемент поточного слухача; після обробника currentTarget стає null. closest знаходить відповідний елемент або предка, але знайдений вузол варто перевірити на належність контейнеру. stopPropagation зупиняє подальше поширення, проте не скасовує стандартну дію браузера: для цього використовують preventDefault, якщо подію можна скасувати.",
+          en: "During a handler event.target identifies the event's origin, while event.currentTarget identifies the current listener's element; after the handler currentTarget becomes null. closest finds a matching element or ancestor, but check that the match belongs to the container. stopPropagation stops further propagation without cancelling the browser's default action; use preventDefault for a cancelable event when appropriate.",
+        }),
         codeRead(
           "js-dbg-4",
           "Різниця між e.target та e.currentTarget",
@@ -1199,8 +1345,8 @@ const asyncDomDebugging = unit(
           ["BUTTON", "SPAN", "BODY", "HTML"],
           0,
           {
-            explanationUk: "e.currentTarget завжди вказує на елемент, до якого прив'язано слухач (button).",
-            explanationEn: "e.currentTarget always points to the element the handler is attached to.",
+            explanationUk: "Під час цього обробника e.currentTarget вказує на елемент, до якого прив'язано слухач (button).",
+            explanationEn: "During this handler e.currentTarget points to the element the listener is attached to (button).",
           },
         ),
         codeFill(
@@ -1208,11 +1354,11 @@ const asyncDomDebugging = unit(
           "Пошук батьківської кнопки при кліку на вкладену іконку",
           "Find parent button on nested icon click",
           "js",
-          "list.addEventListener('click', (e) => {\n  const btn = e.target.___('button.delete-item');\n  if (!btn) return;\n  deleteItem(btn.dataset.id);\n});",
+          "list.addEventListener('click', (e) => {\n  const btn = e.target.___('button.delete-item');\n  if (!btn || !list.contains(btn)) return;\n  deleteItem(btn.dataset.id);\n});",
           ["closest"],
           true,
         ),
-        mcq(
+        { ...mcq(
           "js-dbg-6",
           "Чому зловживання e.stopPropagation() вважається антипатерном?",
           "Why is overuse of e.stopPropagation() considered an antipattern?",
@@ -1223,7 +1369,7 @@ const asyncDomDebugging = unit(
             "Воно забороняє стилізацію через CSS :hover",
           ],
           0,
-        ),
+        ), optionsEn: ["It can disrupt logging, analytics, and delegation higher in the tree", "It causes a browser memory leak", "It blocks setTimeout", "It prevents CSS :hover styling"] },
       ],
     ),
     lesson(
@@ -1233,7 +1379,11 @@ const asyncDomDebugging = unit(
       3,
       false,
       [
-        codeRead(
+        concept("js-dbg-lifecycle-concept", "Час запуску та очищення", "Execution timing and cleanup", {
+          uk: "Звичайний скрипт у head виконується під час розбору HTML, тому елемента нижче може ще не бути. Для зовнішнього класичного скрипта defer відкладає виконання до завершення розбору документа. При очищенні removeEventListener має отримати той самий тип події, функцію і значення capture, які використали під час додавання.",
+          en: "A normal script in head runs while HTML is being parsed, so an element later in the document may not exist yet. For an external classic script, defer delays execution until parsing is complete. Cleanup with removeEventListener must use the same event type, function, and capture value used during registration.",
+        }),
+        { ...(codeRead(
           "js-dbg-7",
           "Чому script в <head> без defer повертає null на document.getElementById?",
           "Why does script in head without defer return null for getElementById?",
@@ -1246,7 +1396,7 @@ const asyncDomDebugging = unit(
             "Браузер блокує доступ до DOM з міркувань безпеки",
           ],
           0,
-        ),
+        ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["The HTML parser has not reached the element in body when the script runs", "IDs are unsupported in head", "Only querySelector can be used", "The browser blocks DOM access for security"] },
         codeFill(
           "js-dbg-8",
           "Видалення слухача подій для уникнення витоку пам'яті",
@@ -1265,6 +1415,10 @@ const asyncDomDebugging = unit(
       3,
       false,
       [
+        concept("js-dbg-queue-concept", "Стан під час помилки", "State after an error", {
+          uk: "Послідовний цикл await обробляє наступне завдання після завершення попереднього. Якщо обробка відхилиться, catch показує помилку, а finally відновлює кнопку, щоб користувач міг повторити дію. Повідомлення про успіх показуйте лише після успішного завершення всіх завдань.",
+          en: "A sequential await loop processes the next task after the previous one finishes. If processing rejects, catch reports the error and finally restores the button so the user can retry. Show the success message only after all tasks complete successfully.",
+        }),
         codeOrder(
           "js-dbg-9",
           "Побудова безпечного циклу обробки списку задач",
@@ -1273,16 +1427,20 @@ const asyncDomDebugging = unit(
           [
             "btn.disabled = true;",
             "statusEl.textContent = 'Processing...';",
-            "for (const task of tasks) { await processTask(task); }",
-            "statusEl.textContent = 'All done!';",
-            "btn.disabled = false;",
+            "try {",
+            "  for (const task of tasks) { await processTask(task); }",
+            "  statusEl.textContent = 'All done!';",
+            "} catch (error) { statusEl.textContent = 'Processing failed';",
+            "} finally { btn.disabled = false; }",
           ],
           [
             "btn.disabled = true;",
             "statusEl.textContent = 'Processing...';",
-            "for (const task of tasks) { await processTask(task); }",
-            "statusEl.textContent = 'All done!';",
-            "btn.disabled = false;",
+            "try {",
+            "  for (const task of tasks) { await processTask(task); }",
+            "  statusEl.textContent = 'All done!';",
+            "} catch (error) { statusEl.textContent = 'Processing failed';",
+            "} finally { btn.disabled = false; }",
           ],
         ),
         codeFill(
@@ -1360,6 +1518,10 @@ const capstone = unit("capstone", "Capstone", "Capstone", [
     3,
     false,
     [
+      concept("jsf-counter-project-concept", "Стан лічильника та перевірка", "Counter state and assessment", {
+        uk: "Замикання зберігає змінну count між викликами методів одного лічильника; окремі виклики createCounter мають створювати незалежний стан. Перевірте вручну початкове значення, кілька викликів inc і два незалежні лічильники. Перша вправа перевіряє структуру файлів, а наступна — наведений результат виконання або текст коду залежно від режиму; жодна з цих перевірок окремо не доводить усі властивості реалізації.",
+        en: "A closure keeps count between calls to one counter's methods; separate createCounter calls should have independent state. Check the initial value, repeated inc calls, and two independent counters yourself. The first exercise checks file structure, while the next checks the specified output or source text depending on the mode; neither check alone proves every property of the implementation.",
+      }),
       {
         id: "jsf-c1",
         type: "code_project",
@@ -1425,8 +1587,8 @@ console.log("Count:", c.get());
           checkMode: "both",
           accepted: ["createCounter", "inc", "get", "Count: 11"],
           requiredSource: ["createCounter", "inc", "get"],
-          limitationsUk: "Поведінковий режим перевіряє результат виконання у Docker-контейнері. Текстовий режим аналізує текст коду без запуску.",
-          limitationsEn: "Behavior mode executes and checks output in a Docker sandbox. Text mode analyzes code structure without execution.",
+          limitationsUk: "Поведінковий режим перевіряє вивід Count: 11 і код завершення у Docker-контейнері; незалежність лічильників він не перевіряє. Текстовий режим аналізує текст коду без запуску.",
+          limitationsEn: "Behavior mode checks the Count: 11 output and exit code in a Docker sandbox; it does not test counter independence. Text mode analyzes code without executing it.",
         },
       ),
     ],
@@ -1438,22 +1600,22 @@ console.log("Count:", c.get());
     4,
     false,
     [
-      mcq(
+      { ...mcq(
         "jsf-fb1",
         "На локальній дошці ForgeBoard фільтр пошуку робить fetch на кожен keystroke. Що відбудеться, якщо раніший повільний запит повернеться після новішого?",
         "ForgeBoard search triggers fetch on every keystroke. What happens if an older slow response resolves after a newer query?",
         [
-          "Стан UI перетреться застарілими результатами (race condition), якщо не скасовувати попередній запит через AbortController",
+          "Застаріла відповідь може перезаписати нові результати, якщо не перевіряти актуальність перед оновленням UI",
           "Браузер автоматично скасує всі попередні Promise сам",
           "JSON.parse сам пересортує старі дані за часом",
           "Подія input більше не спрацює",
         ],
         0,
         why(
-          "Кожен новий пошук має скасовувати попередній AbortController або ігнорувати відповіді неактуального сигналу.",
-          "Aborting stale requests with AbortController guarantees fast responses never overwrite newer results.",
+          "Скасовуйте непотрібну роботу, а перед оновленням UI перевіряйте версію запиту або стан його сигналу: скасування може надійти після відповіді.",
+          "Cancel unnecessary work and check the request version or signal before updating the UI: cancellation can arrive after a response.",
         ),
-      ),
+      ), optionsEn: ["A stale response can overwrite newer results unless freshness is checked before updating the UI", "The browser automatically cancels all previous promises", "JSON.parse sorts old data by time", "The input event stops firing"] },
       codeProject(
         "jsf-fb2",
         "Змоделюйте фільтрацію й незмінне оновлення статусу задачі ForgeBoard; для повних поведінкових тестів завантажте локальний пакет M2 нижче.",
@@ -1463,27 +1625,27 @@ console.log("Count:", c.get());
             id: "js",
             name: "board.js",
             language: "javascript",
-            starter: `export function filterTasks(tasks, query, status) {\n  const q = query.trim().toLowerCase();\n  return tasks.filter((t) => (!status || t.status === status) && t.title.toLowerCase().includes(q));\n}\n\nexport function toggleTaskStatus(tasks, id) {\n  return tasks.map((t) => (t.id === id ? { ...t, status: t.status === "done" ? "todo" : "done" } : t));\n}\n`,
+            starter: `export function filterTasks(tasks, query, status) {\n  // TODO: select matching tasks\n  return [];\n}\n\nexport function toggleTaskStatus(tasks, id) {\n  // TODO: return an updated copy\n  return tasks;\n}\n`,
           },
         ],
         [
           { fileId: "js", contains: ["filterTasks", "filter", "toggleTaskStatus", "map"] },
         ],
         {
-          hintUk: "Використовуйте LocalLabPanel для запуску npm/pnpm-тестів у локальному середовищі M2.",
-          hintEn: "Use the LocalLabPanel below to run real Node/DOM test suites for Milestone 2.",
+          hintUk: "У додатку перевіряються лише ключові фрагменти коду; запустіть тести з локального пакета M2, щоб перевірити поведінку.",
+          hintEn: "The app checks only required source fragments; run the tests in the local M2 pack to check behavior.",
         },
       ),
     ],
     { baseXp: 40 },
   ),
   exam("jsf-cap-exam", "Фінальна контрольна JS", "Final JS exam", 3, [
-    mcq("jsf-ce1", "Що означає ===?", "What does === mean?", ["strict equality", "assign", "OR", "await"], 0),
+    { ...mcq("jsf-ce1", "Що означає ===?", "What does === mean?", ["Строга рівність", "Присвоєння", "Логічне АБО", "Очікування промісу"], 0), optionsEn: ["Strict equality", "Assignment", "Logical OR", "Awaiting a promise"] },
     codeFill("jsf-ce2", "Перетворіть кожен елемент масиву функцією f.", "Transform every array element with f.", "js", "arr.___(f)", ["map"], true),
     codeFill("jsf-ce3", "Оголосіть асинхронну функцію.", "Declare an async function.", "js", "___ function f() {}", ["async"], true),
     codeFill("jsf-ce4", "Дочекайтеся значення Promise p.", "Wait for the value of Promise p.", "js", "const x = ___ p;", ["await"], true),
     codeFill("jsf-ce5", "Знайдіть перше посилання a за селектором.", "Find the first a link by selector.", "js", "document.___('a')", ["querySelector"], true),
-    mcq("jsf-ce6", "Що обробляє .catch у Promise?", "What does .catch handle on a Promise?", ["handles reject", "maps array", "CSS", "SQL"], 0),
+    { ...mcq("jsf-ce6", "Що обробляє .catch у Promise?", "What does .catch handle on a Promise?", ["Відхилення промісу", "Перетворення масиву", "CSS", "SQL"], 0), optionsEn: ["Promise rejection", "Array mapping", "CSS", "SQL"] },
   ]),
 ]);
 
@@ -1495,13 +1657,17 @@ const errorsProto = unit("errors_proto", "Errors & prototypes", "Errors & protot
     3,
     false,
     [
-      mcq(
+      concept("jsf-errors-concept", "Помилки та завершення", "Errors and completion", {
+        uk: "throw перериває поточний потік і передає значення найближчому відповідному catch. finally виконується перед виходом із try або catch, навіть коли вони повертають значення чи кидають помилку. Якщо finally саме виконає return або throw, воно замінить попередній результат; зазвичай у finally розміщують очищення ресурсів.",
+        en: "throw interrupts the current flow and passes a value to the nearest applicable catch. finally runs before leaving try or catch, even when either returns or throws. If finally itself returns or throws, it replaces the previous result; finally is usually used for cleanup.",
+      }),
+      { ...mcq(
         "jsf-e1",
         "catch ловить:",
         "catch handles:",
-        ["кинуті помилки в try", "лише syntax errors always", "network only", "CSS"],
+        ["Винятки, кинуті під час виконання відповідного try", "Усі синтаксичні помилки до виконання програми", "Лише мережеві помилки", "Правила CSS"],
         0,
-      ),
+      ), optionsEn: ["Exceptions thrown while executing the corresponding try", "All syntax errors before the program runs", "Only network errors", "CSS rules"] },
       codeFill(
         "jsf-e2",
         "Яке ключове слово кидає помилку?",
@@ -1511,15 +1677,15 @@ const errorsProto = unit("errors_proto", "Errors & prototypes", "Errors & protot
         ["throw"],
         true,
       ),
-      codeRead(
+      { ...(codeRead(
         "jsf-e3",
         "Чи виконається finally, якщо в try є return?",
         "Does finally run when try contains return?",
         "js",
-        "try { return 1; } finally { console.log('f'); }",
-        ["yes, before return completes", "never", "only on error", "syntax error"],
+        "function example() {\n  try { return 1; } finally { console.log('f'); }\n}\nexample();",
+        ["Так, перед завершенням return", "Ніколи", "Лише при помилці", "Синтаксична помилка"],
         0,
-      ),
+      ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["Yes, before the return completes", "Never", "Only on error", "Syntax error"] },
     ],
   ),
   lesson(
@@ -1529,29 +1695,33 @@ const errorsProto = unit("errors_proto", "Errors & prototypes", "Errors & protot
     3,
     false,
     [
-      mcq(
+      concept("jsf-prototype-concept", "Пошук властивостей", "Property lookup", {
+        uk: "При читанні властивості JavaScript спершу шукає її в самому об'єкті, потім у його прототипі та далі ланцюжком до null. Object.getPrototypeOf(obj) повертає безпосередній прототип. Object.hasOwn(obj, 'x') перевіряє лише власну властивість і працює також для об'єктів без успадкованого hasOwnProperty.",
+        en: "When reading a property, JavaScript looks on the object first, then follows its prototype chain until null. Object.getPrototypeOf(obj) returns the immediate prototype. Object.hasOwn(obj, 'x') checks only an own property and also works for objects without an inherited hasOwnProperty method.",
+      }),
+      { ...mcq(
         "jsf-e4",
-        "На що вказує obj.__proto__?",
-        "What does obj.__proto__ point to?",
-        ["prototype of constructor", "global window always", "null always", "class name string"],
+        "Що повертає Object.getPrototypeOf(obj)?",
+        "What does Object.getPrototypeOf(obj) return?",
+        ["Безпосередній прототип obj або null", "Завжди глобальний window", "Завжди null", "Назву класу як рядок"],
         0,
-      ),
+      ), optionsEn: ["The immediate prototype of obj, or null", "Always the global window", "Always null", "The class name as a string"] },
       codeFill(
         "jsf-e5",
         "Перевірте, що x — власна властивість обʼєкта (не з прототипу).",
         "Check that x is the object's own property (not inherited).",
         "js",
-        "obj.___('x')",
-        ["hasOwnProperty"],
+        "Object.___(obj, 'x')",
+        ["hasOwn"],
         true,
       ),
-      mcq(
+      { ...mcq(
         "jsf-e6",
         "На чому базується class extends?",
         "What is class extends based on?",
-        ["prototype inheritance", "copy paste only", "CSS cascade", "SQL joins"],
+        ["Прототипне успадкування", "Лише копіювання коду", "Каскад CSS", "З'єднання SQL"],
         0,
-      ),
+      ), optionsEn: ["Prototype inheritance", "Only copying code", "CSS cascade", "SQL joins"] },
     ],
   ),
   lesson(
@@ -1561,6 +1731,10 @@ const errorsProto = unit("errors_proto", "Errors & prototypes", "Errors & protot
     3,
     false,
     [
+      concept("jsf-iterable-concept", "Ітерація значень і ключів", "Iterating values and keys", {
+        uk: "for...of отримує значення через протокол ітерації Symbol.iterator; його підтримують, зокрема, масиви, рядки, Map і Set. for...in перебирає перелічувані рядкові ключі об'єкта, включно з успадкованими, тому зазвичай не підходить для значень масиву. Звичайний об'єкт не стає ітерованим автоматично.",
+        en: "for...of obtains values through the Symbol.iterator protocol, supported by arrays, strings, Map, and Set. for...in enumerates an object's enumerable string keys, including inherited ones, so it is usually unsuitable for array values. An ordinary object is not automatically iterable.",
+      }),
       codeFill(
         "jsf-e7",
         "Яке слово перебирає значення масиву в циклі?",
@@ -1570,13 +1744,13 @@ const errorsProto = unit("errors_proto", "Errors & prototypes", "Errors & protot
         ["of"],
         true,
       ),
-      mcq(
+      { ...mcq(
         "jsf-e8",
         "Що перебирає for..in?",
         "What does for..in iterate over?",
-        ["enumerable keys", "only values", "only Map", "DOM nodes only"],
+        ["Перелічувані рядкові ключі, зокрема успадковані", "Лише значення", "Лише Map", "Лише DOM-вузли"],
         0,
-      ),
+      ), optionsEn: ["Enumerable string keys, including inherited keys", "Only values", "Only Map", "Only DOM nodes"] },
       codeFill(
         "jsf-e9",
         "Який символ робить обʼєкт ітерованим?",
@@ -1589,10 +1763,10 @@ const errorsProto = unit("errors_proto", "Errors & prototypes", "Errors & protot
     ],
   ),
   exam("jsf-errors-exam", "Контрольна: errors/proto", "Exam: errors/proto", 3, [
-    mcq("jsf-ee1", "Що запускає throw?", "What does throw start?", ["exception flow", "CSS rule", "SQL row", "HTTP always"], 0),
+    { ...mcq("jsf-ee1", "Що запускає throw?", "What does throw start?", ["Передавання винятку", "Правило CSS", "Рядок SQL", "Завжди HTTP-запит"], 0), optionsEn: ["Exception propagation", "A CSS rule", "An SQL row", "Always an HTTP request"] },
     codeFill("jsf-ee2", "Перехопіть помилку з блоку try.", "Catch the error from the try block.", "js", "try {} ___ (e) {}", ["catch"], true),
     codeFill("jsf-ee3", "Перебирайте значення xs у циклі.", "Iterate over the values of xs.", "js", "for (const x ___ xs)", ["of"], true),
-    mcq("jsf-ee4", "Про що механізм прототипів?", "What is the prototype mechanism about?", ["inheritance", "only JSON", "only CSS", "DB indexes"], 0),
+    { ...mcq("jsf-ee4", "Про що механізм прототипів?", "What is the prototype mechanism about?", ["Успадкування властивостей", "Лише JSON", "Лише CSS", "Індекси бази даних"], 0), optionsEn: ["Property inheritance", "Only JSON", "Only CSS", "Database indexes"] },
   ]),
   lesson(
     "jsf-async-fetch-lite",
@@ -1601,6 +1775,10 @@ const errorsProto = unit("errors_proto", "Errors & prototypes", "Errors & protot
     3,
     false,
     [
+      concept("jsf-fetch-lite-concept", "Відповідь і помилки fetch", "Fetch responses and errors", {
+        uk: "await fetch(url) повертає Response; HTTP-відповідь 404 або 500 сама по собі не відхиляє проміс, тому перевіряйте res.ok перед читанням успішних даних. Мережева помилка або скасування можуть відхилити fetch. res.json() також повертає проміс і може відхилитися, якщо тіло не є коректним JSON.",
+        en: "await fetch(url) returns a Response; an HTTP 404 or 500 does not by itself reject the promise, so check res.ok before reading successful data. A network failure or cancellation can reject fetch. res.json() also returns a promise and can reject if the body is not valid JSON.",
+      }),
       codeFill(
         "jsf-af1",
         "Дочекайтеся відповіді від fetch.",
@@ -1610,13 +1788,13 @@ const errorsProto = unit("errors_proto", "Errors & prototypes", "Errors & protot
         ["await"],
         true,
       ),
-      mcq(
+      { ...mcq(
         "jsf-af2",
         "Що повертає res.json()?",
         "What does res.json() return?",
-        ["a Promise", "sync object only", "CSS", "SQL cursor"],
+        ["Проміс із розібраним значенням JSON", "Лише синхронний об'єкт", "CSS", "Курсор SQL"],
         0,
-      ),
+      ), optionsEn: ["A promise for the parsed JSON value", "Only a synchronous object", "CSS", "An SQL cursor"] },
       codeFill(
         "jsf-af3",
         "Зробіть функцію load асинхронною.",
@@ -1626,13 +1804,14 @@ const errorsProto = unit("errors_proto", "Errors & prototypes", "Errors & protot
         ["async"],
         true,
       ),
-      mcq(
+      { ...mcq(
         "jsf-af4",
         "Що означає HTTP-статус 404?",
         "What does HTTP status 404 mean?",
-        ["not found", "OK", "redirect only", "server always down"],
+        ["Ресурс не знайдено", "Успішна відповідь", "Лише перенаправлення", "Сервер завжди недоступний"],
         0,
-      ),
+      ), optionsEn: ["Not found", "Success", "Only a redirect", "The server is always down"] },
+      { ...mcq("jsf-af5", "Що зазвичай станеться з промісом fetch, коли сервер поверне HTTP 404?", "What normally happens to the fetch promise when the server returns HTTP 404?", ["Він виконається з Response, у якого ok дорівнює false", "Він завжди відхилиться з TypeError", "Він автоматично повторить запит", "Він поверне розібраний JSON без Response"], 0), optionsEn: ["It fulfills with a Response whose ok is false", "It always rejects with TypeError", "It automatically retries", "It returns parsed JSON without a Response"] },
     ],
   ),
 ]);
@@ -1647,6 +1826,10 @@ const eventLoopConcurrency = unit(
       "Порядок черг: Call Stack, Microtasks та Macrotasks",
       "Event Loop: Microtasks vs Macrotasks",
       3, false, [
+        concept("jsf-elc-microtasks-concept", "Черги та чуйність сторінки", "Queues and responsiveness", {
+          uk: "Синхронний код виконується в поточній задачі. Після неї браузер спорожнює чергу мікрозадач, зокрема реакцій Promise, перед наступною задачею таймера. Нескінченний ланцюжок мікрозадач може не дати браузеру обробити введення та оновити екран; для довгої роботи потрібні розбиття на частини або перенесення обчислень у worker.",
+          en: "Synchronous code runs in the current task. Afterwards the browser drains the microtask queue, including Promise reactions, before a later timer task. An endless microtask chain can prevent input handling and rendering; split long work into chunks or move computation to a worker.",
+        }),
         codeOutputMcq(
           "jsf-elc1",
           "Передбачте порядок логів у консолі браузера",
@@ -1660,7 +1843,7 @@ const eventLoopConcurrency = unit(
             "Synchronous stack logs first (A, D), then the microtask queue drains completely (C), before the next macrotask timer runs (B).",
           ),
         ),
-        codeRead(
+        { ...(codeRead(
           "jsf-elc2",
           "Діагностуйте блокування UI в циклі: Чому сторінка перестає реагувати на кліки попри використання Promise?",
           "Diagnose UI freeze loop: Why does the page freeze on clicks even though Promise is asynchronous?",
@@ -1674,10 +1857,10 @@ const eventLoopConcurrency = unit(
           ],
           0,
           why(
-            "Цикл виконує всі microtasks до повного спустошення черги, блокуючи отрисовку кадру та події користувача.",
+            "Мікрозадачі постійно додають нові мікрозадачі, тому браузер не доходить до оновлення кадру та обробки подій.",
             "Microtasks drain to emptiness before frame paint or user input macrotasks can run.",
           ),
-        ),
+        ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["An endless chain of microtasks prevents rendering and later tasks", "Promise.resolve runs in a separate OS thread", "setTimeout blocked the DOM", "async/await is missing"] },
       ], { baseXp: 24 },
     ),
     lesson(
@@ -1685,10 +1868,14 @@ const eventLoopConcurrency = unit(
       "AbortController, Promise.allSettled і HTTP-помилки",
       "Cancellation, Concurrent Requests & HTTP Errors",
       3, false, [
-        codeRead(
+        concept("jsf-elc-http-concept", "Статус, скасування і частковий успіх", "Status, cancellation, and partial success", {
+          uk: "fetch повертає Response навіть для HTTP 4xx або 5xx: перевіряйте res.ok і за потреби обробляйте тіло помилки. AbortController передає сигнал скасування; при abort() без аргументу активний fetch зазвичай відхиляється з AbortError, а abort(reason) дозволяє задати іншу причину. Promise.allSettled чекає на всі результати та дозволяє окремо обробити успішні й відхилені операції.",
+          en: "fetch returns a Response even for HTTP 4xx or 5xx: check res.ok and handle an error body when needed. AbortController supplies a cancellation signal; with abort() without an argument, an active fetch normally rejects with AbortError, while abort(reason) can supply another reason. Promise.allSettled waits for every outcome so fulfilled and rejected operations can be handled separately.",
+        }),
+        { ...(codeRead(
           "jsf-elc3",
-          "Чому fetch не кидає помилку при 404? Що станеться, якщо сервер поверне 500 Internal Server Error у текстовому вигляді?",
-          "Spot the silent HTTP 404 bug: What fails when the server returns HTTP 500 text/html?",
+          "Що може статися, якщо сервер поверне HTTP 500, а код не перевіряє статус?",
+          "What can happen if the server returns HTTP 500 and the code does not check the status?",
           "js",
           "async function getTasks() {\n  const res = await fetch(\"/api/tasks\");\n  return res.json();\n}",
           [
@@ -1699,10 +1886,10 @@ const eventLoopConcurrency = unit(
           ],
           0,
           why(
-            "fetch відхиляється лише при мережевій аварії або AbortError; HTTP 4xx/5xx потрібно явно перевіряти через `res.ok`.",
-            "fetch only rejects on network faults or aborts; always check `if (!res.ok)` before parsing JSON.",
+            "HTTP 4xx/5xx самі по собі не відхиляють fetch; перевіряйте res.ok і обробляйте тіло відповіді відповідно до контракту API.",
+            "HTTP 4xx/5xx do not by themselves reject fetch; check res.ok and handle the response body according to the API contract.",
           ),
-        ),
+        ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["fetch fulfills for 4xx/5xx; parsing can fail later or accept an error body", "fetch automatically retries five times", "res.json() automatically throws Http404Error with the route", "try/catch ignores 500 errors"] },
         mcq(
           "jsf-elc4",
           "Потрібно паралельно завантажити профіль і сповіщення, але падіння сповіщень не має скасовувати профіль. Що обрати?",
@@ -1734,7 +1921,11 @@ const eventLoopConcurrency = unit(
       "Незмінні оновлення, модулі та DevTools",
       "Immutable Updates, Module Boundaries & Debugging",
       3, false, [
-        codeRead(
+        concept("jsf-elc-state-concept", "Межі стану і модулів", "State and module boundaries", {
+          uk: "Копія масиву через slice або spread поверхнева: вкладені об'єкти залишаються спільними. Для незмінного оновлення скопіюйте масив і кожен змінений об'єкт на шляху до поля. Окремий API-модуль може централізувати запити й перевірку статусу, а вкладка Network допомагає дослідити їхній час і відповідь.",
+          en: "An array copy made with slice or spread is shallow: nested objects remain shared. For an immutable update, copy the array and each changed object along the path to the field. A separate API module can centralize requests and status checks, while the Network panel helps inspect timing and responses.",
+        }),
+        { ...(codeRead(
           "jsf-elc6",
           "Знайдіть приховану мутацію стану: Чому початковий масив `tasks` усе одно змінився?",
           "Diagnose accidental state mutation: Why was `tasks[0]` in the original array mutated anyway?",
@@ -1751,8 +1942,8 @@ const eventLoopConcurrency = unit(
             "Замінюйте змінений об'єкт новим через `map`: `tasks.map((t, i) => (i === 0 ? { ...t, done: true } : t))`.",
             "`.slice()` is shallow; copy the modified item too (`{ ...t, done: true }`).",
           ),
-        ),
-        mcq(
+        ) as Extract<Exercise, { type: "code_read" }>), optionsEn: ["slice makes a shallow array copy, so the object elements are still shared", "slice does not copy even the indices", "All JavaScript arrays are global", "Assignment deeply copies objects"] },
+        { ...mcq(
           "jsf-elc7",
           "Яка вкладка DevTools браузера найкраще показує затримку TTFB, статус відповіді та скасовані запити?",
           "Which browser DevTools panel reveals TTFB timing, HTTP status codes, and aborted requests?",
@@ -1762,18 +1953,18 @@ const eventLoopConcurrency = unit(
             "Network Waterfall одразу відділяє скасовані клієнтом запити від повільної або 5xx відповіді сервера.",
             "The Network Waterfall separates aborted client calls from slow server responses or 5xx payloads.",
           ),
-        ),
+        ), optionsEn: ["Network (initiator and waterfall)", "Elements → Computed Styles", "Application → Manifest", "Memory heap only"] },
       ], { baseXp: 24 },
     ),
     exam("jsf-elc-exam", "Контрольна: Event Loop та асинхронність", "Checkpoint: Event Loop & Concurrency", 3, [
       mcq(
         "jsf-elc-e1",
-        "Яка помилка летить із `fetch`, коли викликано `controller.abort()`?",
-        "Which error is raised by `fetch` when `controller.abort()` fires?",
+        "Яку помилку зазвичай повертає активний `fetch`, якщо викликати `controller.abort()` без аргументу?",
+        "Which error does an active `fetch` normally reject with when `controller.abort()` is called without an argument?",
         ["AbortError (DOMException)", "SyntaxError", "TypeError 404", "RangeError"],
         0,
       ),
-      mcq(
+      { ...mcq(
         "jsf-elc-e2",
         "Навіщо виносити `apiClient.js` в окремий ES-модуль замість викликів `fetch` прямо в DOM-обробниках?",
         "Why isolate `apiClient.js` as a module instead of scattering raw `fetch` inside DOM click listeners?",
@@ -1784,7 +1975,7 @@ const eventLoopConcurrency = unit(
           "Бо `export` робить мережу швидшою в 10 разів",
         ],
         0,
-      ),
+      ), optionsEn: ["A single place for response checks, headers, and testing without the browser DOM", "ES modules run only on Rust servers", "To hide HTTP statuses in the Network panel", "Because export makes the network ten times faster"] },
       codeFill(
         "jsf-elc-e3",
         "Перевірити успішність HTTP-відповіді fetch",

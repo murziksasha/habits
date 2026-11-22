@@ -51,7 +51,15 @@ Practical browser APIs: the DOM and events, fetch and streams, storage, observer
 ### `browser_platform` — History, clipboard, and permissions
 
 - `br-history-url` — history.pushState changes the URL without a reload; parse it with URL
-- `br-clipboard` — The clipboard is asynchronous, only after a user gesture and the right permissions
+- `br-clipboard` — Clipboard: asynchronous actions and browser-dependent permissions
 - `br-notify-permission` — Notification and Permissions: ask at the moment of need, explain why
 - `browser_platform-exam` — Exam: the platform [exam]
+
+### `browser_applied_search` — Search without stale results
+
+- `browser-applied-cancel` — Abort stale requests and check HTTP status (5 exercises, including a concept card)
+- `browser-applied-render` — Render untrusted result text safely (5 exercises, including a concept card)
+- `browser_applied_search-exam` — Exam: browser search [exam] (4 exercises)
+
+Reference for fetch status and cancellation: [MDN Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch).
 

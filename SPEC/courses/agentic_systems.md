@@ -15,47 +15,47 @@ Script vs model vs agent, tool schemas, planning & reflection against objective 
 
 ### `ag_choose` — Plain Script vs One Model Call vs an Agent
 
-- `ag-ch-ladder` — Cost and Failure Surface: Pick the Simplest Pattern (3 exercises)
-- `ag-ch-surface` — Complexity Ladder and Hard Step Caps (3 exercises)
+- `ag-ch-ladder` — Cost and Failure Surface: Pick the Simplest Pattern (4 exercises, including a concept card)
+- `ag-ch-surface` — Complexity Ladder and Hard Step Caps (4 exercises, including a concept card)
 - `ag-ch-exam` — Checkpoint: Choosing the Right Pattern [exam] (3 exercises)
 
 ### `ag_tools` — Tool Schemas, Idempotent Tools, and Model-Readable Errors
 
-- `ag-tl-schema` — Tool Contracts and Errors the Model Can Read (3 exercises)
-- `ag-tl-idempotent` — Idempotent Tools Under Retries (3 exercises)
+- `ag-tl-schema` — Tool Contracts and Errors the Model Can Read (4 exercises, including a concept card)
+- `ag-tl-idempotent` — Idempotent Tools Under Retries (4 exercises, including a concept card)
 - `ag-tl-exam` — Checkpoint: Agent Tools [exam] (3 exercises)
 
 ### `ag_plan_reflect` — Task Splitting and Verification-Backed Reflection
 
-- `ag-pr-split` — Splitting Tasks vs Vibes-Based Self-Critique (3 exercises)
-- `ag-pr-check` — Reflection Against an Actual Check (3 exercises)
+- `ag-pr-split` — Splitting Tasks vs Vibes-Based Self-Critique (4 exercises, including a concept card)
+- `ag-pr-check` — Reflection Against an Actual Check (4 exercises, including a concept card)
 - `ag-pr-exam` — Checkpoint: Planning and Reflection [exam] (3 exercises)
 
 ### `ag_multi` — Single Agent vs Multi-Role and Framework Choices
 
-- `ag-ma-roles` — When One Agent Beats Several Roles (and Vice Versa) (3 exercises)
-- `ag-ma-pick` — Explicit State Transitions Without Role Ping-Pong (3 exercises)
+- `ag-ma-roles` — When One Agent Beats Several Roles (and Vice Versa) (4 exercises, including a concept card)
+- `ag-ma-pick` — Explicit State Transitions Without Role Ping-Pong (4 exercises, including a concept card)
 - `ag-ma-exam` — Checkpoint: Multi-Agent Patterns [exam] (3 exercises)
 
 ### `ag_rag` — Chunking, Embeddings, Hybrid Search, and GraphRAG
 
-- `ag-rg-chunk-hybrid` — Chunking and Why Hybrid Search Beats Vector-Only (3 exercises)
-- `ag-rg-graphrag` — When Relationships Earn GraphRAG (and When They Do Not) (3 exercises)
+- `ag-rg-chunk-hybrid` — Chunking and When Hybrid Search Can Help (4 exercises, including a concept card)
+- `ag-rg-graphrag` — When Relationships Earn GraphRAG (and When They Do Not) (4 exercises, including a concept card)
 - `ag-rg-exam` — Checkpoint: RAG and Retrieval [exam] (3 exercises)
 
 ### `ag_vectors` — Vector Stores: Managed vs Self-Host, Filters, Freshness, and Truth
 
-- `ag-vs-stores` — Store Tradeoffs and the Post-Filtering Trap (3 exercises)
-- `ag-vs-freshness` — Index Freshness: The Store Does Not Know Which Chunk Is True (3 exercises)
+- `ag-vs-stores` — Store Tradeoffs and the Post-Filtering Trap (4 exercises, including a concept card)
+- `ag-vs-freshness` — Index Freshness: The Store Does Not Know Which Chunk Is True (4 exercises, including a concept card)
 - `ag-vs-exam` — Checkpoint: Vector Stores [exam] (3 exercises)
 
 ## Depth now
 
-- Units: 9
-- Lessons: 27
-- Exams: 9
+- Units: 10
+- Lessons: 30
+- Exams: 10
 - Free non-exam lessons: 5
-- Exercise types in seed: code_fill, code_order, code_read, match, mcq
+- Exercise types in seed: code_fill, code_order, code_read, concept, match, mcq
 
 ## Expansion (Nov 2026)
 
@@ -66,3 +66,4 @@ New units:
 - `ag_memory_session` — Agent memory: session, facts, and forgetting (3 lessons including exam)
 - `ag_hitl_gates` — A human in the loop: confirming risky actions (3 lessons including exam)
 - `ag_timeouts_budget` — Limits on an agent's steps, time, and cost (3 lessons including exam)
+- `ag_applied_support_flow` — Bounded support agent with source checks and human approval (3 lessons including exam)

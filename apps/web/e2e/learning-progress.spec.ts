@@ -57,6 +57,9 @@ test.describe("My progress, history, weekly goals & lesson results", () => {
     await firstLesson.click();
     await page.waitForURL(/\/courses\/english\/lessons\//, { timeout: 30_000 });
 
+    // The lesson begins with a concept card before the graded exercises.
+    await page.getByRole("button", { name: /Зрозуміло|Got it/i }).click();
+
     // Ex 1: mcq "Hello"
     await page.locator('[role="radio"]', { hasText: "Hello" }).first().click();
     await page.getByRole("button", { name: /Перевірити|Check/i }).click();
@@ -70,6 +73,12 @@ test.describe("My progress, history, weekly goals & lesson results", () => {
 
     // Ex 3: match 3 pairs
     await expect(page.locator('[aria-label="left"] button').first()).toBeVisible({ timeout: 10_000 });
+    // A mistaken pair can be undone with a visible control, including on touch devices.
+    await page.locator('[aria-label="left"] button', { hasText: "Hello" }).click();
+    await page.locator('[aria-label="right"] button', { hasText: "Бувай" }).click();
+    await page.getByRole("button", { name: /Скасувати останню пару|Undo last pair/i }).click();
+    await expect(page.locator('[aria-label="left"] button', { hasText: "Hello" })).toBeEnabled();
+    await expect(page.locator('[aria-label="right"] button', { hasText: "Бувай" })).toBeEnabled();
     for (const [l, r] of [
       ["Hello", "Привіт"],
       ["Bye", "Бувай"],

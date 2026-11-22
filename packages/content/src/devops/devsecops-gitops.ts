@@ -17,6 +17,7 @@ export const devsecopsGitops = unit(
           { left: "Trivy", right: "Відома дірка в залежності або образі" },
           { left: "checkov", right: "Небезпечний шаблон у Terraform" },
         ],
+        pairsEn: [{"left": "gitleaks", "right": "Potential secrets in code or commits"}, {"left": "Semgrep", "right": "Suspicious code patterns"}, {"left": "Trivy", "right": "Known vulnerabilities in dependencies or images"}, {"left": "checkov", "right": "Potentially unsafe infrastructure configuration"}],
       },
       {
         t: "mcq",
@@ -28,6 +29,7 @@ export const devsecopsGitops = unit(
           "DAST замінює код-рев'ю людей завжди",
           "SAST працює лише на кластері вночі",
         ],
+        oEn: ["SAST analyzes code or artifacts; DAST tests a running application", "They are synonyms", "DAST always replaces human review", "SAST only runs in a cluster at night"],
         i: 0,
       },
       {
@@ -35,15 +37,16 @@ export const devsecopsGitops = unit(
         uk: "Секрет у pre-commit і секрет уже в main:",
         en: "A secret at pre-commit versus a secret already on main:",
         o: [
-          "Хук не пускає новий. Старий усе одно треба ротувати: хук історію не лікує",
+          "Хук може виявити деякі нові витоки; розкритий секрет усе одно треба відкликати або ротувати",
           "Хук витирає історію сам",
           "Достатньо видалити файл новим комітом",
           "GitHub забуває blob",
         ],
+        oEn: ["A hook can catch some new leaks; an exposed secret still needs revocation or rotation", "The hook erases history automatically", "Deleting the file in a new commit is enough", "GitHub forgets the blob"],
         i: 0,
         note: why(
-          "Політика OPA або Kyverno відсікає маніфест, який не проходить правило, ще до того як він стане pod.",
-          "An OPA or Kyverno policy rejects a manifest that fails the rule before it becomes a pod.",
+          "Хуки й сканери можуть пропускати витоки та обходитися. Для вже розкритого секрету спершу відкличте або ротуюйте його і повідомте відповідальних.",
+          "Hooks and scanners can miss leaks or be bypassed. Revoke or rotate an exposed secret and notify the responsible people.",
         ),
       },
       {
@@ -51,7 +54,7 @@ export const devsecopsGitops = unit(
         uk: "Порядок воріт для одного PR forge-status.",
         en: "Gate order for one forge-status pull request.",
         lang: "text",
-        correct: ["gitleaks на коміті", "Тести", "Скан залежностей і образу", "Рев'ю людини"],
+        correct: ["Перевірити секрети / Scan for secrets", "Запустити тести / Run tests", "Сканувати залежності й образ / Scan dependencies and image", "Рев’ю людини / Human review"],
       },
     ]),
     teach("do-cosign", "Підпис і SBOM", "Signature and SBOM", 4, "do-cosign", [
@@ -60,11 +63,12 @@ export const devsecopsGitops = unit(
         uk: "Навіщо cosign образу forge-status?",
         en: "Why cosign the forge-status image?",
         o: [
-          "Кластер може прийняти лише образ, підпис якого зійшовся. Тег без підпису нічого не доводить",
+          "Налаштована admission-політика може перевірити підпис і довірену ідентичність образу",
           "Cosign замінює тести",
           "Cosign шифрує диск вузла",
           "Cosign вимикає Trivy",
         ],
+        oEn: ["A configured admission policy can verify the signature against trusted identity and reject untrusted images", "Cosign replaces tests", "Cosign encrypts the node disk", "Cosign disables Trivy"],
         i: 0,
         note: why(
           "SBOM — список того, з чого зібраний образ. Без нього ви не знаєте, яка бібліотека всередині, коли виходить нова дірка.",
@@ -81,6 +85,7 @@ export const devsecopsGitops = unit(
           "Digest змінюється при кожному pull",
           "Тег підписує байти сам",
         ],
+        oEn: ["A tag can move to different content; a digest identifies specific content", "They are synonyms", "A digest changes on every pull", "A tag signs bytes itself"],
         i: 0,
       },
       {
@@ -88,7 +93,7 @@ export const devsecopsGitops = unit(
         uk: "Від зібраного образу до дозволу на кластері.",
         en: "From a built image to permission on the cluster.",
         lang: "text",
-        correct: ["Зібрати образ", "Підписати cosign", "Покласти SBOM поруч", "Пускати лише підписаний digest"],
+        correct: ["Зібрати образ / Build image", "Підписати cosign / Sign with cosign", "Додати SBOM / Attach SBOM", "Перевірити підпис і digest / Verify signature and digest"],
       },
       {
         t: "mcq",
@@ -100,6 +105,7 @@ export const devsecopsGitops = unit(
           "Сам ротує секрети",
           "Не вміє Ingress",
         ],
+        oEn: ["Can run whatever content that tag currently references", "Is guaranteed safe", "Rotates secrets itself", "Cannot use Ingress"],
         i: 0,
       },
     ]),
@@ -114,6 +120,7 @@ export const devsecopsGitops = unit(
           "Змінну в Dockerfile ENV",
           "Коментар у Helm chart",
         ],
+        oEn: ["A protected external secret store and controlled synchronization into the cluster", "The same password in Git because the repository is private", "Dockerfile ENV", "A Helm chart comment"],
         i: 0,
       },
       {
@@ -126,6 +133,7 @@ export const devsecopsGitops = unit(
           "Його комітять",
           "Він замінює TLS",
         ],
+        oEn: ["It can be issued with a limited lifetime, reducing the window of exposure", "It never changes", "It is committed to Git", "It replaces TLS"],
         i: 0,
         note: why(
           "external-secrets читає Vault або Secrets Manager і створює Kubernetes Secret. sealed-secrets ховає маніфест так, що в Git немає відкритого пароля.",
@@ -139,8 +147,9 @@ export const devsecopsGitops = unit(
         pairs: [
           { left: "Vault", right: "Сервіс із видачею і аудитом" },
           { left: "SOPS", right: "Файл у Git, зашифрований ключем" },
-          { left: "Kubernetes Secret", right: "Те, що pod монтує. Не джерело правди" },
+          { left: "Kubernetes Secret", right: "Об’єкт кластера, який можуть використовувати поди" },
         ],
+        pairsEn: [{"left": "Vault", "right": "A service for issuing and auditing secrets"}, {"left": "SOPS", "right": "An encrypted file that can be stored in Git"}, {"left": "Kubernetes Secret", "right": "A cluster object consumed by workloads"}],
       },
       {
         t: "mcq",
@@ -152,6 +161,7 @@ export const devsecopsGitops = unit(
           "Пароль міняють у Git і чекають тиждень",
           "Ротація вимикає додаток навмисно",
         ],
+        oEn: ["New and old credentials overlap until consumers have switched, where supported", "All pods are killed simultaneously", "The password changes in Git and waits a week", "Rotation intentionally disables the application"],
         i: 0,
       },
     ]),
@@ -166,10 +176,11 @@ export const devsecopsGitops = unit(
           "Argo CD збирає образ",
           "Git більше не джерело маніфестів",
         ],
+        oEn: ["Argo CD reconciles desired state from Git; CI publishes the image and a separate change updates manifests", "CI permanently applies kubectl from a runner laptop", "Argo CD builds the image", "Git is no longer the manifest source"],
         i: 0,
         note: why(
           "Розходження живого і Git Argo показує як OutOfSync. Відкат — це повернути коміт, а не шукати, хто щось застосував руками.",
-          "Argo shows a gap between live and Git as OutOfSync. A rollback is returning a commit, not hunting who applied something by hand.",
+          "Argo shows a difference between live state and Git as OutOfSync. Synchronization can be manual or automated; a rollback should restore a verified prior desired state.",
         ),
       },
       {
@@ -178,10 +189,10 @@ export const devsecopsGitops = unit(
         en: "Path of tag 1.4.0 to the pods.",
         lang: "text",
         correct: [
-          "CI пушить образ 1.4.0",
-          "Коміт міняє tag у values",
-          "Argo CD бачить коміт і синхронізує",
-          "Нові поди стають Ready",
+          "CI публікує образ / CI publishes the image",
+          "Коміт змінює values / Commit updates values",
+          "Argo синхронізує за політикою / Argo syncs according to policy",
+          "Нові поди готові / New pods become Ready",
         ],
       },
       {
@@ -194,6 +205,7 @@ export const devsecopsGitops = unit(
           "Інша назва CI",
           "Спосіб обійти підпис образу",
         ],
+        oEn: ["A gradual rollout that can shift a small traffic share and evaluate configured metrics", "Replacing every pod at once without metrics", "Another name for CI", "A way to bypass image signatures"],
         i: 0,
       },
       {
@@ -201,11 +213,12 @@ export const devsecopsGitops = unit(
         uk: "Якщо після синхронізації 5xx зросли:",
         en: "If 5xx climb after the sync:",
         o: [
-          "Зупинити розкат і повернути попередній коміт маніфесту. Образ зі старим тегом усе ще в registry",
+          "Призупинити розкат, дослідити збій і повернути перевірений попередній маніфест та образ",
           "Видалити Git",
           "Перебудувати образ під тим самим тегом",
           "Вимкнути алерти, щоб не заважали",
         ],
+        oEn: ["Pause the rollout, investigate, and restore a verified prior manifest and image", "Delete Git", "Rebuild an image under the same tag", "Disable alerts"],
         i: 0,
       },
     ]),
@@ -220,6 +233,7 @@ export const devsecopsGitops = unit(
           "Реєстр сам міняє репліки",
           "Логи є джерелом правди",
         ],
+        oEn: ["A cluster-side controller reads desired configuration from Git", "A developer applies YAML from a laptop", "The registry changes replicas", "Logs are the source of truth"],
         i: 0,
       },
       {
@@ -232,6 +246,7 @@ export const devsecopsGitops = unit(
           "Заміна gitleaks",
           "Тип проби",
         ],
+        oEn: ["Generates multiple Applications, such as one per environment, from templates and generators", "Builds a Docker image", "Replaces gitleaks", "Is a probe type"],
         i: 0,
       },
       {
@@ -252,6 +267,7 @@ export const devsecopsGitops = unit(
           "Прапор живе лише в DNS",
           "Canary вимикає метрики",
         ],
+        oEn: ["A flag selects application behavior; canary rollout shifts traffic between versions", "They are the same", "A flag exists only in DNS", "Canary disables metrics"],
         i: 0,
       },
       {
@@ -264,6 +280,7 @@ export const devsecopsGitops = unit(
           "Частина Dockerfile ENV",
           "Не потрібна ніколи",
         ],
+        oEn: ["Is a separately managed step compatible with the old code while rollback remains possible", "Is unrecorded manual production SQL", "Is part of Dockerfile ENV", "Is never needed"],
         i: 0,
       },
       {
@@ -272,10 +289,10 @@ export const devsecopsGitops = unit(
         en: "Roll forge-status back.",
         lang: "text",
         correct: [
-          "Побачити 5xx на новій версії",
-          "Повернути попередній тег у Git",
-          "Дочекатись синхронізації",
-          "Перевірити, що сигнали повернулись",
+          "Помітити зростання 5xx / Observe increased 5xx",
+          "Повернути перевірений digest у Git / Restore the verified digest in Git",
+          "Дочекатись синхронізації / Wait for synchronization",
+          "Перевірити сигнали / Verify service signals",
         ],
       },
     ]),

@@ -109,3 +109,119 @@ describe("Oracle path curriculum", () => {
     }
   });
 });
+
+
+describe("Oracle BOOLEAN CHECK teaching", () => {
+  it("rejects NULL for IS TRUE in both the worked example and exam", () => {
+    const exercises = sqlFundamentalsContent.units.flatMap((unit) => unit.lessons.flatMap((lesson) => lesson.exercises));
+    const worked = exercises.find((exercise) => exercise.id === "sqlf-mod-bool-check-w");
+    expect(worked?.type).toBe("code_read");
+    if (!worked || worked.type !== "code_read") throw new Error("Missing BOOLEAN worked example");
+    expect(worked.options[worked.correctIndex]).toContain("заборонено");
+    const question = exercises.find((exercise) => exercise.type === "mcq" && exercise.promptUk === "CHECK (active IS TRUE) і значення UNKNOWN:");
+    expect(question?.type).toBe("mcq");
+    if (!question || question.type !== "mcq") throw new Error("Missing BOOLEAN exam question");
+    expect(question.options[question.correctIndex]).toContain("відхиляється");
+  });
+});
+
+
+describe("Oracle direct update teaching", () => {
+  it("uses SET ... FROM and asks for WHERE in the join exercise", () => {
+    const lesson = sqlFundamentalsContent.units.flatMap((unit) => unit.lessons).find((item) => item.slug === "sqlf-dml-join");
+    const example = lesson?.exercises.find((exercise) => exercise.id === "sqlf-dml-join-w");
+    const fill = lesson?.exercises.find((exercise) => exercise.id === "sqlf-dml-join-r");
+    expect(example?.type).toBe("code_read");
+    expect(fill?.type).toBe("code_fill");
+    if (!example || example.type !== "code_read" || !fill || fill.type !== "code_fill") throw new Error("Missing direct update exercises");
+    expect(example.code).toMatch(/UPDATE emp e SET e\.bonus = 100 FROM dept d WHERE/i);
+    expect(fill.accepted.map((answer) => answer.toUpperCase())).toContain("WHERE");
+  });
+});
+
+
+describe("Oracle duality view teaching", () => {
+  it("defines a document identifier and explicitly permits the example insert", () => {
+    const lesson = sqlFundamentalsContent.units.flatMap((unit) => unit.lessons).find((item) => item.slug === "sqlf-dv-idea");
+    const concept = lesson?.exercises.find((exercise) => exercise.type === "concept");
+    const worked = lesson?.exercises.find((exercise) => exercise.type === "code_read");
+    expect(concept?.type).toBe("concept");
+    expect(worked?.type).toBe("code_read");
+    if (!concept || concept.type !== "concept" || !worked || worked.type !== "code_read") throw new Error("Missing duality exercises");
+    expect(concept.code).toContain("'_id'");
+    expect(concept.code).toContain("WITH INSERT");
+    expect(worked.code).toContain('"_id"');
+  });
+});
+
+
+describe("Oracle transaction exam", () => {
+  it("credits the durable insert after a syntactically valid DDL statement", () => {
+    const exercises = sqlFundamentalsContent.units.flatMap((unit) => unit.lessons.flatMap((lesson) => lesson.exercises));
+    const question = exercises.find((exercise) => exercise.type === "mcq" && exercise.promptEn?.startsWith("INSERT, then a syntactically valid ALTER TABLE"));
+    expect(question?.type).toBe("mcq");
+    if (!question || question.type !== "mcq") throw new Error("Missing transaction exam question");
+    expect(question.options[question.correctIndex]).toContain("Лишається");
+    expect(question.optionsEn?.[question.correctIndex]).toContain("Remains");
+  });
+});
+
+
+describe("Oracle DBA exam translations", () => {
+  it("provides aligned English choices for every DBA exam", () => {
+    const units = sqlFundamentalsContent.units.filter((unit) => unit.slug.startsWith("dba-"));
+    expect(units).toHaveLength(8);
+    for (const unit of units) {
+      const exams = unit.lessons.filter((lesson) => lesson.isExam);
+      expect(exams, unit.slug).toHaveLength(1);
+      for (const exercise of exams[0]!.exercises) {
+        if (exercise.type !== "mcq" && exercise.type !== "code_read" && exercise.type !== "code_output") continue;
+        expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
+      }
+    }
+  });
+});
+
+
+describe("Oracle PL/SQL exam translations", () => {
+  it("provides aligned English choices for every PL/SQL exam", () => {
+    const units = sqlFundamentalsContent.units.filter((unit) => unit.slug.startsWith("plsql-"));
+    expect(units).toHaveLength(8);
+    for (const unit of units) {
+      const exams = unit.lessons.filter((lesson) => lesson.isExam);
+      expect(exams, unit.slug).toHaveLength(1);
+      for (const exercise of exams[0]!.exercises) {
+        if (exercise.type !== "mcq" && exercise.type !== "code_read" && exercise.type !== "code_output") continue;
+        expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
+      }
+    }
+  });
+});
+
+
+describe("Oracle modern SQL exam translations", () => {
+  it("provides English options for JSON, DML, duality, vector, and graph exams", () => {
+    const slugs = ["modern-select", "grouping-analytics", "modern-dml", "sql-json", "json-duality", "vectors", "property-graphs"];
+    for (const slug of slugs) {
+      const unit = sqlFundamentalsContent.units.find((item) => item.slug === slug);
+      const exam = unit?.lessons.find((item) => item.isExam);
+      expect(exam, slug).toBeDefined();
+      for (const exercise of exam!.exercises) {
+        if (exercise.type !== "mcq" && exercise.type !== "code_read" && exercise.type !== "code_output") continue;
+        expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
+      }
+    }
+  });
+});
+
+
+describe("Oracle course choice localization", () => {
+  it("does not expose untranslated Cyrillic choices in English", () => {
+    const missing: string[] = [];
+    for (const unit of sqlFundamentalsContent.units) for (const lesson of unit.lessons) for (const exercise of lesson.exercises) {
+      if (exercise.type !== "mcq" && exercise.type !== "code_read" && exercise.type !== "code_output") continue;
+      if (exercise.options.some((option) => /[А-Яа-яІіЇїЄєҐґ]/.test(option)) && !exercise.optionsEn) missing.push(exercise.id);
+    }
+    expect(missing).toEqual([]);
+  });
+});

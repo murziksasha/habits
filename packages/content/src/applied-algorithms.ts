@@ -325,14 +325,14 @@ const tradeoffsCapstone = unit(
         ),
         codeProject(
           "aa-fb2",
-          "Перепишіть $O(N^2)$ поєднання задач із проєктами на $O(N + M)$ через `Map`; завантажте M12 нижче для вимірювання бенчмарку, циклів і тестів.",
-          "Replace $O(N^2)$ nested `.find()` join with an $O(N + M)$ `Map` index; download Milestone 12 below to measure speedup and cycle handling locally.",
+          "Побудуйте індекс проєктів за id через Map — перший крок до поєднання за $O(N + M)$. Вбудована перевірка шукає фрагменти коду; M12 нижче перевіряє повне поєднання й продуктивність.",
+          "Build a Map index of projects by id as the first step toward an $O(N + M)$ join. The in-app check searches for code fragments; M12 below tests the full join and performance.",
           [
             {
               id: "ts",
               name: "optimize-board.ts",
               language: "typescript",
-              starter: `export function indexProjectsById<T extends { id: number }>(projects: T[]): Map<number, T> {\n  const map = new Map<number, T>();\n  for (const p of projects) map.set(p.id, p);\n  return map;\n}\n`,
+              starter: `export function indexProjectsById<T extends { id: number }>(projects: T[]): Map<number, T> {\n  // TODO: index each project by id\n  throw new Error("not implemented");\n}\n`,
             },
           ],
           [

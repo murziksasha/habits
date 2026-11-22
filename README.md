@@ -61,7 +61,7 @@ docker compose --profile tools run --rm migrate
 
 | Область | Що є |
 |---------|------|
-| Курси | 36 зареєстрованих курсів (uk+en): навички, код, deep tracks (JS/TS/React/Node/Express/SQL, AI, DevOps, …), Go, веб-доступність, REST API, продуктивність фронтенду, браузерні API та електротехніка. **2513 уроків**, включно з 513 іспитами; кількість охоплює й неопублікований контент. Програми й точні лічильники: [`SPEC/courses/`](./SPEC/courses/README.md). Як додавати: [`SPEC/CONTENT-DX.md`](./SPEC/CONTENT-DX.md) |
+| Курси | 36 зареєстрованих курсів (uk+en): навички, код, deep tracks (JS/TS/React/Node/Express/SQL, AI, DevOps, …), Go, веб-доступність, REST API, продуктивність фронтенду, браузерні API та електротехніка. **2569 уроків**, включно з 524 іспитами; кількість охоплює й неопублікований контент. Програми й точні лічильники: [`SPEC/courses/`](./SPEC/courses/README.md). Як додавати: [`SPEC/CONTENT-DX.md`](./SPEC/CONTENT-DX.md) |
 | Електротехніка | Один курс `electrical_engineering`: 10 етапів, 60 модулів, 360 уроків включно з 60 іспитами, сім оцінюваних SPICE-завдань і три підсумкові проєкти. Лабораторія: `/courses/electrical_engineering/lab`. Публікація потребує перевірки; синхронізація не публікує чернетку. Програма й межі моделей: [`SPEC/courses/electrical_engineering.md`](./SPEC/courses/electrical_engineering.md) |
 | Programming | path units, Monaco drills, mini-projects, weekly race, stack hubs |
 | Deep tracks | HTML semantics, CSS Flex/Grid, QA theory (+ unit exams) |

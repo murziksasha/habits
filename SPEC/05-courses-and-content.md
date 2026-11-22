@@ -22,7 +22,7 @@
 | `embedded_cpp` | Embedded C++ · MilTech | memory, CMake, net, RTOS, MAVLink, safety, datalink, mission + labs/exams |
 | `electrical_engineering` | Electrical engineering + SPICE | Charge and fields → DC/AC → electronics → power systems and machines → three capstones; 60 units, 360 lessons including 60 exams |
 
-Full canonical list of all **36 registered courses** (558 units, 2,513 lessons including 513 exams, 13 ForgeBoard labs) lives in **[SPEC/courses/README.md](./courses/README.md)** and **[SPEC/COURSE-REGISTRY.md](./COURSE-REGISTRY.md)**. Counts include unpublished content. All published courses and lessons are free for all accounts. The in-app SPICE laboratory is separate from ForgeBoard packs.
+Full canonical list of all **36 registered courses** (569 units, 2,569 lessons including 524 exams, 13 ForgeBoard labs) lives in **[SPEC/courses/README.md](./courses/README.md)** and **[SPEC/COURSE-REGISTRY.md](./COURSE-REGISTRY.md)**. Counts include unpublished content. All published courses and lessons are free for all accounts. The in-app SPICE laboratory is separate from ForgeBoard packs.
 
 ## Content pipeline
 
@@ -57,11 +57,11 @@ CMS-owned courses are not overwritten. See SPEC 72 for publish gates and SPEC 93
 | `fill_blank` | accepted strings | English |
 | `match` | set of left/right pairs | English |
 | `order_words` | ordered string array | English |
-| `typing` | wpm ≥ 10 and accuracy ≥ 0.85 | Typing |
+| `typing` | Submitted text must cover the target; server computes positional accuracy ≥ 0.85 and checks client-reported wpm ≥ 10 | Typing |
 | `rsvp` | `completed: true` | Speed reading |
 | `comprehension` | ≥ 50% questions correct | Speed reading |
 | `logic_puzzle` | `correctIndex` | Logic |
-| `chess_puzzle` | SAN sequence or `{ solved: true }` | Chess |
+| `chess_puzzle` | Complete authored SAN sequence, checked by the server | Chess |
 | `chess_lesson` | optional quiz MCQ | Chess |
 | `code_read` | snippet + `correctIndex` | Programming |
 | `code_output` | MCQ or accepted text | Programming |

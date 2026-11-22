@@ -54,7 +54,7 @@ export function mcq(
   options: string[],
   correctIndex: number,
   note?: Note,
-): Exercise {
+): Extract<Exercise, { type: "mcq" }> {
   return { id, type: "mcq", promptUk, promptEn, options, correctIndex, ...note };
 }
 
@@ -90,7 +90,7 @@ export function codeRead(
   options: string[],
   correctIndex: number,
   note?: Note,
-): Exercise {
+): Extract<Exercise, { type: "code_read" }> {
   return {
     id,
     type: "code_read",
@@ -112,7 +112,7 @@ export function codeOrder(
   lines: string[],
   correct: string[],
   note?: Note,
-): Exercise {
+): Extract<Exercise, { type: "code_order" }> {
   return { id, type: "code_order", promptUk, promptEn, language, lines, correct, ...note };
 }
 
@@ -121,7 +121,7 @@ export function matchEx(
   promptUk: string,
   promptEn: string,
   pairs: { left: string; right: string }[],
-): Exercise {
+): Extract<Exercise, { type: "match" }> {
   return { id, type: "match", promptUk, promptEn, pairs };
 }
 
@@ -210,7 +210,7 @@ export function codeOutputMcq(
   options: string[],
   correctIndex: number,
   note?: Note,
-): Exercise {
+): Extract<Exercise, { type: "code_output" }> {
   return {
     id,
     type: "code_output",
@@ -236,7 +236,7 @@ export function codeOrderAuto(
   language: string,
   correct: string[],
   note?: Note,
-): Exercise {
+): Extract<Exercise, { type: "code_order" }> {
   const lines =
     correct.length >= 2 ? [...correct.slice(1), correct[0]!] : [...correct];
   return codeOrder(id, promptUk, promptEn, language, lines, correct, note);

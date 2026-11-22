@@ -3,6 +3,7 @@ import {
   codeFill,
   codeOrderAuto,
   codeRead,
+  concept,
   exam,
   lesson,
   matchEx,
@@ -23,7 +24,16 @@ const loTraces = unit(
       3,
       true,
       [
-        mcq(
+        concept(
+          "lo-tr-spans-concept",
+          "Трейс показує кроки запиту",
+          "A trace shows request steps",
+          {
+            uk: "Трейс пов'язує спани пошуку, викликів моделі та інструментів через спільний ідентифікатор. Порівняння часу й кількості токенів допомагає знайти повільний етап або повтори, але залежить від повноти інструментування й вибірки. Перед експортом вилучайте секрети й зайві персональні дані; обмежуйте доступ і строк зберігання навіть для метаданих. HTTP 200 сам по собі не доводить якість відповіді.",
+            en: "A trace links retrieval, model-call, and tool spans through a shared identifier. Comparing duration and token counts helps locate slow stages or retries, but depends on instrumentation completeness and sampling. Remove secrets and unnecessary personal data before export; restrict access and retention even for metadata. HTTP 200 alone does not establish answer quality.",
+          },
+        ),
+        ({ ...mcq(
           "lo-t1",
           "Сервер повернув `HTTP 200 OK`, але один запит агента тривав 16 секунд і спалив 22 000 токенів. Чому звичайний access log не допомагає і що дає трейс?",
           "An agent request returned `HTTP 200 OK` yet took 16 seconds and burned 22,000 tokens. Why is an access log insufficient and what does a trace show?",
@@ -38,8 +48,8 @@ const loTraces = unit(
             "Трейсинг розкладає один запуск агента на вкладені спани: пошук у базі, кожен виклик моделі та кожен інструмент із часом і токенами.",
             "Tracing breaks a single agent run into nested spans (retrieval, tool calls, model turns) with per-span latency and token usage.",
           ),
-        ),
-        matchEx(
+        ), optionsEn: ["An access log records the request summary; a span tree can show retrieval, tools, model retries, latency, and token usage","Traces replace Git","HTTP 200 means no tokens were used","Access logs only record CSS errors"] }),
+        ({ ...matchEx(
           "lo-t2",
           "Зіставте інструмент спостережуваності з тим, яку спільну роботу він виконує",
           "Match each observability tool/concept to its role in seeing a run",
@@ -49,8 +59,8 @@ const loTraces = unit(
             { left: "Weights & Biases (Weave)", right: "Трекінг запусків, порівняння версій промптів та витрат токенів" },
             { left: "trace_id у структурованому лозі", right: "Зв'язує HTTP-запит користувача з усіма кроками фонової роботи" },
           ],
-        ),
-        codeRead(
+        ), pairsEn: [{"left":"LangSmith","right":"Inspect span trees, tool steps, and run token usage"},{"left":"Arize Phoenix","right":"Open-source tracing and diagnosis of RAG and LLM spans"},{"left":"Weights & Biases (Weave)","right":"Track runs and compare prompt versions and token use"},{"left":"trace_id in a structured log","right":"Correlate an HTTP request with related background work"}] }),
+        ({ ...codeRead(
           "lo-t3",
           "Перевірте запис телеметрії спана: яку проблему безпеки та бюджету треба виправити перед записом у систему трейсингу?",
           "Inspect this trace span payload. Which safety and cost hygiene fix is needed before shipping telemetry?",
@@ -67,23 +77,32 @@ const loTraces = unit(
             "LangSmith, Phoenix і W&B потрібні, щоб бачити перебіг запуску, затримки й токени — тому секрети та чутливі дані треба маскувати до експорту спана.",
             "Observability tools exist to inspect runs and token cost safely; scrub secrets and sensitive headers before exporting spans.",
           ),
-        ),
+        ), optionsEn: ["Remove raw headers, authorization tokens, and sensitive data before exporting the span","Remove trace_id so spans cannot be grouped","Remove prompt_tokens to hide cost","Replace latency_ms with a date string"] }),
       ],
       { baseXp: 22 },
     ),
     lesson(
       "lo-tr-tokens",
-      "Квадратичне зростання токенів і читання діаграми спанів",
+      "Повтор контексту й читання діаграми спанів",
       "Token Growth Across Turns and Reading Span Bottlenecks",
       3,
       true,
       [
-        mcq(
+        concept(
+          "lo-tr-tokens-concept",
+          "Повторний контекст і вимірювання витрат",
+          "Repeated context and measuring cost",
+          {
+            uk: "Якщо кожен наступний виклик повторно передає всю попередню історію, сумарний ввід може зростати приблизно квадратично з числом кроків за сталого приросту історії. Фактична оплата залежить від тарифу й кешування провайдера; підрахунок токенів сам не є рахунком. Скорочуйте результати інструментів до потрібних полів і перевіряйте, що важливі факти не загубились. Порівнюйте кількість токенів на фікстурах, а латентність — на репрезентативному навантаженні з урахуванням мережі.",
+            en: "If each call resends all prior history, cumulative input can grow roughly quadratically with turns when history grows by a constant amount. Actual billing depends on provider pricing and caching; a token count is not itself a bill. Project tool results to needed fields and check that important facts are retained. Compare token counts on fixtures, and latency under representative load including network effects.",
+          },
+        ),
+        ({ ...mcq(
           "lo-t4",
           "Агент робить 8 послідовних кроків інструментів, щоразу додаючи повний JSON-результат інструмента в історію чату. Чому сумарні input-токени зростають різко?",
           "An agent runs 8 tool turns, appending full raw tool JSON payloads into chat history each turn. Why do input tokens balloon?",
           [
-            "Модель не має стану між викликами, тож кожен наступний крок повторно оплачує весь попередній системний промпт та всі попередні результати інструментів",
+            "Кожен запит повторно передає накопичену історію; оплата залежить від правил кешування й тарифу",
             "Токени подвоюються через HTTPS-стиснення",
             "Python автоматично дублює кожен рядок у словнику",
             "Виклик інструмента безкоштовний лише на парних кроках",
@@ -93,7 +112,7 @@ const loTraces = unit(
             "Обрізайте або сумаризуйте сирі виводи інструментів, зберігайте тільки потрібні поля та контролюйте довжину історії.",
             "Stateless LLM calls resend prior context every turn; project only needed tool fields and trim stale history.",
           ),
-        ),
+        ), optionsEn: ["Each request resends accumulated history; billing depends on caching and pricing","HTTPS compression doubles tokens","Python automatically duplicates every dictionary string","Tool calls are free only on even turns"] }),
         codeFill(
           "lo-t5",
           "Обчисліть сумарну кількість токенів запуску з поля вхідних і згенерованих токенів",
@@ -103,18 +122,18 @@ const loTraces = unit(
           ["completion_tokens"],
           true,
         ),
-        codeOrderAuto(
+        ({ ...codeOrderAuto(
           "lo-t6",
           "Впорядкуйте діагностику різкого стрибка вартості й латентності за трейсом",
           "Order how an engineer diagnoses a cost and latency spike using traces",
           "text",
           [
-            "Filter slowest or costliest runs by p95 latency and total_tokens",
+            "Calculate p95 across runs, then select slow traces and high-token runs",
             "Open span waterfall to spot repeated tool retries or huge retrieved context",
             "Trim bloated tool payloads / cap loop turns in code",
-            "Verify lower token count and latency on saved replay fixture",
+            "Check token counts on fixtures and measure latency under representative load",
           ],
-        ),
+        ), linesUk: ["Відкрийте дерево спанів і знайдіть повтори або надмірний контекст","Скоротіть відповіді інструментів і обмежте кількість кроків","Перевірте токени на фікстурах і затримку на репрезентативному навантаженні","Обчисліть p95 за запусками та виберіть повільні й дорогі за токенами трейси"] }),
       ],
       { baseXp: 22 },
     ),
@@ -124,7 +143,7 @@ const loTraces = unit(
       "Checkpoint: Traces and Token Cost",
       3,
       [
-        mcq(
+        ({ ...mcq(
           "lo-t-e1",
           "Що спільного виконують LangSmith, Arize Phoenix і Weights & Biases Weave у стеку LLMOps?",
           "What shared engineering job do LangSmith, Arize Phoenix, and W&B Weave perform?",
@@ -135,8 +154,8 @@ const loTraces = unit(
             "Автоматично видають дозволи адміністратора",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["Visualize run spans such as prompts, retrieval, tools, duration, and token usage","Replace PostgreSQL for transactions","Compile Python to machine code","Automatically grant administrator permissions"] }),
+        ({ ...codeRead(
           "lo-t-e2",
           "Чому 5-кроковий агентний запуск коштує в 4 рази більше токенів, ніж очікувалось?",
           "Why does this 5-step agent run cost 4x more input tokens than expected?",
@@ -149,8 +168,8 @@ const loTraces = unit(
             "`fetch_full_50_docs_raw` не повертає рядок",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["Every step appends all 50 raw documents, which later requests resend repeatedly","range(5) executes 50 times","messages.append quadruples the price per token","The fetch function cannot return a string"] }),
+        ({ ...mcq(
           "lo-t-e3",
           "Який обов'язковий принцип безпеки при записі спанів трейсингу?",
           "What safety rule applies before exporting LLM trace spans?",
@@ -161,7 +180,7 @@ const loTraces = unit(
             "Зберігати паролі в полі `span_name`",
           ],
           0,
-        ),
+        ), optionsEn: ["Mask or exclude API keys, session tokens, and sensitive personal data before export","Add the full .env to every root span","Disable trace_id in production","Store passwords in span_name"] }),
       ],
     ),
   ],
@@ -179,7 +198,16 @@ const loEvals = unit(
       3,
       true,
       [
-        mcq(
+        concept(
+          "lo-ev-fixtures-concept",
+          "Фікстури й перевірка живої моделі мають різні цілі",
+          "Fixtures and live-model evaluations serve different purposes",
+          {
+            uk: "Збережені відповіді дають швидко й відтворювано перевіряти парсер, маршрутизацію та політики без виклику провайдера. Вони не показують, як новий промпт чи модель відповідатиме насправді. Для цього плануйте окрему оцінку цільовою моделлю на дозволених прикладах, з бюджетом, обробкою нестабільності та чіткими критеріями. Деякі команди запускають обмежений живий гейт і в PR; рішення залежить від ризику, вартості й надійності середовища.",
+            en: "Saved responses let you test parsers, routing, and policies quickly and reproducibly without a provider call. They do not show how a new prompt or model will actually respond. Plan a separate evaluation with the target model on authorized cases, with a budget, variability handling, and clear criteria. Some teams also run a limited live PR gate; the decision depends on risk, cost, and environment reliability.",
+          },
+        ),
+        ({ ...mcq(
           "lo-e1",
           "Команда налаштувала GitHub Actions так, щоб кожен PR запускав 40 живих запитів до платної LLM і падав, якщо відповідь змінилась. Чому цей CI-гейт зламає розробку?",
           "A team runs 40 live LLM calls on every PR in CI and fails the build when wording varies. Why does this break CI?",
@@ -194,15 +222,15 @@ const loEvals = unit(
             "PR CI має бути швидким, детермінованим і безкоштовним: тестуйте парсери, маршрутизацію, валідатори інструментів і очікувані цитати на збережених фікстурах.",
             "PR CI must be deterministic, fast, and key-free: run parsers, tool validators, routing, and citation checks against saved fixtures.",
           ),
-        ),
-        codeRead(
+        ), optionsEn: ["Tests can become slow and flaky, depend on network and quotas, and require provider credentials","GitHub Actions cannot use JSON files","The model always returns identical binary hashes","Fixtures cannot be committed"] }),
+        ({ ...codeRead(
           "lo-e2",
           "Огляньте цей офлайн-тест Vitest у CI. Що саме він гарантує без жодного HTTP-запиту до AI-провайдера?",
           "Inspect this offline Vitest eval on a saved fixture. What does it verify with zero live API calls?",
           "typescript",
           "it(\"routes refund request over $50 to human approval\", () => {\n  const savedReply = fixture(\"refund-over-limit.json\");\n  const decision = evaluateAgentTurn(savedReply, { maxAutoUsd: 50 });\n  expect(decision.requiresApproval).toBe(true);\n  expect(decision.citedIds).toEqual([\"policy-refund-v3\"]);\n});",
           [
-            "Перевіряє детерміновану логіку прийняття рішень, поріг авто-дій та валідність цитат на збереженій відповіді",
+            "Перевіряє рішення про схвалення та конкретний ID цитати на збереженій відповіді, але не підтвердження факту джерелом",
             "Вимірює швидкість GPU хмарного провайдера",
             "Надсилає реальне повернення грошей у платіжний шлюз",
             "Тренує ембедінги під час `pnpm test`",
@@ -212,8 +240,8 @@ const loEvals = unit(
             "Коли парсер, guardrails або правила маршрутизації ламаються, тест на еталонній фікстурі впаде миттєво й відтворювано.",
             "When parsing, guardrails, or routing logic regresses, fixture tests fail immediately and deterministically.",
           ),
-        ),
-        codeOrderAuto(
+        ), optionsEn: ["It checks the approval decision and expected citation ID on a saved response, not whether the source supports the fact","It measures cloud GPU speed","It sends a real refund through the payment gateway","It trains embeddings during pnpm test"] }),
+        ({ ...codeOrderAuto(
           "lo-e3",
           "Впорядкуйте побудову офлайн-eval перевірки для PR CI",
           "Order an offline golden-fixture eval workflow for PR CI",
@@ -222,9 +250,9 @@ const loEvals = unit(
             "Collect representative inputs and edge-case transcripts into versioned JSON fixtures",
             "Mock/replay saved model responses deterministically inside unit tests",
             "Assert schema validity, allowed tool names, citation IDs, and refusal rules",
-            "Run live model benchmark only on scheduled/manual release checks outside PR gate",
+            "Run a separately budgeted live-model evaluation for behavior not covered by fixtures",
           ],
-        ),
+        ), linesUk: ["Відтворіть збережені відповіді моделі в детермінованих тестах","Перевірте схему, дозволені інструменти, ID цитат і правила відмови","Окремо оцініть цільову модель із бюджетом для поведінки поза межами фікстур","Зберіть репрезентативні входи й крайові випадки у версіоновані фікстури"] }),
       ],
       { baseXp: 24 },
     ),
@@ -235,7 +263,16 @@ const loEvals = unit(
       3,
       true,
       [
-        matchEx(
+        concept(
+          "lo-ev-metrics-concept",
+          "Що саме перевіряє інваріант",
+          "What an invariant actually checks",
+          {
+            uk: "Фіксуйте очікувану поведінку для кожного випадку: дозволені інструменти, типи аргументів, відмову без джерела та межі бюджету. Перевірка ID цитати виявляє відсутній чи вигаданий ID, але не доводить, що текст джерела підтримує твердження. Використовуйте незалежні перевірки змісту й ручну вибірку. Фікстури мають бути дозволеними, знеособленими та охоплювати негативні випадки; зелений набір не гарантує відсутності невідомих дефектів.",
+            en: "Record expected behavior per case: permitted tools, argument types, abstention without sources, and budget limits. A citation-ID check finds missing or invented IDs but does not prove the source text supports a claim. Use separate content checks and human sampling. Fixtures should be authorized, anonymized, and include negative cases; a green set does not guarantee absence of unknown defects.",
+          },
+        ),
+        ({ ...matchEx(
           "lo-e4",
           "Зіставте категорію eval-перевірки на фікстурі з дефектом, який вона ловить",
           "Match each offline fixture check to the regression it catches",
@@ -245,8 +282,8 @@ const loEvals = unit(
             { left: "Abstain / refusal fixture", right: "Відсутні дані мають дати «Не знаю», а не здогадку" },
             { left: "Token / step budget assertion", right: "Зміна промпта непомітно перевищила ліміт кроків" },
           ],
-        ),
-        mcq(
+        ), pairsEn: [{"left":"Schema & tool-arg validation","right":"A nonexistent argument or empty JSON"},{"left":"Citation ID allowlist check","right":"An answer cites an invented document ID"},{"left":"Abstain / refusal fixture","right":"Missing data should produce an abstention rather than a guess"},{"left":"Token / step budget assertion","right":"A change unexpectedly exceeds a step limit"}] }),
+        ({ ...mcq(
           "lo-e5",
           "Якщо живі оцінки моделей усе ж потрібні перед релізом нової версії промпта, де їх правильно запускати?",
           "When you actually want to benchmark a new model version on real prompts, where does that run?",
@@ -257,7 +294,7 @@ const loEvals = unit(
             "Замість тестів авторизації",
           ],
           0,
-        ),
+        ), optionsEn: ["Run a separate scheduled or manual evaluation with a fixed budget, keeping ordinary offline CI independent","Inside Array.prototype.sort in the user browser","On every editor save","Instead of authorization tests"] }),
         codeFill(
           "lo-e6",
           "Завершіть офлайн-асерт Vitest, щоб зафіксувати вибраний інструмент на фікстурі",
@@ -276,10 +313,10 @@ const loEvals = unit(
       "Checkpoint: Golden Fixture Evals",
       3,
       [
-        mcq(
+        ({ ...mcq(
           "lo-e-e1",
-          "Чому для визначення pass/fail у PR CI не можна викликати живу зовнішню модель?",
-          "Why must PR CI pass/fail not call a live external model?",
+          "Який компроміс виникає, якщо PR CI залежить від виклику живої зовнішньої моделі?",
+          "What tradeoff arises when a PR CI gate depends on a live external model?",
           [
             "Жива модель додає недетермінізм, затримки, витрати й падіння через зовнішні rate limits замість перевірки вашого коду",
             "CI не вміє виконувати TypeScript",
@@ -287,8 +324,8 @@ const loEvals = unit(
             "Моделі не працюють у JSON",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["Live calls add variability, latency, cost, and external rate-limit failures","CI cannot execute TypeScript","Fixtures cannot be updated in Git","Models cannot use JSON"] }),
+        ({ ...codeRead(
           "lo-e-e2",
           "Чому цей eval-тест приречений на постійне хибне падіння?",
           "Why is this eval assertion brittle even if converted to a fixture?",
@@ -301,19 +338,19 @@ const loEvals = unit(
             "Змінна `fixtureDoc` не може бути об'єктом",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["Exact free-text matching breaks on harmless wording changes instead of checking facts, schema, prohibitions, and citations","toBe cannot compare strings in Vitest","formatReply must be asynchronous","fixtureDoc cannot be an object"] }),
+        ({ ...mcq(
           "lo-e-e3",
           "Що насамперед дає набір з 30 збережених регресійних фікстур після інцидентів?",
           "What is the primary value of saving 30 past incident transcripts as CI fixtures?",
           [
-            "Гарантує, що виправлений баг парсингу, маршрутизації чи відмови не повернеться при наступному рефакторингу",
+            "Допомагає виявити повторення перевірених помилок парсингу, маршрутизації чи відмови в охоплених випадках",
             "Скасовує потребу логувати помилки",
             "Замінює базу даних у продакшені",
             "Робить контекстне вікно нескінченним",
           ],
           0,
-        ),
+        ), optionsEn: ["It helps detect recurrence of covered parsing, routing, or refusal bugs","It removes the need to log errors","It replaces a production database","It makes the context window infinite"] }),
       ],
     ),
   ],
@@ -331,7 +368,16 @@ const loApis = unit(
       3,
       true,
       [
-        mcq(
+        concept(
+          "lo-ap-contracts-concept",
+          "Контракт визначає вибір API",
+          "Choose the API for its contract",
+          {
+            uk: "HTTP — транспорт для багатьох стилів API, зокрема GraphQL і gRPC. Для невеликого веб-API JSON та SSE часто достатньо; GraphQL корисний для різних вкладених вибірок, а gRPC — для типізованих міжсервісних контрактів і потоків. Оцініть складність, підтримку браузерів, спостережуваність і авторизацію. Жоден стиль не скасовує перевірку доступу; SSE переважно передає події від сервера до клієнта.",
+            en: "HTTP is a transport for many API styles, including GraphQL and gRPC. JSON and SSE are often enough for a small web API; GraphQL can support varied nested queries, while gRPC supports typed service contracts and streams. Consider complexity, browser support, observability, and authorization. No style removes access checks; SSE primarily sends events from server to client.",
+          },
+        ),
+        ({ ...mcq(
           "lo-a1",
           "Ваш агент надає вебдодатку 4 чіткі маршрути (`POST /runs`, `GET /runs/:id`, `POST /runs/:id/approve`, `GET /runs/:id/stream`). Чи варто переписувати це на GraphQL або gRPC?",
           "Your agent exposes 4 clear JSON endpoints to a web app (`POST /runs`, `GET /runs/:id`, `approve`, `stream`). Should you rewrite it in GraphQL or gRPC?",
@@ -346,8 +392,8 @@ const loApis = unit(
             "Агент уже живе на HTTP. Обирайте GraphQL чи gRPC лише тоді, коли конкретні обмеження клієнта або міжсервісного контракту це виправдовують.",
             "Agents already speak HTTP cleanly. Reach for GraphQL or gRPC only when specific contract constraints call for them.",
           ),
-        ),
-        matchEx(
+        ), optionsEn: ["No: JSON over HTTP with SSE may be simpler; GraphQL or gRPC should address specific contract needs","Yes: HTTP no longer supports JSON","Yes: models require GraphQL to generate text","Yes: gRPC removes the need for authorization"] }),
+        ({ ...matchEx(
           "lo-a2",
           "Зіставте API-стиль з умовою, коли саме він є правильним контрактом",
           "Match each API contract to when it actually earns its complexity",
@@ -357,21 +403,21 @@ const loApis = unit(
             { left: "gRPC (Protobuf)", right: "Високонавантажені внутрішні мікросервіси зі строгою бінарною схемою" },
             { left: "Async Event / Job", right: "Довга індексація або пакетна оцінка на десятки секунд чи хвилини" },
           ],
-        ),
-        codeRead(
+        ), pairsEn: [{"left":"HTTP JSON + SSE","right":"Web clients and public integrations streaming server events"},{"left":"GraphQL","right":"Clients request varied nested data shapes"},{"left":"gRPC (Protobuf)","right":"Typed binary service contracts for internal communication"},{"left":"Async Event / Job","right":"Long-running indexing or batch evaluation"}] }),
+        ({ ...codeRead(
           "lo-a3",
           "Навіщо ендпоїнт запуску повільного дослідження повертає `202 Accepted` із `runId` замість чекати завершення у відкритому HTTP-з'єднанні?",
           "Why does this slow research-agent endpoint return `202 Accepted` with `runId` instead of blocking until completion?",
           "typescript",
           "app.post(\"/api/agent-runs\", authMiddleware, async (req, res) => {\n  const run = await enqueueAgentRun(req.user.id, req.body);\n  return res.status(202).json({ runId: run.id, status: \"queued\" });\n});",
           [
-            "Запобігає таймаутам проксі/балансувальника (30–60с), витримує перезавантаження вкладки й дає змогу перевірити статус або підписатися на події",
+            "Не тримає запит відкритим до завершення; за умови надійного збереження можна перевірити статус після перезавантаження вкладки",
             "Статус `202` забороняє використовувати бази даних",
             "`202` означає помилку авторизації",
             "Тільки так можна передавати JSON у Express",
           ],
           0,
-        ),
+        ), optionsEn: ["It avoids holding the request open and allows status checks after a reload, if job state is durable","202 forbids databases","202 means authorization failed","Express requires 202 to send JSON"] }),
       ],
       { baseXp: 24 },
     ),
@@ -382,34 +428,43 @@ const loApis = unit(
       4,
       false,
       [
-        mcq(
+        concept(
+          "lo-ap-events-concept",
+          "Надійна передача фонової роботи",
+          "A reliable background handoff",
+          {
+            uk: "202 Accepted означає прийняття до обробки, а не її успіх. Перевірте доступ і обмеження завантаження; атомарно збережіть завдання та запис outbox в одній транзакції. Окремий видавець повторює відправлення outbox до черги; воркер має ідемпотентно обробляти дублікати. Ключ ідемпотентності запиту захищає від повторного створення завдання після втрати відповіді. Надайте авторизований статус, помилки й механізм повтору; сама черга не гарантує завершення.",
+            en: "202 Accepted means processing was accepted, not that it succeeded. Check access and upload limits; atomically persist the job and an outbox record in one transaction. A separate publisher retries outbox delivery to the queue; the worker must handle duplicate deliveries idempotently. A request idempotency key prevents duplicate jobs after a lost response. Provide authorized status, errors, and a retry mechanism; a queue alone does not guarantee completion.",
+          },
+        ),
+        ({ ...mcq(
           "lo-a4",
           "Користувач завантажує архів на 300 PDF для індексації в RAG. Чому `POST /knowledge/upload` має поставити подію в чергу, а не чанкувати й ембедити всі 300 файлів у самому HTTP-запиті?",
           "A user uploads 300 PDFs for RAG indexing. Why should `POST /knowledge/upload` emit a job/event instead of embedding all 300 files inline?",
           [
-            "Синхронний запит впаде за таймаутом гейтвея, заблокує HTTP-воркери й повториться клієнтом як дублікат при обриві мережі",
+            "Тривалий запит може перевищити таймаут і зайняти ресурси; при обриві повтор клієнта може створити дублікат",
             "PDF не можна читати у вебсервері взагалі",
             "Події не вимагають перевірки розміру файлу",
             "HTTP `POST` обмежує тіло до 100 байтів",
           ],
           0,
           why(
-            "Синхронний запит — для швидкої перевірки, збереження факту й миттєвої відповіді. Тривала чи масова обробка належить подіям та фоновим воркерам.",
-            "Keep HTTP requests short: validate, persist, enqueue an event, and return `202`. Long-running ingestion belongs in background workers.",
+            "Перевірте доступ і збережіть завдання разом із outbox; фоновий видавець і воркер обробляють повтори. Статус 202 не означає, що робота завершена.",
+            "Validate access and persist the job with an outbox record; a publisher and worker handle retries. A `202` response does not mean processing has finished.",
           ),
-        ),
-        codeOrderAuto(
+        ), optionsEn: ["A long request may exceed a timeout and occupy resources; a retry after a network failure may duplicate work","Web servers cannot read PDFs","Events do not require upload size checks","HTTP POST limits bodies to 100 bytes"] }),
+        ({ ...codeOrderAuto(
           "lo-a5",
           "Впорядкуйте перехід від повільного HTTP-запиту до асинхронної події",
           "Order a clean HTTP-to-event handoff for slow document indexing",
           "text",
           [
             "Validate upload metadata, tenant authz, and byte limits in HTTP handler",
-            "Persist job record in DB with status='queued' and unique jobId",
-            "Publish event/message carrying jobId to queue",
-            "Return 202 Accepted with jobId so UI polls or streams progress",
+            "Atomically persist the job and outbox record using a request idempotency key",
+            "Return 202 with jobId and an authorized status endpoint",
+            "Publish the outbox record with retries; process duplicate deliveries idempotently",
           ],
-        ),
+        ), linesUk: ["Атомарно збережіть завдання та outbox із ключем ідемпотентності запиту","Поверніть 202 із jobId та авторизованим ендпоїнтом статусу","Доставляйте outbox із повторами; ідемпотентно обробляйте дублікати","Перевірте метадані завантаження, доступ орендаря та обмеження розміру"] }),
         codeFill(
           "lo-a6",
           "Вкажіть коректний HTTP статус-код для асинхронно прийнятого у чергу завдання",
@@ -428,7 +483,7 @@ const loApis = unit(
       "Checkpoint: APIs and Events",
       4,
       [
-        mcq(
+        ({ ...mcq(
           "lo-a-e1",
           "Коли перехід з HTTP JSON на gRPC або GraphQL справді має сенс?",
           "When is moving off plain HTTP JSON to gRPC or GraphQL actually justified?",
@@ -439,33 +494,33 @@ const loApis = unit(
             "Щоб вимкнути автентифікацію користувача",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["When typed service contracts or varied nested client queries justify the additional complexity","To hide missing tests","Always at the start of a two-endpoint project","To disable user authentication"] }),
+        ({ ...mcq(
           "lo-a-e2",
           "Яка межа між синхронним запитом і асинхронною подією?",
           "What draws the boundary between a synchronous request and an asynchronous event?",
           [
-            "Час і надійність: швидке читання/валідація — запит; багатокрокова індексація чи пакетні evals > кількох секунд — подія в чергу",
+            "Бюджет затримки й надійність: швидкі операції часто виконують у запиті; тривалу багатокрокову роботу можна передати воркеру",
             "Усі `GET` запити повинні бути чергами Kafka",
             "Події використовуються лише для CSS-анімацій",
             "Синхронні запити ніколи не повертають JSON",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["Latency and reliability needs: quick operations often fit a request, while long multi-step work can run in a worker","All GET requests require Kafka","Events are only for CSS animation","Synchronous requests never return JSON"] }),
+        ({ ...codeRead(
           "lo-a-e3",
-          "Чому клієнт отримує `504 Gateway Timeout` при завантаженні каталогу, хоча сервер начебто ще працює?",
-          "Why does the client get `504 Gateway Timeout` during catalog indexing even though the worker continues running?",
+          "Проксі має таймаут 60 секунд. Чому клієнт отримує `504 Gateway Timeout`, хоча сервер ще працює?",
+          "The proxy times out after 60 seconds. Why does the client get `504 Gateway Timeout` while the server is still working?",
           "typescript",
           "app.post(\"/api/reindex\", async (req, res) => {\n  await embedAllTenantsSync(); // takes ~95 seconds\n  res.json({ ok: true });\n});",
           [
-            "Маршрут тримає HTTP-з'єднання відкритим 95 секунд, перевищуючи 30–60с таймаут балансувальника; треба поставити задачу в чергу й повернути `202`",
+            "Маршрут може перевищити налаштований таймаут проксі; надійно збережіть задачу й повертайте `202` зі статусом",
             "Браузер блокує `res.json({ ok: true })`",
             "`async` функції не можна викликати в Express",
             "Треба видалити `await`, не створюючи запис задачі",
           ],
           0,
-        ),
+        ), optionsEn: ["The route may exceed the configured proxy timeout; durably accept a job and return 202 with status","The browser blocks res.json","Express cannot call async functions","Remove await without creating a job record"] }),
       ],
     ),
   ],
@@ -483,7 +538,16 @@ const loQueues = unit(
       4,
       false,
       [
-        mcq(
+        concept(
+          "lo-qu-brokers-concept",
+          "Оберіть механізм доставки під задачу",
+          "Choose delivery to fit the workload",
+          {
+            uk: "Kafka зберігає потік у розділеному журналі протягом налаштованого строку, а незалежні групи споживачів можуть читати його зі своїх позицій. RabbitMQ маршрутизує повідомлення до черг і підтримує підтвердження та повторну доставку; його режими зберігання й доступності залежать від конфігурації. Для невеликої системи таблиця завдань або outbox у базі може бути достатньою, але outbox усе одно потребує процесу доставки, повторів і моніторингу.",
+            en: "Kafka retains partitioned event logs according to configured retention, with independent consumer groups tracking their own positions. RabbitMQ routes messages to queues and supports acknowledgements and redelivery; durability and availability depend on configuration. A database job table or outbox may suffice for a small system, but an outbox still needs a delivery process, retries, and monitoring.",
+          },
+        ),
+        ({ ...mcq(
           "lo-q1",
           "Чим архітектурно відрізняється Kafka від RabbitMQ при виборі брокера для AI-подій та задач?",
           "What is the core architectural difference between Kafka and RabbitMQ when choosing a durable handoff?",
@@ -498,8 +562,8 @@ const loQueues = unit(
             "Розуміти це рішення не потребує підняття брокера в курсі: RabbitMQ пасує класичним чергам задач із гнучким роутингом і DLQ, а Kafka — потокам подій із реплеєм.",
             "You do not need a local broker install to make the decision: pick RabbitMQ for classic routed task queues and Kafka for durable replayable event streams.",
           ),
-        ),
-        matchEx(
+        ), optionsEn: ["Kafka retains a partitioned event log that independent consumer groups can replay; RabbitMQ routes messages to queues with acknowledgements","RabbitMQ can never persist messages across restarts","Kafka runs only in user browsers","Both require an LLM call before enqueueing"] }),
+        ({ ...matchEx(
           "lo-q2",
           "Зіставте сценарій системи з доречним механізмом доставки",
           "Match each system requirement to the right messaging pattern",
@@ -508,8 +572,8 @@ const loQueues = unit(
             { left: "Черга задач індексації з маршрутизацією пріоритетів і DLQ на падіннях", right: "RabbitMQ (broker queue + routing + DLQ)" },
             { left: "Малий застосунок, якому просто треба не втратити фонову задачу при записі в БД", right: "Транзакційна outbox-таблиця в існуючій Postgres" },
           ],
-        ),
-        mcq(
+        ), pairsEn: [{"left":"Independent billing, audit, and analytics consumers replay a trace stream","right":"Kafka (append-only log and consumer groups)"},{"left":"Indexing task queue with routing and a DLQ","right":"RabbitMQ (broker queue and routing)"},{"left":"Small application needs a durable background job recorded with a database change","right":"Transactional outbox table in existing Postgres"}] }),
+        ({ ...mcq(
           "lo-q3",
           "Брокер гарантує доставку `at-least-once` (щонайменше один раз). Що це означає для вашого воркера, який викликає модель чи платіж?",
           "A queue gives `at-least-once` delivery. What does that force your consumer code to handle?",
@@ -520,7 +584,7 @@ const loQueues = unit(
             "Воркер не має повертати `ack`",
           ],
           0,
-        ),
+        ), optionsEn: ["A message may be delivered more than once, so the consumer must handle duplicates","Each message is guaranteed to run exactly once without checks","The broker automatically deduplicates side effects in the consumer database","The worker must never acknowledge messages"] }),
       ],
       { baseXp: 25 },
     ),
@@ -531,40 +595,49 @@ const loQueues = unit(
       4,
       false,
       [
-        codeRead(
+        concept(
+          "lo-qu-idempotency-concept",
+          "Повтори без подвійного ефекту",
+          "Retries without duplicate effects",
+          {
+            uk: "At-least-once допускає повторну й одночасну доставку. Атомарно резервуйте eventId у сховищі з унікальним ключем; для незавершених резервувань передбачте lease та відновлення після збою. Локальні зміни й позначку завершення записуйте разом у транзакції. Зовнішній виклик не входить до цієї транзакції: використовуйте ключ ідемпотентності провайдера та звіряйте невизначений результат. Без підтримки провайдера повністю виключити повторний ефект або витрати неможливо. Підтверджуйте повідомлення після надійної фіксації результату; обмежуйте повтори й перевіряйте DLQ.",
+            en: "At-least-once permits duplicate and concurrent deliveries. Atomically claim eventId in a store with a unique key; use a lease and recovery for abandoned claims. Commit local effects and completion together in a transaction. An external call is outside that transaction: use the provider's idempotency key and reconcile an uncertain outcome. Without provider support, duplicate effects or costs cannot be completely ruled out. Acknowledge only after the result is durably recorded; bound retries and inspect the DLQ.",
+          },
+        ),
+        ({ ...codeRead(
           "lo-q4",
           "Воркер викликає дороге пакетне ембедування й падає рівно перед `ack(msg)`. Брокер доставляє повідомлення вдруге. Чому цей споживач дублює роботу й витрати?",
           "This worker runs a costly model call and crashes right before `ack(msg)`. Why does redelivery cause duplicate spend and side effects?",
           "typescript",
-          "async function handleJob(msg: { eventId: string; docId: string }) {\n  await generateAndStoreSummary(msg.docId);\n  await chargeTenantTokens(msg.docId);\n  await msg.ack();\n}",
+          "async function handleJob(msg: { eventId: string; docId: string; ack: () => Promise<void> }) {\n  await generateAndStoreSummary(msg.docId);\n  await chargeTenantTokens(msg.docId);\n  await msg.ack();\n}",
           [
-            "Споживач не перевіряє унікальний `eventId` у БД/редісі як уже виконаний (або в стані `in_progress`), тому повторна доставка вдруге генерує й списує токени",
+            "Немає атомарного резервування `eventId` та ідемпотентності побічних ефектів, тому повторна доставка може знову викликати модель і списати токени",
             "Метод `ack()` має викликатися до читання `msg.docId`",
             "Асинхронні функції не підтримують черги",
             "`eventId` занадто короткий",
           ],
           0,
           why(
-            "Перевіряйте/фіксуйте `eventId` атомарно в сховищі, робіть записи ідемпотентними (UPSERT / unique key) і тримайте Dead-Letter Queue для отруйних повідомлень.",
-            "Record `eventId` idempotently in your store, use upsert/unique constraints, and route poison messages to a DLQ after bounded retries.",
+            "Атомарно резервуйте `eventId`, відновлюйте покинуті резервування і фіксуйте локальні зміни разом зі станом. Для зовнішніх викликів потрібен ключ ідемпотентності провайдера або звірка невизначеного результату.",
+            "Atomically claim `eventId`, recover abandoned claims, and commit local effects with completion. External calls require a provider idempotency key or reconciliation of uncertain outcomes.",
           ),
-        ),
-        codeOrderAuto(
+        ), optionsEn: ["There is no atomic eventId claim or idempotency for side effects, so redelivery can call the model and charge again","ack() must happen before reading docId","Async functions cannot use queues","eventId is too short"] }),
+        ({ ...codeOrderAuto(
           "lo-q5",
           "Впорядкуйте кроки ідемпотентного споживача при доставці at-least-once",
           "Order an idempotent consumer under at-least-once delivery",
           "text",
           [
             "Validate message schema; send malformed poison payload straight to DLQ",
-            "Check unique eventId in DB/store; if already completed, ack and exit",
-            "Execute idempotent side effect / upsert result and mark eventId completed",
-            "Send ack to queue; on transient failure retry with backoff up to max attempts",
+            "Atomically claim eventId with a recoverable lease; ack completed duplicates",
+            "Use provider idempotency and commit local effects with completion atomically",
+            "Ack after durable completion; retry transient failures with bounded backoff",
           ],
-        ),
+        ), linesUk: ["Атомарно зарезервуйте eventId із відновлюваним lease; підтвердьте завершені дублікати","Використайте ідемпотентність провайдера й атомарно зафіксуйте локальні зміни та завершення","Підтвердьте після надійної фіксації; тимчасові помилки повторюйте з обмеженою затримкою","Перевірте схему; некоректне повідомлення надішліть у DLQ"] }),
         codeFill(
           "lo-q6",
-          "Перевірте унікальний ідентифікатор події `msg.eventId` перед запуском дорогої обробки",
-          "Check `msg.eventId` deduplication before executing costly model work",
+          "Заповніть перевірку вже завершеної події; для інших подій потрібне окреме атомарне резервування",
+          "Fill in the completed-event check; other events still require a separate atomic claim",
           "typescript",
           "if (await hasCompletedEvent(msg.___)) {\n  await msg.ack();\n  return;\n}",
           ["eventId"],
@@ -579,7 +652,7 @@ const loQueues = unit(
       "Checkpoint: Queues and Delivery",
       4,
       [
-        mcq(
+        ({ ...mcq(
           "lo-q-e1",
           "Чому для нового вебпроєкту з одним сервером Postgres інколи краще почати з outbox/job-таблиці, ніж одразу ставити кластер Kafka?",
           "Why might a single-Postgres team start with a DB job/outbox table before running Kafka?",
@@ -590,8 +663,8 @@ const loQueues = unit(
             "Фонові задачі заборонено зберігати у БД",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["Lower operational complexity and transactional integrity until throughput or replay needs justify a separate broker","Postgres does not support indexes","Kafka cannot store JSON","Background jobs cannot be stored in a database"] }),
+        ({ ...codeRead(
           "lo-q-e2",
           "Що станеться, якщо повідомлення падає з `SyntaxError` при розборі, а воркер робить `nack(requeue=true)` без лічильника спроб?",
           "What happens if a malformed message raises an exception and the worker calls `nack(requeue=true)` forever?",
@@ -604,11 +677,11 @@ const loQueues = unit(
             "JSON.parse сам перетвориться на валідний об'єкт",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["The poison message can loop indefinitely, consuming resources; route it to a DLQ after bounded retries","The message fixes itself on the third attempt","The broker automatically deletes the queue","JSON.parse turns invalid input into a valid object"] }),
+        ({ ...mcq(
           "lo-q-e3",
-          "Що робить ідемпотентний споживач при отриманні дубліката події з тим самим `eventId`?",
-          "What does an idempotent consumer do on receiving a duplicate event with the same `eventId`?",
+          "Що робить ідемпотентний споживач при отриманні дубліката вже завершеної події з тим самим `eventId`?",
+          "What does an idempotent consumer do on receiving a duplicate of an already completed event with the same `eventId`?",
           [
             "Пропускає повторний побічний ефект і підтверджує (`ack`) повідомлення, щоб черга не крутила його далі",
             "Викидає весь індекс векторів",
@@ -616,7 +689,7 @@ const loQueues = unit(
             "Вимикає воркер",
           ],
           0,
-        ),
+        ), optionsEn: ["Skip a repeated side effect and acknowledge the completed duplicate","Discard the entire vector index","Create a new database record every time","Disable the worker"] }),
       ],
     ),
   ],
@@ -634,34 +707,43 @@ const loCloud = unit(
       4,
       false,
       [
-        mcq(
+        concept(
+          "lo-cl-consoles-concept",
+          "Контролюйте модель, дані й витрати",
+          "Control the model, data, and spend",
+          {
+            uk: "Зафіксуйте доступну версію моделі або deployment та перевіряйте політику оновлень провайдера. Оберіть дозволений тип розгортання й перевірте окремо місця обробки та зберігання: регіон ендпоінта сам по собі не завжди гарантує резидентність. Бюджетні сповіщення можуть запізнюватися і не обов'язково блокують витрати; застосовуйте квоти та власні ліміти запитів і токенів, контролюйте їх та обробляйте перевищення. Перевіряйте актуальні умови моделі та регіону перед запуском.",
+            en: "Pin an available model version or deployment and check the provider's upgrade policy. Choose an approved deployment type and verify processing and storage locations separately: the endpoint region alone does not always guarantee residency. Budget alerts may lag and do not necessarily stop spending; apply quotas and application request and token limits, monitor them, and handle limit breaches. Check current model and regional terms before launch.",
+          },
+        ),
+        ({ ...mcq(
           "lo-c1",
           "AWS Bedrock, Google Vertex AI та Azure OpenAI мають різні інтерфейси й назви сервісів, але які три параметри інженер фіксує в кожній із них однаково?",
           "AWS Bedrock, Google Vertex AI, and Azure OpenAI look different in the UI, yet which three deployment decisions are identical across all three?",
           [
-            "Точний зафіксований `model_id`/версія, дозволений регіон (data residency) та жорсткий ліміт квот/бюджету",
+            "Версія або deployment моделі, дозволені місця обробки та зберігання і контроль квот та витрат",
             "Колір теми консолі, шрифт логотипа й розмір іконки",
             "Мова програмування фронтенда, CSS-сітка та назва роутера",
             "Випадковий вибір регіону на кожен запит",
           ],
           0,
           why(
-            "Не треба три окремих підручники з консолей: розумійте три інваріанти — зафіксована версія моделі, регіон зберігання даних і обмеження витрат.",
-            "You do not need three console manuals: pin the exact model ID/version, pin the compliance region, and enforce quota/budget caps.",
+            "Перевіряйте версію та політику її оновлень, дозволені місця обробки й зберігання та механізми контролю витрат: самі сповіщення не є жорстким лімітом.",
+            "Check the version and upgrade policy, approved processing and storage locations, and spending controls: alerts alone are not a hard cap.",
           ),
-        ),
-        matchEx(
+        ), optionsEn: ["Model version or deployment, approved processing and storage locations, and quota and spending controls","Console theme, logo font, and icon size","Frontend language, CSS layout, and router name","A random region for every request"] }),
+        ({ ...matchEx(
           "lo-c2",
           "Зіставте хмарне рішення з ризиком, який воно закриває незалежно від провайдера",
           "Match each cloud LLM setting to the incident it prevents across Bedrock/Vertex/Azure",
           [
             { left: "Pinned versioned model ID", right: "Тиха зміна поведінки промпта після автооновлення alias 'latest'" },
-            { left: "Explicit region allowlist (e.g. eu-central)", right: "Порушення вимог резидентності даних та зайва мережева затримка" },
-            { left: "Quota + spend cap + alerts", right: "Необмежений рахунок за вихідні виклики при помилці в циклі" },
-            { left: "Workload IAM / Managed Identity", right: "Витік статичних довгоживучих ключів у коді чи `.env`" },
+            { left: "Перевірка типу deployment і місця обробки", right: "Зменшує ризик обробки даних поза дозволеною територією" },
+            { left: "Квоти, ліміти застосунку й сповіщення", right: "Допомагають обмежити та виявити перевитрату при помилці в циклі" },
+            { left: "Workload IAM / Managed Identity", right: "Зменшує потребу в статичних довгоживучих ключах у коді чи `.env`" },
           ],
-        ),
-        codeRead(
+        ), pairsEn: [{"left":"Pinned versioned model ID","right":"Reduces silent behavior changes from a floating latest alias"},{"left":"Verify deployment type and processing locations","right":"Reduces risk of processing outside the approved area"},{"left":"Quotas, application limits, and alerts","right":"Help limit and detect runaway spending"},{"left":"Workload IAM / Managed Identity","right":"Reduces the need for long-lived static keys in code or environment files"}] }),
+        ({ ...codeRead(
           "lo-c3",
           "Який дефект конфігурації прихований у цьому єдиному адаптері для хмарного LLM?",
           "Spot the cloud model configuration risk in this unified deployment config:",
@@ -674,7 +756,7 @@ const loCloud = unit(
             "`provider` має бути списком чисел",
           ],
           0,
-        ),
+        ), optionsEn: ["The floating latest alias, global location, and missing configured budget expose the service to changes and overspend","Python dictionaries cannot have four keys","Put the admin password inside model_id","The provider must be a list of numbers"] }),
       ],
       { baseXp: 25 },
     ),
@@ -685,36 +767,45 @@ const loCloud = unit(
       4,
       false,
       [
-        mcq(
+        concept(
+          "lo-cl-iam-concept",
+          "Доступ і безпечна зміна конфігурації",
+          "Access and safe configuration changes",
+          {
+            uk: "Окрема workload identity для кожного сервісу дає змогу надати мінімальні права та уникнути поширення статичних ключів. Тимчасові облікові дані теж можуть бути викрадені, тому обмежуйте їхні права, захищайте середовище й перевіряйте аудит. Перед зміною моделі чи регіону перевірте політику даних, доступність і квоти, порівняйте реальні відповіді кандидата на узгодженому тестовому наборі, оцініть вартість та підготуйте відкат. Фікстури зі старими відповідями перевіряють обробку, але не якість нової моделі.",
+            en: "A separate workload identity per service enables least privilege and avoids distributing static keys. Temporary credentials can still be stolen, so restrict permissions, protect the runtime, and review audit logs. Before changing model or region, check data policy, availability and quotas; compare actual candidate responses on an approved evaluation set, estimate cost, and prepare rollback. Fixtures containing old responses test processing, not the new model's quality.",
+          },
+        ),
+        ({ ...mcq(
           "lo-c4",
           "Чому в Bedrock, Vertex AI та Azure у продакшені надають перевагу IAM-ролям сервісу (Workload Identity / Managed Identity), а не одному статичному ключу, скопійованому у всі сервіси?",
           "Why prefer cloud IAM roles (Workload/Managed Identity) over copying one static API key across production services?",
           [
-            "Короткоживучі автоматично ротовані токени з вузькими правами лише на конкретну модель і регіон не витікають через один забутий `.env`",
+            "Тимчасові облікові дані й окремі мінімальні права зменшують поширення статичних ключів і масштаб можливого витоку",
             "IAM-ролі роблять модель безкоштовною",
             "Статичні ключі не працюють через HTTPS",
             "IAM автоматично перекладає промпти",
           ],
           0,
-        ),
-        codeOrderAuto(
+        ), optionsEn: ["Temporary credentials and separate least-privilege roles reduce distribution of static keys and the impact of a leak","IAM roles make the model free","Static keys cannot work over HTTPS","IAM translates prompts automatically"] }),
+        ({ ...codeOrderAuto(
           "lo-c5",
           "Впорядкуйте чекліст перед переключенням хмарної моделі або регіону",
           "Order the pre-flight checklist before switching a cloud model ID or region",
           "text",
           [
-            "Verify target region matches data-residency policy and model availability",
+            "Verify deployment processing and storage locations, policy, and model availability",
             "Pin exact versioned model/deployment ID in configuration",
-            "Run golden-fixture & staging evals on the candidate model version",
-            "Confirm rate-limit quotas, fallback behavior, and budget cap are active",
+            "Evaluate actual candidate responses in staging and check fixture-based processing tests",
+            "Confirm quotas, application limits, fallback behavior, and rollback plan",
           ],
-        ),
+        ), linesUk: ["Зафіксуйте точну версію моделі або ідентифікатор deployment у конфігурації","Оцініть реальні відповіді кандидата в staging і перевірте тести обробки фікстур","Перевірте квоти, ліміти застосунку, fallback і план відкату","Перевірте місця обробки й зберігання deployment, політику та доступність моделі"] }),
         codeFill(
           "lo-c6",
-          "Перевірте, що регіон у хмарному конфізі входить до дозволеного списку регіонів",
-          "Assert that the configured cloud `region` is inside `ALLOWED_REGIONS`",
+          "Перевірте регіон конфігурації за списком; окремо перевіряйте фактичну політику обробки deployment",
+          "Check the configured region against an allowlist; separately verify the deployment's actual processing policy",
           "python",
-          "if cfg.___ not in ALLOWED_REGIONS:\n    raise ValueError(\"disallowed_cloud_region\")",
+          "if cfg[\"___\"] not in ALLOWED_REGIONS:\n    raise ValueError(\"disallowed_cloud_region\")",
           ["region"],
           true,
         ),
@@ -727,19 +818,19 @@ const loCloud = unit(
       "Checkpoint: Cloud LLM Consoles",
       4,
       [
-        mcq(
+        ({ ...mcq(
           "lo-c-e1",
           "Які три рішення лишаються однаковими незалежно від того, чи ви обрали Bedrock, Vertex AI або Azure?",
           "Which three operational decisions remain identical across Bedrock, Vertex AI, and Azure?",
           [
-            "Зафіксований `model_id`, дозволений регіон зберігання/обробки та ліміт квоти й бюджету",
+            "Версія або deployment моделі, дозволені місця обробки й зберігання та контроль квот і витрат",
             "Ім'я CSS-фреймворку, розмір шрифту та номер порту браузера",
             "Лише мова SQL-таблиць",
             "Випадковий вибір провайдера без конфіга",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["Model version or deployment, approved processing and storage locations, and quota and spending controls","CSS framework, font size, and browser port","Only the SQL table language","A random provider without configuration"] }),
+        ({ ...codeRead(
           "lo-c-e2",
           "Чому заміна `model_id` на непінований alias на кшталт `\"prod-default\"` небезпечна для продакшн-продукту?",
           "Why is deploying an unpinned floating model alias risky in production?",
@@ -752,8 +843,8 @@ const loCloud = unit(
             "Модель перестає читати промпти",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["The provider may change the model behind the alias, altering behavior without an application code change","Hyphens break Python strings","Aliases disable HTTPS","The model stops reading prompts"] }),
+        ({ ...mcq(
           "lo-c-e3",
           "Який спосіб автентифікації сервісу до хмарної LLM є стандартом безпеки?",
           "Which service authentication pattern is preferred for production cloud LLM endpoints?",
@@ -764,7 +855,7 @@ const loCloud = unit(
             "Передача ключа в URL query parameter",
           ],
           0,
-        ),
+        ), optionsEn: ["A cloud workload identity with least-privilege permissions for the service","A key embedded in client-side JavaScript","A shared admin token in a public README","A key passed in URL query parameters"] }),
       ],
     ),
   ],
@@ -782,7 +873,16 @@ const loCost = unit(
       4,
       false,
       [
-        mcq(
+        concept(
+          "lo-co-compute-concept",
+          "Обчислення й безпечні повтори",
+          "Compute choices and safe retries",
+          {
+            uk: "Для рідкісних задач scale-to-zero може зменшити витрати простою; прогріта потужність може краще відповідати стабільному низькому p99. Порівнюйте фактичні затримки, холодні старти, тривалість роботи, обмеження та повну вартість: доступні й проміжні конфігурації. Повторюйте лише тимчасові помилки за наявності бюджету спроб і часу, з backoff, jitter та урахуванням Retry-After. При таймауті результат може бути невідомим: перед повтором побічного ефекту потрібна ідемпотентність або звірка.",
+            en: "Scale-to-zero can reduce idle cost for infrequent work; warm capacity may better meet a steady low-p99 target. Compare measured latency, cold starts, execution limits, and total cost; intermediate configurations also exist. Retry only transient failures within attempt and deadline budgets, using backoff, jitter, and Retry-After. A timeout can leave an unknown outcome: before retrying a side effect, use idempotency or reconcile it.",
+          },
+        ),
+        ({ ...mcq(
           "lo-o1",
           "Воркер обробляє нечасті вебхуки (кілька разів на годину, спайки у бізнес-години) vs інший воркер тримає локальну GPU-модель зі стабільним p99 < 400мс. Яке розміщення підходить кожному?",
           "Worker A processes sporadic webhooks a few times an hour; Worker B serves a hot GPU model needing steady p99 < 400ms. Which compute fit?",
@@ -794,11 +894,11 @@ const loCost = unit(
           ],
           0,
           why(
-            "Serverless вигідний при нерівномірному легкому навантаженні, але має cold start і жорсткі ліміти часу; постійне або GPU-навантаження вимагає always-on.",
-            "Serverless cuts idle cost for bursty I/O jobs (mind timeouts and cold starts); steady low-latency or GPU workloads need always-on nodes.",
+            "Serverless може зменшити витрати простою, але перевірте холодні старти й ліміти; прогріта потужність є одним зі способів досягти стабільної низької затримки.",
+            "Serverless can reduce idle cost, but check cold starts and limits; warm capacity is one way to meet steady low latency.",
           ),
-        ),
-        codeRead(
+        ), optionsEn: ["Worker A may fit serverless/scale-to-zero; Worker B may fit warm, always-on GPU capacity","Both must run in the user browser","Turn worker B off every ten seconds to trigger cold starts","Serverless cannot use environment variables"] }),
+        ({ ...codeRead(
           "lo-o2",
           "Чому цей цикл повтору при `429 Rate Limit` погіршує аварію замість відновити сервіс?",
           "Why does this `429 Rate Limit` retry loop worsen an outage instead of recovering cleanly?",
@@ -815,19 +915,19 @@ const loCost = unit(
             "Обмежуйте число спроб (`max_retries = 3`), використовуйте exponential backoff із випадковим jitter та поважайте заголовок `Retry-After`.",
             "Cap retries (`max_retries`), sleep with exponential backoff + jitter, and honor `Retry-After` headers.",
           ),
-        ),
-        codeOrderAuto(
+        ), optionsEn: ["There is no retry limit, exponential backoff, or jitter, so clients repeatedly hit the API and amplify overload","429 means success","while True executes only once","Never inspect the status code"] }),
+        ({ ...codeOrderAuto(
           "lo-o3",
           "Впорядкуйте безпечну обробку тимчасової помилки `429` / `503`",
           "Order safe retry handling on transient HTTP `429`/`503`",
           "text",
           [
-            "Check remaining retry budget and overall request deadline",
-            "Only retry transient errors (429/503/network timeout), never 400/401/403",
-            "Sleep using Retry-After or exponential backoff with random jitter",
-            "Fail cleanly to fallback/queued state once retry budget is exhausted",
+            "Classify the error as transient and ensure retrying any side effect is safe",
+            "Check the remaining attempts and deadline; stop or fall back when exhausted",
+            "Wait using Retry-After or exponential backoff with jitter within the deadline",
+            "Retry the request, then reassess the result and remaining budget",
           ],
-        ),
+        ), linesUk: ["Перевірте залишок спроб і дедлайн; зупиніться або застосуйте fallback після їх вичерпання","Зачекайте Retry-After або exponential backoff із jitter у межах дедлайну","Повторіть запит і знову оцініть результат та залишок бюджету","Визначте тимчасову помилку й переконайтеся, що повтор побічного ефекту безпечний"] }),
       ],
       { baseXp: 25 },
     ),
@@ -838,7 +938,16 @@ const loCost = unit(
       4,
       false,
       [
-        mcq(
+        concept(
+          "lo-co-budget-concept",
+          "Бюджет до і після виклику",
+          "Budget before and after each call",
+          {
+            uk: "Обмежуйте вхід, вихід, кількість кроків і повторів; окремо задавайте квоти запуску та орендаря. Перед викликом атомарно зарезервуйте оцінений максимум для паралельних запитів, а після відповіді звірте резерв із фактичним використанням. Для таймаутів і невідомого результату передбачте політику звірки, а не безумовне повернення резерву. Оцінки токенів, тарифи, повтори та затримка білінгу можуть відрізнятися; ліміт токенів сам по собі не гарантує точний доларовий рахунок.",
+            en: "Limit input, output, steps, and retries; set separate run and tenant quotas. Atomically reserve the estimated maximum before a call so concurrent requests cannot all spend the same budget, then reconcile the reservation with actual usage. Define a reconciliation policy for timeouts and unknown outcomes instead of unconditionally releasing the reservation. Token estimates, prices, retries, and billing delay vary; a token limit alone does not guarantee an exact dollar bill.",
+          },
+        ),
+        ({ ...mcq(
           "lo-o4",
           "Чому поштового алерта хмари «витрати перевищили $2 000» недостатньо для захисту AI-продукту?",
           "Why is a cloud billing alert email at $2,000 insufficient to protect an AI product?",
@@ -850,20 +959,20 @@ const loCost = unit(
           ],
           0,
           why(
-            "Закладайте бюджет на рівні продукту: `max_output_tokens`, ліміт токенів на один запуск і денну квоту на користувача/орендаря в коді API.",
-            "Enforce budgets directly in product code: `max_output_tokens`, per-run token ceilings, and per-tenant daily quotas before calling a model.",
+            "Задавайте `max_output_tokens` і квоти запуску та орендаря; атомарно резервуйте бюджет до виклику й звіряйте фактичне використання після нього.",
+            "Set `max_output_tokens` and run and tenant quotas; reserve budget atomically before the call and reconcile actual usage afterward.",
           ),
-        ),
+        ), optionsEn: ["Billing alerts and reports can lag; enforce limits in the application before model calls to reduce runaway spend","Billing emails are not delivered on weekdays","Tokens are free on weekends","An alert automatically fixes application bugs"] }),
         codeFill(
           "lo-o5",
-          "Заблокуйте наступний виклик моделі в запуску, якщо використано більше `max_run_tokens`",
-          "Block the next model call if `run_tokens + est_tokens` exceeds `max_run_tokens`",
+          "Заповніть локальну перевірку бюджету; для паралельних викликів окремо потрібне атомарне резервування",
+          "Complete the local budget check; concurrent calls also require an atomic reservation",
           "python",
           "if run_tokens + est_tokens > ___:\n    raise BudgetExceededError(\"run_token_cap\")",
           ["max_run_tokens"],
           true,
         ),
-        matchEx(
+        ({ ...matchEx(
           "lo-o6",
           "Зіставте причину перевитрати токенів із продуктовим запобіжником",
           "Match each token-cost runaway cause with its engineering safeguard",
@@ -873,7 +982,7 @@ const loCost = unit(
             { left: "Шторм миттєвих повторів на 429", right: "Exponential backoff + jitter + max 2–3 retries" },
             { left: "Один зловмисний або багований клієнт спамить API", right: "Денна квота токенів і rate limit на tenant/user" },
           ],
-        ),
+        ), pairsEn: [{"left":"Repeating history over 20 steps","right":"Step limit plus truncation or summarization of previous outputs"},{"left":"Unbounded model output","right":"Explicit max_output_tokens for each call"},{"left":"Immediate retries after 429","right":"Exponential backoff, jitter, and a bounded retry budget"},{"left":"A malicious or faulty client spams the API","right":"Per-tenant or user token quota and rate limit"}] }),
       ],
       { baseXp: 25 },
     ),
@@ -883,7 +992,7 @@ const loCost = unit(
       "Checkpoint: Compute and Budgets",
       4,
       [
-        mcq(
+        ({ ...mcq(
           "lo-o-e1",
           "Яка помилка ретраїв перетворює короткий збій LLM-провайдера на лавиноподібний відвал?",
           "Which retry mistake turns a brief upstream slowdown into a self-inflicted outage?",
@@ -894,8 +1003,8 @@ const loCost = unit(
             "Виставлення `timeout` на запит",
           ],
           0,
-        ),
-        codeRead(
+        ), optionsEn: ["Infinite or immediate retries without backoff, jitter, or a retry budget, including retries for bad requests","At most two retries with jitter after a 503","Returning a clear 503 after attempts are exhausted","Setting a request timeout"] }),
+        ({ ...codeRead(
           "lo-o-e2",
           "Знайдіть дві прогалини контролю бюджету в цьому хелпері запуску:",
           "Spot two missing budget safeguards in this LLM call helper:",
@@ -908,8 +1017,8 @@ const loCost = unit(
             "Потрібен виклик `time.sleep(60)` перед кожним кроком",
           ],
           0,
-        ),
-        mcq(
+        ), optionsEn: ["A maximum output token limit and a tenant quota or budget check before the model call","The function must take an array instead of prompt","Remove return","Sleep for 60 seconds before every step"] }),
+        ({ ...mcq(
           "lo-o-e3",
           "Що робить токен-бюджет справжнім продуктовим лімітом, а не пасивним звітом?",
           "What turns token budget into a real product limit rather than a passive report?",
@@ -920,7 +1029,7 @@ const loCost = unit(
             "Прохання в системному промпті писати коротше без `max_output_tokens`",
           ],
           0,
-        ),
+        ), optionsEn: ["Enforced per-call, per-run, and per-tenant limits with predictable handling when exhausted","Review a monthly billing CSV","A weekly Slack notification","Ask for shorter output in the system prompt without an output limit"] }),
       ],
     ),
   ],

@@ -180,7 +180,7 @@ One service, forge-status: a Git-to-Kubernetes survey, then Stay up and On call.
 - `do-dr` — Recovery and money (4 exercises)
 - `do-path` — The whole forge-status path (4 exercises)
 - `do-forgeboard-delivery-lab` — Lab: ForgeBoard deploy & recovery (4 exercises)
-- `do-cap-exam` — Capstone: forge-status [exam] (8 exercises)
+- `do-cap-exam` — Capstone: forge-status [exam] (9 exercises)
 
 ## Depth now
 
@@ -191,6 +191,8 @@ One service, forge-status: a Git-to-Kubernetes survey, then Stay up and On call.
 - Exercise types in seed: code_fill, code_order, code_output, code_read, comprehension, match, mcq
 
 ## Expansion (Nov 2026)
+
+Applied transfer: the final `do-cap-exam` now includes a release-B incident with incomplete schema migration, rising 5xx, and an untested backup. The learner must distinguish GitOps sync from service health and check rollback compatibility before action.
 
 Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
 

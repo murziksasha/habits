@@ -67,6 +67,7 @@ type ExerciseBody =
       promptUk: string;
       promptEn?: string;
       text: string;
+      textEn?: string;
       wpm: number;
     }
   | {
@@ -75,7 +76,8 @@ type ExerciseBody =
       promptUk: string;
       promptEn?: string;
       passage: string;
-      questions: { q: string; qEn?: string; options: string[]; correctIndex: number }[];
+      passageEn?: string;
+      questions: { q: string; qEn?: string; options: string[]; optionsEn?: string[]; correctIndex: number }[];
       explanationUk?: string;
       explanationEn?: string;
     }
@@ -87,6 +89,7 @@ type ExerciseBody =
       category: string;
       difficulty: number;
       options: string[];
+      optionsEn?: string[];
       correctIndex: number;
       hintUk?: string;
       hintEn?: string;
@@ -118,6 +121,7 @@ type ExerciseBody =
       code: string;
       language: string;
       options: string[];
+      optionsEn?: string[];
       correctIndex: number;
       explanationUk?: string;
       explanationEn?: string;
@@ -130,6 +134,7 @@ type ExerciseBody =
       code: string;
       language: string;
       options?: string[];
+      optionsEn?: string[];
       correctIndex?: number;
       accepted?: string[];
       explanationUk?: string;
@@ -155,6 +160,8 @@ type ExerciseBody =
       promptEn?: string;
       language?: string;
       lines: string[];
+      /** Ukrainian labels aligned with the canonical lines; answers remain canonical. */
+      linesUk?: string[];
       correct: string[];
       explanationUk?: string;
       explanationEn?: string;

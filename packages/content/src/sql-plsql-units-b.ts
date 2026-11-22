@@ -16,9 +16,9 @@ const exceptions: TeachSpec[] = [
     difficulty: 3,
     pointsUk: ["EXCEPTION ловить помилку блоку", "WHEN TOO_MANY_ROWS окремо від OTHERS", "Після обробника блок завершується нормально, якщо немає RAISE"],
     pointsEn: ["EXCEPTION catches a block error", "WHEN TOO_MANY_ROWS is separate from OTHERS", "After a handler the block ends normally unless you RAISE"],
-    conceptUk: "Секція EXCEPTION стоїть перед END. WHEN NO_DATA_FOUND THEN … обробляє лише цей виняток. Якщо обробник не зробить RAISE, викликач не дізнається про помилку. Це зручно для «немає рядка», але небезпечно, якщо проковтнути неочікувану помилку.",
-    conceptEn: "The EXCEPTION section sits before END. WHEN NO_DATA_FOUND THEN … handles only that exception. If the handler does not RAISE, the caller never hears about the error. That is useful for 'no row', and dangerous if you swallow an unexpected failure.",
-    code: "BEGIN\n  SELECT salary INTO v_sal FROM emp WHERE emp_id = -1;\nEXCEPTION\n  WHEN NO_DATA_FOUND THEN v_sal := NULL;\nEND;",
+    conceptUk: "Секція EXCEPTION стоїть перед END. WHEN NO_DATA_FOUND THEN … обробляє лише цей виняток. Якщо обробник успішно завершується і не передає помилку далі, викликач не отримує винятку. Обробка сама по собі не означає COMMIT або ROLLBACK усієї транзакції. Це зручно для «немає рядка», але небезпечно, якщо проковтнути неочікувану помилку.",
+    conceptEn: "The EXCEPTION section sits before END. WHEN NO_DATA_FOUND THEN … handles only that exception. If the handler completes successfully without propagating the error, the caller receives no exception. Handling it does not itself COMMIT or ROLLBACK the whole transaction. That is useful for 'no row', and dangerous if you swallow an unexpected failure.",
+    code: "DECLARE\n  v_sal emp.salary%TYPE;\nBEGIN\n  SELECT salary INTO v_sal FROM emp WHERE emp_id = -1;\nEXCEPTION\n  WHEN NO_DATA_FOUND THEN v_sal := NULL;\nEND;",
     worked: {
       promptUk: "Обробник NO_DATA_FOUND присвоїв NULL і не зробив RAISE. Викликач бачить:",
       promptEn: "The NO_DATA_FOUND handler set NULL and did not RAISE. The caller sees:",
@@ -29,7 +29,7 @@ const exceptions: TeachSpec[] = [
       explanationUk: "Оброблений виняток не летить далі сам.",
       explanationEn: "A handled exception does not travel onward by itself.",
     },
-    retrieval: { kind: "mcq", promptUk: "Де стоїть EXCEPTION?", promptEn: "Where does EXCEPTION go?", code: "", options: ["Перед DECLARE", "Перед END, після BEGIN", "Замість BEGIN", "У SELECT"], correctIndex: 1, explanationUk: "Порядок: DECLARE, BEGIN, EXCEPTION, END.", explanationEn: "The order is DECLARE, BEGIN, EXCEPTION, END." },
+    retrieval: { kind: "mcq", promptUk: "Де стоїть EXCEPTION?", promptEn: "Where does EXCEPTION go?", code: "", options: ["Перед DECLARE", "Перед END, після BEGIN", "Замість BEGIN", "У SELECT"], optionsEn: ["Before DECLARE", "Before END, after BEGIN", "Instead of BEGIN", "Inside SELECT"], correctIndex: 1, explanationUk: "Порядок: DECLARE, BEGIN, EXCEPTION, END.", explanationEn: "The order is DECLARE, BEGIN, EXCEPTION, END." },
     whyUk: "Поясніть, що бачить викликач, якщо виняток обробили і не підняли знову.",
     whyEn: "Explain what the caller sees if you handle an exception and do not raise it again.",
     ideas: [
@@ -78,8 +78,8 @@ const exceptions: TeachSpec[] = [
     difficulty: 3,
     pointsUk: ["OTHERS ловить усе, що ще не спіймане", "Порожній обробник ховає збій", "Або RAISE, або запис і RAISE"],
     pointsEn: ["OTHERS catches whatever is still unhandled", "An empty handler hides the failure", "Either RAISE, or log and RAISE"],
-    conceptUk: "WHEN OTHERS THEN NULL; компілюється і робить найгірше: будь-яка помилка, включно з помилкою диска чи неправильним числом, зникає. Якщо журнал потрібен, запишіть SQLERRM і зробіть RAISE, щоб викликач усе ще отримав збій.",
-    conceptEn: "WHEN OTHERS THEN NULL; compiles and does the worst thing: every error, including a storage failure or a bad number, disappears. If you need a log, write SQLERRM and then RAISE so the caller still receives the failure.",
+    conceptUk: "WHEN OTHERS THEN NULL; приховує необроблені винятки, які потрапили до цього обробника. Якщо журнал потрібен, запишіть SQLERRM і зробіть RAISE, щоб викликач отримав збій. Запис журналу у тій самій транзакції може відкотися; помилка журналювання також може приховати початкову помилку.",
+    conceptEn: "WHEN OTHERS THEN NULL; hides unhandled exceptions that reach the handler. If logging is needed, record SQLERRM and RAISE so the caller receives the failure. A log written in the same transaction can be rolled back; a logging failure can also mask the original error.",
     code: "EXCEPTION\n  WHEN OTHERS THEN\n    RAISE; -- не ковтайте помилку",
     worked: {
       promptUk: "WHEN OTHERS THEN NULL; після несподіваного VALUE_ERROR:",
@@ -91,7 +91,7 @@ const exceptions: TeachSpec[] = [
       explanationUk: "Порожній OTHERS перетворює збій на успіх.",
       explanationEn: "An empty OTHERS turns a failure into success.",
     },
-    retrieval: { kind: "mcq", promptUk: "Як і зажурналити, і не сховати помилку?", promptEn: "How do you log and still not hide the error?", code: "", options: ["WHEN OTHERS THEN NULL", "Записати SQLERRM і потім RAISE", "Прибрати EXCEPTION", "Зробити COMMIT у OTHERS"], correctIndex: 1, explanationUk: "RAISE після запису відновлює сигнал для викликача.", explanationEn: "RAISE after the log restores the signal for the caller." },
+    retrieval: { kind: "mcq", promptUk: "Як і зажурналити, і не сховати помилку?", promptEn: "How do you log and still not hide the error?", code: "", options: ["WHEN OTHERS THEN NULL", "Записати SQLERRM і потім RAISE", "Прибрати EXCEPTION", "Зробити COMMIT у OTHERS"], optionsEn: ["WHEN OTHERS THEN NULL", "Record SQLERRM and then RAISE", "Remove EXCEPTION", "COMMIT inside OTHERS"], correctIndex: 1, explanationUk: "RAISE після запису відновлює сигнал для викликача.", explanationEn: "RAISE after the log restores the signal for the caller." },
     whyUk: "Поясніть, чому порожній WHEN OTHERS небезпечний.",
     whyEn: "Explain why an empty WHEN OTHERS is dangerous.",
     ideas: [
@@ -141,10 +141,10 @@ const routines: TeachSpec[] = [
     titleUk: "Функція",
     titleEn: "Functions",
     difficulty: 3,
-    pointsUk: ["RETURN обов’язковий на всіх шляхах", "Функцію можна кликати з SQL за обмежень чистоти", "Відсутній RETURN — помилка під час виконання"],
-    pointsEn: ["Every path needs RETURN", "SQL can call a function within purity limits", "A missing RETURN is a runtime error"],
-    conceptUk: "Функція повертає значення через RETURN. Якщо гілка IF закінчилась без RETURN, під час виконання буде PROGRAM_ERROR. Виклик із SQL вимагає, щоб функція не змінювала стан бази несподівано; для читання довідника це зазвичай безпечно, для UPDATE всередині функції, яку кличе SELECT, — ні.",
-    conceptEn: "A function returns a value with RETURN. If an IF branch ends without RETURN, runtime raises PROGRAM_ERROR. A call from SQL requires the function not to change database state by surprise; reading a lookup is usually fine, and an UPDATE inside a function that SELECT calls is not.",
+    pointsUk: ["RETURN обов’язковий на всіх шляхах", "Виклик функції із SQL має обмеження на DML", "Відсутній RETURN — помилка під час виконання"],
+    pointsEn: ["Every path needs RETURN", "A function called from SQL has DML restrictions", "A missing RETURN is a runtime error"],
+    conceptUk: "Функція повертає значення через RETURN. Якщо гілка IF закінчилась без RETURN, під час виконання буде PROGRAM_ERROR. Виклик із SQL вимагає, щоб функція не змінювала стан бази несподівано; для читання довідника це зазвичай безпечно, для звичайного UPDATE всередині функції, яку кличе SELECT, Oracle зазвичай видає ORA-14551. Автономні транзакції мають окрему семантику і не є універсальним виправленням.",
+    conceptEn: "A function returns a value with RETURN. If an IF branch ends without RETURN, runtime raises PROGRAM_ERROR. A call from SQL requires the function not to change database state by surprise; reading a lookup is usually fine, and an ordinary UPDATE inside a function called by SELECT normally raises ORA-14551. Autonomous transactions have separate semantics and are not a general-purpose fix.",
     code: "CREATE FUNCTION tax(p_amt NUMBER) RETURN NUMBER AS\nBEGIN\n  RETURN p_amt * 0.2;\nEND;",
     worked: {
       promptUk: "Одна гілка IF не має RETURN. Коли це вибухне?",
@@ -156,7 +156,7 @@ const routines: TeachSpec[] = [
       explanationUk: "Компілятор не завжди доводить, що шлях порожній. Помилка з’являється на цьому шляху.",
       explanationEn: "The compiler does not always prove the path is empty. The error appears on that path.",
     },
-    retrieval: { kind: "mcq", promptUk: "Чому UPDATE всередині функції для SELECT — погана ідея?", promptEn: "Why is an UPDATE inside a function used by SELECT a bad idea?", code: "", options: ["SELECT не може кликати функції взагалі", "Запит почне змінювати дані між читанням рядків", "RETURN заборонений", "Потрібен VECTOR"], correctIndex: 1, explanationUk: "Чистий SELECT не повинен писати таблиці.", explanationEn: "A plain SELECT should not write tables." },
+    retrieval: { kind: "mcq", promptUk: "Чому UPDATE всередині функції для SELECT — погана ідея?", promptEn: "Why is an UPDATE inside a function used by SELECT a bad idea?", code: "", options: ["SELECT не може кликати функції взагалі", "Звичайний DML у функції, викликаній із SELECT, спричиняє ORA-14551", "RETURN заборонений", "Потрібен VECTOR"], optionsEn: ["SELECT cannot call functions at all", "Ordinary DML in a function called from SELECT causes ORA-14551", "RETURN is forbidden", "VECTOR is required"], correctIndex: 1, explanationUk: "Oracle забороняє звичайний DML усередині запиту; автономна транзакція має окремі наслідки для цілісності та повторюваності.", explanationEn: "Oracle rejects ordinary DML inside a query; an autonomous transaction has separate integrity and repeatability implications." },
     whyUk: "Поясніть, що станеться з функцією, якщо не кожен шлях доходить до RETURN.",
     whyEn: "Explain what happens to a function if not every path reaches RETURN.",
     ideas: [
@@ -187,7 +187,7 @@ const routines: TeachSpec[] = [
       explanationUk: "IN не віддає нове значення назад. OUT не отримує старе. Потрібні обидва.",
       explanationEn: "IN does not send a new value back. OUT does not receive the old one. You need both.",
     },
-    retrieval: { kind: "mcq", promptUk: "Навіщо іменований виклик?", promptEn: "Why a named call?", code: "", options: ["Він швидший за SQL завжди", "Важко переплутати місцями IN і OUT", "Він вимикає винятки", "Він замінює пакет"], correctIndex: 1, explanationUk: "Ім’я параметра фіксує, куди йде змінна.", explanationEn: "The parameter name fixes where the variable goes." },
+    retrieval: { kind: "mcq", promptUk: "Навіщо іменований виклик?", promptEn: "Why a named call?", code: "", options: ["Він швидший за SQL завжди", "Важко переплутати місцями IN і OUT", "Він вимикає винятки", "Він замінює пакет"], optionsEn: ["It is always faster than SQL", "It is harder to swap IN and OUT arguments", "It disables exceptions", "It replaces the package"], correctIndex: 1, explanationUk: "Ім’я параметра фіксує, куди йде змінна.", explanationEn: "The parameter name fixes where the variable goes." },
     whyUk: "Поясніть, коли потрібен IN OUT, а не просто OUT.",
     whyEn: "Explain when you need IN OUT rather than plain OUT.",
     ideas: [
@@ -202,15 +202,15 @@ const routines: TeachSpec[] = [
 
 export const plsqlUnitsB: UnitContent[] = [
   pack("plsql-exceptions", "Винятки", "Exceptions", exceptions, "Контрольна: винятки", "Exam: exceptions", [
-    { promptUk: "Оброблений виняток без RAISE:", promptEn: "A handled exception without RAISE:", options: ["Летить до клієнта", "Завершує блок нормально", "Робить ROLLBACK завжди", "Відкриває курсор"], correctIndex: 1, explanationUk: "Сигнал гаситься в обробнику.", explanationEn: "The signal stops in the handler." },
-    { promptUk: "Дозволений код RAISE_APPLICATION_ERROR:", promptEn: "A legal RAISE_APPLICATION_ERROR code:", options: ["-1", "-20001", "100", "ORA-00001 як текст лише"], correctIndex: 1, explanationUk: "Вікно -20000…-20999.", explanationEn: "The window is -20000…-20999." },
-    { promptUk: "WHEN OTHERS THEN NULL:", promptEn: "WHEN OTHERS THEN NULL:", options: ["Найкращий шаблон", "Ловить лише NO_DATA_FOUND", "Ховає будь-який збій", "Пише RMAN"], correctIndex: 2, explanationUk: "Порожній OTHERS маскує помилку.", explanationEn: "An empty OTHERS masks the error." },
-    { promptUk: "Після журналу в OTHERS варто:", promptEn: "After logging in OTHERS you should:", options: ["RAISE", "COMMIT", "NULL", "FETCH FIRST"], correctIndex: 0, explanationUk: "Інакше викликач думає, що все добре.", explanationEn: "Otherwise the caller thinks everything is fine." },
+    { promptUk: "Оброблений виняток без RAISE:", promptEn: "A handled exception without RAISE:", options: ["Летить до клієнта", "Завершує блок нормально", "Робить ROLLBACK завжди", "Відкриває курсор"], optionsEn: ["Propagates to the client", "Completes the block normally", "Always issues ROLLBACK", "Opens a cursor"], correctIndex: 1, explanationUk: "Сигнал гаситься в обробнику.", explanationEn: "The signal stops in the handler." },
+    { promptUk: "Дозволений код RAISE_APPLICATION_ERROR:", promptEn: "A legal RAISE_APPLICATION_ERROR code:", options: ["-1", "-20001", "100", "ORA-00001 як текст лише"], optionsEn: ["-1", "-20001", "100", "ORA-00001 as text only"], correctIndex: 1, explanationUk: "Вікно -20000…-20999.", explanationEn: "The window is -20000…-20999." },
+    { promptUk: "WHEN OTHERS THEN NULL:", promptEn: "WHEN OTHERS THEN NULL:", options: ["Найкращий шаблон", "Ловить лише NO_DATA_FOUND", "Ховає винятки, що потрапили до обробника", "Пише RMAN"], optionsEn: ["Best practice", "Catches only NO_DATA_FOUND", "Hides exceptions that reach the handler", "Writes RMAN"], correctIndex: 2, explanationUk: "Порожній OTHERS маскує помилку.", explanationEn: "An empty OTHERS masks the error." },
+    { promptUk: "Після журналу в OTHERS варто:", promptEn: "After logging in OTHERS you should:", options: ["RAISE", "COMMIT", "NULL", "FETCH FIRST"], optionsEn: ["RAISE", "COMMIT", "NULL", "FETCH FIRST"], correctIndex: 0, explanationUk: "Інакше викликач думає, що все добре.", explanationEn: "Otherwise the caller thinks everything is fine." },
   ]),
   pack("plsql-routines", "Процедури і функції", "Procedures and functions", routines, "Контрольна: підпрограми", "Exam: routines", [
-    { promptUk: "Параметр лише для читання:", promptEn: "A read-only parameter:", options: ["OUT", "IN", "ROWCOUNT", "OTHERS"], correctIndex: 1, explanationUk: "IN приходить від викликача.", explanationEn: "IN comes from the caller." },
-    { promptUk: "Забутий OUT:", promptEn: "A forgotten OUT:", options: ["Стає 0", "Стає TRUE", "Лишається NULL", "Компілюється в VIEW"], correctIndex: 2, explanationUk: "Немає присвоєння — немає значення.", explanationEn: "No assignment means no value." },
-    { promptUk: "Гілка функції без RETURN:", promptEn: "A function branch without RETURN:", options: ["Завжди ігнорується", "Повертає 0", "Заборонена синтаксично в кожному разі на компіляції", "Падає, коли виконання туди заходить"], correctIndex: 3, explanationUk: "PROGRAM_ERROR на порожньому шляху.", explanationEn: "PROGRAM_ERROR on the empty path." },
-    { promptUk: "Старе й нове значення одного аргумента:", promptEn: "Old and new value of one argument:", options: ["IN OUT", "Лише IN", "Лише EXCEPTION", "SQL%ROWCOUNT"], correctIndex: 0, explanationUk: "IN OUT читає і пише.", explanationEn: "IN OUT reads and writes." },
+    { promptUk: "Параметр лише для читання:", promptEn: "A read-only parameter:", options: ["OUT", "IN", "ROWCOUNT", "OTHERS"], optionsEn: ["OUT", "IN", "ROWCOUNT", "OTHERS"], correctIndex: 1, explanationUk: "IN приходить від викликача.", explanationEn: "IN comes from the caller." },
+    { promptUk: "Забутий OUT:", promptEn: "A forgotten OUT:", options: ["Стає 0", "Стає TRUE", "Лишається NULL", "Компілюється в VIEW"], optionsEn: ["Becomes 0", "Becomes TRUE", "Remains NULL", "Compiles into a VIEW"], correctIndex: 2, explanationUk: "Немає присвоєння — немає значення.", explanationEn: "No assignment means no value." },
+    { promptUk: "Гілка функції без RETURN:", promptEn: "A function branch without RETURN:", options: ["Завжди ігнорується", "Повертає 0", "Заборонена синтаксично в кожному разі на компіляції", "Падає, коли виконання туди заходить"], optionsEn: ["Always ignored", "Returns 0", "Always a syntax error at compile time", "Fails when execution reaches the path without RETURN"], correctIndex: 3, explanationUk: "PROGRAM_ERROR на порожньому шляху.", explanationEn: "PROGRAM_ERROR on the empty path." },
+    { promptUk: "Старе й нове значення одного аргумента:", promptEn: "Old and new value of one argument:", options: ["IN OUT", "Лише IN", "Лише EXCEPTION", "SQL%ROWCOUNT"], optionsEn: ["IN OUT", "Only IN", "Only EXCEPTION", "SQL%ROWCOUNT"], correctIndex: 0, explanationUk: "IN OUT читає і пише.", explanationEn: "IN OUT reads and writes." },
   ]),
 ];

@@ -21,11 +21,11 @@ Relational modeling, constraints and migrations, parameterized CRUD, joins and k
 
 - `pg-rm-entities` — Entities, Keys & 1:N Modeling in PostgreSQL (2 exercises)
 - `pg-rm-normalization` — Avoiding Anomalies & Foreign Key Actions (1 exercises)
-- `pg-rm-exam` — Checkpoint: Relational Modeling [exam] (2 exercises)
+- `pg-rm-exam` — Checkpoint: Relational Modeling [exam] (3 exercises)
 
 ### `pg_constraints_migrations` — Constraints & Safe Schema Migrations
 
-- `pg-cm-constraints` — CHECK Constraints & Partial Unique Indexes (2 exercises)
+- `pg-cm-constraints` — CHECK Constraints & Partial Unique Indexes (3 exercises)
 - `pg-cm-migrations` — Forward-Only Versioned Migrations & Lock Safety (2 exercises)
 - `pg-cm-exam` — Checkpoint: Constraints & Migrations [exam] (2 exercises)
 
@@ -56,7 +56,7 @@ Relational modeling, constraints and migrations, parameterized CRUD, joins and k
 ## Depth now
 
 - Units: 9
-- Lessons: 30
+- Lessons: 31
 - Exams: 9
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, match, mcq
@@ -66,6 +66,8 @@ Relational modeling, constraints and migrations, parameterized CRUD, joins and k
 - PostgreSQL Tutorial & Documentation: https://www.postgresql.org/docs/current/tutorial.html
 
 ## Expansion (Nov 2026)
+
+Applied transfer: `pg-transfer-online-migration` in `pg_pool_replicas` stages a compatible column change, batch backfill, and keyset listing.
 
 Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
 

@@ -1,5 +1,5 @@
 import type { Exercise, LessonContent, UnitContent } from "./types.js";
-import { codeFill, codeOrder, codeRead, exam, lesson, mcq, unit } from "./builders.js";
+import { codeFill, codeOrder, codeRead, concept, exam, lesson, mcq, unit } from "./builders.js";
 
 /** Short rule shown with the solution (and as a hint if the student asks). */
 const n = (explanationUk: string, explanationEn: string) => ({
@@ -19,7 +19,11 @@ export const selectIntroLessons: LessonContent[] = [
     1,
     true,
     [
-      mcq(
+      concept("sqlf-rel-model-concept", "Рядки, ключі та відсутні значення", "Rows, keys, and missing values", {
+        uk: "Таблиця зберігає рядки визначеної структури. Первинний ключ не допускає NULL і відрізняє рядки; зовнішній ключ підтримує зв’язок із ключем тієї самої чи іншої таблиці. NULL позначає відсутнє або невідоме значення, а в Oracle порожній рядок також трактується як NULL.",
+        en: "A table stores rows of a defined structure. A primary key is non-NULL and distinguishes rows; a foreign key maintains a relationship to a key in the same or another table. NULL represents an absent or unknown value, and Oracle also treats an empty string as NULL.",
+      }),
+      { ...mcq(
         "sqlf-rel1",
         "У реляційній моделі рядок — це:",
         "In the relational model, a row is:",
@@ -29,8 +33,8 @@ export const selectIntroLessons: LessonContent[] = [
           "Таблиця — множина рядків однієї структури. Колонка має ім'я і тип.",
           "A table is a set of rows with the same columns. Each column has a name and a type.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["One record in a relation", "The database name", "An index type", "A user session"] },
+      { ...mcq(
         "sqlf-rel2",
         "PRIMARY KEY потрібен, щоб:",
         "A PRIMARY KEY exists so that:",
@@ -42,11 +46,11 @@ export const selectIntroLessons: LessonContent[] = [
         ],
         0,
         n(
-          "PK унікальний і NOT NULL. FOREIGN KEY посилається на PK (або UNIQUE) іншої таблиці.",
-          "A primary key is unique and NOT NULL. A foreign key points at another table's PK or UNIQUE key.",
+          "PK унікальний і NOT NULL. FOREIGN KEY посилається на PK (або UNIQUE) тієї самої чи іншої таблиці.",
+          "A primary key is unique and NOT NULL. A foreign key references a primary or unique key in the same or another table.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["Each row has a unique identifier", "Only accelerate DROP", "Store files", "Replace WHERE"] },
+      { ...mcq(
         "sqlf-rel3",
         "NULL у Oracle — це:",
         "NULL in Oracle means:",
@@ -61,8 +65,8 @@ export const selectIntroLessons: LessonContent[] = [
           "Порівняння з NULL через = дає UNKNOWN, не TRUE. Пишіть IS NULL. Окремо: у Oracle '' теж стає NULL.",
           "Comparing with = NULL yields UNKNOWN, not TRUE. Use IS NULL. In Oracle, '' is also stored as NULL.",
         ),
-      ),
-      codeRead(
+      ), optionsEn: ["An unknown or absent value, not numeric zero or false", "Always zero", "An empty string that equals ''", "A string containing one space"] },
+      { ...codeRead(
         "sqlf-rel4",
         "Чому цей фільтр не знайде рядки без email?",
         "Why does this filter miss rows with no email?",
@@ -79,7 +83,7 @@ export const selectIntroLessons: LessonContent[] = [
           "Будь-яке порівняння =, <>, < з NULL дає UNKNOWN, і WHERE його відкидає.",
           "Any =, <>, or < comparison with NULL is UNKNOWN, and WHERE rejects it.",
         ),
-      ),
+      ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["= NULL is not TRUE; use IS NULL", "The query deletes the table", "It finds all NULLs", "It is always a syntax error"] },
     ],
   ),
 ];
@@ -92,7 +96,11 @@ export const selectDepthLessons: LessonContent[] = [
     2,
     false,
     [
-      mcq(
+      concept("sqlf-distinct-alias-concept", "Вирази та псевдоніми", "Expressions and aliases", {
+        uk: "DISTINCT усуває дублікати всієї комбінації вибраних значень. Псевдонім називає результат виразу; доступність псевдоніма в інших частинах запиту залежить від діалекту й версії. Наприклад, Oracle 19c дозволяє його в ORDER BY, а Oracle 23ai також у GROUP BY.",
+        en: "DISTINCT removes duplicate combinations across the entire select list. An alias names an expression result; where it can be referenced depends on dialect and version. For example, Oracle 19c permits it in ORDER BY, and Oracle 23ai also permits it in GROUP BY.",
+      }),
+      { ...mcq(
         "sqlf-dx1",
         "SELECT DISTINCT dept_id, job FROM staff прибирає дублікати:",
         "SELECT DISTINCT dept_id, job FROM staff removes duplicates of:",
@@ -107,18 +115,18 @@ export const selectDepthLessons: LessonContent[] = [
           "DISTINCT діє на весь список SELECT.",
           "DISTINCT applies to the whole select list.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["The pair (dept_id, job), not each column separately", "Only dept_id", "Only the first row", "All NULLs in the table"] },
+      { ...mcq(
         "sqlf-dx2",
-        "Де в Oracle можна використати аліас колонки з SELECT?",
-        "Where can Oracle use a SELECT column alias?",
+        "Де в Oracle 19c можна використати аліас колонки з SELECT у тому самому блоці запиту?",
+        "Where can Oracle 19c use a SELECT column alias in the same query block?",
         ["в ORDER BY", "в WHERE", "в GROUP BY", "в FROM"],
         0,
         n(
-          "Аліас з'являється після фази SELECT. ORDER BY іде пізніше, WHERE і GROUP BY — раніше.",
-          "The alias exists after the SELECT phase. ORDER BY is later; WHERE and GROUP BY are earlier.",
+          "В Oracle 19c аліас доступний у ORDER BY, але не в WHERE чи GROUP BY того самого блоку. Починаючи з Oracle 23ai аліас також підтримується в GROUP BY.",
+          "In Oracle 19c the alias is available in ORDER BY but not WHERE or GROUP BY in the same query block. Oracle 23ai adds GROUP BY alias support.",
         ),
-      ),
+      ), optionsEn: ["ORDER BY", "WHERE", "GROUP BY", "FROM"] },
       codeFill(
         "sqlf-dx3",
         "Аліас повного імені",
@@ -132,7 +140,7 @@ export const selectDepthLessons: LessonContent[] = [
           "AS is optional. || concatenates strings.",
         ),
       ),
-      mcq(
+      { ...mcq(
         "sqlf-dx4",
         "salary + NULL у SELECT дає:",
         "salary + NULL in the SELECT list yields:",
@@ -142,7 +150,7 @@ export const selectDepthLessons: LessonContent[] = [
           "Арифметика з NULL дає NULL. Для підстановки є NVL або COALESCE.",
           "Arithmetic with NULL yields NULL. Use NVL or COALESCE to substitute a value.",
         ),
-      ),
+      ), optionsEn: ["NULL", "salary", "0", "Always a compilation error"] },
     ],
   ),
   lesson(
@@ -152,6 +160,10 @@ export const selectDepthLessons: LessonContent[] = [
     2,
     false,
     [
+      concept("sqlf-dual-quote-concept", "Літерали та DUAL в Oracle", "Literals and DUAL in Oracle", {
+        uk: "DUAL дозволяє обчислити вираз у традиційному синтаксисі Oracle; у новіших версіях деякі запити можуть не потребувати FROM. Альтернативні лапки q допомагають записати апостроф у тексті. Конкатенація з NULL в Oracle має особливу поведінку, відмінну від багатьох інших СУБД.",
+        en: "DUAL lets traditional Oracle syntax evaluate an expression; newer versions allow some queries without FROM. Alternative q quoting helps include apostrophes in text. Oracle concatenation with NULL has special behavior that differs from many other databases.",
+      }),
       codeFill(
         "sqlf-dx5",
         "Вираз без таблиці",
@@ -165,7 +177,7 @@ export const selectDepthLessons: LessonContent[] = [
           "DUAL is the one-row table Oracle uses for expressions.",
         ),
       ),
-      mcq(
+      { ...mcq(
         "sqlf-dx6",
         "SELECT NULL || 'SQL' FROM dual у Oracle повертає:",
         "SELECT NULL || 'SQL' FROM dual in Oracle returns:",
@@ -175,7 +187,7 @@ export const selectDepthLessons: LessonContent[] = [
           "У || Oracle трактує NULL як порожній рядок. В інших СУБД результат часто NULL.",
           "Oracle treats NULL as an empty string in ||. Other engines often return NULL.",
         ),
-      ),
+      ), optionsEn: ["SQL", "NULL", "An error", "0"] },
       codeFill(
         "sqlf-dx7",
         "Альтернативні лапки для O'Brien",
@@ -213,14 +225,18 @@ export const restrictDepthLessons: LessonContent[] = [
     2,
     false,
     [
-      mcq(
+      concept("sqlf-between-like-concept", "Діапазони, шаблони і логіка", "Ranges, patterns, and logic", {
+        uk: "BETWEEN включає обидві межі. LIKE використовує % для послідовності символів та _ для одного символу; ESCAPE дозволяє шукати їх буквально. AND має вищий пріоритет за OR, але дужки роблять намір явним. Умови з NULL можуть давати UNKNOWN.",
+        en: "BETWEEN includes both endpoints. LIKE uses % for a sequence of characters and _ for one character; ESCAPE allows literal matches. AND binds more tightly than OR, but parentheses make intent clear. Conditions involving NULL can yield UNKNOWN.",
+      }),
+      { ...mcq(
         "sqlf-rx1",
         "salary BETWEEN 2000 AND 5000 включає:",
         "salary BETWEEN 2000 AND 5000 includes:",
         ["2000 і 5000", "лише числа строго між ними", "лише 2000", "NULL-зарплати"],
         0,
         n("BETWEEN включний з обох боків.", "BETWEEN is inclusive on both ends."),
-      ),
+      ), optionsEn: ["Both 2000 and 5000", "Only values strictly between them", "Only 2000", "NULL salaries"] },
       codeFill(
         "sqlf-rx2",
         "Імена на A",
@@ -234,23 +250,23 @@ export const restrictDepthLessons: LessonContent[] = [
           "% is any tail, _ is one character. ESCAPE sets the escape character.",
         ),
       ),
-      mcq(
+      { ...mcq(
         "sqlf-rx3",
         "WHERE dept_id NOT IN (10, 20, NULL) поверне:",
         "WHERE dept_id NOT IN (10, 20, NULL) returns:",
         [
-          "жоден рядок: NULL у списку робить порівняння UNKNOWN",
+          "жоден рядок: збіги дають FALSE, а інші значення з NULL у списку дають UNKNOWN",
           "усі рядки, крім 10 і 20",
           "лише dept_id NULL",
           "синтаксичну помилку",
         ],
         0,
         n(
-          "NOT IN з NULL у підзапиті або списку — класична пастка. Безпечніше NOT EXISTS.",
-          "NOT IN with a NULL in the list is a classic trap. NOT EXISTS is the safer pattern.",
+          "NOT IN з NULL — пастка: NOT EXISTS може допомогти, але для NULL у зовнішньому значенні поведінку потрібно перевірити окремо.",
+          "NOT IN with NULL is a common trap. NOT EXISTS can help, but check behavior for NULL outer values separately.",
         ),
-      ),
-      codeRead(
+      ), optionsEn: ["No rows: matches are FALSE and other values become UNKNOWN because of NULL", "All rows except 10 and 20", "Only NULL dept_id", "A syntax error"] },
+      { ...codeRead(
         "sqlf-rx4",
         "Які рядки пройдуть?",
         "Which rows pass?",
@@ -267,7 +283,7 @@ export const restrictDepthLessons: LessonContent[] = [
           "AND тісніше за OR: це (city = 'Kyiv') OR (city = 'Lviv' AND salary > 5000).",
           "AND binds tighter than OR: (city = 'Kyiv') OR (city = 'Lviv' AND salary > 5000).",
         ),
-      ),
+      ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["Kyiv with any salary, or Lviv with salary greater than 5000", "Only Kyiv and Lviv, both with salary over 5000", "All rows", "No rows"] },
     ],
   ),
   lesson(
@@ -277,7 +293,11 @@ export const restrictDepthLessons: LessonContent[] = [
     3,
     false,
     [
-      mcq(
+      concept("sqlf-fetch-nulls-concept", "Порядок і обмеження результату", "Ordering and limiting results", {
+        uk: "В Oracle ASC за замовчуванням ставить NULL наприкінці, DESC — на початку; це можна змінити явно. ROWNUM у тому самому блоці відбирає рядки до остаточного ORDER BY, тому для топ-N спочатку відсортуйте вкладений запит або використайте FETCH. Для однакових значень додайте унікальний критерій сортування.",
+        en: "In Oracle, ASC places NULL last by default and DESC first; override this explicitly when needed. ROWNUM in the same query block selects rows before the final ORDER BY, so sort in a subquery or use FETCH for top-N. Add a unique tie-breaker when sort values may repeat.",
+      }),
+      { ...mcq(
         "sqlf-rx5",
         "ORDER BY salary ASC у Oracle за замовчуванням ставить NULL:",
         "ORDER BY salary ASC in Oracle puts NULLs:",
@@ -287,7 +307,7 @@ export const restrictDepthLessons: LessonContent[] = [
           "ASC → NULLS LAST, DESC → NULLS FIRST. Явно: NULLS FIRST або NULLS LAST.",
           "ASC defaults to NULLS LAST, DESC to NULLS FIRST. Write NULLS FIRST or NULLS LAST to override.",
         ),
-      ),
+      ), optionsEn: ["At the end (NULLS LAST)", "At the start", "They are removed", "As zeros"] },
       codeFill(
         "sqlf-rx6",
         "Перші 5 рядків (Oracle 12c+)",
@@ -301,7 +321,7 @@ export const restrictDepthLessons: LessonContent[] = [
           "LIMIT is not Oracle SQL. Use FETCH FIRST n ROWS ONLY and OFFSET … ROWS.",
         ),
       ),
-      codeRead(
+      { ...codeRead(
         "sqlf-rx7",
         "Чому цей «топ-5» невпорядкований правильно?",
         "Why is this top-5 not ordered correctly?",
@@ -318,8 +338,8 @@ export const restrictDepthLessons: LessonContent[] = [
           "Спочатку відберіть і відсортуйте у вкладеному запиті, потім фільтруйте ROWNUM зовні. Або FETCH FIRST.",
           "Sort inside an inline view, then filter ROWNUM outside. Or use FETCH FIRST.",
         ),
-      ),
-      mcq(
+      ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["ROWNUM is assigned before ORDER BY in the same query block", "ORDER BY always precedes WHERE", "ROWNUM sorts by salary", "The query is syntactically invalid"] },
+      { ...mcq(
         "sqlf-rx8",
         "WHERE salary IS NOT NULL:",
         "WHERE salary IS NOT NULL:",
@@ -331,7 +351,7 @@ export const restrictDepthLessons: LessonContent[] = [
         ],
         0,
         n("Єдиний надійний тест на NULL — IS NULL / IS NOT NULL.", "The only reliable NULL test is IS NULL / IS NOT NULL."),
-      ),
+      ), optionsEn: ["Keeps rows where salary is not NULL", "The same as salary <> NULL", "The same as salary = 0", "Deletes the table"] },
     ],
   ),
 ];
@@ -348,6 +368,10 @@ export const singleRowUnit: UnitContent = unit(
       2,
       false,
       [
+        concept("sqlf-char-fn-concept", "Рядки та позиції", "Strings and positions", {
+          uk: "INITCAP змінює регістр слів, SUBSTR витягає фрагмент, а INSTR шукає позицію входження. Позиції в цих прикладах починаються з 1; від’ємна позиція SUBSTR рахується з кінця. LPAD і RPAD доповнюють рядок до заданої довжини.",
+          en: "INITCAP changes word capitalization, SUBSTR extracts a substring, and INSTR finds an occurrence. Positions in these examples start at 1; a negative SUBSTR position counts from the end. LPAD and RPAD pad a string to a specified length.",
+        }),
         mcq(
           "sqlf-fn1",
           "INITCAP('oracle sql') повертає:",
@@ -387,8 +411,8 @@ export const singleRowUnit: UnitContent = unit(
           ["LPAD", "lpad"],
           false,
           n(
-            "LPAD('SQL', 5, '*') = '**SQL'. RPAD дописує справа. CONCAT приймає лише 2 аргументи; для ланцюжка зручніше ||.",
-            "LPAD('SQL', 5, '*') = '**SQL'. RPAD pads on the right. CONCAT takes only two arguments; || chains freely.",
+            "LPAD('SQL', 5, '*') = '**SQL'. RPAD дописує справа. У Oracle 19c CONCAT приймає два аргументи; у новіших версіях підтримується більше. Оператор || також поєднує рядки.",
+            "LPAD('SQL', 5, '*') = '**SQL'. RPAD pads on the right. In Oracle 19c CONCAT takes two arguments; newer versions support more. The || operator also joins strings.",
           ),
         ),
       ],
@@ -400,6 +424,10 @@ export const singleRowUnit: UnitContent = unit(
       2,
       false,
       [
+        concept("sqlf-num-fn-concept", "Округлення та межі", "Rounding and bounds", {
+          uk: "ROUND округлює, а TRUNC відсікає цифри; від’ємна точність означає розряд ліворуч від коми. CEIL і FLOOR знаходять відповідно найближче ціле згори й знизу, зокрема для від’ємних чисел: CEIL(-2.1) = -2, FLOOR(-2.1) = -3. MOD повертає остачу за правилами Oracle.",
+          en: "ROUND rounds while TRUNC discards digits; a negative scale selects a place to the left of the decimal point. CEIL and FLOOR find the nearest integer above and below, including for negative numbers: CEIL(-2.1) = -2, FLOOR(-2.1) = -3. MOD returns a remainder under Oracle's rules.",
+        }),
         mcq(
           "sqlf-fn5",
           "ROUND(45.926, 2) дорівнює:",
@@ -429,14 +457,14 @@ export const singleRowUnit: UnitContent = unit(
           false,
           n("MOD(10, 3) = 1.", "MOD(10, 3) = 1."),
         ),
-        mcq(
+        { ...mcq(
           "sqlf-fn8",
           "CEIL(2.1) і FLOOR(2.9):",
           "CEIL(2.1) and FLOOR(2.9):",
           ["3 і 2", "2 і 2", "3 і 3", "2 і 3"],
           0,
           n("CEIL — найменше ціле не менше за число. FLOOR — найбільше ціле не більше.", "CEIL is the smallest integer ≥ n. FLOOR is the largest integer ≤ n."),
-        ),
+        ), optionsEn: ["3 and 2", "2 and 2", "3 and 3", "2 and 3"] },
       ],
     ),
     lesson(
@@ -446,7 +474,11 @@ export const singleRowUnit: UnitContent = unit(
       3,
       false,
       [
-        mcq(
+        concept("sqlf-date-fn-concept", "Арифметика дат Oracle", "Oracle date arithmetic", {
+          uk: "Тип DATE в Oracle містить і дату, і час. Додавання числа означає додавання днів, зокрема дробової частини доби. ADD_MONTHS і LAST_DAY залежать від календаря NLS_CALENDAR; назва дня для NEXT_DAY — від мови сесії. Для прикладів нижче використовуйте григоріанський календар.",
+          en: "Oracle DATE contains both date and time. Adding a number adds days, including fractional days. ADD_MONTHS and LAST_DAY depend on NLS_CALENDAR; the day name for NEXT_DAY depends on the session language. Use the Gregorian calendar for the examples below.",
+        }),
+        { ...mcq(
           "sqlf-fn9",
           "DATE '2024-03-01' + 1 — це:",
           "DATE '2024-03-01' + 1 is:",
@@ -456,7 +488,7 @@ export const singleRowUnit: UnitContent = unit(
             "До дати можна додати число — це дні (і дробова частина як частка доби).",
             "Adding a number to a date adds days. A fraction is a fraction of a day.",
           ),
-        ),
+        ), optionsEn: ["The next day", "The next month", "A type error", "March 1, 2025"] },
         mcq(
           "sqlf-fn10",
           "ADD_MONTHS(DATE '2024-01-31', 1) у високосному 2024:",
@@ -464,8 +496,8 @@ export const singleRowUnit: UnitContent = unit(
           ["2024-02-29", "2024-03-02", "2024-02-31", "2024-01-31"],
           0,
           n(
-            "Якщо дня в цільовому місяці немає, ADD_MONTHS бере останній день місяця.",
-            "If that day does not exist in the target month, ADD_MONTHS uses the last day of the month.",
+            "За григоріанського календаря ADD_MONTHS бере останній день цільового місяця, якщо початкова дата — останній день свого місяця або потрібного дня в цільовому місяці немає.",
+            "With a Gregorian calendar, ADD_MONTHS uses the last day of the target month if the original date is the last day of its month or the target month has no matching day.",
           ),
         ),
         codeFill(
@@ -481,7 +513,7 @@ export const singleRowUnit: UnitContent = unit(
             "The same day-of-month yields an integer. Also use LAST_DAY(date) and EXTRACT(YEAR FROM date).",
           ),
         ),
-        mcq(
+        { ...mcq(
           "sqlf-fn12",
           "NEXT_DAY(дата, 'MONDAY') залежить від:",
           "NEXT_DAY(date, 'MONDAY') depends on:",
@@ -496,20 +528,20 @@ export const singleRowUnit: UnitContent = unit(
             "Назва дня має збігатися з мовою сесії. Інакше буде помилка, а не «наступний понеділок».",
             "The day name must match the session language. Otherwise Oracle raises an error.",
           ),
-        ),
+        ), optionsEn: ["The session NLS_DATE_LANGUAGE for the day name", "Only the index", "The HTTP client time zone", "GRANT privileges"] },
       ],
     ),
     exam("sqlf-fn-exam", "Контрольна: функції рядка, числа, дати", "Exam: character, number, date", 2, [
       mcq("sqlf-fn-e1", "LOWER('SQL') =", "LOWER('SQL') =", ["sql", "SQL", "Sql", "NULL"], 0),
       mcq("sqlf-fn-e2", "LENGTH('SQL') =", "LENGTH('SQL') =", ["3", "2", "4", "NULL"], 0),
       mcq("sqlf-fn-e3", "TRUNC(15.19, 1) =", "TRUNC(15.19, 1) =", ["15.1", "15.2", "15", "16"], 0),
-      mcq(
+      { ...mcq(
         "sqlf-fn-e4",
-        "CONCAT приймає:",
-        "CONCAT accepts:",
+        "У Oracle 19c CONCAT приймає:",
+        "In Oracle 19c, CONCAT accepts:",
         ["рівно 2 аргументи", "будь-яку кількість", "лише числа", "лише дати"],
         0,
-      ),
+      ), optionsEn: ["Exactly two arguments", "Any number of arguments", "Only numbers", "Only dates"] },
       codeFill(
         "sqlf-fn-e5",
         "Останній день місяця",
@@ -519,13 +551,13 @@ export const singleRowUnit: UnitContent = unit(
         ["LAST_DAY", "last_day"],
         false,
       ),
-      mcq(
+      { ...mcq(
         "sqlf-fn-e6",
         "hire_date + 7 додає:",
         "hire_date + 7 adds:",
         ["7 днів", "7 місяців", "7 років", "7 годин завжди"],
         0,
-      ),
+      ), optionsEn: ["7 days", "7 months", "7 years", "Always 7 hours"] },
     ]),
   ],
 );
@@ -542,6 +574,10 @@ export const conversionUnit: UnitContent = unit(
       3,
       false,
       [
+        concept("sqlf-convert-concept", "Явні перетворення", "Explicit conversion", {
+          uk: "TO_DATE перетворює текст на DATE, TO_CHAR форматує дату або число як текст, а TO_NUMBER перетворює текст на число. Явна маска зменшує залежність від налаштувань сесії; назви місяців і числові роздільники все ще можуть залежати від NLS. DATE також зберігає час, тому рівність із датою опівночі не охоплює весь день.",
+          en: "TO_DATE converts text to DATE, TO_CHAR formats a date or number as text, and TO_NUMBER converts text to a number. An explicit format reduces dependence on session settings; month names and numeric separators may still depend on NLS. DATE also stores time, so equality with midnight does not match the whole day.",
+        }),
         codeFill(
           "sqlf-cv1",
           "Дата з тексту за маскою",
@@ -555,14 +591,14 @@ export const conversionUnit: UnitContent = unit(
             "An explicit format model ignores NLS_DATE_FORMAT. Implicit date/text comparison is fragile.",
           ),
         ),
-        mcq(
+        { ...mcq(
           "sqlf-cv2",
           "TO_CHAR(DATE '2024-03-05', 'YYYY-MM-DD') дає:",
           "TO_CHAR(DATE '2024-03-05', 'YYYY-MM-DD') yields:",
           ["текст 2024-03-05", "тип DATE", "число 20240305", "NULL"],
           0,
           n("TO_CHAR повертає VARCHAR2. TO_NUMBER повертає число.", "TO_CHAR returns VARCHAR2. TO_NUMBER returns a number."),
-        ),
+        ), optionsEn: ["Text 2024-03-05", "A DATE value", "The number 20240305", "NULL"] },
         mcq(
           "sqlf-cv3",
           "Якщо поточний рік 2026, TO_DATE('99', 'RR') — це рік:",
@@ -574,7 +610,7 @@ export const conversionUnit: UnitContent = unit(
             "With RR, if the current year is 00–49, a value 50–99 falls in the previous century. YYYY takes the century from the format digits.",
           ),
         ),
-        codeRead(
+        { ...codeRead(
           "sqlf-cv4",
           "Що небезпечного в цьому фільтрі?",
           "What is fragile about this filter?",
@@ -588,10 +624,10 @@ export const conversionUnit: UnitContent = unit(
           ],
           0,
           n(
-            "Пишіть hire_date = TO_DATE('2024-03-05', 'YYYY-MM-DD') або літерал DATE.",
-            "Write hire_date = TO_DATE('2024-03-05', 'YYYY-MM-DD') or a DATE literal.",
+            "Для порівняння з опівніччю пишіть hire_date = DATE '2024-03-05'. Для всього дня використовуйте інтервал >= DATE '2024-03-05' AND < DATE '2024-03-06'.",
+            "To compare with midnight, write hire_date = DATE '2024-03-05'. For the entire day use a range >= DATE '2024-03-05' AND < DATE '2024-03-06'.",
           ),
-        ),
+        ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["The text is converted using the session NLS_DATE_FORMAT", "It is always March 5", "It is always May 3", "The comparison ignores time and format"] },
       ],
     ),
     lesson(
@@ -601,18 +637,22 @@ export const conversionUnit: UnitContent = unit(
       2,
       false,
       [
-        mcq(
+        concept("sqlf-null-fns-concept", "Вибір за наявністю значення", "Choosing based on a value", {
+          uk: "NVL замінює NULL запасним значенням, NVL2 вибирає результат залежно від наявності значення, NULLIF повертає NULL для рівних аргументів, а COALESCE — перше не-NULL значення. Для COALESCE Oracle документує коротке замикання; типи аргументів мають бути сумісними.",
+          en: "NVL replaces NULL with a fallback, NVL2 chooses a result based on whether a value is present, NULLIF returns NULL for equal arguments, and COALESCE returns the first non-NULL value. Oracle documents short-circuit evaluation for COALESCE; argument types must be compatible.",
+        }),
+        { ...mcq(
           "sqlf-cv5",
           "NVL(NULL, 10) і NVL(4, 10):",
           "NVL(NULL, 10) and NVL(4, 10):",
           ["10 і 4", "NULL і 10", "10 і 10", "4 і NULL"],
           0,
           n(
-            "NVL(a, b) повертає b, лише якщо a є NULL. Oracle обчислює обидва аргументи. COALESCE зупиняється на першому не-NULL.",
-            "NVL(a, b) returns b only when a is NULL. Oracle evaluates both arguments. COALESCE stops at the first non-NULL.",
+            "NVL(a, b) повертає b, лише якщо a є NULL. Не покладайтеся на коротке замикання NVL. Для COALESCE Oracle документує зупинку на першому не-NULL.",
+            "NVL(a, b) returns b only when a is NULL. Do not rely on NVL short-circuiting. Oracle documents that COALESCE stops at the first non-NULL.",
           ),
-        ),
-        mcq(
+        ), optionsEn: ["10 and 4", "NULL and 10", "10 and 10", "4 and NULL"] },
+        { ...mcq(
           "sqlf-cv6",
           "NVL2(NULL, 'є', 'нема') повертає:",
           "NVL2(NULL, 'present', 'missing') returns:",
@@ -622,15 +662,15 @@ export const conversionUnit: UnitContent = unit(
             "NVL2(a, b, c): якщо a не NULL — b, інакше c.",
             "NVL2(a, b, c): b when a is not NULL, otherwise c.",
           ),
-        ),
-        mcq(
+        ), optionsEn: ["missing", "present", "NULL", "0"] },
+        { ...mcq(
           "sqlf-cv7",
           "NULLIF(5, 5) і NULLIF(5, 4):",
           "NULLIF(5, 5) and NULLIF(5, 4):",
           ["NULL і 5", "5 і 5", "5 і NULL", "0 і 1"],
           0,
           n("NULLIF(a, b) дає NULL, коли a = b, інакше a.", "NULLIF(a, b) returns NULL when a = b, otherwise a."),
-        ),
+        ), optionsEn: ["NULL and 5", "5 and 5", "5 and NULL", "0 and 1"] },
         codeFill(
           "sqlf-cv8",
           "Перше відоме з nickname або 'anon'",
@@ -653,6 +693,10 @@ export const conversionUnit: UnitContent = unit(
       3,
       false,
       [
+        concept("sqlf-case-decode-concept", "Умови й невідомі значення", "Conditions and unknown values", {
+          uk: "Простий CASE порівнює вираз із значеннями WHEN; пошуковий CASE перевіряє умови по черзі. Без відповідного WHEN і ELSE результат — NULL. Порівняння з NULL через = дає UNKNOWN, тому використовуйте IS NULL. Oracle DECODE має особливе правило: два NULL вважаються рівними.",
+          en: "A simple CASE compares an expression with WHEN values; a searched CASE checks conditions in order. Without a matching WHEN or ELSE, the result is NULL. Comparing with NULL using = yields UNKNOWN, so use IS NULL. Oracle DECODE has a special rule: two NULLs are considered equal.",
+        }),
         codeFill(
           "sqlf-cv9",
           "Простий CASE",
@@ -666,7 +710,7 @@ export const conversionUnit: UnitContent = unit(
             "There is a simple CASE expr WHEN … and a searched CASE WHEN condition THEN …. CASE is standard SQL.",
           ),
         ),
-        mcq(
+        { ...mcq(
           "sqlf-cv10",
           "DECODE(NULL, NULL, 'yes', 'no') у Oracle:",
           "DECODE(NULL, NULL, 'yes', 'no') in Oracle:",
@@ -676,8 +720,8 @@ export const conversionUnit: UnitContent = unit(
             "DECODE вважає NULL рівним NULL. CASE WHEN NULL = NULL — ні, бо = дає UNKNOWN.",
             "DECODE treats NULL as equal to NULL. CASE WHEN NULL = NULL does not, because = is UNKNOWN.",
           ),
-        ),
-        codeRead(
+        ), optionsEn: ["yes", "no", "NULL", "error"] },
+        { ...codeRead(
           "sqlf-cv11",
           "Що поверне CASE?",
           "What does this CASE return?",
@@ -689,8 +733,8 @@ export const conversionUnit: UnitContent = unit(
             "Щоб перевірити NULL у CASE, пишіть IS NULL.",
             "To test NULL inside CASE, write IS NULL.",
           ),
-        ),
-        mcq(
+        ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["no", "yes", "NULL", "error"] },
+        { ...mcq(
           "sqlf-cv12",
           "Вкладені функції рахуються:",
           "Nested functions are evaluated:",
@@ -705,20 +749,20 @@ export const conversionUnit: UnitContent = unit(
             "ROUND(TO_NUMBER(TO_CHAR(...))) спочатку найглибший виклик.",
             "ROUND(TO_NUMBER(TO_CHAR(...))) runs the innermost call first.",
           ),
-        ),
+        ), optionsEn: ["From the inside out", "Always left to right in the text", "Only after COMMIT", "Randomly"] },
       ],
     ),
     exam("sqlf-cv-exam", "Контрольна: конвертація і умови", "Exam: conversion and conditions", 3, [
       codeFill("sqlf-cv-e1", "TO_DATE", "TO_DATE", "sql", "___( '01-2024', 'MM-YYYY')", ["TO_DATE", "to_date"], false),
-      mcq("sqlf-cv-e2", "NVL(NULL, 'x') =", "NVL(NULL, 'x') =", ["x", "NULL", "0", "помилка"], 0),
+      { ...mcq("sqlf-cv-e2", "NVL(NULL, 'x') =", "NVL(NULL, 'x') =", ["x", "NULL", "0", "помилка"], 0), optionsEn: ["x", "NULL", "0", "error"] },
       mcq("sqlf-cv-e3", "NULLIF(7, 7) це", "NULLIF(7, 7) is", ["NULL", "7", "0", "1"], 0),
-      mcq(
+      { ...mcq(
         "sqlf-cv-e4",
         "DECODE і NULL:",
         "DECODE and NULL:",
         ["NULL збігається з NULL", "як оператор =", "завжди помилка", "лише для дат"],
         0,
-      ),
+      ), optionsEn: ["NULL matches NULL", "The same as the = operator", "Always an error", "Only for dates"] },
       codeFill(
         "sqlf-cv-e5",
         "CASE",
@@ -728,7 +772,7 @@ export const conversionUnit: UnitContent = unit(
         ["CASE", "case"],
         false,
       ),
-      mcq(
+      { ...mcq(
         "sqlf-cv-e6",
         "COALESCE проти NVL:",
         "COALESCE versus NVL:",
@@ -739,7 +783,7 @@ export const conversionUnit: UnitContent = unit(
           "COALESCE лише для дат",
         ],
         0,
-      ),
+      ), optionsEn: ["COALESCE can take multiple arguments and stops at the first non-NULL value", "They are synonyms with the same number of arguments", "NVL short-circuits", "COALESCE is only for dates"] },
     ]),
   ],
 );
@@ -752,7 +796,11 @@ export const aggDepthLessons: LessonContent[] = [
     3,
     false,
     [
-      mcq(
+      concept("sqlf-group-rules-concept", "Від рядків до груп", "From rows to groups", {
+        uk: "WHERE відбирає вихідні рядки, GROUP BY утворює групи, а HAVING відбирає групи за умовою. COUNT(*) рахує рядки, COUNT(email) — лише непорожні значення, а COUNT(DISTINCT email) — різні непорожні значення. Вираз у SELECT має бути допустимим для кожної групи: наприклад, агрегатом або виразом із згрупованих колонок.",
+        en: "WHERE filters input rows, GROUP BY forms groups, and HAVING filters groups. COUNT(*) counts rows, COUNT(email) counts non-NULL values, and COUNT(DISTINCT email) counts distinct non-NULL values. A SELECT expression must be valid for each group, for example an aggregate or an expression built from grouped columns.",
+      }),
+      { ...mcq(
         "sqlf-gx1",
         "COUNT(*) і COUNT(email) відрізняються тим, що:",
         "COUNT(*) and COUNT(email) differ because:",
@@ -764,11 +812,11 @@ export const aggDepthLessons: LessonContent[] = [
         ],
         0,
         n(
-          "Усі групові функції, крім COUNT(*), ігнорують NULL. COUNT(DISTINCT dept_id) рахує різні значення.",
-          "Group functions other than COUNT(*) ignore NULLs. COUNT(DISTINCT dept_id) counts distinct values.",
+          "COUNT(email) ігнорує NULL, а COUNT(*) рахує всі рядки. COUNT(DISTINCT dept_id) рахує різні не-NULL значення.",
+          "COUNT(email) ignores NULLs, while COUNT(*) counts all rows. COUNT(DISTINCT dept_id) counts distinct non-NULL values.",
         ),
-      ),
-      codeRead(
+      ), optionsEn: ["COUNT(email) does not count NULLs", "COUNT(*) does not count rows", "They are always equal", "COUNT(email) counts tables"] },
+      { ...codeRead(
         "sqlf-gx2",
         "Чому запит недійсний?",
         "Why is this query invalid?",
@@ -782,11 +830,11 @@ export const aggDepthLessons: LessonContent[] = [
         ],
         0,
         n(
-          "Кожен вираз у SELECT без агрегату має бути в GROUP BY. Аліас SELECT у GROUP BY Oracle не приймає.",
-          "Every non-aggregated SELECT expression must appear in GROUP BY. Oracle does not accept a SELECT alias in GROUP BY.",
+          "name не визначено для групи. SELECT може містити агрегати, константи та вирази зі згрупованих колонок. Доступність аліаса SELECT у GROUP BY залежить від версії Oracle: 19c його не приймає, а 23ai підтримує.",
+          "name is not defined for the group. SELECT can include aggregates, constants, and expressions built from grouped columns. SELECT alias support in GROUP BY depends on the Oracle version: 19c rejects it, while 23ai supports it.",
         ),
-      ),
-      mcq(
+      ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["name is neither grouped nor aggregated", "COUNT cannot be used with GROUP BY", "dept_id cannot be grouped", "ORDER BY is missing"] },
+      { ...mcq(
         "sqlf-gx3",
         "WHERE COUNT(*) > 2:",
         "WHERE COUNT(*) > 2:",
@@ -801,7 +849,7 @@ export const aggDepthLessons: LessonContent[] = [
           "WHERE відсікає рядки до групування. HAVING — групи після агрегації.",
           "WHERE drops rows before grouping. HAVING filters groups after aggregation.",
         ),
-      ),
+      ), optionsEn: ["Invalid: an aggregate cannot be used in WHERE", "It filters groups", "It is the same as HAVING", "It counts only NULLs"] },
       codeFill(
         "sqlf-gx4",
         "Лишити відділи, де більше 5 людей",
@@ -824,7 +872,11 @@ export const joinDepthLessons: LessonContent[] = [
     3,
     false,
     [
-      codeRead(
+      concept("sqlf-join-using-concept", "Як задається збіг", "How a match is defined", {
+        uk: "JOIN ... ON явно задає умову між таблицями. USING підходить для однойменного ключа, але в Oracle цю спільну колонку не можна кваліфікувати аліасом таблиці. NATURAL JOIN використовує всі спільні назви колонок, тому зміна схеми може змінити результат. Self join застосовує окремі аліаси до однієї таблиці.",
+        en: "JOIN ... ON explicitly states the condition between tables. USING works for a same-named key, but Oracle does not allow qualifying that common column with a table alias. NATURAL JOIN uses all shared column names, so a schema change can alter the result. A self join uses separate aliases for the same table.",
+      }),
+      { ...codeRead(
         "sqlf-jx1",
         "Що не так, якщо з'єднання через USING (dept_id)?",
         "What is wrong if the join uses USING (dept_id)?",
@@ -841,8 +893,8 @@ export const joinDepthLessons: LessonContent[] = [
           "SELECT dept_id — так. SELECT s.dept_id — помилка. NATURAL JOIN з'єднує всі колонки з однаковими іменами.",
           "SELECT dept_id is valid. SELECT s.dept_id is an error. NATURAL JOIN matches every column that shares a name.",
         ),
-      ),
-      mcq(
+      ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["A USING column cannot be qualified with a table alias", "USING is forbidden", "ON is always required", "dept_id must deliberately have different types"] },
+      { ...mcq(
         "sqlf-jx2",
         "NATURAL JOIN небезпечний, бо:",
         "NATURAL JOIN is risky because:",
@@ -854,7 +906,7 @@ export const joinDepthLessons: LessonContent[] = [
         ],
         0,
         n("На іспиті і в коді краще явний ON.", "On the exam and in code, prefer an explicit ON."),
-      ),
+      ), optionsEn: ["A newly shared column name silently changes the join condition", "It returns no rows", "It is forbidden in Oracle", "It ignores primary keys"] },
       codeFill(
         "sqlf-jx3",
         "Керівник працівника (self join)",
@@ -868,7 +920,7 @@ export const joinDepthLessons: LessonContent[] = [
           "A self join reads the same table twice under two aliases.",
         ),
       ),
-      mcq(
+      { ...mcq(
         "sqlf-jx4",
         "Non-equijoin — це:",
         "A non-equijoin is:",
@@ -883,7 +935,7 @@ export const joinDepthLessons: LessonContent[] = [
           "Діапазонні довідники (ґрейди зарплати) з'єднують через BETWEEN.",
           "Range lookups such as salary grades join with BETWEEN.",
         ),
-      ),
+      ), optionsEn: ["A condition other than equality, such as salary BETWEEN lo AND hi", "Only CROSS JOIN", "A join without keys is always an error", "A synonym for NATURAL"] },
     ],
   ),
   lesson(
@@ -893,7 +945,11 @@ export const joinDepthLessons: LessonContent[] = [
     3,
     false,
     [
-      codeRead(
+      concept("sqlf-outer-traps-concept", "Збереження рядків у JOIN", "Preserving rows in joins", {
+        uk: "LEFT JOIN зберігає кожен лівий рядок і підставляє NULL для відсутнього правого збігу; кілька правих збігів можуть розмножити лівий рядок. Умова правої таблиці в ON обмежує збіги, а в WHERE може відсіяти рядки без збігу. CROSS JOIN утворює всі пари рядків.",
+        en: "LEFT JOIN preserves each left row and fills missing right-side matches with NULL; multiple right matches can multiply a left row. A right-table condition in ON limits matches, while in WHERE it can remove unmatched rows. CROSS JOIN produces all row pairs.",
+      }),
+      { ...codeRead(
         "sqlf-jx5",
         "LEFT JOIN і фільтр міста в WHERE:",
         "LEFT JOIN plus a city filter in WHERE:",
@@ -910,19 +966,19 @@ export const joinDepthLessons: LessonContent[] = [
           "Щоб зберегти ліві рядки, умову правої таблиці ставте в ON, не в WHERE.",
           "To keep unmatched left rows, put the right-table predicate in ON, not WHERE.",
         ),
-      ),
-      mcq(
+      ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["People without a department disappear: WHERE removes NULL matches", "All people remain", "It is a FULL JOIN", "It is a syntax error"] },
+      { ...mcq(
         "sqlf-jx6",
         "CROSS JOIN двох таблиць на 3 і 4 рядки дає:",
         "A CROSS JOIN of tables with 3 and 4 rows yields:",
         ["12 рядків", "7", "1", "0"],
         0,
         n(
-          "Декартів добуток: кожен з кожним. Так само INNER JOIN без умови або кома в FROM.",
+          "Декартів добуток: кожен з кожним. Перелік таблиць через кому без умови з’єднання також утворює всі пари.",
           "A Cartesian product pairs every row with every row. A comma in FROM does the same.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["12 rows", "7", "1", "0"] },
+      { ...mcq(
         "sqlf-jx7",
         "FULL OUTER JOIN повертає:",
         "FULL OUTER JOIN returns:",
@@ -934,7 +990,7 @@ export const joinDepthLessons: LessonContent[] = [
         ],
         0,
         n("RIGHT JOIN дзеркалить LEFT. (+) — старий синтаксис Oracle; на практиці пишіть ANSI JOIN.", "RIGHT JOIN mirrors LEFT. (+) is legacy Oracle syntax; write ANSI JOIN."),
-      ),
+      ), optionsEn: ["Matches and unmatched rows from both sides, with NULLs for missing values", "Only matches", "Only the left table", "An error in Oracle"] },
       codeFill(
         "sqlf-jx8",
         "Явне декартове з'єднання",
@@ -961,6 +1017,10 @@ export const subqueriesUnit: UnitContent = unit(
       3,
       false,
       [
+        concept("sqlf-sq-single-concept", "Скалярний результат", "A scalar result", {
+          uk: "Скалярний підзапит повертає одну колонку та не більше одного рядка. Один рядок дає його значення, нуль рядків — NULL, а більше одного — ORA-01427. Агрегат без GROUP BY повертає один рядок навіть на порожньому вході: MAX тоді дає NULL, а COUNT(*) — 0.",
+          en: "A scalar subquery returns one column and at most one row. One row yields its value, zero rows yield NULL, and more than one produces ORA-01427. An aggregate without GROUP BY returns one row even for empty input: MAX yields NULL, while COUNT(*) yields 0.",
+        }),
         codeFill(
           "sqlf-sq1",
           "Хто отримує максимум",
@@ -974,7 +1034,7 @@ export const subqueriesUnit: UnitContent = unit(
             "A subquery used with =, >, or < must return a single value.",
           ),
         ),
-        mcq(
+        { ...mcq(
           "sqlf-sq2",
           "Якщо однорядковий підзапит повернув 2 рядки:",
           "If a single-row subquery returns 2 rows:",
@@ -984,21 +1044,21 @@ export const subqueriesUnit: UnitContent = unit(
             "Для багатьох рядків потрібні IN, ANY, ALL або агрегат, що зведе їх до одного.",
             "For many rows use IN, ANY, ALL, or an aggregate that collapses them to one value.",
           ),
-        ),
-        mcq(
+        ), optionsEn: ["ORA-01427, too many rows", "The first row is used", "NULL is used", "It becomes UNION"] },
+        { ...mcq(
           "sqlf-sq3",
           "Скалярний підзапит у списку SELECT:",
           "A scalar subquery in the SELECT list:",
           [
-            "має дати рівно одне значення на рядок",
+            "повертає одну колонку й не більше одного рядка",
             "може дати будь-яку кількість колонок",
             "замінює FROM",
             "виконується лише після COMMIT",
           ],
           0,
-          n("Інакше знову ORA-01427.", "Otherwise you get ORA-01427 again."),
-        ),
-        codeRead(
+          n("Нуль рядків дає NULL; більше одного рядка — ORA-01427.", "Zero rows yield NULL; more than one row produces ORA-01427."),
+        ), optionsEn: ["Returns one column and at most one row", "Can return any number of columns", "Replaces FROM", "Runs only after COMMIT"] },
+        { ...codeRead(
           "sqlf-sq4",
           "Що це за конструкція в FROM?",
           "What is this in the FROM clause?",
@@ -1012,10 +1072,18 @@ export const subqueriesUnit: UnitContent = unit(
           ],
           0,
           n(
-            "Вкладеному запиту в FROM потрібен аліас (тут v).",
-            "An inline view in FROM needs an alias (here, v).",
+            "Аліас v дозволяє посилатися на колонку результату як v.avg_sal.",
+            "The alias v lets the outer query refer to the result column as v.avg_sal.",
           ),
-        ),
+        ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["An inline view: a subquery used as a table", "A correlated UPDATE", "A synonym", "Only a syntax error"] },
+        { ...mcq(
+          "sqlf-sq-zero-rows",
+          "Що повертає скалярний підзапит із однією колонкою та без рядків?",
+          "What does a scalar subquery with one column and no rows return?",
+          ["NULL", "0", "ORA-01427", "порожній рядок"],
+          0,
+          n("Немає рядка — результат скалярного підзапиту NULL; помилка ORA-01427 виникає за більш ніж одного рядка.", "No row yields NULL; ORA-01427 occurs when there is more than one row."),
+        ), optionsEn: ["NULL", "0", "ORA-01427", "An empty string"] },
       ],
     ),
     lesson(
@@ -1025,17 +1093,21 @@ export const subqueriesUnit: UnitContent = unit(
       3,
       false,
       [
-        mcq(
+        concept("sqlf-sq-multi-concept", "Порівняння з множиною", "Comparing with a set", {
+          uk: "IN перевіряє наявність рівного значення; ANY означає хоча б одне порівняння, ALL — кожне. Для порожнього підзапиту ANY є FALSE, а ALL — TRUE. NULL може дати UNKNOWN: наприклад, 5 IN (5, NULL) є TRUE, а 7 NOT IN (5, NULL) — UNKNOWN і відсікається WHERE.",
+          en: "IN tests for an equal value; ANY requires at least one comparison and ALL requires every comparison. With an empty subquery ANY is FALSE and ALL is TRUE. NULL can yield UNKNOWN: for example, 5 IN (5, NULL) is TRUE, while 7 NOT IN (5, NULL) is UNKNOWN and is filtered out by WHERE.",
+        }),
+        { ...mcq(
           "sqlf-sq5",
           "salary > ALL (1000, 2000, 3000) означає:",
           "salary > ALL (1000, 2000, 3000) means:",
           ["salary > 3000", "salary > 1000", "salary = 3000", "будь-яка зарплата"],
           0,
           n(
-            "> ALL — більше за кожне значення, тобто більше за максимум. > ANY — більше хоча б за одне, тобто більше за мінімум.",
-            "> ALL means greater than every value, so greater than the max. > ANY means greater than at least one, so greater than the min.",
+            "Для непорожнього набору без NULL > ALL означає більше за максимум, а > ANY — більше за мінімум. Порожній набір і NULL потребують окремої перевірки.",
+            "For a nonempty set without NULLs, > ALL means greater than the maximum and > ANY means greater than the minimum. Empty sets and NULLs require separate consideration.",
           ),
-        ),
+        ), optionsEn: ["salary > 3000", "salary > 1000", "salary = 3000", "Any salary"] },
         codeFill(
           "sqlf-sq6",
           "Відділи з переліку",
@@ -1046,7 +1118,7 @@ export const subqueriesUnit: UnitContent = unit(
           false,
           n("IN — належність множині. Кілька колонок у підзапиті мають збігатися з лівим кортежем.", "IN tests membership. Multiple columns must match the left-hand tuple."),
         ),
-        mcq(
+        { ...mcq(
           "sqlf-sq7",
           "NOT IN, якщо підзапит може повернути NULL:",
           "NOT IN when the subquery can return NULL:",
@@ -1057,16 +1129,24 @@ export const subqueriesUnit: UnitContent = unit(
             "перетворюється на UNION",
           ],
           0,
-          n("NULL у множині IN/NOT IN «отруює» предикати.", "A NULL inside an IN/NOT IN list poisons the predicate."),
-        ),
-        mcq(
+          n("Якщо збігу немає, NULL у списку робить результат IN і NOT IN невідомим; WHERE пропускає тільки TRUE. Наявний рівний елемент усе ж робить IN істинним.", "When no match exists, NULL in the list makes IN and NOT IN unknown; WHERE keeps only TRUE. An equal element still makes IN true."),
+        ), optionsEn: ["Often returns no rows", "Works like NOT EXISTS", "Ignores NULL", "Becomes UNION"] },
+        { ...mcq(
           "sqlf-sq8",
           "ANY і SOME:",
           "ANY and SOME:",
           ["синоніми", "протилежності", "лише для дат", "лише в DDL"],
           0,
           n("SOME — інша назва ANY.", "SOME is another spelling of ANY."),
-        ),
+        ), optionsEn: ["Synonyms", "Opposites", "Only for dates", "Only in DDL"] },
+        { ...mcq(
+          "sqlf-sq-in-null-match",
+          "Який результат 5 IN (5, NULL)?",
+          "What is the result of 5 IN (5, NULL)?",
+          ["TRUE", "FALSE", "UNKNOWN", "помилка"],
+          0,
+          n("Рівний елемент уже робить IN істинним. Без збігу наявність NULL може дати UNKNOWN.", "The equal element makes IN true. Without a match, a NULL may make the result UNKNOWN."),
+        ), optionsEn: ["TRUE", "FALSE", "UNKNOWN", "Error"] },
       ],
     ),
     lesson(
@@ -1076,7 +1156,11 @@ export const subqueriesUnit: UnitContent = unit(
       3,
       false,
       [
-        codeRead(
+        concept("sqlf-sq-exists-concept", "Перевірка існування", "Testing existence", {
+          uk: "Корельований підзапит посилається на рядок зовнішнього запиту. EXISTS перевіряє наявність хоча б одного рядка, а NOT EXISTS — його відсутність; фактичний план виконання обирає оптимізатор. Для антиз’єднання LEFT JOIN ... IS NULL перевіряйте праву колонку, яка не може бути NULL у відповідному рядку.",
+          en: "A correlated subquery refers to a row of the outer query. EXISTS tests whether at least one row exists, and NOT EXISTS tests whether none exist; the optimizer chooses the actual execution plan. For a LEFT JOIN ... IS NULL anti-join, test a right-side column that cannot be NULL in a matching row.",
+        }),
+        { ...codeRead(
           "sqlf-sq9",
           "Чим цей підзапит корельований?",
           "Why is this subquery correlated?",
@@ -1093,8 +1177,8 @@ export const subqueriesUnit: UnitContent = unit(
             "EXISTS істинний, якщо знайшовся хоч один рядок. Список SELECT ігнорується — звично писати SELECT 1.",
             "EXISTS is true when at least one row is found. The select list is ignored — SELECT 1 is the usual form.",
           ),
-        ),
-        mcq(
+        ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["The inner query refers to s from the outer query", "EXISTS always reads the whole table once", "SELECT 1 is forbidden here", "It is a set operator"] },
+        { ...mcq(
           "sqlf-sq10",
           "Люди без замовлень безпечніше шукати через:",
           "People with no orders are safer to find with:",
@@ -1106,10 +1190,10 @@ export const subqueriesUnit: UnitContent = unit(
           ],
           0,
           n(
-            "NOT EXISTS не ламається через NULL у ключі. LEFT JOIN … IS NULL — інший робочий анти-join.",
-            "NOT EXISTS does not break on a NULL key. LEFT JOIN … IS NULL is the other solid anti-join.",
+            "NOT EXISTS перевіряє відсутність рядка за вказаною умовою. Для LEFT JOIN … IS NULL перевіряйте праву колонку, що не буває NULL у відповідному рядку; окремо визначте бажану поведінку для NULL у лівому ключі.",
+            "NOT EXISTS tests for absence of a row satisfying the condition. For LEFT JOIN … IS NULL, test a right-side column that cannot be NULL in a matching row; separately decide the intended behavior for a NULL left key.",
           ),
-        ),
+        ), optionsEn: ["NOT EXISTS", "NOT IN on a nullable column", "CROSS JOIN", "TRUNCATE"] },
         codeFill(
           "sqlf-sq11",
           "Підвищити тих, хто нижче середнього свого відділу",
@@ -1123,7 +1207,7 @@ export const subqueriesUnit: UnitContent = unit(
             "A correlated subquery in UPDATE or DELETE runs in the context of the current row.",
           ),
         ),
-        mcq(
+        { ...mcq(
           "sqlf-sq12",
           "Некорельований підзапит:",
           "A non-correlated subquery:",
@@ -1135,19 +1219,19 @@ export const subqueriesUnit: UnitContent = unit(
           ],
           0,
           n("Його можна обчислити один раз.", "Oracle can evaluate it once."),
-        ),
+        ), optionsEn: ["Does not depend on the current outer row", "Always occurs in SELECT", "Cannot occur in WHERE", "Requires EXISTS"] },
       ],
     ),
     exam("sqlf-sq-exam", "Контрольна: підзапити", "Exam: subqueries", 3, [
       mcq("sqlf-sq-e1", "> ALL (10, 40) це", "> ALL (10, 40) means", ["> 40", "> 10", "= 40", "< 10"], 0),
-      mcq("sqlf-sq-e2", "> ANY (10, 40) це", "> ANY (10, 40) means", ["> 10", "> 40", "= 10", "помилка"], 0),
-      mcq(
+      { ...mcq("sqlf-sq-e2", "> ANY (10, 40) це", "> ANY (10, 40) means", ["> 10", "> 40", "= 10", "помилка"], 0), optionsEn: ["> 10", "> 40", "= 10", "error"] },
+      { ...mcq(
         "sqlf-sq-e3",
         "EXISTS дивиться на:",
         "EXISTS cares about:",
         ["чи є хоч один рядок", "значення першої колонки", "кількість колонок", "COMMIT"],
         0,
-      ),
+      ), optionsEn: ["Whether at least one row exists", "The value of the first column", "The number of columns", "COMMIT"] },
       codeFill(
         "sqlf-sq-e4",
         "IN",
@@ -1157,20 +1241,20 @@ export const subqueriesUnit: UnitContent = unit(
         ["IN", "in"],
         false,
       ),
-      mcq(
+      { ...mcq(
         "sqlf-sq-e5",
         "Два рядки з підзапиту біля оператора = :",
         "Two rows from a subquery beside = :",
         ["ORA-01427", "перший рядок", "NULL", "UNION ALL"],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["ORA-01427", "The first row", "NULL", "UNION ALL"] },
+      { ...mcq(
         "sqlf-sq-e6",
         "Inline view стоїть у:",
         "An inline view sits in:",
         ["FROM", "лише GRANT", "лише ORDER BY", "DUAL завжди"],
         0,
-      ),
+      ), optionsEn: ["FROM", "Only GRANT", "Only ORDER BY", "Always DUAL"] },
     ]),
   ],
 );
@@ -1187,7 +1271,11 @@ export const setOpsUnit: UnitContent = unit(
       2,
       false,
       [
-        mcq(
+        concept("sqlf-union-concept", "Об’єднання результатів", "Combining results", {
+          uk: "UNION поєднує результати та усуває дублікати цілих рядків; UNION ALL зберігає повтори з обох гілок. Кількість колонок має збігатися, а відповідні типи — належати до сумісних груп типів Oracle. Без фінального ORDER BY порядок результату не гарантований.",
+          en: "UNION combines results and removes duplicate whole rows; UNION ALL preserves repetitions from both branches. Column counts must match, and corresponding types must belong to compatible Oracle data type groups. Without a final ORDER BY, result order is not guaranteed.",
+        }),
+        { ...mcq(
           "sqlf-st1",
           "UNION від UNION ALL відрізняється тим, що:",
           "UNION differs from UNION ALL because:",
@@ -1202,8 +1290,8 @@ export const setOpsUnit: UnitContent = unit(
             "Порядок рядків без ORDER BY не гарантований. ORDER BY пишуть один раз у кінці.",
             "Row order is not guaranteed without ORDER BY. Write ORDER BY once, at the end.",
           ),
-        ),
-        codeRead(
+        ), optionsEn: ["UNION removes duplicates", "UNION ALL removes duplicates", "UNION does not require equal column counts", "UNION ALL sorts by primary key"] },
+        { ...codeRead(
           "sqlf-st2",
           "Яка вимога до двох SELECT?",
           "What must the two SELECTs share?",
@@ -1220,7 +1308,7 @@ export const setOpsUnit: UnitContent = unit(
             "Імена колонок результату беруться з першого SELECT. ORDER BY 1 надійніше за аліас другого.",
             "Result column names come from the first SELECT. ORDER BY 1 is safer than an alias from the second.",
           ),
-        ),
+        ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["Equal column counts and compatible types; this query is invalid", "The same table names", "Both must have WHERE", "The query is valid"] },
         codeFill(
           "sqlf-st3",
           "Склеїти без видалення дублікатів",
@@ -1229,9 +1317,9 @@ export const setOpsUnit: UnitContent = unit(
           "SELECT name FROM staff\nUNION ___ \nSELECT name FROM applicants;",
           ["ALL", "all"],
           false,
-          n("UNION ALL дешевший: немає сортування заради distinct.", "UNION ALL is cheaper: no distinct sort."),
+          n("UNION ALL не усуває дублікати. Це може зменшити роботу порівняно з UNION, але фактичний план залежить від запиту.", "UNION ALL does not remove duplicates. This may require less work than UNION, but the actual plan depends on the query."),
         ),
-        mcq(
+        { ...mcq(
           "sqlf-st4",
           "NULL у set-операторах Oracle:",
           "NULLs in Oracle set operators:",
@@ -1243,7 +1331,15 @@ export const setOpsUnit: UnitContent = unit(
           ],
           0,
           n("Два NULL в одній позиції — один дублікат для UNION.", "Two NULLs in the same position are one duplicate for UNION."),
-        ),
+        ), optionsEn: ["They are treated as equal for duplicate elimination", "They are always different", "They are forbidden", "They are converted to zero"] },
+        { ...mcq(
+          "sqlf-union-duplicates",
+          "Перший запит повертає 1, 1; другий — 1, 2. Скільки рядків поверне UNION ALL?",
+          "The first query returns 1, 1; the second returns 1, 2. How many rows does UNION ALL return?",
+          ["4", "2", "3", "1"],
+          0,
+          n("UNION ALL зберігає всі чотири рядки. UNION залишив би два різні значення.", "UNION ALL preserves all four rows. UNION would retain two distinct values."),
+        ), optionsEn: ["4", "2", "3", "1"] },
       ],
     ),
     lesson(
@@ -1253,7 +1349,11 @@ export const setOpsUnit: UnitContent = unit(
       3,
       false,
       [
-        mcq(
+        concept("sqlf-minus-intersect-concept", "Перетин і різниця", "Intersection and difference", {
+          uk: "INTERSECT повертає різні рядки, наявні в обох результатах. MINUS повертає різні рядки першого результату, яких немає в другому, тому порядок гілок важливий. Для кількох операцій використовуйте дужки, щоб явно задати порядок обчислення.",
+          en: "INTERSECT returns distinct rows present in both results. MINUS returns distinct rows from the first result that are absent from the second, so branch order matters. Use parentheses to make the evaluation order explicit when combining several set operators.",
+        }),
+        { ...mcq(
           "sqlf-st5",
           "INTERSECT повертає:",
           "INTERSECT returns:",
@@ -1265,7 +1365,7 @@ export const setOpsUnit: UnitContent = unit(
           ],
           0,
           n("Дублікати прибираються.", "Duplicates are removed."),
-        ),
+        ), optionsEn: ["Rows present in both results", "Only rows from the first result", "All rows from both results", "A Cartesian product"] },
         codeFill(
           "sqlf-st6",
           "Є в A, немає в B",
@@ -1298,7 +1398,7 @@ export const setOpsUnit: UnitContent = unit(
           ],
           n("ORDER BY лише після останнього SELECT.", "ORDER BY belongs only after the last SELECT."),
         ),
-        mcq(
+        { ...mcq(
           "sqlf-st8",
           "SELECT у гілках UNION може мати ORDER BY всередині?",
           "Can each UNION branch have its own ORDER BY?",
@@ -1310,31 +1410,31 @@ export const setOpsUnit: UnitContent = unit(
           ],
           0,
           n(
-            "Щоб відсортувати гілку, загорніть її в inline view.",
-            "To sort one branch, wrap it in an inline view.",
+            "Для операції, якій потрібен порядок усередині гілки, можна використати inline view. Порядок підсумкового результату гарантує лише фінальний ORDER BY.",
+            "An inline view can order a branch for an operation that needs it. Only the final ORDER BY guarantees the order of the overall result.",
           ),
-        ),
+        ), optionsEn: ["Not directly: one final ORDER BY, or an order within an inline view", "Yes, any number", "Yes, but only DESC", "Only with MINUS"] },
       ],
     ),
     exam("sqlf-set-exam", "Контрольна: множини", "Exam: set operators", 2, [
-      mcq("sqlf-st-e1", "UNION ALL:", "UNION ALL:", ["зберігає дублікати", "видаляє дублікати", "це JOIN", "це GRANT"], 0),
-      mcq("sqlf-st-e2", "MINUS:", "MINUS:", ["в першому, але не в другому", "перетин", "добуток", "DDL"], 0),
-      mcq("sqlf-st-e3", "INTERSECT:", "INTERSECT:", ["в обох", "лише в першому", "усі рядки", "NULL only"], 0),
-      mcq(
+      { ...mcq("sqlf-st-e1", "UNION ALL:", "UNION ALL:", ["зберігає дублікати", "видаляє дублікати", "це JOIN", "це GRANT"], 0), optionsEn: ["Preserves duplicates", "Removes duplicates", "It is a JOIN", "It is a GRANT"] },
+      { ...mcq("sqlf-st-e2", "MINUS:", "MINUS:", ["в першому, але не в другому", "перетин", "добуток", "DDL"], 0), optionsEn: ["In the first result but not the second", "Intersection", "Product", "DDL"] },
+      { ...mcq("sqlf-st-e3", "INTERSECT:", "INTERSECT:", ["в обох", "лише в першому", "усі рядки", "NULL only"], 0), optionsEn: ["In both", "Only in the first", "All rows", "NULL only"] },
+      { ...mcq(
         "sqlf-st-e4",
         "Кількість колонок гілок:",
         "Column counts of the branches:",
         ["має збігатися", "може відрізнятися", "має бути 1", "не важлива"],
         0,
-      ),
-      codeFill("sqlf-st-e5", "UNION", "UNION", "sql", "SELECT id FROM a\n___\nSELECT id FROM b;", ["UNION", "union", "MINUS", "minus"], false),
-      mcq(
+      ), optionsEn: ["Must match", "May differ", "Must be one", "Do not matter"] },
+      codeFill("sqlf-st-e5", "Об’єднати ідентифікатори з A та B без дублікатів", "Combine IDs from A and B without duplicates", "sql", "SELECT id FROM a\n___\nSELECT id FROM b;", ["UNION", "union"], false),
+      { ...mcq(
         "sqlf-st-e6",
         "Імена колонок результату UNION:",
         "UNION result column names:",
         ["з першого SELECT", "з другого", "завжди COL1", "з ORDER BY"],
         0,
-      ),
+      ), optionsEn: ["From the first SELECT", "From the second", "Always COL1", "From ORDER BY"] },
     ]),
   ],
 );
@@ -1347,6 +1447,10 @@ export const dmlDepthLessons: LessonContent[] = [
     3,
     false,
     [
+      concept("sqlf-merge-concept", "Зіставлення та багатотаблична вставка", "Matching and multitable inserts", {
+        uk: "MERGE зіставляє джерело з ціллю за умовою ON і може оновлювати наявні рядки або вставляти відсутні. Забезпечте однозначне зіставлення: один MERGE не може оновити той самий цільовий рядок кілька разів. INSERT ALL без умов надсилає кожен вхідний рядок до кожної зазначеної цілі; INSERT FIRST обирає першу істинну умову.",
+        en: "MERGE matches source to target using ON and can update existing rows or insert missing ones. Ensure unambiguous matches: a single MERGE cannot update the same target row multiple times. Unconditional INSERT ALL sends each input row to every specified target; INSERT FIRST chooses the first true condition.",
+      }),
       codeOrder(
         "sqlf-mx1",
         "Зберіть MERGE",
@@ -1365,11 +1469,11 @@ export const dmlDepthLessons: LessonContent[] = [
           "WHEN NOT MATCHED THEN INSERT (id, email) VALUES (a.id, a.email)",
         ],
         n(
-          "MERGE зіставляє ціль і джерело. Гілки MATCHED / NOT MATCHED можна писати окремо.",
-          "MERGE matches a target and a source. MATCHED and NOT MATCHED branches are optional.",
+          "MERGE зіставляє ціль і джерело. Одну з гілок MATCHED / NOT MATCHED можна пропустити, але принаймні одна потрібна.",
+          "MERGE matches a target and a source. Either MATCHED or NOT MATCHED may be omitted, but at least one is required.",
         ),
       ),
-      mcq(
+      { ...mcq(
         "sqlf-mx2",
         "INSERT ALL без WHEN:",
         "Unconditional INSERT ALL:",
@@ -1384,8 +1488,8 @@ export const dmlDepthLessons: LessonContent[] = [
           "INSERT FIRST зупиняється на першій істинній умові WHEN. ELSE ловить решту.",
           "INSERT FIRST stops at the first true WHEN. ELSE catches the rest.",
         ),
-      ),
-      codeRead(
+      ), optionsEn: ["Inserts each input row into every target", "Stops at the first table", "It is TRUNCATE", "Works only with DUAL and one table"] },
+      { ...codeRead(
         "sqlf-mx3",
         "Куди потрапить salary = 8000?",
         "Where does salary = 8000 go?",
@@ -1394,8 +1498,8 @@ export const dmlDepthLessons: LessonContent[] = [
         ["mid_pay", "high_pay", "low_pay", "в усі три"],
         0,
         n("Перша істинна гілка: 8000 не > 10000, але > 5000.", "The first true branch wins: 8000 is not > 10000, but it is > 5000."),
-      ),
-      mcq(
+      ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["mid_pay", "high_pay", "low_pay", "All three"] },
+      { ...mcq(
         "sqlf-mx4",
         "INSERT INTO staff SELECT … :",
         "INSERT INTO staff SELECT … :",
@@ -1407,7 +1511,7 @@ export const dmlDepthLessons: LessonContent[] = [
         ],
         0,
         n("Можна не вказувати колонки, якщо порядок збігається з таблицею. Краще вказати список.", "You can omit the column list when the order matches the table. Listing columns is safer."),
-      ),
+      ), optionsEn: ["Copies query results; the number of columns must match", "Always inserts one row", "It is DDL", "Cannot use WHERE"] },
     ],
   ),
   lesson(
@@ -1417,6 +1521,10 @@ export const dmlDepthLessons: LessonContent[] = [
     2,
     false,
     [
+      concept("sqlf-tx-concept", "Межі транзакції", "Transaction boundaries", {
+        uk: "COMMIT фіксує зміни транзакції; ROLLBACK скасовує незбережені зміни, а ROLLBACK TO повертає стан до savepoint без завершення транзакції. Oracle неявно виконує COMMIT перед синтаксично правильним DDL, навіть якщо той завершиться помилкою, і після успішного DDL. Тому перевіряйте межі транзакції перед зміною схеми.",
+        en: "COMMIT makes transaction changes durable; ROLLBACK undoes uncommitted work, while ROLLBACK TO returns to a savepoint without ending the transaction. Oracle implicitly commits before syntactically valid DDL even if it later fails, and after successful DDL. Check transaction boundaries before changing the schema.",
+      }),
       codeOrder(
         "sqlf-mx5",
         "Транзакція: вставка лишається, підвищення відкочується",
@@ -1439,10 +1547,10 @@ export const dmlDepthLessons: LessonContent[] = [
           "ROLLBACK TO undoes work after the point, not the whole transaction. COMMIT then makes the rest durable.",
         ),
       ),
-      mcq(
+      { ...mcq(
         "sqlf-mx6",
-        "DDL (CREATE, ALTER, TRUNCATE) у Oracle:",
-        "DDL (CREATE, ALTER, TRUNCATE) in Oracle:",
+        "Успішний синтаксично правильний DDL (CREATE, ALTER, TRUNCATE) у Oracle:",
+        "A successful, syntactically valid DDL statement (CREATE, ALTER, TRUNCATE) in Oracle:",
         [
           "неявно робить COMMIT до і після",
           "завжди входить у поточний ROLLBACK",
@@ -1451,11 +1559,11 @@ export const dmlDepthLessons: LessonContent[] = [
         ],
         0,
         n(
-          "Тому не можна відкотити TRUNCATE і не варто змішувати DDL посеред незавершеної транзакції.",
-          "You cannot roll back TRUNCATE, and DDL in the middle of open work commits that work.",
+          "COMMIT перед синтаксично правильним DDL відбувається навіть у разі подальшої помилки DDL; після успішного DDL відбувається ще один COMMIT. TRUNCATE не можна відкотити звичайним ROLLBACK.",
+          "The commit before syntactically valid DDL happens even if the DDL later fails; another commit follows successful DDL. An ordinary ROLLBACK cannot undo TRUNCATE.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["Implicitly commits before and after", "Always rolls back with the current transaction", "Does not affect the transaction", "Works only in SELECT"] },
+      { ...mcq(
         "sqlf-mx7",
         "Після помилки одного оператора DML:",
         "After one DML statement fails:",
@@ -1470,7 +1578,7 @@ export const dmlDepthLessons: LessonContent[] = [
           "Statement-level rollback. Транзакцію закриваєте ви: COMMIT або ROLLBACK.",
           "That is statement-level rollback. You still end the transaction with COMMIT or ROLLBACK.",
         ),
-      ),
+      ), optionsEn: ["That statement is rolled back; the rest of the transaction remains", "Always rolls back the whole session", "A COMMIT occurs", "The schema is deleted"] },
       codeFill(
         "sqlf-mx8",
         "Зафіксувати зміни",
@@ -1481,6 +1589,14 @@ export const dmlDepthLessons: LessonContent[] = [
         false,
         n("ROLLBACK без TO скасовує всю незафіксовану транзакцію.", "ROLLBACK without TO undoes the whole open transaction."),
       ),
+      { ...mcq(
+        "sqlf-tx-failed-ddl",
+        "Є незакомічена вставка. Синтаксично правильний CREATE TABLE завершується помилкою. Що з попередньою вставкою?",
+        "An insert is uncommitted. A syntactically valid CREATE TABLE then fails. What happens to the earlier insert?",
+        ["Вона вже зафіксована неявним COMMIT перед DDL", "Вона автоматично відкочується", "Вона лишається незакоміченою", "Її завжди видаляє CREATE TABLE"],
+        0,
+        n("Oracle виконує неявний COMMIT перед синтаксично правильним DDL, навіть коли DDL згодом завершується помилкою.", "Oracle implicitly commits before syntactically valid DDL even when that DDL subsequently fails."),
+      ), optionsEn: ["It was committed implicitly before the DDL", "It is automatically rolled back", "It remains uncommitted", "CREATE TABLE always deletes it"] },
     ],
   ),
 ];
@@ -1493,6 +1609,10 @@ export const ddlDepthLessons: LessonContent[] = [
     3,
     false,
     [
+      concept("sqlf-ddl-create-concept", "Ключі та перевірки", "Keys and checks", {
+        uk: "PRIMARY KEY однозначно визначає рядок і не допускає NULL у жодній колонці ключа. FOREIGN KEY підтримує посилальну цілісність; для обов’язкового зв’язку колонку також оголошують NOT NULL. CHECK відхиляє FALSE, але не UNKNOWN, тому для заборони NULL потрібне окреме обмеження.",
+        en: "A PRIMARY KEY identifies a row uniquely and disallows NULL in every key column. A FOREIGN KEY enforces referential integrity; declare the column NOT NULL too when the relationship is required. CHECK rejects FALSE but not UNKNOWN, so disallowing NULL requires a separate constraint.",
+      }),
       codeOrder(
         "sqlf-dd1",
         "Таблиця з PK і FK",
@@ -1517,15 +1637,15 @@ export const ddlDepthLessons: LessonContent[] = [
           "NOT NULL is column-level only. PK, FK, UNIQUE, and CHECK can be column-level or table-level.",
         ),
       ),
-      mcq(
+      { ...mcq(
         "sqlf-dd2",
         "PRIMARY KEY означає:",
         "A PRIMARY KEY means:",
         ["UNIQUE + NOT NULL", "лише індекс без унікальності", "може бути NULL", "лише одна колонка завжди"],
         0,
         n("Складений ключ — кілька колонок на рівні таблиці.", "A composite key is several columns declared at table level."),
-      ),
-      mcq(
+      ), optionsEn: ["UNIQUE + NOT NULL", "Only a non-unique index", "May be NULL", "Always just one column"] },
+      { ...mcq(
         "sqlf-dd3",
         "FOREIGN KEY може бути NULL, якщо:",
         "A FOREIGN KEY may be NULL when:",
@@ -1537,7 +1657,7 @@ export const ddlDepthLessons: LessonContent[] = [
         ],
         0,
         n("NULL у FK не перевіряє батьківський рядок.", "A NULL foreign key does not look up a parent row."),
-      ),
+      ), optionsEn: ["The column is not declared NOT NULL", "Never", "Only after COMMIT", "Only in a VIEW"] },
       codeFill(
         "sqlf-dd4",
         "Іменоване обмеження",
@@ -1557,6 +1677,10 @@ export const ddlDepthLessons: LessonContent[] = [
     3,
     false,
     [
+      concept("sqlf-ddl-alter-concept", "Зміни схеми і даних", "Changing schema and data", {
+        uk: "ALTER змінює структуру таблиці, DROP TABLE видаляє об’єкт, а TRUNCATE прибирає всі його рядки без WHERE. В Oracle ці DDL-команди пов’язані з неявним COMMIT; звичайний ROLLBACK не відновлює TRUNCATE. DELETE — DML і може бути вибірковим та відкоченим до COMMIT.",
+        en: "ALTER changes a table's structure, DROP TABLE removes the object, and TRUNCATE removes all its rows without WHERE. In Oracle these DDL statements involve implicit commits; ordinary ROLLBACK does not undo TRUNCATE. DELETE is DML and can be selective and rolled back before COMMIT.",
+      }),
       codeFill(
         "sqlf-dd5",
         "Нова колонка",
@@ -1570,7 +1694,7 @@ export const ddlDepthLessons: LessonContent[] = [
           "MODIFY changes a type or nullability. DROP COLUMN removes a column. RENAME renames.",
         ),
       ),
-      mcq(
+      { ...mcq(
         "sqlf-dd6",
         "TRUNCATE TABLE staff:",
         "TRUNCATE TABLE staff:",
@@ -1582,11 +1706,11 @@ export const ddlDepthLessons: LessonContent[] = [
         ],
         0,
         n(
-          "DELETE можна відкотити і обмежити WHERE. TRUNCATE швидший і скидає high-water mark.",
-          "DELETE can be rolled back and limited with WHERE. TRUNCATE is faster and resets the high-water mark.",
+          "DELETE можна обмежити WHERE та відкотити до COMMIT. TRUNCATE очищує таблицю і скидає high-water mark; фактична продуктивність залежить від ситуації.",
+          "DELETE can be limited with WHERE and rolled back before COMMIT. TRUNCATE empties the table and resets its high-water mark; actual performance depends on the situation.",
         ),
-      ),
-      mcq(
+      ), optionsEn: ["DDL: empties the table, has no WHERE, and cannot be rolled back", "Same as DELETE, but with WHERE", "Removes only one row", "DML that can be rolled back"] },
+      { ...mcq(
         "sqlf-dd7",
         "DROP TABLE staff CASCADE CONSTRAINTS:",
         "DROP TABLE staff CASCADE CONSTRAINTS:",
@@ -1598,8 +1722,8 @@ export const ddlDepthLessons: LessonContent[] = [
         ],
         0,
         n("Без CASCADE CONSTRAINTS DROP впаде, якщо на таблицю є чужі FK.", "Without CASCADE CONSTRAINTS, DROP fails when other foreign keys point here."),
-      ),
-      codeRead(
+      ), optionsEn: ["Removes referencing foreign-key constraints and drops the table", "Only removes rows", "Creates an index", "Commits without changing the schema"] },
+      { ...codeRead(
         "sqlf-dd8",
         "CHECK на рівні таблиці:",
         "A table-level CHECK:",
@@ -1613,7 +1737,7 @@ export const ddlDepthLessons: LessonContent[] = [
         ],
         0,
         n("CHECK істинний або UNKNOWN (NULL). UNKNOWN не порушує CHECK.", "CHECK must be TRUE or UNKNOWN (NULL). UNKNOWN does not violate CHECK."),
-      ),
+      ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["Rejects salary ≤ 0; NULL passes the check", "Also rejects NULL", "It is a PRIMARY KEY", "Works only in SELECT"] },
     ],
   ),
 ];
@@ -1630,6 +1754,10 @@ export const schemaUnit: UnitContent = unit(
       2,
       false,
       [
+        concept("sqlf-sequences-concept", "Значення послідовності", "Sequence values", {
+          uk: "NEXTVAL видає наступне значення; CURRVAL у цій сесії доступний після першого NEXTVAL. Відкочування транзакції не повертає видане значення, тому пропуски нормальні. Для INSERT ... SELECT послідовність просувається для кожного вхідного рядка, а повторні звернення до тієї самої NEXTVAL для цього рядка дають однакове значення.",
+          en: "NEXTVAL supplies the next value; CURRVAL is available in the session after its first NEXTVAL. Rolling back a transaction does not return a generated value, so gaps are normal. For INSERT ... SELECT, the sequence advances for each input row, while repeated references to the same NEXTVAL for that row return the same value.",
+        }),
         codeFill(
           "sqlf-sc1",
           "Наступне значення",
@@ -1643,7 +1771,7 @@ export const schemaUnit: UnitContent = unit(
             "CURRVAL is available in a session only after that session has called NEXTVAL.",
           ),
         ),
-        mcq(
+        { ...mcq(
           "sqlf-sc2",
           "ROLLBACK після NEXTVAL:",
           "ROLLBACK after NEXTVAL:",
@@ -1658,7 +1786,7 @@ export const schemaUnit: UnitContent = unit(
             "Кеш (CACHE) теж дає пропуски після збою. Це нормально для сурогатних ключів.",
             "CACHE can also skip values after a crash. That is normal for surrogate keys.",
           ),
-        ),
+        ), optionsEn: ["Does not return the number to the sequence; gaps can occur", "Always returns the number", "Deletes the sequence", "Commits the number"] },
         codeFill(
           "sqlf-sc3",
           "Створити послідовність",
@@ -1669,22 +1797,30 @@ export const schemaUnit: UnitContent = unit(
           false,
           n("Є також NOCACHE, MAXVALUE, CYCLE. CYCLE після стелі починає знову — обережно з PK.", "NOCACHE, MAXVALUE, and CYCLE also exist. CYCLE restarts after the ceiling — dangerous for a PK."),
         ),
-        mcq(
+        { ...mcq(
           "sqlf-sc4",
-          "NEXTVAL у одному INSERT можна використати:",
-          "In one INSERT, NEXTVAL can be used:",
+          "Для одного рядка INSERT ... SELECT повторні звернення до тієї самої NEXTVAL:",
+          "For one row of INSERT ... SELECT, repeated references to the same NEXTVAL:",
           [
-            "кілька разів — це те саме значення в межах оператора",
+            "дають те саме значення для цього рядка",
             "лише в SELECT",
             "лише після COMMIT",
             "лише в VIEW",
           ],
           0,
           n(
-            "У одному SQL-операторі повторний NEXTVAL тієї ж sequence не стрибає.",
-            "Repeated NEXTVAL of the same sequence in one SQL statement does not advance again.",
+            "Для кожного вхідного рядка INSERT ... SELECT NEXTVAL просуває послідовність; повторні звернення для того самого рядка повертають те саме значення.",
+            "For each input row of INSERT ... SELECT, NEXTVAL advances the sequence; repeated references for that same row return the same value.",
           ),
-        ),
+        ), optionsEn: ["Return the same value for that row", "Are allowed only in SELECT", "Are allowed only after COMMIT", "Are allowed only in a VIEW"] },
+        { ...mcq(
+          "sqlf-sequence-per-row",
+          "INSERT ... SELECT обробляє три вхідні рядки та використовує staff_seq.NEXTVAL один раз для кожного. Скільки значень видає послідовність?",
+          "INSERT ... SELECT processes three input rows and uses staff_seq.NEXTVAL once for each. How many values does the sequence generate?",
+          ["3", "1", "0", "6"],
+          0,
+          n("NEXTVAL просувається для кожного вхідного рядка, а не лише один раз для всього оператора.", "NEXTVAL advances for each input row, not merely once for the whole statement."),
+        ), optionsEn: ["3", "1", "0", "6"] },
       ],
     ),
     lesson(
@@ -1694,6 +1830,10 @@ export const schemaUnit: UnitContent = unit(
       3,
       false,
       [
+        concept("sqlf-views-concept", "Представлення як запит", "A view as a query", {
+          uk: "Звичайне представлення зберігає визначення запиту, а не окрему копію його рядків. Просте представлення може дозволяти DML залежно від його визначення та прав. WITH READ ONLY забороняє зміни через нього, а WITH CHECK OPTION перевіряє, що вставлені або змінені через нього рядки задовольняють умову представлення.",
+          en: "An ordinary view stores a query definition, not a separate copy of its rows. A simple view may allow DML depending on its definition and privileges. WITH READ ONLY prevents changes through it, while WITH CHECK OPTION requires rows inserted or updated through it to satisfy the view condition.",
+        }),
         codeFill(
           "sqlf-sc5",
           "Перестворити view",
@@ -1707,7 +1847,7 @@ export const schemaUnit: UnitContent = unit(
             "CREATE OR REPLACE keeps grants on that view, unlike DROP plus CREATE.",
           ),
         ),
-        mcq(
+        { ...mcq(
           "sqlf-sc6",
           "WITH READ ONLY:",
           "WITH READ ONLY:",
@@ -1722,8 +1862,8 @@ export const schemaUnit: UnitContent = unit(
             "WITH CHECK OPTION не дає змінити рядок так, щоб він зник з умови WHERE цього view.",
             "WITH CHECK OPTION rejects a change that would make the row fall out of the view's WHERE.",
           ),
-        ),
-        mcq(
+        ), optionsEn: ["Prevents INSERT, UPDATE, and DELETE through the view", "Makes the view materialized", "Grants access to everyone", "Hides columns"] },
+        { ...mcq(
           "sqlf-sc7",
           "Простий view (одна таблиця, без GROUP BY/DISTINCT) зазвичай:",
           "A simple view (one table, no GROUP BY or DISTINCT) usually:",
@@ -1738,22 +1878,22 @@ export const schemaUnit: UnitContent = unit(
             "З'єднання, агрегати і DISTINCT роблять view складним: DML або заборонений, або обмежений key-preserved таблицею.",
             "Joins, aggregates, and DISTINCT make a view complex: DML is forbidden or limited to a key-preserved table.",
           ),
-        ),
-        codeRead(
+        ), optionsEn: ["Allows DML on the underlying table", "Can never be queried", "Is a sequence synonym", "Stores a copy of the data"] },
+        { ...codeRead(
           "sqlf-sc8",
-          "WITH CHECK OPTION не пропустить:",
-          "WITH CHECK OPTION rejects:",
+          "WITH CHECK OPTION не пропустить через це представлення:",
+          "WITH CHECK OPTION rejects which operation through this view:",
           "sql",
           "CREATE VIEW kyiv AS\nSELECT * FROM staff WHERE city = 'Kyiv'\nWITH CHECK OPTION;",
           [
-            "UPDATE, що ставить city = 'Lviv'",
+            "UPDATE через view, що ставить city = 'Lviv'",
             "SELECT * FROM kyiv",
             "читання рядків Kyiv",
             "CREATE INDEX на staff",
           ],
           0,
           n("Новий рядок теж має задовольняти WHERE view.", "An inserted row must satisfy the view's WHERE as well."),
-        ),
+        ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["An UPDATE through the view setting city to Lviv", "SELECT * FROM kyiv", "Reading Kyiv rows", "CREATE INDEX on staff"] },
       ],
     ),
     lesson(
@@ -1763,6 +1903,10 @@ export const schemaUnit: UnitContent = unit(
       2,
       false,
       [
+        concept("sqlf-synonyms-concept", "Імена та індекси", "Names and indexes", {
+          uk: "Синонім — альтернативне ім’я об’єкта, яке саме по собі не надає доступ. Індекс може допомогти певним запитам, але потребує місця й підтримки під час змін. Для активованого PRIMARY KEY або UNIQUE Oracle може використати наявний придатний індекс або створити новий; зовнішній ключ автоматично не означає створення індексу.",
+          en: "A synonym is an alternative object name and does not itself grant access. An index can help some queries but consumes space and must be maintained during writes. For an enabled PRIMARY KEY or UNIQUE constraint, Oracle may reuse a suitable existing index or create one; a foreign key does not automatically imply an index.",
+        }),
         codeFill(
           "sqlf-sc9",
           "Коротке ім'я для чужої таблиці",
@@ -1772,21 +1916,21 @@ export const schemaUnit: UnitContent = unit(
           ["SYNONYM", "synonym"],
           false,
           n(
-            "Приватний синонім видно власнику. PUBLIC SYNONYM видно всім, хто має права на об'єкт.",
-            "A private synonym is visible to its owner. A PUBLIC synonym is visible to everyone who can access the object.",
+            "Приватний синонім видно власнику. PUBLIC SYNONYM доступний як ім’я всім користувачам, але сам по собі не дає прав на об’єкт.",
+            "A private synonym is visible to its owner. A PUBLIC synonym is available as a name to all users but does not itself grant object privileges.",
           ),
         ),
-        mcq(
+        { ...mcq(
           "sqlf-sc10",
-          "Індекс Oracle створює сам для:",
-          "Oracle creates an index automatically for:",
-          ["PRIMARY KEY і UNIQUE", "кожної колонки", "кожного VIEW", "COMMIT"],
+          "Які обмеження Oracle зазвичай забезпечує індексом, створюючи його за потреби?",
+          "Which constraints does Oracle normally enforce using an index, creating one if needed?",
+          ["PRIMARY KEY і UNIQUE", "кожен FOREIGN KEY", "кожен VIEW", "COMMIT"],
           0,
           n(
-            "Звичайний CREATE INDEX прискорює пошук і сповільнює запис. Забагато індексів — теж ціна.",
-            "A plain CREATE INDEX speeds lookups and slows writes. Too many indexes have a cost.",
+            "Oracle може повторно використати придатний наявний індекс замість створення нового. Індекси можуть допомагати пошуку, але потребують місця і підтримки під час запису.",
+            "Oracle may reuse a suitable existing index instead of creating one. Indexes can help lookups but require storage and maintenance during writes.",
           ),
-        ),
+        ), optionsEn: ["PRIMARY KEY and UNIQUE", "Every FOREIGN KEY", "Every VIEW", "COMMIT"] },
         codeFill(
           "sqlf-sc11",
           "Індекс по email",
@@ -1795,9 +1939,9 @@ export const schemaUnit: UnitContent = unit(
           "CREATE ___ staff_email_ix ON staff(email);",
           ["INDEX", "index"],
           false,
-          n("UNIQUE INDEX не дає дублікатів, навіть без обмеження UNIQUE. Краще все ж CONSTRAINT.", "A UNIQUE INDEX blocks duplicates even without a UNIQUE constraint. A CONSTRAINT is still clearer."),
+          n("UNIQUE INDEX обмежує дублікати індексованих ключів; звичайний B-tree не зберігає ключ, у якому всі колонки NULL. Для явного бізнес-правила використовуйте UNIQUE constraint і за потреби NOT NULL.", "A UNIQUE INDEX restricts duplicate indexed keys; an ordinary B-tree does not store a key whose columns are all NULL. Use a UNIQUE constraint, and NOT NULL if needed, to express the business rule explicitly."),
         ),
-        mcq(
+        { ...mcq(
           "sqlf-sc12",
           "Синонім зберігає:",
           "A synonym stores:",
@@ -1809,18 +1953,26 @@ export const schemaUnit: UnitContent = unit(
           ],
           0,
           n("DROP SYNONYM не чіпає саму таблицю.", "DROP SYNONYM does not drop the table."),
-        ),
+        ), optionsEn: ["Another name for an object, not a copy of its rows", "A copy of a table", "A transaction", "Only an index"] },
+        { ...mcq(
+          "sqlf-index-existing",
+          "Чи завжди Oracle створює новий індекс під час увімкнення PRIMARY KEY?",
+          "Does Oracle always create a new index when enabling a PRIMARY KEY?",
+          ["Ні, може використати придатний наявний індекс", "Так, завжди створює новий", "Індекси для ключів заборонені", "Лише якщо таблиця порожня"],
+          0,
+          n("Наявний придатний індекс може забезпечувати обмеження; новий створюється за потреби.", "A suitable existing index can enforce the constraint; a new one is created if needed."),
+        ), optionsEn: ["No, it may reuse a suitable existing index", "Yes, it always creates a new one", "Indexes are forbidden for keys", "Only if the table is empty"] },
       ],
     ),
     exam("sqlf-schema-exam", "Контрольна: об'єкти схеми", "Exam: schema objects", 3, [
       codeFill("sqlf-sc-e1", "NEXTVAL", "NEXTVAL", "sql", "seq.___", ["NEXTVAL", "nextval"], false),
-      mcq(
+      { ...mcq(
         "sqlf-sc-e2",
         "CURRVAL до першого NEXTVAL у сесії:",
         "CURRVAL before the session's first NEXTVAL:",
         ["помилка", "завжди 1", "NULL без помилки", "0"],
         0,
-      ),
+      ), optionsEn: ["An error", "Always 1", "NULL without an error", "0"] },
       codeFill(
         "sqlf-sc-e3",
         "VIEW",
@@ -1830,15 +1982,15 @@ export const schemaUnit: UnitContent = unit(
         ["VIEW", "view"],
         false,
       ),
-      mcq("sqlf-sc-e4", "WITH READ ONLY:", "WITH READ ONLY:", ["блокує DML через view", "блокує SELECT", "це індекс", "це роль"], 0),
+      { ...mcq("sqlf-sc-e4", "WITH READ ONLY:", "WITH READ ONLY:", ["блокує DML через view", "блокує SELECT", "це індекс", "це роль"], 0), optionsEn: ["Blocks DML through the view", "Blocks SELECT", "It is an index", "It is a role"] },
       codeFill("sqlf-sc-e5", "SYNONYM", "SYNONYM", "sql", "CREATE ___ e FOR hr.employees;", ["SYNONYM", "synonym"], false),
-      mcq(
+      { ...mcq(
         "sqlf-sc-e6",
-        "Автоіндекс з'являється для:",
-        "An index is created automatically for:",
-        ["PK і UNIQUE", "кожного FK завжди в усіх версіях", "VIEW", "SELECT"],
+        "Для яких обмежень Oracle може використати наявний індекс або створити новий?",
+        "For which constraints can Oracle reuse an existing index or create one?",
+        ["PK і UNIQUE", "кожного FK завжди", "VIEW", "SELECT"],
         0,
-      ),
+      ), optionsEn: ["PRIMARY KEY and UNIQUE", "Every FOREIGN KEY always", "VIEW", "SELECT"] },
     ]),
   ],
 );
@@ -1855,6 +2007,10 @@ export const accessUnit: UnitContent = unit(
       3,
       false,
       [
+        concept("sqlf-grant-concept", "Права і ролі", "Privileges and roles", {
+          uk: "Об’єктне право дозволяє певну дію над конкретним об’єктом; системне право дозволяє дію певного класу. Роль об’єднує права. WITH GRANT OPTION дозволяє передавати об’єктне право, а WITH ADMIN OPTION застосовується до системних прав і ролей. Синонім змінює спосіб називання об’єкта, але не надає доступу.",
+          en: "An object privilege permits an action on a specific object; a system privilege permits a class of actions. A role groups privileges. WITH GRANT OPTION permits passing on an object privilege, while WITH ADMIN OPTION applies to system privileges and roles. A synonym changes how an object is named but does not grant access.",
+        }),
         codeFill(
           "sqlf-ac1",
           "Дозвіл читати таблицю",
@@ -1868,12 +2024,12 @@ export const accessUnit: UnitContent = unit(
             "This is an object privilege. CREATE SESSION and CREATE TABLE are system privileges.",
           ),
         ),
-        mcq(
+        { ...mcq(
           "sqlf-ac2",
           "WITH GRANT OPTION відрізняється від WITH ADMIN OPTION:",
           "WITH GRANT OPTION differs from WITH ADMIN OPTION:",
           [
-            "GRANT OPTION — для об'єктних прав і відкликання каскадне; ADMIN OPTION — для системних, без каскаду",
+            "GRANT OPTION — для об'єктних прав і відкликання каскадне; ADMIN OPTION — для системних прав і ролей; відкликання системного права не каскадує",
             "це одне й те саме",
             "обидва лише для ролей",
             "обидва заборонені",
@@ -1883,7 +2039,7 @@ export const accessUnit: UnitContent = unit(
             "Роль збирає права в пакети: GRANT select_staff TO ana, якщо select_staff — роль.",
             "A role bundles privileges: GRANT select_staff TO ana when select_staff is a role.",
           ),
-        ),
+        ), optionsEn: ["GRANT OPTION is for object privileges and revocation cascades; ADMIN OPTION applies to system privileges and roles, and system privilege revocation does not cascade", "They are identical", "Both apply only to roles", "Both are forbidden"] },
         codeFill(
           "sqlf-ac3",
           "Забрати право",
@@ -1894,10 +2050,10 @@ export const accessUnit: UnitContent = unit(
           false,
           n("REVOKE системного права не забирає його в тих, кому людина встигла передати його з ADMIN OPTION.", "Revoking a system privilege does not cascade to people who received it via ADMIN OPTION."),
         ),
-        mcq(
+        { ...mcq(
           "sqlf-ac4",
-          "Публічний синонім без GRANT на таблицю:",
-          "A public synonym without a GRANT on the table:",
+          "Користувач не має права SELECT на таблицю жодним способом. Що дає йому публічний синонім?",
+          "A user has no SELECT privilege on a table by any route. What does a public synonym give them?",
           [
             "не дає читати дані",
             "відкриває таблицю всім",
@@ -1906,7 +2062,7 @@ export const accessUnit: UnitContent = unit(
           ],
           0,
           n("Синонім — ім'я. Доступ дає GRANT.", "A synonym is a name. GRANT gives access."),
-        ),
+        ), optionsEn: ["It does not grant access to the data", "It opens the table to everyone", "It makes the user a DBA", "It creates an index"] },
       ],
     ),
     lesson(
@@ -1916,7 +2072,11 @@ export const accessUnit: UnitContent = unit(
       2,
       false,
       [
-        mcq(
+        concept("sqlf-dictionary-concept", "Власні та доступні об’єкти", "Owned and accessible objects", {
+          uk: "USER_* описує об’єкти власної схеми, ALL_* — доступні поточному користувачу, DBA_* — загальний огляд за наявності прав. Звичайні ідентифікатори без лапок Oracle приводить до верхнього регістру; ім’я в подвійних лапках зберігає регістр і потребує точного написання.",
+          en: "USER_* describes objects owned by the current schema, ALL_* describes objects accessible to the current user, and DBA_* gives a broader view when privileges permit. Oracle folds ordinary unquoted identifiers to uppercase; a double-quoted name preserves case and requires an exact spelling.",
+        }),
+        { ...mcq(
           "sqlf-ac5",
           "USER_TABLES показує:",
           "USER_TABLES shows:",
@@ -1931,7 +2091,7 @@ export const accessUnit: UnitContent = unit(
             "ALL_TABLES — те, до чого є доступ. DBA_TABLES — уся база, якщо є право. DICT (DICTIONARY) перелічує самі словникові view.",
             "ALL_TABLES is what you can access. DBA_TABLES is the whole database if you are allowed to see it. DICT (DICTIONARY) lists the dictionary views themselves.",
           ),
-        ),
+        ), optionsEn: ["Tables in the current schema", "All database tables regardless of privileges", "Only dictionary views", "Operating system sessions"] },
         codeFill(
           "sqlf-ac6",
           "Колонки своєї таблиці",
@@ -1945,7 +2105,7 @@ export const accessUnit: UnitContent = unit(
             "Unquoted names are stored in UPPERCASE. 'staff' finds nothing if the table was created as staff without quotes.",
           ),
         ),
-        mcq(
+        { ...mcq(
           "sqlf-ac7",
           "USER_CONSTRAINTS потрібен, щоб:",
           "USER_CONSTRAINTS is there to:",
@@ -1957,8 +2117,8 @@ export const accessUnit: UnitContent = unit(
           ],
           0,
           n("USER_CONS_COLUMNS покаже, які колонки входять у обмеження.", "USER_CONS_COLUMNS shows which columns belong to a constraint."),
-        ),
-        codeRead(
+        ), optionsEn: ["See primary keys, foreign keys, CHECK constraints, and their status", "Issue a GRANT", "Count rows faster than COUNT", "Change NLS"] },
+        { ...codeRead(
           "sqlf-ac8",
           "Ім'я в лапках:",
           "A quoted name:",
@@ -1972,7 +2132,7 @@ export const accessUnit: UnitContent = unit(
           ],
           0,
           n("Лапки вимикають перетворення у верхній регістр.", "Quotes disable the uppercase fold."),
-        ),
+        ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["It is stored as Staff and must be quoted in later references", "It is the same as CREATE TABLE staff", "It is forbidden", "It creates a synonym"] },
       ],
     ),
     lesson(
@@ -1982,7 +2142,11 @@ export const accessUnit: UnitContent = unit(
       3,
       false,
       [
-        mcq(
+        concept("sqlf-time-concept", "Момент і місцевий час", "Instants and local time", {
+          uk: "Oracle DATE містить дату й час до секунди, але не часовий пояс. CURRENT_DATE повертає DATE у часовому поясі сесії; TIMESTAMP WITH TIME ZONE містить інформацію про пояс або зсув. TIMESTAMP WITH LOCAL TIME ZONE нормалізується для зберігання та відображається в поясі сесії. Перевіряйте часовий пояс і літній час під час перетворень.",
+          en: "Oracle DATE contains date and time to the second but no time zone. CURRENT_DATE returns a DATE in the session time zone; TIMESTAMP WITH TIME ZONE contains zone or offset information. TIMESTAMP WITH LOCAL TIME ZONE is normalized for storage and displayed in the session time zone. Check the zone and daylight-saving rules when converting.",
+        }),
+        { ...mcq(
           "sqlf-ac9",
           "SYSDATE і CURRENT_DATE:",
           "SYSDATE and CURRENT_DATE:",
@@ -1997,7 +2161,7 @@ export const accessUnit: UnitContent = unit(
             "SYSTIMESTAMP має долі секунди і зсув. SESSIONTIMEZONE / DBTIMEZONE читають налаштування.",
             "SYSTIMESTAMP has fractional seconds and an offset. SESSIONTIMEZONE and DBTIMEZONE read the settings.",
           ),
-        ),
+        ), optionsEn: ["SYSDATE uses the database server clock; CURRENT_DATE uses the session time zone", "They are always the same", "Both are UTC only", "CURRENT_DATE does not exist"] },
         codeFill(
           "sqlf-ac10",
           "Показати момент в іншому поясі",
@@ -2011,7 +2175,7 @@ export const accessUnit: UnitContent = unit(
             "AT TIME ZONE converts a TIMESTAMP WITH TIME ZONE for display. The column type TIMESTAMP WITH TIME ZONE stores the zone.",
           ),
         ),
-        mcq(
+        { ...mcq(
           "sqlf-ac11",
           "TIMESTAMP WITH LOCAL TIME ZONE:",
           "TIMESTAMP WITH LOCAL TIME ZONE:",
@@ -2023,8 +2187,8 @@ export const accessUnit: UnitContent = unit(
           ],
           0,
           n("Зручно, коли всі мають бачити «свій» місцевий час.", "Useful when each session should see its own local time."),
-        ),
-        mcq(
+        ), optionsEn: ["Is normalized for storage and displayed in the session time zone", "Discards the time", "Is DATE without a time", "Is unsupported"] },
+        { ...mcq(
           "sqlf-ac12",
           "DATE не зберігає:",
           "DATE does not store:",
@@ -2039,54 +2203,54 @@ export const accessUnit: UnitContent = unit(
             "Oracle DATE містить рік, місяць, день, години, хвилини, секунди — але не пояс.",
             "An Oracle DATE has year, month, day, hour, minute, and second — but no time zone.",
           ),
-        ),
+        ), optionsEn: ["A time zone", "The year", "The hour", "The minute"] },
       ],
     ),
     exam("sqlf-access-exam", "Контрольна: права, словник, час", "Exam: access, dictionary, time", 3, [
       codeFill("sqlf-ac-e1", "GRANT", "GRANT", "sql", "___ SELECT ON staff TO ana;", ["GRANT", "grant"], false),
       codeFill("sqlf-ac-e2", "REVOKE", "REVOKE", "sql", "___ SELECT ON staff FROM ana;", ["REVOKE", "revoke"], false),
-      mcq(
+      { ...mcq(
         "sqlf-ac-e3",
         "USER_TABLES:",
         "USER_TABLES:",
         ["мої таблиці", "усі таблиці без прав", "лише індекси", "сесії"],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["My tables", "All tables without privileges", "Only indexes", "Sessions"] },
+      { ...mcq(
         "sqlf-ac-e4",
         "Ім'я STAFF у словнику шукають як:",
         "Look up STAFF in the dictionary as:",
         ["'STAFF'", "'staff' завжди", "'Staff'", "id = staff"],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["'STAFF'", "'staff' always", "'Staff'", "id = staff"] },
+      { ...mcq(
         "sqlf-ac-e5",
         "CURRENT_DATE залежить від:",
         "CURRENT_DATE depends on:",
         ["часового поясу сесії", "лише мови NLS", "GRANT", "індексу"],
         0,
-      ),
-      mcq(
+      ), optionsEn: ["The session time zone", "Only the NLS language", "GRANT", "The index"] },
+      { ...mcq(
         "sqlf-ac-e6",
         "WITH ADMIN OPTION стосується:",
         "WITH ADMIN OPTION applies to:",
-        ["системних прав", "лише об'єктних", "лише VIEW", "лише дат"],
+        ["системних прав і ролей", "лише об'єктних прав", "лише VIEW", "лише дат"],
         0,
-      ),
+      ), optionsEn: ["System privileges and roles", "Only object privileges", "Only views", "Only dates"] },
     ]),
   ],
 );
 
 export const capstoneOracleExercises: Exercise[] = [
-  mcq(
+  { ...mcq(
     "sqlf-capx1",
-    "Логічний порядок: коли доступний аліас SELECT?",
-    "Logical order: when is a SELECT alias available?",
+    "У Oracle 19c: де доступний аліас SELECT у цьому самому запиті?",
+    "In Oracle 19c, where is a SELECT alias available in the same query?",
     ["в ORDER BY", "в WHERE", "в GROUP BY", "в FROM"],
     0,
-    n("SELECT обробляється після WHERE і GROUP BY.", "SELECT is processed after WHERE and GROUP BY."),
-  ),
-  codeRead(
+    n("У Oracle 19c аліас SELECT доступний у ORDER BY, але не в WHERE або GROUP BY; у новіших версіях правила можуть відрізнятися.", "In Oracle 19c a SELECT alias is available in ORDER BY but not WHERE or GROUP BY; newer versions may differ."),
+  ), optionsEn: ["In ORDER BY", "In WHERE", "In GROUP BY", "In FROM"] },
+  { ...codeRead(
     "sqlf-capx2",
     "Люди без відділу зникли. Чому?",
     "People with no department disappeared. Why?",
@@ -2099,16 +2263,16 @@ export const capstoneOracleExercises: Exercise[] = [
       "city не можна фільтрувати",
     ],
     0,
-    n("Перенесіть d.city = 'Kyiv' в ON.", "Move d.city = 'Kyiv' into the ON clause."),
-  ),
-  mcq(
+    n("Щоб зберегти всіх працівників і обмежити лише збіги відділів, перенесіть d.city = 'Kyiv' в ON.", "To keep all staff while restricting department matches, move d.city = 'Kyiv' into ON."),
+  ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["The right-table predicate in WHERE filters out unmatched rows", "LEFT JOIN always removes unmatched rows", "UNION is missing", "city cannot be filtered"] },
+  { ...mcq(
     "sqlf-capx3",
     "DECODE(NULL, NULL, 1, 0) =",
     "DECODE(NULL, NULL, 1, 0) =",
     ["1", "0", "NULL", "помилка"],
     0,
     n("У DECODE NULL дорівнює NULL. У CASE через = — ні.", "In DECODE, NULL equals NULL. In CASE, = does not."),
-  ),
+  ), optionsEn: ["1", "0", "NULL", "Error"] },
   codeFill(
     "sqlf-capx4",
     "Різниця множин",
@@ -2119,7 +2283,7 @@ export const capstoneOracleExercises: Exercise[] = [
     false,
     n("INTERSECT — перетин, UNION ALL — склейка з дублікатами.", "INTERSECT is the overlap. UNION ALL stacks duplicates."),
   ),
-  mcq(
+  { ...mcq(
     "sqlf-capx5",
     "TRUNCATE порівняно з DELETE:",
     "TRUNCATE compared with DELETE:",
@@ -2131,8 +2295,8 @@ export const capstoneOracleExercises: Exercise[] = [
     ],
     0,
     n("DELETE … WHERE лишається в транзакції до COMMIT.", "DELETE … WHERE stays in the transaction until COMMIT."),
-  ),
-  mcq(
+  ), optionsEn: ["DDL without WHERE, with implicit COMMIT", "DML that can be rolled back", "Deletes only NULLs", "Creates an index"] },
+  { ...mcq(
     "sqlf-capx6",
     "NOT EXISTS кращий за NOT IN, коли:",
     "NOT EXISTS is safer than NOT IN when:",
@@ -2143,6 +2307,6 @@ export const capstoneOracleExercises: Exercise[] = [
       "треба видалити таблицю",
     ],
     0,
-    n("NULL у списку NOT IN не дає жодного рядка.", "A NULL in a NOT IN list yields no rows."),
-  ),
+    n("Для скалярного NOT IN наявність NULL у непорожньому результаті підзапиту не дає умові стати TRUE. Поведінку для NULL у зовнішньому ключі слід розглядати окремо.", "For scalar NOT IN, a NULL in the nonempty subquery result prevents the condition from becoming TRUE. Consider a NULL outer key separately."),
+  ), optionsEn: ["The subquery may return NULL", "A Cartesian product is needed", "There is no outer query", "A table must be dropped"] },
 ];

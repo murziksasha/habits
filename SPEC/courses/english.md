@@ -13,79 +13,79 @@ Learn English through short interactive lessons.
 
 ### `basics-1` — Basics 1
 
-- `greetings` — Greetings (4 exercises)
+- `greetings` — Greetings (5 exercises, including an introductory concept card)
 - `introductions` — Introductions (3 exercises)
-- `numbers` — Числа 1–10 (3 exercises)
-- `food-basics` — Їжа: основи (3 exercises)
-- `daily-phrases` — Щоденні фрази (3 exercises)
-- `present-simple` — Present Simple (3 exercises)
-- `colors-family` — Кольори та сім'я (3 exercises)
-- `questions` — Питання (3 exercises)
+- `numbers` — Numbers 1–10 (3 exercises)
+- `food-basics` — Food basics (3 exercises)
+- `daily-phrases` — Daily phrases (3 exercises)
+- `present-simple` — Present Simple (4 exercises, including an introductory concept card)
+- `colors-family` — Colours and family (3 exercises)
+- `questions` — Questions (3 exercises)
 
-### `basics-2` — Основи 2
+### `basics-2` — Basics 2
 
-- `time` — Час (2 exercises)
-- `places` — Місця (2 exercises)
-- `past-simple-intro` — Past Simple (вступ) (2 exercises)
+- `time` — Time (3 exercises, including an introductory concept card)
+- `places` — Places (2 exercises)
+- `past-simple-intro` — Past Simple introduction (3 exercises, including an introductory concept card)
 
-### `travel` — Подорожі
+### `travel` — Travel
 
-- `airport` — В аеропорту (2 exercises)
-- `hotel` — У готелі (2 exercises)
-- `restaurant` — У ресторані (3 exercises)
-- `shopping` — Покупки (3 exercises)
+- `airport` — At the airport (2 exercises)
+- `hotel` — At the hotel (2 exercises)
+- `restaurant` — At the restaurant (3 exercises)
+- `shopping` — Shopping (4 exercises, including an introductory concept card)
 
-### `work-life` — Робота та побут
+### `work-life` — Work and everyday life
 
-- `office` — В офісі (2 exercises)
-- `present-continuous` — Present Continuous (3 exercises)
-- `future-plans` — Плани на майбутнє (2 exercises)
-- `opinions` — Думки та згода (2 exercises)
-- `review-basics` — Повторення основ (3 exercises)
+- `office` — At the office (2 exercises)
+- `present-continuous` — Present Continuous (4 exercises, including an introductory concept card)
+- `future-plans` — Future plans (3 exercises, including an introductory concept card)
+- `opinions` — Opinions and agreement (4 exercises, including an introductory concept card)
+- `review-basics` — Basics review (3 exercises)
 - `travel-phrases` — Travel phrases (3 exercises)
-- `email-soft-skills` — Email soft skills (3 exercises)
+- `email-soft-skills` — Email soft skills (4 exercises, including an introductory concept card)
 - `idioms-boost` — Idioms boost (3 exercises)
 
 ### `conversation` — Conversation · small talk
 
-- `small-talk-weather` — Small talk: weather (3 exercises)
+- `small-talk-weather` — Small talk: weather (4 exercises, including an introductory concept card)
 - `small-talk-weekend` — Weekend plans (3 exercises)
-- `polite-requests` — Polite requests (3 exercises)
+- `polite-requests` — Polite requests (5 exercises, including an introductory concept card)
 - `agree-disagree` — Agree & disagree (3 exercises)
 
 ### `meetings-phone` — Calls & meetings
 
 - `phone-basics` — Phone basics (3 exercises)
 - `meeting-open` — Opening a meeting (3 exercises)
-- `meeting-clarify` — Clarifying in meetings (3 exercises)
-- `wrap-up-call` — Wrapping up a call (2 exercises)
+- `meeting-clarify` — Clarifying in meetings (4 exercises, including an introductory concept card)
+- `wrap-up-call` — Wrapping up a call (3 exercises, including an introductory concept card)
 
 ### `dialogues-daily` — Everyday Dialogues & Choices
 
-- `coffee-shop-order` — Coffee shop order (3 exercises)
-- `asking-directions` — Asking for directions (3 exercises)
-- `appointment-booking` — Booking an appointment (3 exercises)
+- `coffee-shop-order` — Coffee shop order (4 exercises, including an introductory concept card)
+- `asking-directions` — Asking for directions (4 exercises, including an introductory concept card)
+- `appointment-booking` — Booking an appointment (4 exercises, including an introductory concept card)
 - `checkpoint-dialogues-1` — Checkpoint: everyday dialogues [exam] (4 exercises)
 
 ### `work-collaboration` — Workplace Interactions & Context
 
-- `slack-updates` — Chat updates & asking for review (3 exercises)
-- `meeting-interjections` — Meeting comments & interruptions (3 exercises)
-- `customer-support-tone` — Customer support & polite tone (3 exercises)
-- `negotiating-deadlines` — Negotiating deadlines & scope (3 exercises)
+- `slack-updates` — Chat updates & asking for review (4 exercises, including an introductory concept card)
+- `meeting-interjections` — Meeting comments & interruptions (4 exercises, including an introductory concept card)
+- `customer-support-tone` — Customer support & polite tone (4 exercises, including an introductory concept card)
+- `negotiating-deadlines` — Negotiating deadlines & scope (4 exercises, including an introductory concept card)
 - `checkpoint-dialogues-2` — Checkpoint: workplace communication [exam] (4 exercises)
 
 ### `engineering-collaboration-en` — Engineering Communication: Issues, PRs & Tradeoffs
 
-- `bug-report-clarity-en` — Writing Clear Bug Reports (2 exercises)
-- `pr-review-comments-en` — Constructive Pull Request Comments (2 exercises)
-- `tradeoffs-and-docs-en` — Explaining Tradeoffs & Reading Docs (2 exercises)
+- `bug-report-clarity-en` — Writing Clear Bug Reports (3 exercises, including an introductory concept card)
+- `pr-review-comments-en` — Constructive Pull Request Comments (3 exercises, including an introductory concept card)
+- `tradeoffs-and-docs-en` — Explaining Tradeoffs & Reading Docs (3 exercises, including an introductory concept card)
 - `eng-comm-checkpoint` — Checkpoint: Engineering Communication [exam] (2 exercises)
 
 ## Depth now
 
 - Units: **45**
-- Lessons: **248**
+- Lessons: **249**
 - Exams: **30**
 - Free non-exam lessons: 12
 - Exercise types in seed: fill_blank, match, mcq, order_words, translate, concept, explain, comprehension
@@ -156,6 +156,7 @@ English (the Nov 2026 expansion), then the deep parts below.
 - `en-deep-writing-essay` — Essays, CV and cover letter
 - `en-deep-speaking` — Speaking and functional language
 - `en-deep-business-it` — Business and IT English plus
+- `en-transfer-clarify` — Clarifying a request through a workplace scenario (concept, decisions, translation)
 - `en-deep-exam-prep` — IELTS and FCE-style tasks
 
 Flashcard decks: `english-perfect-passives`, `english-collocations`,

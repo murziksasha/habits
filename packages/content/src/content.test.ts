@@ -182,6 +182,52 @@ describe("course content integrity", () => {
   });
 
   describe("deep tracks suite", () => {
+    it("core transfer cases are inserted in their intended units", () => {
+      for (const [course, unitSlug, lessonSlug] of [
+        [programmingContent, "qa", "pr-transfer-release"],
+        [typescriptContent, "this_parameters", "ts-transfer-api-result"],
+        [htmlSemanticsContent, "metadata_social", "html-transfer-service-form"],
+        [cssLayoutContent, "subgrid_has_snap", "css-transfer-dashboard"],
+        [qaTheoryContent, "exploratory_charters", "qa-transfer-risk-triage"],
+        [jsFundamentalsContent, "proxy_meta", "js-transfer-search-race"],
+        [reactFundamentalsContent, "react_strict_dev", "react-transfer-edit-form"],
+        [sqlFundamentalsContent, "sql_profiling", "sql-transfer-report"],
+        [nodeFundamentalsContent, "node_diagnostics", "node-transfer-import"],
+        [expressFundamentalsContent, "testing_express", "express-transfer-reservation"],
+        [embeddedCppContent, "bootloader_ota", "embedded-transfer-telemetry"],
+        [sysadminContent, "observability_home", "sa-transfer-restore"],
+        [softwareTestingContent, "st_perf_impact", "st-transfer-intermittent"],
+        [postgresqlAppsContent, "pg_pool_replicas", "pg-transfer-online-migration"],
+        [gitWorkflowsContent, "gw_large_repos", "git-transfer-hotfix"],
+        [webSecurityContent, "ws_oauth_supply", "ws-transfer-session-boundary"],
+        [nextjsFullstackContent, "nx_middleware_edges", "nx-transfer-tenant-inbox"],
+        [appliedAlgorithmsContent, "aa_lru_ratelimit", "aa-transfer-bounded-events"],
+      ] as const) {
+        const unit = course.units.find((item) => item.slug === unitSlug);
+        const lesson = unit?.lessons.find((item) => item.slug === lessonSlug);
+        expect(lesson, `${course.slug}: ${lessonSlug}`).toBeDefined();
+        expect(lesson?.exercises.filter((item) => item.type === "mcq").length).toBeGreaterThanOrEqual(3);
+      }
+    });
+
+    it("AI applied units teach before a four-question exam", () => {
+      for (const [course, slug] of [
+        [aiDevelopmentContent, "ai_applied_patch_evidence"],
+        [pythonForAiContent, "py_applied_support_parser"],
+        [agenticSystemsContent, "ag_applied_support_flow"],
+        [llmopsContent, "lo_applied_release_gate"],
+        [aiSecurityContent, "as_applied_document_attack"],
+        [aiProductContent, "ap_applied_support_handoff"],
+      ] as const) {
+        const unit = course.units.find((item) => item.slug === slug);
+        expect(unit, `${course.slug}: ${slug}`).toBeDefined();
+        expect(unit?.lessons).toHaveLength(3);
+        expect(unit?.lessons.slice(0, 2).every((item) => !item.isExam && item.exercises[0]?.type === "concept")).toBe(true);
+        expect(unit?.lessons[2]?.isExam).toBe(true);
+        expect(unit?.lessons[2]?.exercises).toHaveLength(4);
+      }
+    });
+
     it("html_semantics volume + exams", () => {
       expect(htmlSemanticsContent.units.length).toBeGreaterThanOrEqual(8);
       const lessons = htmlSemanticsContent.units.flatMap((u) => u.lessons);
@@ -298,7 +344,7 @@ describe("course content integrity", () => {
       for (const e of exams) {
         expect(e.exercises.length).toBeGreaterThanOrEqual(6);
       }
-      expect(lessons).toHaveLength(76);
+      expect(lessons).toHaveLength(77);
       const bySlug = Object.fromEntries(lessons.map((l) => [l.slug, l]));
       expect(bySlug["sa-etc"]?.titleEn).toBe("Git for configs");
       expect(bySlug["sa-least"]?.titleEn).toBe("VPN instead of an open port");
@@ -385,7 +431,7 @@ describe("course content integrity", () => {
         for (const l of u.lessons) {
           expect(l.slug.length).toBeLessThanOrEqual(64);
           if (!advanced.has(u.slug)) {
-            if (!l.isExam) expect(l.exercises).toHaveLength(4);
+            if (!l.isExam) expect(l.exercises).toHaveLength(l.slug === "do-fin-unit" ? 5 : 4);
             continue;
           }
           expect([4, 5]).toContain(l.difficulty);
@@ -795,7 +841,7 @@ describe("course content integrity", () => {
       [postgresqlAppsContent, 9, "pg-forgeboard-db-lab"],
       [gitWorkflowsContent, 8, "gw-forgeboard-conflict-lab"],
       [webSecurityContent, 9, "ws-forgeboard-security-lab"],
-      [aiDevelopmentContent, 9, "ai-forgeboard-review-lab"],
+      [aiDevelopmentContent, 10, "ai-forgeboard-review-lab"],
       [nextjsFullstackContent, 10, "nx-forgeboard-app-lab"],
       [appliedAlgorithmsContent, 9, "aa-forgeboard-perf-lab"],
     ];
@@ -828,11 +874,11 @@ describe("course content integrity", () => {
 
   it("AI skills stack: 5 deep tracks + ai_coder_control unit integrity", () => {
     const expectedAiTracks: Array<[CourseContent, number]> = [
-      [pythonForAiContent, 9],
-      [agenticSystemsContent, 9],
-      [llmopsContent, 9],
-      [aiSecurityContent, 9],
-      [aiProductContent, 8],
+      [pythonForAiContent, 10],
+      [agenticSystemsContent, 10],
+      [llmopsContent, 10],
+      [aiSecurityContent, 10],
+      [aiProductContent, 9],
     ];
     for (const [course, unitCount] of expectedAiTracks) {
       expect(course.units.length, course.slug).toBe(unitCount);
@@ -936,6 +982,42 @@ describe("explain exercises (SPEC 92)", async () => {
   });
 });
 
+describe("QA exercise localization", async () => {
+  const { localizeMatchPairs } = await import("@eduforge/shared");
+
+  it("keeps translated match labels attached to their canonical answers", () => {
+    const exercises = collectExercises(qaTheoryContent);
+    const ids = ["qt-f6", "qt-art-1", "qt-art-6", "qt-art-8", "qt-art-11", "qt-art-14", "qt-art-15", "qt-bb8", "qt-st2", "qt-art-20", "qt-art-23", "qt-art-24", "qt-df-p4", "qt-df7", "qt-art-27", "qa-scen-2", "qa-scen-3", "qa-scen-5", "qa-scen-8", "qa-scen-10", "qt-rpr2"];
+    for (const id of ids) {
+      const ex = exercises.find((item) => item.id === id);
+      expect(ex?.type, id).toBe("match");
+      if (!ex || ex.type !== "match") throw new Error(`Missing match: ${id}`);
+      expect(ex.pairsEn?.length, id).toBe(ex.pairs.length);
+      const uk = localizeMatchPairs("uk", ex);
+      const en = localizeMatchPairs("en", ex);
+      for (let i = 0; i < ex.pairs.length; i++) {
+        expect({ left: en[i]!.left, right: en[i]!.right }, id).toEqual(ex.pairs[i]);
+        expect({ left: uk[i]!.labelLeft, right: uk[i]!.labelRight }, id).toEqual(ex.pairs[i]);
+        expect({ left: en[i]!.labelLeft, right: en[i]!.labelRight }, id).toEqual(ex.pairsEn![i]);
+        expect(en[i]!.labelLeft + en[i]!.labelRight, id).not.toMatch(/[А-Яа-яІіЇїЄєҐґ]/u);
+      }
+    }
+  });
+
+  it("aligns localized report sections with their canonical order values", () => {
+    const ex = collectExercises(qaTheoryContent).find((item) => item.id === "qt-rpr3");
+    expect(ex?.type).toBe("code_order");
+    if (!ex || ex.type !== "code_order") throw new Error("Missing report order exercise");
+    expect(ex.linesUk).toEqual([
+      "Надати передумови та кроки відтворення",
+      "Порівняти очікуваний і фактичний результат",
+      "Вказати тяжкість і вплив",
+      "Зафіксувати середовище: версію, браузер, ОС та роль",
+    ]);
+    expect(ex.lines.map((line) => ex.correct.indexOf(line))).toEqual([1, 2, 3, 0]);
+  });
+});
+
 describe("js_fundamentals prompt quality (SPEC 92)", () => {
   it("exercises have distinct, descriptive UK and EN prompts", () => {
     for (const u of jsFundamentalsContent.units) {
@@ -953,23 +1035,71 @@ describe("js_fundamentals prompt quality (SPEC 92)", () => {
 
 
 describe("new and extended deep tracks (learning-improvements)", () => {
-  it("REST API Design has 24 bilingual lessons across 6 units", () => {
-    expect(restApiDesignContent.units).toHaveLength(6);
+  it("keeps English choices aligned in the assembled applied-track courses", () => {
+    for (const course of [
+      goFundamentalsContent,
+      frontendPerformanceContent,
+      restApiDesignContent,
+      browserWebApisContent,
+      webAccessibilityContent,
+    ]) {
+      for (const unit of course.units) {
+        for (const lesson of unit.lessons) {
+          for (const exercise of lesson.exercises) {
+            if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
+            expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
+            for (const option of exercise.optionsEn ?? []) {
+              expect(option.trim(), exercise.id).not.toBe("");
+              expect(option, exercise.id).not.toMatch(/[\u0400-\u04ff]/u);
+            }
+          }
+        }
+      }
+    }
+  });
+
+  it("applied capstones teach before four-question transfer exams", () => {
+    for (const course of [
+      goFundamentalsContent,
+      webAccessibilityContent,
+      restApiDesignContent,
+      frontendPerformanceContent,
+      browserWebApisContent,
+    ]) {
+      const applied = course.units.at(-1)!;
+      expect(applied.lessons, course.slug).toHaveLength(3);
+      const [first, second, control] = applied.lessons;
+      for (const taught of [first!, second!]) {
+        expect(taught.isExam, taught.slug).not.toBe(true);
+        expect(taught.exercises[0]?.type, taught.slug).toBe("concept");
+        expect(taught.exercises.length, taught.slug).toBeGreaterThanOrEqual(4);
+      }
+      expect(control!.isExam, control!.slug).toBe(true);
+      expect(control!.exercises, control!.slug).toHaveLength(4);
+      const taughtPrompts = new Set([first!, second!].flatMap((row) => row.exercises.map((ex) => ex.promptUk)));
+      for (const exercise of control!.exercises) {
+        expect(taughtPrompts.has(exercise.promptUk), exercise.id).toBe(false);
+      }
+    }
+  });
+
+  it("REST API Design has 27 bilingual lessons across 7 units", () => {
+    expect(restApiDesignContent.units).toHaveLength(7);
     const lessons = restApiDesignContent.units.flatMap((u) => u.lessons);
-    expect(lessons).toHaveLength(24);
-    expect(lessons.filter((l) => l.isExam)).toHaveLength(6);
+    expect(lessons).toHaveLength(27);
+    expect(lessons.filter((l) => l.isExam)).toHaveLength(7);
     for (const l of lessons) {
       expect(l.titleUk.trim().length).toBeGreaterThan(0);
       expect(l.titleEn?.trim().length ?? 0).toBeGreaterThan(0);
     }
   });
 
-  it("Frontend Performance and Browser Web APIs have 24 bilingual lessons each", () => {
+  it("Frontend Performance and Browser Web APIs have 27 bilingual lessons each", () => {
     for (const c of [frontendPerformanceContent, browserWebApisContent]) {
-      expect(c.units, c.slug).toHaveLength(6);
+      expect(c.units, c.slug).toHaveLength(7);
       const lessons = c.units.flatMap((u) => u.lessons);
-      expect(lessons, c.slug).toHaveLength(24);
-      expect(lessons.filter((l) => l.isExam), c.slug).toHaveLength(6);
+      expect(lessons, c.slug).toHaveLength(27);
+      expect(lessons.filter((l) => l.isExam), c.slug).toHaveLength(7);
       for (const l of lessons) {
         expect(l.titleUk.trim().length).toBeGreaterThan(0);
         expect(l.titleEn?.trim().length ?? 0).toBeGreaterThan(0);

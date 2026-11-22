@@ -1,5 +1,72 @@
 import type { CourseContent, LessonContent } from "./types.js";
 
+const advancedLocale: Record<string, { promptEn: string; optionsEn?: string[]; hintEn?: string }> = {
+  "lg-11": { promptEn: "Repeat the alternating pattern: square, circle, square, circle, ?", optionsEn: ["square", "triangle", "diamond", "dot"], hintEn: "The two shapes alternate." },
+  "lg-13": { promptEn: "In the matrix [1 2 / 3 ?], each lower entry is 2 greater than the entry above it. What replaces ?", hintEn: "Add 2 to the number directly above." },
+  "lg-15": { promptEn: "Which item is not an animal: cat, dog, table, rabbit?", optionsEn: ["cat", "dog", "table", "rabbit"], hintEn: "Three are animals; one is furniture." },
+  "lg-16": { promptEn: "Which item is not a fruit: apple, pear, carrot, plum?", optionsEn: ["apple", "pear", "carrot", "plum"], hintEn: "Carrot is a root vegetable." },
+  "lg-17": { promptEn: "Which item is three-dimensional: square, circle, triangle, cube?", optionsEn: ["square", "circle", "triangle", "cube"], hintEn: "The cube has volume; the other figures are flat." },
+  "lg-18": { promptEn: "Which item is a month rather than a day of the week?", optionsEn: ["Monday", "March", "Wednesday", "Friday"], hintEn: "Compare the calendar categories." },
+  "lg-19": { promptEn: "Day is opposite to night, as hot is opposite to what?", optionsEn: ["warm", "cold", "fire", "sun"], hintEn: "Choose the opposite temperature." },
+  "lg-20": { promptEn: "A bird lives in a nest, as a domesticated bee lives in what?", optionsEn: ["honey", "a hive", "a flower", "a wing"], hintEn: "Choose a home, not food or a body part." },
+  "lg-21": { promptEn: "A person reads a book; what does a listener do with a song?", optionsEn: ["write it", "listen to it", "draw it", "run"], hintEn: "Think of the audience, not the performer." },
+  "lg-22": { promptEn: "A doctor works in a hospital, as a teacher works in what place?", optionsEn: ["a school", "a shop", "a park", "a museum"] },
+  "lg-23": { promptEn: "Assume all fish breathe underwater and a salmon is a fish. What follows?", optionsEn: ["The salmon breathes underwater", "The salmon is not a fish", "Nothing follows", "The salmon flies"] },
+  "lg-24": { promptEn: "If it rains, the ground is wet. The ground is wet. Must it be raining?", optionsEn: ["Yes, necessarily", "Not necessarily", "Never", "Yes, if it is night"], hintEn: "The ground could be wet for another reason." },
+  "lg-25": { promptEn: "A is taller than B, and B is taller than C. Who is shortest?", optionsEn: ["A", "B", "C", "Impossible to determine"] },
+  "lg-26": { promptEn: "A train is faster than a bus; a bus is faster than a bicycle. Which is slowest?", optionsEn: ["train", "bus", "bicycle", "all equal"] },
+  "lg-27": { promptEn: "Continue the pattern by doubling: 7, 14, 28, 56, ?", hintEn: "Multiply the previous term by two." },
+  "lg-28": { promptEn: "Which item is food rather than a writing or study supply?", optionsEn: ["pen", "pencil", "notebook", "apple"], hintEn: "Three are supplies; one is food." },
+  "lg-29": { promptEn: "A table is furniture; which category includes a rose?", optionsEn: ["garden", "flower", "pen", "vase"], hintEn: "Choose the category of the object, not its location." },
+  "lg-30": { promptEn: "Continue the sequence of square numbers: 1, 4, 9, 16, ?", hintEn: "The terms are 1², 2², 3², 4², ..." },
+  "lg-31": { promptEn: "A rule maps (2,3) to 10, (3,4) to 21 and (4,5) to 36. Using the rule first × (first + second), what does (5,6) map to?", hintEn: "Multiply the first number by the sum of both." },
+  "lg-32": { promptEn: "Continue by multiplying by consecutive integers: 1, 2, 6, 24, ?", hintEn: "The next multiplier is 5." },
+  "lg-33": { promptEn: "Three sisters have 3, 5, and 7 apples. How many do they have altogether?", hintEn: "Add the three quantities." },
+  "lg-34": { promptEn: "An analog clock shows exactly 3:15. What is the smaller angle between its hands?", hintEn: "The minute hand is at 90°; the hour hand moves a quarter of the way from 3 to 4." },
+  "lg-35": { promptEn: "Continue the sequence by adding consecutive even numbers: 2, 6, 12, 20, 30, ?", hintEn: "The next difference is 12." },
+  "lg-36": { promptEn: "All squares are rhombuses. Some rhombuses are not squares. Are all rhombuses squares?", optionsEn: ["Yes", "No", "Unknown", "Only blue ones"], hintEn: "The second premise provides a counterexample." },
+  "lg-37": { promptEn: "Continue two interleaved sequences: 8, 6, 9, 5, 10, 4, ?", hintEn: "Odd-position terms rise by one; even-position terms fall by one." },
+  "lg-38": { promptEn: "Calculate 3 + 5 × 2 using the usual order of operations.", hintEn: "Multiply before adding." },
+  "lg-39": { promptEn: "Continue by doubling and adding one: 1, 3, 7, 15, 31, ?", hintEn: "31 × 2 + 1 = 63." },
+  "lg-40": { promptEn: "Which item is not a musical instrument?", optionsEn: ["violin", "guitar", "drum", "hammer"], hintEn: "Three are instruments; one is a tool." },
+  "lg-41": { promptEn: "A book has chapters. What are the 12 named parts of a calendar year?", optionsEn: ["clocks", "hours", "months", "minutes"], hintEn: "January and February are examples." },
+  "lg-42": { promptEn: "Continue the square numbers: 9, 16, 25, 36, ?", hintEn: "These are 3², 4², 5², 6², ..." },
+  "lg-43": { promptEn: "Assume all athletes train and Oleh is an athlete. What follows?", optionsEn: ["Oleh trains", "Oleh does not train", "Nothing follows", "Oleh is a doctor"], hintEn: "Apply the general premise to Oleh." },
+  "lg-44": { promptEn: "No cat is a dog. Barsyk is a cat. What follows?", optionsEn: ["Barsyk is not a dog", "Barsyk is a dog", "Barsyk is a bird", "It is unknown"], hintEn: "Apply the first premise to Barsyk." },
+  "lg-45": { promptEn: "Continue by doubling and adding one: 2, 5, 11, 23, ?", hintEn: "23 × 2 + 1 = 47." },
+  "lg-46": { promptEn: "Continue by doubling and adding one: 4, 9, 19, 39, ?", hintEn: "39 × 2 + 1 = 79." },
+  "lg-47": { promptEn: "If A > B and B > C, which relation holds between A and C?", optionsEn: [">", "<", "=", "Unknown"], hintEn: "The greater-than relation is transitive." },
+  "lg-48": { promptEn: "Continue by halving: 1/2, 1/4, 1/8, ?", hintEn: "Half of 1/8 is 1/16." },
+  "lg-49": { promptEn: "Three children ate 2, 3, and 5 candies. How many did they eat altogether?", hintEn: "Add the three quantities." },
+  "lg-50": { promptEn: "Continue by subtracting consecutive integers: 12, 11, 9, 6, 2, ?", hintEn: "Subtract 5 next." },
+  "lg-51": { promptEn: "Cities A-B-C-D form a line. How many edges are on the path from A to D?", hintEn: "Count A-B, B-C, and C-D." },
+  "lg-52": { promptEn: "Five points are each connected to every other point by one undirected edge. How many edges are there?", hintEn: "Count pairs: C(5,2) = 10." },
+  "lg-53": { promptEn: "A fair coin is tossed twice independently. What is the probability of two heads?", hintEn: "There are four equally likely outcomes; only HH has two heads." },
+  "lg-54": { promptEn: "A fair six-sided die is rolled once. What is the probability of an even number?", hintEn: "Three of the six equally likely faces are even." },
+  "lg-55": { promptEn: "Encode each letter by its position in the alphabet, concatenating the numbers: CAT = 3120 and DOG = 4157. What is GOD?", hintEn: "G = 7, O = 15, D = 4." },
+  "lg-56": { promptEn: "With A=1, B=2, …, Z=26, what is the sum for CODE?", hintEn: "3 + 15 + 4 + 5 = 27." },
+  "lg-57": { promptEn: "Three routes take 10, 15, and 12 minutes. Which is fastest?", optionsEn: ["10", "15", "12", "All are equal"] },
+  "lg-58": { promptEn: "A backpack holds at most 8 kg. Items weigh 3, 5, and 6 kg. Which selection has the greatest total without exceeding the limit?", optionsEn: ["3+5", "6+3", "5+6", "Only 6"], hintEn: "3 + 5 = 8." },
+  "lg-60": { promptEn: "All squares are rectangles. Are all rectangles squares?", optionsEn: ["Yes, every rectangle has equal sides", "No, a rectangle can have unequal adjacent sides", "Only rectangles with four right angles", "There are no rectangles"], hintEn: "Consider a rectangle whose adjacent sides have different lengths." },
+  "lg-62": { promptEn: "What is the mean of 2, 4, 6, and 8?", hintEn: "Add the four values and divide by four." },
+  "lg-63": { promptEn: "How many ways can you choose 2 of 4 items when order does not matter?", hintEn: "Count pairs: C(4,2) = 6." },
+  "lg-64": { promptEn: "How many orders are possible for 3 distinct books in a row?", hintEn: "There are 3 × 2 × 1 = 6 orders." },
+  "lg-65": { promptEn: "If A implies B and B implies C, does A imply C?", optionsEn: ["Yes, by transitivity", "Never", "Only if A equals C", "It is always unknown"] },
+  "lg-66": { promptEn: "What is equivalent to ¬(A ∧ B)?", hintEn: "Apply De Morgan's law." },
+  "lg-d0a": { promptEn: "If every A is B and X is A, what follows about X?", optionsEn: ["X is B", "X is not B", "X is only C", "Nothing follows"], hintEn: "Apply the two premises in order." },
+  "lg-d0b": { promptEn: "If no A is B, what is the intersection A∩B?", optionsEn: ["Empty", "Full", "Always unknown", "Equal to A"] },
+  "lg-d0c": { promptEn: "Assume all birds have wings and a sparrow is a bird. Which conclusion follows?", optionsEn: ["The sparrow has wings", "The sparrow is a mammal", "Every wing is a sparrow", "Nothing follows"] },
+  "lg-d1": { promptEn: "All cats are animals. Murchyk is a cat. What follows?", optionsEn: ["Murchyk is an animal", "Murchyk is not an animal", "Murchyk is a bird", "It is unknown"], hintEn: "A subset of animals contains Murchyk." },
+  "lg-d2": { promptEn: "No square is a circle. This shape is a square. Is it a circle?", optionsEn: ["No", "Yes", "Sometimes", "Always"] },
+  "lg-d3": { promptEn: "A = {1,2,3}, B = {2,3,4}. What is A ∩ B?", hintEn: "The intersection contains the elements shared by both sets." },
+  "lg-d4": { promptEn: "What is A ∪ B for A={1}, B={1,2}?", hintEn: "The union contains elements in either set." },
+  "lg-d5": { promptEn: "How many subsets does {a,b} have?", hintEn: "The four are {}, {a}, {b}, and {a,b}." },
+  "lg-d6": { promptEn: "Which item does not belong among dog, cat, bird, and car?", hintEn: "Three are animals; one is a vehicle." },
+  "lg-d7": { promptEn: "Which is the odd one out: 2, 4, 8, 16, 15?", hintEn: "Four numbers are powers of two." },
+  "lg-d8": { promptEn: "Assume: if it rains, I take an umbrella. I did not take an umbrella. What follows?", optionsEn: ["It is not raining (modus tollens)", "It must be raining", "Nothing follows", "It is always sunny"], hintEn: "From A→B and ¬B, infer ¬A." },
+  "lg-d9": { promptEn: "A or B is true. A is false. What follows?", optionsEn: ["B is true", "B is false", "Both A and B are true", "Nothing follows"] },
+};
+
 function puzzle(
   id: string,
   promptUk: string,
@@ -18,6 +85,7 @@ function puzzle(
     options,
     correctIndex,
     hintUk,
+    ...advancedLocale[id],
   };
 }
 
@@ -84,7 +152,7 @@ export const logicContent: CourseContent = {
         lesson("pat-1", "Фігури (текст)", 2, false, [
           puzzle(
             "lg-11",
-            "Квадрат, коло, квадрат, коло, ?",
+            "Продовжіть чергування: квадрат, коло, квадрат, коло, ?",
             "pattern",
             1,
             ["квадрат", "трикутник", "ромб", "крапка"],
@@ -102,7 +170,7 @@ export const logicContent: CourseContent = {
         lesson("pat-2", "Матриця 2×2", 3, false, [
           puzzle(
             "lg-13",
-            "У матриці: [1 2 / 3 ?]. Якщо рядок +2 по діагоналі логіки: 1→3 (+2), 2→?",
+            "У матриці [1 2 / 3 ?] кожне нижнє число на 2 більше за число над ним. Яке число замість ?",
             "matrix",
             3,
             ["4", "5", "6", "3"],
@@ -120,12 +188,12 @@ export const logicContent: CourseContent = {
           ),
         ]),
         lesson("pat-3", "Odd one out 1", 2, false, [
-          puzzle("lg-15", "Що зайве: кіт, пес, стіл, кролик?", "odd_one", 1, ["кіт", "пес", "стіл", "кролик"], 2),
-          puzzle("lg-16", "Що зайве: яблуко, груша, морква, слива?", "odd_one", 2, ["яблуко", "груша", "морква", "слива"], 2),
+          puzzle("lg-15", "Що з цього не є твариною: кіт, пес, стіл, кролик?", "odd_one", 1, ["кіт", "пес", "стіл", "кролик"], 2),
+          puzzle("lg-16", "Що з цього не є фруктом: яблуко, груша, морква, слива?", "odd_one", 2, ["яблуко", "груша", "морква", "слива"], 2),
         ]),
         lesson("pat-4", "Odd one out 2", 3, false, [
-          puzzle("lg-17", "Що зайве: квадрат, коло, трикутник, куб?", "odd_one", 2, ["квадрат", "коло", "трикутник", "куб"], 3, "Куб — 3D"),
-          puzzle("lg-18", "Що зайве: понеділок, березень, середа, п'ятниця?", "odd_one", 2, ["понеділок", "березень", "середа", "п'ятниця"], 1),
+          puzzle("lg-17", "Яка фігура тривимірна: квадрат, коло, трикутник, куб?", "odd_one", 2, ["квадрат", "коло", "трикутник", "куб"], 3, "Куб — 3D"),
+          puzzle("lg-18", "Що з цього є місяцем, а не днем тижня?", "odd_one", 2, ["понеділок", "березень", "середа", "п'ятниця"], 1),
         ]),
       ],
     },
@@ -136,10 +204,10 @@ export const logicContent: CourseContent = {
       lessons: [
         lesson("ver-1", "Аналогії 1", 2, false, [
           puzzle("lg-19", "День → ніч, як гаряче → ?", "verbal", 1, ["тепле", "холодне", "вогне", "сонце"], 1),
-          puzzle("lg-20", "Птах → гніздо, як бджола → ?", "verbal", 2, ["мед", "вулик", "квітка", "крило"], 1),
+          puzzle("lg-20", "Птах живе у гнізді, а свійська бджола живе у чому?", "verbal", 2, ["мед", "вулик", "квітка", "крило"], 1),
         ]),
         lesson("ver-2", "Аналогії 2", 3, false, [
-          puzzle("lg-21", "Книга → читати, як пісня → ?", "verbal", 2, ["писати", "співати", "малювати", "бігти"], 1),
+          puzzle("lg-21", "Людина читає книгу. Що слухач робить із піснею?", "verbal", 2, ["пише", "слухає", "малює", "біжить"], 1),
           puzzle("lg-22", "Лікар → лікарня, як вчитель → ?", "verbal", 1, ["школа", "магазин", "парк", "музей"], 0),
         ]),
         lesson("ver-3", "Умови", 3, false, [
@@ -192,16 +260,16 @@ export const logicContent: CourseContent = {
       titleEn: "Мікс",
       lessons: [
         lesson("mix-1", "Мікс 1", 3, false, [
-          puzzle("lg-27", "7, 14, 28, 56, ?", "sequence", 3, ["70", "84", "112", "98"], 2),
-          puzzle("lg-28", "Що зайве: ручка, олівець, зошит, яблуко?", "odd_one", 1, ["ручка", "олівець", "зошит", "яблуко"], 3),
+          puzzle("lg-27", "Продовжіть подвоєння: 7, 14, 28, 56, ?", "sequence", 3, ["70", "84", "112", "98"], 2),
+          puzzle("lg-28", "Що з цього є їжею, а не навчальним приладдям?", "odd_one", 1, ["ручка", "олівець", "зошит", "яблуко"], 3),
         ]),
         lesson("mix-2", "Мікс 2", 3, false, [
-          puzzle("lg-29", "Стіл → меблі, як троянда → ?", "verbal", 2, ["сад", "квітка", "шипшина", "ваза"], 1),
-          puzzle("lg-30", "1, 4, 9, 16, ?", "sequence", 2, ["20", "25", "36", "18"], 1, "Квадрати"),
+          puzzle("lg-29", "Стіл належить до меблів. До якої категорії належить троянда?", "verbal", 2, ["сад", "квітка", "ручка", "ваза"], 1),
+          puzzle("lg-30", "Продовжіть послідовність квадратів: 1, 4, 9, 16, ?", "sequence", 2, ["20", "25", "36", "18"], 1, "Квадрати"),
         ]),
         lesson("mix-3", "Мікс 3", 4, false, [
-          puzzle("lg-31", "Якщо 2+3=10, 3+4=21, 4+5=36, то 5+6=?", "pattern", 4, ["45", "51", "55", "61"], 2, "a*b + a+b? 5*6+5+6=41… або (a+b)*a: (2+3)*2=10. (5+6)*5=55"),
-          puzzle("lg-32", "Продовжіть: 1, 2, 6, 24, ?", "sequence", 4, ["48", "96", "120", "100"], 2, "×2 ×3 ×4 ×5"),
+          puzzle("lg-31", "Правило перетворює (2,3) на 10, (3,4) на 21, а (4,5) на 36. За правилом перше × (перше + друге) знайдіть результат для (5,6).", "pattern", 4, ["45", "51", "55", "61"], 2, "Помножте перше число на суму обох."),
+          puzzle("lg-32", "Продовжіть, множачи на послідовні цілі числа: 1, 2, 6, 24, ?", "sequence", 4, ["48", "96", "120", "100"], 2, "×2 ×3 ×4 ×5"),
         ]),
         lesson("mix-4", "Мікс 4", 4, false, [
           puzzle(
@@ -222,7 +290,7 @@ export const logicContent: CourseContent = {
           ),
         ]),
         lesson("mix-5", "Фінал логіки", 5, false, [
-          puzzle("lg-35", "2, 6, 12, 20, 30, ?", "sequence", 4, ["40", "42", "44", "36"], 1, "+4 +6 +8 +10 +12"),
+          puzzle("lg-35", "Продовжіть, додаючи послідовні парні числа: 2, 6, 12, 20, 30, ?", "sequence", 4, ["40", "42", "44", "36"], 1, "+4 +6 +8 +10 +12"),
           puzzle(
             "lg-36",
             "Усі квадрати — ромби. Деякі ромби — не квадрати. Чи всі ромби — квадрати?",
@@ -231,7 +299,7 @@ export const logicContent: CourseContent = {
             ["Так", "Ні", "Невідомо", "Тільки сині"],
             1,
           ),
-          puzzle("lg-37", "8, 6, 9, 5, 10, 4, ?", "sequence", 4, ["11", "12", "3", "6"], 0),
+          puzzle("lg-37", "Продовжіть дві черговані послідовності: 8, 6, 9, 5, 10, 4, ?", "sequence", 4, ["11", "12", "3", "6"], 0),
           puzzle(
             "lg-38",
             "Обчисліть: 3+5*2=?",
@@ -242,12 +310,12 @@ export const logicContent: CourseContent = {
           ),
         ]),
         lesson("mix-6", "Мікс 5", 4, false, [
-          puzzle("lg-39", "1, 3, 7, 15, 31, ?", "sequence", 4, ["63", "62", "47", "33"], 0, "*2+1"),
-          puzzle("lg-40", "Що зайве: скрипка, гітара, барабан, молоток?", "odd_one", 2, ["скрипка", "гітара", "барабан", "молоток"], 3),
+          puzzle("lg-39", "Продовжіть, подвоюючи та додаючи одиницю: 1, 3, 7, 15, 31, ?", "sequence", 4, ["63", "62", "47", "33"], 0, "*2+1"),
+          puzzle("lg-40", "Що з цього не є музичним інструментом?", "odd_one", 2, ["скрипка", "гітара", "барабан", "молоток"], 3),
         ]),
         lesson("mix-7", "Мікс 6", 4, false, [
-          puzzle("lg-41", "Книга → сторінки, як будинок → ?", "verbal", 2, ["вікна", "стіни", "кімнати", "двері"], 2),
-          puzzle("lg-42", "9, 16, 25, 36, ?", "sequence", 2, ["45", "49", "64", "40"], 1, "Квадрати"),
+          puzzle("lg-41", "Книга має розділи. Як називаються 12 іменованих частин календарного року?", "verbal", 2, ["годинники", "години", "місяці", "хвилини"], 2),
+          puzzle("lg-42", "Продовжіть послідовність квадратів: 9, 16, 25, 36, ?", "sequence", 2, ["45", "49", "64", "40"], 1, "Квадрати"),
         ]),
         lesson("mix-8", "Силогізми", 4, false, [
           puzzle(
@@ -268,12 +336,12 @@ export const logicContent: CourseContent = {
           ),
         ]),
         lesson("mix-9", "Числові патерни", 5, false, [
-          puzzle("lg-45", "2, 5, 11, 23, ?", "sequence", 5, ["47", "46", "45", "48"], 0, "*2+1"),
-          puzzle("lg-46", "4, 9, 19, 39, ?", "sequence", 5, ["79", "78", "80", "59"], 0, "*2+1"),
+          puzzle("lg-45", "Продовжіть, подвоюючи та додаючи одиницю: 2, 5, 11, 23, ?", "sequence", 5, ["47", "46", "45", "48"], 0, "*2+1"),
+          puzzle("lg-46", "Продовжіть, подвоюючи та додаючи одиницю: 4, 9, 19, 39, ?", "sequence", 5, ["79", "78", "80", "59"], 0, "*2+1"),
         ]),
         lesson("mix-10", "Фінал+", 5, false, [
           puzzle("lg-47", "Якщо A > B і B > C, то A ? C", "verbal", 2, [">", "<", "=", "невідомо"], 0),
-          puzzle("lg-48", "1/2, 1/4, 1/8, ?", "sequence", 3, ["1/10", "1/16", "1/12", "1/6"], 1),
+          puzzle("lg-48", "Продовжіть ділення навпіл: 1/2, 1/4, 1/8, ?", "sequence", 3, ["1/10", "1/16", "1/12", "1/6"], 1),
           puzzle(
             "lg-49",
             "Троє дітей з'їли 2, 3 і 5 цукерок. Скільки всього?",
@@ -282,7 +350,7 @@ export const logicContent: CourseContent = {
             ["10", "9", "11", "8"],
             0,
           ),
-          puzzle("lg-50", "12, 11, 9, 6, 2, ?", "sequence", 4, ["-3", "-1", "0", "1"], 0, "-1-2-3-4-5"),
+          puzzle("lg-50", "Продовжіть, віднімаючи послідовні цілі числа: 12, 11, 9, 6, 2, ?", "sequence", 4, ["-3", "-1", "0", "1"], 0, "-1-2-3-4-5"),
         ]),
       ],
     },
@@ -314,7 +382,7 @@ export const logicContent: CourseContent = {
         lesson("adv-2", "Ймовірність (інтуїція)", 4, false, [
           puzzle(
             "lg-53",
-            "Монета 2 рази. Ймовірність 2 орли (приблизно)?",
+            "Чесну монету незалежно підкидають двічі. Яка ймовірність двох орлів?",
             "verbal",
             3,
             ["1/2", "1/3", "1/4", "1"],
@@ -322,7 +390,7 @@ export const logicContent: CourseContent = {
           ),
           puzzle(
             "lg-54",
-            "Кубик 1–6. Ймовірність парного?",
+            "Чесний шестигранний кубик кидають один раз. Яка ймовірність парного числа?",
             "verbal",
             2,
             ["1/6", "1/3", "1/2", "2/3"],
@@ -330,7 +398,7 @@ export const logicContent: CourseContent = {
           ),
         ], "Probability intuition"),
         lesson("adv-3", "Кодування", 4, false, [
-          puzzle("lg-55", "Якщо CAT=3120, DOG=4157, то GOD=?", "pattern", 5, ["7154", "5147", "7415", "4571"], 0),
+          puzzle("lg-55", "Записуйте позиції літер в англійській абетці поспіль: CAT=3120, DOG=4157. Чому дорівнює GOD?", "pattern", 5, ["7154", "5147", "7415", "4571"], 0),
           puzzle("lg-56", "A=1,B=2… Z=26. Сума CODE?", "pattern", 3, ["27", "28", "31", "24"], 0, "3+15+4+5=27"),
         ], "Coding puzzles"),
         lesson("adv-4", "Оптимізація вибору", 5, false, [
@@ -359,7 +427,7 @@ export const logicContent: CourseContent = {
             "Усі квадрати — прямокутники. Чи всі прямокутники — квадрати?",
             "verbal",
             2,
-            ["Так", "Ні", "Завжди", "Ніколи невідомо"],
+            ["Так, усі прямокутники мають рівні сторони", "Ні, суміжні сторони прямокутника можуть бути нерівними", "Лише прямокутники з чотирма прямими кутами", "Прямокутників не існує"],
             1,
           ),
           puzzle("lg-61", "2^3 * 3^2 = ?", "verbal", 3, ["36", "72", "18", "54"], 1),

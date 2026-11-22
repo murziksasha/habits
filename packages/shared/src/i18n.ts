@@ -251,6 +251,7 @@ const uk = {
   },
   lesson: {
     check: "Перевірити",
+    undoLastPair: "Скасувати останню пару",
     continue: "Далі",
     correct: "Правильно!",
     wrong: "Неправильно",
@@ -379,8 +380,11 @@ const uk = {
     practiceClubBot: "Практика проти клубного бота",
   },
   typing: {
-    wpm: "зн/хв",
+    wpm: "слів/хв",
     accuracy: "Точність",
+    layoutLabel: "Розкладка",
+    targetLabel: "Орієнтир швидкості",
+    passRule: "Для проходження: від 10 слів/хв і точність від 85%. Орієнтир швидкості — необов'язкова ціль.",
     start: "Почати",
     nextLesson: "Наступний урок",
     freePractice: "Вільна практика",
@@ -389,6 +393,9 @@ const uk = {
     wpm: "слів/хв",
     comprehension: "Розуміння",
     startRsvp: "Почати RSVP",
+    pauseRsvp: "Пауза",
+    resumeRsvp: "Продовжити",
+    restartRsvp: "Почати знову",
     pause: "Пауза",
   },
   logic: {
@@ -1361,6 +1368,7 @@ const en: UiDict = {
   },
   lesson: {
     check: "Check",
+    undoLastPair: "Undo last pair",
     continue: "Continue",
     correct: "Correct!",
     wrong: "Incorrect",
@@ -1491,6 +1499,9 @@ const en: UiDict = {
   typing: {
     wpm: "WPM",
     accuracy: "Accuracy",
+    layoutLabel: "Keyboard layout",
+    targetLabel: "Speed goal",
+    passRule: "To pass: at least 10 WPM and 85% accuracy. The speed goal is optional.",
     start: "Start",
     nextLesson: "Next lesson",
     freePractice: "Free practice",
@@ -1499,6 +1510,9 @@ const en: UiDict = {
     wpm: "WPM",
     comprehension: "Comprehension",
     startRsvp: "Start RSVP",
+    pauseRsvp: "Pause",
+    resumeRsvp: "Resume",
+    restartRsvp: "Restart",
     pause: "Pause",
   },
   logic: {

@@ -51,12 +51,14 @@ Complexity profiling in web apps, Map/Set indexing vs O(N²), undo stacks and bo
 ## Depth now
 
 - Units: 9
-- Lessons: 25
+- Lessons: 26
 - Exams: 9
 - Free non-exam lessons: 5
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, match, mcq
 
 ## Expansion (Nov 2026)
+
+Applied transfer: `aa-transfer-bounded-events` in `aa_lru_ratelimit` tests deduplication within a bounded time and memory window.
 
 Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
 

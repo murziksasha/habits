@@ -19,79 +19,86 @@ Full TypeScript course: primitives to generics, narrowing, and utility types. Un
 
 ### `basics` — TS basics
 
-- `tsc-what-is-ts` — What is TypeScript (3 exercises)
-- `tsc-primitives` — Primitives (3 exercises)
-- `tsc-annotations` — Annotations & inference (3 exercises)
+- `tsc-what-is-ts` — What is TypeScript (4 exercises)
+- `tsc-primitives` — Primitives (4 exercises)
+- `tsc-annotations` — Annotations & inference (4 exercises)
 - `tsc-basics-exam` — Exam: basics [exam] (5 exercises)
 
 ### `objects` — Objects & arrays
 
-- `tsc-objects` — Object types (2 exercises)
-- `tsc-arrays-tuples` — Arrays & tuples (3 exercises)
-- `tsc-enums` — Enums (intro) (2 exercises)
+- `tsc-objects` — Object types (3 exercises)
+- `tsc-arrays-tuples` — Arrays & tuples (4 exercises)
+- `tsc-enums` — Enums (intro) (3 exercises)
 - `tsc-objects-exam` — Exam: objects [exam] (4 exercises)
 
 ### `interfaces` — Interface & type
 
-- `tsc-interface-basics` — interface basics (2 exercises)
-- `tsc-extends` — extends / intersection (3 exercises)
+- `tsc-interface-basics` — interface basics (3 exercises)
+- `tsc-extends` — extends / intersection (4 exercises)
 - `tsc-interfaces-exam` — Exam: interfaces [exam] (4 exercises)
 
 ### `functions` — Functions
 
-- `tsc-fn-types` — Param & return types (2 exercises)
-- `tsc-fn-optional` — Optional / default params (2 exercises)
+- `tsc-fn-types` — Param & return types (3 exercises)
+- `tsc-fn-optional` — Optional / default params (3 exercises)
 - `tsc-functions-exam` — Exam: functions [exam] (4 exercises)
 
 ### `generics` — Generics
 
-- `tsc-generics-fn` — Generic functions (2 exercises)
-- `tsc-generics-constraints` — Constraints (2 exercises)
+- `tsc-generics-fn` — Generic functions (3 exercises)
+- `tsc-generics-constraints` — Constraints (3 exercises)
 - `tsc-generics-exam` — Exam: generics [exam] (4 exercises)
 
 ### `narrowing` — Narrowing
 
-- `tsc-unions` — Unions (2 exercises)
-- `tsc-guards` — Type guards (3 exercises)
+- `tsc-unions` — Unions (3 exercises)
+- `tsc-guards` — Type guards (4 exercises)
 - `tsc-narrowing-exam` — Exam: narrowing [exam] (4 exercises)
 
 ### `utilities` — Utility types
 
-- `tsc-partial-pick` — Partial & Pick (2 exercises)
-- `tsc-omit-record` — Omit & Record (2 exercises)
-- `tsc-pick-required` — Pick & Required (4 exercises)
+- `tsc-partial-pick` — Partial & Pick (3 exercises)
+- `tsc-omit-record` — Omit & Record (4 exercises)
+- `tsc-pick-required` — Pick & Required (5 exercises)
 - `tsc-utilities-exam` — Exam: utilities [exam] (4 exercises)
 
 ### `modules` — Modules & tsconfig
 
-- `tsc-import-export` — import / export (2 exercises)
-- `tsc-tsconfig` — tsconfig basics (2 exercises)
+- `tsc-import-export` — import / export (3 exercises)
+- `tsc-tsconfig` — tsconfig basics (4 exercises)
 - `tsc-modules-exam` — Exam: modules [exam] (4 exercises)
 
 ### `applied_error_diagnosis` — Applied: Diagnosing TypeScript Errors
 
-- `ts-dbg-assignability` — Diagnosing: Type X is not assignable to type Y (3 exercises)
-- `ts-dbg-narrowing-undefined` — Diagnosing: Object is possibly undefined & narrowing (2 exercises)
-- `ts-dbg-generic-constraints` — Diagnosing: Generic constraints & keyof (2 exercises)
-- `ts-app-cumulative-task` — Applied task: type-safe API client & error guards (2 exercises)
+- `ts-dbg-assignability` — Diagnosing: Type X is not assignable to type Y (4 exercises)
+- `ts-dbg-narrowing-undefined` — Diagnosing: Object is possibly undefined & narrowing (4 exercises)
+- `ts-dbg-generic-constraints` — Diagnosing: Generic constraints & keyof (3 exercises)
+- `ts-app-cumulative-task` — Applied task: type-safe API client & error guards (3 exercises)
 - `ts-app-exam` — Exam: TS diagnostics & typing [exam] (4 exercises)
 
 ### `strict_contracts_unions` — Strict Compiler Diagnostics, unknown & Discriminated Unions
 
-- `tsc-unknown-runtime` — unknown vs any & runtime validation of untrusted API payloads (3 exercises)
-- `tsc-discriminated-generics` — Discriminated unions, useful generics & typed API contracts (3 exercises)
+- `tsc-unknown-runtime` — unknown vs any & runtime validation of untrusted API payloads (4 exercises)
+- `tsc-discriminated-generics` — Discriminated unions, useful generics & typed API contracts (4 exercises)
 - `tsc-sc-exam` — Exam: strict TS contracts [exam] (4 exercises)
+
+### `advanced_types` — Advanced types
+
+- `tsc-conditional` — Conditional types and infer (6 exercises)
+- `tsc-mapped` — Mapped types (4 exercises)
+- `tsc-template-literal` — Template literal types (4 exercises)
+- `tsc-advanced-exam` — Exam: advanced types [exam] (5 exercises)
 
 ### `capstone` — Capstone
 
-- `tsc-capstone-util` — Mini: typed util (1 exercises)
+- `tsc-capstone-util` — Mini: typed util (3 exercises)
 - `tsc-forgeboard-models-lab` — ForgeBoard M3: Strict Modeling & Untrusted Payload Validation (2 exercises)
 - `tsc-capstone-exam` — Final exam [exam] (5 exercises)
 
 ## Depth now
 
 - Units: 19
-- Lessons: 70
+- Lessons: 71
 - Exams: 19
 - Free non-exam lessons: 6
 - Exercise types in seed: code_fill, code_order, code_output, code_project, code_read, mcq
@@ -101,6 +108,8 @@ Full TypeScript course: primitives to generics, narrowing, and utility types. Un
 - TypeScript Handbook: https://www.typescriptlang.org/docs/
 
 ## Expansion (Nov 2026)
+
+Applied transfer: `ts-transfer-api-result` in `this_parameters` checks discriminated API results, exhaustive errors, and runtime validation.
 
 Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
 

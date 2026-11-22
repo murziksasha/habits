@@ -19,8 +19,8 @@ const transactions: TeachSpec[] = [
     titleUk: "Читачі не чекають на письменників",
     titleEn: "Readers do not wait on writers",
     difficulty: 3,
-    pointsUk: ["Типова ізоляція — read committed", "UPDATE тримає блокування рядка до COMMIT", "Інший SELECT читає образ з UNDO"],
-    pointsEn: ["The usual isolation is read committed", "UPDATE holds the row lock until COMMIT", "Another SELECT reads an image from UNDO"],
+    pointsUk: ["Типова ізоляція — read committed", "UPDATE тримає блокування до завершення транзакції", "Інший SELECT читає образ з UNDO"],
+    pointsEn: ["The usual isolation is read committed", "UPDATE holds the row lock until the transaction ends", "Another SELECT reads an image from UNDO"],
     conceptUk:
       "Сесія А змінила рядок і ще не зробила COMMIT. Сесія Б, яка читає той самий рядок, не чекає на блокування: вона бачить попередній образ з UNDO. Сесія В, яка теж робить UPDATE цього рядка, чекає. Це типова модель Oracle, read committed. Довга транзакція тримає UNDO і блокування. Сценарій «звіт повільний, бо хтось редагує рядок» для звичайного SELECT зазвичай хибний. Сценарій «друга правка зависла» — ні.",
     conceptEn:
@@ -54,8 +54,8 @@ const transactions: TeachSpec[] = [
       { labelUk: "старий образ", labelEn: "old image", anyOf: ["стар", "old", "попередн", "previous"] },
       { labelUk: "не чекає", labelEn: "does not wait", anyOf: ["не чека", "does not wait", "не блок", "not block"] },
     ],
-    sampleUk: "SELECT читає старий образ рядка з UNDO і не чекає на письменника. Блокування тримає лише іншу зміну цього рядка до COMMIT.",
-    sampleEn: "SELECT reads the old image of the row from UNDO and does not wait on the writer. The lock holds only another change of that row until COMMIT.",
+    sampleUk: "SELECT читає старий образ рядка з UNDO і не чекає на письменника. Інша зміна цього рядка чекає звільнення блокування, зазвичай до COMMIT або ROLLBACK.",
+    sampleEn: "SELECT reads the old image of the row from UNDO and does not wait on the writer. Another change to that row waits for the lock to be released, normally by COMMIT or ROLLBACK.",
   },
   {
     slug: "sqlf-dba-dead",
@@ -65,7 +65,7 @@ const transactions: TeachSpec[] = [
     pointsUk: ["ORA-00060 знімає один оператор, не всю роботу сесії обов’язково", "Сесії тримають чужі рядки", "Порядок оновлення рядків зменшує ризик"],
     pointsEn: ["ORA-00060 undoes one statement, not necessarily the whole session's work", "The sessions hold each other's rows", "Updating rows in a stable order lowers the risk"],
     conceptUk:
-      "Сесія А тримає рядок 1 і чекає рядок 2. Сесія Б тримає рядок 2 і чекає рядок 1. Oracle виявляє цикл і повертає одній сесії ORA-00060. Відкочується оператор, який створив цикл, а не автоматично всі попередні успішні оператори транзакції. Сценарій черги платежів: два воркери оновлюють одні й ті самі рахунки в різному порядку. Однаковий порядок id знижує шанс циклу. Повтор усього пакету без аналізу лишає цикл.",
+      "Сесія А тримає рядок 1 і чекає рядок 2. Сесія Б тримає рядок 2 і чекає рядок 1. Oracle виявляє цикл і повертає одній сесії ORA-00060. Відкочується один оператор, обраний для розв’язання циклу, а не автоматично всі попередні успішні оператори транзакції. Сценарій черги платежів: два воркери оновлюють одні й ті самі рахунки в різному порядку. Однаковий порядок id знижує шанс циклу. Повтор усього пакету без аналізу лишає цикл.",
     conceptEn:
       "Session A holds row 1 and waits for row 2. Session B holds row 2 and waits for row 1. Oracle detects the cycle and returns ORA-00060 to one session. The statement that formed the cycle is rolled back, not automatically every earlier successful statement in the transaction. Scenario: two payment workers update the same accounts in different orders. A stable id order lowers the chance of a cycle. Retrying the whole batch without looking leaves the cycle in place.",
     code: "-- A: update account 1; update account 2\n-- B: update account 2; update account 1\n-- one session receives ORA-00060",
@@ -73,8 +73,8 @@ const transactions: TeachSpec[] = [
       promptUk: "Сесія отримала ORA-00060. Що Oracle вже зробив?",
       promptEn: "A session received ORA-00060. What has Oracle already done?",
       code: "ORA-00060: deadlock detected while waiting for resource",
-      options: ["Видалив обидві схеми", "Відкотив оператор, що замкнув цикл", "Зробив COMMIT обох сесій", "Перебудував усі індекси"],
-      optionsEn: ["Dropped both schemas", "Rolled back the statement that closed the cycle", "Committed both sessions", "Rebuilt every index"],
+      options: ["Видалив обидві схеми", "Відкотив один оператор, що брав участь у циклі", "Зробив COMMIT обох сесій", "Перебудував усі індекси"],
+      optionsEn: ["Dropped both schemas", "Rolled back one statement involved in the cycle", "Committed both sessions", "Rebuilt every index"],
       correctIndex: 1,
       explanationUk: "Інша робота транзакції ще може бути відкритою.",
       explanationEn: "Other work in the transaction may still be open.",
@@ -97,8 +97,8 @@ const transactions: TeachSpec[] = [
       { labelUk: "не вся транзакція", labelEn: "not the whole transaction", anyOf: ["транзак", "transaction", "не всю", "not the whole", "not every"] },
       { labelUk: "цикл", labelEn: "cycle", anyOf: ["цикл", "cycle", "deadlock", "00060"] },
     ],
-    sampleUk: "ORA-00060 відкочує оператор, який замкнув цикл deadlock. Попередні оператори тієї ж транзакції самі не зникають, доки сесія не зробить ROLLBACK.",
-    sampleEn: "ORA-00060 rolls back the statement that closed the deadlock cycle. Earlier statements in the same transaction do not disappear by themselves until the session issues ROLLBACK.",
+    sampleUk: "ORA-00060 відкочує один оператор, що брав участь у циклі deadlock. Попередні оператори тієї ж транзакції самі не зникають, доки сесія не зробить ROLLBACK.",
+    sampleEn: "ORA-00060 rolls back one statement involved in the deadlock cycle. Earlier statements in the same transaction do not disappear by themselves until the session issues ROLLBACK.",
   },
   {
     slug: "sqlf-dba-ddl",
@@ -108,9 +108,9 @@ const transactions: TeachSpec[] = [
     pointsUk: ["CREATE, ALTER, DROP роблять неявний COMMIT", "Попередній DML уже не відкотити", "Lock-free reservation з 23ai — не заміна всіх блокувань"],
     pointsEn: ["CREATE, ALTER, and DROP issue an implicit COMMIT", "Earlier DML can no longer be rolled back", "A lock-free reservation from 23ai is not a replacement for every lock"],
     conceptUk:
-      "Сценарій: розробник вставив рядки замовлення і для проби виконав ALTER TABLE. Навіть якщо ALTER не той, Oracle уже зафіксував попередній DML. ROLLBACK після DDL порожній щодо тих вставок. Тому міграції і дані розносять по різних кроках. Окремо, з 23ai існує lock-free reservation для гарячих числових лічильників, і це є в 26ai. Воно зменшує блокування таких колонок, але не скасовує рядкові блокування звичайного UPDATE статусу і не замінює COMMIT.",
+      "Сценарій: розробник вставив рядки замовлення і для проби виконав ALTER TABLE. Перед синтаксично правильним ALTER Oracle фіксує попередній DML, навіть якщо ALTER згодом завершиться помилкою; після успішного DDL відбувається ще один COMMIT. ROLLBACK після DDL порожній щодо тих вставок. Тому міграції і дані розносять по різних кроках. Окремо, з 23ai існує lock-free reservation для гарячих числових лічильників, і це є в 26ai. Воно зменшує блокування таких колонок, але не скасовує рядкові блокування звичайного UPDATE статусу і не замінює COMMIT.",
     conceptEn:
-      "Scenario: a developer inserted order rows and, as a test, ran ALTER TABLE. Even if the ALTER was the wrong one, Oracle already committed the earlier DML. ROLLBACK after the DDL does nothing for those inserts. Keep migrations and data in separate steps. Separately, Oracle 23ai added lock-free reservations for hot numeric counters, and they remain in 26ai. They reduce locking on those columns, but they do not remove row locks from an ordinary status UPDATE and they do not replace COMMIT.",
+      "Scenario: a developer inserted order rows and, as a test, ran ALTER TABLE. Before syntactically valid ALTER, Oracle commits the earlier DML even if ALTER later fails; a successful DDL statement is followed by another COMMIT. ROLLBACK after the DDL does nothing for those inserts. Keep migrations and data in separate steps. Separately, Oracle 23ai added lock-free reservations for hot numeric counters, and they remain in 26ai. They reduce locking on those columns, but they do not remove row locks from an ordinary status UPDATE and they do not replace COMMIT.",
     code: "INSERT INTO orders (id, total) VALUES (100, 20);\nALTER TABLE orders ADD note VARCHAR2(40);\n-- the INSERT is already committed",
     worked: {
       promptUk: "Після INSERT виконали ALTER TABLE, потім ROLLBACK. Вставлений рядок:",
@@ -119,8 +119,8 @@ const transactions: TeachSpec[] = [
       options: ["Зникає, бо ROLLBACK останній", "Лишається, бо DDL уже зробив COMMIT", "Стає NULL", "Переходить у TEMP"],
       optionsEn: ["Disappears, because ROLLBACK was last", "Remains, because DDL already committed", "Becomes NULL", "Moves into TEMP"],
       correctIndex: 1,
-      explanationUk: "Неявний коміт стався до і після DDL.",
-      explanationEn: "An implicit commit happens before and after DDL.",
+      explanationUk: "Неявний коміт стався до синтаксично правильного DDL; після успішного DDL відбувається ще один.",
+      explanationEn: "An implicit commit happens before syntactically valid DDL and another follows successful DDL.",
     },
     retrieval: {
       kind: "mcq",
@@ -195,9 +195,9 @@ const optimizer: TeachSpec[] = [
     pointsUk: ["EXPLAIN PLAN FOR не виконує запит як ANALYZE", "План читають через DBMS_XPLAN.DISPLAY", "Це не синтаксис EXPLAIN ANALYZE"],
     pointsEn: ["EXPLAIN PLAN FOR does not run the statement the way ANALYZE does", "You read the plan through DBMS_XPLAN.DISPLAY", "That is not the EXPLAIN ANALYZE syntax"],
     conceptUk:
-      "Щоб побачити обраний план, пишуть EXPLAIN PLAN FOR і далі звичайний SELECT. Потім SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY). Цей крок не є PostgreSQL-командою EXPLAIN ANALYZE і сам по собі не друкує фактичний час. Фактичні рядки раніше виконаного курсора дивляться через DBMS_XPLAN.DISPLAY_CURSOR, якщо їх зібрали. У навчальному сценарії вам дають готовий текст плану. Повний перегляд великої таблиці в плані — TABLE ACCESS FULL. Він нормальний, коли потрібна велика частка рядків.",
+      "Щоб побачити оцінений план, пишуть EXPLAIN PLAN FOR і далі звичайний SELECT. Потім SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY). Такий план може відрізнятися від фактично виконаного через параметри чи bind values. Цей крок не є PostgreSQL-командою EXPLAIN ANALYZE і сам по собі не друкує фактичний час. Фактичні рядки раніше виконаного курсора дивляться через DBMS_XPLAN.DISPLAY_CURSOR, якщо їх зібрали. У навчальному сценарії вам дають готовий текст плану. Повний перегляд великої таблиці в плані — TABLE ACCESS FULL. Він нормальний, коли потрібна велика частка рядків.",
     conceptEn:
-      "To see the chosen plan, write EXPLAIN PLAN FOR and then the ordinary SELECT. Then run SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY). This is not the PostgreSQL command EXPLAIN ANALYZE, and by itself it does not print actual time. Actual rows of a cursor that already ran are viewed with DBMS_XPLAN.DISPLAY_CURSOR when they were collected. In a course scenario you are given the plan text. A full read of a large table appears as TABLE ACCESS FULL. That is normal when the query needs a large fraction of the rows.",
+      "To see an estimated plan, write EXPLAIN PLAN FOR and then the ordinary SELECT. Then run SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY). The explained plan may differ from the executed plan due to settings or bind values. This is not the PostgreSQL command EXPLAIN ANALYZE, and by itself it does not print actual time. Actual rows of a cursor that already ran are viewed with DBMS_XPLAN.DISPLAY_CURSOR when they were collected. In a course scenario you are given the plan text. A full read of a large table appears as TABLE ACCESS FULL. That is normal when the query needs a large fraction of the rows.",
     code: "EXPLAIN PLAN FOR\nSELECT * FROM orders WHERE user_id = 42;\nSELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);",
     worked: {
       promptUk: "Який виклик показує план, збережений EXPLAIN PLAN FOR?",
@@ -233,22 +233,22 @@ const optimizer: TeachSpec[] = [
     titleUk: "Хибна оцінка рядків",
     titleEn: "A bad row estimate",
     difficulty: 4,
-    pointsUk: ["Оцінка і факт можуть розійтись", "Перекіс статусу потребує гістограми", "Індекс не завжди кращий за повне читання"],
-    pointsEn: ["The estimate and the actual count can diverge", "A skewed status needs a histogram", "An index is not always better than a full read"],
+    pointsUk: ["Оцінка і факт можуть розійтись", "Перекіс статусу може потребувати гістограми", "Індекс не завжди кращий за повне читання"],
+    pointsEn: ["The estimate and the actual count can diverge", "A skewed status can benefit from a histogram", "An index is not always better than a full read"],
     conceptUk:
-      "Сценарій плану: оптимізатор очікував 10 рядків зі status = 'NEW', а курсор повернув 400 тисяч. План пішов в індекс і вкладені звернення, хоча дешевше було прочитати таблицю. Причина часто в перекосі: майже всі рядки нові, а статистика без гістограми думає про рівномірність. Виправлення — свіжа статистика з гістограмою на status, потім повторний план. Додати ще один індекс «про всяк» не лікує хибну кардинальність. Цей приклад не доводить швидкість на вашому сервері: його треба читати як готовий звіт.",
+      "Сценарій плану: оптимізатор очікував 10 рядків зі status = 'NEW', а курсор повернув 400 тисяч. План пішов в індекс і вкладені звернення, хоча дешевше було прочитати таблицю. Причина часто в перекосі: майже всі рядки нові, а статистика без гістограми думає про рівномірність. Перевірте статистику, розподіл значень та фактичний план; гістограма на status може допомогти, але її користь залежить від запиту і налаштувань. Додати ще один індекс «про всяк» не лікує хибну кардинальність. Цей приклад не доводить швидкість на вашому сервері: його треба читати як готовий звіт.",
     conceptEn:
-      "Plan scenario: the optimizer expected 10 rows with status = 'NEW', and the cursor returned 400 thousand. The plan used an index and nested lookups, although reading the table would have been cheaper. The usual cause is skew: almost every row is new, and statistics without a histogram assume an even spread. The fix is fresh statistics with a histogram on status, then a new plan. Adding another index 'just in case' does not cure a bad cardinality. This example does not prove speed on your server: read it as a prepared report.",
+      "Plan scenario: the optimizer expected 10 rows with status = 'NEW', and the cursor returned 400 thousand. The plan used an index and nested lookups, although reading the table would have been cheaper. The usual cause is skew: almost every row is new, and statistics without a histogram assume an even spread. Check statistics, value distribution, and the actual plan; a histogram on status can help, but its usefulness depends on the query and settings. Adding another index 'just in case' does not cure a bad cardinality. This example does not prove speed on your server: read it as a prepared report.",
     code: "-- plan note supplied with the lesson\n-- estimated rows: 10\n-- actual rows: 400000\n-- predicate: status = 'NEW'",
     worked: {
       promptUk: "Оцінка 10, факт 400000 для status = 'NEW'. Найкорисніший наступний крок:",
       promptEn: "Estimate 10, actual 400000 for status = 'NEW'. The most useful next step:",
       code: "estimated 10 / actual 400000",
-      options: ["DROP TABLE orders", "Зібрати статистику з гістограмою на status", "Вимкнути оптимізатор", "Замінити SELECT на DELETE"],
-      optionsEn: ["DROP TABLE orders", "Gather statistics with a histogram on status", "Turn the optimizer off", "Replace SELECT with DELETE"],
+      options: ["DROP TABLE orders", "Перевірити статистику і розподіл status, розглянути гістограму", "Вимкнути оптимізатор", "Замінити SELECT на DELETE"],
+      optionsEn: ["DROP TABLE orders", "Inspect statistics and the status distribution; consider a histogram", "Turn the optimizer off", "Replace SELECT with DELETE"],
       correctIndex: 1,
-      explanationUk: "Перекіс без гістограми дає хибну кардинальність.",
-      explanationEn: "Skew without a histogram produces a bad cardinality.",
+      explanationUk: "Перекіс може погіршити оцінку; гістограму та її вплив потрібно перевірити.",
+      explanationEn: "Skew can harm the estimate; check whether a histogram helps.",
     },
     retrieval: {
       kind: "mcq",
@@ -258,8 +258,8 @@ const optimizer: TeachSpec[] = [
       options: ["Так, на будь-якому розмірі", "Ні, якщо потрібна велика частка рядків", "Так, бо це помилка компіляції", "Лише коли є UNDO"],
       optionsEn: ["Yes, at every size", "No, when the query needs a large fraction of the rows", "Yes, because it is a compile error", "Only when UNDO exists"],
       correctIndex: 1,
-      explanationUk: "Індекс вигідний для малої частки рядків.",
-      explanationEn: "An index pays off for a small fraction of the rows.",
+      explanationUk: "Індекс може бути вигідним для малої частки рядків, залежно від вартості та плану.",
+      explanationEn: "An index can pay off for a small fraction of rows, depending on cost and plan.",
     },
     whyUk: "Поясніть, як перекіс значень status ламає оцінку кількості рядків.",
     whyEn: "Explain how a skew in status values breaks the row estimate.",
@@ -268,8 +268,8 @@ const optimizer: TeachSpec[] = [
       { labelUk: "гістограма", labelEn: "histogram", anyOf: ["гістограм", "histogram"] },
       { labelUk: "оцінка", labelEn: "estimate", anyOf: ["оцін", "estimate", "кардиналь", "cardinality"] },
     ],
-    sampleUk: "Якщо майже всі рядки мають один status, без гістограми оцінка кардинальності хибна. Оптимізатор думає, що значень порівну, і обирає поганий план.",
-    sampleEn: "If almost every row has the same status, the cardinality estimate is wrong without a histogram. The optimizer assumes the values are spread evenly and picks a poor plan.",
+    sampleUk: "Якщо майже всі рядки мають один status, оцінка кардинальності може не врахувати перекіс. Варто перевірити статистику та гістограму і порівняти фактичний план.",
+    sampleEn: "If almost every row has the same status, the cardinality estimate might miss the skew. Inspect statistics and the histogram and compare the actual plan.",
   },
 ];
 
@@ -279,12 +279,12 @@ const backup: TeachSpec[] = [
     titleUk: "RMAN і копія файлів",
     titleEn: "RMAN and a copy of the files",
     difficulty: 3,
-    pointsUk: ["RMAN знімає узгоджену фізичну копію", "Копія відкритих файлів вручну не узгоджена", "Сценарій не вимагає живого сервера"],
-    pointsEn: ["RMAN takes a consistent physical backup", "A manual copy of open files is not consistent", "The scenario does not need a live server"],
+    pointsUk: ["Відкрита RMAN-копія потребує recovery з redo", "Копія відкритих файлів вручну не узгоджена", "Сценарій не вимагає живого сервера"],
+    pointsEn: ["An open RMAN backup needs recovery with redo", "A manual copy of open files is not consistent", "The scenario does not need a live server"],
     conceptUk:
-      "Поки база відкрита, data files змінюються. Звичайне копіювання папки в цей момент дає набір файлів з різних митей. RMAN вміє зняти фізичну резервну копію і працює разом із журналами. Холодна копія після чистої зупинки — інший, простіший варіант, але це простій. Сценарій уроку: колега скопіював каталог о півдні і вважає це резервною копією. Для відкритої бази це не відновлення. Перевіряють, чи є набір RMAN і чи він читається, ще до аварії.",
+      "Поки база відкрита, data files змінюються. Звичайне копіювання папки в цей момент дає набір файлів з різних митей. RMAN створює фізичні копії; копія відкритої бази є неузгодженою і для відкриття після відновлення потребує застосування потрібного redo. У ARCHIVELOG потрібні архівні журнали зберігають разом із резервною копією. Холодна копія після чистої зупинки — інший, простіший варіант, але це простій. Сценарій уроку: колега скопіював каталог о півдні і вважає це резервною копією. Саме таке просте копіювання не гарантує відновлення; user-managed backup потребує окремої процедури та потрібного redo. Ще до аварії перевіряють наявність і читаність набору та потрібних журналів, а також регулярно випробовують відновлення в ізольованому середовищі: сама перевірка читаності не доводить весь процес відновлення.",
     conceptEn:
-      "While the database is open, data files change. An ordinary copy of the folder at that moment is a set of files from different instants. RMAN can take a physical backup and works together with the logs. A cold copy after a clean shutdown is another, simpler option, but it is downtime. Lesson scenario: a colleague copied the directory at noon and calls that a backup. For an open database it is not a recovery. You test that an RMAN backup exists and is readable before the outage.",
+      "While the database is open, data files change. An ordinary copy of the folder at that moment is a set of files from different instants. RMAN creates physical backups; an open database backup is inconsistent and requires applicable redo during recovery before opening. In ARCHIVELOG mode, preserve the necessary archived logs with the backup. A cold copy after a clean shutdown is another, simpler option, but it is downtime. Lesson scenario: a colleague copied the directory at noon and calls that a backup. This simple copy does not guarantee recovery; a user-managed backup needs a defined procedure and the required redo. Before an outage, verify that the backup and required logs exist and are readable, and regularly rehearse recovery in an isolated environment: readability alone does not prove the whole recovery process.",
     code: "-- scenario, not a production command sequence\n-- open-file copy at 12:00 is not a consistent backup\n-- RMAN backup plus logs is the physical recovery path",
     worked: {
       promptUk: "База була відкрита, каталог data files скопіювали вручну. Цей набір:",
@@ -307,15 +307,15 @@ const backup: TeachSpec[] = [
       explanationUk: "Data Pump — логічний експорт, не заміна RMAN.",
       explanationEn: "Data Pump is a logical export, not a replacement for RMAN.",
     },
-    whyUk: "Поясніть, чому ручна копія відкритих data files не є резервною копією.",
-    whyEn: "Explain why a manual copy of open data files is not a backup.",
+    whyUk: "Поясніть, чому просте копіювання відкритих data files не гарантує відновлення.",
+    whyEn: "Explain why a simple copy of open data files does not guarantee recovery.",
     ideas: [
       { labelUk: "відкрита база", labelEn: "open database", anyOf: ["відкрит", "open"] },
       { labelUk: "різні миті", labelEn: "different moments", anyOf: ["різн", "different", "митт", "moment", "узгод", "consistent"] },
       { labelUk: "RMAN", labelEn: "RMAN", anyOf: ["rman"] },
     ],
-    sampleUk: "Поки база відкрита, файли змінюються в різні миті, тож ручна копія не узгоджена. Фізичну резервну копію знімає RMAN.",
-    sampleEn: "While the database is open, files change at different moments, so a manual copy is not consistent. RMAN takes the physical backup.",
+    sampleUk: "Поки база відкрита, файли змінюються в різні миті, тож ручна копія не узгоджена. RMAN створює фізичну копію; для відкритої бази під час відновлення знадобиться потрібний redo.",
+    sampleEn: "While the database is open, files change at different moments, so a manual copy is not consistent. RMAN creates a physical backup; recovering an open backup requires the necessary redo.",
   },
   {
     slug: "sqlf-dba-arch",
@@ -325,9 +325,9 @@ const backup: TeachSpec[] = [
     pointsUk: ["NOARCHIVELOG не дає довільний момент між копіями", "Онлайнова копія потребує архівних журналів", "Recycle bin не замінює архів"],
     pointsEn: ["NOARCHIVELOG does not give an arbitrary moment between copies", "An online backup needs archived logs", "The recycle bin does not replace the archive"],
     conceptUk:
-      "У режимі NOARCHIVELOG заповнений онлайн-журнал можна перезаписати. Тоді ланцюжок redo між двома копіями рветься, і відновлення на довільну секунду неможливе. ARCHIVELOG зберігає ці журнали. Гаряча фізична копія відкритої бази розрахована на них. Сценарій: нічна копія є, о 15:00 видалили таблицю, архівних журналів немає. Повернутись можна близько до нічної копії, не на 14:59. Обіцянка «будь-яка секунда» без архіву нечесна.",
+      "У режимі NOARCHIVELOG заповнений онлайн-журнал можна перезаписати. Тоді ланцюжок redo між двома копіями рветься, і відновлення на довільну секунду неможливе. ARCHIVELOG дає змогу архівувати ці журнали; їх ще треба зберегти, захистити від видалення та перевірити ланцюжок для потрібного моменту. Гаряча фізична копія відкритої бази розрахована на них. Сценарій: нічна копія є, о 15:00 видалили таблицю, архівних журналів немає. Повернутись можна близько до нічної копії, не на 14:59. Обіцянка «будь-яка секунда» без архіву нечесна.",
     conceptEn:
-      "In NOARCHIVELOG a filled online log can be overwritten. The redo chain between two backups then breaks, and recovery to an arbitrary second is impossible. ARCHIVELOG keeps those logs. A hot physical backup of an open database depends on them. Scenario: a nightly backup exists, a table was dropped at 15:00, and there are no archived logs. You can return near the nightly backup, not to 14:59. A promise of 'any second' without the archive is not honest.",
+      "In NOARCHIVELOG a filled online log can be overwritten. The redo chain between two backups then breaks, and recovery to an arbitrary second is impossible. ARCHIVELOG allows these logs to be archived; they still need retention, protection from deletion, and a verified chain to the target time. A hot physical backup of an open database depends on them. Scenario: a nightly backup exists, a table was dropped at 15:00, and there are no archived logs. You can return near the nightly backup, not to 14:59. A promise of 'any second' without the archive is not honest.",
     code: "-- NOARCHIVELOG: redo may be reused\n-- point-in-time recovery needs ARCHIVELOG and a backup",
     worked: {
       promptUk: "Є лише нічна копія, режим NOARCHIVELOG, таблицю видалили о 15:00. Найчесніший очікуваний стан:",
@@ -365,12 +365,12 @@ const backup: TeachSpec[] = [
     titleUk: "Data Pump і кошик",
     titleEn: "Data Pump and the recycle bin",
     difficulty: 3,
-    pointsUk: ["expdp переносить логічні об’єкти, не замінює RMAN", "DROP без PURGE можна повернути з кошика", "PURGE прибирає цей шлях"],
-    pointsEn: ["expdp moves logical objects and does not replace RMAN", "DROP without PURGE can come back from the recycle bin", "PURGE removes that path"],
+    pointsUk: ["expdp переносить логічні об’єкти, не замінює RMAN", "DROP без PURGE іноді можна повернути з увімкненого кошика", "PURGE прибирає цей шлях"],
+    pointsEn: ["expdp moves logical objects and does not replace RMAN", "DROP without PURGE can sometimes be recovered from an enabled recycle bin", "PURGE removes that path"],
     conceptUk:
-      "Data Pump (expdp і impdp) вивантажує таблиці й схеми в логічний файл. Ним зручно перенести схему на іншу базу. Він не зберігає фізичний ланцюжок redo і не замінює RMAN після втрати диска. Інший сценарій: DROP TABLE orders без PURGE лишає об’єкт у recycle bin, і FLASHBACK TABLE orders TO BEFORE DROP може повернути його, якщо місце не перевикористали. DROP … PURGE цього шляху не лишає. Кошик — коротке вікно, не політика резервного копіювання.",
+      "Data Pump (expdp і impdp) вивантажує таблиці й схеми в логічний файл. Ним зручно перенести схему на іншу базу. Він не зберігає фізичний ланцюжок redo і не замінює RMAN після втрати диска. Інший сценарій: Якщо recycle bin увімкнений і таблиця підпадає під його правила, DROP TABLE orders без PURGE може залишити її в кошику. FLASHBACK TABLE orders TO BEFORE DROP можливий, поки об’єкт не очищено; деякі пов’язані обмеження та індекси не відновлюються автоматично і потребують перевірки. DROP … PURGE цього шляху не лишає. Кошик — коротке вікно, не політика резервного копіювання.",
     conceptEn:
-      "Data Pump (expdp and impdp) unloads tables and schemas into a logical file. It is a good way to move a schema to another database. It does not keep the physical redo chain and does not replace RMAN after a lost disk. Another scenario: DROP TABLE orders without PURGE leaves the object in the recycle bin, and FLASHBACK TABLE orders TO BEFORE DROP can bring it back if the space was not reused. DROP … PURGE leaves no such path. The recycle bin is a short window, not a backup policy.",
+      "Data Pump (expdp and impdp) unloads tables and schemas into a logical file. It is a good way to move a schema to another database. It does not keep the physical redo chain and does not replace RMAN after a lost disk. Another scenario: If the recycle bin is enabled and the table is eligible, DROP TABLE orders without PURGE can leave it there. FLASHBACK TABLE orders TO BEFORE DROP is possible until the object is purged; some related constraints and indexes are not automatically restored and must be checked. DROP … PURGE leaves no such path. The recycle bin is a short window, not a backup policy.",
     code: "DROP TABLE orders;\nFLASHBACK TABLE orders TO BEFORE DROP;\n-- Data Pump is separate: expdp for a logical copy of a schema",
     worked: {
       promptUk: "Виконали DROP TABLE orders PURGE. Кошик:",
@@ -425,8 +425,8 @@ const operations: TeachSpec[] = [
       options: ["Новий пароль SYS у чаті", "Alert log", "Випадковий DROP", "План одного SELECT без симптому"],
       optionsEn: ["A new SYS password in chat", "The alert log", "A random DROP", "The plan of one SELECT with no symptom"],
       correctIndex: 1,
-      explanationUk: "Журнал фіксує помилку старту і місце.",
-      explanationEn: "The log records the startup error and the space problem.",
+      explanationUk: "Журнал може містити події запуску, повідомлення про помилки та посилання на діагностику; причину потрібно підтвердити.",
+      explanationEn: "The log can contain startup events, errors, and diagnostic references; the cause still needs confirmation.",
     },
     retrieval: {
       kind: "mcq",
@@ -446,8 +446,8 @@ const operations: TeachSpec[] = [
       { labelUk: "причина", labelEn: "cause", anyOf: ["причин", "cause", "помил", "error"] },
       { labelUk: "до змін", labelEn: "before changes", anyOf: ["спершу", "first", "до змін", "before"] },
     ],
-    sampleUk: "Alert log у ADR показує помилку і причину перезапуску. Його читають спершу, до випадкових змін параметрів.",
-    sampleEn: "The alert log in the ADR shows the error and the cause of the restart. You read it first, before changing parameters at random.",
+    sampleUk: "Alert log у ADR може показати помилку і підказати причину перезапуску. Його читають спершу, до випадкових змін параметрів, а висновок перевіряють іншими доказами.",
+    sampleEn: "The alert log in the ADR can show an error and suggest the cause of a restart. Read it first, before changing parameters at random, then corroborate the conclusion.",
   },
   {
     slug: "sqlf-dba-space",
@@ -539,27 +539,27 @@ const operations: TeachSpec[] = [
 
 export const dbaUnitsB: UnitContent[] = [
   pack("dba-transactions", "Транзакції і блокування", "Transactions and locking", transactions, "Контрольна: транзакції", "Exam: transactions", [
-    { promptUk: "SELECT під час чужого незакоміченого UPDATE:", promptEn: "SELECT during someone else's uncommitted UPDATE:", options: ["Завжди чекає", "Читає старий образ з UNDO", "Робить COMMIT", "Пише redo замість LGWR"], correctIndex: 1, explanationUk: "Читачі не блокуються.", explanationEn: "Readers are not blocked." },
-    { promptUk: "ORA-00060 відкочує:", promptEn: "ORA-00060 rolls back:", options: ["Усі бази на сервері", "Обліковку SYS", "Оператор, що замкнув цикл", "Control file"], correctIndex: 2, explanationUk: "Решта транзакції ще відкрита.", explanationEn: "The rest of the transaction is still open." },
-    { promptUk: "INSERT, потім ALTER TABLE, потім ROLLBACK. INSERT:", promptEn: "INSERT, then ALTER TABLE, then ROLLBACK. The INSERT:", options: ["Зникає", "Стає TEMP", "Лишається через неявний COMMIT DDL", "Чекає listener"], correctIndex: 3, explanationUk: "DDL фіксує попередній DML.", explanationEn: "DDL commits the earlier DML." },
-    { promptUk: "Lock-free reservation 23ai/26ai:", promptEn: "A lock-free reservation in 23ai/26ai:", options: ["Для гарячих числових лічильників, не для всіх UPDATE", "Скасовує COMMIT", "Є в Oracle 8i", "Замінює UNDO"], correctIndex: 0, explanationUk: "Звичайний UPDATE статусу все ще блокує рядок.", explanationEn: "An ordinary status UPDATE still locks the row." },
+    { promptUk: "SELECT під час чужого незакоміченого UPDATE:", promptEn: "SELECT during someone else's uncommitted UPDATE:", options: ["Завжди чекає", "Читає старий образ з UNDO", "Робить COMMIT", "Пише redo замість LGWR"], optionsEn: ["Always waits", "Reads the earlier image using UNDO", "Issues COMMIT", "Writes redo instead of LGWR"], correctIndex: 1, explanationUk: "Читачі не блокуються.", explanationEn: "Readers are not blocked." },
+    { promptUk: "ORA-00060 відкочує:", promptEn: "ORA-00060 rolls back:", options: ["Усі бази на сервері", "Обліковку SYS", "Один оператор, що брав участь у циклі", "Control file"], optionsEn: ["All databases on the server", "The SYS account", "One statement involved in the cycle", "The control file"], correctIndex: 2, explanationUk: "Решта транзакції ще відкрита.", explanationEn: "The rest of the transaction is still open." },
+    { promptUk: "INSERT, потім синтаксично правильний ALTER TABLE, потім ROLLBACK. INSERT:", promptEn: "INSERT, then a syntactically valid ALTER TABLE, then ROLLBACK. The INSERT:", options: ["Зникає", "Стає TEMP", "Лишається через неявний COMMIT DDL", "Чекає listener"], optionsEn: ["Disappears", "Becomes TEMP", "Remains because DDL implicitly committed it", "Waits for the listener"], correctIndex: 2, explanationUk: "DDL фіксує попередній DML.", explanationEn: "DDL commits the earlier DML." },
+    { promptUk: "Lock-free reservation 23ai/26ai:", promptEn: "A lock-free reservation in 23ai/26ai:", options: ["Для гарячих числових лічильників, не для всіх UPDATE", "Скасовує COMMIT", "Є в Oracle 8i", "Замінює UNDO"], optionsEn: ["For hot numeric counters, not all UPDATEs", "Cancels COMMIT", "Exists in Oracle 8i", "Replaces UNDO"], correctIndex: 0, explanationUk: "Звичайний UPDATE статусу все ще блокує рядок.", explanationEn: "An ordinary status UPDATE still locks the row." },
   ]),
   pack("dba-optimizer", "Оптимізатор, статистика і плани", "Optimizer, statistics, and execution plans", optimizer, "Контрольна: оптимізатор", "Exam: optimizer", [
-    { promptUk: "Після великого завантаження спочатку:", promptEn: "After a large load, first:", options: ["Видаляють усі індекси", "Перевіряють свіжість статистики", "Вимикають LGWR", "Роблять PURGE"], correctIndex: 1, explanationUk: "Кардинальність залежить від DBMS_STATS.", explanationEn: "Cardinality depends on DBMS_STATS." },
-    { promptUk: "План після EXPLAIN PLAN FOR читають:", promptEn: "After EXPLAIN PLAN FOR, the plan is read with:", options: ["EXPLAIN ANALYZE", "DROP TABLE", "DBMS_XPLAN.DISPLAY", "JSON_TABLE"], correctIndex: 2, explanationUk: "DISPLAY показує збережений план.", explanationEn: "DISPLAY shows the stored plan." },
-    { promptUk: "Оцінка 10 і факт 400000:", promptEn: "An estimate of 10 and an actual 400000:", options: ["Норма для будь-якого індексу", "Лікується GRANT DBA", "Означає хибний пароль", "Привід зібрати гістограму на перекошену колонку"], correctIndex: 3, explanationUk: "Без гістограми перекіс невидимий.", explanationEn: "Without a histogram the skew is invisible." },
-    { promptUk: "TABLE ACCESS FULL:", promptEn: "TABLE ACCESS FULL:", options: ["Доречний, коли потрібна велика частка рядків", "Завжди помилка", "Замінює COMMIT", "Є лише в 26ai"], correctIndex: 0, explanationUk: "Індекс кращий для малої частки.", explanationEn: "An index is better for a small fraction." },
+    { promptUk: "Після великого завантаження спочатку:", promptEn: "After a large load, first:", options: ["Видаляють усі індекси", "Перевіряють свіжість статистики", "Вимикають LGWR", "Роблять PURGE"], optionsEn: ["Drop all indexes", "Check statistics freshness", "Disable LGWR", "Run PURGE"], correctIndex: 1, explanationUk: "Кардинальність залежить від DBMS_STATS.", explanationEn: "Cardinality depends on DBMS_STATS." },
+    { promptUk: "План після EXPLAIN PLAN FOR читають:", promptEn: "After EXPLAIN PLAN FOR, the plan is read with:", options: ["EXPLAIN ANALYZE", "DROP TABLE", "DBMS_XPLAN.DISPLAY", "JSON_TABLE"], optionsEn: ["EXPLAIN ANALYZE", "DROP TABLE", "DBMS_XPLAN.DISPLAY", "JSON_TABLE"], correctIndex: 2, explanationUk: "DISPLAY показує збережений план.", explanationEn: "DISPLAY shows the stored plan." },
+    { promptUk: "Оцінка 10 і факт 400000:", promptEn: "An estimate of 10 and an actual 400000:", options: ["Норма для будь-якого індексу", "Лікується GRANT DBA", "Означає хибний пароль", "Привід перевірити статистику й розподіл, розглянути гістограму"], optionsEn: ["Normal for every index", "Fixed by GRANT DBA", "Means a bad password", "Inspect statistics and distribution; consider a histogram"], correctIndex: 3, explanationUk: "Гістограма може допомогти оцінці, але її вплив треба перевірити.", explanationEn: "A histogram can improve the estimate, but its effect should be checked." },
+    { promptUk: "TABLE ACCESS FULL:", promptEn: "TABLE ACCESS FULL:", options: ["Доречний, коли потрібна велика частка рядків", "Завжди помилка", "Замінює COMMIT", "Є лише в 26ai"], optionsEn: ["Can be appropriate when many rows are needed", "Always an error", "Replaces COMMIT", "Exists only in 26ai"], correctIndex: 0, explanationUk: "Індекс може бути вигідним для малої частки; перевіряйте план і вартість.", explanationEn: "An index can be useful for a small fraction; check the plan and cost." },
   ]),
   pack("dba-backup", "Резервні копії, відновлення і Data Pump", "Backup, recovery, and Data Pump", backup, "Контрольна: резервні копії", "Exam: backup", [
-    { promptUk: "Ручна копія відкритих data files:", promptEn: "A manual copy of open data files:", options: ["Узгоджена фізична копія", "Неузгоджений набір файлів", "Команда expdp", "Режим SYSDBA"], correctIndex: 1, explanationUk: "Файли змінюються під час копіювання.", explanationEn: "The files change during the copy." },
-    { promptUk: "Довільний момент між копіями потребує:", promptEn: "An arbitrary moment between backups needs:", options: ["NOARCHIVELOG", "Порожній кошик", "ARCHIVELOG і резервну копію", "Лише квоту UNLIMITED"], correctIndex: 2, explanationUk: "Інакше redo перезаписується.", explanationEn: "Otherwise redo is reused." },
-    { promptUk: "DROP TABLE t PURGE:", promptEn: "DROP TABLE t PURGE:", options: ["Завжди лишає FLASHBACK", "Робить RMAN", "Відкриває PDB", "Не лишає об’єкт у кошику"], correctIndex: 3, explanationUk: "PURGE обходить recycle bin.", explanationEn: "PURGE bypasses the recycle bin." },
-    { promptUk: "Data Pump:", promptEn: "Data Pump:", options: ["Логічний перенос схеми, не заміна RMAN", "Пише онлайн redo замість LGWR", "Лікує ORA-12514", "Є тригером"], correctIndex: 0, explanationUk: "expdp не відновлює втрачений диск сам.", explanationEn: "expdp does not by itself restore a lost disk." },
+    { promptUk: "Ручна копія відкритих data files:", promptEn: "A manual copy of open data files:", options: ["Узгоджена фізична копія", "Неузгоджений набір файлів", "Команда expdp", "Режим SYSDBA"], optionsEn: ["A consistent physical backup", "An inconsistent set of files", "The expdp command", "SYSDBA mode"], correctIndex: 1, explanationUk: "Файли змінюються під час копіювання.", explanationEn: "The files change during the copy." },
+    { promptUk: "Довільний момент між копіями потребує:", promptEn: "An arbitrary moment between backups needs:", options: ["NOARCHIVELOG", "Порожній кошик", "Придатну копію та повний ланцюжок потрібного redo", "Лише квоту UNLIMITED"], optionsEn: ["NOARCHIVELOG", "An empty recycle bin", "A usable backup and a complete chain of required redo", "Only UNLIMITED quota"], correctIndex: 2, explanationUk: "Інакше redo перезаписується.", explanationEn: "Otherwise redo is reused." },
+    { promptUk: "DROP TABLE t PURGE:", promptEn: "DROP TABLE t PURGE:", options: ["Завжди лишає FLASHBACK", "Робить RMAN", "Відкриває PDB", "Не лишає об’єкт у кошику"], optionsEn: ["Always leaves FLASHBACK available", "Runs RMAN", "Opens the PDB", "Does not leave the object in the recycle bin"], correctIndex: 3, explanationUk: "PURGE обходить recycle bin.", explanationEn: "PURGE bypasses the recycle bin." },
+    { promptUk: "Data Pump:", promptEn: "Data Pump:", options: ["Логічний перенос схеми, не заміна RMAN", "Пише онлайн redo замість LGWR", "Лікує ORA-12514", "Є тригером"], optionsEn: ["Logical schema transfer, not a replacement for RMAN", "Writes online redo instead of LGWR", "Fixes ORA-12514", "Is a trigger"], correctIndex: 0, explanationUk: "expdp не відновлює втрачений диск сам.", explanationEn: "expdp does not by itself restore a lost disk." },
   ]),
   pack("dba-operations", "Спостереження, супровід і підсумок", "Monitoring, maintenance, availability, and an operations capstone", operations, "Контрольна: супровід", "Exam: operations", [
-    { promptUk: "Після раптового перезапуску спочатку:", promptEn: "After a sudden restart, first:", options: ["Новий пароль у чаті", "Alert log в ADR", "Індекс на кожну колонку", "DROP USER SYS"], correctIndex: 1, explanationUk: "Журнал показує причину.", explanationEn: "The log shows the cause." },
-    { promptUk: "ORA-01653 на ORDERS у PDB:", promptEn: "ORA-01653 on ORDERS in a PDB:", options: ["Лікується планом SELECT", "Лікується паролем", "Потребує місця в просторі цієї PDB", "Означає ORA-12514"], correctIndex: 2, explanationUk: "Вільне місце кореня може бути ні до чого.", explanationEn: "Free space in the root may be irrelevant." },
-    { promptUk: "Data Guard:", promptEn: "Data Guard:", options: ["Безкоштовна галочка кожної редакції", "Заміна вільного місця", "Команда SQL", "Потребує Enterprise Edition і не лікує повний диск сьогодні"], correctIndex: 3, explanationUk: "Active Data Guard — ще й окрема опція.", explanationEn: "Active Data Guard is also a separate option." },
-    { promptUk: "Порядок аварії магазина:", promptEn: "The shop incident order:", options: ["Місце, потім блокування рядка, потім статистика звіту", "Спочатку індекс на всі колонки", "Спочатку PURGE", "Спочатку роль DBA застосунку"], correctIndex: 0, explanationUk: "Мертвий запис важливіший за повільне читання.", explanationEn: "A dead write matters more than a slow read." },
+    { promptUk: "Після раптового перезапуску спочатку:", promptEn: "After a sudden restart, first:", options: ["Новий пароль у чаті", "Alert log в ADR", "Індекс на кожну колонку", "DROP USER SYS"], optionsEn: ["A new password in chat", "The alert log in ADR", "An index on every column", "DROP USER SYS"], correctIndex: 1, explanationUk: "Журнал може дати ознаки причини; їх потрібно перевірити.", explanationEn: "The log can suggest a cause; corroborate it." },
+    { promptUk: "ORA-01653 на ORDERS у PDB:", promptEn: "ORA-01653 on ORDERS in a PDB:", options: ["Лікується планом SELECT", "Лікується паролем", "Потребує місця в просторі цієї PDB", "Означає ORA-12514"], optionsEn: ["Fixed by a SELECT plan", "Fixed by a password", "Needs space in this PDB tablespace", "Means ORA-12514"], correctIndex: 2, explanationUk: "Вільне місце кореня може бути ні до чого.", explanationEn: "Free space in the root may be irrelevant." },
+    { promptUk: "Data Guard:", promptEn: "Data Guard:", options: ["Безкоштовна галочка кожної редакції", "Заміна вільного місця", "Команда SQL", "Потребує Enterprise Edition і не лікує повний диск сьогодні"], optionsEn: ["A free feature in every edition", "A replacement for free space", "A SQL command", "Requires Enterprise Edition and does not fix a full disk today"], correctIndex: 3, explanationUk: "Active Data Guard — ще й окрема опція.", explanationEn: "Active Data Guard is also a separate option." },
+    { promptUk: "Порядок аварії магазина:", promptEn: "The shop incident order:", options: ["Місце, потім блокування рядка, потім статистика звіту", "Спочатку індекс на всі колонки", "Спочатку PURGE", "Спочатку роль DBA застосунку"], optionsEn: ["Space, then row locking, then report statistics", "First index every column", "First run PURGE", "First grant DBA to the application"], correctIndex: 0, explanationUk: "Мертвий запис важливіший за повільне читання.", explanationEn: "A dead write matters more than a slow read." },
   ]),
 ];

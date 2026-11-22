@@ -47,4 +47,21 @@ describe("deep chess FEN validation", () => {
     expect(result.lessons).toBeGreaterThanOrEqual(30);
     expect(result.puzzles).toBeGreaterThanOrEqual(40);
   });
+
+  it("every chess position and authored solution can be played", async () => {
+    const result = validateItems(await loadChess(), collect(chessContent.units));
+    expect(result.failures, JSON.stringify(result.failures, null, 2)).toEqual([]);
+  });
+
+  it("the introductory fork attacks both king and rook after the solution", async () => {
+    const Chess = await loadChess();
+    const puzzle = chessContent.units.flatMap((unit) => unit.lessons).flatMap((lesson) => lesson.exercises)
+      .find((exercise) => exercise.id === "ch-t2");
+    expect(puzzle?.type).toBe("chess_puzzle");
+    if (!puzzle || puzzle.type !== "chess_puzzle") throw new Error("Missing fork puzzle");
+    const game = new Chess(puzzle.fen);
+    game.move(puzzle.solutionSans[0]);
+    expect(game.isCheck()).toBe(true);
+    expect(game.attackers("a8", "w")).toContain("c7");
+  });
 });
