@@ -23,13 +23,13 @@ const newUnits: UnitContent[] = [
             "bodyEn": "The Present Perfect is formed with have or has plus the past participle (the third form): I have visited, she has finished, they have gone. Use have with I, you, we, they; has with he, she, it. The negative is have not / has not (haven't, hasn't). Questions: Have you finished? Has she arrived?\n\nUkrainian has no separate tense with the same logic. “I have already seen this film” and “I saw this film yesterday” may look similar in Ukrainian, but English chooses the tense: Present Perfect when the past event is tied to now, Past Simple when the time is a finished moment.\n\nThe most common error for Ukrainian speakers is using Past Simple (I saw, I did) where English wants Present Perfect, or adding have next to a finished-time phrase such as yesterday. Remember: Present Perfect is always have/has + past participle, and it does not combine with finished-time markers like yesterday, in 2019, or last week. Also do not confuse lexical have (“I have a car”) with auxiliary have (“I have bought a car”).",
             "keyPointsUk": [
               "Форма: have/has + Past Participle (V3)",
-              "has — лише для he/she/it",
+              "has — з he/she/it та іменниками в однині",
               "Не ставити Present Perfect з yesterday / in 2019",
               "have як «мати» — це не Present Perfect"
             ],
             "keyPointsEn": [
               "Form: have/has + past participle (V3)",
-              "has is only for he/she/it",
+              "has goes with he/she/it and singular noun subjects",
               "Do not use Present Perfect with yesterday / in 2019",
               "have meaning “possess” is not the Present Perfect"
             ]
@@ -59,6 +59,14 @@ const newUnits: UnitContent[] = [
               "have",
               "Have"
             ]
+          },
+          {
+            "id": "en-d-pp-form-r2a",
+            "type": "fill_blank",
+            "promptUk": "Вставте допоміжне дієслово з підметом в однині.",
+            "promptEn": "Insert the auxiliary for a singular subject.",
+            "sentence": "The train ___ arrived at the station.",
+            "accepted": ["has"]
           },
           {
             "id": "en-d-pp-form-r3",
@@ -156,8 +164,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Маркери Present Perfect",
             "promptEn": "Present Perfect markers",
-            "bodyUk": "Кілька прислівників майже «кличуть» Present Perfect. since називає початкову точку (since Monday, since 2020, since I arrived). for називає тривалість (for two hours, for a long time). Українською обидва часто перекладають «вже …», тож їх легко переплутати: since Friday — від п'ятниці, for three days — протягом трьох днів.\n\nalready (вже, раніше ніж очікували) зазвичай стоїть між have і V3: I have already eaten. yet (уже / ще) вживають у питаннях і запереченнях, здебільшого в кінці: Have you finished yet? I haven't finished yet. just (щойно) теж між have і V3: She has just called.\n\never (коли-небудь) і never (ніколи) описують досвід за життя: Have you ever been to Lviv? I have never tried sushi. Типова помилка: ставити already у запереченні замість yet (*I haven't already finished) або казати *since two weeks замість for two weeks. Ще одна: *I live here since 2019 — потрібно I have lived / have been living here since 2019.",
-            "bodyEn": "A few adverbials almost “call for” the Present Perfect. since names a starting point (since Monday, since 2020, since I arrived). for names a duration (for two hours, for a long time). In Ukrainian both often sound like “already …”, so they are easy to mix up: since Friday is a starting point; for three days is a period.\n\nalready (sooner than expected) usually sits between have and the past participle: I have already eaten. yet is used in questions and negatives, usually at the end: Have you finished yet? I haven't finished yet. just (a moment ago) also goes between have and V3: She has just called.\n\never and never describe life experience: Have you ever been to Lviv? I have never tried sushi. Typical mistakes: already in a negative instead of yet (*I haven't already finished), and *since two weeks instead of for two weeks. Another frequent error is *I live here since 2019 — English wants I have lived / have been living here since 2019.",
+            "bodyUk": "Since називає початкову точку (since Monday, since 2020, since I arrived), а for — тривалість (for two hours, for a long time). Ці слова можливі й з іншими часами; Present Perfect підходить, коли період триває до теперішнього: I have lived here since 2019.\n\nAlready зазвичай стоїть між have і V3: I have already eaten. Yet часто стоїть наприкінці питань і заперечень: Have you finished yet? I haven't finished yet. Just у значенні «щойно» часто стоїть між have і V3: She has just called. В інших контекстах ці слова можуть мати інші позиції чи значення.\n\nEver і never допомагають говорити про досвід: Have you ever been to Lviv? I have never tried sushi. Для тривалості кажіть for two weeks, а не since two weeks; для початку періоду — since Monday.",
+            "bodyEn": "Since names a starting point (since Monday, since 2020, since I arrived), while for names a duration (for two hours, for a long time). These words also occur with other tenses; Present Perfect fits when the period continues up to now: I have lived here since 2019.\n\nAlready usually goes between have and the past participle: I have already eaten. Yet often comes at the end of questions and negatives: Have you finished yet? I haven't finished yet. Just meaning 'a moment ago' often goes between have and the participle: She has just called. In other contexts these words can have different positions or meanings.\n\nEver and never help describe experience: Have you ever been to Lviv? I have never tried sushi. For a duration say for two weeks, not since two weeks; for a starting point say since Monday.",
             "keyPointsUk": [
               "since — точка старту; for — тривалість",
               "already / just — між have і V3",
@@ -352,8 +360,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-pp-vs-past-r4",
             "type": "translate",
-            "promptUk": "Перекладіть. День ще не закінчився.",
-            "promptEn": "Translate. The day is not over yet.",
+            "promptUk": "Перекладіть у Present Perfect. День ще не закінчився.",
+            "promptEn": "Translate using Present Perfect. The day is not over yet.",
             "source": "Сьогодні я написав три листи.",
             "accepted": [
               "I have written three emails today",
@@ -452,8 +460,8 @@ const newUnits: UnitContent[] = [
               "She has go to Prague."
             ],
             "correctIndex": 0,
-            "explanationUk": "has gone — вона пішла і ще там.",
-            "explanationEn": "has gone means she left and is still there."
+            "explanationUk": "Has gone означає, що вона поїхала і ще не повернулася; вона може бути в дорозі або в Празі.",
+            "explanationEn": "Has gone means she left and has not returned; she may be on the way or in Prague."
           },
           {
             "id": "en-d-pp-been-gone-r2",
@@ -559,16 +567,16 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Новина, today і this week",
             "promptEn": "News, today and this week",
-            "bodyUk": "Present Perfect часто подає «гарячу новину»: The train has just arrived. The company has announced a new office in Lviv. Слухач має сприйняти подію як актуальну. У новинах заголовки часто саме в Present Perfect, а деталі з датою вже в Past Simple: The president has resigned. He announced it at noon.\n\nНезавершений період — другий важливий випадок: today, this morning (якщо ранок ще триває), this week, this year, recently, so far, until now, over the last few days. I have drunk three coffees today — день не закінчився, тому можна додати ще. Якщо ранок уже минув і ви говорите ввечері, this morning поводиться як закінчений час: I drank three coffees this morning.\n\nRecently і lately майже завжди йдуть з Present Perfect: I have recently changed jobs. Типова помилка — *I have done it last week (last week уже закритий) і *I did three reports this week, коли тиждень ще триває й ви підбиваєте підсумок дотепер (краще I have done three reports this week).",
-            "bodyEn": "Present Perfect often delivers “hot news”: The train has just arrived. The company has announced a new office in Lviv. The listener should take the event as current. News headlines often use Present Perfect, then switch to Past Simple for dated details: The president has resigned. He announced it at noon.\n\nAn unfinished time period is the second key case: today, this morning (if the morning is still in progress), this week, this year, recently, so far, until now, over the last few days. I have drunk three coffees today — the day is not over, so another coffee is still possible. If the morning has already passed and you are speaking in the evening, this morning behaves like finished time: I drank three coffees this morning.\n\nrecently and lately almost always take Present Perfect: I have recently changed jobs. Typical mistakes are *I have done it last week (last week is closed) and *I did three reports this week when the week is still running and you are giving a total so far (prefer I have done three reports this week).",
+            "bodyUk": "Present Perfect часто повідомляє актуальну новину: The train has just arrived. Далі конкретний закінчений час зазвичай передають Past Simple: The president has resigned. He announced it at noon. Новинні заголовки також часто використовують скорочені форми, наприклад President resigns.\n\nДля підсумку незавершеного періоду можна сказати I have written three reports this week. Якщо говорити про завершену частину тижня, можливе і I wrote three reports this week. This morning увечері зазвичай означає завершений період: I drank two coffees this morning.\n\nRecently та lately часто трапляються з Present Perfect, але recently може стояти і з Past Simple: I recently changed jobs. Окремий завершений час last week у звичайному значенні потребує Past Simple: I did it last week.",
+            "bodyEn": "Present Perfect often announces current news: The train has just arrived. A specific finished time in the details usually takes Past Simple: The president has resigned. He announced it at noon. Headlines also often use abbreviated forms such as President resigns.\n\nFor a total over an unfinished period, say I have written three reports this week. When referring to a completed part of the week, I wrote three reports this week is also possible. In the evening, this morning usually identifies a finished period: I drank two coffees this morning.\n\nRecently and lately often occur with Present Perfect, but recently can also accompany Past Simple: I recently changed jobs. A separate finished time such as last week normally takes Past Simple: I did it last week.",
             "keyPointsUk": [
-              "Гаряча новина — Present Perfect; деталі з часом — Past Simple",
+              "Актуальну новину можна подати в Present Perfect; деталі із закінченим часом — у Past Simple",
               "today, this week, so far — незавершений період",
               "this morning залежить від того, чи ранок ще триває",
               "last week не сполучається з Present Perfect"
             ],
             "keyPointsEn": [
-              "Hot news takes Present Perfect; dated details take Past Simple",
+              "Current news can use Present Perfect; finished-time details use Past Simple",
               "today, this week, so far are unfinished periods",
               "this morning depends on whether the morning is still in progress",
               "last week does not combine with Present Perfect"
@@ -592,14 +600,11 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-pp-just-news-r2",
             "type": "fill_blank",
-            "promptUk": "Вставте правильну форму дієслова write (одне або два слова).",
-            "promptEn": "Fill in the correct form of write (one or two words).",
+            "promptUk": "Вставте повну форму Present Perfect дієслова write (два слова).",
+            "promptEn": "Insert the full Present Perfect form of write (two words).",
             "sentence": "I ___ three reports so far this week.",
             "accepted": [
-              "have written",
-              "Have written",
-              "'ve written",
-              "have wrote"
+              "have written"
             ]
           },
           {
@@ -757,8 +762,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-deep-perfect-exam-q5",
             "type": "fill_blank",
-            "promptUk": "Вставте yet або already.",
-            "promptEn": "Insert yet or already.",
+            "promptUk": "Нейтрально запитайте, чи звіт уже готовий: вставте звичне слово наприкінці питання (yet або already).",
+            "promptEn": "Ask neutrally whether the report is ready: insert the usual word at the end of the question (yet or already).",
             "sentence": "Have you finished the report ___?",
             "accepted": [
               "yet",
@@ -786,26 +791,26 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "have/has been + V-ing",
             "promptEn": "have/has been + V-ing",
-            "bodyUk": "Present Perfect Continuous: have/has been + дієслово з -ing. I have been waiting for an hour. She has been working here since May. Наголос на самій діяльності, яка почалася раніше й триває дотепер (або щойно зупинилась, але видно слід: You look tired. I have been running).\n\nДля українськомовних це знову «невидимий» час: ми скажемо «я чекаю вже годину» теперішнім, а англійська вимагає have been waiting, бо є і тривалість, і зв'язок із зараз. Не кажіть *I am waiting for an hour і не *I wait here since morning.\n\nЗаперечення: I haven't been sleeping well. Питання: How long have you been studying English? How long — дуже типовий супутник цього часу. Станні дієслова (know, have у значенні «мати», like, believe) зазвичай не ставлять у Continuous: не *I have been knowing her, а I have known her for years.",
-            "bodyEn": "Present Perfect Continuous is have/has been + verb-ing. I have been waiting for an hour. She has been working here since May. The focus is on the activity itself, which started earlier and continues until now (or has just stopped, with a visible result: You look tired. I have been running).\n\nFor Ukrainian speakers this is another “invisible” tense: we may say “I have been waiting for an hour” with a present form in Ukrainian, but English wants have been waiting because there is both duration and a link to now. Do not say *I am waiting for an hour or *I wait here since morning.\n\nThe negative is I haven't been sleeping well. Questions: How long have you been studying English? How long is a very typical partner of this tense. Stative verbs (know, have meaning “possess”, like, believe) do not usually take Continuous: not *I have been knowing her, but I have known her for years.",
+            "bodyUk": "Present Perfect Continuous утворюється з have/has been + дієслово з -ing: I have been waiting for an hour. She has been working here since May. Час наголошує на діяльності, що почалася раніше й триває дотепер або нещодавно завершилася: You look tired. I have been running.\n\nДля очікування, яке почалося годину тому і триває зараз, скажіть I have been waiting for an hour. I am waiting for an hour може описувати заплановану тривалість, а не час очікування до цього моменту.\n\nЗаперечення: I haven't been sleeping well. Питання: How long have you been studying English? Дієслова стану, наприклад know або have у значенні володіння, зазвичай не вживають у Continuous: I have known her for years.",
+            "bodyEn": "Present Perfect Continuous uses have/has been + verb-ing: I have been waiting for an hour. She has been working here since May. It focuses on an activity that started earlier and continues until now or recently stopped: You look tired. I have been running.\n\nFor a wait that began an hour ago and continues now, say I have been waiting for an hour. I am waiting for an hour can describe a planned duration rather than the time spent waiting so far.\n\nThe negative is I haven't been sleeping well. A common question is How long have you been studying English? Stative verbs such as know or have meaning possession do not usually take Continuous: I have known her for years.",
             "keyPointsUk": [
               "Форма: have/has been + V-ing",
               "Наголос на тривалій діяльності дотепер",
               "How long…? — типовий супутник",
-              "Станні дієслова (know, like) — не в Continuous"
+              "Дієслова стану зазвичай не вживають у Continuous"
             ],
             "keyPointsEn": [
               "Form: have/has been + V-ing",
               "The focus is on an activity continuing up to now",
               "How long…? is a typical partner",
-              "Stative verbs (know, like) do not take Continuous"
+              "Stative verbs do not usually take Continuous"
             ]
           },
           {
             "id": "en-d-ppc-form-r1",
             "type": "mcq",
-            "promptUk": "Оберіть правильну форму: I ___ for the bus for twenty minutes.",
-            "promptEn": "Choose the correct form: I ___ for the bus for twenty minutes.",
+            "promptUk": "Ви почали чекати двадцять хвилин тому й досі чекаєте. Оберіть форму: I ___ for the bus for twenty minutes.",
+            "promptEn": "You started waiting twenty minutes ago and are still waiting. Choose the form: I ___ for the bus for twenty minutes.",
             "options": [
               "have been waiting",
               "am waiting",
@@ -912,19 +917,19 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Процес проти результату",
             "promptEn": "Process versus result",
-            "bodyUk": "Порівняйте: I have been writing the report (процес, можливо, ще не готовий; видно втому чи зайнятість) і I have written the report (результат: звіт готовий). I have been reading this book all week (заглиблений у процес) проти I have read this book (прочитав цілком, є досвід / результат).\n\nЯкщо важлива кількість завершеного — зазвичай Simple: I have written five emails, I have read forty pages. Якщо важлива тривалість діяльності — Continuous: I have been writing emails all morning. How much / how many тягнуть Simple; how long — часто Continuous.\n\nДієслова live, work, study, teach допускають обидва варіанти з майже однаковим значенням: I have lived / have been living here for ten years. Різниця невелика. Не ставте Continuous, коли дія не може «тривати на очах» як процес завершеного підсумку: *I have been breaking my arm — ні, I have broken my arm (результат).",
-            "bodyEn": "Compare: I have been writing the report (the process; it may not be finished; we notice tiredness or busyness) and I have written the report (the result: the report is done). I have been reading this book all week (absorbed in the process) versus I have read this book (finished it; experience or a completed result).\n\nWhen the amount completed matters, Simple is usual: I have written five emails, I have read forty pages. When the duration of the activity matters, Continuous is usual: I have been writing emails all morning. How much / how many pull towards Simple; how long often pulls towards Continuous.\n\nWith live, work, study, teach both forms are often possible with almost the same meaning: I have lived / have been living here for ten years. The difference is small. Do not use Continuous when the verb is not a visible ongoing process but a finished result: *I have been breaking my arm is wrong; I have broken my arm (result).",
+            "bodyUk": "Порівняйте: I have been writing the report наголошує на процесі й не повідомляє, чи звіт готовий; I have written the report підкреслює завершений результат. Continuous не означає автоматично, що роботу не завершено.\n\nКількість завершеного зазвичай передають Simple: I have written five emails. Тривалість діяльності часто підкреслює Continuous: I have been writing emails all morning. Із live, work, study обидві форми часто можливі: I have lived / have been living here for ten years; Continuous може сильніше підкреслювати тривалість або тимчасовість.\n\nДля окремого завершеного результату природно сказати I have broken my arm. Інші контексти можуть описувати повторювану дію за допомогою Continuous, тому важливо зважати на значення речення.",
+            "bodyEn": "Compare: I have been writing the report emphasizes the process and does not say whether the report is finished; I have written the report emphasizes the completed result. Continuous does not automatically mean the work is unfinished.\n\nA completed quantity usually takes Simple: I have written five emails. Continuous often emphasizes the duration of an activity: I have been writing emails all morning. With live, work and study both forms are often possible: I have lived / have been living here for ten years; Continuous may emphasize duration or temporary circumstances.\n\nFor one completed result, I have broken my arm is natural. Other contexts can use Continuous to describe repeated activity, so consider the meaning of the sentence.",
             "keyPointsUk": [
               "Continuous — процес і тривалість; Simple — результат і кількість",
               "How many / how much → часто Simple; how long → часто Continuous",
               "live, work, study — обидві форми часто можливі",
-              "Результат на кшталт broken arm — лише Simple"
+              "Simple часто підкреслює один завершений результат"
             ],
             "keyPointsEn": [
               "Continuous is process and duration; Simple is result and quantity",
               "How many / how much often take Simple; how long often takes Continuous",
               "live, work, study often allow both forms",
-              "A result such as a broken arm takes Simple only"
+              "Simple often emphasizes one completed result"
             ]
           },
           {
@@ -950,7 +955,7 @@ const newUnits: UnitContent[] = [
             "options": [
               "I have been answering emails all morning.",
               "I have answered emails all morning, and the number does not matter here.",
-              "I have been answering five emails.",
+              "I have been answer emails all morning.",
               "I am answering emails since morning."
             ],
             "correctIndex": 0,
@@ -971,14 +976,12 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-ppc-vs-pp-r4",
             "type": "translate",
-            "promptUk": "Перекладіть. Наголос на процесі (вигляд: людина втомлена).",
-            "promptEn": "Translate. The focus is the process (the person looks tired).",
-            "source": "Я біг. (щойно, тому я спітнілий)",
+            "promptUk": "Перекладіть у Present Perfect Continuous: ви нещодавно бігали, і це помітно зараз.",
+            "promptEn": "Translate using Present Perfect Continuous: you recently ran and the evidence is visible now.",
+            "source": "Я біг.",
             "accepted": [
               "I have been running",
-              "I've been running",
-              "I have been running, that's why I'm tired",
-              "I've been running, that's why I'm tired"
+              "I've been running"
             ],
             "direction": "uk_en"
           },
@@ -1219,8 +1222,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-ppc-past-r3",
             "type": "mcq",
-            "promptUk": "Яке речення описує одночасність, а не «процес до минулої точки»?",
-            "promptEn": "Which sentence describes simultaneity, not “a process up to a past point”?",
+            "promptUk": "Яке речення використовує Past Continuous для дії, що тривала в момент входу, без зазначення її попередньої тривалості?",
+            "promptEn": "Which sentence uses Past Continuous for an activity in progress when I entered, without specifying its previous duration?",
             "options": [
               "He was reading when I entered.",
               "He had been reading for two hours when I entered.",
@@ -1228,8 +1231,8 @@ const newUnits: UnitContent[] = [
               "I was tired because I had been reading all day."
             ],
             "correctIndex": 0,
-            "explanationUk": "was reading when I entered — дві дії в той самий минулий момент.",
-            "explanationEn": "was reading when I entered is two actions at the same past moment."
+            "explanationUk": "Was reading показує дію в момент входу. Had been reading може теж охоплювати цей момент, але додатково висвітлює попередню тривалість.",
+            "explanationEn": "Was reading shows an activity in progress on entry. Had been reading can include that moment too, but also highlights the preceding duration."
           },
           {
             "id": "en-d-ppc-past-r4",
@@ -1248,8 +1251,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-ppc-past-e",
             "type": "explain",
-            "promptUk": "Що описує Past Perfect Continuous і як його утворити? Чим він відрізняється від Past Continuous (was reading when I entered)?",
-            "promptEn": "What does Past Perfect Continuous describe and how is it formed? How is it different from Past Continuous (was reading when I entered)?",
+            "promptUk": "Що описує Past Perfect Continuous і як його утворити? Порівняйте його акцент із Past Continuous (was reading when I entered).",
+            "promptEn": "What does Past Perfect Continuous describe and how is it formed? Compare its emphasis with Past Continuous (was reading when I entered).",
             "keyIdeas": [
               {
                 "labelUk": "форма",
@@ -1286,8 +1289,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Past Perfect Continuous має форму had been і дієслово з -ing. Він описує процес, який тривав до певного минулого моменту, наприклад he had been waiting for an hour. Past Continuous на кшталт was reading when I entered показує одночасність, а не раніший процес.",
-            "sampleAnswerEn": "Past Perfect Continuous is formed with had been and a verb with -ing. It describes a process that continued up to a past moment, for example he had been waiting for an hour. Past Continuous such as was reading when I entered shows simultaneity, not an earlier process."
+            "sampleAnswerUk": "Past Perfect Continuous має форму had been і дієслово з -ing. Він підкреслює процес до певного минулого моменту, наприклад he had been waiting for an hour. Past Continuous was reading when I entered показує дію в момент входу, не уточнюючи її попередньої тривалості.",
+            "sampleAnswerEn": "Past Perfect Continuous is formed with had been and a verb with -ing. It emphasizes a process up to a past moment, for example he had been waiting for an hour. Past Continuous in was reading when I entered shows the action in progress on entry without specifying its previous duration."
           }
         ]
       },
@@ -1303,19 +1306,19 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Мікс минулих часів у короткій історії",
             "promptEn": "A mix of past tenses in a short story",
-            "bodyUk": "Коротка англійська оповідь зазвичай тримається на чотирьох часах. Past Simple — кістяк подій: I walked in, I sat down, I ordered coffee. Past Continuous — фон і незавершені дії в той момент: People were talking. It was raining. Past Perfect — те, що сталося ще раніше: I realised I had left my wallet at home. Present Perfect у середині вчорашньої історії майже ніколи не потрібен.\n\nАлгоритм: 1) намалюйте головну лінію в Past Simple; 2) додайте фон у Past Continuous; 3) якщо треба «заглянути ще раніше» — Past Perfect (іноді Continuous). Не стрибайте в present, якщо історія вже в минулому, окрім прямої мови: She said, “I'm tired.”\n\nТипові помилки: увесь текст у Past Perfect; Present Perfect із yesterday; фон у Past Simple там, де дія ще тривала (When I arrived, they watched TV замість they were watching TV). Перечитайте історію і позначте три шари: лінія, фон, раніше.",
-            "bodyEn": "A short English narrative usually rests on four tense choices. Past Simple is the backbone of events: I walked in, I sat down, I ordered coffee. Past Continuous is the background and actions in progress at that moment: People were talking. It was raining. Past Perfect is what happened even earlier: I realised I had left my wallet at home. Present Perfect is almost never needed in the middle of a yesterday-story.\n\nA method: 1) draw the main line in Past Simple; 2) add background in Past Continuous; 3) if you must “look further back”, use Past Perfect (sometimes Continuous). Do not jump to a present tense if the story is already in the past, except in direct speech: She said, “I'm tired.”\n\nTypical mistakes: writing the whole text in Past Perfect; Present Perfect with yesterday; Past Simple for background that was still in progress (When I arrived, they watched TV instead of they were watching TV). Reread the story and mark three layers: main line, background, earlier.",
+            "bodyUk": "У розповіді Past Simple часто веде лінію подій: I walked in, I sat down. Past Continuous показує фон або дію в процесі: People were talking. Past Perfect допомагає повернутися до ранішої події: I realised I had left my wallet at home.\n\nПорівняйте When I arrived, they were watching TV (у момент мого приходу вони вже дивилися) і When I arrived, they watched TV (це може означати, що вони почали дивитися після мого приходу). Вибір залежить від того, що ви хочете сказати.\n\nРозповідь може повернутися до теперішнього для коментаря про актуальний наслідок: I lost my keys yesterday, and I still haven't found them. Також теперішній час може з'явитися у прямій мові: She said, “I'm tired.”",
+            "bodyEn": "In a narrative, Past Simple often carries the event line: I walked in, I sat down. Past Continuous shows background or an action in progress: People were talking. Past Perfect can take us back to an earlier event: I realised I had left my wallet at home.\n\nCompare When I arrived, they were watching TV (they were already watching at my arrival) with When I arrived, they watched TV (this can mean they started watching after I arrived). The choice depends on what you mean.\n\nA story can return to the present for a comment on a current result: I lost my keys yesterday, and I still haven't found them. Present tense can also appear in direct speech: She said, “I'm tired.”",
             "keyPointsUk": [
               "Past Simple — лінія подій",
               "Past Continuous — фон і процес у той момент",
               "Past Perfect — ще раніше від лінії",
-              "Present Perfect не для вчорашньої оповіді"
+              "Present Perfect може додати коментар про теперішній наслідок"
             ],
             "keyPointsEn": [
               "Past Simple is the event line",
               "Past Continuous is background and process at that moment",
               "Past Perfect is earlier than the event line",
-              "Present Perfect is not for a yesterday narrative"
+              "Present Perfect can add a comment about a present result"
             ]
           },
           {
@@ -1370,16 +1373,16 @@ const newUnits: UnitContent[] = [
             "promptUk": "Чому в оповіді про вчора майже немає Present Perfect?",
             "promptEn": "Why is there almost no Present Perfect in a story about yesterday?",
             "options": [
-              "Бо історія замкнена в закінченому минулому, а Present Perfect зв'язує подію з теперішнім.",
+              "Бо події із зазначеним учора зазвичай подають у Past Simple; коментар про результат зараз може мати Present Perfect.",
               "Бо Present Perfect заборонений у художніх текстах взагалі.",
               "Бо в англійській немає Present Perfect.",
               "Бо yesterday завжди вимагає Future Perfect."
             ],
             "correctIndex": 0,
-            "explanationUk": "Present Perfect тримає зв'язок із зараз; вчорашня оповідь цього не робить.",
-            "explanationEn": "Present Perfect keeps a link to now; a yesterday story does not.",
+            "explanationUk": "Події, прив'язані до завершеного вчора, зазвичай передають Past Simple; окремий коментар про їхній актуальний наслідок може використати Present Perfect.",
+            "explanationEn": "Events anchored to a finished yesterday normally use Past Simple; a separate comment about their current result may use Present Perfect.",
             "optionsEn": [
-              "Because the story is locked in a finished past, while Present Perfect links an event to the present.",
+              "Because events anchored to yesterday normally use Past Simple; a comment about the current result can use Present Perfect.",
               "Because Present Perfect is banned in all fiction.",
               "Because English has no Present Perfect.",
               "Because yesterday always requires Future Perfect."
@@ -1534,19 +1537,19 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "was/were + V-ing",
             "promptEn": "was/were + V-ing",
-            "bodyUk": "Past Continuous: was (I, he, she, it) або were (you, we, they) + дієслово з -ing. I was cooking at seven. They were discussing the bug. Час малює «кадр»: дія вже почалася, ще не закінчилась у той минулий момент.\n\nВ українській часто досить минулого («я готував о сьомій»), тож форму легко забути. Питання: What were you doing at seven? Заперечення: I wasn't sleeping. Станні дієслова знову рідко йдуть у Continuous: не *I was knowing the answer, а I knew the answer.\n\nPast Continuous також описує тимчасові ситуації в минулому (I was living in Kyiv that summer) і ввічливі запитання: I was wondering if you could help. Не використовуйте його як основну лінію завершених подій: *Yesterday I was getting up, I was having breakfast, I was going to work — для послідовності потрібен Past Simple.",
-            "bodyEn": "Past Continuous is was (I, he, she, it) or were (you, we, they) plus verb-ing. I was cooking at seven. They were discussing the bug. The tense paints a “still”: the action had started and had not finished at that past moment.\n\nUkrainian often uses a simple past (“I was cooking at seven”), so the form is easy to forget. Questions: What were you doing at seven? Negatives: I wasn't sleeping. Stative verbs again rarely take Continuous: not *I was knowing the answer, but I knew the answer.\n\nPast Continuous also describes temporary past situations (I was living in Kyiv that summer) and polite enquiries: I was wondering if you could help. Do not use it as the main line of completed events: *Yesterday I was getting up, I was having breakfast, I was going to work — a sequence needs Past Simple.",
+            "bodyUk": "Past Continuous утворюється з was (I, he, she, it) або were (you, we, they) і дієслова з -ing: I was cooking at seven. Він показує дію в процесі в певний минулий момент.\n\nПитання: What were you doing at seven? Заперечення: I wasn't sleeping. Дієслова стану рідко вживають у Continuous: I knew the answer, а не *I was knowing the answer.\n\nЦя форма також описує тимчасові ситуації (I was living in Kyiv that summer) та ввічливі запитання (I was wondering if you could help). Для звичайної послідовності завершених подій природний Past Simple: Yesterday I got up, had breakfast and went to work. Continuous у розповіді може додати фон або підкреслити процес, якщо це потрібно за змістом.",
+            "bodyEn": "Past Continuous uses was (I, he, she, it) or were (you, we, they) plus verb-ing: I was cooking at seven. It shows an activity in progress at a past moment.\n\nQuestions: What were you doing at seven? Negatives: I wasn't sleeping. Stative verbs rarely take Continuous: I knew the answer, not *I was knowing the answer.\n\nThe form also describes temporary situations (I was living in Kyiv that summer) and polite enquiries (I was wondering if you could help). Past Simple is natural for an ordinary sequence of completed events: Yesterday I got up, had breakfast and went to work. Continuous can add background or emphasize a process when the meaning calls for it.",
             "keyPointsUk": [
               "was/were + V-ing: дія в процесі в минулий момент",
               "was — I/he/she/it; were — you/we/they",
               "Станні дієслова — зазвичай Past Simple",
-              "Не розповідати всю вчорашню послідовність у Continuous"
+              "Завершену послідовність часто передають Past Simple"
             ],
             "keyPointsEn": [
               "was/were + V-ing: an action in progress at a past moment",
               "was for I/he/she/it; were for you/we/they",
               "Stative verbs usually take Past Simple",
-              "Do not tell a whole yesterday-sequence in Continuous"
+              "A completed sequence is often told in Past Simple"
             ]
           },
           {
@@ -1609,8 +1612,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-past-cont-e",
             "type": "explain",
-            "promptUk": "Як утворюється Past Continuous і що він описує? Чому ним не можна розповісти всю послідовність вчорашнього дня?",
-            "promptEn": "How is Past Continuous formed and what does it describe? Why can't you tell a whole yesterday-sequence with it?",
+            "promptUk": "Як утворюється Past Continuous і що він описує? Який час зазвичай обирають для простої послідовності завершених подій?",
+            "promptEn": "How is Past Continuous formed and what does it describe? Which tense is usually chosen for a simple sequence of completed events?",
             "keyIdeas": [
               {
                 "labelUk": "форма",
@@ -1647,8 +1650,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Past Continuous утворюється з was або were і дієсловом з -ing. Він описує дію в процесі в певний минулий момент. Усю послідовність вчорашнього дня розповідають Past Simple, а не Continuous.",
-            "sampleAnswerEn": "Past Continuous is formed with was or were and a verb with -ing. It describes an action in progress at a past moment. A whole yesterday sequence is told in Past Simple, not in Continuous."
+            "sampleAnswerUk": "Past Continuous утворюється з was або were і дієсловом з -ing. Він описує дію в процесі в певний минулий момент. Для простої послідовності завершених подій зазвичай використовують Past Simple.",
+            "sampleAnswerEn": "Past Continuous is formed with was or were and a verb with -ing. It describes an action in progress at a past moment. Past Simple usually carries a simple sequence of completed events."
           }
         ]
       },
@@ -1664,8 +1667,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Переривання і фон",
             "promptEn": "Interruption and background",
-            "bodyUk": "Класична пара: I was taking a shower when the phone rang. Тривала дія (Continuous) і коротке переривання (Simple). When I entered, they were still arguing — фон триває, вхід — точка на лінії.\n\nСхеми: 1) довший процес + коротка подія: She was crossing the street when she saw her friend. 2) два паралельні процеси: I was cooking while he was setting the table. 3) проста послідовність без фону: I entered, I sat down, I opened the laptop — лише Simple.\n\nТипова помилка: поміняти часи місцями (*The phone was ringing when I was picking it up задумом «телефон задзвонив» — якщо це коротка подія, досить The phone rang while I was cooking). Інша: When I arrived, they had dinner замість they were having dinner, якщо вечеря ще тривала. Дивіться, що є «точкою», а що — «стрічкою».",
-            "bodyEn": "The classic pair is I was taking a shower when the phone rang. A longer action (Continuous) and a short interruption (Simple). When I entered, they were still arguing — the background continues; the entrance is a point on the event line.\n\nPatterns: 1) a longer process plus a short event: She was crossing the street when she saw her friend. 2) two parallel processes: I was cooking while he was setting the table. 3) a plain sequence with no background: I entered, I sat down, I opened the laptop — Simple only.\n\nA typical mistake is swapping the tenses (*The phone was ringing when I was picking it up meant as “the phone rang” — if it is a short event, The phone rang while I was cooking is enough). Another: When I arrived, they had dinner instead of they were having dinner if dinner was still in progress. Decide what is a “point” and what is a “ribbon”.",
+            "bodyUk": "I was taking a shower when the phone rang поєднує дію в процесі з подією, що сталася в цей час. When I entered, they were still arguing показує суперечку, яка вже тривала в момент входу.\n\nДва процеси можуть відбуватися паралельно: I was cooking while he was setting the table. Для звичайної послідовності завершених дій природний Past Simple: I entered, sat down and opened the laptop.\n\nВибір змінює акцент: The phone rang while I was cooking повідомляє про дзвінок як подію, а The phone was ringing while I was cooking описує звук як процес на тлі готування. Обидві форми можливі в різних ситуаціях.",
+            "bodyEn": "I was taking a shower when the phone rang combines an activity in progress with an event that happened during it. When I entered, they were still arguing shows an argument already in progress when I entered.\n\nTwo processes can run in parallel: I was cooking while he was setting the table. Past Simple is natural for an ordinary sequence of completed actions: I entered, sat down and opened the laptop.\n\nThe choice changes the emphasis: The phone rang while I was cooking reports the ring as an event, while The phone was ringing while I was cooking describes the ringing as a process during cooking. Both forms are possible in different contexts.",
             "keyPointsUk": [
               "Continuous — стрічка; Simple — точка-переривання",
               "while часто з'єднує два процеси",
@@ -1921,26 +1924,26 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Раніше було так, зараз інакше",
             "promptEn": "It used to be true, and now it is not",
-            "bodyUk": "used to + інфінітив описує те, що регулярно було правдою в минулому, а тепер ні: I used to play football every weekend (більше не граю). She used to live in Odesa. I used to be shy. Це і звички, і стани (be, have, live).\n\nФорма: used to в твердженні; у запереченні didn't use to (без -d): I didn't use to like coffee. У питанні: Did you use to wear glasses? Типова помилка: *I didn't used to і *Did you used to — після did форма гола: use. Інша помилка: плутати з be used to (бути звиклі до) і get used to (звикати) — це вже інша конструкція з -ing: I am used to getting up early.\n\nused to не ставлять для одноразової минулої дії (*I used to go to the dentist yesterday). Для цього — Past Simple. Якщо звичка ще жива — Present Simple: I play football every weekend, не used to.",
-            "bodyEn": "used to + infinitive describes something that was regularly true in the past and is not true now: I used to play football every weekend (I no longer do). She used to live in Odesa. I used to be shy. It covers both habits and states (be, have, live).\n\nThe form is used to in statements; the negative is didn't use to (no -d): I didn't use to like coffee. Questions: Did you use to wear glasses? A typical mistake is *I didn't used to and *Did you used to — after did the form is bare: use. Another mistake is confusing this with be used to (be accustomed to) and get used to (become accustomed), which take -ing: I am used to getting up early.\n\nDo not use used to for a one-off past action (*I used to go to the dentist yesterday). That is Past Simple. If the habit is still alive, use Present Simple: I play football every weekend, not used to.",
+            "bodyUk": "Used to + інфінітив описує минулу звичку або стан, зазвичай із натяком, що тепер усе змінилося: I used to play football every weekend. She used to live in Odesa. I used to be shy.\n\nУ твердженні пишуть used to; у стандартному запереченні й питанні після did зазвичай пишуть use to: I didn't use to like coffee. Did you use to wear glasses? У письмі трапляється і used після did, але для вправ цього курсу використовуйте стандартну форму use.\n\nBe used to означає «бути звиклим до», get used to — «звикати до»; після to тут стоїть іменник або -ing: I am used to the cold / getting up early. Для одноразової дії вчора зазвичай використовують Past Simple, а не used to.",
+            "bodyEn": "Used to + infinitive describes a past habit or state, usually implying that it is no longer true: I used to play football every weekend. She used to live in Odesa. I used to be shy.\n\nUse used to in statements; in standard negatives and questions after did, usually write use to: I didn't use to like coffee. Did you use to wear glasses? Used also appears after did in writing, but use the standard form use for this course's exercises.\n\nBe used to means 'be accustomed to' and get used to means 'become accustomed to'; here to is followed by a noun or -ing: I am used to the cold / getting up early. For a one-off action yesterday, Past Simple is normally appropriate rather than used to.",
             "keyPointsUk": [
               "used to + інфінітив: минула звичка або стан, якого вже немає",
               "Заперечення і питання: didn't use to / Did you use to (без -d)",
-              "Не плутати з be used to / get used to + -ing",
+              "be/get used to + іменник або -ing означає звикнути / бути звиклим",
               "Не для одноразової дії вчора"
             ],
             "keyPointsEn": [
               "used to + infinitive: a past habit or state that is no longer true",
               "Negatives and questions: didn't use to / Did you use to (no -d)",
-              "Do not confuse it with be used to / get used to + -ing",
+              "be/get used to + noun or -ing expresses being or becoming accustomed",
               "Not for a one-off action yesterday"
             ]
           },
           {
             "id": "en-d-used-to-r1",
             "type": "mcq",
-            "promptUk": "Оберіть правильне заперечення.",
-            "promptEn": "Choose the correct negative.",
+            "promptUk": "Оберіть стандартне написання заперечення після didn't.",
+            "promptEn": "Choose the standard spelling of the negative after didn't.",
             "options": [
               "I didn't use to like coffee.",
               "I didn't used to like coffee.",
@@ -2031,8 +2034,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Used to описує минулу звичку або стан, якого вже немає. Заперечення — didn't use to без літери d. Be used to — це «бути звиклі» і після нього йде -ing, це інша конструкція.",
-            "sampleAnswerEn": "Used to describes a past habit or state that is no longer true. The negative is didn't use to without a d. Be used to means “be accustomed” and is followed by -ing: it is a different structure."
+            "sampleAnswerUk": "Used to описує минулу звичку або стан, якого зазвичай уже немає. Стандартне заперечення — didn't use to. Be used to означає «бути звиклим» і має після себе іменник або форму на -ing.",
+            "sampleAnswerEn": "Used to describes a past habit or state that is usually no longer true. The standard negative is didn't use to. Be used to means 'be accustomed' and is followed by a noun or an -ing form."
           }
         ]
       },
@@ -2048,18 +2051,18 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "would не для I used to be shy",
             "promptEn": "would is not for I used to be shy",
-            "bodyUk": "would + інфінітив теж може описувати повторювані минулі дії, часто в оповіді: Every summer we would go to the sea. Grandmother would tell us stories. Відтінок — «ось так було тоді, знову і знову», трохи ностальгійний або оповідний.\n\nВажливе обмеження: would НЕ вживають для минулих станів. Не можна *I would be shy, *She would live in Odesa, *I would have a dog у значенні звички-стану. Для станів — лише used to: I used to be shy. She used to live in Odesa. Для повторюваних дій можливі обидва: I used to / would play in the yard.\n\nwould тут не є ввічливим would like і не є умовним would. Контекст — минула оповідь. У запереченні used to природніше, ніж wouldn't, коли ви просто повідомляєте факт «раніше не робив». Не ставте would з конкретною одноразовою датою: *In 2019 I would go to Prague once.",
-            "bodyEn": "would + infinitive can also describe repeated past actions, often in a story: Every summer we would go to the sea. Grandmother would tell us stories. The flavour is “that is how it was then, again and again”, slightly nostalgic or narrative.\n\nAn important limit: would is NOT used for past states. You cannot say *I would be shy, *She would live in Odesa, or *I would have a dog in the habit-state sense. For states, only used to works: I used to be shy. She used to live in Odesa. For repeated actions both are possible: I used to / would play in the yard.\n\nThis would is not polite would like and not conditional would. The context is a past narrative. In negatives, used to is more natural than wouldn't when you are simply stating “I didn't do that in the past”. Do not use would with a one-off date: *In 2019 I would go to Prague once.",
+            "bodyUk": "Would + інфінітив може описувати повторювані дії в минулій оповіді: Every summer we would go to the sea. Grandma would tell us stories. Зазвичай спочатку потрібен контекст, який встановлює минулий час.\n\nДля тривалого стану в окремий минулий період природно сказати I used to be shy або She used to live in Odesa; звичне would зазвичай не замінює used to у цих значеннях. Past Simple теж можливий, якщо контекст називає період: She lived in Odesa as a child. Якщо стан повторюється в окремих випадках, would може бути можливим: Every summer the beach would be crowded.\n\nДля повторюваних дій можливі used to і would. Не плутайте оповідне would з умовним would або ввічливим would like; одноразову минулу подію зазвичай передають Past Simple.",
+            "bodyEn": "Would + infinitive can describe repeated actions in a past narrative: Every summer we would go to the sea. Grandma would tell us stories. A context establishing the past is usually needed first.\n\nFor a continuing state in a past period, I used to be shy or She used to live in Odesa is natural; habitual would does not usually replace used to with those meanings. Past Simple is also possible when the context names the period: She lived in Odesa as a child. Would can describe a state recurring on separate occasions: Every summer the beach would be crowded.\n\nFor repeated actions, used to and would are both possible. Distinguish narrative would from conditional would or polite would like; a one-off past event normally takes Past Simple.",
             "keyPointsUk": [
               "would — повторювані минулі ДІЇ в оповіді",
-              "would не описує стани (be, live, have)",
-              "Для станів — лише used to",
+              "would зазвичай не замінює used to для тривалого минулого стану",
+              "Past Simple теж може описати минулий стан у заданому контексті",
               "Не для одноразової дії з датою"
             ],
             "keyPointsEn": [
               "would is for repeated past ACTIONS in a narrative",
-              "would does not describe states (be, live, have)",
-              "For states, only used to works",
+              "would does not usually replace used to for a continuing past state",
+              "Past Simple can also describe a past state in context",
               "Not for a one-off action with a date"
             ]
           },
@@ -2075,8 +2078,8 @@ const newUnits: UnitContent[] = [
               "She would having a flat in Odesa."
             ],
             "correctIndex": 0,
-            "explanationUk": "live як стан — лише used to, не would.",
-            "explanationEn": "live as a state takes only used to, not would."
+            "explanationUk": "Used to природно описує тривалий минулий стан; Past Simple також можливий у відповідному контексті.",
+            "explanationEn": "Used to naturally describes a continuing past state; Past Simple is also possible in a suitable context."
           },
           {
             "id": "en-d-would-used-r2",
@@ -2121,8 +2124,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-would-used-e",
             "type": "explain",
-            "promptUk": "Коли would і used to взаємозамінні, і чому не можна сказати I would be shy?",
-            "promptEn": "When are would and used to interchangeable, and why can't you say I would be shy?",
+            "promptUk": "Коли would і used to можуть описувати ту саму минулу звичку? Як природно описати тривалий стан сором'язливості в минулому?",
+            "promptEn": "When can would and used to describe the same past habit? How would you naturally describe a continuing past state of shyness?",
             "keyIdeas": [
               {
                 "labelUk": "дії",
@@ -2149,8 +2152,8 @@ const newUnits: UnitContent[] = [
                 ]
               },
               {
-                "labelUk": "не would be",
-                "labelEn": "not would be",
+                "labelUk": "тривалий стан",
+                "labelEn": "continuing state",
                 "anyOf": [
                   "would be",
                   "shy",
@@ -2161,8 +2164,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Для повторюваних минулих дій можна сказати і would, і used to, наприклад we would go to the sea. Для станів на кшталт be shy підходить лише used to. Речення I would be shy у цьому значенні неправильне.",
-            "sampleAnswerEn": "For repeated past actions you can use either would or used to, for example we would go to the sea. For states such as be shy, only used to works. I would be shy is wrong in this meaning."
+            "sampleAnswerUk": "Для повторюваних минулих дій у відповідному контексті можливі would і used to: we would go to the sea. Тривалий стан природно описати I used to be shy або I was shy as a child. I would be shy також можливе як умовне речення в іншому контексті.",
+            "sampleAnswerEn": "For repeated past actions in a suitable context, both would and used to are possible: we would go to the sea. A continuing past state is naturally expressed as I used to be shy or I was shy as a child. I would be shy is also possible as a conditional in another context."
           }
         ]
       },
@@ -2208,8 +2211,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-deep-past-story-exam-q3",
             "type": "mcq",
-            "promptUk": "Оберіть правильне заперечення.",
-            "promptEn": "Choose the correct negative.",
+            "promptUk": "Оберіть стандартне написання заперечення після didn't.",
+            "promptEn": "Choose the standard spelling of the negative after didn't.",
             "options": [
               "I didn't use to like coffee.",
               "I didn't used to like coffee.",
@@ -2232,8 +2235,8 @@ const newUnits: UnitContent[] = [
               "She used live in Odesa."
             ],
             "correctIndex": 0,
-            "explanationUk": "Стан live — used to, не would.",
-            "explanationEn": "The state live takes used to, not would."
+            "explanationUk": "Used to природно описує тривалий минулий стан; у відповідному контексті можливий і Past Simple.",
+            "explanationEn": "Used to naturally describes a continuing past state; Past Simple is also possible in a suitable context."
           },
           {
             "id": "en-deep-past-story-exam-q5",
@@ -2315,13 +2318,11 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-will-going-r3",
             "type": "fill_blank",
-            "promptUk": "Вставте 'll або to.",
-            "promptEn": "Insert 'll or to.",
+            "promptUk": "Вставте повну форму will для рішення в момент мовлення.",
+            "promptEn": "Insert the full form will for a decision made at the moment of speaking.",
             "sentence": "It's cold in here. I ___ close the window.",
             "accepted": [
-              "'ll",
-              "will",
-              "Will"
+              "will"
             ]
           },
           {
@@ -2399,19 +2400,19 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Що вже стоїть у календарі",
             "promptEn": "What is already in the calendar",
-            "bodyUk": "Present Continuous може говорити про майбутнє, коли є конкретна домовленість: I'm meeting the dentist at three. We're flying to Warsaw on Monday. Зазвичай є час, місце або інша «точка в календарі». Це не просто бажання — це вже узгоджено (квиток, запис, зустріч у календарі).\n\nПорівняйте: I'm going to book a dentist (намір, ще не записався) і I'm seeing the dentist at three (запис уже є). I'm going to Warsaw someday — надто розмито для Continuous; потрібен going to або will. I'm living in Warsaw next year можливе, якщо переїзд уже організований.\n\nНе кажіть *I meeting her tomorrow (немає am). Не плутайте з чистим теперішнім процесом: I'm meeting her зараз, у цю хвилину, якщо вона вже в кімнаті — тоді це не майбутнє, і контекст має це показувати. Для розкладу транспорту й афіш — наступний урок (Present Simple).",
-            "bodyEn": "Present Continuous can talk about the future when there is a concrete arrangement: I'm meeting the dentist at three. We're flying to Warsaw on Monday. There is usually a time, a place, or another “calendar point”. This is not just a wish — it is already agreed (a ticket, an appointment, a calendar event).\n\nCompare: I'm going to book a dentist (an intention; you have not booked yet) and I'm seeing the dentist at three (the appointment exists). I'm going to Warsaw someday is too vague for Continuous; use going to or will. I'm living in Warsaw next year is possible if the move is already organised.\n\nDo not say *I meeting her tomorrow (missing am). Do not confuse this with a true present process: I'm meeting her right now, this minute, if she is already in the room — then it is not future, and context should make that clear. For transport timetables and programmes, the next lesson (Present Simple) is the right tool.",
+            "bodyUk": "Present Continuous часто описує майбутню домовленість або організований план: I'm seeing the dentist at three. We're flying to Warsaw on Monday. Час чи місце допомагають зрозуміти, що йдеться про майбутнє.\n\nGoing to може виражати намір до запису (I'm going to book a dentist appointment), але можливе і після домовленості (I'm going to see the dentist at three). Форми частково перетинаються: Continuous часто підкреслює організацію, а going to — намір. Для невизначеного someday-плану зазвичай природніше I'm going to visit Warsaw someday.\n\nНе забудьте am/is/are: I'm meeting her tomorrow. Контекст показує, чи дія майбутня, чи відбувається зараз. Про розклад із Present Simple — у наступному уроці.",
+            "bodyEn": "Present Continuous often describes a future arrangement or organized plan: I'm seeing the dentist at three. We're flying to Warsaw on Monday. A time or place helps show that the meaning is future.\n\nGoing to can express an intention before booking (I'm going to book a dentist appointment), but it can also describe an arranged visit (I'm going to see the dentist at three). The forms overlap: Continuous often emphasizes the arrangement, while going to emphasizes intention. For a vague someday plan, I'm going to visit Warsaw someday is usually more natural.\n\nRemember am/is/are: I'm meeting her tomorrow. Context shows whether the action is future or happening now. The next lesson covers Present Simple for timetables.",
             "keyPointsUk": [
               "Present Continuous — конкретна домовленість із часом/місцем",
-              "going to — намір без підтвердженого запису",
+              "going to — намір, з підтвердженою домовленістю або без неї",
               "Потрібна форма am/is/are",
-              "Розмиті someday-плани — не Continuous"
+              "Для розмитих someday-планів часто природніше going to"
             ],
             "keyPointsEn": [
               "Present Continuous is a concrete arrangement with a time or place",
-              "going to is an intention without a confirmed booking",
+              "going to expresses intention, with or without a confirmed booking",
               "You still need am/is/are",
-              "Vague someday-plans are not Continuous"
+              "For vague someday plans going to is often more natural"
             ]
           },
           {
@@ -2452,8 +2453,8 @@ const newUnits: UnitContent[] = [
               "I will visiting Warsaw someday."
             ],
             "correctIndex": 0,
-            "explanationUk": "Розмитий намір — going to, не Continuous.",
-            "explanationEn": "A vague intention is going to, not Continuous."
+            "explanationUk": "Для розмитого наміру без конкретних домовленостей going to тут звучить природніше.",
+            "explanationEn": "For this vague intention without concrete arrangements, going to sounds more natural."
           },
           {
             "id": "en-d-pres-fut-r4",
@@ -2513,8 +2514,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Present Continuous означає майбутнє, коли є конкретна домовленість у календарі, наприклад I'm meeting Maria at three. Going to описує намір, якщо запису чи квитка ще немає, наприклад I'm going to visit someday.",
-            "sampleAnswerEn": "Present Continuous means the future when there is a concrete arrangement in the calendar, for example I'm meeting Maria at three. Going to describes an intention when there is not yet a booking or a ticket, for example I'm going to visit someday."
+            "sampleAnswerUk": "Present Continuous часто описує майбутню домовленість, наприклад I'm meeting Maria at three. Going to може описати намір без запису, наприклад I'm going to visit someday, але також можливе для вже узгоджених планів.",
+            "sampleAnswerEn": "Present Continuous often describes a future arrangement, for example I'm meeting Maria at three. Going to can describe an intention without a booking, such as I'm going to visit someday, but it can also be used for arranged plans."
           }
         ]
       },
@@ -2530,19 +2531,19 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Поїзди, літаки, афіші",
             "promptEn": "Trains, planes and programmes",
-            "bodyUk": "Present Simple описує майбутнє, коли подія входить у розклад або програму, незалежна від вашого особистого рішення: The train leaves at 6.30. The film starts at eight. The conference opens on 12 May. Це «так написано в розкладі».\n\nПорівняйте: The train leaves at 6.30 (розклад) і I'm leaving at 6.30 (мій план / домовленість). We're going to leave around six (намір, ще не жорсткий). Для закладів: The supermarket closes at ten tonight — теж розклад.\n\nНе ставте Present Simple для особистих разових планів без ідеї розкладу: *I start the meeting tomorrow at two звучить як пункт програми; для зустрічі, яку ви самі організували, природніше I'm starting / We're starting the meeting at two. У підрядних часу знову present: I'll call you when the train arrives.",
-            "bodyEn": "Present Simple describes the future when the event belongs to a timetable or programme, independent of your personal decision: The train leaves at 6.30. The film starts at eight. The conference opens on 12 May. This is “what the schedule says”.\n\nCompare: The train leaves at 6.30 (the timetable) and I'm leaving at 6.30 (my plan / arrangement). We're going to leave around six (an intention, not yet rigid). For places: The supermarket closes at ten tonight — also a schedule.\n\nDo not use Present Simple for a personal one-off plan with no timetable idea: *I start the meeting tomorrow at two sounds like an item on a programme; for a meeting you yourself organised, I'm starting / We're starting the meeting at two is more natural. In time clauses, use a present again: I'll call you when the train arrives.",
+            "bodyUk": "Present Simple часто описує майбутнє як пункт розкладу або програми: The train leaves at 6.30. The film starts at eight. The conference opens on 12 May.\n\nПорівняйте The train leaves at 6.30 (акцент на розкладі) і I'm leaving at 6.30 (на особистому плані). Ці форми не є єдино можливими: The train is leaving at 6.30 також може описувати запланований рейс. Present Simple можливий і для особистих подій, представлених як заплановані: I start my new job on Monday.\n\nУ часовому підрядному про майбутнє зазвичай використовують теперішню форму: I'll call you when the train arrives. У непрямому запитанні про час можливе will: I don't know when the train will arrive.",
+            "bodyEn": "Present Simple often describes the future as an item in a timetable or programme: The train leaves at 6.30. The film starts at eight. The conference opens on 12 May.\n\nCompare The train leaves at 6.30 (emphasis on the schedule) and I'm leaving at 6.30 (emphasis on a personal plan). These are not the only possible forms: The train is leaving at 6.30 can also describe a scheduled service. Present Simple can describe personal events presented as scheduled too: I start my new job on Monday.\n\nA future time clause usually takes a present form: I'll call you when the train arrives. An indirect question about the time can use will: I don't know when the train will arrive.",
             "keyPointsUk": [
               "Present Simple — розклад, афіша, програма",
               "Особиста домовленість — частіше Continuous",
               "The train leaves vs I'm leaving — різні погляди",
-              "Після when у майбутньому — present, не will"
+              "У часовому підрядному з when зазвичай present; у непрямому питанні можливе will"
             ],
             "keyPointsEn": [
               "Present Simple is a timetable, poster, or programme",
               "A personal arrangement is more often Continuous",
               "The train leaves vs I'm leaving are different views",
-              "After when in the future, use a present, not will"
+              "A when time clause usually takes present; an indirect question can use will"
             ]
           },
           {
@@ -2563,8 +2564,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-timetable-r2",
             "type": "fill_blank",
-            "promptUk": "Вставте starts або is starting (розклад сеансу).",
-            "promptEn": "Insert starts or is starting (a screening timetable).",
+            "promptUk": "Використайте Present Simple для пункту розкладу сеансу.",
+            "promptEn": "Use Present Simple for the screening timetable.",
             "sentence": "The film ___ at eight, according to the poster.",
             "accepted": [
               "starts",
@@ -2662,18 +2663,18 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "will be + V-ing",
             "promptEn": "will be + V-ing",
-            "bodyUk": "Future Continuous: will be + V-ing. This time tomorrow I'll be sitting on a train. Don't call at nine — I'll be having a meeting. Час показує, що в певний майбутній момент дія буде в процесі, або що дія — звичайна частина майбутнього відрізка.\n\nВвічливий відтінок: Will you be using the meeting room at three? звучить м'якше, ніж Will you use…?, бо питає про вже запланований процес, не про рішення зараз. I'll be seeing Tom tomorrow може означати «це вже в розкладі, я з ним перетнуся».\n\nНе ставте його замість простого will для одноразового рішення: *The phone is ringing. I'll be getting it — тут I'll get it. Станні дієслова рідко йдуть у Continuous: не *I'll be knowing the result. Для українськомовних форма нова, але логіка та сама, що в Past Continuous, лише про майбутнє.",
-            "bodyEn": "Future Continuous is will be + V-ing. This time tomorrow I'll be sitting on a train. Don't call at nine — I'll be having a meeting. The tense shows that at a future moment the action will be in progress, or that the action is a normal part of a future period.\n\nThere is a polite flavour: Will you be using the meeting room at three? is softer than Will you use…?, because it asks about a process already expected, not about a decision now. I'll be seeing Tom tomorrow can mean “it's already in the plan; I will run into him”.\n\nDo not use it in place of plain will for a one-off decision: *The phone is ringing. I'll be getting it — here I'll get it is right. Stative verbs rarely take Continuous: not *I'll be knowing the result. For Ukrainian speakers the form is new, but the logic is the same as Past Continuous, only about the future.",
+            "bodyUk": "Future Continuous має форму will be + V-ing: This time tomorrow I'll be sitting on a train. Він часто показує дію в процесі в майбутній момент: Don't call at nine — I'll be having a meeting.\n\nWill you be using the meeting room at three? може звучати м'якше за прохання, бо запитує про плани співрозмовника, не обов'язково пропонуючи йому щось зробити. Ввічливість залежить також від контексту й тону. I'll be seeing Tom tomorrow може описувати очікувану зустріч.\n\nДля спонтанної пропозиції відповісти на дзвінок природно сказати I'll get it. I'll be getting it можливе в інших контекстах, наприклад якщо обов'язок відповідати вже встановлено. Станні дієслова на кшталт know зазвичай не вживають у Continuous.",
+            "bodyEn": "Future Continuous is will be + V-ing: This time tomorrow I'll be sitting on a train. It often shows an activity in progress at a future moment: Don't call at nine — I'll be having a meeting.\n\nWill you be using the meeting room at three? can sound less demanding than a request because it asks about the other person's plans without necessarily asking them to act. Politeness also depends on context and tone. I'll be seeing Tom tomorrow can describe an expected meeting.\n\nFor a spontaneous offer to answer the phone, I'll get it is natural. I'll be getting it can be possible in other contexts, for example if responsibility for answering has already been established. Stative verbs such as know do not usually take Continuous.",
             "keyPointsUk": [
               "will be + V-ing: дія в процесі в майбутній момент",
               "Ввічливі питання про запланований процес",
-              "Не замінює I'll get it у рішенні зараз",
+              "I'll get it природно передає спонтанну пропозицію",
               "Станні дієслова — майже ніколи"
             ],
             "keyPointsEn": [
               "will be + V-ing: an action in progress at a future moment",
               "Polite questions about an expected process",
-              "It does not replace I'll get it for a decision now",
+              "I'll get it naturally expresses a spontaneous offer",
               "Stative verbs almost never take it"
             ]
           },
@@ -2715,8 +2716,8 @@ const newUnits: UnitContent[] = [
               "I be getting it."
             ],
             "correctIndex": 0,
-            "explanationUk": "Рішення в моменті — I'll get it, не Future Continuous.",
-            "explanationEn": "A decision in the moment is I'll get it, not Future Continuous."
+            "explanationUk": "Для спонтанної пропозиції тут природно I'll get it; Future Continuous можливий в іншому контексті.",
+            "explanationEn": "I'll get it is natural for this spontaneous offer; Future Continuous is possible in other contexts."
           },
           {
             "id": "en-d-fut-cont-r4",
@@ -2737,8 +2738,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-fut-cont-e",
             "type": "explain",
-            "promptUk": "Що описує Future Continuous і чому Will you be using the room? звучить ввічливіше? Коли його не ставити?",
-            "promptEn": "What does Future Continuous describe, and why does Will you be using the room? sound more polite? When should you not use it?",
+            "promptUk": "Що описує Future Continuous? Чому Will you be using the room? може звучати ввічливо, і яку форму природно обрати для спонтанної пропозиції відповісти на дзвінок?",
+            "promptEn": "What does Future Continuous describe? Why can Will you be using the room? sound polite, and what form is natural for a spontaneous offer to answer the phone?",
             "keyIdeas": [
               {
                 "labelUk": "процес у майбутньому",
@@ -2775,8 +2776,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Future Continuous має форму will be і дієслово з -ing і описує процес у майбутній момент, наприклад I'll be sitting on a train. Питання Will you be using the room звучить ввічливо, бо питає про очікуваний процес. Для рішення зараз кажемо I'll get it, не I'll be getting it.",
-            "sampleAnswerEn": "Future Continuous is will be plus a verb with -ing and describes a process at a future moment, for example I'll be sitting on a train. Will you be using the room sounds polite because it asks about an expected process. For a decision now we say I'll get it, not I'll be getting it."
+            "sampleAnswerUk": "Future Continuous має форму will be і дієслово з -ing та описує процес у майбутній момент, наприклад I'll be sitting on a train. Will you be using the room може звучати ввічливо, бо питає про плани. Для спонтанної пропозиції природно сказати I'll get it.",
+            "sampleAnswerEn": "Future Continuous is will be plus a verb with -ing and describes a process at a future moment, for example I'll be sitting on a train. Will you be using the room can sound polite because it asks about plans. For a spontaneous offer, I'll get it is natural."
           }
         ]
       },
@@ -2796,13 +2797,13 @@ const newUnits: UnitContent[] = [
             "bodyEn": "Future Perfect is will have + past participle. By six I will have finished the report. It names an action that will already be complete before a future point. The marker by (“not later than”) is this tense's best friend: by Friday, by the time you arrive, by 2030.\n\nFuture Perfect Continuous is will have been + V-ing — duration up to a future point: By June I will have been working here for five years. The focus is the length of service / the process, not a “finished file”.\n\nBoth forms feel heavy for Ukrainian speakers, because we often just say “I will finish by six”. In English, will finish at six is the finishing moment around six, while will have finished by six means “not later than six, it will already be done”. Do not confuse by and until: until six can mean the action continues up to six (I'll work until six). After by the time, the clause takes a present: By the time you arrive, I'll have left.",
             "keyPointsUk": [
               "will have + V3: вже буде готово до майбутньої точки",
-              "Ключовий маркер — by (не пізніше)",
+              "by часто позначає граничний момент, але не є обов'язковим",
               "will have been + V-ing — стаж / тривалість до тієї точки",
               "by ≠ until; після by the time — present"
             ],
             "keyPointsEn": [
               "will have + V3: it will already be done by a future point",
-              "The key marker is by (not later than)",
+              "by often marks the deadline but is not required",
               "will have been + V-ing is duration up to that point",
               "by is not until; after by the time use a present"
             ]
@@ -2867,8 +2868,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-fut-perf-e",
             "type": "explain",
-            "promptUk": "Що означає Future Perfect і чому маркер by такий важливий? Чим will have finished відрізняється від I'll work until six?",
-            "promptEn": "What does Future Perfect mean, and why is the marker by so important? How is will have finished different from I'll work until six?",
+            "promptUk": "Що означає Future Perfect і як у прикладі працює by? Чим will have finished by six відрізняється від I'll work until six?",
+            "promptEn": "What does Future Perfect mean, and how does by work in the example? How is will have finished by six different from I'll work until six?",
             "keyIdeas": [
               {
                 "labelUk": "will have",
@@ -2944,8 +2945,8 @@ const newUnits: UnitContent[] = [
               "We going flying to Warsaw on Monday."
             ],
             "correctIndex": 0,
-            "explanationUk": "Домовленість у календарі — Present Continuous.",
-            "explanationEn": "A calendar arrangement is Present Continuous."
+            "explanationUk": "Present Continuous природно описує узгоджену поїздку; інші форми також можливі в контексті.",
+            "explanationEn": "Present Continuous naturally describes an arranged trip; other forms are possible in context too."
           },
           {
             "id": "en-deep-future-exam-q3",
@@ -2959,8 +2960,8 @@ const newUnits: UnitContent[] = [
               "will starting"
             ],
             "correctIndex": 0,
-            "explanationUk": "Афіша / розклад — Present Simple: starts.",
-            "explanationEn": "A poster / timetable is Present Simple: starts."
+            "explanationUk": "Present Simple часто використовують для розкладу: starts.",
+            "explanationEn": "Present Simple is often used for a timetable: starts."
           },
           {
             "id": "en-deep-future-exam-q4",
@@ -3042,8 +3043,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-pass-why-r2",
             "type": "fill_blank",
-            "promptUk": "Вставте is або was (результат зараз: баг уже виправлений у тексті статусу).",
-            "promptEn": "Insert is or was (a current result: the bug is already fixed in a status text).",
+            "promptUk": "Вставте is або was: у поточному статусі зазначено, що проблему задокументовано в задачі.",
+            "promptEn": "Insert is or was: the current status says the issue is documented in the ticket.",
             "sentence": "The issue ___ documented in the ticket.",
             "accepted": [
               "is",
@@ -3143,10 +3144,10 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-pass-tenses-c",
             "type": "concept",
-            "promptUk": "Як міняється лише be",
-            "promptEn": "Only be changes",
-            "bodyUk": "У пасиві міняється форма be, а V3 залишається. Present Simple: The mail is delivered at ten. Present Continuous: The mail is being delivered now (is/are being + V3). Past Simple: was/were delivered. Past Continuous: was/were being delivered. Present Perfect: has/have been delivered. Past Perfect: had been delivered. Future: will be delivered. Модальні: can be delivered, must be checked, should have been fixed.\n\nЗверніть увагу на being і been: being — процес (is being updated), been — перфект (has been updated). Типова помилка: *The file is been updated і *The file has being updated. Ще одна: пропуск be (*The file updated yesterday у значенні пасиву — це виглядає як актив без підмета-виконавця).\n\nНе всі часи однаково часті: Future Continuous passive (will be being) звучить важко і його майже не вживають. Present Perfect Continuous passive теж рідкісний. Обирайте найпростіший час, який передає зміст: The server is being rebooted зараз; The server has been rebooted — уже перезавантажений.",
-            "bodyEn": "In the passive, the form of be changes and the participle stays the same. Present Simple: The mail is delivered at ten. Present Continuous: The mail is being delivered now (is/are being + V3). Past Simple: was/were delivered. Past Continuous: was/were being delivered. Present Perfect: has/have been delivered. Past Perfect: had been delivered. Future: will be delivered. With modals: can be delivered, must be checked, should have been fixed.\n\nWatch being versus been: being is a process (is being updated), been is perfect (has been updated). A typical mistake is *The file is been updated and *The file has being updated. Another is dropping be (*The file updated yesterday meant as a passive — it looks like an active with no agent).\n\nNot every tense is equally common: a Future Continuous passive (will be being) is heavy and almost unused. A Present Perfect Continuous passive is also rare. Choose the simplest tense that carries the meaning: The server is being rebooted for right now; The server has been rebooted — it is already back up.",
+            "promptUk": "Форми be з тим самим дієсловом",
+            "promptEn": "Forms of be with the same verb",
+            "bodyUk": "З тим самим основним дієсловом у пасиві змінюється допоміжна форма, а V3 залишається: is delivered, is being delivered, was delivered, was being delivered, has been delivered, had been delivered, will be delivered. Із модальними: can be delivered, must be checked, should have been fixed.\n\nПорівняйте being у процесі (is being updated) і been у перфектній формі (has been updated). Не кажіть *is been updated або *has being updated. The file updated yesterday може означати, що файл оновився сам; для пасивного значення використайте was updated.\n\nДеякі поєднання, як will be being або has been being, рідкісні й часто перефразовуються. The server is being rebooted описує процес; The server has been rebooted повідомляє про завершене перезавантаження, але саме по собі не гарантує доступності сервісу.",
+            "bodyEn": "With the same main verb, the passive participle stays the same while the auxiliary changes. Present Simple: The mail is delivered at ten. Present Continuous: The mail is being delivered now. Past Simple: was/were delivered. Past Continuous: was/were being delivered. Present Perfect: has/have been delivered. Past Perfect: had been delivered. Future: will be delivered. Modals include can be delivered, must be checked and should have been fixed.\n\nCompare being in an ongoing passive (is being updated) with been in a perfect passive (has been updated). Avoid *is been updated and *has being updated. Some intransitive uses are different: The file updated yesterday can mean it updated itself, depending on context; to state a passive use was updated.\n\nSome combinations, such as will be being or has been being, are rare and often rephrased. The server is being rebooted describes the process; The server has been rebooted says it happened, but does not by itself guarantee that the service is available again.",
             "keyPointsUk": [
               "Міняється be: is / is being / was / has been / will be / can be",
               "being — процес; been — перфект",
@@ -3274,26 +3275,26 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Коли згадувати, хто зробив",
             "promptEn": "When to mention who did it",
-            "bodyUk": "Якщо виконавець потрібен, його ставлять після by: The report was written by Maria. The village was destroyed by a flood (тут «виконавець» — причина, не людина). Інструмент часто йде з with: The door was opened with a key; by — ближче до агенса (by the guard).\n\nВиконавця часто пропускають, якщо він очевидний, невідомий або неважливий: The streets are cleaned every morning (і так зрозуміло, що службою). Не додавайте by people, by someone без потреби — це шум. Натомість, коли ім'я чи організація важливі (автор, компанія, закон), by обов'язкове: This rule was introduced by the new regulation.\n\nПорядок слів: не ставте by-фразу між be і V3 (*was by Maria written). Типова калька з української — *The report written by Maria was у зайвому пасиві всередині. Якщо виконавців двоє і текст плутається, поверніться до активного стану.",
-            "bodyEn": "If the agent is needed, it comes after by: The report was written by Maria. The village was destroyed by a flood (here the “agent” is a cause, not a person). An instrument often takes with: The door was opened with a key; by is closer to an agent (by the guard).\n\nThe agent is often omitted when it is obvious, unknown, or unimportant: The streets are cleaned every morning (we already understand it is the city service). Do not add by people or by someone without a reason — that is noise. When a name or organisation matters (an author, a company, a law), by is required: This rule was introduced by the new regulation.\n\nWord order: do not put the by-phrase between be and the participle (*was by Maria written). A typical Ukrainian calque is a clumsy extra passive. If two agents make the sentence confusing, switch back to the active.",
+            "bodyUk": "Виконавця в пасиві часто називають через by: The report was written by Maria. By також може вводити причину: The village was destroyed by a flood. Інструмент часто вводять через with: The door was opened with a key.\n\nВиконавця можна опустити, якщо він невідомий або неважливий: The streets are cleaned every morning. Якщо авторство суттєве, назвіть його: The report was written by Maria; або використайте активний стан Maria wrote the report.\n\nУ звичайному нейтральному порядку by-фраза стоїть після дієслова: was written by Maria. Іноді фраза written by Maria уточнює іменник: The report written by Maria was published yesterday.",
+            "bodyEn": "A passive often names its agent with by: The report was written by Maria. By can also introduce a cause: The village was destroyed by a flood. An instrument often takes with: The door was opened with a key.\n\nThe agent can be omitted when unknown or unimportant: The streets are cleaned every morning. If authorship matters, name it: The report was written by Maria; or use the active Maria wrote the report.\n\nIn ordinary neutral word order, the by-phrase follows the verb: was written by Maria. A phrase such as written by Maria can also modify a noun: The report written by Maria was published yesterday.",
             "keyPointsUk": [
               "Виконавець — після by; інструмент часто with",
               "Пропускайте by people, якщо це порожній шум",
-              "Коли ім'я важливе — by обов'язкове",
-              "Не вставляти by між be і V3"
+              "Коли автор важливий, назвіть його через by або в активному реченні",
+              "Нейтральний порядок: was written by Maria"
             ],
             "keyPointsEn": [
               "The agent comes after by; an instrument often takes with",
               "Drop by people when it is empty noise",
-              "When a name matters, by is required",
-              "Do not insert by between be and the participle"
+              "When the author matters, name them using by or an active sentence",
+              "Neutral word order: was written by Maria"
             ]
           },
           {
             "id": "en-d-pass-agent-r1",
             "type": "mcq",
-            "promptUk": "Оберіть правильне.",
-            "promptEn": "Choose the correct option.",
+            "promptUk": "Оберіть звичайний нейтральний порядок слів.",
+            "promptEn": "Choose the usual neutral word order.",
             "options": [
               "The report was written by Maria.",
               "The report was by Maria written.",
@@ -3321,14 +3322,14 @@ const newUnits: UnitContent[] = [
             "promptUk": "Яке by зайве?",
             "promptEn": "Which by is unnecessary?",
             "options": [
-              "The streets are cleaned every morning by people someone (empty).",
+              "The streets are cleaned every morning by someone (the agent is unknown and unimportant).",
               "This rule was introduced by the new regulation.",
               "The novel was written by George Orwell.",
               "The village was destroyed by a flood."
             ],
             "correctIndex": 0,
-            "explanationUk": "by people someone не додає інформації — це шум.",
-            "explanationEn": "by people someone adds no information — it is noise."
+            "explanationUk": "Якщо виконавець невідомий і неважливий, by someone можна опустити.",
+            "explanationEn": "When the agent is unknown and unimportant, by someone can be omitted."
           },
           {
             "id": "en-d-pass-agent-r4",
@@ -3401,8 +3402,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Відстань від джерела",
             "promptEn": "Distance from the source",
-            "bodyUk": "Щоб повідомити думку чи чутки без конкретного автора, англійська любить безособовий пасив: It is said that the API will change. It is believed that the cause is a race condition. It has been reported that… Це стилістично близько до «кажуть, що», «вважають, що».\n\nДва шаблони: 1) It + be + V3 + that-clause: It is expected that the release will slip. 2) Підмет-людина + be + V3 + to-infinitive: She is said to be the best candidate. The server is known to fail under load. Другий шаблон часто коротший і природніший у новинах.\n\nThey say / people say — розмовніший активний варіант. Не мішайте: *It is said the API will change without that можливе в мовленні, але в письмі that допомагає. Типова помилка: *It says that the API will change у значенні «кажуть» — it says потребує конкретного тексту (The docs say that…). Для формального звіту пасив it is recommended that… звучить стандартно.",
-            "bodyEn": "To report an opinion or a rumour without a named author, English likes an impersonal passive: It is said that the API will change. It is believed that the cause is a race condition. It has been reported that… Stylistically this is close to “they say that”, “it is thought that”.\n\nTwo patterns: 1) It + be + V3 + that-clause: It is expected that the release will slip. 2) A person or thing as subject + be + V3 + to-infinitive: She is said to be the best candidate. The server is known to fail under load. The second pattern is often shorter and more natural in news.\n\nThey say / people say is a more conversational active option. Do not mix forms: *It is said the API will change without that is possible in speech, but in writing that helps. A typical mistake is *It says that the API will change meaning “people say” — it says needs a concrete text (The docs say that…). In a formal report, the passive it is recommended that… is standard.",
+            "bodyUk": "Безособовий пасив передає повідомлення чи думку без названого автора: It is said that the API will change; It has been reported that…. Це не підтверджує достовірності твердження: якщо джерело важливе, краще назвати його.\n\nДва шаблони: It + be + V3 + речення (It is expected that the release will slip) і підмет + be + V3 + to-infinitive (She is said to be a candidate; The server is known to fail under load).\n\nThey say / people say — розмовніші активні варіанти. That можна опустити: It is said the API will change; у довшому реченні that може полегшити читання. It says потребує зрозумілого контексту, наприклад посилання на документ: The guide says…. ",
+            "bodyEn": "An impersonal passive reports a claim or opinion without naming its source: It is said that the API will change; It has been reported that…. It does not establish that the claim is true: name the source when it matters.\n\nTwo patterns are It + be + past participle + a clause (It is expected that the release will slip) and subject + be + past participle + to-infinitive (She is said to be a candidate; The server is known to fail under load).\n\nThey say / people say are more conversational active alternatives. That can be omitted: It is said the API will change; in a longer sentence that can make reading easier. It says needs a clear referent, for example a document: The guide says…. ",
             "keyPointsUk": [
               "It is said/believed/expected that… — безособова думка",
               "She is said to be… — коротший шаблон з to",
@@ -3466,9 +3467,7 @@ const newUnits: UnitContent[] = [
             "accepted": [
               "It is said that the release will be delayed",
               "It is said that the release will slip",
-              "It is expected that the release will be delayed",
-              "It is expected that the release will slip",
-              "It is believed that the release will be delayed"
+              "It is said that the release will be late"
             ],
             "direction": "uk_en"
           },
@@ -3527,19 +3526,19 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Зробити так, щоб це зробили за вас",
             "promptEn": "Arranging for something to be done for you",
-            "bodyUk": "Конструкція have + object + V3 означає, що ви організували послугу, а виконав її хтось інший: I had my laptop repaired (відніс у сервіс). She is having her hair cut tomorrow. I need to have this contract checked. Це не Past Perfect (had repaired як «сам уже відремонтував до того моменту»).\n\nget + object + V3 — схоже, часто розмовніше або з відтінком «вдалося / доклав зусиль»: I must get this fixed today. We got the server upgraded. У пасивному значенні I got my bag stolen — «у мене вкрали сумку» (неприємність, не замовлення послуги). Контекст розрізняє.\n\nТипові помилки: *I repaired my laptop у значенні «відніс у сервіс» (це звучить, ніби ви самі паяли); *I had repaired my laptop when you mean a service (це Past Perfect). Порядок: have/get + річ + V3, не *have repaired my laptop у цьому значенні без об'єкта на своєму місці. Для українськомовних орієнтир: «мені зробили / я зробив через сервіс» = have/get something done.",
-            "bodyEn": "The pattern have + object + past participle means you arranged a service and someone else did the work: I had my laptop repaired (you took it to a shop). She is having her hair cut tomorrow. I need to have this contract checked. This is not Past Perfect (had repaired as “I myself had already repaired it before then”).\n\nget + object + V3 is similar, often more colloquial or with a flavour of “I managed / I made an effort”: I must get this fixed today. We got the server upgraded. In a passive sense, I got my bag stolen means “my bag was stolen” (a misfortune, not a booked service). Context tells them apart.\n\nTypical mistakes: *I repaired my laptop meaning “I took it to a shop” (that sounds as if you soldered it yourself); *I had repaired my laptop when you mean a service (that is Past Perfect). The order is have/get + thing + V3, not *have repaired my laptop in this meaning with the object in the wrong place. For Ukrainian speakers a useful test is: “it was done for me / I had it done via a service” = have/get something done.",
+            "bodyUk": "Have + object + V3 часто означає, що хтось виконав роботу для вас: I had my laptop repaired — я організував ремонт ноутбука. She is having her hair cut tomorrow. Об'єкт стоїть між have і V3; це відрізняє конструкцію від Past Perfect у I had repaired my laptop before noon.\n\nGet + object + V3 схоже за змістом і часто розмовніше: I must get this fixed today. І have, і get можуть також описувати неприємну подію, яку ніхто не замовляв: I had my bag stolen. Значення залежить від контексту.\n\nI repaired my laptop зазвичай підкреслює дію мовця, хоча контекст може вказувати на організовану ним роботу. Якщо важливо явно зазначити послугу іншої людини, have my laptop repaired робить це зрозумілішим.",
+            "bodyEn": "Have + object + past participle often means someone performed work for you: I had my laptop repaired — I arranged a repair. She is having her hair cut tomorrow. The object comes between have and the participle; this distinguishes the construction from Past Perfect in I had repaired my laptop before noon.\n\nGet + object + past participle is similar and often more conversational: I must get this fixed today. Both have and get can also describe an unwanted event rather than an arranged service: I had my bag stolen. Context determines the meaning.\n\nI repaired my laptop usually emphasizes the speaker's action, although context can also indicate work they arranged. If it matters to make the service by another person explicit, have my laptop repaired is clearer.",
             "keyPointsUk": [
-              "have + object + V3 — послуга, виконана іншим",
+              "have + object + V3 часто описує послугу іншої людини",
               "Це не Past Perfect had repaired",
               "get — розмовніше або «вдалося / довелося»",
-              "got my bag stolen може бути неприємністю, не замовленням"
+              "had/got my bag stolen може описувати неприємність"
             ],
             "keyPointsEn": [
-              "have + object + V3 is a service done by someone else",
+              "have + object + V3 often describes a service by another person",
               "This is not Past Perfect had repaired",
               "get is more colloquial, or “managed / had to”",
-              "got my bag stolen can be a misfortune, not a booking"
+              "had/got my bag stolen can describe a misfortune"
             ]
           },
           {
@@ -3549,8 +3548,8 @@ const newUnits: UnitContent[] = [
             "promptEn": "You took the laptop to a repair shop. What do you say?",
             "options": [
               "I had my laptop repaired.",
-              "I had repaired my laptop before noon (Past Perfect, I did it myself).",
-              "I repaired my laptop, meaning a shop did it, with no causative.",
+              "I had repaired my laptop before noon (Past Perfect; the context does not specify a service).",
+              "I had my laptop repair yesterday.",
               "I had my laptop repairing."
             ],
             "correctIndex": 0,
@@ -3586,8 +3585,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-causative-r4",
             "type": "translate",
-            "promptUk": "Перекладіть каузативом have something done.",
-            "promptEn": "Translate with causative have something done.",
+            "promptUk": "Перекладіть конструкцією have/get something done.",
+            "promptEn": "Translate using have/get something done.",
             "source": "Мені треба перевірити цей контракт (через юриста).",
             "accepted": [
               "I need to have this contract checked",
@@ -3748,17 +3747,17 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Герундій після певних дієслів",
             "promptEn": "A gerund after certain verbs",
-            "bodyUk": "Після низки дієслів англійська вимагає -ing, не to: enjoy, finish, avoid, consider, mind, suggest, keep, miss, practise, imagine, risk, admit, deny, involve, delay, give up, can't help. I enjoy learning English. She suggested taking a break. Would you mind closing the door? Не *I enjoy to learn і не *She suggested to take (хоча suggest that we take можливе).\n\nГерундій може бути підметом: Learning English takes time. Після прийменника завжди -ing: I'm good at explaining bugs. Thank you for coming. She's interested in joining the team. Це важливе правило: прийменник + V-ing, ніколи *interested to joining.\n\nДля українськомовних пастка — перекладати інфінітивом («люблю вчити»), бо в українській після «люблю» йде інфінітив. Складіть свій короткий список «-ing дієслів» і повторюйте його в реченнях, не окремими словами.",
-            "bodyEn": "After a group of verbs English requires -ing, not to: enjoy, finish, avoid, consider, mind, suggest, keep, miss, practise, imagine, risk, admit, deny, involve, delay, give up, can't help. I enjoy learning English. She suggested taking a break. Would you mind closing the door? Not *I enjoy to learn, and not *She suggested to take (though suggest that we take is possible).\n\nA gerund can be a subject: Learning English takes time. After a preposition you always use -ing: I'm good at explaining bugs. Thank you for coming. She's interested in joining the team. This is a hard rule: preposition + V-ing, never *interested to joining.\n\nFor Ukrainian speakers the trap is translating with an infinitive (“I like to learn”), because Ukrainian often uses an infinitive after “like”. Make a short personal list of “-ing verbs” and recycle them in sentences, not as isolated words.",
+            "bodyUk": "Після enjoy, avoid, mind, suggest та інших дієслів наступна дія часто має форму -ing: I enjoy learning English. She suggested taking a break. Would you mind closing the door? Деякі з цих дієслів допускають і інші конструкції, наприклад She suggested that we take a break.\n\nГерундій може бути підметом: Learning English takes time. Якщо після прийменника йде дієслово, зазвичай використовують -ing: interested in joining. Після прийменника можливий і іменник: interested in music. Частка to перед інфінітивом — інша конструкція: want to learn.\n\nВивчайте дієслова разом із прикладами, адже відповідний зворот залежить від значення й контексту.",
+            "bodyEn": "After enjoy, avoid, mind, suggest and other verbs, a following action often takes -ing: I enjoy learning English. She suggested taking a break. Would you mind closing the door? Some of these verbs allow other patterns too, such as She suggested that we take a break.\n\nA gerund can be a subject: Learning English takes time. When a verb follows a preposition, it normally takes -ing: interested in joining. A noun can follow a preposition too: interested in music. Infinitive to is a different construction: want to learn.\n\nLearn the verbs with examples, since the appropriate pattern depends on meaning and context.",
             "keyPointsUk": [
               "enjoy, finish, avoid, mind, suggest, keep… + -ing",
-              "Після прийменника завжди V-ing",
+              "Якщо після прийменника дієслово, воно зазвичай має форму -ing",
               "Герундій може бути підметом: Learning takes time",
               "Не *enjoy to learn, не *interested to joining"
             ],
             "keyPointsEn": [
               "enjoy, finish, avoid, mind, suggest, keep… take -ing",
-              "After a preposition always use V-ing",
+              "A verb after a preposition normally takes -ing",
               "A gerund can be a subject: Learning takes time",
               "Not *enjoy to learn, not *interested to joining"
             ]
@@ -3860,8 +3859,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Після enjoy, suggest, mind, avoid і подібних дієслів потрібне -ing, наприклад I enjoy learning. Після прийменника завжди герундій: interested in joining, не to joining.",
-            "sampleAnswerEn": "After enjoy, suggest, mind, avoid and similar verbs we need -ing, for example I enjoy learning. After a preposition we always use a gerund: interested in joining, not to joining."
+            "sampleAnswerUk": "Після enjoy, suggest, mind і avoid наступне дієслово часто має форму -ing: I enjoy learning. Якщо після прийменника стоїть дієслово, зазвичай вживають герундій: interested in joining. Також можливий іменник: interested in music.",
+            "sampleAnswerEn": "After enjoy, suggest, mind and avoid, a following verb often takes -ing, as in I enjoy learning. A verb after a preposition normally takes a gerund: interested in joining. A noun is possible too: interested in music."
           }
         ]
       },
@@ -3877,8 +3876,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "want, decide, hope, plan…",
             "promptEn": "want, decide, hope, plan…",
-            "bodyUk": "Інша велика група бере to + інфінітив: want, need, decide, hope, plan, expect, promise, refuse, offer, agree, learn, afford, manage, fail, pretend, seem, tend, would like. I decided to leave. She hopes to join the team. We can't afford to wait. Не *decided leaving і не *want go (пропущений to).\n\nПісля would like / would love / would prefer — теж to: I'd like to ask a question. Після make і let — голий інфінітив без to: They made me wait. Let me explain. Після help можливі обидва: She helped me (to) install the tool.\n\nHelpful contrast: I want to finish (інфінітив) проти I finished writing (герундій). Список треба вчити з реченнями. Типова помилка українськомовних — *I want go, *I decided go, бо в українській «хочу піти» без окремого to.",
-            "bodyEn": "Another large group takes to + infinitive: want, need, decide, hope, plan, expect, promise, refuse, offer, agree, learn, afford, manage, fail, pretend, seem, tend, would like. I decided to leave. She hopes to join the team. We can't afford to wait. Not *decided leaving and not *want go (missing to).\n\nAfter would like / would love / would prefer, also use to: I'd like to ask a question. After make and let, use a bare infinitive without to: They made me wait. Let me explain. After help both are possible: She helped me (to) install the tool.\n\nA useful contrast is I want to finish (infinitive) versus I finished writing (gerund). Learn the lists in sentences. A typical Ukrainian-speaker mistake is *I want go, *I decided go, because Ukrainian “I want to go” has no separate to.",
+            "bodyUk": "Багато дієслів можуть мати після себе to + інфінітив: I decided to leave. She hopes to join the team. We can't afford to wait. Після would like теж використовують to: I'd like to ask a question.\n\nВ активній конструкції make/let + object вживають інфінітив без to: They made me wait. Let me explain. Але в пасиві з make з'являється to: I was made to wait. Після help можливі обидві форми: She helped me (to) install the tool.\n\nПорівняйте I want to finish та I finished writing. Вивчайте звороти в реченнях: після want у цьому значенні потрібне to, тому кажуть I want to go.",
+            "bodyEn": "Many verbs can be followed by to + infinitive: I decided to leave. She hopes to join the team. We can't afford to wait. Would like also takes to: I'd like to ask a question.\n\nIn the active make/let + object pattern, use a bare infinitive: They made me wait. Let me explain. But passive make takes to: I was made to wait. After help both forms are possible: She helped me (to) install the tool.\n\nCompare I want to finish with I finished writing. Learn patterns in sentences: want in this meaning needs to, so say I want to go.",
             "keyPointsUk": [
               "want, decide, hope, plan, promise, refuse, afford… + to",
               "would like + to; make/let + голий інфінітив",
@@ -3910,8 +3909,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-verb-to-r2",
             "type": "fill_blank",
-            "promptUk": "Вставте to або нічого не підходить — потрібне одне слово to, якщо воно є.",
-            "promptEn": "Insert to if it is required (one word).",
+            "promptUk": "Вставте пропущену частку (одне слово).",
+            "promptEn": "Insert the missing particle (one word).",
             "sentence": "I'd like ___ ask a question.",
             "accepted": [
               "to",
@@ -3944,6 +3943,16 @@ const newUnits: UnitContent[] = [
               "She hopes to join the team."
             ],
             "direction": "uk_en"
+          },
+          {
+            "id": "en-d-verb-to-r5",
+            "type": "mcq",
+            "promptUk": "Оберіть пасивну форму речення They made me wait.",
+            "promptEn": "Choose the passive form of They made me wait.",
+            "options": ["I was made to wait.", "I was made wait.", "I was made waiting.", "I was make to wait."],
+            "correctIndex": 0,
+            "explanationUk": "В активі made me wait; у пасиві was made to wait.",
+            "explanationEn": "The active is made me wait; the passive is was made to wait."
           },
           {
             "id": "en-d-verb-to-e",
@@ -4133,19 +4142,19 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "happy to help, good at explaining",
             "promptEn": "happy to help, good at explaining",
-            "bodyUk": "Багато прикметників беруть to-infinitive: happy, glad, pleased, ready, prepared, willing, easy, hard, difficult, important, possible, likely, surprised, disappointed. I'm happy to help. The ticket is easy to use. It's important to test this. It's likely to fail under load.\n\nЯкщо після прикметника стоїть прийменник, знову -ing: good at, interested in, afraid of, proud of, famous for, responsible for, keen on, tired of, used to. I'm good at explaining. She's afraid of flying. We're responsible for deploying this.\n\nIt's + adjective + to — дуже продуктивна схема: It's useful to write tests. Не *It's useful writing tests у цьому безособовому шаблоні (хоча Writing tests is useful — герундій-підмет — теж добре). Типова помилка: *I'm interested to join замість interested in joining; *I'm good to explain замість good at explaining.",
-            "bodyEn": "Many adjectives take a to-infinitive: happy, glad, pleased, ready, prepared, willing, easy, hard, difficult, important, possible, likely, surprised, disappointed. I'm happy to help. The ticket is easy to use. It's important to test this. It's likely to fail under load.\n\nIf a preposition follows the adjective, use -ing again: good at, interested in, afraid of, proud of, famous for, responsible for, keen on, tired of, used to. I'm good at explaining. She's afraid of flying. We're responsible for deploying this.\n\nIt's + adjective + to is a very productive pattern: It's useful to write tests. *It's useful writing tests is unnatural in this impersonal pattern (though Writing tests is useful — a gerund subject — is also fine). Typical mistakes: *I'm interested to join instead of interested in joining; *I'm good to explain instead of good at explaining.",
+            "bodyUk": "Багато прикметників уживають із to-infinitive: I'm happy to help. The tool is easy to use. It's important to test this. It's likely to fail under load.\n\nІнші звороти мають прийменник: good at, interested in, afraid of, responsible for. Якщо далі йде дієслово, зазвичай використовують -ing: I'm good at explaining; she's interested in joining. Після прийменника може стояти й іменник: good at maths.\n\nIt's useful to write tests і Writing tests is useful — два способи висловити думку. Форми деяких прикметників залежать від значення: interested in joining описує зацікавленість участю, а interested to hear може виражати зацікавлену реакцію на новину.",
+            "bodyEn": "Many adjectives can take a to-infinitive: I'm happy to help. The tool is easy to use. It's important to test this. It's likely to fail under load.\n\nOther patterns contain a preposition: good at, interested in, afraid of, responsible for. When a verb follows, it normally takes -ing: I'm good at explaining; she's interested in joining. A noun can also follow the preposition: good at maths.\n\nIt's useful to write tests and Writing tests is useful are two ways to express the idea. Some adjective patterns depend on meaning: interested in joining expresses interest in participation, while interested to hear can express an interested reaction to news.",
             "keyPointsUk": [
               "happy/ready/easy/important/likely + to",
               "It's important to… — безособовий шаблон",
-              "good at / interested in / afraid of / responsible for + -ing",
-              "Не *interested to join, не *good to explain"
+              "Після good at / interested in можливий іменник або форма -ing",
+              "Interested in joining і interested to hear мають різні відтінки"
             ],
             "keyPointsEn": [
               "happy/ready/easy/important/likely take to",
               "It's important to… is an impersonal pattern",
-              "good at / interested in / afraid of / responsible for take -ing",
-              "Not *interested to join, not *good to explain"
+              "good at / interested in can take a noun or an -ing form",
+              "Interested in joining and interested to hear have different nuances"
             ]
           },
           {
@@ -4204,6 +4213,16 @@ const newUnits: UnitContent[] = [
             "direction": "uk_en"
           },
           {
+            "id": "en-d-adj-prep-r5",
+            "type": "mcq",
+            "promptUk": "Людина хоче дізнатися новину. Який варіант природний?",
+            "promptEn": "Someone is interested in hearing news. Which option is natural?",
+            "options": ["I'd be interested to hear your news.", "I'd be interested to hearing your news.", "I'd be interested hear your news.", "I'd be interested for hear your news."],
+            "correctIndex": 0,
+            "explanationUk": "Interested to hear може виражати зацікавленість почути новину; interested in hearing теж можливе.",
+            "explanationEn": "Interested to hear can express interest in hearing news; interested in hearing is also possible."
+          },
+          {
             "id": "en-d-adj-prep-e",
             "type": "explain",
             "promptUk": "Коли після прикметника стоїть to, а коли -ing? Наведіть happy to і good at.",
@@ -4242,8 +4261,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Багато прикметників беруть to, наприклад I'm happy to help і it's important to test. Якщо є прийменник, потрібне -ing: good at explaining, interested in joining.",
-            "sampleAnswerEn": "Many adjectives take to, for example I'm happy to help and it's important to test. If there is a preposition, we need -ing: good at explaining, interested in joining."
+            "sampleAnswerUk": "Багато прикметників беруть to, наприклад I'm happy to help. Якщо після прийменника стоїть дієслово, зазвичай вживають -ing: good at explaining; також можливий іменник, як у good at maths.",
+            "sampleAnswerEn": "Many adjectives take to, for example I'm happy to help. If a verb follows a preposition, it normally takes -ing: good at explaining; a noun is possible too, as in good at maths."
           }
         ]
       },
@@ -4259,19 +4278,19 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Навіщо ми це робимо",
             "promptEn": "Why we do something",
-            "bodyUk": "Найкоротший спосіб назвати мету — to + інфінітив: I wrote a test to catch this bug. She went to the office to meet the client. Це не for + інфінітив: не *I wrote a test for catch / for to catch. for + іменник або герундій називає призначення речі: This tool is for testing APIs. A cup is for drinking, not *This tool is for to test.\n\nin order to і so as to — більш формальні синоніми to, часто в письмі: We reduced the payload in order to speed up the page. Заперечення мети: so as not to / in order not to wake the baby; не *to not завжди звучить рівно так само гладко.\n\nso that + підмет + can/could/will/would — коли в другої частини є свій підмет або модальне: I'll send the logs so that you can reproduce the bug. Українською всі ці варіанти часто «щоб». Обирайте to, якщо підмет той самий і структура коротка; so that — якщо з'являється новий підмет.",
-            "bodyEn": "The shortest way to name a purpose is to + infinitive: I wrote a test to catch this bug. She went to the office to meet the client. This is not for + infinitive: not *I wrote a test for catch / for to catch. for + a noun or gerund names what a thing is for: This tool is for testing APIs. A cup is for drinking, not *This tool is for to test.\n\nin order to and so as to are more formal synonyms of to, often in writing: We reduced the payload in order to speed up the page. A negative purpose is so as not to / in order not to wake the baby; *to not is not always equally smooth.\n\nso that + subject + can/could/will/would is for when the second part has its own subject or a modal: I'll send the logs so that you can reproduce the bug. In Ukrainian all of these often sound like “shchob”. Choose to when the subject is the same and the structure is short; so that when a new subject appears.",
+            "bodyUk": "Мету часто виражають через to + інфінітив: I wrote a test to catch this bug. For + іменник або -ing може описувати призначення: This tool is for testing APIs. У стандартному сучасному варіанті в цьому прикладі кажуть to catch, а не for to catch.\n\nIn order to і so as to роблять мету виразнішою або формальнішою: We reduced the payload in order to speed up the page. Заперечення можливе як in order not to, so as not to або to avoid + -ing; to not також трапляється, хоча стиль залежить від речення.\n\nSo that вводить підрядне речення: I'll send the logs so that you can reproduce the bug. Його підмет може збігатися з головним. Інший спосіб назвати іншу особу — for + object + to: I'll leave the logs for you to inspect.",
+            "bodyEn": "Purpose is often expressed with to + infinitive: I wrote a test to catch this bug. For + a noun or -ing can describe a function: This tool is for testing APIs. In standard modern English, use to catch rather than for to catch in this example.\n\nIn order to and so as to can make purpose more explicit or formal: We reduced the payload in order to speed up the page. Negative purpose can use in order not to, so as not to or to avoid + -ing; to not also occurs, although style depends on the sentence.\n\nSo that introduces a clause: I'll send the logs so that you can reproduce the bug. Its subject can also be the same as in the main clause. Another way to name a different person is for + object + to: I'll leave the logs for you to inspect.",
             "keyPointsUk": [
               "Мета дії: to + інфінітив (не *for to)",
               "for + іменник/-ing — призначення речі",
               "in order to — формальніше to",
-              "so that + новий підмет + can/could"
+              "so that вводить підрядне; for + особа + to теж можливе"
             ],
             "keyPointsEn": [
               "Purpose of an action: to + infinitive (not *for to)",
               "for + noun/-ing is what a thing is for",
               "in order to is a more formal to",
-              "so that + a new subject + can/could"
+              "so that introduces a clause; for + person + to is another pattern"
             ]
           },
           {
@@ -4312,8 +4331,8 @@ const newUnits: UnitContent[] = [
               "I'll send the logs so that to you reproduce."
             ],
             "correctIndex": 0,
-            "explanationUk": "Новий підмет you — so that you can…",
-            "explanationEn": "A new subject you takes so that you can…"
+            "explanationUk": "So that you can вводить підрядне з підметом you; можливий і зворот for you to reproduce.",
+            "explanationEn": "So that you can introduces a clause with subject you; for you to reproduce is another possible pattern."
           },
           {
             "id": "en-d-purpose-r4",
@@ -4328,10 +4347,20 @@ const newUnits: UnitContent[] = [
             "direction": "uk_en"
           },
           {
+            "id": "en-d-purpose-r5",
+            "type": "mcq",
+            "promptUk": "Оберіть природне речення: ви залишаєте логи, щоб колега міг їх перевірити.",
+            "promptEn": "Choose a natural sentence: you leave the logs so a colleague can inspect them.",
+            "options": ["I'll leave the logs for you to inspect.", "I'll leave the logs for you inspect.", "I'll leave the logs for to you inspecting.", "I'll leave the logs so you to inspect."],
+            "correctIndex": 0,
+            "explanationUk": "For you to inspect називає людину та дію, для якої залишають логи.",
+            "explanationEn": "For you to inspect names the person and the action the logs are left for."
+          },
+          {
             "id": "en-d-purpose-e",
             "type": "explain",
-            "promptUk": "Як виразити мету через to і коли потрібні for або so that? Чому *for to catch — помилка?",
-            "promptEn": "How do you express purpose with to, and when do you need for or so that? Why is *for to catch wrong?",
+            "promptUk": "Як виразити мету через to, for або so that? Чому в стандартному прикладі кажуть to catch, а не for to catch?",
+            "promptEn": "How can to, for or so that express purpose? Why does the standard example use to catch rather than for to catch?",
             "keyIdeas": [
               {
                 "labelUk": "to + інфінітив",
@@ -4368,8 +4397,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Мету дії найкоротше назвати через to і інфінітив, наприклад I wrote a test to catch this bug. For стоїть з іменником або -ing, коли це призначення речі: a tool for testing. So that потрібне, коли з'являється новий підмет: so that you can reproduce. For to catch — помилка.",
-            "sampleAnswerEn": "The shortest way to name the purpose of an action is to plus an infinitive, for example I wrote a test to catch this bug. For takes a noun or -ing when it is what a thing is for: a tool for testing. So that is needed when a new subject appears: so that you can reproduce. For to catch is wrong."
+            "sampleAnswerUk": "Мету можна виразити через to і інфінітив: I wrote a test to catch this bug. For testing називає призначення інструмента. So that you can reproduce вводить підрядне; також можна сказати for you to reproduce. У стандартному прикладі вживаємо to catch без for.",
+            "sampleAnswerEn": "Purpose can use to plus an infinitive: I wrote a test to catch this bug. For testing describes a tool's function. So that you can reproduce introduces a clause; for you to reproduce is another option. The standard example uses to catch without for."
           }
         ]
       },
@@ -4474,17 +4503,17 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "older, more careful, the oldest",
             "promptEn": "older, more careful, the oldest",
-            "bodyUk": "Короткі прикметники (один склад, часто два на -y, -er, -ow, -le) утворюють вищий ступінь з -er, найвищий з -est: old — older — the oldest; nice — nicer — the nicest; happy — happier — the happiest (y → i). Довгі прикметники (два і більше складів, особливо на -ful, -ous, -ing, -ed) беруть more / the most: more careful, the most interesting.\n\nПісля вищого ступеня — than: She is older than me / than I am. Перед найвищим — the: the oldest person in the team. Типові помилки: *more older (подвійний ступінь), *the most tall, *older that me (потрібно than, не that). Українською «більш старший» калькується як *more older — цього треба уникати.\n\nПравопис: велика літера / короткий голосний + одна приголосна в кінці часто подвоюється: big — bigger; hot — hotter. Прикметники на -e лише додають -r/-st: large — larger. Не ставте the most з коротким прикметником, якщо нормальний варіант -est уже є (*the most old).",
-            "bodyEn": "Short adjectives (one syllable, and often two syllables ending in -y, -er, -ow, -le) take -er in the comparative and -est in the superlative: old — older — the oldest; nice — nicer — the nicest; happy — happier — the happiest (y → i). Long adjectives (two or more syllables, especially those in -ful, -ous, -ing, -ed) take more / the most: more careful, the most interesting.\n\nAfter a comparative we use than: She is older than me / than I am. Before a superlative we use the: the oldest person in the team. Typical mistakes: *more older (a double comparative), *the most tall, *older that me (we need than, not that). Ukrainian “bilsh starshyi” calques as *more older — avoid it.\n\nSpelling: a stressed short vowel plus a final single consonant often doubles: big — bigger; hot — hotter. Adjectives ending in -e just add -r/-st: large — larger. Do not use the most with a short adjective that already has a normal -est form (*the most old).",
+            "bodyUk": "Односкладові прикметники зазвичай утворюють ступені з -er/-est: old — older — oldest; nice — nicer — nicest. У багатьох двоскладових на -y літера y змінюється на i: happy — happier — happiest. Для довших прикметників часто вживають more/most: more careful, most interesting. Деякі прикметники допускають обидва способи, наприклад cleverer / more clever.\n\nКоли називаємо другий об'єкт порівняння, вживаємо than: She is older than me. Якщо об'єкт зрозумілий із контексту, than можна опустити: This server is older. Найвищий ступінь часто має the: the oldest person, але після присвійного слова the не потрібне: my oldest friend.\n\nУ словах big і hot кінцева приголосна після короткого наголошеного голосного подвоюється: bigger, hotter. Уникайте подвійного порівняння *more older: достатньо older.",
+            "bodyEn": "One-syllable adjectives usually form degrees with -er/-est: old — older — oldest; nice — nicer — nicest. Many two-syllable adjectives ending in -y change y to i: happy — happier — happiest. Longer adjectives often use more/most: more careful, most interesting. Some allow both methods, such as cleverer / more clever.\n\nWhen naming the second item in a comparison, use than: She is older than me. If the comparison is clear from context, than can be omitted: This server is older. Superlatives often take the: the oldest person, but a possessive can replace it: my oldest friend.\n\nIn big and hot the final consonant after a short stressed vowel doubles: bigger, hotter. Avoid the double comparative *more older: older is enough.",
             "keyPointsUk": [
               "Короткі: -er / the -est; довгі: more / the most",
-              "Після вищого ступеня — than, не that",
+              "Для названого об'єкта порівняння — than, не that",
               "Не *more older: один показник ступеня",
               "happy → happier; big → bigger"
             ],
             "keyPointsEn": [
               "Short adjectives: -er / the -est; long ones: more / the most",
-              "After a comparative use than, not that",
+              "When naming the compared item use than, not that",
               "Not *more older: only one comparative marker",
               "happy → happier; big → bigger"
             ]
@@ -4546,6 +4575,16 @@ const newUnits: UnitContent[] = [
             "direction": "uk_en"
           },
           {
+            "id": "en-d-comp-reg-r5",
+            "type": "mcq",
+            "promptUk": "Оберіть природний варіант із присвійним словом.",
+            "promptEn": "Choose the natural option with a possessive.",
+            "options": ["She is my oldest friend.", "She is my the oldest friend.", "She is the my oldest friend.", "She is my most oldest friend."],
+            "correctIndex": 0,
+            "explanationUk": "My уже визначає іменник, тому the перед oldest не додають.",
+            "explanationEn": "My already determines the noun, so the is not added before oldest."
+          },
+          {
             "id": "en-d-comp-reg-e",
             "type": "explain",
             "promptUk": "Як утворюють вищий і найвищий ступінь короткі та довгі прикметники? Чому *more older — помилка?",
@@ -4587,8 +4626,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Короткі прикметники беруть -er і the -est, наприклад older і the oldest. Довгі беруть more і the most, як more careful. More older — помилка, бо ступінь уже виражений через -er, а після порівняння стоїть than.",
-            "sampleAnswerEn": "Short adjectives take -er and the -est, for example older and the oldest. Long adjectives take more and the most, as in more careful. More older is wrong because the comparative is already marked with -er, and after a comparative we use than."
+            "sampleAnswerUk": "Короткі прикметники зазвичай беруть -er і -est, наприклад older і oldest. Довші часто беруть more і most, як more careful. More older — помилка, бо ступінь уже виражений через -er; для названого об'єкта порівняння вживають than.",
+            "sampleAnswerEn": "Short adjectives usually take -er and -est, for example older and oldest. Longer ones often take more and most, as in more careful. More older is wrong because -er already marks the comparative; use than when naming the item compared."
           }
         ]
       },
@@ -4801,6 +4840,16 @@ const newUnits: UnitContent[] = [
             "direction": "uk_en"
           },
           {
+            "id": "en-d-as-as-r5",
+            "type": "mcq",
+            "promptUk": "Стара система обробляє 10 запитів за секунду, нова — 20. Яке порівняння точно описує пропускну здатність?",
+            "promptEn": "The old system handles 10 requests per second and the new one handles 20. Which comparison accurately describes throughput?",
+            "options": ["The new system handles twice as many requests per second as the old one.", "The new system handles half as many requests per second as the old one.", "Both systems handle the same number of requests per second.", "The new system handles ten times as many requests per second as the old one."],
+            "correctIndex": 0,
+            "explanationUk": "20 запитів за секунду — удвічі більше за 10; це порівняння пропускної здатності, а не часу відповіді.",
+            "explanationEn": "Twenty requests per second is twice ten; this compares throughput, not response time."
+          },
+          {
             "id": "en-d-as-as-e",
             "type": "explain",
             "promptUk": "Як працює as…as і чому не кажуть as faster as або the same like?",
@@ -4981,19 +5030,19 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "так важко / такий важкий день",
             "promptEn": "so hard / such a hard day",
-            "bodyUk": "so + adjective/adverb: The task is so hard. She works so quickly. such + (прикметник) + іменник: It was such a hard day. They are such good colleagues. Артикль a/an стоїть після such: such a good idea, не *a such good idea. Без іменника such не ставлять замість so: не *The task is such hard.\n\nШаблони наслідку: so + adj + that: The file was so large that the upload failed. such a + adj + noun + that: It was such a large file that the upload failed. Розмовне so у значенні very: I'm so tired — нормально в мовленні.\n\nУкраїнське «такий» спокушає завжди ставити such, навіть перед голим прикметником (*such tired). Пам'ятайте: якщо далі немає іменника — so. Якщо є іменник — such (a). so much / so many — кількість: so much work, so many tickets. so + adjective, не *so much hard.",
-            "bodyEn": "so + adjective/adverb: The task is so hard. She works so quickly. such + (adjective) + noun: It was such a hard day. They are such good colleagues. The article a/an comes after such: such a good idea, not *a such good idea. Without a noun, do not use such in place of so: not *The task is such hard.\n\nResult patterns: so + adj + that: The file was so large that the upload failed. such a + adj + noun + that: It was such a large file that the upload failed. Conversational so meaning very: I'm so tired is fine in speech.\n\nUkrainian “takyi” tempts learners to use such everywhere, even before a bare adjective (*such tired). Remember: if there is no noun after it, use so. If there is a noun, use such (a). so much / so many is for quantity: so much work, so many tickets. so + adjective, not *so much hard.",
+            "bodyUk": "Для підсилення прикметника чи прислівника часто використовують so: The task is so hard. She works so quickly. Перед іменниковою групою поширене such: It was such a hard day. They are such good colleagues. В однині артикль стоїть після such: such a good idea.\n\nНаслідок можна передати через that: The file was so large that the upload failed; It was such a large file that the upload failed. Для кількості вживають so much work і so many tickets.\n\nЦе корисні шаблони, а не єдині можливі конструкції: формальніше можливе so good a day, а such може замінювати раніше назване поняття. У простому реченні The task is so hard використовуйте so, не *such hard.",
+            "bodyEn": "To intensify an adjective or adverb, so is common: The task is so hard. She works so quickly. Before a noun phrase, such is common: It was such a hard day. They are such good colleagues. With a singular noun the article follows such: such a good idea.\n\nA result can be introduced with that: The file was so large that the upload failed; It was such a large file that the upload failed. For quantity, use so much work and so many tickets.\n\nThese are useful patterns rather than the only constructions: the more formal so good a day is possible, and such can stand for an idea mentioned earlier. In the simple sentence The task is so hard, use so, not *such hard.",
             "keyPointsUk": [
               "so + прикметник/прислівник; such + (adj) + іменник",
               "such a good idea, не *a such good idea",
               "so/such … that — наслідок",
-              "Не *such tired: без іменника — so"
+              "Перед прикметником у The task is so hard вживаємо so"
             ],
             "keyPointsEn": [
               "so + adjective/adverb; such + (adj) + noun",
               "such a good idea, not *a such good idea",
               "so/such … that introduces a result",
-              "Not *such tired: with no noun, use so"
+              "Use so before the adjective in The task is so hard"
             ]
           },
           {
@@ -5198,18 +5247,18 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Ймовірність про минуле",
             "promptEn": "Probability about the past",
-            "bodyUk": "Модальні з have + V3 оцінюють минуле, не обов'язок. must have + V3 — майже впевнена здогадка: The lights are off. They must have left. might/may have — можливо: She might have missed the train. could have в здогадці теж «можливо було», але could have done також означає невикористану можливість (You could have told me).\n\ncan't have / couldn't have — майже впевнене заперечення: He can't have forgotten — he's too reliable. Не *mustn't have у значенні «не може бути, що»: mustn't — це заборона, не здогадка. Українською «мабуть, уже пішли» легко перекласти як *must left без have — потрібне must have left.\n\nШкала: must have (≈90%+ упевненості), should have (очікувано, що так і було), might/may/could have (можливо), can't have (майже неможливо). Для теперішнього без have: She must be at home (зараз). Не плутайте з Past Perfect; тут have — частина модальної конструкції.",
-            "bodyEn": "Modals with have + V3 evaluate the past; they are not about obligation. must have + V3 is a near-certain deduction: The lights are off. They must have left. might/may have is possibility: She might have missed the train. could have in a deduction also means “it is possible that it happened”, but could have done can also be a missed opportunity (You could have told me).\n\ncan't have / couldn't have is a near-certain negative deduction: He can't have forgotten — he's too reliable. Do not use *mustn't have to mean “it is impossible that”: mustn't is prohibition, not deduction. Ukrainian “maybe they already left” is easy to translate as *must left without have — you need must have left.\n\nA scale: must have (about 90%+ certainty), should have (it was expected to be so), might/may/could have (possible), can't have (almost impossible). For a present deduction without have: She must be at home (now). Do not confuse this with Past Perfect; here have is part of the modal structure.",
+            "bodyUk": "Модальні дієслова з have + V3 можуть виражати висновки про минуле: They must have left — сильне припущення; She might have missed the train — можливість. Це оцінка мовця, а не точний відсоток або доказ. Could have також може позначати невикористану можливість: You could have told me.\n\nCan't have / couldn't have часто виражають висновок, що минула подія малоймовірна або неможлива: He can't have forgotten. У стандартному навчальному вжитку це природний спосіб такого висновку; значення модальних форм залежать від контексту та різновиду мови.\n\nShould have може виражати очікування або невиконану пораду чи обов'язок: The parcel should have arrived by now / You should have called. Для висновку про теперішнє можливе She must be at home. У минулому висновку потрібна повна форма must have left.",
+            "bodyEn": "Modals with have + a past participle can express conclusions about the past: They must have left is a strong inference; She might have missed the train expresses possibility. These are judgments, not exact percentages or proof. Could have can also describe a missed opportunity: You could have told me.\n\nCan't have / couldn't have often express the conclusion that a past event was unlikely or impossible: He can't have forgotten. In standard teaching examples this is a natural way to express that inference; modal meanings depend on context and variety.\n\nShould have can express an expectation or an unfulfilled recommendation or obligation: The parcel should have arrived by now / You should have called. For a present inference, She must be at home is possible. A past inference needs the full form must have left.",
             "keyPointsUk": [
               "must have + V3 — майже впевнена здогадка про минуле",
               "might/may have — можливо; can't have — майже неможливо",
-              "mustn't не означає «не може бути, що»",
+              "should have може виражати очікування або невиконану пораду",
               "Потрібне have: must have left, не *must left"
             ],
             "keyPointsEn": [
               "must have + V3 is a near-certain deduction about the past",
               "might/may have is possible; can't have is almost impossible",
-              "mustn't does not mean “it can't be that”",
+              "should have can express an expectation or unfulfilled advice",
               "You need have: must have left, not *must left"
             ]
           },
@@ -5221,7 +5270,7 @@ const newUnits: UnitContent[] = [
             "options": [
               "They must have left.",
               "They must left.",
-              "They mustn't have left, meaning “it is impossible that they left”, as a deduction.",
+              "They must have leaving.",
               "They must have leave."
             ],
             "correctIndex": 0,
@@ -5246,7 +5295,7 @@ const newUnits: UnitContent[] = [
             "promptEn": "A near-certain negative: he is too reliable to have forgotten.",
             "options": [
               "He can't have forgotten.",
-              "He mustn't have forgotten, as a deduction equal to “impossible”.",
+              "He can't have forget.",
               "He can't forgotten.",
               "He can't has forgotten."
             ],
@@ -5271,8 +5320,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-mod-deduce-e",
             "type": "explain",
-            "promptUk": "Що означає must have left і can't have forgotten? Чому недостатньо сказати must left і чомуmustn't тут не підходить?",
-            "promptEn": "What do must have left and can't have forgotten mean? Why is must left not enough, and why is mustn't the wrong choice here?",
+            "promptUk": "Що означає must have left і can't have forgotten? Чому для висновку про минуле потрібне have?",
+            "promptEn": "What do must have left and can't have forgotten mean? Why is have needed for these past inferences?",
             "keyIdeas": [
               {
                 "labelUk": "must have",
@@ -5307,8 +5356,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Must have left — це майже впевнена здогадка про минуле, і слово have тут обов'язкове, не must left. Can't have forgotten — майже впевнене заперечення. Mustn't означає заборону, а не «не може бути, що».",
-            "sampleAnswerEn": "Must have left is a near-certain deduction about the past, and have is required here, not must left. Can't have forgotten is a near-certain negative deduction. Mustn't means prohibition, not “it cannot be that”."
+            "sampleAnswerUk": "Must have left — сильне припущення про минуле; can't have forgotten — висновок, що подія малоймовірна. В обох випадках для минулого вживають have і третю форму, тому must left не підходить.",
+            "sampleAnswerEn": "Must have left is a strong inference about the past; can't have forgotten is an inference that the event is unlikely. Both use have and a past participle for the past, so must left does not fit."
           }
         ]
       },
@@ -5324,17 +5373,17 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Докір і невикористана можливість",
             "promptEn": "Criticism and a missed opportunity",
-            "bodyUk": "should have + V3 — щось було правильним або очікуваним, але (часто) не сталося: You should have written a test. I should have asked earlier. Це докір або жаль, не здогадка (здогадка — must have). ought to have — те саме, трохи формальніше.\n\ncould have + V3 — могла статися можливість, яку не використали: You could have told me. We could have caught the earlier train. Не плутайте з couldn't have (здогадка «не могло статись»). would have — нереальний наслідок у минулому (третій умовний): I would have helped if I had known.\n\nТипові помилки: *should had written; *You should have wrote (потрібна третя форма written). Українською «треба було» — should have, не *should + Past Simple. Тон: should have може звучати різко в команді; пом'якшення: It might have been better to… / Next time we could….",
-            "bodyEn": "should have + V3 is something that was right or expected but (often) did not happen: You should have written a test. I should have asked earlier. This is criticism or regret, not a deduction (a deduction is must have). ought to have is the same, a little more formal.\n\ncould have + V3 is a possibility that was not used: You could have told me. We could have caught the earlier train. Do not confuse it with couldn't have (the deduction “that cannot have happened”). would have is an unreal past result (the third conditional): I would have helped if I had known.\n\nTypical mistakes: *should had written; *You should have wrote (you need the past participle written). Ukrainian “treba bulo” is should have, not *should + Past Simple. Tone: should have can sound sharp in a team; a softer version is It might have been better to… / Next time we could….",
+            "bodyUk": "Should have + V3 може виражати докір або жаль щодо невиконаної дії: You should have written a test. I should have asked earlier. Воно також може описувати очікування: The parcel should have arrived by now — ми очікуємо, що посилка вже прибула, але не знаємо напевно. Ought to have має схожі значення.\n\nCould have може описувати невикористану можливість (You could have told me) або можливе минуле (She could have missed the train). Would have може описувати нереальний наслідок: I would have helped if I had known. Значення підказує контекст.\n\nПісля модального дієслова вживаємо have і третю форму: should have written, не *should had written чи *should have wrote. Докір може звучати різко; м'якший варіант для обговорення — It might have been better to… або Next time we could….",
+            "bodyEn": "Should have + a past participle can express criticism or regret about an action not taken: You should have written a test. I should have asked earlier. It can also express an expectation: The parcel should have arrived by now means we expect it to have arrived but do not know for sure. Ought to have has similar meanings.\n\nCould have can describe a missed opportunity (You could have told me) or a possible past event (She could have missed the train). Would have can describe an unreal result: I would have helped if I had known. Context determines the meaning.\n\nAfter a modal use have and a past participle: should have written, not *should had written or *should have wrote. Criticism can sound sharp; softer discussion might use It might have been better to… or Next time we could….",
             "keyPointsUk": [
               "should have + V3 — треба було, але (часто) не зробили",
-              "could have — невикористана можливість",
+              "could have — невикористана можливість або припущення",
               "would have — нереальний наслідок (3-й умовний)",
               "Третя форма: should have written, не *wrote"
             ],
             "keyPointsEn": [
               "should have + V3 is “it was the right thing, but often it didn't happen”",
-              "could have is a missed opportunity",
+              "could have can express a missed opportunity or a possibility",
               "would have is an unreal result (third conditional)",
               "Use a past participle: should have written, not *wrote"
             ]
@@ -5383,8 +5432,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-mod-should-have-r4",
             "type": "translate",
-            "promptUk": "Перекладіть через should have.",
-            "promptEn": "Translate with should have.",
+            "promptUk": "Перекладіть через should have або ought to have.",
+            "promptEn": "Translate with should have or ought to have.",
             "source": "Мені треба було запитати раніше.",
             "accepted": [
               "I should have asked earlier",
@@ -5436,8 +5485,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Should have — це докір або жаль: треба було написати тест, але не написали. Must have — здогадка, не докір. Could have told me — невикористана можливість. Після have потрібна третя форма, written, не wrote.",
-            "sampleAnswerEn": "Should have is criticism or regret: you were supposed to write a test, but you didn't. Must have is a deduction, not criticism. Could have told me is a missed opportunity. After have we need the past participle, written, not wrote."
+            "sampleAnswerUk": "Should have може виражати докір або очікування, а must have — сильне припущення. Could have told me у такому контексті означає невикористану можливість. Після have потрібна третя форма, written, не wrote.",
+            "sampleAnswerEn": "Should have can express criticism or expectation, while must have expresses a strong inference. Could have told me expresses a missed opportunity in this context. After have use a past participle, written rather than wrote."
           }
         ]
       },
@@ -5453,8 +5502,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Зробив дарма чи просто не було потреби",
             "promptEn": "You did it in vain, or there was simply no need",
-            "bodyUk": "Це тонка й важлива пара. didn't need to + інфінітив — потреби не було; часто дію й не виконували: The meeting was cancelled, so I didn't need to come (я й не прийшов). Іноді дію все ж зробили, але акцент — «обов'язку не було».\n\nneedn't have + V3 — ви ВЖЕ зробили дію, а вона виявилась непотрібною: I needn't have come so early — the room was still locked (прийшов дарма). Українською обидва звучать як «не треба було», тому різниця губиться. Запитайте себе: чи людина вже це зробила дарма?\n\nneed як звичайне дієслово: Do you need to…? I don't need to. need як модальне (переважно брит., формальне): Need I say more? You needn't wait. У сучасному IT-англійському частіше don't need to, ніжneedn't, окрім needn't have, яке живе саме в цій парі. Не *I needn't to come і не *I didn't need come.",
-            "bodyEn": "This is a subtle and important pair. didn't need to + infinitive means there was no need; often the action was not done: The meeting was cancelled, so I didn't need to come (and I didn't come). Sometimes the action was still done, but the focus is “there was no obligation”.\n\nneedn't have + V3 means you ALREADY did the action, and it turned out to be unnecessary: I needn't have come so early — the room was still locked (I came in vain). In Ukrainian both sound like “I didn't have to”, so the difference disappears. Ask yourself: did the person already do it for nothing?\n\nneed as a normal verb: Do you need to…? I don't need to. need as a modal (mainly British, formal): Need I say more? You needn't wait. In modern IT English, don't need to is more common than needn't, except for needn't have, which lives in this pair. Not *I needn't to come and not *I didn't need come.",
+            "bodyUk": "Didn't need to + інфінітив означає, що потреби не було, але саме речення не доводить, чи дія відбулася: I didn't need to come. Контекст може уточнити: The meeting was cancelled, so I stayed home.\n\nNeedn't have + V3 зазвичай означає, що дію виконали, а потім виявилося, що вона не була потрібна: I needn't have come so early; the meeting started two hours later. В обох випадках важливий контекст: відсутність потреби не завжди означає, що дія не відбулася.\n\nNeed як звичайне дієслово: Do you need to…? I don't need to. Модальне need, поширеніше в британській англійській, має іншу форму: You needn't wait; I needn't have come. Не додавайте to після модального needn't.",
+            "bodyEn": "Didn't need to + infinitive means there was no need, but the sentence alone does not establish whether the action happened: I didn't need to come. Context can clarify: The meeting was cancelled, so I stayed home.\n\nNeedn't have + past participle normally means the action was performed and later turned out to be unnecessary: I needn't have come so early; the meeting started two hours later. Context matters in both cases: no need does not always mean an action was not done.\n\nNeed as an ordinary verb: Do you need to…? I don't need to. Modal need, more common in British English, has a different form: You needn't wait; I needn't have come. Do not add to after modal needn't.",
             "keyPointsUk": [
               "didn't need to — потреби не було (часто дію не робили)",
               "needn't have + V3 — уже зробили дарма",
@@ -5486,8 +5535,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-mod-need-r2",
             "type": "mcq",
-            "promptUk": "Ви приїхали рано, а кімната ще була зачинена. Дарма.",
-            "promptEn": "You arrived early, and the room was still locked. It was in vain.",
+            "promptUk": "Ви приїхали рано й дізналися, що зустріч почнеться лише за дві години: ранній приїзд був непотрібним.",
+            "promptEn": "You arrived early and learned the meeting starts in two hours: arriving so early was unnecessary.",
             "options": [
               "I needn't have come so early.",
               "I didn't need to come so early, and I stayed at home — that's this story.",
@@ -5645,8 +5694,8 @@ const newUnits: UnitContent[] = [
             "accepted": [
               "You're not supposed to push straight to main",
               "You are not supposed to push straight to main",
-              "You're not supposed to commit straight to main",
-              "You are not supposed to commit straight to main"
+              "You're not supposed to push directly to main",
+              "You are not supposed to push directly to main"
             ],
             "direction": "uk_en"
           },
@@ -5707,8 +5756,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Обрати точний відтінок",
             "promptEn": "Choosing the exact shade",
-            "bodyUk": "Зберіть шкалу в одну картину. Обов'язок і правило зараз: must / have to / should / be supposed to / had better — від сильного внутрішнього must до правила have to, поради should, очікування supposed to і попередження had better. Заборона: mustn't (не можна) проти don't have to (не обов'язково). Ця пара вже була в базових модальних; тут не повторюємо форму, а тримаємо її поруч із минулим.\n\nМинуле: must have (здогадка), should have (треба було), could have (могли, але не), needn't have (зробили дарма), didn't need to (не було потреби), was supposed to (очікували, часто не сталося), would have (нереальний наслідок).\n\nАлгоритм: спочатку час (зараз чи минуле?), потім сила (впевненість, обов'язок, порада, можливість), потім чи дія відбулася. Не ставте will у здогадці про минуле (*They will have left у значенні «мабуть, пішли» можливе як Future Perfect, але для чистої здогадки про вже видимий факт природніше must have left).",
-            "bodyEn": "Put the scale into one picture. Obligation and rules now: must / have to / should / be supposed to / had better — from a strong inner must, to a rule with have to, advice with should, an expectation with supposed to, and a warning with had better. Prohibition: mustn't (not allowed) versus don't have to (not necessary). That pair was already in the basic modals unit; here we do not reteach the form, we keep it next to the past.\n\nThe past: must have (deduction), should have (it was the right thing), could have (we could, but didn't), needn't have (we did it in vain), didn't need to (there was no need), was supposed to (it was expected, often it didn't happen), would have (an unreal result).\n\nA method: first the time (now or past?), then the force (certainty, obligation, advice, possibility), then whether the action happened. Do not use will for a deduction about a past fact you can already see (*They will have left can be Future Perfect, but for a pure deduction about an already visible fact, must have left is more natural).",
+            "bodyUk": "Must і have to можуть виражати обов'язок, should — пораду або очікування, supposed to — домовленість чи правило, had better — пораду з попередженням. Mustn't забороняє дію, а don't have to означає відсутність обов'язку.\n\nУ минулому must have може виражати висновок, should have — оцінку чи очікування, could have — можливість або невикористаний шанс. Needn't have зазвичай описує виконану непотрібну дію; didn't need to саме по собі не уточнює, чи її виконали. Was supposed to повідомляє про очікування; контекст показує, чи воно здійснилося.\n\nВибирайте форму за часом і змістом, який хочете передати. Для припущення про минуле можливе не лише must have: They'll have left by now також може виражати висновок мовця.",
+            "bodyEn": "Must and have to can express obligation, should can express advice or expectation, supposed to can express an agreement or rule, and had better can give advice with a warning. Mustn't prohibits an action; don't have to says there is no obligation.\n\nFor the past, must have can express an inference, should have an evaluation or expectation, and could have a possibility or missed opportunity. Needn't have normally describes an unnecessary action that was performed; didn't need to alone does not establish whether it happened. Was supposed to states an expectation; context tells us whether it was met.\n\nChoose the form for the time and meaning you want to express. Must have is not the only way to infer a past event: They'll have left by now can also express a speaker's conclusion.",
             "keyPointsUk": [
               "Спочатку час, потім сила, потім «чи вже зробили»",
               "mustn't ≠ don't have to; must have ≠ should have",
@@ -5730,12 +5779,12 @@ const newUnits: UnitContent[] = [
             "options": [
               "They must have left.",
               "They should have left (criticism: it was their duty, and maybe they didn't).",
-              "They mustn't have left as a deduction.",
+              "They must have leave.",
               "They will left."
             ],
             "correctIndex": 0,
-            "explanationUk": "Здогадка — must have, не докір should have.",
-            "explanationEn": "A deduction is must have, not criticism with should have."
+            "explanationUk": "Must have left виражає сильне припущення. Should have може виражати інше значення залежно від контексту, зокрема очікування або докір.",
+            "explanationEn": "Must have left expresses a strong inference. Should have can express another meaning depending on context, including expectation or criticism."
           },
           {
             "id": "en-d-mod-mix-r2",
@@ -5788,6 +5837,22 @@ const newUnits: UnitContent[] = [
             "explanationEn": "You didn't come, because there was no need — didn't need to."
           },
           {
+            "id": "en-d-mod-mix-r5",
+            "type": "mcq",
+            "promptUk": "Що можна виснувати лише з речення I didn't need to come?",
+            "promptEn": "What follows from the sentence I didn't need to come alone?",
+            "options": [
+              "Приходити не було потреби; чи прийшла людина, сам вислів не уточнює.",
+              "Людина точно залишилася вдома.",
+              "Людина точно прийшла.",
+              "Приходити було заборонено."
+            ],
+            "optionsEn": ["There was no need to come; the sentence alone does not establish whether the person came.", "The person definitely stayed home.", "The person definitely came.", "Coming was prohibited."],
+            "correctIndex": 0,
+            "explanationUk": "Didn't need to повідомляє про відсутність потреби; факт виконання визначає контекст.",
+            "explanationEn": "Didn't need to states that there was no need; context establishes whether the action happened."
+          },
+          {
             "id": "en-d-mod-mix-e",
             "type": "explain",
             "promptUk": "Опишіть короткий алгоритм вибору модального в минулому: здогадка, докір, дарма, не було потреби. Наведіть по одній формі.",
@@ -5826,8 +5891,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Спочатку дивіться час і те, чи дія вже сталася. Для здогадки про минуле — must have left. Для докору — should have written. Якщо зробили дарма — needn't have come, а якщо потреби не було і часто навіть не зробили — didn't need to.",
-            "sampleAnswerEn": "First look at the time and at whether the action already happened. For a past deduction, use must have left. For criticism, use should have written. If you did it in vain, use needn't have come, and if there was no need and often you didn't even do it, use didn't need to."
+            "sampleAnswerUk": "Спочатку визначте час і зміст. Must have left може передавати припущення, should have written — докір. Needn't have come зазвичай означає, що дію виконали дарма; didn't need to come повідомляє про відсутність потреби, але не доводить, чи прийшла людина.",
+            "sampleAnswerEn": "First identify the time and intended meaning. Must have left can express an inference, and should have written can express criticism. Needn't have come normally means the action was done unnecessarily; didn't need to come says there was no need but does not establish whether the person came."
           }
         ]
       },
@@ -5849,7 +5914,7 @@ const newUnits: UnitContent[] = [
               "They must have left.",
               "They must left.",
               "They should have left as a pure deduction only.",
-              "They mustn't have left meaning “impossible”."
+              "They must have leaving."
             ],
             "correctIndex": 0,
             "explanationUk": "must have left — здогадка.",
@@ -5932,18 +5997,18 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "I wish I knew, I wish I were",
             "promptEn": "I wish I knew, I wish I were",
-            "bodyUk": "I wish + Past Simple описує ситуацію в ТЕПЕРІШНЬОМУ, яку ви хотіли б змінити: I wish I knew the answer (але не знаю). I wish I had more time. I wish we didn't have this bug. Час минулий за формою, значення — теперішнє нереальне. Це той самий «відступ у минуле», що в другому умовному.\n\nЗ be традиційно I wish I were (I wish I were taller; I wish I were on holiday). I wish I was широко вживане в мовленні і теж приймається в багатьох контекстах; у тестах і акуратному письмі were безпечніший.\n\nНе плутайте з I hope (реальне бажання про майбутнє, яке може здійснитися): I hope you pass the exam — не *I wish you pass. I wish you passed звучало б, ніби ви вважаєте успіх нереальним. Типова помилка: *I wish I know / *I wish I have — потрібна минула форма. Українське «шкода, що я не знаю» = I wish I knew.",
-            "bodyEn": "I wish + Past Simple describes a PRESENT situation you would like to be different: I wish I knew the answer (but I don't). I wish I had more time. I wish we didn't have this bug. The form is past; the meaning is an unreal present. It is the same “step back into the past” as in the second conditional.\n\nWith be, the traditional form is I wish I were (I wish I were taller; I wish I were on holiday). I wish I was is widely used in speech and is accepted in many contexts; in tests and careful writing, were is safer.\n\nDo not confuse this with I hope (a real wish about a future that may happen): I hope you pass the exam — not *I wish you pass. I wish you passed would sound as if you treat success as unreal. A typical mistake is *I wish I know / *I wish I have — you need a past form. Ukrainian “it's a pity I don't know” is I wish I knew.",
+            "bodyUk": "I wish + минула форма часто описує теперішню ситуацію, яку хотілося б змінити: I wish I knew the answer (зараз не знаю). I wish I had more time. Форма минула, але значення тут стосується теперішнього.\n\nЗ be можливі I wish I were taller та I wish I was taller; were традиційніше у формальному письмі. Для надії на майбутній результат природно I hope you pass the exam. Wish також має інші конструкції, наприклад I wish you success.\n\nHope може стосуватися не лише майбутнього: I hope she is safe — надія щодо теперішнього; I hope she arrived safely — щодо минулого. Вибір залежить від змісту, а не лише часу.",
+            "bodyEn": "I wish + a past form often describes a present situation you want to be different: I wish I knew the answer (I don't know now). I wish I had more time. The form is past, but the meaning here concerns the present.\n\nWith be, both I wish I were taller and I wish I was taller are used; were is more traditional in formal writing. For hope about a future outcome, I hope you pass the exam is natural. Wish also has other patterns, such as I wish you success.\n\nHope is not limited to the future: I hope she is safe concerns the present; I hope she arrived safely concerns the past. The choice depends on the intended meaning, not just the time.",
             "keyPointsUk": [
               "I wish + Past Simple = нереальне ТЕПЕРІШНЄ",
               "I wish I were — традиційна форма з be",
-              "hope — реальне майбутнє; wish — шкода, що не так",
+              "hope може стосуватися минулого, теперішнього або майбутнього",
               "Не *I wish I know"
             ],
             "keyPointsEn": [
               "I wish + Past Simple is an unreal PRESENT",
               "I wish I were is the traditional form with be",
-              "hope is a real future; wish is “pity it is not so”",
+              "hope can concern the past, present or future",
               "Not *I wish I know"
             ]
           },
@@ -5965,8 +6030,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-wish-pres-r2",
             "type": "fill_blank",
-            "promptUk": "Вставте were або be (акуратне письмо).",
-            "promptEn": "Insert were or be (careful writing).",
+            "promptUk": "Вставте were або was для нереального бажання в теперішньому.",
+            "promptEn": "Insert were or was for an unreal present wish.",
             "sentence": "I wish I ___ taller.",
             "accepted": [
               "were",
@@ -6043,8 +6108,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "I wish I knew означає, що зараз я не знаю і шкодую про це: форма минула, значення теперішнє нереальне. Hope використовують для реального майбутнього, наприклад I hope you pass. Після wish про теперішнє стоїть Past Simple, не I wish I know.",
-            "sampleAnswerEn": "I wish I knew means that I do not know now and I regret it: the form is past, the meaning is an unreal present. Hope is for a real future, for example I hope you pass. After wish about the present we use Past Simple, not I wish I know."
+            "sampleAnswerUk": "I wish I knew означає, що зараз я не знаю і хотів би знати: форма минула, значення теперішнє. I hope you pass виражає надію на майбутній результат, але hope також можливе щодо теперішнього або минулого.",
+            "sampleAnswerEn": "I wish I knew means I do not know now and would like to: the form is past, the meaning is present. I hope you pass expresses hope for a future outcome, but hope can also refer to the present or past."
           }
         ]
       },
@@ -6060,26 +6125,26 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "I wish I had known",
             "promptEn": "I wish I had known",
-            "bodyUk": "I wish + Past Perfect (had + V3) — жаль про минуле, яке вже не змінити: I wish I had asked earlier. I wish we had written a test. I wish I hadn't sent that email. Це пара до третього умовного (If I had known, I would have…).\n\nНе ставте Past Simple, якщо жаль саме про минулу подію: *I wish I asked yesterday у значенні «шкода, що вчора не запитав» — природніше I wish I had asked yesterday. I wish I asked більше схоже на регулярне теперішнє («шкода, що я (взагалі) не питаю»).\n\nКороткі форми: I wish I'd known. I wish I hadn't said that. If only I had known — той самий час, сильніший емоційний тон (наступний урок). Типова помилка: *I wish I would have known — would have після wish у стандартній граматиці не ставлять для жалю про минуле (це часта розмовна калька).",
-            "bodyEn": "I wish + Past Perfect (had + V3) is regret about a past that cannot be changed: I wish I had asked earlier. I wish we had written a test. I wish I hadn't sent that email. It is the partner of the third conditional (If I had known, I would have…).\n\nDo not use Past Simple if the regret is about a past event: *I wish I asked yesterday meaning “pity I didn't ask yesterday” is more naturally I wish I had asked yesterday. I wish I asked is closer to a regular present (“pity I don't ask, as a habit”).\n\nShort forms: I wish I'd known. I wish I hadn't said that. If only I had known uses the same tense with a stronger emotional tone (next lesson). A typical mistake is *I wish I would have known — standard grammar does not use would have after wish for past regret (it is a common spoken calque).",
+            "bodyUk": "I wish + Past Perfect (had + V3) часто виражає жаль про минуле: I wish I had asked earlier. I wish I hadn't sent that email. Для стандартного формального письма це надійна форма для ситуації, яку вже не змінити.\n\nСкорочення: I wish I'd known; I wish I hadn't said that. If only I had known має подібне значення, часто з сильнішим емоційним відтінком.\n\nУ розмовній американській англійській також зустрічається I wish I would have known. У цьому курсі для формальної практики використовуємо I wish I had known, пам'ятаючи про розмовне варіювання.",
+            "bodyEn": "I wish + Past Perfect (had + a past participle) often expresses regret about the past: I wish I had asked earlier. I wish I hadn't sent that email. In standard formal writing this is a reliable choice for a situation that cannot now be changed.\n\nContractions: I wish I'd known; I wish I hadn't said that. If only I had known has a similar meaning, often with stronger emotion.\n\nIn informal American English, I wish I would have known also occurs. For formal practice in this course, use I wish I had known while recognizing the conversational variation.",
             "keyPointsUk": [
               "I wish + had + V3 — жаль про минуле",
               "Пара до третього умовного",
               "Для вчорашньої події — had asked, не asked",
-              "Не *I wish I would have known"
+              "Для формального письма: had known; would have трапляється в розмовному мовленні"
             ],
             "keyPointsEn": [
               "I wish + had + V3 is regret about the past",
               "It partners the third conditional",
               "For yesterday's event use had asked, not asked",
-              "Not *I wish I would have known"
+              "For formal writing: had known; would have occurs informally"
             ]
           },
           {
             "id": "en-d-wish-past-r1",
             "type": "mcq",
-            "promptUk": "Шкода, що раніше не запитали.",
-            "promptEn": "Pity you didn't ask earlier.",
+            "promptUk": "Шкода, що раніше не запитали. Оберіть форму для стандартного формального письма.",
+            "promptEn": "You regret not asking earlier. Choose the form for standard formal writing.",
             "options": [
               "I wish I had asked earlier.",
               "I wish I asked earlier, about a finished past event.",
@@ -6133,8 +6198,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-wish-past-e",
             "type": "explain",
-            "promptUk": "Як виразити жаль про минуле з wish? Чому *I wish I would have known вважають помилкою в стандартній граматиці?",
-            "promptEn": "How do you express regret about the past with wish? Why is *I wish I would have known treated as wrong in standard grammar?",
+            "promptUk": "Як стандартним формальним варіантом виразити жаль про минуле з wish? Який розмовний варіант також трапляється?",
+            "promptEn": "How do you express regret about the past with wish in standard formal writing? What informal variant also occurs?",
             "keyIdeas": [
               {
                 "labelUk": "had + V3",
@@ -6159,8 +6224,8 @@ const newUnits: UnitContent[] = [
                 ]
               },
               {
-                "labelUk": "не would have",
-                "labelEn": "not would have",
+                "labelUk": "розмовний варіант",
+                "labelEn": "informal variant",
                 "anyOf": [
                   "would have",
                   "standard",
@@ -6170,8 +6235,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Жаль про минуле виражають як I wish і Past Perfect: I wish I had asked earlier. Це пара до третього умовного. У стандартній граматиці після wish не ставлять would have, тож I wish I would have known — помилка.",
-            "sampleAnswerEn": "Regret about the past is I wish plus Past Perfect: I wish I had asked earlier. It partners the third conditional. In standard grammar we do not put would have after wish, so I wish I would have known is wrong."
+            "sampleAnswerUk": "Жаль про минуле у формальному письмі можна виразити через I wish і Past Perfect: I wish I had asked earlier. У розмовному американському мовленні трапляється I wish I would have known, але для формальної практики тут обираємо had known.",
+            "sampleAnswerEn": "In formal writing, past regret can use I wish plus Past Perfect: I wish I had asked earlier. Informal American speech also uses I wish I would have known, but this course chooses had known for formal practice."
           }
         ]
       },
@@ -6315,26 +6380,26 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Сильніший жаль",
             "promptEn": "A stronger regret",
-            "bodyUk": "if only вживає ті самі часи, що wish, але тон сильніший, більш емоційний: If only I knew! If only I had asked earlier! If only it would stop raining! Після if only немає підрядного «що», це самостійне вигукове речення або початок нереального умовного.\n\nIf only I knew how to fix this, I would sleep better — другий умовний. If only we had deployed earlier, we would have avoided the incident — третій. Коми й тон: часто знак оклику, особливо в мовленні.\n\nНе пишіть *If only I would have known (знову would have не після if only в стандартній формі; потрібне If only I had known). If only і I wish майже взаємозамінні за граматикою; різниця — сила емоції. If only не заміна if у звичайному реальному умовному: If it rains, we'll stay home — не If only it rains у цьому значенні.",
-            "bodyEn": "if only uses the same tenses as wish, but the tone is stronger and more emotional: If only I knew! If only I had asked earlier! If only it would stop raining! After if only there is no “that”-clause; it is a stand-alone exclamation or the start of an unreal conditional.\n\nIf only I knew how to fix this, I would sleep better is a second conditional. If only we had deployed earlier, we would have avoided the incident is a third. Punctuation and tone: an exclamation mark is common, especially in speech.\n\nDo not write *If only I would have known (again, would have is not the standard form after if only; you need If only I had known). If only and I wish are almost interchangeable in grammar; the difference is emotional force. If only is not a replacement for if in an ordinary real conditional: If it rains, we'll stay home — not If only it rains in that meaning.",
+            "bodyUk": "If only може виражати сильне бажання або жаль: If only I knew! If only I had asked earlier! If only it would stop raining! Вибір форми часто подібний до wish, хоча сила емоції залежить від контексту.\n\nУ формальному письмі для жалю про минуле надійний варіант If only I had known; would have також трапляється в розмовних різновидах. Умовне продовження можливе: If only I knew how to fix this, I would sleep better.\n\nIf only має й інше значення — «лише за умови»: You can go if only you finish your work first. Воно не тотожне нейтральному if у If it rains, we'll stay home.",
+            "bodyEn": "If only can express a strong wish or regret: If only I knew! If only I had asked earlier! If only it would stop raining! The form often parallels wish, though emotional force depends on context.\n\nFor past regret in formal writing, If only I had known is a reliable choice; would have also occurs in informal varieties. A conditional continuation is possible: If only I knew how to fix this, I would sleep better.\n\nIf only also has a different meaning, 'only on condition that': You can go if only you finish your work first. That is not equivalent to neutral if in If it rains, we'll stay home.",
             "keyPointsUk": [
               "if only = ті самі часи, що wish, сильніша емоція",
               "If only I knew / had asked / it would stop",
               "Може відкривати 2-й або 3-й умовний",
-              "Не *If only I would have known"
+              "У формальному письмі про минулий жаль зазвичай had + V3"
             ],
             "keyPointsEn": [
               "if only uses the same tenses as wish, with stronger emotion",
               "If only I knew / had asked / it would stop",
               "It can open a second or third conditional",
-              "Not *If only I would have known"
+              "Formal past regret usually uses had + a past participle"
             ]
           },
           {
             "id": "en-d-if-only-r1",
             "type": "mcq",
-            "promptUk": "Сильний жаль про минуле.",
-            "promptEn": "Strong regret about the past.",
+            "promptUk": "Сильний жаль про минуле: оберіть варіант для стандартного формального письма.",
+            "promptEn": "Strong regret about the past: choose the standard formal written form.",
             "options": [
               "If only I had asked earlier!",
               "If only I would have asked earlier!",
@@ -6441,8 +6506,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Пора вже і перевага",
             "promptEn": "It is about time, and preference",
-            "bodyUk": "It's time / it's about time / it's high time + Past Simple означає «уже пора це зробити» (і часто трохи запізно): It's time we left. It's high time they fixed this bug. Форма минула, значення — теперішня рекомендація. Можливе також It's time to leave (інфінітив без підмета). Не *It's time we leave в акуратному письмі, коли вже обрали шаблон із підметом.\n\nwould rather + інфінітив без to — власна перевага: I'd rather wait. I'd rather not deploy on Friday. Коли перевага стосується ІНШОЇ людини, знову минула форма: I'd rather you waited. I'd rather they didn't rewrite this today. would sooner — синонім, рідше.\n\nТипові помилки: *I'd rather to wait; *I'd rather you to wait; *It's time we will leave. Порівняйте з wish: It's time we left — практична «пора вже»; I wish we left earlier кожен день — жаль про звичку. Тон it's high time може звучати нетерпляче, майже докірливо.",
-            "bodyEn": "It's time / it's about time / it's high time + Past Simple means “we should do this now” (and often we are a little late): It's time we left. It's high time they fixed this bug. The form is past; the meaning is a present recommendation. It's time to leave (an infinitive with no subject) is also possible. In careful writing, do not use *It's time we leave once you have chosen the subject pattern.\n\nwould rather + bare infinitive is your own preference: I'd rather wait. I'd rather not deploy on Friday. When the preference is about ANOTHER person, use a past form again: I'd rather you waited. I'd rather they didn't rewrite this today. would sooner is a synonym, less common.\n\nTypical mistakes: *I'd rather to wait; *I'd rather you to wait; *It's time we will leave. Compare with wish: It's time we left is a practical “we should go now”; I wish we left earlier every day is regret about a habit. The tone of it's high time can sound impatient, almost critical.",
+            "bodyUk": "It's time / it's about time / it's high time + минула форма може означати «уже пора»: It's time we left. It's high time they fixed this bug. Форма минула, але рекомендація стосується теперішнього. Можливе It's time to leave, а також It's time for us to leave. У деяких різновидах уживають і теперішню форму, наприклад It's time we leave; у цьому уроці практикуємо традиційний варіант із минулою формою.\n\nI'd rather wait означає власну перевагу; I'd rather you waited — перевагу щодо дії іншої людини. Заперечення: I'd rather not deploy; I'd rather they didn't rewrite it. Would sooner має схоже значення.\n\nПісля rather у першій конструкції інфінітив без to: I'd rather wait. Тон it's high time може звучати нетерпляче, тому враховуйте ситуацію.",
+            "bodyEn": "It's time / it's about time / it's high time + a past form can mean something should happen now: It's time we left. It's high time they fixed this bug. The form is past, but the recommendation is present. It's time to leave and It's time for us to leave are also possible. Some varieties also use a present form, such as It's time we leave; this lesson practices the traditional past-form pattern.\n\nI'd rather wait expresses your own preference; I'd rather you waited expresses a preference about someone else's action. Negatives: I'd rather not deploy; I'd rather they didn't rewrite it. Would sooner has a similar meaning.\n\nIn the first pattern, rather takes a bare infinitive: I'd rather wait. The tone of it's high time can sound impatient, so consider the situation.",
             "keyPointsUk": [
               "It's time + Past Simple: уже пора (форма минула)",
               "It's time to leave — інфінітив без нового підмета",
@@ -6459,11 +6524,11 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-its-time-r1",
             "type": "mcq",
-            "promptUk": "Уже пора йти.",
-            "promptEn": "It is already time to go.",
+            "promptUk": "Уже пора йти: оберіть традиційний шаблон із минулою формою.",
+            "promptEn": "It is already time to go: choose the traditional past-form pattern.",
             "options": [
               "It's time we left.",
-              "It's time we leave, in careful subject-pattern writing.",
+              "It's time we leave (a present-form variant, not the requested past-form pattern).",
               "It's time we will leave.",
               "It's time we leaving."
             ],
@@ -6500,8 +6565,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-its-time-r4",
             "type": "translate",
-            "promptUk": "Перекладіть через it's high time.",
-            "promptEn": "Translate with it's high time.",
+            "promptUk": "Перекладіть через it's high time або it's about time.",
+            "promptEn": "Translate with it's high time or it's about time.",
             "source": "Давно пора їм виправити цей баг.",
             "accepted": [
               "It's high time they fixed this bug",
@@ -6584,8 +6649,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-deep-wish-exam-q2",
             "type": "mcq",
-            "promptUk": "Жаль про минуле:",
-            "promptEn": "Regret about the past:",
+            "promptUk": "Жаль про минуле: оберіть стандартну форму для формального письма.",
+            "promptEn": "Regret about the past: choose the standard formal written form.",
             "options": [
               "I wish I had asked earlier.",
               "I wish I would have asked earlier.",
@@ -6614,11 +6679,11 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-deep-wish-exam-q4",
             "type": "mcq",
-            "promptUk": "Уже пора йти:",
-            "promptEn": "It is already time to go:",
+            "promptUk": "Уже пора йти: оберіть традиційний шаблон із минулою формою.",
+            "promptEn": "It is already time to go: choose the traditional past-form pattern.",
             "options": [
               "It's time we left.",
-              "It's time we leave, in careful subject-pattern writing.",
+              "It's time we leave (a present-form variant, not the requested past-form pattern).",
               "It's time we will leave.",
               "It's time we leaving."
             ],
@@ -6658,8 +6723,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Who called? проти Who did you call?",
             "promptEn": "Who called? versus Who did you call?",
-            "bodyUk": "В об'єктному питанні ми питаємо про додаток і ставимо допоміжне дієслово: Who did you call? What did Maria write? Where does she work? Порядок: питання слово + допоміжне + підмет + основне дієслово.\n\nУ підметовому питанні питання слово І Є підметом, тому did / do / does не потрібні: Who called? Who wrote the report? What happened? Не *Who did call? і не *Who did write the report? (окрім емфази). Дієслово узгоджується з who як з одниною, якщо не видно множини: Who is coming? (не *Who are coming? у нейтральному стилі, хоча Who are they? — інша структура).\n\nДля українськомовних пастка — завжди ставити did, бо «кого ти зателефонував» і «хто зателефонував» українською розрізняються відмінком, а в англійській who виглядає однаково. Перевірка: відповідь на Who called? — Maria called (Maria = підмет). Відповідь на Who did you call? — I called Maria (Maria = додаток).",
-            "bodyEn": "In an object question we ask about the object and we use an auxiliary: Who did you call? What did Maria write? Where does she work? The order is question word + auxiliary + subject + main verb.\n\nIn a subject question the question word IS the subject, so did / do / does are not needed: Who called? Who wrote the report? What happened? Not *Who did call? and not *Who did write the report? (except for emphasis). The verb agrees with who as singular if no plural is visible: Who is coming? (not *Who are coming? in a neutral style, though Who are they? is a different structure).\n\nFor Ukrainian speakers the trap is always inserting did, because “whom did you call” and “who called” are distinguished by case in Ukrainian, while English who looks the same. A check: the answer to Who called? is Maria called (Maria is the subject). The answer to Who did you call? is I called Maria (Maria is the object).",
+            "bodyUk": "У питанні про додаток запитуємо, на кого або на що спрямована дія: Who did you call? What did Maria write? У Past Simple і Present Simple зазвичай потрібне допоміжне do/does/did. Запитання Where does she work? стосується місця, а не додатка, але має схожий порядок слів.\n\nУ питанні про підмет питальне слово саме є підметом: Who called? Who wrote the report? What happened? Для нейтрального питання тут не додають did; Who did call? можливе для підсилення або контрасту. З іншими часами допоміжне слово може бути потрібним: Who has called? Who is coming?\n\nПеревірка: відповідь на Who called? — Maria called (Maria — підмет). На Who did you call? — I called Maria (Maria — додаток). Українською це «хто зателефонував?» і «кому ти зателефонував?», а англійською who може стояти в обох питаннях.",
+            "bodyEn": "An object question asks who or what an action affects: Who did you call? What did Maria write? In Past Simple and Present Simple, auxiliary do/does/did is normally needed. Where does she work? asks about place rather than an object, but has a similar word order.\n\nIn a subject question, the question word is the subject: Who called? Who wrote the report? What happened? Neutral questions here do not add did; Who did call? is possible for emphasis or contrast. Other tenses can require an auxiliary: Who has called? Who is coming?\n\nCheck the answer: Who called? — Maria called (Maria is the subject). Who did you call? — I called Maria (Maria is the object). The same word who can appear in both questions.",
             "keyPointsUk": [
               "Об'єктне: Who did you call? (є допоміжне)",
               "Підметове: Who called? (без did)",
@@ -6731,6 +6796,16 @@ const newUnits: UnitContent[] = [
             "direction": "uk_en"
           },
           {
+            "id": "en-d-subj-obj-q-r5",
+            "type": "mcq",
+            "promptUk": "Оберіть підметове питання в Present Perfect: хто вже зателефонував?",
+            "promptEn": "Choose the subject question in Present Perfect: who has already called?",
+            "options": ["Who has called?", "Who has call?", "Who have called?", "Who did has called?"],
+            "correctIndex": 0,
+            "explanationUk": "Who — підмет, а has потрібне для форми Present Perfect.",
+            "explanationEn": "Who is the subject, and has is needed for the Present Perfect form."
+          },
+          {
             "id": "en-d-subj-obj-q-e",
             "type": "explain",
             "promptUk": "Чим Who called? відрізняється від Who did you call? Як перевірити, чи потрібне did?",
@@ -6788,8 +6863,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "It's ready, isn't it?",
             "promptEn": "It's ready, isn't it?",
-            "bodyUk": "Розділове питання — короткий «хвостик» після твердження: It's ready, isn't it? You work in Lviv, don't you? У українській точного відповідника немає (інколи «правда?» / «чи не так?»), тому форму треба вчитися як схему. Правило: після ствердження — заперечний tag, після заперечення — ствердний: She isn't late, is she?\n\nДопоміжне в tag повторює допоміжне речення (або do/does/did, якщо його не було): You've finished, haven't you? He left, didn't he? З I am традиційно aren't I?: I'm late, aren't I? З let's — shall we?: Let's ship it, shall we? З nobody / nothing речення вважається заперечним: Nobody called, did they? (they як нейтральна множина).\n\nІнтонація змінює функцію: спадний тон — мовець майже впевнений і лише підтверджує; висхідний — справжнє питання. Типові помилки: *It's ready, isn't he?; *You don't know, don't you? (має бути do you); зайве not у двох місцях.",
-            "bodyEn": "A question tag is a short tail after a statement: It's ready, isn't it? You work in Lviv, don't you? Ukrainian has no exact equivalent (sometimes “right?” / “isn't that so?”), so the form has to be learned as a pattern. The rule is: after a positive statement, a negative tag; after a negative, a positive tag: She isn't late, is she?\n\nThe auxiliary in the tag repeats the auxiliary in the sentence (or uses do/does/did if there was none): You've finished, haven't you? He left, didn't he? With I am the traditional tag is aren't I?: I'm late, aren't I? With let's it is shall we?: Let's ship it, shall we? With nobody / nothing the sentence counts as negative: Nobody called, did they? (they as a neutral plural).\n\nIntonation changes the function: a falling tone means the speaker is almost sure and only wants confirmation; a rising tone is a real question. Typical mistakes: *It's ready, isn't he?; *You don't know, don't you? (it should be do you); a second not in both halves.",
+            "bodyUk": "Розділове питання додає короткий tag до твердження: It's ready, isn't it? You work in Lviv, don't you? Зазвичай ствердження супроводжує заперечний tag, а заперечення — ствердний: She isn't late, is she? Існують і теги однакової полярності для інших відтінків, наприклад здивування.\n\nTag зазвичай повторює допоміжне дієслово або використовує do/does/did: You've finished, haven't you? He left, didn't he? Поширене I'm late, aren't I?; amn't I? теж зустрічається в деяких різновидах англійської. Після let's часто вживають shall we? Nobody called, did they? використовує they для невизначеної особи.\n\nІнтонація і контекст допомагають розрізнити прохання про підтвердження та справжнє запитання; тон не визначає значення абсолютно.",
+            "bodyEn": "A question tag adds a short tag to a statement: It's ready, isn't it? You work in Lviv, don't you? Usually a positive statement takes a negative tag and a negative statement a positive tag: She isn't late, is she? Same-polarity tags also exist for other effects, such as surprise.\n\nA tag usually repeats an auxiliary or uses do/does/did: You've finished, haven't you? He left, didn't he? I'm late, aren't I? is common; amn't I? also occurs in some varieties of English. Let's often takes shall we? Nobody called, did they? uses they for an unspecified person.\n\nIntonation and context help distinguish a request for confirmation from an information question; tone does not determine meaning absolutely.",
             "keyPointsUk": [
               "Ствердження + заперечний tag; заперечення + ствердний tag",
               "Повторюйте допоміжне: have → haven't, left → didn't",
@@ -6832,11 +6907,11 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-tags-r3",
             "type": "mcq",
-            "promptUk": "Оберіть правильне з I am.",
-            "promptEn": "Choose the correct option with I am.",
+            "promptUk": "Оберіть поширений стандартний tag із I am.",
+            "promptEn": "Choose a common standard tag with I am.",
             "options": [
               "I'm late, aren't I?",
-              "I'm late, amn't I?",
+              "I'm late, amn't I? (a regional variant, not the common form requested)",
               "I'm late, isn't I?",
               "I'm late, don't I?"
             ],
@@ -6914,8 +6989,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Could you tell me where…?",
             "promptEn": "Could you tell me where…?",
-            "bodyUk": "Непряме питання ввічливіше за пряме. Після фраз Could you tell me, Do you know, I wonder, I'd like to know порядок слів як у розповіді, без do/does/did у середині: Could you tell me where the station is? — не *where is the station після tell me. Do you know what time it starts? — не *what time does it start всередині (це вже було б пряме питання).\n\nДля yes/no використовують if або whether: Could you tell me if the train has left? I wonder whether this is a bug. Не ставте комі перед if у цьому випадку і не додавайте другої питальної інверсії.\n\nТипові помилки: *Do you know where is she?; *Could you tell me where does he work?; зайвий if разом із what (*tell me if what time). Це той самий порядок, що в непрямій мові (яка вже є в курсі), але тут мета — ввічливість у розмові й на мітингу, не переказ чужих слів.",
-            "bodyEn": "An indirect question is more polite than a direct one. After phrases such as Could you tell me, Do you know, I wonder, I'd like to know, the word order is like a statement, with no do/does/did in the middle: Could you tell me where the station is? — not *where is the station after tell me. Do you know what time it starts? — not *what time does it start inside the clause (that would already be a direct question).\n\nFor yes/no questions we use if or whether: Could you tell me if the train has left? I wonder whether this is a bug. Do not put a comma before if here, and do not add a second question inversion.\n\nTypical mistakes: *Do you know where is she?; *Could you tell me where does he work?; an extra if together with what (*tell me if what time). This is the same order as in reported speech (already in the course), but here the goal is politeness in conversation and in meetings, not retelling someone else's words.",
+            "bodyUk": "Непряме запитання може звучати м'якше, хоча ввічливість залежить і від тону. Після Could you tell me, Do you know або I wonder використовують розповідний порядок: Could you tell me where the station is? Do you know what time it starts? Питальне допоміжне do/does/did не додають для другої інверсії.\n\nЦе не заборона на всі форми do: Do you know what she does? має основне дієслово does; I wonder whether she does work on Fridays може використати допоміжне для наголосу.\n\nДля питання так/ні використовують if або whether: Could you tell me if the train has left? Якщо головне речення є питанням, ставимо знак питання; розповідне I wonder whether it has left закінчується крапкою.",
+            "bodyEn": "An indirect question can sound softer, though politeness also depends on tone. After Could you tell me, Do you know or I wonder, use statement order: Could you tell me where the station is? Do you know what time it starts? Do not add auxiliary do/does/did to create a second question inversion.\n\nThis does not ban every form of do: Do you know what she does? contains lexical does; I wonder whether she does work on Fridays can use an auxiliary for emphasis.\n\nFor a yes/no question use if or whether: Could you tell me if the train has left? A main question takes a question mark; the statement I wonder whether it has left ends with a full stop.",
             "keyPointsUk": [
               "Після tell me / do you know — порядок як у розповіді",
               "where the station is, не *where is the station",
@@ -6947,8 +7022,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-indirect-q-r2",
             "type": "fill_blank",
-            "promptUk": "Вставте if або where (yes/no).",
-            "promptEn": "Insert if or where (yes/no).",
+            "promptUk": "Вставте if або whether для непрямого запитання так/ні.",
+            "promptEn": "Insert if or whether for an indirect yes/no question.",
             "sentence": "Could you tell me ___ the train has left?",
             "accepted": [
               "if",
@@ -7023,8 +7098,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Після Could you tell me порядок як у розповіді: where the station is, а не where is the station. Допоміжне does всередині не ставлять. Yes/no варіант починають з if або whether.",
-            "sampleAnswerEn": "After Could you tell me the order is like a statement: where the station is, not where is the station. We do not put the auxiliary does inside. A yes/no version starts with if or whether."
+            "sampleAnswerUk": "Після Could you tell me порядок як у розповіді: where the station is, а не where is the station. Допоміжне does для інверсії не додають, але основне дієслово does можливе: what she does. Питання так/ні вводять через if або whether.",
+            "sampleAnswerEn": "After Could you tell me the order is like a statement: where the station is, not where is the station. We do not add auxiliary does for inversion, but lexical does is possible: what she does. A yes/no question starts with if or whether."
           }
         ]
       },
@@ -7074,7 +7149,7 @@ const newUnits: UnitContent[] = [
             "id": "en-d-word-order-r2",
             "type": "fill_blank",
             "promptUk": "Вставте never у правильному місці — напишіть два слова: have never або never have (після I).",
-            "promptEn": "Place never correctly — write two words after I would be have never or never have. Fill the blank only.",
+            "promptEn": "Fill the blank with have never or never have to make the usual statement order.",
             "sentence": "I ___ seen this error before.",
             "accepted": [
               "have never",
@@ -7168,17 +7243,17 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "bored чи boring?",
             "promptEn": "bored or boring?",
-            "bodyUk": "Прикметники на -ing описують якість РЕЧІ або ситуації, яка викликає почуття: The meeting was boring. This task is interesting. The news is surprising. Прикметники на -ed описують почуття ЛЮДИНИ (або істоти): I was bored. We're interested. She looked surprised.\n\nЦе одна з найчастіших помилок українськомовних, бо обидва можна перекласти «нудний / нудьгую». *I am boring у значенні «мені нудно» насправді означає «я нудна людина». *The film is bored — ніби фільм має почуття. Пам'ятка: -ing — «спричиняє»; -ed — «відчуваю».\n\nНе всі пари однаково вживані, але ядро треба знати: bored/boring, interested/interesting, excited/exciting, surprised/surprising, tired/tiring, annoyed/annoying, confused/confusing, frightened/frightening, embarrassed/embarrassing, disappointed/disappointing. I'm tired (стан) проти This work is tiring (робота виснажує).",
-            "bodyEn": "Adjectives in -ing describe the quality of a THING or a situation that causes a feeling: The meeting was boring. This task is interesting. The news is surprising. Adjectives in -ed describe a PERSON's (or a creature's) feeling: I was bored. We're interested. She looked surprised.\n\nThis is one of the most frequent mistakes for Ukrainian speakers, because both can translate as “boring / I am bored”. *I am boring, meaning “I feel bored”, actually means “I am a boring person”. *The film is bored treats the film as if it had a feeling. A memory aid: -ing is “it causes”; -ed is “I feel”.\n\nNot every pair is equally common, but the core is worth knowing: bored/boring, interested/interesting, excited/exciting, surprised/surprising, tired/tiring, annoyed/annoying, confused/confusing, frightened/frightening, embarrassed/embarrassing, disappointed/disappointing. I'm tired (a state) versus This work is tiring (the work causes tiredness).",
+            "bodyUk": "У парах на кшталт bored/boring форма на -ed часто описує почуття: I was bored. We're interested. Форма на -ing часто описує те, що викликає почуття: The meeting was boring. This task is interesting.\n\nІ людина може спричиняти почуття: She is interesting означає, що з нею цікаво, а She is interested — що вона сама чимось зацікавлена. I am boring описує враження, яке я справляю; I am bored — моє почуття. Цей контраст корисний для таких пар, але не є універсальним правилом для всіх слів на -ed та -ing.\n\nПорівняйте також excited/exciting, surprised/surprising, tired/tiring та confused/confusing. Прийменники варто вивчати у фразі: interested in, bored with, excited about.",
+            "bodyEn": "In pairs such as bored/boring, the -ed form often describes a feeling: I was bored. We're interested. The -ing form often describes what causes the feeling: The meeting was boring. This task is interesting.\n\nA person can cause a feeling too: She is interesting means others find her interesting, while She is interested means she feels interest. I am boring describes the impression I give; I am bored describes my feeling. This contrast helps with such pairs, but is not a universal rule for every word ending in -ed or -ing.\n\nCompare excited/exciting, surprised/surprising, tired/tiring and confused/confusing. Learn prepositions in phrases: interested in, bored with, excited about.",
             "keyPointsUk": [
-              "-ing — якість речі / ситуації, яка викликає почуття",
-              "-ed — почуття людини",
+              "У цій групі -ing часто описує причину почуття, зокрема людину",
+              "-ed у таких парах часто описує почуття",
               "*I am boring ≠ «мені нудно»; це «я нудний»",
               "interested in, bored with, excited about — різні прийменники"
             ],
             "keyPointsEn": [
-              "-ing is the quality of a thing or situation that causes a feeling",
-              "-ed is a person's feeling",
+              "In these pairs -ing often describes a cause of feeling, including a person",
+              "-ed in these pairs often describes a feeling",
               "*I am boring is not “I feel bored”; it means “I am dull”",
               "interested in, bored with, excited about — different prepositions"
             ]
@@ -7239,6 +7314,16 @@ const newUnits: UnitContent[] = [
             "direction": "uk_en"
           },
           {
+            "id": "en-d-ed-ing-r5",
+            "type": "mcq",
+            "promptUk": "Співрозмовницю цікаво слухати. Яке речення це виражає?",
+            "promptEn": "The person is interesting to listen to. Which sentence expresses that?",
+            "options": ["She is interesting.", "She is interested, meaning others find her engaging.", "She is interest.", "She interesting is."],
+            "correctIndex": 0,
+            "explanationUk": "Interesting може описувати людину, яка викликає інтерес; interested — її власну зацікавленість.",
+            "explanationEn": "Interesting can describe a person who causes interest; interested describes their own feeling."
+          },
+          {
             "id": "en-d-ed-ing-e",
             "type": "explain",
             "promptUk": "Чим bored відрізняється від boring? Що насправді означає I am boring, якщо ви хотіли сказати «мені нудно»?",
@@ -7280,8 +7365,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Bored описує почуття людини, а boring — якість речі, яка це почуття викликає, наприклад the meeting was boring. I am boring насправді означає «я нудна людина», а не «мені нудно».",
-            "sampleAnswerEn": "Bored describes a person's feeling, and boring describes the quality of a thing that causes that feeling, for example the meeting was boring. I am boring actually means “I am a dull person”, not “I feel bored”."
+            "sampleAnswerUk": "Bored описує почуття людини, а boring — когось або щось, що викликає нудьгу, наприклад the meeting was boring. I am boring означає, що я справляю нудне враження; I am bored — що мені нудно.",
+            "sampleAnswerEn": "Bored describes a person's feeling, while boring describes someone or something that causes boredom, for example the meeting was boring. I am boring means I make a dull impression; I am bored means I feel bored."
           }
         ]
       },
@@ -7419,8 +7504,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-link-contrast-r2",
             "type": "fill_blank",
-            "promptUk": "Вставте despite або although.",
-            "promptEn": "Insert despite or although.",
+            "promptUk": "Вставте despite або in spite of перед іменником.",
+            "promptEn": "Insert despite or in spite of before the noun.",
             "sentence": "___ the failure, we shipped.",
             "accepted": [
               "Despite",
@@ -7547,8 +7632,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-link-cause-r2",
             "type": "fill_blank",
-            "promptUk": "Вставте of, якщо потрібно, або because — напишіть because of або because.",
-            "promptEn": "Insert because or because of.",
+            "promptUk": "Вставте because of або due to перед іменником.",
+            "promptEn": "Insert because of or due to before the noun.",
             "sentence": "The job failed ___ a timeout.",
             "accepted": [
               "because of",
@@ -7640,26 +7725,26 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "so that, provided that, unless, in case",
             "promptEn": "so that, provided that, unless, in case",
-            "bodyUk": "У письмі мету часто оформлюють не лише коротким to (це вже є в курсі герундіїв), а й so that / in order that з модальним: We log requests so that we can debug later. Умова: if, as long as, provided (that), providing (that) — «за умови, що»: We'll deploy on Friday provided that the tests pass. unless = if not: We won't deploy unless the tests pass. Не *unless the tests don't pass (подвійне заперечення).\n\nin case — «на випадок, якщо» (підстрахування), не те саме, що if: Take a charger in case the battery dies (візьми зараз, про всяк випадок). If the battery dies, plug it in — умова самої дії. Українське «якщо раптом» часто змішує ці два.\n\neven if — «навіть якщо»: We'll ship even if the optional checks fail. only if — жорстка умова. Ці сполучники тримають текст логічним, коли ви пояснюєте політику команди або план релізу.",
-            "bodyEn": "In writing, purpose is often expressed not only with a short to (already in the gerunds unit) but also with so that / in order that plus a modal: We log requests so that we can debug later. Condition: if, as long as, provided (that), providing (that) mean “on the condition that”: We'll deploy on Friday provided that the tests pass. unless is if not: We won't deploy unless the tests pass. Not *unless the tests don't pass (a double negative).\n\nin case means “as a precaution if” (insurance), which is not the same as if: Take a charger in case the battery dies (take it now, just in case). If the battery dies, plug it in is the condition for the action itself. Ukrainian “yakshcho raptom” often mixes the two.\n\neven if means “even in the situation that”: We'll ship even if the optional checks fail. only if is a strict condition. These conjunctions keep a text logical when you explain a team policy or a release plan.",
+            "bodyUk": "Мету можна висловити через so that: We log requests so that we can debug later. Умову вводять if, as long as, provided (that): We'll deploy on Friday provided that the tests pass. Unless приблизно означає «якщо не»: We won't deploy unless the tests pass — не розгорнемо, якщо тести не пройдуть.\n\nЗаперечення після unless можливе, але змінює логіку: We will investigate unless the tests don't fail означає, що перевірка потрібна, якщо тести не пройдуть. Такі конструкції можуть заплутати, тому часто краще переформулювати їх прямо.\n\nIn case означає підстрахування: Take a charger in case the battery dies — візьміть його зараз. If the battery dies, plug it in описує дію за умови розрядження. Even if — «навіть якщо», only if — «лише якщо».",
+            "bodyEn": "Purpose can be expressed with so that: We log requests so that we can debug later. A condition can use if, as long as or provided (that): We'll deploy on Friday provided that the tests pass. Unless roughly means 'if not': We won't deploy unless the tests pass means we will not deploy if the tests do not pass.\n\nA negative after unless is possible, but changes the logic: We will investigate unless the tests don't fail means we will investigate if the tests fail. Such phrasing can be confusing, so a direct rewording is often clearer.\n\nIn case can express a precaution: Take a charger in case the battery dies means take it now. If the battery dies, plug it in describes an action conditional on the battery dying. Even if means 'even in that situation'; only if means 'solely on that condition'.",
             "keyPointsUk": [
               "so that + підмет + can/could — мета в тексті",
               "provided that / as long as — умова",
-              "unless = if not; не подвійне заперечення",
+              "unless приблизно означає if not; заперечення змінює логіку",
               "in case — підстрахування, не просте if"
             ],
             "keyPointsEn": [
               "so that + subject + can/could is purpose in a text",
               "provided that / as long as is a condition",
-              "unless is if not; no double negative",
+              "unless roughly means if not; a negative changes the logic",
               "in case is a precaution, not a plain if"
             ]
           },
           {
             "id": "en-d-link-purpose-r1",
             "type": "mcq",
-            "promptUk": "Оберіть правильне з unless.",
-            "promptEn": "Choose the correct option with unless.",
+            "promptUk": "Ми не розгорнемо реліз, якщо тести не пройдуть. Оберіть відповідне речення з unless.",
+            "promptEn": "We will not deploy if the tests fail. Choose the matching sentence with unless.",
             "options": [
               "We won't deploy unless the tests pass.",
               "We won't deploy unless the tests don't pass.",
@@ -7667,8 +7752,8 @@ const newUnits: UnitContent[] = [
               "We won't deploy unless the tests passing."
             ],
             "correctIndex": 0,
-            "explanationUk": "unless = if not, без другого заперечення.",
-            "explanationEn": "unless is if not, without a second negative."
+            "explanationUk": "Unless the tests pass означає «якщо тести не пройдуть»; заперечення після unless змінило б умову.",
+            "explanationEn": "Unless the tests pass means 'if the tests do not pass'; a negative after unless would change the condition."
           },
           {
             "id": "en-d-link-purpose-r2",
@@ -7750,8 +7835,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Unless означає if not: we won't deploy unless the tests pass, без другого заперечення. In case — підстрахування наперед, не просте if. Provided that оформлює умову: we'll deploy provided that the tests pass.",
-            "sampleAnswerEn": "Unless means if not: we won't deploy unless the tests pass, without a second negative. In case is a precaution in advance, not a plain if. Provided that frames a condition: we'll deploy provided that the tests pass."
+            "sampleAnswerUk": "Unless приблизно означає if not: we won't deploy unless the tests pass. Заперечення після unless можливе, але змінює логіку. In case може виражати підстрахування, а provided that вводить умову.",
+            "sampleAnswerEn": "Unless roughly means if not: we won't deploy unless the tests pass. A negative after unless is possible but changes the logic. In case can express a precaution, while provided that introduces a condition."
           }
         ]
       },
@@ -7765,20 +7850,20 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-link-add-c",
             "type": "concept",
-            "promptUk": "Розбудувати думку, не розмазати її",
-            "promptEn": "Building a point without smearing it",
-            "bodyUk": "Щоб додати аргумент у письмі: also (гнучке), in addition, moreover, furthermore (формальніші, часто на початку речення). What's more — трохи розмовніше. besides часто означає «крім того / і взагалі»: Besides, we don't have time. Не ставте moreover в кожне друге речення — це звучить важко.\n\nПриклади: for example, for instance, such as + іменники (such as timeouts and retries), e.g. у дужках або технічних нотатках. namely — «а саме», коли список вичерпний. including — включно з. Не *for example як such as всередині без пунктуації: We saw issues, for example timeouts, is fine; *issues such as, for example, timeouts — надлишок.\n\nКогезія: повторіть ключове слово або замініть його this / these / such problems, а не лише also. Українські «також, крім того, наприклад» не завжди один в один відповідають moreover — обирайте за регістром тексту.",
-            "bodyEn": "To add an argument in writing: also (flexible), in addition, moreover, furthermore (more formal, often at the start of a sentence). What's more is a little more conversational. besides often means “in any case / on top of that”: Besides, we don't have time. Do not put moreover in every other sentence — it sounds heavy.\n\nExamples: for example, for instance, such as + nouns (such as timeouts and retries), e.g. in brackets or technical notes. namely means “that is to say”, when the list is complete. including means “this is part of the set”. Do not treat for example as a perfect twin of such as without punctuation: We saw issues, for example timeouts, is fine; *issues such as, for example, timeouts is overloaded.\n\nCohesion: repeat a key word or replace it with this / these / such problems, not only with also. Ukrainian “takozh, krim toho, napryklad” do not map one-to-one onto moreover — choose according to the register of the text.",
+            "promptUk": "Як додати аргумент і навести приклад",
+            "promptEn": "Adding a point and giving an example",
+            "bodyUk": "Щоб додати аргумент, можна використати also, in addition, moreover або furthermore; останні два часто звучать формальніше. What's more зазвичай розмовніше. Повторення одного маркера в кожному реченні може обтяжувати текст.\n\nSuch as часто вводить приклади в іменниковій групі: issues such as timeouts and retries. For example або for instance також можуть вводити ціле речення: For example, the request timed out. Namely уточнює, які саме елементи або факти маються на увазі; including зазвичай вводить частину множини.\n\nЩоб зв'язати думки, повторіть ключове слово або використайте this issue / these failures, коли зрозуміло, до чого вони відсилають. Добирайте сполучники за змістом і стилем.",
+            "bodyEn": "To add a point, use also, in addition, moreover or furthermore; the last two often sound more formal. What's more is usually more conversational. Repeating one marker in every sentence can weigh the text down.\n\nSuch as often introduces examples inside a noun phrase: issues such as timeouts and retries. For example or for instance can also introduce a whole sentence: For example, the request timed out. Namely specifies which items or facts are meant; including usually introduces part of a set.\n\nTo connect ideas, repeat a key word or use this issue / these failures when the reference is clear. Choose linkers for their meaning and register.",
             "keyPointsUk": [
               "also — універсально; moreover / furthermore — формальніше",
               "Не зловживати moreover",
-              "for example / for instance / such as + іменники",
+              "such as вводить приклади; for example може вводити речення",
               "this / these тримають тему краще, ніж самі сполучники"
             ],
             "keyPointsEn": [
               "also is flexible; moreover / furthermore are more formal",
               "Do not overuse moreover",
-              "for example / for instance / such as + nouns",
+              "such as introduces examples; for example can introduce a sentence",
               "this / these hold the topic better than conjunctions alone"
             ]
           },
@@ -7839,7 +7924,7 @@ const newUnits: UnitContent[] = [
               },
               {
                 "left": "namely",
-                "right": "назвати вичерпний список / name a complete list"
+                "right": "уточнити, що саме мається на увазі / specify what is meant"
               },
               {
                 "left": "besides",
@@ -7888,8 +7973,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "У формальному письмі аргумент додають через moreover, furthermore або in addition. Приклад дають через for example або such as і іменники. Moreover в кожне речення робить текст важким, тому його не варто зловживати.",
-            "sampleAnswerEn": "In formal writing we add a point with moreover, furthermore or in addition. We give an example with for example or such as plus nouns. Moreover in every sentence makes the text heavy, so it should not be overused."
+            "sampleAnswerUk": "У формальному письмі аргумент можна додати через moreover або in addition. Such as вводить приклади в іменниковій групі; for example може вводити речення. Повторення moreover в кожному реченні обтяжує текст.",
+            "sampleAnswerEn": "In formal writing, moreover or in addition can add a point. Such as introduces examples in a noun phrase; for example can introduce a sentence. Repeating moreover in every sentence makes the text heavy."
           }
         ]
       },
@@ -7905,19 +7990,19 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Як звучати природно в розмові й на мітингу",
             "promptEn": "Sounding natural in conversation and in meetings",
-            "bodyUk": "Дискурсивні маркери керують розмовою, а не граматичним зв'язком речень. actually / in fact уточнюють або м'яко заперечують: We thought it was a cache issue. Actually, it was a race. Українське «насправді» не завжди actually: sometimes actually = «а якщо точніше / навпаки». as a matter of fact — сильніше in fact.\n\nanyway / anyhow повертають до теми або закривають відступ: Anyway, let's go back to the deploy. by the way — нова, не обов'язково центральна тема. as for + іменник — перехід до пункту: As for the deadline, we can move it. speaking of — місток від щойно сказаного.\n\nwell, I mean, you know, kind of — розмовні пом'якшувачі; у формальному письмі їх майже немає. at the end of the day — «у підсумку» (трохи кліше). Не ставте actually в кожну репліку — це шум. Обирайте маркер за функцією: уточнення, повернення, зміна теми, підсумок.",
-            "bodyEn": "Discourse markers steer the conversation; they are not the same as grammatical clause-linkers. actually / in fact correct or mildly contradict: We thought it was a cache issue. Actually, it was a race. Ukrainian “naspravdi” is not always actually: sometimes actually means “more precisely / on the contrary”. as a matter of fact is a stronger in fact.\n\nanyway / anyhow come back to the topic or close a detour: Anyway, let's go back to the deploy. by the way introduces a new, not necessarily central, topic. as for + a noun moves to a point: As for the deadline, we can move it. speaking of is a bridge from what was just said.\n\nwell, I mean, you know, kind of are spoken softeners; they almost never appear in formal writing. at the end of the day means “when all is said and done” (a bit of a cliché). Do not put actually in every turn — that is noise. Choose a marker by function: correction, return, topic change, summary.",
+            "bodyUk": "Маркери допомагають скеровувати розмову. Actually / in fact можуть уточнювати або виправляти сказане: We thought it was a cache issue. Actually, it was a race condition. Тон залежить від ситуації: навіть фактичне виправлення може прозвучати різко, тому за потреби додайте ввічливий контекст.\n\nAnyway допомагає повернутися до теми: Anyway, let's return to the deployment. By the way може вводити побічне питання; as for — перехід до конкретного пункту: As for the deadline, we can move it. Speaking of пов'язує нову тему з попередньою.\n\nWell, I mean і you know характерні для розмови, але точний вибір залежить від аудиторії та стилю. Використовуйте маркер тоді, коли він справді допомагає слухачеві зрозуміти зв'язок.",
+            "bodyEn": "Discourse markers help guide a conversation. Actually / in fact can clarify or correct a claim: We thought it was a cache issue. Actually, it was a race condition. Tone depends on the situation: even a factual correction can sound abrupt, so add polite context when needed.\n\nAnyway can return to a topic: Anyway, let's return to the deployment. By the way can introduce a side topic; as for moves to a specific point: As for the deadline, we can move it. Speaking of connects a new topic to what was just mentioned.\n\nWell, I mean and you know are characteristic of speech, but the choice depends on audience and register. Use a marker when it helps the listener understand the connection.",
             "keyPointsUk": [
-              "actually / in fact — уточнення або м'яке заперечення",
+              "actually / in fact можуть уточнювати або виправляти сказане",
               "anyway — повернення до теми; by the way — побічна тема",
               "as for + іменник — перехід до пункту",
-              "Розмовні you know / I mean не для формального письма"
+              "Добирайте розмовні маркери з огляду на аудиторію та стиль"
             ],
             "keyPointsEn": [
-              "actually / in fact correct or mildly contradict",
+              "actually / in fact can clarify or correct a claim",
               "anyway returns to the topic; by the way is a side topic",
               "as for + a noun moves to a point",
-              "Spoken you know / I mean do not belong in formal writing"
+              "Choose spoken markers with audience and register in mind"
             ]
           },
           {
@@ -7984,6 +8069,21 @@ const newUnits: UnitContent[] = [
                 "right": "перехід до конкретного пункту / move to a specific point"
               }
             ]
+          },
+          {
+            "id": "en-d-discourse-r5",
+            "type": "mcq",
+            "promptUk": "Колега назвав попередню причину збою. Як уточнити нові дані з урахуванням тону?",
+            "promptEn": "A colleague mentioned the earlier suspected cause of an outage. How can you clarify the new evidence considerately?",
+            "options": [
+              "Thanks for checking. The new logs suggest it was actually a race condition.",
+              "Actually, you are always wrong; stop checking.",
+              "Anyway, ignore all the evidence and change the subject.",
+              "Namely, no explanation is needed."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Відповідь визнає роботу колеги, називає нові дані й не подає припущення як доведений факт.",
+            "explanationEn": "The response acknowledges the colleague's work, names new evidence and does not present an inference as proven fact."
           },
           {
             "id": "en-d-discourse-e",
@@ -8074,8 +8174,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-deep-linking-exam-q3",
             "type": "mcq",
-            "promptUk": "unless:",
-            "promptEn": "unless:",
+            "promptUk": "Реліз не розгорнуть, якщо тести не пройдуть. Оберіть речення з unless.",
+            "promptEn": "The release will not be deployed if the tests fail. Choose the matching sentence with unless.",
             "options": [
               "We won't deploy unless the tests pass.",
               "We won't deploy unless the tests don't pass.",
@@ -8083,8 +8183,8 @@ const newUnits: UnitContent[] = [
               "We won't deploy unless the tests passing."
             ],
             "correctIndex": 0,
-            "explanationUk": "unless = if not, без подвійного заперечення.",
-            "explanationEn": "unless is if not, with no double negative."
+            "explanationUk": "Unless the tests pass означає «якщо тести не пройдуть». Заперечення після unless змінило б умову.",
+            "explanationEn": "Unless the tests pass means 'if the tests do not pass'. A negative after unless would change the condition."
           },
           {
             "id": "en-deep-linking-exam-q4",
@@ -8384,18 +8484,18 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Walking in, Having finished, The file stored in…",
             "promptEn": "Walking in, Having finished, The file stored in…",
-            "bodyUk": "Дієприкметниковий зворот стискає підрядне, коли підмет той самий. -ing: Walking into the room, I noticed the logs (When I walked…). Having + V3 — раніша дія: Having finished the tests, we deployed. Past participle (V3) — пасив: Written in 2019, the module is now outdated. The data stored in Redis expired.\n\nОбов'язкова умова: підмет звороту = підмет головного речення. *Walking into the room, the logs looked strange — ніби логи зайшли в кімнату (dangling participle). Це класична C1-помилка. Виправлення: Walking into the room, I noticed the logs looked strange.\n\nЗвороти додають щільності академічному й технічному письму, але не повинні затемнювати сенс. If-звороти: If asked, I would wait. When deploying, check the flags. Не змішуйте підмети і не ставте зворот, якщо час або виконавець стають неоднозначними.",
-            "bodyEn": "A participle clause shortens a subordinate clause when the subject is the same. -ing: Walking into the room, I noticed the logs (When I walked…). Having + V3 is an earlier action: Having finished the tests, we deployed. A past participle (V3) is passive: Written in 2019, the module is now outdated. The data stored in Redis expired.\n\nA hard rule: the subject of the clause is the subject of the main sentence. *Walking into the room, the logs looked strange makes it sound as if the logs walked in (a dangling participle). This is a classic C1 mistake. A fix: Walking into the room, I noticed the logs looked strange.\n\nThese clauses add density to academic and technical writing, but they must not hide the meaning. If-clauses: If asked, I would wait. When deploying, check the flags. Do not mix subjects, and do not use a clause if the time or the agent becomes unclear.",
+            "bodyUk": "Початковий дієприкметниковий зворот часто має той самий підмет, що й головне речення: Walking into the room, I noticed the logs. Having finished the tests, we deployed показує ранішу дію. Written in 2019, the module is now outdated має пасивне значення.\n\nУникайте неясного виконавця: Walking into the room, the logs looked strange помилково пов'язує вхід із логами. Краще: Walking into the room, I noticed that the logs looked strange.\n\nЄ й інші типи: Weather permitting, we will deploy має власний підмет weather; у The data stored in Redis expired зворот уточнює іменник data. Перевіряйте, до кого або до чого належить кожен зворот.",
+            "bodyEn": "An initial participle clause often shares the main clause's subject: Walking into the room, I noticed the logs. Having finished the tests, we deployed shows an earlier action. Written in 2019, the module is now outdated has a passive meaning.\n\nAvoid an unclear actor: Walking into the room, the logs looked strange wrongly links entering to the logs. A clearer version is Walking into the room, I noticed that the logs looked strange.\n\nOther patterns exist: Weather permitting, we will deploy has its own subject weather; in The data stored in Redis expired, the clause modifies the noun data. Check which person or thing each clause refers to.",
             "keyPointsUk": [
               "-ing: одночасна / тло; Having + V3: раніше",
               "V3: пасивний зворот",
-              "Підмет звороту = підмет головного речення",
+              "Початковий зворот часто має спільний підмет; можливі й інші конструкції",
               "Уникайте dangling participle: *Walking in, the logs…"
             ],
             "keyPointsEn": [
               "-ing is simultaneous / background; Having + V3 is earlier",
               "V3 is a passive clause",
-              "The clause subject is the main-clause subject",
+              "An initial clause often shares the main subject; other patterns exist",
               "Avoid a dangling participle: *Walking in, the logs…"
             ]
           },
@@ -8428,6 +8528,16 @@ const newUnits: UnitContent[] = [
             "correctIndex": 0,
             "explanationUk": "Тут ніби логи зайшли в кімнату — підмети різні.",
             "explanationEn": "Here it sounds as if the logs walked in — the subjects differ."
+          },
+          {
+            "id": "en-d-participles-r2a",
+            "type": "mcq",
+            "promptUk": "У реченні Weather permitting, we will deploy що має власний підмет weather?",
+            "promptEn": "In Weather permitting, we will deploy, which clause has its own subject weather?",
+            "options": ["The introductory participle clause", "The main clause we will deploy", "Neither clause", "The verb deploy alone"],
+            "correctIndex": 0,
+            "explanationUk": "Weather permitting — окремий зворот із власним підметом weather; у головному реченні підмет we.",
+            "explanationEn": "Weather permitting is an introductory clause with its own subject weather; the main clause has the subject we."
           },
           {
             "id": "en-d-participles-r3",
@@ -8492,8 +8602,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Walking in описує одночасну дію того самого підмета. Having finished показує ранішу дію. Written in 2019 — пасивний зворот. Dangling participle — це коли підмети різні, як у Walking into the room, the logs looked strange.",
-            "sampleAnswerEn": "Walking in describes a simultaneous action of the same subject. Having finished shows an earlier action. Written in 2019 is a passive clause. A dangling participle is when the subjects differ, as in Walking into the room, the logs looked strange."
+            "sampleAnswerUk": "Walking in описує дію того самого підмета; having finished показує ранішу дію, а written in 2019 має пасивне значення. Dangling participle виникає, коли зворот неясно або помилково пов'язаний із підметом, як у Walking into the room, the logs looked strange. Зворот із власним підметом, як weather permitting, — інша конструкція.",
+            "sampleAnswerEn": "Walking in describes an action by the shared subject; having finished shows an earlier action, and written in 2019 has a passive meaning. A dangling participle is unclear or wrongly attached to the subject, as in Walking into the room, the logs looked strange. A clause with its own subject, such as weather permitting, is a different pattern."
           }
         ]
       },
@@ -8568,8 +8678,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-hedging-r4",
             "type": "translate",
-            "promptUk": "Перекладіть з hedging (seem).",
-            "promptEn": "Translate with hedging (seem).",
+            "promptUk": "Перекладіть обережне припущення з seem або appear.",
+            "promptEn": "Translate the cautious inference using seem or appear.",
             "source": "Схоже, логи показують гонку.",
             "accepted": [
               "The logs seem to show a race",
@@ -8580,6 +8690,21 @@ const newUnits: UnitContent[] = [
               "It seems that the logs show a race condition"
             ],
             "direction": "uk_en"
+          },
+          {
+            "id": "en-d-hedging-r5",
+            "type": "mcq",
+            "promptUk": "Після оновлення затримка зросла, але причину ще не перевірили. Який висновок відповідає цим даним?",
+            "promptEn": "Latency increased after an update, but the cause has not been investigated. Which statement fits the evidence?",
+            "options": [
+              "Latency increased after the update; the update may be involved, but we need to investigate.",
+              "The update definitely caused the increase, so investigation is unnecessary.",
+              "The update could not possibly be involved because latency changed later.",
+              "No latency measurement is needed because the cause is already proven."
+            ],
+            "correctIndex": 0,
+            "explanationUk": "Послідовність подій показує зв'язок у часі, але сама по собі не доводить причину.",
+            "explanationEn": "The sequence establishes timing, but does not by itself prove causation."
           },
           {
             "id": "en-d-hedging-e",
@@ -8671,14 +8796,11 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-nominal-r2",
             "type": "fill_blank",
-            "promptUk": "Вставте іменник від deploy.",
-            "promptEn": "Insert the noun from deploy.",
+            "promptUk": "Вставте іменник deployment, утворений від deploy.",
+            "promptEn": "Insert the noun deployment, formed from deploy.",
             "sentence": "The ___ caused a spike in errors.",
             "accepted": [
-              "deployment",
-              "Deployment",
-              "deploy",
-              "deploying"
+              "deployment"
             ]
           },
           {
@@ -8867,19 +8989,19 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Один символ — один звук",
             "promptEn": "One symbol, one sound",
-            "bodyUk": "Міжнародна фонетична абетка (IPA) записує звуки, не літери. Англійська орфографія обманює: <ough> звучить по-різному в though /ðəʊ/, through /θruː/, tough /tʌf/, cough /kɒf/. Українська орфографія ближча до звучання, тому спокуса читати English «як написано» дуже велика: *island зі звучним s, *honest з h, *recipe як «ресіпе».\n\nГолосні в IPA пишуть у слешах: /ɪ/ ship, /iː/ sheep, /æ/ cat, /ʌ/ cup, /ɑː/ car, /ə/ about, /ɜː/ her. Довжина /ː/ важлива. Приголосні: /θ/ think, /ð/ this, /ʃ/ she, /tʃ/ chip, /dʒ/ job, /ŋ/ sing, /w/ we, /j/ yes. Наголос позначають ˈ перед складом: /ˈɪntrestɪŋ/ interesting (не на -ing).\n\nНе треба вчити всю таблицю за раз. Досить мати «карту пасток» для своїх помилок і дивитися транскрипцію в словнику (Cambridge, Longman). SpeakButton у цих уроках озвучує англійські слова — слухайте і повторюйте, дивлячись на IPA.",
-            "bodyEn": "The International Phonetic Alphabet (IPA) writes sounds, not letters. English spelling is misleading: <ough> sounds different in though /ðəʊ/, through /θruː/, tough /tʌf/, cough /kɒf/. Ukrainian spelling is closer to the sound, so the temptation to read English “as written” is strong: *island with a sounded s, *honest with an h, *recipe as “re-si-pe”.\n\nVowels in IPA are written in slashes: /ɪ/ ship, /iː/ sheep, /æ/ cat, /ʌ/ cup, /ɑː/ car, /ə/ about, /ɜː/ her. Length /ː/ matters. Consonants: /θ/ think, /ð/ this, /ʃ/ she, /tʃ/ chip, /dʒ/ job, /ŋ/ sing, /w/ we, /j/ yes. Stress is marked with ˈ before the syllable: /ˈɪntrəstɪŋ/ interesting (not on -ing).\n\nYou do not need the whole chart at once. It is enough to keep a “trap map” for your own errors and to check transcription in a dictionary (Cambridge, Longman). The SpeakButton in these lessons plays the English words — listen and repeat while you look at the IPA.",
+            "bodyUk": "Міжнародна фонетична абетка (IPA) допомагає записувати вимову. Однакове написання не гарантує однакового звучання: у британських словникових транскрипціях though /ðəʊ/, through /θruː/, tough /tʌf/ і cough /kɒf/ мають різні звуки. В інших акцентах транскрипція може відрізнятися.\n\nСлеші зазвичай позначають фонемну транскрипцію: /ɪ/ у ship, /iː/ у sheep, /ə/ на початку about. Знак ː позначає довготу в цій системі; ˈ стоїть перед наголошеним складом. Приголосні включають /θ/ у think, /ð/ у this та /ŋ/ наприкінці sing.\n\nЗвіряйте IPA зі словником, звертаючи увагу на позначений акцент. Якщо доступне озвучення, слухайте вимову й повторюйте разом із транскрипцією.",
+            "bodyEn": "The International Phonetic Alphabet (IPA) helps represent pronunciation. The same spelling does not guarantee the same sound: British dictionary transcriptions distinguish though /ðəʊ/, through /θruː/, tough /tʌf/ and cough /kɒf/. Transcriptions can differ across accents.\n\nSlashes usually indicate a phonemic transcription: /ɪ/ in ship, /iː/ in sheep, /ə/ at the beginning of about. The mark ː indicates length in this system; ˈ comes before the stressed syllable. Consonants include /θ/ in think, /ð/ in this and /ŋ/ at the end of sing.\n\nCheck IPA against a dictionary and pay attention to the accent it identifies. When audio is available, listen and repeat while looking at the transcription.",
             "keyPointsUk": [
               "IPA записує звук, не літеру: though ≠ tough ≠ through",
               "Слеші /ɪ/, /iː/, /ə/; ˈ перед наголошеним складом",
               "Не читайте англійську «як написано»",
-              "Слухайте SpeakButton і звіряйте словник"
+              "Звіряйте акцент у словнику і слухайте доступне озвучення"
             ],
             "keyPointsEn": [
               "IPA writes a sound, not a letter: though ≠ tough ≠ through",
               "Slashes /ɪ/, /iː/, /ə/; ˈ before the stressed syllable",
               "Do not read English “as written”",
-              "Listen to the SpeakButton and check a dictionary"
+              "Check the dictionary's accent and listen to available audio"
             ]
           },
           {
@@ -8900,9 +9022,9 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-ipa-intro-r2",
             "type": "fill_blank",
-            "promptUk": "Вставте IPA-символ довготи (один знак, як у /iː/). Напишіть двокрапку як у транскрипції: i___ — потрібен символ ː або : .",
-            "promptEn": "Insert the length mark used after i in /iː/ (write : ).",
-            "sentence": "sheep is transcribed /i___/ — type the length mark only in the blank of this sentence: The length mark looks like ___ .",
+            "promptUk": "Вставте лише знак довготи, що стоїть після i в /iː/. Можна ввести ː або звичайну двокрапку :.",
+            "promptEn": "Insert only the length mark after i in /iː/. You can enter ː or an ordinary colon :.",
+            "sentence": "Length mark: ___",
             "accepted": [
               ":",
               "ː"
@@ -8995,8 +9117,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "IPA потрібна, бо англійський правопис не надійно показує звук: though і tough пишуться схоже, а звучать інакше. Слеші позначають звуки, а знак наголосу стоїть перед наголошеним складом.",
-            "sampleAnswerEn": "IPA is useful because English spelling does not reliably show the sound: though and tough look similar but sound different. Slashes mark sounds, and the stress mark stands before the stressed syllable."
+            "sampleAnswerUk": "IPA корисна, бо англійський правопис не завжди показує вимову: though і tough пишуться схоже, але звучать по-різному. Слеші позначають фонемну транскрипцію, а знак наголосу стоїть перед наголошеним складом.",
+            "sampleAnswerEn": "IPA is useful because English spelling does not reliably show pronunciation: though and tough look similar but sound different. Slashes mark phonemic transcription, and the stress mark stands before the stressed syllable."
           }
         ]
       },
@@ -9012,8 +9134,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "/ɪ/ коротке проти /iː/ довгого",
             "promptEn": "Short /ɪ/ versus long /iː/",
-            "bodyUk": "/ɪ/ — коротке, більш відкрите, як у ship, sit, live, fill, bit, rich. /iː/ — довше і вужче, як у sheep, seat, leave, feel, beat, reach. Для українськомовних обидва часто зливаються в «і», і тоді leave (піти) звучить як live (жити), sheet як shit (нецензурне — будьте обережні), beach як bitch. Це не дрібниця: змінюється значення.\n\nДовжина — не єдине: /iː/ напружене, губи трохи розтягнуті; /ɪ/ коротше й розслабленіше, язик нижче. У закритому складі перед глухим приголосним /iː/ все одно довше за /ɪ/: beat /biːt/ проти bit /bɪt/.\n\nПрактикуйте пари вголос: ship–sheep, sit–seat, lick–leak, rich–reach, fill–feel, his–he's, will–wheel. Слухайте SpeakButton і записуйте себе. Письмова підказка: <ee>, <ea>, <ie> часто (не завжди) кодують /iː/; одна літера <i> в закритому складі часто /ɪ/. Винятки є (live як дієслово — /lɪv/), тому IPA надійніша.",
-            "bodyEn": "/ɪ/ is short and a little more open, as in ship, sit, live, fill, bit, rich. /iː/ is longer and closer, as in sheep, seat, leave, feel, beat, reach. For Ukrainian speakers the two often collapse into a single “i”, and then leave (go away) sounds like live (be alive), sheet like a taboo word, beach like another taboo word. This is not a small detail: the meaning changes.\n\nLength is not the only difference: /iː/ is tense, with the lips a little spread; /ɪ/ is shorter and laxer, with the tongue lower. In a closed syllable before a voiceless consonant, /iː/ is still longer than /ɪ/: beat /biːt/ versus bit /bɪt/.\n\nPractise the pairs aloud: ship–sheep, sit–seat, lick–leak, rich–reach, fill–feel, his–he's, will–wheel. Listen to the SpeakButton and record yourself. A spelling hint: <ee>, <ea>, <ie> often (not always) encode /iː/; a single <i> in a closed syllable is often /ɪ/. There are exceptions (live the verb is /lɪv/), so IPA is more reliable.",
+            "bodyUk": "У поширених британських і американських акцентах ship має /ɪ/, а sheep — /iː/; так само розрізняються sit/seat і fill/feel. Заміна голосного може змінити слово, наприклад live /lɪv/ і leave /liːv/.\n\nРізниця не лише в довжині: /ɪ/ зазвичай відкритіший і розслабленіший, а /iː/ — закритіший. Реальна тривалість залежить від наголосу, наступного звука, темпу й акценту, тому не покладайтеся тільки на довжину.\n\nПорівняйте ship–sheep та sit–seat, послухайте доступні записи й повторіть. Написання дає лише підказку: <ee> у sheep і <i> у ship відповідають різним голосним, але перевіряти незнайомі слова варто за словником і зазначеним у ньому акцентом.",
+            "bodyEn": "In common British and American accents, ship has /ɪ/ and sheep has /iː/; sit/seat and fill/feel show the same contrast. Changing the vowel can change the word, as in live /lɪv/ and leave /liːv/.\n\nThe difference is not only length: /ɪ/ is usually more open and lax, while /iː/ is closer. Actual duration depends on stress, the following sound, speech rate and accent, so do not rely on length alone.\n\nCompare ship–sheep and sit–seat, listen to available recordings and repeat. Spelling is only a clue: <ee> in sheep and <i> in ship represent different vowels, but check unfamiliar words in a dictionary and note its accent.",
             "keyPointsUk": [
               "/ɪ/ ship, sit, live — коротке; /iː/ sheep, seat, leave — довге",
               "Злиття звуків змінює значення (leave / live)",
@@ -9075,20 +9197,12 @@ const newUnits: UnitContent[] = [
             "promptEn": "Match each word with its vowel.",
             "pairs": [
               {
-                "left": "ship / sit / bit",
+                "left": "ship / sit / bit / live (verb)",
                 "right": "/ɪ/"
               },
               {
-                "left": "sheep / seat / beat",
+                "left": "sheep / seat / beat / leave",
                 "right": "/iː/"
-              },
-              {
-                "left": "live (the verb “жити”)",
-                "right": "/ɪ/ as well"
-              },
-              {
-                "left": "leave (“піти”)",
-                "right": "/iː/ as well"
               }
             ]
           },
@@ -9136,8 +9250,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "У ship стоїть коротке розслаблене /ɪ/, а в sheep — довге напружене /iː/. Якщо їх злити, змінюється значення: leave «піти» може прозвучати як live «жити». Тому цю мінімальну пару треба тренувати вголос.",
-            "sampleAnswerEn": "Ship has a short, lax /ɪ/, and sheep has a long, tense /iː/. If you collapse them, the meaning changes: leave can sound like live. That is why this minimal pair must be practised aloud."
+            "sampleAnswerUk": "У поширених акцентах ship має відкритіший /ɪ/, а sheep — закритіший /iː/. Важлива і якість голосного, не лише його тривалість. Якщо їх злити, leave «піти» може прозвучати як live «жити».",
+            "sampleAnswerEn": "In common accents ship has a more open /ɪ/, while sheep has a closer /iː/. Vowel quality matters as well as duration. If the sounds merge, leave can sound like live."
           }
         ]
       },
@@ -9292,8 +9406,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Найчастотніший голосний англійської",
             "promptEn": "The most frequent vowel in English",
-            "bodyUk": "Шва /ə/ — короткий нейтральний голосний ненаголошеного складу: a, the (перед приголосним), of, to, about, teacher, computer, banana (перший і третій склади). В українській немає такого системного «згасання» голосних у ненаголошених складах, тому українськомовні вимовляють teacher як «тічер» з повним /e/, а of як «ов». Тоді ритм звучить чужорідно.\n\nСлужбові слова мають сильну і слабку форму. ізольовано: to /tuː/, of /ɒv/, for /fɔː/, can /kæn/. У потоці мови зазвичай слабкі: to /tə/, of /əv/, for /fə/, can /kən/: a cup of tea /ə kʌp əv tiː/. Сильну форму ставлять для емфази: I said OF, not to.\n\nПрактичне правило: у ненаголошеному складі чекайте шву, доки словник не скаже інакше. interesting — наголос на першому складі, решта коротша. a /ə/ перед приголосним, an /ən/ перед голосним звуком (як у правилі артиклів).",
-            "bodyEn": "Schwa /ə/ is the short neutral vowel of an unstressed syllable: a, the (before a consonant), of, to, about, teacher, computer, banana (the first and third syllables). Ukrainian has no such systematic “fading” of vowels in unstressed syllables, so Ukrainian speakers pronounce teacher with a full /e/, and of as a full “ov”. Then the rhythm sounds foreign.\n\nFunction words have a strong and a weak form. In isolation: to /tuː/, of /ɒv/, for /fɔː/, can /kæn/. In connected speech they are usually weak: to /tə/, of /əv/, for /fə/, can /kən/: a cup of tea /ə kʌp əv tiː/. The strong form is for emphasis: I said OF, not to.\n\nA practical rule: in an unstressed syllable, expect schwa unless the dictionary says otherwise. interesting is stressed on the first syllable; the rest is shorter. a is /ə/ before a consonant, an is /ən/ before a vowel sound (as in the article rule).",
+            "bodyUk": "Шва /ə/ — нейтральний голосний, поширений у ненаголошених складах: наприклад, на початку about і в першому та останньому складах banana. Вимова окремих слів залежить від акценту; у деяких американських вимовах кінцевий склад teacher має r-забарвлений голосний.\n\nСлужбові слова можуть мати сильні й слабкі форми. Наприклад, to може звучати /tuː/ окремо або під наголосом і /tə/ у ненаголошеній позиції; of може мати слабку форму /əv/. Сильна форма доречна для контрасту: I said TO, not from.\n\nНе кожен ненаголошений голосний є швою. Перевіряйте вимову конкретного слова в словнику, звертаючи увагу на акцент, і слухайте, як форма змінюється в реченні.",
+            "bodyEn": "Schwa /ə/ is a neutral vowel common in unstressed syllables: for example, at the start of about and in the first and last syllables of banana. The pronunciation of individual words varies by accent; in some American pronunciations the final syllable of teacher has an r-coloured vowel.\n\nFunction words can have strong and weak forms. For example, to can be /tuː/ in isolation or under stress and /tə/ when unstressed; of can have the weak form /əv/. A strong form is useful for contrast: I said TO, not from.\n\nNot every unstressed vowel is schwa. Check the pronunciation of each word in a dictionary, note the accent, and listen for changes in connected speech.",
             "keyPointsUk": [
               "/ə/ — ненаголошений нейтральний голосний",
               "Українська не «згасає» голосні так системно — це треба тренувати",
@@ -9357,8 +9471,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-schwa-r4",
             "type": "translate",
-            "promptUk": "Перекладіть. У вимові of буде слабке /əv/.",
-            "promptEn": "Translate. In speech, of will be weak /əv/.",
+            "promptUk": "Перекладіть. У зв'язному мовленні ненаголошене of може мати слабку форму /əv/.",
+            "promptEn": "Translate. In connected speech, unstressed of can have the weak form /əv/.",
             "source": "чашка чаю",
             "accepted": [
               "a cup of tea",
@@ -9428,8 +9542,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Один звук — багато написань",
             "promptEn": "One sound, many spellings",
-            "bodyUk": "/ɜː/ (nurse, у брит. RP) — довгий центральний голосний: her, were, bird, word, work, first, early, learn, journey. Губ майже не округлюють, язик у середині, звук тримають. Українськомовні часто підставляють «е», «ьо» або «ір»: work як «уорк» з /o/, bird як «бірд» з /i/. Тоді word і ward, fern і fun розходяться не так, як треба.\n\nНаписання різні: <er>, <ir>, <ur>, <or> після w (word, work, world), <ear> (learn, early), <our> (journey). Це класичний приклад «не читай як написано». В rhotic акцентах (загальноамериканський) після цього звука чути /r/: /ɜr/. В не-rhotic RP /r/ на кінці her не звучить, якщо далі немає голосного.\n\nПрактикуйте: her, were, fur, first, Thursday, world, early, journalist. Мінімальні сусіди: bird /ɜː/ — beard /ɪə/ (брит.) або /ɪr/; work /ɜː/ — walk /ɔː/. Слухайте SpeakButton і тримайте звук досить довго, без українського «р-елемента» в не-rhotic моделі, якщо ви її обрали.",
-            "bodyEn": "/ɜː/ (nurse, in British RP) is a long central vowel: her, were, bird, word, work, first, early, learn, journey. The lips are barely rounded, the tongue is central, and the sound is held. Ukrainian speakers often substitute “e”, “yo” or “ir”: work as “uork” with /o/, bird as “bird” with /i/. Then word and ward, fern and fun, do not split as they should.\n\nThe spellings vary: <er>, <ir>, <ur>, <or> after w (word, work, world), <ear> (learn, early), <our> (journey). This is a classic “do not read it as written” case. In rhotic accents (General American) you hear /r/ after this vowel: /ɜr/. In non-rhotic RP, the /r/ at the end of her is silent unless a vowel follows.\n\nPractise: her, were, fur, first, Thursday, world, early, journalist. Near neighbours: bird /ɜː/ versus beard /ɪə/ (British) or /ɪr/; work /ɜː/ versus walk /ɔː/. Listen to the SpeakButton and hold the sound long enough, without a Ukrainian “r-element” in a non-rhotic model if that is the model you have chosen.",
+            "bodyUk": "У британській неротичній моделі наголошений голосний NURSE часто записують /ɜː/: bird, word, work, learn. У ротичних акцентах, зокрема багатьох американських, словники зазвичай позначають r-забарвлений голосний, наприклад /ɝ/ або /ɜr/. Обидві моделі правильні у відповідному акценті.\n\nРізні написання можуть позначати цей голосний: <ir> у bird, <or> після w у work, <ear> у learn. Ненаголошені her і were також можуть мати слабкі форми, тому вимова залежить від контексту.\n\nПорівнюйте work і walk у вибраному акценті та перевіряйте транскрипцію у словнику. У неротичній моделі кінцеве написане r зазвичай не вимовляється перед приголосним або паузою; перед голосним може з'являтися linking r.",
+            "bodyEn": "In a non-rhotic British model the stressed NURSE vowel is often transcribed /ɜː/: bird, word, work, learn. In rhotic accents, including many American accents, dictionaries usually show an r-coloured vowel, for example /ɝ/ or /ɜr/. Both models are valid in their respective accents.\n\nDifferent spellings can represent this vowel: <ir> in bird, <or> after w in work, and <ear> in learn. Unstressed her and were can also have weak forms, so pronunciation depends on context.\n\nCompare work and walk in your chosen accent and check the dictionary transcription. In a non-rhotic model, final written r is generally not pronounced before a consonant or pause; linking r can occur before a vowel.",
             "keyPointsUk": [
               "/ɜː/ — her, bird, word, work, learn, early",
               "Багато написань, один звук",
@@ -9487,8 +9601,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-nurse-vowel-r4",
             "type": "match",
-            "promptUk": "Зіставте написання з прикладом /ɜː/.",
-            "promptEn": "Match each spelling with an /ɜː/ example.",
+            "promptUk": "Зіставте написання з прикладом наголошеного /ɜː/ у британській неротичній моделі.",
+            "promptEn": "Match each spelling with a stressed /ɜː/ example in a non-rhotic British model.",
             "pairs": [
               {
                 "left": "<er>",
@@ -9551,8 +9665,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "У her, word і learn стоїть довгий центральний /ɜː/, хоча написання різні: er, or, ear. Правопис ненадійний, тому потрібна IPA. Українськомовні часто підставляють «о» або «і», і тоді work може прозвучати ближче до walk.",
-            "sampleAnswerEn": "Her, word and learn have a long central /ɜː/, even though the spellings differ: er, or, ear. Spelling is unreliable, so IPA is needed. Ukrainian speakers often substitute “o” or “i”, and then work can sound closer to walk."
+            "sampleAnswerUk": "У британській неротичній моделі наголошені her, word і learn мають /ɜː/, попри різні написання er, or, ear. У ротичних акцентах голосний має r-забарвлення. Варто звіряти транскрипцію з акцентом словника й розрізняти work та walk.",
+            "sampleAnswerEn": "In a non-rhotic British model stressed her, word and learn have /ɜː/, despite the different spellings er, or and ear. In rhotic accents the vowel is r-coloured. Check the dictionary's accent and distinguish work from walk."
           }
         ]
       },
@@ -9657,8 +9771,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Язик між зубами, не /s/ і не /z/",
             "promptEn": "The tongue between the teeth, not /s/ or /z/",
-            "bodyUk": "/θ/ — глухий, як у think, thank, three, month, both, path. /ð/ — дзвінкий, як у this, that, the, they, mother, breathe. Обидва утворюють кінчик язика між зубами або на верхніх різцях, повітря йде щілиною. Це не українські звуки. Типові заміни: /s/ або /t/ для /θ/ (think → sink або tink), /z/ або /d/ для /ð/ (this → zis або dis). Тоді think і sink, path і pass, they і day плутаються.\n\nПравопис завжди <th>, але дзвінкість залежить від слова, не від бажання: thin /θ/ — this /ð/. У кінці: bath /θ/ — bathe /ð/. Функціональні слова (the, this, that, they, them, there) зазвичай /ð/; «грецькі» й терміни (theory, method, maths) частіше /θ/.\n\nПрактикуйте перед дзеркалом: язик видно між зубами. Пари: think–sink, thick–sick, path–pass, three–tree, they–day, there–dare, breathe–breeze. SpeakButton допоможе почути різницю; не замінюйте «звично на с». Це одна з найпомітніших ознак акценту, і її реально поставити вправами.",
-            "bodyEn": "/θ/ is voiceless, as in think, thank, three, month, both, path. /ð/ is voiced, as in this, that, the, they, mother, breathe. Both are made with the tongue tip between the teeth or on the upper incisors, with air passing through a slit. They are not Ukrainian sounds. Typical substitutions are /s/ or /t/ for /θ/ (think → sink or tink), and /z/ or /d/ for /ð/ (this → zis or dis). Then think and sink, path and pass, they and day get confused.\n\nThe spelling is always <th>, but voicing depends on the word, not on preference: thin /θ/ versus this /ð/. At the end: bath /θ/ versus bathe /ð/. Function words (the, this, that, they, them, there) are usually /ð/; “Greek” and technical words (theory, method, maths) are more often /θ/.\n\nPractise in front of a mirror: the tongue should be visible between the teeth. Pairs: think–sink, thick–sick, path–pass, three–tree, they–day, there–dare, breathe–breeze. The SpeakButton helps you hear the difference; do not replace the sound with a familiar “s”. This is one of the most noticeable accent features, and practice really can set it.",
+            "bodyUk": "У багатьох моделях англійської /θ/ у think — глухий, а /ð/ у this — дзвінкий. Для тренування можна легко торкнутися язиком верхніх зубів і пропустити повітря; язик не обов'язково помітно висовувати. Порівняйте think/sink і they/day: для частини слухачів відмінність допомагає розпізнати слово.\n\nЛітери th не визначають звук однозначно: think має /θ/, this — /ð/, а Thomas починається з /t/. Деякі акценти системно використовують інші звуки; перевіряйте слово у словнику для обраної моделі.\n\nПослухайте доступні записи think і this та повторіть. Мета вправи — навчитися розрізняти й утворювати контраст у цих словах, а не оцінювати чужий акцент.",
+            "bodyEn": "In many English models /θ/ in think is voiceless and /ð/ in this is voiced. To practise, lightly place the tongue near the upper teeth and let air pass; the tongue need not visibly protrude. Compare think/sink and they/day: for some listeners the contrast helps distinguish the word.\n\nThe letters th do not determine one sound: think has /θ/, this has /ð/, and Thomas starts with /t/. Some accents systematically use other sounds; check a dictionary for your chosen model.\n\nListen to available recordings of think and this and repeat. The goal is to hear and produce the contrast in these words, not to judge someone's accent.",
             "keyPointsUk": [
               "/θ/ think, three, path — глухий; /ð/ this, the, they — дзвінкий",
               "Язик між зубами, не /s t z d/",
@@ -9720,20 +9834,12 @@ const newUnits: UnitContent[] = [
             "promptEn": "Match each word with its <th> sound.",
             "pairs": [
               {
-                "left": "think / three / path",
+                "left": "think / three / path / theory / method",
                 "right": "/θ/ voiceless"
               },
               {
-                "left": "this / the / they",
+                "left": "this / the / they / mother / breathe",
                 "right": "/ð/ voiced"
-              },
-              {
-                "left": "theory / method",
-                "right": "/θ/ in many technical words"
-              },
-              {
-                "left": "mother / breathe",
-                "right": "/ð/ as well"
               }
             ]
           },
@@ -9800,17 +9906,17 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Губи в трубочку проти зубів на губі",
             "promptEn": "Rounded lips versus teeth on the lip",
-            "bodyUk": "/w/ — як у we, west, wine, work, always, question (/kw/). Губи округлені й майже зімкнені, це короткий ковзний звук, голосний «у» як приголосний. /v/ — як у vest, very, have, five, of (/əv/). Верхні зуби на нижній губі, є вібрація голосу. В українській є /v/ («в»), але немає окремого /w/, тому wine і vine, west і vest, worse і verse часто зливаються.\n\nНе замінюйте /w/ українським «в» або «ув»: we — не «ві» з /v/. Не оглушуйте кінцеве /v/ у have, five до /f/, якщо говорите акуратно (в українській кінцеві дзвінкі часто оглушуються: «дуб» звучить з /п/). have to в потоці може звучати ближче до /hæftə/ — це окремий випадок.\n\nПрактикуйте: west–vest, wine–vine, worse–verse, while–vile, we–V. Перед дзеркалом: для /w/ зуби не торкаються губи. Правопис: <w>, <wh> (у більшості акцентів теж /w/: what, when), <qu> = /kw/. <v> завжди /v/.",
-            "bodyEn": "/w/ is the sound in we, west, wine, work, always, question (/kw/). The lips are rounded and almost closed; it is a short glide, a vowel-like “oo” used as a consonant. /v/ is the sound in vest, very, have, five, of (/əv/). The upper teeth rest on the lower lip, and the voice vibrates. Ukrainian has /v/ (“v”), but no separate /w/, so wine and vine, west and vest, worse and verse often collapse.\n\nDo not replace /w/ with a Ukrainian “v” or “uv”: we is not “vi” with /v/. Do not devoice final /v/ in have, five to /f/ if you are speaking carefully (in Ukrainian, final voiced consonants often become voiceless: “dub” sounds with /p/). have to in a stream may sound closer to /hæftə/ — that is a separate case.\n\nPractise: west–vest, wine–vine, worse–verse, while–vile, we–V. In a mirror: for /w/, the teeth do not touch the lip. Spelling: <w>, <wh> (in most accents also /w/: what, when), <qu> = /kw/. <v> is always /v/.",
+            "bodyUk": "У поширених моделях англійської we і west починаються з /w/: губи округлені, а зуби не торкаються нижньої губи. Vest і very починаються з /v/: верхні зуби наближаються до нижньої губи, голосові зв'язки вібрують. Українське «в» має кілька варіантів вимови залежно від позиції, тому корисно слухати англійський контраст у контексті.\n\nПорівняйте west/vest і wine/vine. У have та five звичайна словникова форма закінчується дзвінким /v/; у звороті have to часто чути /f/. Українське «дуб» у стандартній вимові зберігає кінцевий дзвінкий /б/, тому не варто вважати загальне оглушення правилом української.\n\nНаписання допомагає не завжди: <w> у west позначає /w/, а в write не вимовляється; <wh> у what залежить від акценту. Слухайте доступний запис і перевіряйте словник.",
+            "bodyEn": "In common English models, we and west begin with /w/: the lips are rounded and the teeth do not touch the lower lip. Vest and very begin with /v/: the upper teeth approach the lower lip and the vocal folds vibrate. Ukrainian в has positional variants, so it helps to listen to the English contrast in context.\n\nCompare west/vest and wine/vine. The usual dictionary forms of have and five end in voiced /v/; in have to, /f/ is often heard. Standard Ukrainian дуб retains a voiced final /b/, so general final devoicing should not be taught as a rule of Ukrainian.\n\nSpelling is not always decisive: <w> represents /w/ in west but is silent in write; <wh> in what varies by accent. Listen to an available recording and check the dictionary.",
             "keyPointsUk": [
               "/w/ — округлі губи, we, west, wine; /v/ — зуби на губі, vest, have",
-              "В українській немає окремого /w/ — це треба ставити",
+              "Українське «в» має позиційні варіанти; слухайте контраст /w/–/v/",
               "Пари west–vest, wine–vine",
               "Не оглушувати five до /f/ у акуратній вимові"
             ],
             "keyPointsEn": [
               "/w/ is rounded lips, we, west, wine; /v/ is teeth on the lip, vest, have",
-              "Ukrainian has no separate /w/ — it must be trained",
+              "Ukrainian в has positional variants; listen for the /w/–/v/ contrast",
               "Pairs west–vest, wine–vine",
               "Do not devoice five to /f/ in careful speech"
             ]
@@ -9912,8 +10018,8 @@ const newUnits: UnitContent[] = [
                 ]
               },
               {
-                "labelUk": "немає /w/",
-                "labelEn": "no /w/",
+                "labelUk": "контраст звуків",
+                "labelEn": "sound contrast",
                 "anyOf": [
                   "ukrainian",
                   "україн",
@@ -9925,8 +10031,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Для /w/ губи округлюють, як на початку west і wine, без контакту зубів із губою. Для /v/ верхні зуби стоять на нижній губі, як у vest. В українській немає окремого /w/, тому wine і vine легко злити.",
-            "sampleAnswerEn": "For /w/ the lips are rounded, as at the start of west and wine, with no teeth-on-lip contact. For /v/ the upper teeth rest on the lower lip, as in vest. Ukrainian has no separate /w/, so wine and vine are easy to collapse."
+            "sampleAnswerUk": "Для /w/ губи округлюють, як у west і wine, без контакту зубів із губою. Для /v/ верхні зуби наближаються до нижньої губи, як у vest. Українське «в» має позиційні варіанти, тому корисно слухати контраст wine і vine.",
+            "sampleAnswerEn": "For /w/ the lips are rounded, as in west and wine, with no teeth-on-lip contact. For /v/ the upper teeth approach the lower lip, as in vest. Ukrainian в has positional variants, so listening to the wine/vine contrast is useful."
           }
         ]
       },
@@ -9942,19 +10048,19 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Не розкотисте «р» і не німе h там, де воно є",
             "promptEn": "Not a rolled “r”, and not a silent h where it is sounded",
-            "bodyUk": "Англійське /r/ (red, right, very, sorry) у більшості британських і американських стандартів — не розкотисте українське [р]. Кінчик язика не барабанить по яснах; язик відтягнений, без повної змички, часто з легким округленням губ. Надто тверде «р» видає акцент і може заважати сусіднім голосним. У не-rhotic RP /r/ на кінці car не звучить, якщо далі немає голосного; в американській вимові звучить.\n\n/h/ у hat, here, home, who, how — легке видихання перед голосним. Українськомовні іноді його опускають (особливо після приголосного: I hate → I ate, що змінює значення) або замінюють українським «х» (як у «хата»), яке більш шорстке. Silent h є в hour, honest, honour, heir — тут a/an: an hour, an honest person (звук голосний). hotel зараз частіше з /h/: a hotel.\n\nПрактикуйте: hat–at, heat–eat, hair–air, hall–all; red без розкоту. Не додавайте /h/ там, де його немає (*I /h/ate замість I ate).",
-            "bodyEn": "English /r/ (red, right, very, sorry) in most British and American standards is not a rolled Ukrainian [r]. The tongue tip does not tap the ridge; the tongue is pulled back, without a full closure, often with slight lip rounding. A very hard “r” signals an accent and can disturb neighbouring vowels. In non-rhotic RP, the /r/ at the end of car is silent unless a vowel follows; in American speech it is sounded.\n\n/h/ in hat, here, home, who, how is a light breath before a vowel. Ukrainian speakers sometimes drop it (especially after a consonant: I hate → I ate, which changes the meaning) or replace it with a Ukrainian “kh” (as in “khata”), which is harsher. Silent h appears in hour, honest, honour, heir — so a/an is an hour, an honest person (a vowel sound). hotel is now more often with /h/: a hotel.\n\nPractise: hat–at, heat–eat, hair–air, hall–all; red without a roll. Do not add /h/ where it is absent (*I /h/ate instead of I ate).",
+            "bodyUk": "У багатьох британських і американських моделях /r/ у red не має розкотистого удару язика. Положення язика може відрізнятися між мовцями; слухайте обраний акцент. У неротичній моделі кінцеве r в car зазвичай не вимовляється перед паузою, тоді як у багатьох американських акцентах зберігається.\n\n/h/ на початку hat і hate — легкий видих. Порівняйте I hate та I ate: відсутність /h/ змінює слово. У hour та honest початкова h німа, тому в звичайній вимові використовують an hour, an honest person. У сучасній поширеній вимові hotel починається з /h/: a hotel.\n\nПослухайте доступні приклади hat–at і heat–eat та повторіть. Різні акценти мають власні закономірності вимови, тому перевіряйте транскрипцію для обраної моделі.",
+            "bodyEn": "In many British and American models, /r/ in red does not have a rolled tongue tap. Tongue position can vary between speakers; listen to your chosen accent. In a non-rhotic model final written r in car is generally not pronounced before a pause, while it is retained in many American accents.\n\n/h/ at the start of hat and hate is a light breath. Compare I hate and I ate: removing /h/ changes the word. Initial h is silent in hour and honest, so usual pronunciation gives an hour and an honest person. In common modern pronunciation hotel begins with /h/: a hotel.\n\nListen to available examples of hat–at and heat–eat and repeat. Accents have their own pronunciation patterns, so check a transcription for the model you choose.",
             "keyPointsUk": [
               "Англійське /r/ — не розкотисте [р]",
               "/h/ у hat треба чути; I hate ≠ I ate",
               "Німе h: hour, honest, honour — an hour",
-              "hotel сучасніше з /h/: a hotel"
+              "hotel у поширеній сучасній вимові з /h/: a hotel"
             ],
             "keyPointsEn": [
               "English /r/ is not a rolled [r]",
               "/h/ in hat must be heard; I hate is not I ate",
               "Silent h: hour, honest, honour — an hour",
-              "hotel is more modern with /h/: a hotel"
+              "hotel commonly begins with /h/ in modern pronunciation: a hotel"
             ]
           },
           {
@@ -10078,19 +10184,19 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Не /n+g/ і не голе /n/",
             "promptEn": "Not /n+g/ and not a bare /n/",
-            "bodyUk": "/ŋ/ — носовий задньоязиковий, як у sing, thing, long, bank, think, going. Язик як для /k/ чи /g/, але повітря йде в ніс, і вибуху /g/ немає (у більшості акцентів на кінці sing). Українською його часто замінюють на /n/ (goin') або на /n+g/ з твердим «г» (sing-g). Тоді sin і sing, thin і thing плутаються.\n\nПравопис: <ng> (sing, long), <nk> (think, bank — /ŋk/), <n> перед /k/ /g/ у межах морфеми (anchor, English /ˈɪŋɡlɪʃ/ — тут /ŋɡ/ всередині). -ing у parting /ˈpɑːtɪŋ/ — /ŋ/, не /n/, якщо говорити акуратно (хоча goin' існує в неформальному мовленні).\n\nПрактикуйте: sin–sing, thin–thing, ran–rang, win–wing; bank, thanks, English. Не додавайте зайве /g/ на кінці singing в акцентах, де його немає (RP, GenAm зазвичай /ˈsɪŋɪŋ/). Перевірте, що голос іде в ніс, а не в вибух.",
-            "bodyEn": "/ŋ/ is a velar nasal, as in sing, thing, long, bank, think, going. The tongue is as for /k/ or /g/, but the air goes through the nose, and there is no /g/ burst (in most accents at the end of sing). Ukrainian speakers often replace it with /n/ (goin') or with /n+g/ and a hard “g” (sing-g). Then sin and sing, thin and thing get confused.\n\nSpelling: <ng> (sing, long), <nk> (think, bank — /ŋk/), <n> before /k/ or /g/ inside a morpheme (anchor, English /ˈɪŋɡlɪʃ/ — here /ŋɡ/ is inside). -ing in parting /ˈpɑːtɪŋ/ is /ŋ/, not /n/, in careful speech (though goin' exists in informal speech).\n\nPractise: sin–sing, thin–thing, ran–rang, win–wing; bank, thanks, English. Do not add an extra /g/ at the end of singing in accents that do not have it (RP and GenAm are usually /ˈsɪŋɪŋ/). Check that the voice goes through the nose, not into a burst.",
+            "bodyUk": "/ŋ/ — задньоязиковий носовий звук: задня частина язика наближається до місця артикуляції /k/ або /g/, а повітря проходить через ніс. У поширених словникових моделях sing закінчується /ŋ/, тоді як sin — /n/.\n\nУ think і bank за /ŋ/ стоїть /k/: /ŋk/. У English є /ŋɡ/ усередині слова. У суфіксі -ing часто вимовляють /ɪŋ/; варіант /ɪn/, наприклад goin', також природний для багатьох мовців і стилів та не означає неакуратного мовлення.\n\nУ деяких акцентах після /ŋ/ може чутися /g/ і там, де його немає в обраній словниковій моделі. Порівнюйте записи sin–sing і перевіряйте, яку модель акценту представляє джерело.",
+            "bodyEn": "/ŋ/ is a velar nasal: the back of the tongue approaches the place used for /k/ or /g/, while air passes through the nose. In common dictionary models sing ends in /ŋ/, whereas sin ends in /n/.\n\nIn think and bank, /ŋ/ is followed by /k/: /ŋk/. English has /ŋɡ/ inside the word. The -ing ending is often pronounced /ɪŋ/; /ɪn/, as in goin', is also natural for many speakers and styles and does not mean careless speech.\n\nIn some accents /g/ can be heard after /ŋ/ where it is absent in a chosen dictionary model. Compare recordings of sin–sing and check which accent the source represents.",
             "keyPointsUk": [
               "/ŋ/ — sing, thing, going: ніс, без вибуху /g/ на кінці",
               "sin ≠ sing; thin ≠ thing",
               "think, bank — /ŋk/",
-              "Акуратне -ing — /ŋ/, не goin' як єдина норма"
+              "-ing може звучати /ɪŋ/ або /ɪn/ залежно від мовця та стилю"
             ],
             "keyPointsEn": [
               "/ŋ/ is sing, thing, going: the nose, with no /g/ burst at the end",
               "sin is not sing; thin is not thing",
               "think, bank are /ŋk/",
-              "Careful -ing is /ŋ/, not goin' as the only norm"
+              "-ing can be /ɪŋ/ or /ɪn/ depending on speaker and style"
             ]
           },
           {
@@ -10216,20 +10322,20 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-voicing-c",
             "type": "concept",
-            "promptUk": "Не оглушуйте як в українській",
-            "promptEn": "Do not devoice as in Ukrainian",
-            "bodyUk": "В українській дзвінкі приголосні на кінці слова часто оглушуються: «дуб» звучить ближче до /п/, «віз» — до /с/. В англійській це змінює значення: leave /liːv/ (піти) — leaf /liːf/ (листок); said /sed/ — set /set/; bag /bæɡ/ — back /bæk/; eyes /aɪz/ — ice /aɪs/; rise — rice. Треба зберігати дзвінкість і трохи подовжувати попередній голосний перед дзвінким (leave довший за leaf).\n\nЦе одна з системних українських інтерференцій. Навіть якщо /v/ «трохи» глухіше, різниця в довжині голосного допомагає слухачеві. Практикуйте пари: leave–leaf, save–safe, prove–proof, said–set, sad–sat, bag–back, pig–pick, eyes–ice, rise–rice, buzz–bus.\n\nУ множині й третьої особи -s теж має дзвінкий і глухий варіанти: dogs /z/, cats /s/, buses /ɪz/. Після дзвінкого — /z/ (leaves, bags); після глухого — /s/ (leafs як дієслово «гортати», cats). Не уніфікуйте все під /s/.",
-            "bodyEn": "In Ukrainian, voiced consonants at the end of a word are often devoiced: “dub” sounds closer to /p/, “viz” to /s/. In English this changes the meaning: leave /liːv/ (go away) versus leaf /liːf/ (on a tree); said /sed/ versus set /set/; bag /bæɡ/ versus back /bæk/; eyes /aɪz/ versus ice /aɪs/; rise versus rice. You must keep the voicing and slightly lengthen the vowel before a voiced consonant (leave is longer than leaf).\n\nThis is one of the systematic Ukrainian interferences. Even if /v/ is “a little” quieter, the extra vowel length helps the listener. Practise the pairs: leave–leaf, save–safe, prove–proof, said–set, sad–sat, bag–back, pig–pick, eyes–ice, rise–rice, buzz–bus.\n\nIn the plural and the third person, -s also has voiced and voiceless variants: dogs /z/, cats /s/, buses /ɪz/. After a voiced sound, /z/ (leaves, bags); after a voiceless one, /s/ (leafs as the verb “to turn pages”, cats). Do not unify everything under /s/.",
+            "promptUk": "Розрізняйте кінцеві приголосні",
+            "promptEn": "Distinguishing final consonants",
+            "bodyUk": "У поширених моделях англійської кінцевий контраст допомагає розрізняти leave /liːv/ і leaf /liːf/, bag і back, eyes і ice. Тривалість попереднього голосного теж може підказувати різницю: перед фонологічно дзвінким приголосним він часто довший у схожому контексті. Реальна дзвінкість і тривалість змінюються залежно від мовця, акценту та оточення.\n\nУ стандартній українській кінцеві дзвінкі зазвичай зберігаються: дуб закінчується /б/, а віз — /з/. Порівнюйте англійські пари на слух, а не спирайтеся на припущення про обов'язкове українське оглушення.\n\nЗакінчення множини й третьої особи має три поширені варіанти: після шиплячих /ɪz/ (buses); після інших глухих /s/ (cats); після інших дзвінких звуків /z/ (dogs). Порядок перевірки важливий: buses має /ɪz/, хоча /s/ глухий.",
+            "bodyEn": "In common English models, the final contrast helps distinguish leave /liːv/ from leaf /liːf/, bag from back, and eyes from ice. The duration of the preceding vowel can also be a cue: in similar contexts it is often longer before a phonologically voiced consonant. Actual voicing and duration vary with speaker, accent and surroundings.\n\nIn standard Ukrainian, final voiced consonants are generally retained: дуб ends in /b/ and віз in /z/. Compare English pairs by listening rather than assuming Ukrainian necessarily devoices them.\n\nPlural and third-person endings have three common pronunciations: /ɪz/ after sibilants (buses); /s/ after other voiceless sounds (cats); /z/ after other voiced sounds (dogs). Check sibilants first: buses has /ɪz/ even though /s/ is voiceless.",
             "keyPointsUk": [
-              "Кінцеве /v d g z/ в англійській не оглушують як в українській",
+              "Кінцевий контраст /v/–/f/ може розрізняти значення",
               "leave ≠ leaf; bag ≠ back; eyes ≠ ice",
-              "Голосний перед дзвінким трохи довший",
+              "Голосний перед дзвінким часто довший у схожому контексті",
               "dogs /z/, cats /s/, buses /ɪz/"
             ],
             "keyPointsEn": [
-              "Final /v d g z/ in English are not devoiced as in Ukrainian",
+              "The final /v/–/f/ contrast can distinguish meaning",
               "leave is not leaf; bag is not back; eyes is not ice",
-              "The vowel before a voiced sound is a little longer",
+              "The vowel is often longer before a voiced sound in a similar context",
               "dogs /z/, cats /s/, buses /ɪz/"
             ]
           },
@@ -10293,16 +10399,20 @@ const newUnits: UnitContent[] = [
                 "right": "plural /z/"
               },
               {
-                "left": "cats / books / buses is different",
-                "right": "cats /s/; buses /ɪz/"
+                "left": "cats / books",
+                "right": "plural /s/"
+              },
+              {
+                "left": "buses / watches",
+                "right": "plural /ɪz/"
               }
             ]
           },
           {
             "id": "en-d-voicing-e",
             "type": "explain",
-            "promptUk": "Чому в англійській не можна оглушувати кінцеве /v/ як в українській? Наведіть leave і leaf і правило для -s.",
-            "promptEn": "Why must you not devoice a final /v/ in English as in Ukrainian? Mention leave and leaf, and the rule for -s.",
+            "promptUk": "Як розрізняються leave і leaf? Поясніть три поширені варіанти вимови закінчення -s.",
+            "promptEn": "How do leave and leaf differ? Explain the three common pronunciations of the -s ending.",
             "keyIdeas": [
               {
                 "labelUk": "leave/leaf",
@@ -10340,8 +10450,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "В українській кінцеві дзвінкі часто оглушуються, але в англійській leave з /v/ і leaf з /f/ — різні слова. Тому кінцеве /v/ не оглушують. У множині dogs має /z/, cats — /s/, buses — /ɪz/.",
-            "sampleAnswerEn": "In Ukrainian, final voiced consonants are often devoiced, but in English leave with /v/ and leaf with /f/ are different words. So a final /v/ is not devoiced. In the plural, dogs has /z/, cats has /s/, and buses has /ɪz/."
+            "sampleAnswerUk": "Leave з /v/ і leaf з /f/ — різні слова; довжина голосного теж може допомагати розрізненню. У множині dogs має /z/, cats — /s/, buses — /ɪz/. У стандартній українській кінцеві дзвінкі зазвичай зберігаються, а не обов'язково оглушуються.",
+            "sampleAnswerEn": "Leave with /v/ and leaf with /f/ are different words; vowel length can also help distinguish them. In the plural, dogs has /z/, cats has /s/, and buses has /ɪz/. Standard Ukrainian generally retains final voiced consonants rather than necessarily devoicing them."
           }
         ]
       },
@@ -10603,18 +10713,18 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Змістовні слова гучніші за службові",
             "promptEn": "Content words are stronger than function words",
-            "bodyUk": "У реченні наголошують змістовні слова: іменники, основні дієслова, прикметники, прислівники, питальні й вказівні слова. Службові (артикли, прийменники, допоміжні, займенники, to) зазвичай слабкі й часто зі швою. I WANT a CUP of TEA — want, cup, tea сильні; a, of слабкі. Це створює англійський «пунктирний» ритм (stress-timed), відмінний від більш рівномірного українського.\n\nЯкщо наголосити все підряд, мова звучить важко й неанглійською. Якщо не наголосити жодного змістовного слова — навпаки, нерозбірливо. Наголос також показує нову інформацію: We deployed on FRIDAY (не в четвер). Contrast — наступний урок.\n\nПрактикуйте короткі фрази, «приглушуючи» службові: a cup of tea, I need to go, She's in a meeting. Слухайте SpeakButton і відтворюйте ритм, не кожну літеру з однаковою силою.",
-            "bodyEn": "In a sentence we stress content words: nouns, main verbs, adjectives, adverbs, question words and demonstratives. Function words (articles, prepositions, auxiliaries, pronouns, to) are usually weak and often have schwa. I WANT a CUP of TEA — want, cup, tea are strong; a, of are weak. This creates English’s “dotted” stress-timed rhythm, different from a more even Ukrainian rhythm.\n\nIf you stress every word, speech sounds heavy and un-English. If you stress no content word, it becomes unclear. Stress also marks new information: We deployed on FRIDAY (not on Thursday). Contrast is the next lesson.\n\nPractise short phrases, “quietening” the function words: a cup of tea, I need to go, She's in a meeting. Listen to the SpeakButton and copy the rhythm, not every letter at equal strength.",
+            "bodyUk": "У нейтральному мовленні змістовні слова часто помітніші: I WANT a CUP of TEA. Артиклі, прийменники й допоміжні дієслова в ненаголошеній позиції можуть звучати слабше; деякі мають форму зі швою. Але це тенденція, а не обов'язкове правило для кожного слова.\n\nНаголос може виділити нову інформацію або контраст: We deployed on FRIDAY, not Thursday. Службове слово теж може бути наголошене: I said a cup OF tea, not a cup WITH tea.\n\nСлухайте доступні записи коротких фраз і звертайте увагу на те, яка інформація виділена. Ритм залежить від мовця, акценту, швидкості та контексту.",
+            "bodyEn": "In neutral speech, content words are often more prominent: I WANT a CUP of TEA. Articles, prepositions and auxiliaries can be weaker when unstressed; some have forms with schwa. This is a tendency, not a rule for every word.\n\nStress can mark new information or contrast: We deployed on FRIDAY, not Thursday. A function word can also be stressed: I said a cup OF tea, not a cup WITH tea.\n\nListen to available recordings of short phrases and notice which information is highlighted. Rhythm depends on the speaker, accent, speed and context.",
             "keyPointsUk": [
-              "Змістовні слова — сильний наголос; службові — слабкі",
-              "a cup of tea: cup і tea сильні, a і of — шва",
-              "Ритм англійської — stress-timed, не «всі склади рівні»",
+              "У нейтральному мовленні змістовні слова часто помітніші",
+              "Ненаголошені службові слова можуть мати слабку форму",
+              "Службове слово теж може отримати контрастний наголос",
               "Наголос також маркує нову інформацію"
             ],
             "keyPointsEn": [
-              "Content words take strong stress; function words are weak",
-              "a cup of tea: cup and tea are strong, a and of are schwa",
-              "English rhythm is stress-timed, not “every syllable equal”",
+              "In neutral speech content words are often more prominent",
+              "Unstressed function words can have a weak form",
+              "A function word can also receive contrastive stress",
               "Stress also marks new information"
             ]
           },
@@ -10653,8 +10763,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-sentence-stress-r3",
             "type": "mcq",
-            "promptUk": "Що станеться, якщо наголосити кожне слово, включно з the і of?",
-            "promptEn": "What happens if you stress every word, including the and of?",
+            "promptUk": "Який ефект може мати однаково сильний наголос на кожному слові в нейтральній фразі?",
+            "promptEn": "What effect can equally strong stress on every word have in a neutral phrase?",
             "options": [
               "Мова звучить важко й менш природно.",
               "Це обов'язкова норма RP.",
@@ -10662,8 +10772,8 @@ const newUnits: UnitContent[] = [
               "Тоді шва зникає і це краще."
             ],
             "correctIndex": 0,
-            "explanationUk": "Рівний сильний наголос на всьому — неанглійський ритм.",
-            "explanationEn": "Equal strong stress on everything is an un-English rhythm.",
+            "explanationUk": "Він може звучати надмірно підкреслено; у спеціальному контексті окремі службові слова теж наголошують.",
+            "explanationEn": "It can sound overly emphatic; individual function words can also be stressed in a specific context.",
             "optionsEn": [
               "Speech sounds heavy and less natural.",
               "This is a required RP rule.",
@@ -10696,8 +10806,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-sentence-stress-e",
             "type": "explain",
-            "promptUk": "Які слова в реченні наголошують і як це пов'язано зі швою? Чому не треба наголошувати the і of так само сильно, як cup?",
-            "promptEn": "Which words in a sentence are stressed, and how does that relate to schwa? Why shouldn't you stress the and of as strongly as cup?",
+            "promptUk": "Які слова часто наголошують у нейтральному реченні? Як це пов'язано зі швою і коли можна наголосити службове слово?",
+            "promptEn": "Which words are often prominent in a neutral sentence? How does this relate to schwa, and when can a function word be stressed?",
             "keyIdeas": [
               {
                 "labelUk": "змістовні",
@@ -10737,8 +10847,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "У реченні наголошують змістовні слова, наприклад cup, tea і want. Службові the, a і of зазвичай слабкі і часто мають шву. Якщо наголосити їх так само сильно, ритм стає важким і неанглійським.",
-            "sampleAnswerEn": "In a sentence we stress content words, for example cup, tea and want. Function words such as the, a and of are usually weak and often have schwa. If you stress them equally strongly, the rhythm becomes heavy and un-English."
+            "sampleAnswerUk": "У нейтральному реченні змістовні слова, як cup і tea, часто помітніші. Ненаголошені службові слова можуть мати слабку форму зі швою. Для контрасту можна наголосити й of: a cup OF tea, not WITH tea.",
+            "sampleAnswerEn": "In a neutral sentence content words such as cup and tea are often more prominent. Unstressed function words can have a weak form with schwa. For contrast, of can be stressed too: a cup OF tea, not WITH tea."
           }
         ]
       },
@@ -10754,18 +10864,18 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Yes/no часто вгору, wh- часто вниз",
             "promptEn": "Yes/no often rises, wh- often falls",
-            "bodyUk": "Базовий орієнтир (нейтральний стиль, не єдиний можливий): загальні питання (yes/no) часто мають висхідну інтонацію в кінці: Are you READY? Is the test GREEN? Спеціальні питання (wh-: what, where, when, why, how, who) часто спадні: WHERE is the station? WHY did it FAIL? Спадний тон звучить як завершене питання з очікуванням відповіді; висхідний yes/no — як відкритий запит підтвердження.\n\nЦе тенденція, не залізний закон: дружній yes/no може падати, а здивований wh- — підніматися. Question tags: спадний tag — мовець майже впевнений (It's ready, isn't it↘); висхідний — справжнє питання (It's ready, isn't it↗).\n\nДля українськомовних корисно не «піднімати» кожне речення, ніби невпевненість. Розповідні речення в англійській зазвичай закінчуються спадом: The deploy is DONE↘. Практикуйте пару: Are you ready↗? / What time is it↘? і слухайте SpeakButton.",
-            "bodyEn": "A basic landmark (neutral style, not the only possibility): yes/no questions often have a rising tone at the end: Are you READY? Is the test GREEN? Wh-questions (what, where, when, why, how, who) often fall: WHERE is the station? WHY did it FAIL? A falling tone sounds like a complete question that expects an answer; a rising yes/no sounds like an open request for confirmation.\n\nThis is a tendency, not an iron law: a friendly yes/no can fall, and a surprised wh-question can rise. Question tags: a falling tag means the speaker is almost sure (It's ready, isn't it↘); a rising tag is a real question (It's ready, isn't it↗).\n\nFor Ukrainian speakers it helps not to “lift” every sentence as if it were uncertainty. English statements usually end with a fall: The deploy is DONE↘. Practise the pair: Are you ready↗? / What time is it↘? and listen to the SpeakButton.",
+            "bodyUk": "У деяких поширених нейтральних контекстах питання так/ні часто мають підйом наприкінці: Are you ready↗? Питання з where або why часто мають спад: Where is the station↘? Це орієнтир, а не правило: контур залежить від акценту, ситуації та наміру мовця.\n\nСпадний question tag може передавати очікування підтвердження; висхідний може сильніше сигналізувати відкритий запит. Обидва можуть бути справжніми запитаннями, а тон сам по собі не доводить ступінь упевненості.\n\nПорівняйте доступні записи Are you ready? і Where is the station? Спробуйте обидва контури й послухайте, як контекст змінює їх сприйняття.",
+            "bodyEn": "In some common neutral contexts, yes/no questions often rise at the end: Are you ready↗? Questions with where or why often fall: Where is the station↘? This is a guide, not a rule: the contour depends on accent, situation and speaker intent.\n\nA falling question tag can suggest an expectation of confirmation; a rising tag can signal a more open request. Both can be genuine questions, and tone alone does not establish a speaker's degree of certainty.\n\nCompare available recordings of Are you ready? and Where is the station? Try both contours and notice how context changes their interpretation.",
             "keyPointsUk": [
               "Yes/no часто ↗; wh-питання часто ↘",
               "Це тенденція, не єдиний можливий тон",
-              "Tag: спад — підтвердження; підйом — справжнє питання",
+              "Tag: спад або підйом можуть передавати різні очікування",
               "Розповідь зазвичай закінчується спадом"
             ],
             "keyPointsEn": [
               "Yes/no often rises; wh-questions often fall",
               "This is a tendency, not the only possible tone",
-              "A falling tag is confirmation; a rise is a real question",
+              "A falling or rising tag can signal different expectations",
               "A statement usually ends with a fall"
             ]
           },
@@ -10878,8 +10988,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "У нейтральному стилі yes/no питання часто мають висхідну інтонацію, наприклад Are you ready, а wh-питання — спадну: Where is the station. Спадний tag означає, що мовець майже впевнений і хоче підтвердження.",
-            "sampleAnswerEn": "In a neutral style, yes/no questions often have a rising tone, for example Are you ready, and wh-questions often fall: Where is the station. A falling tag means the speaker is almost sure and wants confirmation."
+            "sampleAnswerUk": "У деяких нейтральних контекстах yes/no питання часто мають висхідну інтонацію, а wh-питання — спадну. Спадний tag може сигналізувати очікування підтвердження, але його значення також залежить від контексту.",
+            "sampleAnswerEn": "In some neutral contexts yes/no questions often rise, while wh-questions often fall. A falling tag can suggest an expectation of confirmation, but its meaning also depends on context."
           }
         ]
       },
@@ -10933,15 +11043,13 @@ const newUnits: UnitContent[] = [
           },
           {
             "id": "en-d-contrast-stress-r2",
-            "type": "fill_blank",
-            "promptUk": "Вставте TO або to — напишіть TO для емфази напрямку (не FROM).",
-            "promptEn": "Type TO for emphasis of direction (not FROM).",
-            "sentence": "I sent the file ___ Maria, not FROM her.",
-            "accepted": [
-              "TO",
-              "to",
-              "To"
-            ]
+            "type": "mcq",
+            "promptUk": "Ви виправляєте напрямок: файл надіслали Марії, а не отримали від неї. Яке слово виділити?",
+            "promptEn": "You are correcting the direction: the file was sent to Maria, not received from her. Which word should be stressed?",
+            "options": ["I sent the file TO Maria, not from her.", "I SENT the file to Maria, not from her, with no stress on the direction.", "I sent the FILE to Maria, not from her, with no stress on the direction.", "I sent the file to MARIA, not from her, with no stress on the direction."],
+            "correctIndex": 0,
+            "explanationUk": "TO протиставляється FROM, тому наголос на прийменнику допомагає виділити напрямок.",
+            "explanationEn": "TO contrasts with FROM, so stressing the preposition highlights the direction."
           },
           {
             "id": "en-d-contrast-stress-r3",
@@ -11036,8 +11144,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Як слова зливаються в потоці",
             "promptEn": "How words blend in a stream",
-            "bodyUk": "У зв'язній мові слова не стоять як окремі цеглини. Linking: кінцевий приголосний «переїжджає» до наступного голосного — pick it up звучить близько до /pɪk ɪt ʌp/ з плавним стиком; an apple /ənæpl/. У не-rhotic акцентах з'являється linking /r/: far away /fɑːr əweɪ/. Intrusive /r/ — подібний звук між голосними (idea of), стилістично не всі його люблять, але він існує.\n\nElision — випадіння звука: next day часто без /t/; sandwich без чіткого /d/. Assimilation — звук підлаштовується: ten cups може звучати ближче до /teŋ kʌps/. Слабкі форми службових слів (попередні уроки) працюють разом із цим.\n\nДля слухання це важливіше, ніж для вашого власного «ідеального» відтворення: ви маєте ВПІЗНАТИ злиття. Для мовлення досить природного темпу без штучних пауз після кожного слова. Не ковтайте змістовні слова; ковтайте (ослабляйте) службові. Практикуйте: pick it up, an hour and a half, What do you want? (/wɒdʒə wɒnt/ у швидкому мовленні).",
-            "bodyEn": "In connected speech, words do not stand as separate bricks. Linking: a final consonant “moves” to the following vowel — pick it up sounds close to /pɪk ɪt ʌp/ with a smooth join; an apple /ənæpl/. In non-rhotic accents a linking /r/ appears: far away /fɑːr əweɪ/. Intrusive /r/ is a similar sound between vowels (idea of); not everyone likes it stylistically, but it exists.\n\nElision is the dropping of a sound: next day often has no /t/; sandwich may have no clear /d/. Assimilation is a sound adapting: ten cups can sound closer to /teŋ kʌps/. The weak forms of function words (earlier lessons) work together with this.\n\nFor listening this matters more than for your own “perfect” production: you must RECOGNISE the blending. For speaking, a natural pace without an artificial pause after every word is enough. Do not swallow content words; do swallow (weaken) function words. Practise: pick it up, an hour and a half, What do you want? (/wɒdʒə wɒnt/ in fast speech).",
+            "bodyUk": "У зв'язній мові слова не стоять як окремі цеглини. Linking: кінцевий приголосний «переїжджає» до наступного голосного — pick it up звучить близько до /pɪk ɪt ʌp/ з плавним стиком; an apple /ənæpl/. У деяких не-rhotic акцентах перед голосним може з’являтися linking /r/: far away /fɑːr əweɪ/. Intrusive /r/ — подібний звук між голосними (idea of), стилістично не всі його люблять, але він існує.\n\nElision — випадіння звука: next day часто без /t/; sandwich без чіткого /d/. Assimilation — звук підлаштовується: ten cups може звучати ближче до /teŋ kʌps/. Слабкі форми службових слів (попередні уроки) працюють разом із цим.\n\nДля слухання це важливіше, ніж для вашого власного «ідеального» відтворення: ви маєте ВПІЗНАТИ злиття. Для мовлення досить природного темпу без штучних пауз після кожного слова. Ненаголошені службові слова часто мають слабку форму, але під контрастним наголосом можуть звучати повно. Практикуйте: pick it up, an hour and a half, What do you want? (/wɒdʒə wɒnt/ у швидкому мовленні).",
+            "bodyEn": "In connected speech, words do not stand as separate bricks. Linking: a final consonant “moves” to the following vowel — pick it up sounds close to /pɪk ɪt ʌp/ with a smooth join; an apple /ənæpl/. In some non-rhotic accents a linking /r/ may appear before a vowel: far away /fɑːr əweɪ/. Intrusive /r/ is a similar sound between vowels (idea of); not everyone likes it stylistically, but it exists.\n\nElision is the dropping of a sound: next day often has no /t/; sandwich may have no clear /d/. Assimilation is a sound adapting: ten cups can sound closer to /teŋ kʌps/. The weak forms of function words (earlier lessons) work together with this.\n\nFor listening this matters more than for your own “perfect” production: you must RECOGNISE the blending. For speaking, a natural pace without an artificial pause after every word is enough. Unstressed function words often have weak forms, but they can have strong forms when contrastively stressed. Practise: pick it up, an hour and a half, What do you want? (/wɒdʒə wɒnt/ in fast speech).",
             "keyPointsUk": [
               "Linking: приголосний + наступний голосний зливаються",
               "Elision: next day часто без /t/",
@@ -11074,14 +11182,14 @@ const newUnits: UnitContent[] = [
           },
           {
             "id": "en-d-connected-r2",
-            "type": "fill_blank",
-            "promptUk": "Вставте it або at (фраза pick ___ up).",
-            "promptEn": "Insert it or at (the phrase pick ___ up).",
-            "sentence": "pick ___ up",
-            "accepted": [
-              "it",
-              "It"
-            ]
+            "type": "mcq",
+            "promptUk": "Коли службове слово може мати сильну форму у зв’язному мовленні?",
+            "promptEn": "When can a function word have a strong form in connected speech?",
+            "options": ["Коли на ньому контрастний наголос.", "Тільки коли воно написане великими літерами.", "Ніколи: усі службові слова завжди зникають.", "Лише наприкінці кожного речення."],
+            "optionsEn": ["When it carries contrastive stress.", "Only when it is written in capital letters.", "Never: all function words always disappear.", "Only at the end of every sentence."],
+            "correctIndex": 0,
+            "explanationUk": "Ненаголошені службові слова часто ослаблюються, але контраст може зробити їх сильними.",
+            "explanationEn": "Unstressed function words are often weak, but contrast can make them strong."
           },
           {
             "id": "en-d-connected-r3",
@@ -11159,8 +11267,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Linking — це плавний стик кінцевого приголосного з наступним голосним, як у pick it up. Elision — випадіння звука, наприклад /t/ у next day. Для слухання важливо впізнавати злиття, а службові слова в потоці ослаблювати, не ковтати змістовні.",
-            "sampleAnswerEn": "Linking is a smooth join from a final consonant into the next vowel, as in pick it up. Elision is the dropping of a sound, for example /t/ in next day. For listening, the important skill is recognising blends, and in a stream we weaken function words, without swallowing content words."
+            "sampleAnswerUk": "Linking — це плавний стик кінцевого приголосного з наступним голосним, як у pick it up. Elision — випадіння звука, наприклад /t/ у next day. Для слухання важливо впізнавати злиття, а ненаголошені службові слова часто мають слабкі форми; під контрастним наголосом вони можуть бути сильними.",
+            "sampleAnswerEn": "Linking is a smooth join from a final consonant into the next vowel, as in pick it up. Elision is the dropping of a sound, for example /t/ in next day. For listening, the important skill is recognising blends, and unstressed function words often have weak forms, although contrast can make them strong."
           }
         ]
       },
@@ -11197,8 +11305,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-deep-stress-intonation-exam-q2",
             "type": "mcq",
-            "promptUk": "У a cup of tea сильні:",
-            "promptEn": "In a cup of tea the strong words are:",
+            "promptUk": "У нейтральному a cup of tea без особливого контрасту зазвичай сильні:",
+            "promptEn": "In a neutral a cup of tea without special contrast, the typically strong words are:",
             "options": [
               "cup і tea",
               "a і of",
@@ -11206,8 +11314,8 @@ const newUnits: UnitContent[] = [
               "усі однаково"
             ],
             "correctIndex": 0,
-            "explanationUk": "Змістовні cup і tea.",
-            "explanationEn": "Content words cup and tea.",
+            "explanationUk": "Зазвичай наголошені змістовні cup і tea; контраст може змінити наголос.",
+            "explanationEn": "The content words cup and tea are typically stressed; contrast can change the stress.",
             "optionsEn": [
               "cup and tea",
               "a and of",
@@ -11259,14 +11367,13 @@ const newUnits: UnitContent[] = [
           },
           {
             "id": "en-deep-stress-intonation-exam-q5",
-            "type": "fill_blank",
-            "promptUk": "Вставте it (фраза зі linking).",
-            "promptEn": "Insert it (a phrase with linking).",
-            "sentence": "pick ___ up",
-            "accepted": [
-              "it",
-              "It"
-            ]
+            "type": "mcq",
+            "promptUk": "У швидкому мовленні в next day іноді не чути /t/. Як називається це явище?",
+            "promptEn": "In fast speech, /t/ is sometimes not heard in next day. What is this called?",
+            "options": ["Elision", "Linking", "Contrastive stress", "Word stress"],
+            "correctIndex": 0,
+            "explanationUk": "Elision — випадіння звука; воно можливе, але не обов’язкове.",
+            "explanationEn": "Elision is the omission of a sound; it can happen, but is not obligatory."
           }
         ]
       }
@@ -11413,8 +11520,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "tell someone, say something",
             "promptEn": "tell someone, say something",
-            "bodyUk": "say — вимовляти слова; після нього часто йде сама цитата або that, а слухач з to: She said hello. He said that the test had failed. He said to me that… (можна, трохи важче). Не *He said me. tell — потребує адресата без to: She told me the news. Tell a story / the truth / a lie / the time / the difference. Не *She told that… без об'єкта (окрім рідкісних формальних випадків).\n\nspeak — уміння або офіційніший акт: She speaks English. He spoke at the conference. speak to / with someone. talk — розмова, менш формальна: We talked about the bug. talk to someone. say і tell більше про зміст слів; speak і talk — про сам акт розмови або мову.\n\nТипові помилки: *tell to me; *say me; *tell that the test failed без me; *speak English language краще speak English. Please tell me (не say me) when you're ready.",
-            "bodyEn": "say is producing the words; after it you often get the wording itself or that, and the listener with to: She said hello. He said that the test had failed. He said to me that… (possible, a little heavier). Not *He said me. tell needs an addressee without to: She told me the news. Tell a story / the truth / a lie / the time / the difference. Not *She told that… without an object (except in rare formal cases).\n\nspeak is an ability or a more formal act: She speaks English. He spoke at the conference. speak to / with someone. talk is conversation, less formal: We talked about the bug. talk to someone. say and tell are more about the content of the words; speak and talk are about the act of talking or the language itself.\n\nTypical mistakes: *tell to me; *say me; *tell that the test failed with no me; *speak English language — prefer speak English. Please tell me (not say me) when you're ready.",
+            "bodyUk": "say — вимовляти слова; після нього часто йде сама цитата або that, а слухач з to: She said hello. He said that the test had failed. He said to me that… (можна, трохи важче). Не *He said me. tell часто вживають з адресатом без to: She told me the news. В інших сталих виразах адресат не обов’язковий: tell a story / the truth / a lie / the time / the difference. Не *She told that… без об'єкта (окрім рідкісних формальних випадків).\n\nspeak — уміння або офіційніший акт: She speaks English. He spoke at the conference. speak to / with someone. talk — розмова, менш формальна: We talked about the bug. talk to someone. say і tell більше про зміст слів; speak і talk — про сам акт розмови або мову.\n\nТипові помилки: *tell to me; *say me; *tell that the test failed без me; *speak English language краще speak English. Please tell me (не say me) when you're ready.",
+            "bodyEn": "say is producing the words; after it you often get the wording itself or that, and the listener with to: She said hello. He said that the test had failed. He said to me that… (possible, a little heavier). Not *He said me. tell often takes an addressee without to: She told me the news. In other fixed expressions an addressee is not required: tell a story / the truth / a lie / the time / the difference. Not *She told that… without an object (except in rare formal cases).\n\nspeak is an ability or a more formal act: She speaks English. He spoke at the conference. speak to / with someone. talk is conversation, less formal: We talked about the bug. talk to someone. say and tell are more about the content of the words; speak and talk are about the act of talking or the language itself.\n\nTypical mistakes: *tell to me; *say me; *tell that the test failed with no me; *speak English language — prefer speak English. Please tell me (not say me) when you're ready.",
             "keyPointsUk": [
               "say something (to someone); не *say me",
               "tell someone something: told me the news",
@@ -11522,8 +11629,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Tell потребує адресата: she told me the news, не said me. Say часто йде з that: he said that the test had failed. Speak — уміння або більш офіційний виступ, talk — розмова. Типові помилки — say me і tell to me.",
-            "sampleAnswerEn": "Tell needs an addressee: she told me the news, not said me. Say often takes that: he said that the test had failed. Speak is an ability or a more formal talk; talk is conversation. Typical mistakes are say me and tell to me."
+            "sampleAnswerUk": "Tell може мати адресата без to: she told me the news, не said me. У tell a story адресат необов’язковий. Say часто йде з that: he said that the test had failed. Speak — уміння або більш офіційний виступ, talk — розмова. Типові помилки — say me і tell to me.",
+            "sampleAnswerEn": "Tell can take an addressee without to: she told me the news, not said me. In tell a story the addressee is optional. Say often takes that: he said that the test had failed. Speak is an ability or a more formal talk; talk is conversation. Typical mistakes are say me and tell to me."
           }
         ]
       },
@@ -11600,13 +11707,10 @@ const newUnits: UnitContent[] = [
             "type": "translate",
             "promptUk": "Перекладіть із lend.",
             "promptEn": "Translate with lend.",
-            "source": "Я позичу тобі зарядку.",
+            "source": "Я позичу тобі свою зарядку.",
             "accepted": [
               "I'll lend you my charger",
-              "I will lend you my charger",
-              "I'll lend you the charger",
-              "I will lend you the charger",
-              "I can lend you my charger"
+              "I will lend you my charger"
             ],
             "direction": "uk_en"
           },
@@ -11670,8 +11774,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "get + прикметник, get + іменник, get to",
             "promptEn": "get + adjective, get + noun, get to",
-            "bodyUk": "get надзвичайно частотне. get + прикметник = ставати: get ready, get angry, get better, get worse, get tired, get lost, get used to (вже знайоме). get + іменник: get a job, get a ticket, get a message, get permission, get the impression. get to + місце: get to work, get home (без to: get home, get there). get + V3 — пасив/каузатив, уже в уроці causative (get something done; get stolen).\n\nІнші стійкі: get on (with) — ладнати / просуватися; get over — оговтатися; get along with — ладнати; get by — справлятися; get across — донести думку. Не всі треба вчити зараз як фразові наступного блоку — тут саме колокаційний каркас.\n\nТипові помилки: *get to home; *I become ready в повсякденні (become більш формальне; get ready природніше); *get a work замість get a job / get work (незлічуване). get it — «зрозумів»: Yeah, I get it.",
-            "bodyEn": "get is extremely frequent. get + adjective means “become”: get ready, get angry, get better, get worse, get tired, get lost, get used to (already familiar). get + noun: get a job, get a ticket, get a message, get permission, get the impression. get to + a place: get to work, get home (no to: get home, get there). get + V3 is a passive/causative, already in the causative lesson (get something done; get stolen).\n\nOther fixed uses: get on (with) — have a good relationship / make progress; get over — recover; get along with — get on; get by — manage; get across — communicate an idea. You do not need to treat all of these as the next phrasal-verb block yet — here the point is the collocation frame.\n\nTypical mistakes: *get to home; *I become ready in everyday speech (become is more formal; get ready is more natural); *get a work instead of get a job / get work (uncountable). get it means “I understand”: Yeah, I get it.",
+            "bodyUk": "get надзвичайно частотне. get + прикметник = ставати: get ready, get angry, get better, get worse, get tired. Get lost може означати «заблукати». Окремий вираз get used to означає «звикати до» і вживається з іменником або формою на -ing. get + іменник: get a job, get a ticket, get a message, get permission, get the impression. get to + місце: get to work, get home (без to: get home, get there). get + V3 — пасив/каузатив, уже в уроці causative (get something done; get stolen).\n\nІнші стійкі: get on (with) — ладнати / просуватися; get over — оговтатися; get along with — ладнати; get by — справлятися; get across — донести думку. Не всі треба вчити зараз як фразові наступного блоку — тут саме колокаційний каркас.\n\nТипові помилки: *get to home; *I become ready в повсякденні (become більш формальне; get ready природніше); *get a work замість get a job / get work (незлічуване). get it — «зрозумів»: Yeah, I get it.",
+            "bodyEn": "get is extremely frequent. get + adjective means “become”: get ready, get angry, get better, get worse, get tired. Get lost can mean losing your way. The separate expression get used to means becoming accustomed to something and takes a noun or an -ing form. get + noun: get a job, get a ticket, get a message, get permission, get the impression. get to + a place: get to work, get home (no to: get home, get there). get + V3 is a passive/causative, already in the causative lesson (get something done; get stolen).\n\nOther fixed uses: get on (with) — have a good relationship / make progress; get over — recover; get along with — get on; get by — manage; get across — communicate an idea. You do not need to treat all of these as the next phrasal-verb block yet — here the point is the collocation frame.\n\nTypical mistakes: *get to home; *I become ready in everyday speech (become is more formal; get ready is more natural); *get a work instead of get a job / get work (uncountable). get it means “I understand”: Yeah, I get it.",
             "keyPointsUk": [
               "get ready / better / tired — ставати",
               "get a job / a ticket; get to work; get home без to",
@@ -11702,14 +11806,13 @@ const newUnits: UnitContent[] = [
           },
           {
             "id": "en-d-get-col-r2",
-            "type": "fill_blank",
-            "promptUk": "Вставте to, якщо потрібно, або home як? Напишіть home (без to).",
-            "promptEn": "Type home (no to).",
-            "sentence": "I usually get ___ at seven.",
-            "accepted": [
-              "home",
-              "Home"
-            ]
+            "type": "mcq",
+            "promptUk": "Оберіть природне речення про повернення додому.",
+            "promptEn": "Choose the natural sentence about arriving home.",
+            "options": ["I usually get home at seven.", "I usually get to home at seven.", "I usually get at home at seven.", "I usually get a home at seven."],
+            "correctIndex": 0,
+            "explanationUk": "З home у значенні напрямку кажемо get home без to; але get to work.",
+            "explanationEn": "With home as a destination, say get home without to; compare get to work."
           },
           {
             "id": "en-d-get-col-r3",
@@ -11800,9 +11903,9 @@ const newUnits: UnitContent[] = [
             "id": "en-d-false-friends-c",
             "type": "concept",
             "promptUk": "magazine — не магазин, actual — не актуальний",
-            "promptEn": "magazine is not a shop, actual is not “current”",
+            "promptEn": "magazine is not a shop; actual usually means real",
             "bodyUk": "Фальшиві друзі — слова, що виглядають знайомо, а значать інше. magazine — журнал, не магазин (shop, store). actual / actually — справжній / насправді, не «актуальний» (current, topical, relevant). accurate — точний, не «акуратний» (neat, tidy, careful). prospect — перспектива / потенційний клієнт, не проспект (avenue). list — список, не лист (letter). fabric — тканина, не фабрика (factory).\n\nintelligent — розумний, не обов'язково «інтелігентний» (cultured, well-educated у соціальному сенсі). sympathetic — співчутливий, не «симпатичний» (nice, likeable, attractive). eventually — зрештою, не «евентуально / можливо» (possibly). artist — художник / артист у ширшому сенсі, українське «артист» частіше performer. cabinet — шафа / уряд, не кабінет (office). receipt — чек, не рецепт (recipe, або prescription для ліків).\n\nСтратегія: не довіряйте схожості кореня. Перевіряйте приклад у словнику. Ці пари варто тримати як флешкарти.",
-            "bodyEn": "False friends look familiar but mean something else. magazine is a periodical, not a shop (shop, store). actual / actually means real / in fact, not “current” (current, topical, relevant). accurate means exact, not “neat” (neat, tidy, careful). prospect is a possibility or a potential client, not an avenue (avenue). list is a series of items, not a letter (letter). fabric is cloth, not a factory (factory).\n\nintelligent means clever, not necessarily “intelligentsia-cultured” (cultured, well-educated in a social sense). sympathetic means compassionate, not “nice-looking” (nice, likeable, attractive). eventually means in the end, not “possibly” (possibly). artist is a painter or artist in a wide sense; Ukrainian “artyst” is often a performer. cabinet is a cupboard or a government, not an office (office). receipt is a till slip, not a recipe (recipe, or a prescription for medicine).\n\nA strategy: do not trust a similar root. Check an example in a dictionary. These pairs are worth keeping as flashcards.",
+            "bodyEn": "False friends look familiar but mean something else. magazine is a periodical, not a shop (shop, store). actual / actually commonly means real / in fact; Ukrainian «актуальний» often needs current, topical or relevant, depending on context. accurate means exact, not “neat” (neat, tidy, careful). prospect is a possibility or a potential client, not an avenue (avenue). list is a series of items, not a letter (letter). fabric is cloth, not a factory (factory).\n\nintelligent means clever, not necessarily “intelligentsia-cultured” (cultured, well-educated in a social sense). sympathetic means compassionate, not “nice-looking” (nice, likeable, attractive). eventually means in the end, not “possibly” (possibly). artist is a painter or artist in a wide sense; Ukrainian “artyst” is often a performer. cabinet is a cupboard or a government, not an office (office). receipt is a till slip, not a recipe (recipe, or a prescription for medicine).\n\nA strategy: do not trust a similar root. Check an example in a dictionary. These pairs are worth keeping as flashcards.",
             "keyPointsUk": [
               "magazine = журнал; shop = магазин",
               "actual = справжній; current / relevant = актуальний",
@@ -11829,13 +11932,13 @@ const newUnits: UnitContent[] = [
             ],
             "correctIndex": 0,
             "explanationUk": "магазин — shop/store; magazine — журнал.",
-            "explanationEn": "A shop is shop/store; a magazine is a periodical."
+            "explanationEn": "The Ukrainian магазин is a shop or store; a magazine is a periodical."
           },
           {
             "id": "en-d-false-friends-r2",
             "type": "fill_blank",
-            "promptUk": "Вставте current або actual («актуальна тема»).",
-            "promptEn": "Insert current or actual (“a topical subject”).",
+            "promptUk": "Вставте current, relevant або topical («актуальна тема»).",
+            "promptEn": "Insert current, relevant or topical (“a subject of present interest”).",
             "sentence": "This is a ___ topic in our team.",
             "accepted": [
               "current",
@@ -11996,7 +12099,7 @@ const newUnits: UnitContent[] = [
             "id": "en-deep-collocations-exam-q4",
             "type": "mcq",
             "promptUk": "магазин =",
-            "promptEn": "a shop =",
+            "promptEn": "Which English word means the Ukrainian магазин (a place to buy things)?",
             "options": [
               "shop / store",
               "magazine",
@@ -12039,8 +12142,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "un-, in-/im-/il-/ir-, dis-, mis-, re-, over-, under-",
             "promptEn": "un-, in-/im-/il-/ir-, dis-, mis-, re-, over-, under-",
-            "bodyUk": "Заперечні префікси: un- (unhappy, unfair, unexpected, unlock); in- (incorrect, informal, invisible) з варіантами im- перед p, b, m (impossible, impatient), il- перед l (illegal, illogical), ir- перед r (irregular, irresponsible). dis- (disagree, disappear, dishonest). Не всі антоніми утворюються префіксом: *unpossible немає, є impossible; *insecure і unsecure — insecure правильне для «невпевнений / незахищений».\n\nІнші корисні: mis- — неправильно (misunderstand, misspell, mislead); re- — знову (rewrite, rebuild, retry); over- — надмір (overwork, overestimate, overflow); under- — недостатньо (underestimate, underpaid, understaffed); pre- / post- (preheat, preview, postgraduate); co- (co-founder, cooperate). Префікс рідко змінює наголос у цих випадках, але змінює значення різко.\n\nТипові помилки: плутати un- і in- (немає універсального правила, треба словник); *unpossible; написання cooperate / co-operate — обидва трапляються, co-founder часто з дефісом. Для іспитів корисно знати найчастотніші сім'ї.",
-            "bodyEn": "Negative prefixes: un- (unhappy, unfair, unexpected, unlock); in- (incorrect, informal, invisible) with variants im- before p, b, m (impossible, impatient), il- before l (illegal, illogical), ir- before r (irregular, irresponsible). dis- (disagree, disappear, dishonest). Not every antonym is formed with a prefix: *unpossible does not exist — it is impossible; insecure is the right form for “not confident / not protected”, not *unsecure.\n\nOther useful ones: mis- means wrongly (misunderstand, misspell, mislead); re- means again (rewrite, rebuild, retry); over- means too much (overwork, overestimate, overflow); under- means too little (underestimate, underpaid, understaffed); pre- / post- (preheat, preview, postgraduate); co- (co-founder, cooperate). A prefix rarely moves the stress in these cases, but it changes the meaning sharply.\n\nTypical mistakes: mixing up un- and in- (there is no universal rule — use a dictionary); *unpossible; spelling cooperate / co-operate — both occur, and co-founder often has a hyphen. For exams it is useful to know the most frequent families.",
+            "bodyUk": "Заперечні префікси: un- (unhappy, unfair, unexpected, unlock); in- (incorrect, informal, invisible) з варіантами im- перед p, b, m (impossible, impatient), il- перед l (illegal, illogical), ir- перед r (irregular, irresponsible). dis- (disagree, disappear, dishonest). Не всі антоніми утворюються префіксом: *unpossible немає, є impossible; insecure — звичний прикметник для «невпевнений» або «незахищений»; unsecure також існує, зокрема як дієслово «звільнити від кріплення».\n\nІнші корисні: mis- — неправильно (misunderstand, misspell, mislead); re- — знову (rewrite, rebuild, retry); over- — надмір (overwork, overestimate, overflow); under- — недостатньо (underestimate, underpaid, understaffed); pre- / post- (preheat, preview, postgraduate); co- (co-founder, cooperate). Префікс рідко змінює наголос у цих випадках, але змінює значення різко.\n\nТипові помилки: плутати un- і in- (немає універсального правила, треба словник); *unpossible; написання cooperate / co-operate — обидва трапляються, co-founder часто з дефісом. Для іспитів корисно знати найчастотніші сім'ї.",
+            "bodyEn": "Negative prefixes: un- (unhappy, unfair, unexpected, unlock); in- (incorrect, informal, invisible) with variants im- before p, b, m (impossible, impatient), il- before l (illegal, illogical), ir- before r (irregular, irresponsible). dis- (disagree, disappear, dishonest). Not every antonym is formed with a prefix: *unpossible does not exist — it is impossible; insecure is the usual adjective for “not confident / not protected”; unsecure also exists, notably as a verb meaning to release something that was secured.\n\nOther useful ones: mis- means wrongly (misunderstand, misspell, mislead); re- means again (rewrite, rebuild, retry); over- means too much (overwork, overestimate, overflow); under- means too little (underestimate, underpaid, understaffed); pre- / post- (preheat, preview, postgraduate); co- (co-founder, cooperate). A prefix rarely moves the stress in these cases, but it changes the meaning sharply.\n\nTypical mistakes: mixing up un- and in- (there is no universal rule — use a dictionary); *unpossible; spelling cooperate / co-operate — both occur, and co-founder often has a hyphen. For exams it is useful to know the most frequent families.",
             "keyPointsUk": [
               "un- / dis-; in- з im-/il-/ir- за наступною літерою",
               "mis- неправильно; re- знову; over-/under- надмір / брак",
@@ -12183,8 +12286,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "-tion, -ment, -ness, -ity, -er/-or, -ist",
             "promptEn": "-tion, -ment, -ness, -ity, -er/-or, -ist",
-            "bodyUk": "Часті іменникові суфікси: -tion / -sion (information, decision, discussion — часто від дієслів); -ment (development, agreement, improvement); -ness від прикметників (happiness, kindness, awareness); -ity / -ty (possibility, responsibility, safety); -ance / -ence (performance, difference, independence). Люди: -er / -or (developer, actor, visitor), -ist (scientist, specialist, journalist), -ian (musician, technician), -ee (employee, interviewee — той, на кого спрямована дія).\n\nПравопис змінюється: decide → decision (не *decidation); responsible → responsibility (з -ility); happy → happiness (y→i). Наголос часто падає на склад перед -tion / -ity: informá-tion, possi-bí-lity (тобто на наголошений склад родини).\n\nТипові помилки: *informations у значенні «відомості» (information незлічуване); *advices; плутати employee і employer; *developement (одне e: development). Для іспитів (FCE word formation) треба бачити частину мови в пропуску.",
-            "bodyEn": "Frequent noun suffixes: -tion / -sion (information, decision, discussion — often from verbs); -ment (development, agreement, improvement); -ness from adjectives (happiness, kindness, awareness); -ity / -ty (possibility, responsibility, safety); -ance / -ence (performance, difference, independence). People: -er / -or (developer, actor, visitor), -ist (scientist, specialist, journalist), -ian (musician, technician), -ee (employee, interviewee — the person who receives the action).\n\nSpelling changes: decide → decision (not *decidation); responsible → responsibility (with -ility); happy → happiness (y→i). Stress often falls on the syllable before -tion / -ity: inforMAtion, possiBIlity.\n\nTypical mistakes: *informations in the sense of “facts” (information is uncountable); *advices; mixing up employee and employer; *developement (one e: development). For exams (FCE word formation) you have to see the part of speech in the gap.",
+            "bodyUk": "Часті іменникові суфікси: -tion / -sion (information, decision, discussion — часто від дієслів); -ment (development, agreement, improvement); -ness від прикметників (happiness, kindness, awareness); -ity / -ty (possibility, responsibility, safety); -ance / -ence (performance, difference, independence). Люди: -er / -or (developer, actor, visitor), -ist (scientist, specialist, journalist), -ian (musician, technician), -ee (employee, interviewee — той, на кого спрямована дія).\n\nПравопис змінюється: decide → decision (не *decidation); responsible → responsibility (з -ility); happy → happiness (y→i). Наголос часто падає на склад перед -tion / -ity: informá-tion, possi-bí-lity (тобто на наголошений склад родини).\n\nТипові помилки: *informations у значенні «відомості» (information незлічуване); *advices; плутати employee і employer; *developement (без зайвого e після p: development). Для іспитів (FCE word formation) треба бачити частину мови в пропуску.",
+            "bodyEn": "Frequent noun suffixes: -tion / -sion (information, decision, discussion — often from verbs); -ment (development, agreement, improvement); -ness from adjectives (happiness, kindness, awareness); -ity / -ty (possibility, responsibility, safety); -ance / -ence (performance, difference, independence). People: -er / -or (developer, actor, visitor), -ist (scientist, specialist, journalist), -ian (musician, technician), -ee (employee, interviewee — the person who receives the action).\n\nSpelling changes: decide → decision (not *decidation); responsible → responsibility (with -ility); happy → happiness (y→i). Stress often falls on the syllable before -tion / -ity: inforMAtion, possiBIlity.\n\nTypical mistakes: *informations in the sense of “facts” (information is uncountable); *advices; mixing up employee and employer; *developement (no extra e after p: development). For exams (FCE word formation) you have to see the part of speech in the gap.",
             "keyPointsUk": [
               "-tion/-sion, -ment, -ness, -ity, -ance/-ence",
               "Люди: -er/-or, -ist, -ian, -ee (employee ≠ employer)",
@@ -12218,7 +12321,7 @@ const newUnits: UnitContent[] = [
             "type": "fill_blank",
             "promptUk": "Утворіть іменник від possible.",
             "promptEn": "Form the noun from possible.",
-            "sentence": "Is there a ___ of a delay? (possibility)",
+            "sentence": "Is there a ___ of a delay? (possible)",
             "accepted": [
               "possibility",
               "Possibility"
@@ -12310,16 +12413,16 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "-ful, -less, -ous, -ive, -able, -al, -ly",
             "promptEn": "-ful, -less, -ous, -ive, -able, -al, -ly",
-            "bodyUk": "Прикметники: -ful (корисний / повний якості: useful, careful, successful — одна l); -less (без: useless, careless, hopeless); -ous (dangerous, famous, ambitious); -ive (effective, creative, expensive); -able / -ible (reliable, flexible, responsible, possible); -al (practical, professional, personal); -ic (economic, scientific — див. наступний урок про economic / economical); -y (healthy, sunny).\n\nПрислівники часто -ly: carefully, successfully, practically. Але daily, early, friendly — можуть бути прикметниками; hardly ≠ hard (hardly — «майже не», hard — «важко / старанно»). late / lately: lately — «останнім часом». high / highly: highly — «високою мірою» (highly recommended).\n\nТипові помилки: *usefull (дві l); *beautifull; *interesting-ly від already -ing без потреби; дружній — friendly (прикметник), «по-дружньому» часто in a friendly way, бо *friendlily рідкісне. successful → successfully.",
-            "bodyEn": "Adjectives: -ful (full of a quality: useful, careful, successful — one l); -less (without: useless, careless, hopeless); -ous (dangerous, famous, ambitious); -ive (effective, creative, expensive); -able / -ible (reliable, flexible, responsible, possible); -al (practical, professional, personal); -ic (economic, scientific — see the next lesson on economic / economical); -y (healthy, sunny).\n\nAdverbs often take -ly: carefully, successfully, practically. But daily, early, friendly can be adjectives; hardly is not hard (hardly means “almost not”, hard means “with effort / difficult”). late / lately: lately means “recently”. high / highly: highly means “to a high degree” (highly recommended).\n\nTypical mistakes: *usefull (two l's); *beautifull; adding -ly when it is not needed; friendly is an adjective, and “in a friendly way” is often better than the rare *friendlily. successful → successfully.",
+            "bodyUk": "Прикметники: -ful (корисний / повний якості: useful, careful, successful — одна l); -less (без: useless, careless, hopeless); -ous (dangerous, famous, ambitious); -ive (effective, creative, expensive); -able / -ible (reliable, flexible, responsible, possible); -al (practical, professional, personal); -ic (economic, scientific — див. наступний урок про economic / economical); -y (healthy, sunny).\n\nПрислівники часто -ly: carefully, successfully, practically. Але daily, early, friendly — можуть бути прикметниками; hardly ≠ hard (hardly — «майже не», hard — «важко / старанно»). late / lately: lately — «останнім часом». high / highly: highly — «високою мірою» (highly recommended).\n\nТипові помилки: *usefull (дві l); *beautifull; не плутайте частини мови: interesting — прикметник, а interestingly — можливий прислівник. Friendly — прикметник; для «по-дружньому» зазвичай кажуть in a friendly way, бо friendlily рідкісне. successful → successfully.",
+            "bodyEn": "Adjectives: -ful (full of a quality: useful, careful, successful — one l); -less (without: useless, careless, hopeless); -ous (dangerous, famous, ambitious); -ive (effective, creative, expensive); -able / -ible (reliable, flexible, responsible, possible); -al (practical, professional, personal); -ic (economic, scientific — see the next lesson on economic / economical); -y (healthy, sunny).\n\nAdverbs often take -ly: carefully, successfully, practically. But daily, early, friendly can be adjectives; hardly is not hard (hardly means “almost not”, hard means “with effort / difficult”). late / lately: lately means “recently”. high / highly: highly means “to a high degree” (highly recommended).\n\nTypical mistakes: *usefull (two l's); *beautifull; confusing parts of speech: interesting is an adjective, while interestingly is a valid adverb. Friendly is an adjective; “in a friendly way” is usually more natural than the rare friendlily. successful → successfully.",
             "keyPointsUk": [
-              "-ful (одна l) і -less — протилежності",
+              "-ful (одна l) і -less часто виражають наявність і відсутність якості",
               "-ous, -ive, -able/-ible, -al, -ic, -y",
               "hardly ≠ hard; lately = останнім часом",
               "Не *usefull"
             ],
             "keyPointsEn": [
-              "-ful (one l) and -less are opposites",
+              "-ful (one l) and -less often express presence and absence of a quality",
               "-ous, -ive, -able/-ible, -al, -ic, -y",
               "hardly is not hard; lately means recently",
               "Not *usefull"
@@ -12453,8 +12556,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "succeed — success — successful — successfully",
             "promptEn": "succeed — success — successful — successfully",
-            "bodyUk": "Словотвірна сім'я — один корінь у різних частинах мови. succeed (дієслово) — success (іменник) — successful (прикметник) — successfully (прислівник). decide — decision — decisive. differ — difference — different — differently. employ — employer / employee — employment — unemployed. Для FCE Use of English 3 треба з одного слова утворити потрібну форму.\n\nТонкі пари: economic — пов'язаний з економікою (economic growth, economic policy); economical — ощадливий (an economical car). historic — історично важливий (a historic day); historical — історичний як галузь (historical novel). classic / classical; politic (рідко як прикм.) / political / politics. sensitive (чутливий) / sensible (розсудливий) — уже близькі до фальшивих друзів за значенням, хоч і не з українською.\n\nТипові помилки: *a very economic car замість economical; *successfull; *they success (потрібен дієслово succeed). Тренуйте повний ланцюжок, не лише іменник.",
-            "bodyEn": "A word family is one root in different parts of speech. succeed (verb) — success (noun) — successful (adjective) — successfully (adverb). decide — decision — decisive. differ — difference — different — differently. employ — employer / employee — employment — unemployed. For FCE Use of English 3 you have to form the right part of speech from one given word.\n\nSubtle pairs: economic means related to the economy (economic growth, economic policy); economical means thrifty (an economical car). historic means historically important (a historic day); historical means about history as a field (a historical novel). classic / classical; politic (rare as an adjective) / political / politics. sensitive (easily affected) / sensible (reasonable) are close to false friends in meaning, though not with Ukrainian.\n\nTypical mistakes: *a very economic car instead of economical; *successfull; *they success (you need the verb succeed). Practise the whole chain, not just the noun.",
+            "bodyUk": "Словотвірна сім'я — група споріднених слів, часто в різних частинах мови. succeed (дієслово) — success (іменник) — successful (прикметник) — successfully (прислівник). decide — decision — decisive. differ — difference — different — differently. employ — employer / employee — employment — unemployed. Для FCE Use of English 3 треба з одного слова утворити потрібну форму.\n\nТонкі пари: economic — пов'язаний з економікою (economic growth, economic policy); economical — ощадливий (an economical car). historic — історично важливий (a historic day); historical — історичний як галузь (historical novel). classic / classical; politic (рідко як прикм.) / political / politics. sensitive (чутливий) / sensible (розсудливий) — уже близькі до фальшивих друзів за значенням, хоч і не з українською.\n\nТипові помилки: *a very economic car замість economical; *successfull; *they success (потрібен дієслово succeed). Тренуйте повний ланцюжок, не лише іменник.",
+            "bodyEn": "A word family is a group of related words, often in different parts of speech. succeed (verb) — success (noun) — successful (adjective) — successfully (adverb). decide — decision — decisive. differ — difference — different — differently. employ — employer / employee — employment — unemployed. For FCE Use of English 3 you have to form the right part of speech from one given word.\n\nSubtle pairs: economic means related to the economy (economic growth, economic policy); economical means thrifty (an economical car). historic means historically important (a historic day); historical means about history as a field (a historical novel). classic / classical; politic (rare as an adjective) / political / politics. sensitive (easily affected) / sensible (reasonable) are close to false friends in meaning, though not with Ukrainian.\n\nTypical mistakes: *a very economic car instead of economical; *successfull; *they success (you need the verb succeed). Practise the whole chain, not just the noun.",
             "keyPointsUk": [
               "succeed — success — successful — successfully",
               "economic = економіки; economical = ощадливий",
@@ -12586,17 +12689,17 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "database, well-known, a ten-minute break",
             "promptEn": "database, well-known, a ten-minute break",
-            "bodyUk": "Складні іменники можуть писатися разом (database, website, software, keyboard), через дефіс (check-in, sister-in-law) або окремо (credit card, user interface, coffee shop). Правило не завжди логічне — перевіряйте словник; тренд сучасний — частіше разом або окремо, ніж дефіс. Наголос у складному іменнику зазвичай на першому елементі: a CREdit card, a WEBsite.\n\nСкладні прикметники перед іменником часто з дефісом: a well-known library, a well-written email, a full-time job, a user-friendly API, a ten-minute break, a two-year-old project. Після дієслова дефіс інколи зникає: The library is well known. У вимірах: a ten-minute break (не *a ten minutes break; однина + дефіс).\n\nТипові помилки: *a ten minutes break; *wellknown разом як прикметник перед іменником без дефіса; плутати наголос (не credit CARD як складний іменник). У технічній англійській багато складних іменників: pull request, merge conflict, fallback, workaround.",
-            "bodyEn": "Compound nouns may be written as one word (database, website, software, keyboard), hyphenated (check-in, sister-in-law) or as two words (credit card, user interface, coffee shop). The rule is not always logical — check a dictionary; the modern trend is more often one word or two words than a hyphen. Stress in a compound noun is usually on the first element: a CREdit card, a WEBsite.\n\nCompound adjectives before a noun often take a hyphen: a well-known library, a well-written email, a full-time job, a user-friendly API, a ten-minute break, a two-year-old project. After a verb the hyphen sometimes disappears: The library is well known. With measurements: a ten-minute break (not *a ten minutes break; singular + hyphen).\n\nTypical mistakes: *a ten minutes break; *wellknown as one word when it is an adjective before a noun; putting the stress on the wrong part (not credit CARD as a compound noun). Technical English has many compound nouns: pull request, merge conflict, fallback, workaround.",
+            "bodyUk": "Складні іменники можуть писатися разом (database, website, software, keyboard), через дефіс (check-in, sister-in-law) або окремо (credit card, user interface, coffee shop). Правило не завжди логічне — перевіряйте словник; тренд сучасний — частіше разом або окремо, ніж дефіс. Наголос у складному іменнику зазвичай на першому елементі: a CREdit card, a WEBsite.\n\nСкладні прикметники перед іменником часто з дефісом: a well-known library, a well-written email, a full-time job, a user-friendly API, a ten-minute break, a two-year-old project. Після дієслова дефіс інколи зникає: The library is well known. У вимірах: a ten-minute break (не *a ten minutes break; однина + дефіс).\n\nТипові помилки: *a ten minutes break; *wellknown разом як прикметник перед іменником без дефіса; забувати звичайний наголос у credit card: CREdit card; контрастний наголос може змінити його. У технічній англійській багато складних іменників: pull request, merge conflict, fallback, workaround.",
+            "bodyEn": "Compound nouns may be written as one word (database, website, software, keyboard), hyphenated (check-in, sister-in-law) or as two words (credit card, user interface, coffee shop). The rule is not always logical — check a dictionary; the modern trend is more often one word or two words than a hyphen. Stress in a compound noun is usually on the first element: a CREdit card, a WEBsite.\n\nCompound adjectives before a noun often take a hyphen: a well-known library, a well-written email, a full-time job, a user-friendly API, a ten-minute break, a two-year-old project. After a verb the hyphen sometimes disappears: The library is well known. With measurements: a ten-minute break (not *a ten minutes break; singular + hyphen).\n\nTypical mistakes: *a ten minutes break; *wellknown as one word when it is an adjective before a noun; forgetting the usual stress in credit card: CREdit card; contrastive emphasis can change it. Technical English has many compound nouns: pull request, merge conflict, fallback, workaround.",
             "keyPointsUk": [
               "Разом, через дефіс або окремо — перевіряйте словник",
-              "Наголос складного іменника — на першому елементі",
+              "Наголос складного іменника часто на першому елементі, але є винятки",
               "a ten-minute break, не *a ten minutes break",
               "well-known перед іменником — з дефісом"
             ],
             "keyPointsEn": [
               "One word, hyphen, or two words — check a dictionary",
-              "Stress in a compound noun falls on the first element",
+              "Compound noun stress often falls on the first element, but there are exceptions",
               "a ten-minute break, not *a ten minutes break",
               "well-known before a noun takes a hyphen"
             ]
@@ -12618,14 +12721,13 @@ const newUnits: UnitContent[] = [
           },
           {
             "id": "en-d-compounds-r2",
-            "type": "fill_blank",
-            "promptUk": "Вставте дефіс у звичному місці: well known перед library. Напишіть well-known.",
-            "promptEn": "Type well-known.",
-            "sentence": "This is a ___ library.",
-            "accepted": [
-              "well-known",
-              "Well-known"
-            ]
+            "type": "mcq",
+            "promptUk": "Яке написання складного прикметника зазвичай використовують перед іменником?",
+            "promptEn": "Which spelling is normally used for the compound adjective before a noun?",
+            "options": ["a well-known library", "a wellknown library", "a well--known library", "a well known-library"],
+            "correctIndex": 0,
+            "explanationUk": "Перед іменником well-known зазвичай пишуть через дефіс; після дієслова часто well known.",
+            "explanationEn": "Before a noun well-known is normally hyphenated; after a verb well known is often unhyphenated."
           },
           {
             "id": "en-d-compounds-r3",
@@ -12657,6 +12759,7 @@ const newUnits: UnitContent[] = [
             "accepted": [
               "She is looking for a full-time job",
               "She's looking for a full-time job",
+              "She looks for a full-time job",
               "She is looking for a full-time job.",
               "She's looking for a full-time job."
             ],
@@ -12781,7 +12884,7 @@ const newUnits: UnitContent[] = [
             "type": "fill_blank",
             "promptUk": "Утворіть іменник від possible.",
             "promptEn": "Form the noun from possible.",
-            "sentence": "Is there a ___?",
+            "sentence": "Is there a ___ of a delay? (possible)",
             "accepted": [
               "possibility",
               "Possibility"
@@ -12972,8 +13075,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-phrasal-life-r2",
             "type": "fill_blank",
-            "promptUk": "Вставте частку (шукати слово в словнику, займенник it).",
-            "promptEn": "Insert the particle (looking a word up, pronoun it).",
+            "promptUk": "Вставте частку: знайти значення слова в словнику.",
+            "promptEn": "Insert the particle: find the word’s meaning in a dictionary.",
             "sentence": "I don't know this word — I'll look it ___.",
             "accepted": [
               "up",
@@ -13061,26 +13164,26 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "put off, call off, set up, carry out, hand in",
             "promptEn": "put off, call off, set up, carry out, hand in",
-            "bodyUk": "На роботі й у навчанні: put off — відкласти (postpone); call off — скасувати (cancel); set up — заснувати / налаштувати; carry out — виконати (дослідження, план); hand in — здати роботу; fill in / fill out (AmE) — заповнити форму; take on — взяти на себе (обов'язок) / найняти; take over — перейняти (посаду, компанію); go on / keep on — продовжувати; shut down — вимкнути / закрити; roll out — випустити (фічу).\n\nfollow up — перевірити продовження; sign off — затвердити / завершити; step down — піти з посади; lay off — скоротити штат. У формальному листі можна замінити: We postponed the meeting (замість put off); The event was cancelled (call off). У мовленні стендапу put off і call off звучать природно.\n\nТипові помилки: плутати put off і call off (відкласти ≠ скасувати); *hand in it краще hand it in; *fill the form без in/out. I'll get back to you — «я повернуся з відповіддю», це вже комунікація наступного уроку, але часто живе в роботі.",
-            "bodyEn": "At work and in study: put off is postponing; call off is cancelling; set up is founding / configuring; carry out is performing (research, a plan); hand in is submitting work; fill in / fill out (AmE) is completing a form; take on is accepting (a duty) / hiring; take over is assuming (a role, a company); go on / keep on is continuing; shut down is switching off / closing; roll out is releasing (a feature).\n\nfollow up is checking what happens next; sign off is approving / finishing; step down is leaving a post; lay off is making staff redundant. In a formal email you can replace them: We postponed the meeting (for put off); The event was cancelled (for call off). In stand-up speech put off and call off sound natural.\n\nTypical mistakes: mixing up put off and call off (postpone is not cancel); *hand in it is better as hand it in; *fill the form with no in/out. I'll get back to you means “I will reply later” — that belongs more to the next lesson, but it lives at work too.",
+            "bodyUk": "На роботі й у навчанні: put off — відкласти (postpone); call off — скасувати (cancel); set up — заснувати / налаштувати; carry out — виконати (дослідження, план); hand in — здати роботу; fill in / fill out — заповнити форму (обидва варіанти трапляються в британській та американській англійській); take on — взяти на себе (обов'язок) / найняти; take over — перейняти (посаду, компанію); go on / keep on — продовжувати; shut down — вимкнути / закрити; roll out — випустити (фічу).\n\nfollow up — перевірити продовження; sign off — затвердити / завершити; step down — піти з посади; lay off — скоротити штат. У формальному листі можна замінити: We postponed the meeting (замість put off); The event was cancelled (call off). У мовленні стендапу put off і call off звучать природно.\n\nТипові помилки: плутати put off і call off (відкласти ≠ скасувати); із займенником кажуть hand it in, а для заповнення форми природно fill in / fill out the form. I'll get back to you — «я повернуся з відповіддю», це вже комунікація наступного уроку, але часто живе в роботі.",
+            "bodyEn": "At work and in study: put off is postponing; call off is cancelling; set up is founding / configuring; carry out is performing (research, a plan); hand in is submitting work; fill in / fill out means completing a form (both are used in British and American English); take on is accepting (a duty) / hiring; take over is assuming (a role, a company); go on / keep on is continuing; shut down is switching off / closing; roll out is releasing (a feature).\n\nfollow up is checking what happens next; sign off is approving / finishing; step down is leaving a post; lay off is making staff redundant. In a formal email you can replace them: We postponed the meeting (for put off); The event was cancelled (for call off). In stand-up speech put off and call off sound natural.\n\nTypical mistakes: mixing up put off and call off (postpone is not cancel); with a pronoun say hand it in; for completing a form, fill in / fill out the form is natural. I'll get back to you means “I will reply later” — that belongs more to the next lesson, but it lives at work too.",
             "keyPointsUk": [
               "put off = відкласти; call off = скасувати",
               "set up, carry out, hand it in, fill in a form",
               "take on / take over; roll out a feature",
-              "У формальному стилі — postpone, cancel, submit"
+              "У формальному стилі можна використати postpone, cancel, submit"
             ],
             "keyPointsEn": [
               "put off is postpone; call off is cancel",
               "set up, carry out, hand it in, fill in a form",
               "take on / take over; roll out a feature",
-              "In formal style use postpone, cancel, submit"
+              "In formal style you can use postpone, cancel, submit"
             ]
           },
           {
             "id": "en-d-phrasal-work-r1",
             "type": "mcq",
-            "promptUk": "Зустріч перенесли на п'ятницю. Це:",
-            "promptEn": "The meeting was moved to Friday. That is:",
+            "promptUk": "Зустріч відклали до п’ятниці. Як це сказати?",
+            "promptEn": "The meeting was postponed until Friday. How do you say this?",
             "options": [
               "They put it off until Friday.",
               "They called it off until Friday.",
@@ -13122,12 +13225,11 @@ const newUnits: UnitContent[] = [
             "type": "translate",
             "promptUk": "Перекладіть із call off.",
             "promptEn": "Translate with call off.",
-            "source": "Довелося скасувати зустріч.",
+            "source": "Нам довелося скасувати зустріч.",
             "accepted": [
               "We had to call off the meeting",
               "We had to call the meeting off",
-              "We had to call off the meeting.",
-              "They had to call off the meeting"
+              "We had to call off the meeting."
             ],
             "direction": "uk_en"
           },
@@ -13187,8 +13289,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "point out, bring up, come up with, get back to, hang up",
             "promptEn": "point out, bring up, come up with, get back to, hang up",
-            "bodyUk": "Спілкування: point out — вказати на факт; bring up — підняти тему (також «виховати дитину»); come up with — вигадати (ідею); get across — донести думку; talk over / talk through — обговорити; speak up — говорити гучніше / висловитися; sum up — підсумувати. По телефону: hang up — покласти трубку; call back — передзвонити; get back to someone — відповісти пізніше; fill someone in — ввести в курс; catch up — надолужити новини (Let's catch up).\n\ncome up — виникнути (A problem came up); bring it up at the meeting — підніміть це. cut off — роз'єднало (We got cut off). hold on — зачекайте на лінії.\n\nТипові помилки: *come up with it up; *point it (потрібен point it out); *I'll get back you (потрібен to); плутати bring up «тему» і bring up «дитину» — контекст рятує. У листі: Just to follow up / Just to point out, що already трохи формальніше.",
-            "bodyEn": "Communication: point out is indicating a fact; bring up is raising a topic (and also “raising a child”); come up with is inventing (an idea); get across is making a point understood; talk over / talk through is discussing; speak up is talking louder / saying your view; sum up is summarising. On the phone: hang up is ending the call; call back is returning a call; get back to someone is replying later; fill someone in is briefing them; catch up is exchanging news (Let's catch up).\n\ncome up is arising (A problem came up); bring it up at the meeting is raising it. cut off is being disconnected (We got cut off). hold on is waiting on the line.\n\nTypical mistakes: *come up with it up; *point it (you need point it out); *I'll get back you (you need to); mixing up bring up “a topic” and bring up “a child” — context helps. In email: Just to follow up / Just to point out, which is already a little more formal.",
+            "bodyUk": "Спілкування: point out — вказати на факт; bring up — підняти тему (також «виховати дитину»); come up with — придумати або запропонувати (ідею); get across — донести думку; talk over / talk through — обговорити; speak up — говорити гучніше / висловитися; sum up — підсумувати. По телефону: hang up — покласти трубку; call back — передзвонити; get back to someone — відповісти пізніше; fill someone in — ввести в курс; catch up — надолужити новини (Let's catch up).\n\ncome up — виникнути (A problem came up); bring it up at the meeting — підніміть це. cut off — роз'єднало (We got cut off). hold on — зачекайте на лінії.\n\nТипові помилки: *come up with it up; *point it (потрібен point it out); *I'll get back you (потрібен to); плутати bring up «тему» і bring up «дитину» — контекст рятує. У листуванні можна використати Just to follow up, щоб нагадати про попередню розмову; Just to point out вводить зауваження, але тон залежить від контексту.",
+            "bodyEn": "Communication: point out is indicating a fact; bring up is raising a topic (and also “raising a child”); come up with is thinking of or proposing (an idea); get across is making a point understood; talk over / talk through is discussing; speak up is talking louder / saying your view; sum up is summarising. On the phone: hang up is ending the call; call back is returning a call; get back to someone is replying later; fill someone in is briefing them; catch up is exchanging news (Let's catch up).\n\ncome up is arising (A problem came up); bring it up at the meeting is raising it. cut off is being disconnected (We got cut off). hold on is waiting on the line.\n\nTypical mistakes: *come up with it up; *point it (you need point it out); *I'll get back you (you need to); mixing up bring up “a topic” and bring up “a child” — context helps. In email, Just to follow up can refer back to an earlier exchange; Just to point out introduces an observation, but its tone depends on context.",
             "keyPointsUk": [
               "point out, bring up a topic, come up with an idea",
               "get back to you; fill someone in; catch up",
@@ -13220,8 +13322,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-phrasal-talk-r2",
             "type": "fill_blank",
-            "promptUk": "Вставте частки come ___ ___ (вигадати ідею) — напишіть up with.",
-            "promptEn": "Type up with.",
+            "promptUk": "Вставте дві частки: вона придумала кращу назву.",
+            "promptEn": "Insert two particles: she thought of a better name.",
             "sentence": "She came ___ a better name.",
             "accepted": [
               "up with",
@@ -13417,8 +13519,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Run out of означає вичерпати, і of пропускати не можна. Deal with і sort out — вирішувати проблему. Get over — оговтатися, fall through — зірватися (про план). Типова помилка — *run out time без of.",
-            "sampleAnswerEn": "Run out of means having none left, and you cannot drop of. Deal with and sort out mean handling a problem. Get over means recovering, and fall through means a plan collapsing. A typical mistake is *run out time with no of."
+            "sampleAnswerUk": "Run out of означає вичерпати: перед ресурсом потрібне of, як у run out of time. Без додатка можливе time ran out. Deal with і sort out — вирішувати проблему. Get over — оговтатися, fall through — зірватися (про план). Типова помилка — *run out time без of.",
+            "sampleAnswerEn": "Run out of means having none left: use of before the resource, as in run out of time. Without an object, time ran out is also possible. Deal with and sort out mean handling a problem. Get over means recovering, and fall through means a plan collapsing. A typical mistake is *run out time with no of."
           }
         ]
       },
@@ -13494,9 +13596,9 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-deep-phrasals-exam-q5",
             "type": "fill_blank",
-            "promptUk": "I look forward to ___ you.",
-            "promptEn": "I look forward to ___ you.",
-            "sentence": "I look forward to ___ you.",
+            "promptUk": "Утворіть потрібну форму дієслова meet.",
+            "promptEn": "Use the correct form of the verb meet.",
+            "sentence": "I look forward to ___ you. (meet)",
             "accepted": [
               "meeting",
               "Meeting"
@@ -13523,8 +13625,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "give a hand, keep an eye, cold feet, cost an arm and a leg",
             "promptEn": "give a hand, keep an eye, cold feet, cost an arm and a leg",
-            "bodyUk": "Багато англійських ідіом будуються на тілі, і їх не можна перекладати дослівно. give someone a hand — допомогти (не «дати руку» як жест). keep an eye on — стежити. learn by heart — вивчити напам'ять (українською «назубок», не «серцем»). get cold feet — злякатися перед рішенням, «дати задню». cost an arm and a leg — коштувати дуже дорого. a pain in the neck — хтось / щось дратівливе. keep your head — зберігати спокій. lose your head — розгубитися.\n\nface the facts — визнати факти. see eye to eye — бути однієї думки. get something off your chest — виговоритися. by heart уже згадували. can't make head or tail of it — нічого не зрозуміти.\n\nТипові помилки: дослівний переклад (*give a hand як лише фізичний жест, коли йдеться про допомогу); overuse в формальному есе (в IELTS Academic ідіоми обережно, по 1–2 доречних); змішані метафори. Ідіома — це фіксована фраза: *cost a hand and a foot немає.",
-            "bodyEn": "Many English idioms are built on the body, and you cannot translate them word for word. give someone a hand is helping (not “offer a hand” as a gesture only). keep an eye on is watching. learn by heart is memorising (in Ukrainian “nazubok”, not “with the heart”). get cold feet is backing out before a decision. cost an arm and a leg is being very expensive. a pain in the neck is someone or something annoying. keep your head is staying calm. lose your head is panicking.\n\nface the facts is accepting the facts. see eye to eye is agreeing. get something off your chest is saying what has been bothering you. can't make head or tail of it is understanding nothing.\n\nTypical mistakes: a literal translation (*give a hand only as a physical gesture when the meaning is help); overuse in a formal essay (in IELTS Academic, idioms need care — one or two fitting ones); mixed metaphors. An idiom is a fixed phrase: *cost a hand and a foot does not exist.",
+            "bodyUk": "Багато англійських ідіом будуються на тілі, і їх не можна перекладати дослівно. give someone a hand — допомогти (не «дати руку» як жест). keep an eye on — стежити. learn by heart — вивчити напам'ять (українською «назубок», не «серцем»). get cold feet — злякатися або засумніватися перед важливим кроком; людина може, але не обов’язково мусить, відмовитися від нього. cost an arm and a leg — коштувати дуже дорого. a pain in the neck — хтось / щось дратівливе. keep your head — зберігати спокій. lose your head — розгубитися.\n\nface the facts — визнати факти. see eye to eye — бути однієї думки. get something off your chest — виговоритися. by heart уже згадували. can't make head or tail of it — нічого не зрозуміти.\n\nТипові помилки: дослівний переклад (*give a hand як лише фізичний жест, коли йдеться про допомогу); надмір розмовних ідіом у формальному есе (добирайте вирази відповідно до контексту); змішані метафори. Ідіома — це фіксована фраза: *cost a hand and a foot немає.",
+            "bodyEn": "Many English idioms are built on the body, and you cannot translate them word for word. give someone a hand is helping (not “offer a hand” as a gesture only). keep an eye on is watching. learn by heart is memorising (in Ukrainian “nazubok”, not “with the heart”). get cold feet means becoming nervous or hesitant before an important action; a person might back out, but does not necessarily do so. cost an arm and a leg is being very expensive. a pain in the neck is someone or something annoying. keep your head is staying calm. lose your head is panicking.\n\nface the facts is accepting the facts. see eye to eye is agreeing. get something off your chest is saying what has been bothering you. can't make head or tail of it is understanding nothing.\n\nTypical mistakes: a literal translation (*give a hand only as a physical gesture when the meaning is help); overuse of informal idioms in a formal essay (choose expressions appropriate to the context); mixed metaphors. An idiom is a fixed phrase: *cost a hand and a foot does not exist.",
             "keyPointsUk": [
               "give a hand = допомогти; keep an eye on = стежити",
               "learn by heart; get cold feet; cost an arm and a leg",
@@ -13599,7 +13701,7 @@ const newUnits: UnitContent[] = [
             "pairs": [
               {
                 "left": "get cold feet",
-                "right": "злякатися перед рішенням / back out"
+                "right": "засумніватися перед важливим кроком / become hesitant"
               },
               {
                 "left": "keep an eye on",
@@ -13651,7 +13753,7 @@ const newUnits: UnitContent[] = [
             "minWords": 12,
             "passRatio": 0.6,
             "sampleAnswerUk": "Give a hand означає допомогти, learn by heart — вивчити напам'ять, get cold feet — злякатися перед рішенням, cost an arm and a leg — коштувати дуже дорого. Дослівний переклад ламає значення, бо ідіома — фіксована фраза.",
-            "sampleAnswerEn": "Give a hand means helping, learn by heart means memorising, get cold feet means backing out before a decision, and cost an arm and a leg means being very expensive. A word-for-word translation breaks the meaning, because an idiom is a fixed phrase."
+            "sampleAnswerEn": "Give a hand means helping, learn by heart means memorising, get cold feet means becoming nervous or hesitant before an important action, and cost an arm and a leg means being very expensive. A word-for-word translation breaks the meaning, because an idiom is a fixed phrase."
           }
         ]
       },
@@ -13668,7 +13770,7 @@ const newUnits: UnitContent[] = [
             "promptUk": "in the long run, call it a day, on the same page, against the clock",
             "promptEn": "in the long run, call it a day, on the same page, against the clock",
             "bodyUk": "Час і робота: in the long run — у довгій перспективі. in the short run — у короткій. against the clock — у гонитві за часом. at the last minute / at the eleventh hour — в останній момент. call it a day — закінчити роботу на сьогодні. hit the ground running — одразу активно почати. on the same page — однаково розуміти задачу. behind schedule / ahead of schedule — відстаємо / випереджаємо графік. better late than never — краще пізно, ніж ніколи (обережно з тоном).\n\nfrom scratch — з нуля. a long shot — малоймовірний варіант. once in a blue moon — дуже рідко. take your time — не поспішай (не «візьми свій час» дослівно в календарі). it's a matter of time — це питання часу.\n\nТипові помилки: *in the long term run (змішали in the long term і in the long run — обидві правильні окремо); *on the same page як лише фізична сторінка; call it a day не означає «назвати день». У діловому листі on the same page і behind schedule цілком доречні.",
-            "bodyEn": "Time and work: in the long run is over a long period. in the short run is over a short one. against the clock is racing against time. at the last minute / at the eleventh hour is at the latest possible moment. call it a day is stopping work for today. hit the ground running is starting at full speed. on the same page is sharing the same understanding. behind schedule / ahead of schedule is late / early relative to the plan. better late than never is obvious — be careful with the tone.\n\nfrom scratch is from nothing. a long shot is an unlikely option. once in a blue moon is very rarely. take your time is “don't rush” (not “take your time” as a diary slot). it's a matter of time means it will happen sooner or later.\n\nTypical mistakes: *in the long term run (a mix of in the long term and in the long run — both are fine separately); *on the same page only as a physical page; call it a day does not mean “give the day a name”. In a work email on the same page and behind schedule are perfectly appropriate.",
+            "bodyEn": "Time and work: in the long run means considering the eventual outcome over time. in the short run is over a short one. against the clock is racing against time. at the last minute / at the eleventh hour is at the latest possible moment. call it a day is stopping work for today. hit the ground running is starting at full speed. on the same page is sharing the same understanding. behind schedule / ahead of schedule is late / early relative to the plan. better late than never is obvious — be careful with the tone.\n\nfrom scratch is from nothing. a long shot is an unlikely option. once in a blue moon is very rarely. take your time is “don't rush” (not “take your time” as a diary slot). it's a matter of time means it will happen sooner or later.\n\nTypical mistakes: *in the long term run (a mix of in the long term and in the long run — both are fine separately); *on the same page only as a physical page; call it a day does not mean “give the day a name”. In a work email on the same page and behind schedule are perfectly appropriate.",
             "keyPointsUk": [
               "in the long run; against the clock; at the last minute",
               "call it a day; hit the ground running; from scratch",
@@ -13706,8 +13808,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-idioms-time-r2",
             "type": "fill_blank",
-            "promptUk": "Вставте слово: in the long ___.",
-            "promptEn": "Insert the word: in the long ___.",
+            "promptUk": "Вставте слово: у довгостроковій перспективі це заощадить час.",
+            "promptEn": "Complete the phrase: considering the eventual outcome, this will save time.",
             "sentence": "In the long ___ this will save us time.",
             "accepted": [
               "run",
@@ -13781,7 +13883,7 @@ const newUnits: UnitContent[] = [
             "minWords": 12,
             "passRatio": 0.6,
             "sampleAnswerUk": "Call it a day означає закінчити роботу на сьогодні. In the long run — у довгій перспективі. On the same page — однаково розуміти задачу. From scratch — з нуля.",
-            "sampleAnswerEn": "Call it a day means stopping work for today. In the long run means over a long period. On the same page means sharing the same understanding. From scratch means from nothing."
+            "sampleAnswerEn": "Call it a day means stopping work for today. In the long run means considering the eventual outcome over time. On the same page means sharing the same understanding. From scratch means from nothing."
           }
         ]
       },
@@ -13797,8 +13899,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "over the moon, a blessing in disguise, lose your temper, on edge",
             "promptEn": "over the moon, a blessing in disguise, lose your temper, on edge",
-            "bodyUk": "Емоції: over the moon — дуже щасливий. down in the dumps — пригнічений. on edge — напружений, нервовий. lose your temper — зірватися, розізлится. keep your temper — стриматися. a blessing in disguise — щастя в нещасті, приховане благо. get on someone's nerves — діяти на нерви. under the weather — злегка нездоровий. in high spirits — у піднесеному настрої. feel like a fish out of water — почуватися не в своїй тарілці.\n\nmy cup of tea / not my cup of tea — (не) в моєму смаку. over the top — занадто, з перебором. take something to heart — брати близько до серця. break the ice — розрядити атмосферу. a shoulder to cry on — плече, на яке можна спертися.\n\nТипові помилки: *on the moon замість over the moon; *blessing in dress; у формальному академічному есе over the moon може бути занадто розмовним — краще delighted / extremely pleased. Реєстр важливий так само, як значення.",
-            "bodyEn": "Feelings: over the moon is extremely happy. down in the dumps is depressed. on edge is tense and nervous. lose your temper is exploding in anger. keep your temper is staying calm. a blessing in disguise is something good that first looked bad. get on someone's nerves is irritating someone. under the weather is slightly unwell. in high spirits is cheerful. feel like a fish out of water is feeling out of place.\n\nmy cup of tea / not my cup of tea is (not) to my taste. over the top is excessive. take something to heart is being hurt by it. break the ice is easing the atmosphere. a shoulder to cry on is someone who will listen.\n\nTypical mistakes: *on the moon instead of over the moon; *blessing in dress; in a formal academic essay over the moon can be too informal — delighted / extremely pleased is safer. Register matters as much as meaning.",
+            "bodyUk": "Емоції: over the moon — дуже щасливий. down in the dumps — пригнічений. on edge — напружений, нервовий. lose your temper — зірватися, розізлитися. keep your temper — стриматися. a blessing in disguise — щастя в нещасті, приховане благо. get on someone's nerves — діяти на нерви. under the weather — злегка нездоровий. in high spirits — у піднесеному настрої. feel like a fish out of water — почуватися не в своїй тарілці.\n\nmy cup of tea / not my cup of tea — (не) в моєму смаку. over the top — занадто, з перебором. take something to heart — брати близько до серця. break the ice — розрядити атмосферу. a shoulder to cry on — плече, на яке можна спертися.\n\nТипові помилки: *on the moon замість over the moon; *blessing in dress; у формальному академічному есе over the moon може бути занадто розмовним — краще delighted / extremely pleased. Реєстр важливий так само, як значення.",
+            "bodyEn": "Feelings: over the moon is extremely happy. down in the dumps means feeling sad or low. on edge is tense and nervous. lose your temper is exploding in anger. keep your temper is staying calm. a blessing in disguise is something good that first looked bad. get on someone's nerves is irritating someone. under the weather is slightly unwell. in high spirits is cheerful. feel like a fish out of water is feeling out of place.\n\nmy cup of tea / not my cup of tea is (not) to my taste. over the top is excessive. take something to heart is being hurt by it. break the ice is easing the atmosphere. a shoulder to cry on is someone who will listen.\n\nTypical mistakes: *on the moon instead of over the moon; *blessing in dress; in a formal academic essay over the moon can be too informal — delighted / extremely pleased is safer. Register matters as much as meaning.",
             "keyPointsUk": [
               "over the moon / down in the dumps / on edge",
               "lose / keep your temper; a blessing in disguise",
@@ -13942,19 +14044,19 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "think outside the box, the ball is in your court, back to square one, cut corners",
             "promptEn": "think outside the box, the ball is in your court, back to square one, cut corners",
-            "bodyUk": "Робота й рішення: think outside the box — мислити нестандартно. back to square one — повернутися на початок. the ball is in your court — тепер ваша черга відповідати / вирішувати. cut corners — робити абияк, економлячи час або якість (негативне). on the same wavelength — на одній хвилі. start from scratch уже мали як from scratch. a win-win situation — виграш для обох. move the goalposts — змінювати правила посеред гри. get the ball rolling — зрушити справу.\n\nІТ-тон: a quick win; low-hanging fruit — легкі перші результати (уже кліше, обережно); in the pipeline — у планах; out of the box — «з коробки», без налаштувань (не плутати з outside the box). at the end of the day — у кінцевому підсумку (часто слово-паразит).\n\nТипові помилки: *think out of the box і think outside the box — обидві чути, outside частотніша; *the ball is on your court (потрібен in); cut corners не означає «скоротити шлях» у позитиві. Не ставте три кліше в один абзац.",
-            "bodyEn": "Work and decisions: think outside the box is thinking in an original way. back to square one is returning to the start. the ball is in your court means it is your turn to respond or decide. cut corners is doing a job cheaply or sloppily (negative). on the same wavelength is thinking alike. start from scratch we already had as from scratch. a win-win situation is a gain for both sides. move the goalposts is changing the rules mid-game. get the ball rolling is getting something started.\n\nIT tone: a quick win; low-hanging fruit is easy first results (already a cliché — be careful); in the pipeline is planned; out of the box is “as shipped”, with no setup (do not confuse it with outside the box). at the end of the day is “when all is considered” (often a filler).\n\nTypical mistakes: *think out of the box and think outside the box are both heard, and outside is more frequent; *the ball is on your court (you need in); cut corners does not mean “shorten the path” in a positive sense. Do not put three clichés in one paragraph.",
+            "bodyUk": "Робота й рішення: think outside the box — мислити нестандартно. back to square one — повернутися на початок. the ball is in your court — тепер ваша черга відповідати / вирішувати. cut corners — робити абияк, економлячи час або якість (негативне). on the same wavelength — на одній хвилі. start from scratch уже мали як from scratch. a win-win situation — виграш для обох. move the goalposts — змінювати правила посеред гри. get the ball rolling — зрушити справу.\n\nІТ-тон: a quick win; low-hanging fruit — легкі перші результати (уже кліше, обережно); in the pipeline — у планах; out of the box у технічному контексті — готовий до використання без додаткових налаштувань; в інших контекстах out-of-the-box може означати нестандартний. at the end of the day — у кінцевому підсумку (часто слово-паразит).\n\nТипові помилки: think out of the box і think outside the box — обидва варіанти можливі; *the ball is on your court (потрібен in); cut corners не означає «скоротити шлях» у позитиві. Не ставте три кліше в один абзац.",
+            "bodyEn": "Work and decisions: think outside the box is thinking in an original way. back to square one is returning to the start. the ball is in your court means it is your turn to respond or decide. cut corners is doing a job cheaply or sloppily (negative). on the same wavelength is thinking alike. start from scratch we already had as from scratch. a win-win situation is a gain for both sides. move the goalposts is changing the rules mid-game. get the ball rolling is getting something started.\n\nIT tone: a quick win; low-hanging fruit is easy first results (already a cliché — be careful); in the pipeline is planned; in a technical context out of the box means ready to use without additional configuration; in other contexts out-of-the-box can mean unconventional. at the end of the day is “when all is considered” (often a filler).\n\nTypical mistakes: think out of the box and think outside the box are both possible; *the ball is on your court (you need in); cut corners does not mean “shorten the path” in a positive sense. Do not put three clichés in one paragraph.",
             "keyPointsUk": [
               "think outside the box; back to square one",
               "the ball is in your court (in, не on)",
               "cut corners — негативне «абияк»",
-              "out of the box ≠ outside the box"
+              "У технічному контексті out of the box часто означає готовність до використання"
             ],
             "keyPointsEn": [
               "think outside the box; back to square one",
               "the ball is in your court (in, not on)",
               "cut corners is a negative “do it sloppily”",
-              "out of the box is not outside the box"
+              "In a technical context out of the box often means ready to use"
             ]
           },
           {
@@ -14059,8 +14161,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Think outside the box означає мислити нестандартно. The ball is in your court — тепер ваша черга вирішувати. Back to square one — повернутися на початок. Cut corners — робити абияк. Out of the box — «з коробки», без налаштувань, і це не те саме, що outside the box.",
-            "sampleAnswerEn": "Think outside the box means thinking in an original way. The ball is in your court means it is your turn to decide. Back to square one means returning to the start. Cut corners means doing a job sloppily. Out of the box means “as shipped”, with no setup, and that is not the same as outside the box."
+            "sampleAnswerUk": "Think outside the box означає мислити нестандартно. The ball is in your court — тепер ваша черга вирішувати. Back to square one — повернутися на початок. Cut corners — робити абияк. У технічному контексті out of the box означає готовий до використання без додаткових налаштувань; в іншому контексті out-of-the-box може означати нестандартний.",
+            "sampleAnswerEn": "Think outside the box means thinking in an original way. The ball is in your court means it is your turn to decide. Back to square one means returning to the start. Cut corners means doing a job sloppily. In a technical context out of the box means ready to use without additional configuration; in another context out-of-the-box can mean unconventional."
           }
         ]
       },
@@ -14080,13 +14182,13 @@ const newUnits: UnitContent[] = [
             "bodyEn": "An idiom works when it is exact, natural for the situation and clear to the listener. In speech and informal email they bring language to life. In IELTS Academic Writing and a formal report, less is better: an examiner values precision, not a collection from a list of “100 idioms”. One fitting phrase (on the same page, in the long run) is better than over the moon plus low-hanging fruit plus at the end of the day in one paragraph.\n\nTransparent idioms (at the last minute) are easier to understand than opaque ones (kick the bucket — “die”, usually inappropriate at work). Watch the grammar around the phrase: the ball is in your court keeps is and in. Do not mix two metaphors (*the ball is over the moon). If you are unsure, say it in plain words: I'm very pleased instead of over the moon.\n\nA learning strategy: learn each idiom with a short example story, a synonym and a register label (informal / neutral / careful). Review them on flashcards together with collocations, not as a separate “zoo of phrases”.",
             "keyPointsUk": [
               "Доречність і реєстр важливіші за кількість",
-              "В академічному письмі — одна-дві точні ідіоми",
+              "В академічному письмі обирайте точні й доречні вирази",
               "Не змішуйте метафори і не ламайте фіксовану форму",
               "Якщо сумніваєтесь — кажіть прямими словами"
             ],
             "keyPointsEn": [
               "Fit and register matter more than quantity",
-              "In academic writing, one or two exact idioms",
+              "In academic writing, choose precise, appropriate expressions",
               "Do not mix metaphors or break the fixed form",
               "If you are unsure, say it in plain words"
             ]
@@ -14114,14 +14216,13 @@ const newUnits: UnitContent[] = [
           },
           {
             "id": "en-d-idioms-use-r2",
-            "type": "fill_blank",
-            "promptUk": "Якщо сумніваєтесь в ідіомі, краще сказати прямими ___ (словами). Напишіть words.",
-            "promptEn": "Type words.",
-            "sentence": "If you are unsure, say it in plain ___.",
-            "accepted": [
-              "words",
-              "Words"
-            ]
+            "type": "mcq",
+            "promptUk": "Яка фраза найдоречніша для формального звіту про позитивний результат?",
+            "promptEn": "Which phrase best fits a formal report about a positive result?",
+            "options": ["The results are encouraging.", "The results are totally over the moon.", "The results kicked the bucket.", "The results are a pain in the neck, meaning positive."] ,
+            "correctIndex": 0,
+            "explanationUk": "Нейтральне encouraging точно передає позитивну оцінку у формальному контексті.",
+            "explanationEn": "The neutral encouraging expresses a positive assessment in a formal context."
           },
           {
             "id": "en-d-idioms-use-r3",
@@ -14156,7 +14257,8 @@ const newUnits: UnitContent[] = [
               "I'm extremely pleased with the result",
               "I am extremely pleased with the result",
               "I'm very pleased with the result.",
-              "I was very pleased with the result"
+              "I am very satisfied with the result",
+              "I am very happy with the result"
             ],
             "direction": "uk_en"
           },
@@ -14323,8 +14425,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "apply for, deadline, shift, resign, promote",
             "promptEn": "apply for, deadline, shift, resign, promote",
-            "bodyUk": "Робота: apply for a job — подати заявку (не *apply a job: потрібен for). CV (брит.) / résumé (амер.); cover letter — супровідний лист. hire / employ; recruit; interview; offer; accept / turn down an offer. deadline — кінцевий термін; meet a deadline / miss a deadline. a shift — зміна (night shift); full-time / part-time / freelance / remote / hybrid. resign — звільнитися самому; be fired / be sacked (брит., розмовно) / be laid off — скорочення. get promoted; a pay rise (брит.) / a raise (амер.); a bonus; overtime.\n\nКолокації: heavy workload; work-life balance; a steep learning curve; report to someone (бути підлеглим); in charge of; a team lead; stakeholders; deliverable. I'm between jobs — м'якше, ніж unemployed, у розмові.\n\nТипові помилки: *apply a job; *I have a work (a job / work без a); *salary як будь-яка плата (salary — місячний/річний оклад; wage — погодинна/тижнева, часто фізична робота; fee — гонорар). career ≠ job: career — шлях, job — конкретна посада.",
-            "bodyEn": "Work: apply for a job is sending an application (not *apply a job: you need for). CV (BrE) / résumé (AmE); a cover letter. hire / employ; recruit; interview; offer; accept / turn down an offer. a deadline is a final date; meet a deadline / miss a deadline. a shift is a block of working time (night shift); full-time / part-time / freelance / remote / hybrid. resign is leaving yourself; be fired / be sacked (BrE, informal) / be laid off is redundancy. get promoted; a pay rise (BrE) / a raise (AmE); a bonus; overtime.\n\nCollocations: a heavy workload; work-life balance; a steep learning curve; report to someone (be their report); in charge of; a team lead; stakeholders; a deliverable. I'm between jobs is softer than unemployed in conversation.\n\nTypical mistakes: *apply a job; *I have a work (a job / work with no a); *salary for every kind of pay (salary is a monthly or yearly wage; a wage is often hourly or weekly, often manual work; a fee is a professional charge). career is not job: a career is a path, a job is a concrete post.",
+            "bodyUk": "Робота: apply for a job — подати заявку (не *apply a job: потрібен for). CV (брит.) / résumé (амер.); cover letter — супровідний лист. hire / employ; recruit; interview; offer; accept / turn down an offer. deadline — кінцевий термін; meet a deadline / miss a deadline. a shift — зміна (night shift); full-time / part-time / freelance / remote / hybrid. resign — звільнитися самому; be fired / be sacked (брит., розмовно) — бути звільненим роботодавцем; be laid off — втратити роботу через скорочення або брак роботи. get promoted; a pay rise (брит.) / a raise (амер.); a bonus; overtime.\n\nКолокації: heavy workload; work-life balance; a steep learning curve; report to someone (бути підлеглим); in charge of; a team lead; stakeholders; deliverable. I'm between jobs — м'якше, ніж unemployed, у розмові.\n\nТипові помилки: *apply a job; *I have a work (a job / work без a); *salary як будь-яка плата (salary — зазвичай фіксований місячний/річний оклад; wages часто обчислюють за годинами або обсягом роботи; fee — плата за послугу). career ≠ job: career — шлях, job — конкретна посада.",
+            "bodyEn": "Work: apply for a job is sending an application (not *apply a job: you need for). CV (BrE) / résumé (AmE); a cover letter. hire / employ; recruit; interview; offer; accept / turn down an offer. a deadline is a final date; meet a deadline / miss a deadline. a shift is a block of working time (night shift); full-time / part-time / freelance / remote / hybrid. resign is leaving yourself; be fired / be sacked (BrE, informal) means being dismissed by an employer; be laid off means losing a job because of a reduction in work or staffing. get promoted; a pay rise (BrE) / a raise (AmE); a bonus; overtime.\n\nCollocations: a heavy workload; work-life balance; a steep learning curve; report to someone (be their report); in charge of; a team lead; stakeholders; a deliverable. I'm between jobs is softer than unemployed in conversation.\n\nTypical mistakes: *apply a job; *I have a work (a job / work with no a); *salary for every kind of pay (a salary is usually a fixed annual or monthly amount; wages are often calculated by the hour or by output; a fee is a charge for a service). career is not job: a career is a path, a job is a concrete post.",
             "keyPointsUk": [
               "apply for a job — з for; CV / cover letter",
               "meet / miss a deadline; full-time, remote, a shift",
@@ -14451,10 +14553,10 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-theme-edu-c",
             "type": "concept",
-            "promptUk": "degree, assignment, tuition, undergraduate, pass a exam? pass an exam",
+            "promptUk": "degree, assignment, tuition, undergraduate, pass an exam",
             "promptEn": "degree, assignment, tuition, undergraduate, pass an exam",
-            "bodyUk": "Освіта: a school subject; a degree (bachelor's, master's, a PhD); undergraduate / graduate (амер. graduate student ≈ брит. postgraduate). a course, a module, a lecture, a seminar, a tutorial. an assignment — завдання; an essay; a dissertation / a thesis; coursework. take / sit an exam (брит. sit); pass / fail; revise (брит.) / review (амер.) — повторювати до іспиту; cram — зубрити в останню ніч. tuition (fees) — плата за навчання; a scholarship; a student loan; a campus; a hall of residence (брит.) / a dorm (амер.).\n\nКолокації: enrol on a course (брит.) / enroll in (амер.); drop out; skip a class; hand in an essay; fall behind; catch up; a tight deadline already from work. literate / numerate; vocational training.\n\nТипові помилки: *pass an exam як «скласти» плутають із take an exam (взяти участь); *I finished school як єдиний спосіб сказати про університет (graduate from university); faculty в амер. часто «викладачі», не завжди «факультет» (department / school / faculty брит.). homework незлічуване в загальному сенсі.",
-            "bodyEn": "Education: a school subject; a degree (bachelor's, master's, a PhD); undergraduate / graduate (AmE graduate student ≈ BrE postgraduate). a course, a module, a lecture, a seminar, a tutorial. an assignment is a task; an essay; a dissertation / a thesis; coursework. take / sit an exam (BrE sit); pass / fail; revise (BrE) / review (AmE) is preparing for an exam; cram is last-night memorising. tuition (fees) is what you pay to study; a scholarship; a student loan; a campus; a hall of residence (BrE) / a dorm (AmE).\n\nCollocations: enrol on a course (BrE) / enroll in (AmE); drop out; skip a class; hand in an essay; fall behind; catch up; a tight deadline already from work. literate / numerate; vocational training.\n\nTypical mistakes: mixing up pass an exam (“succeed”) with take an exam (“sit it”); *I finished school as the only way to talk about university (graduate from university); faculty in AmE is often “the teaching staff”, not always “a faculty” (department / school / faculty in BrE). homework is uncountable in the general sense.",
+            "bodyUk": "Освіта: a school subject; a degree (bachelor's, master's, a PhD); undergraduate / graduate (амер. graduate student ≈ брит. postgraduate). a course, a module, a lecture, a seminar, a tutorial. an assignment — завдання; an essay; a dissertation / a thesis; coursework. take / sit an exam (брит. sit); pass / fail; revise (брит.) / review (амер.) — повторювати до іспиту; cram — інтенсивно готуватися в останній момент. tuition може означати навчання або викладання; tuition fees — плата за навчання; a scholarship; a student loan; a campus; a hall of residence (брит.) / a dorm (амер.).\n\nКолокації: enrol on a course (брит.) / enroll in (амер.); drop out; skip a class; hand in an essay; fall behind; catch up; a tight deadline; work-life balance. literate / numerate; vocational training.\n\nТипові помилки: pass an exam («успішно скласти») іноді плутають із take an exam (взяти участь); *I finished school як єдиний спосіб сказати про університет (graduate from university); faculty в амер. часто «викладачі», не завжди «факультет» (department / school / faculty брит.). homework незлічуване в загальному сенсі.",
+            "bodyEn": "Education: a school subject; a degree (bachelor's, master's, a PhD); undergraduate / graduate (AmE graduate student ≈ BrE postgraduate). a course, a module, a lecture, a seminar, a tutorial. an assignment is a task; an essay; a dissertation / a thesis; coursework. take / sit an exam (BrE sit); pass / fail; revise (BrE) / review (AmE) is preparing for an exam; cram is studying intensively shortly before an exam. tuition can mean instruction; tuition fees are what you pay to study; a scholarship; a student loan; a campus; a hall of residence (BrE) / a dorm (AmE).\n\nCollocations: enrol on a course (BrE) / enroll in (AmE); drop out; skip a class; hand in an essay; fall behind; catch up; a tight deadline already from work. literate / numerate; vocational training.\n\nTypical mistakes: mixing up pass an exam (“succeed”) with take an exam (“sit it”); *I finished school as the only way to talk about university (graduate from university); faculty in AmE is often “the teaching staff”, not always “a faculty” (department / school / faculty in BrE). homework is uncountable in the general sense.",
             "keyPointsUk": [
               "degree, undergraduate, postgraduate / graduate student",
               "take / sit an exam ≠ pass an exam",
@@ -14492,8 +14594,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-theme-edu-r2",
             "type": "fill_blank",
-            "promptUk": "Британською «повторяти до іспиту» — дієслово на r. Напишіть revise.",
-            "promptEn": "Type revise.",
+            "promptUk": "Вставте дієслово: повторити матеріал перед іспитом (британський або американський варіант).",
+            "promptEn": "Complete the sentence with a British or American verb meaning to study the material again.",
             "sentence": "I need to ___ for tomorrow's exam.",
             "accepted": [
               "revise",
@@ -14570,8 +14672,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Take або sit an exam означає прийти на іспит, pass — успішно скласти. Revise (брит.) — повторювати матеріал, tuition — плата за навчання, scholarship — стипендія. Enrol on — британська колокація, enroll in — американська.",
-            "sampleAnswerEn": "Take or sit an exam means attending it, and pass means succeeding. Revise (BrE) is preparing the material, tuition is the fee, and a scholarship is funding for study. Enrol on is the British collocation, and enroll in is the American one."
+            "sampleAnswerUk": "Take або sit an exam означає прийти на іспит, pass — успішно скласти. Revise (брит.) — повторювати матеріал, tuition може означати викладання, tuition fees — плату за навчання, scholarship — стипендію. Enrol on — британська колокація, enroll in — американська.",
+            "sampleAnswerEn": "Take or sit an exam means attending it, and pass means succeeding. Revise (BrE) is reviewing material, tuition can mean instruction, tuition fees are the cost, and a scholarship is funding for study. Enrol on is the British collocation, and enroll in is the American one."
           }
         ]
       },
@@ -14587,8 +14689,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "book a ticket, commute, a return, delayed, landmark",
             "promptEn": "book a ticket, commute, a return, delayed, landmark",
-            "bodyUk": "Подорожі: book a ticket / a seat / a room; a one-way (амер.) / a single (брит.) і a return / a round trip. a commute, a commuter — щоденна дорога на роботу; a delay / delayed / cancelled; a connection; a platform; a gate; luggage (брит., незліч.) / baggage; a suitcase; hand luggage / carry-on. go through security; a boarding pass; passport control; customs. a landmark — визначна пам'ятка; downtown (амер.) / the city centre (брит.); a suburb; public transport (брит.) / public transportation (амер.).\n\nКолокації: miss a train / catch a train; get stuck in traffic; a rush hour; a fare; a season ticket; a short-cut; ask for directions; a roundabout (брит.) / a traffic circle. stay in a hotel / an Airbnb; check in / check out.\n\nТипові помилки: *a travel як злічуваний іменник про одну поїздку (a trip / a journey / a flight); travel часто незлічуване як заняття. *luggages; *in the bus краще on the bus; *arrive to the station — arrive at (місце малого розміру) / in (місто).",
-            "bodyEn": "Travel: book a ticket / a seat / a room; a one-way (AmE) / a single (BrE) and a return / a round trip. a commute, a commuter is the daily journey to work; a delay / delayed / cancelled; a connection; a platform; a gate; luggage (BrE, uncountable) / baggage; a suitcase; hand luggage / carry-on. go through security; a boarding pass; passport control; customs. a landmark is a famous sight; downtown (AmE) / the city centre (BrE); a suburb; public transport (BrE) / public transportation (AmE).\n\nCollocations: miss a train / catch a train; get stuck in traffic; rush hour; a fare; a season ticket; a short cut; ask for directions; a roundabout (BrE) / a traffic circle. stay in a hotel / an Airbnb; check in / check out.\n\nTypical mistakes: *a travel as a countable noun for one journey (a trip / a journey / a flight); travel is often uncountable as an activity. *luggages; *in the bus — prefer on the bus; *arrive to the station — arrive at (a small place) / in (a city).",
+            "bodyUk": "Подорожі: book a ticket / a seat / a room; a one-way (амер.) / a single (брит.) і a return / a round trip. a commute, a commuter — щоденна дорога на роботу; a delay / delayed / cancelled; a connection; a platform; a gate; luggage (брит., незліч.) / baggage; a suitcase; hand luggage / carry-on. go through security; a boarding pass; passport control; customs. a landmark — визначна пам'ятка; downtown (амер.) / the city centre (брит.); a suburb; public transport (брит.) / public transportation (амер.).\n\nКолокації: miss a train / catch a train; get stuck in traffic; a rush hour; a fare; a season ticket; a short-cut; ask for directions; a roundabout (брит.) / a traffic circle. stay in a hotel / an Airbnb; check in / check out.\n\nТипові помилки: *a travel як злічуваний іменник про одну поїздку (a trip / a journey / a flight); travel часто незлічуване як заняття. *luggages; on the bus зазвичай вживають, коли говорять про поїздку автобусом; in the bus можливе, коли йдеться про його внутрішній простір; *arrive to the station — arrive at (місце малого розміру) / in (місто).",
+            "bodyEn": "Travel: book a ticket / a seat / a room; a one-way (AmE) / a single (BrE) and a return / a round trip. a commute, a commuter is the daily journey to work; a delay / delayed / cancelled; a connection; a platform; a gate; luggage (BrE, uncountable) / baggage; a suitcase; hand luggage / carry-on. go through security; a boarding pass; passport control; customs. a landmark is a famous sight; downtown (AmE) / the city centre (BrE); a suburb; public transport (BrE) / public transportation (AmE).\n\nCollocations: miss a train / catch a train; get stuck in traffic; rush hour; a fare; a season ticket; a short cut; ask for directions; a roundabout (BrE) / a traffic circle. stay in a hotel / an Airbnb; check in / check out.\n\nTypical mistakes: *a travel as a countable noun for one journey (a trip / a journey / a flight); travel is often uncountable as an activity. *luggages; on the bus is usual for travelling by bus; in the bus is possible when referring to the interior; *arrive to the station — arrive at (a small place) / in (a city).",
             "keyPointsUk": [
               "book a ticket; a single / a return; a commute",
               "delayed, cancelled; luggage незлічуване",
@@ -14711,8 +14813,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "have a cold, make an appointment, a prescription, work out",
             "promptEn": "have a cold, make an appointment, a prescription, work out",
-            "bodyUk": "Здоров'я: have a cold / have the flu (часто the flu); catch a cold; a sore throat; a headache (a, бо злічуваний біль з -ache); feel sick (брит. часто «нудить»; амер. також «погано себе почуваю»); be ill (брит.) / be sick (амер.). see a doctor / a GP; make an appointment; a prescription (рецепт на ліки, не receipt); a pharmacy / a chemist's (брит.). a check-up; a vaccine / get vaccinated; symptoms; recover from.\n\nСпосіб життя: work out — тренуватися; a balanced diet; junk food; cut down on sugar; give up smoking; stay in shape; get enough sleep; mental health; burnt out / burnout. take medicine / take a pill (take, не *drink a pill).\n\nТипові помилки: *I have flu без артикля частіше the flu; *I have headache без a; *recipe для ліків (recipe — страва; prescription — ліки); *make sport — do sport / do exercise / work out / play football. injured / wounded / hurt — injured частіше нещасний випадок, wounded — поранення.",
-            "bodyEn": "Health: have a cold / have the flu (often the flu); catch a cold; a sore throat; a headache (a, because -ache pains are countable); feel sick (in BrE often “nauseous”; in AmE also “unwell”); be ill (BrE) / be sick (AmE). see a doctor / a GP; make an appointment; a prescription (for medicine, not a receipt); a pharmacy / a chemist's (BrE). a check-up; a vaccine / get vaccinated; symptoms; recover from.\n\nLifestyle: work out is training; a balanced diet; junk food; cut down on sugar; give up smoking; stay in shape; get enough sleep; mental health; burnt out / burnout. take medicine / take a pill (take, not *drink a pill).\n\nTypical mistakes: *I have flu with no article — more often the flu; *I have headache with no a; *recipe for medicine (a recipe is food; a prescription is medicine); *make sport — do sport / do exercise / work out / play football. injured / wounded / hurt — injured is more often an accident, wounded is a wound.",
+            "bodyUk": "Здоров'я: have a cold / have the flu (часто the flu); catch a cold; a sore throat; a headache (зазвичай з a; інші слова на -ache можуть мати інші правила); feel sick (брит. часто «нудить»; амер. також «погано себе почуваю»); be ill (брит.) / be sick (амер.). see a doctor / a GP; make an appointment; a prescription (рецепт на ліки, не receipt); a pharmacy / a chemist's (брит.). a check-up; a vaccine / get vaccinated; symptoms; recover from.\n\nСпосіб життя: work out — тренуватися; a balanced diet; junk food; cut down on sugar; give up smoking; stay in shape; get enough sleep; mental health; burnt out / burnout. take medicine / take a pill (take, не *drink a pill).\n\nТипові помилки: I have flu і I have the flu обидва можливі; the flu особливо поширене в американській англійській; *I have headache без a; *recipe для ліків (recipe — страва; prescription — ліки); *make sport — do sport / do exercise / work out / play football. injured / wounded / hurt — injured частіше нещасний випадок, wounded — поранення.",
+            "bodyEn": "Health: have a cold / have the flu (often the flu); catch a cold; a sore throat; a headache (normally with a; other -ache words can behave differently); feel sick (in BrE often “nauseous”; in AmE also “unwell”); be ill (BrE) / be sick (AmE). see a doctor / a GP; make an appointment; a prescription (for medicine, not a receipt); a pharmacy / a chemist's (BrE). a check-up; a vaccine / get vaccinated; symptoms; recover from.\n\nLifestyle: work out is training; a balanced diet; junk food; cut down on sugar; give up smoking; stay in shape; get enough sleep; mental health; burnt out / burnout. take medicine / take a pill (take, not *drink a pill).\n\nTypical mistakes: I have flu and I have the flu are both possible; the flu is especially common in American English; *I have headache with no a; *recipe for medicine (a recipe is food; a prescription is medicine); *make sport — do sport / do exercise / work out / play football. injured / wounded / hurt — injured is more often an accident, wounded is a wound.",
             "keyPointsUk": [
               "a cold / the flu; a headache з a",
               "make an appointment; a prescription ≠ a receipt / a recipe",
@@ -14744,8 +14846,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-theme-health-r2",
             "type": "fill_blank",
-            "promptUk": "Рецепт на ліки англійською (не recipe). Напишіть prescription.",
-            "promptEn": "Type prescription.",
+            "promptUk": "Лікар виписав мені рецепт на ліки. Вставте потрібне слово.",
+            "promptEn": "The doctor wrote an order for my medicine. Complete the sentence.",
             "sentence": "The doctor gave me a ___.",
             "accepted": [
               "prescription",
@@ -14784,8 +14886,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-theme-health-e",
             "type": "explain",
-            "promptUk": "Чому кажуть a headache і the flu? Чим prescription відрізняється від recipe? Як сказати «тренуватися» і «записатися до лікаря»?",
-            "promptEn": "Why do we say a headache and the flu? How is a prescription different from a recipe? How do you say “train” and “book a time with a doctor”?",
+            "promptUk": "Як зазвичай вживають артиклі в a headache і (the) flu? Чим prescription відрізняється від recipe? Як сказати «тренуватися» і «записатися до лікаря»?",
+            "promptEn": "How are articles normally used in a headache and (the) flu? How is a prescription different from a recipe? How do you say “train” and “book a time with a doctor”?",
             "keyIdeas": [
               {
                 "labelUk": "headache/flu",
@@ -14834,19 +14936,19 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "a piece of cake? food countability, a bill, a tip, dietary",
             "promptEn": "food countability, a bill, a tip, dietary words",
-            "bodyUk": "Їжа добре тренує злічуваність. Незлічувані: bread, cheese, meat, fish (як їжа), rice, pasta, water, coffee, milk, fruit (часто), advice уже знали. Порції: a slice of bread / pizza; a piece of cake (і ідіома “легко”); a loaf of bread; a bar of chocolate; a glass of water; a cup of coffee; a bowl of soup. Деякі мають обидва сенси: a coffee (чашка); a chicken (птах) / chicken (м'ясо); a hair / hair.\n\nУ ресторані: a menu; a starter (брит.) / an appetizer (амер.); a main course; a dessert; a bill (брит.) / a check (амер.) — не the bill як закон у цьому сенсі; a tip; a reservation / book a table; it's on me — я пригощаю; split the bill. dietary: vegetarian, vegan, gluten-free, dairy-free, spicy, mild; I'm allergic to…; I don't eat…\n\nТипові помилки: *two breads як «дві скибки» (two slices); *a money; *I would like a soup без уточнення a bowl of, хоча a soup інколи чути як страву з меню; *account замість bill у ресторані (калька з українського «рахунок»). rare / medium / well-done — про стейк.",
-            "bodyEn": "Food is good practice for countability. Uncountable: bread, cheese, meat, fish (as food), rice, pasta, water, coffee, milk, fruit (often), and advice, which you already know. Portions: a slice of bread / pizza; a piece of cake (and the idiom “easy”); a loaf of bread; a bar of chocolate; a glass of water; a cup of coffee; a bowl of soup. Some words have both senses: a coffee (a cup); a chicken (the animal) / chicken (the meat); a hair / hair.\n\nIn a restaurant: a menu; a starter (BrE) / an appetizer (AmE); a main course; a dessert; a bill (BrE) / a check (AmE) — not the bill as a law in this sense; a tip; a reservation / book a table; it's on me means I am paying; split the bill. dietary: vegetarian, vegan, gluten-free, dairy-free, spicy, mild; I'm allergic to…; I don't eat…\n\nTypical mistakes: *two breads for “two slices” (two slices); *a money; *I would like a soup with no portion word, though a soup is sometimes heard as a menu item; *account instead of bill in a restaurant (a calque from Ukrainian “rakhunok”). rare / medium / well-done is about steak.",
+            "bodyUk": "Їжа добре тренує злічуваність. Незлічувані: bread, cheese, meat, fish (як їжа), rice, pasta, water, coffee, milk, fruit (часто), advice уже знали. Порції: a slice of bread / pizza; a piece of cake (і ідіома “легко”); a loaf of bread; a bar of chocolate; a glass of water; a cup of coffee; a bowl of soup. Деякі мають обидва сенси: a coffee (чашка); a chicken (птах) / chicken (м'ясо); a hair / hair.\n\nУ ресторані: a menu; a starter (брит.) / an appetizer (амер.); a main course; a dessert; a bill (брит.) / a check (амер.) — не the bill як закон у цьому сенсі; a tip; a reservation / book a table; it's on me — я пригощаю; split the bill. dietary: vegetarian, vegan, gluten-free, dairy-free, spicy, mild; I'm allergic to…; I don't eat…\n\nТипові помилки: *two breads як «дві скибки» (two slices); *a money; a soup можливе для порції або виду супу в меню; a bowl of soup уточнює порцію; *account замість bill у ресторані (калька з українського «рахунок»). rare / medium / well-done — про стейк.",
+            "bodyEn": "Food is good practice for countability. Uncountable: bread, cheese, meat, fish (as food), rice, pasta, water, coffee, milk, fruit (often), and advice, which you already know. Portions: a slice of bread / pizza; a piece of cake (and the idiom “easy”); a loaf of bread; a bar of chocolate; a glass of water; a cup of coffee; a bowl of soup. Some words have both senses: a coffee (a cup); a chicken (the animal) / chicken (the meat); a hair / hair.\n\nIn a restaurant: a menu; a starter (BrE) / an appetizer (AmE); a main course; a dessert; a bill (BrE) / a check (AmE) — not the bill as a law in this sense; a tip; a reservation / book a table; it's on me means I am paying; split the bill. dietary: vegetarian, vegan, gluten-free, dairy-free, spicy, mild; I'm allergic to…; I don't eat…\n\nTypical mistakes: *two breads for “two slices” (two slices); *a money; a soup is possible for a serving or a kind of soup on a menu; a bowl of soup specifies the serving; *account instead of bill in a restaurant (a calque from Ukrainian “rakhunok”). rare / medium / well-done is about steak.",
             "keyPointsUk": [
               "bread, rice, water — незлічувані; a slice / a loaf / a glass",
               "a bill (BrE) / a check (AmE); a tip; it's on me",
               "book a table; starter / main / dessert",
-              "Не *two breads і не *account у ресторані"
+              "Для двох скибок кажіть two slices of bread; рахунок у ресторані — bill / check"
             ],
             "keyPointsEn": [
               "bread, rice, water are uncountable; a slice / a loaf / a glass",
               "a bill (BrE) / a check (AmE); a tip; it's on me",
               "book a table; starter / main / dessert",
-              "Not *two breads and not *account in a restaurant"
+              "For two slices say two slices of bread; the restaurant bill is bill / check"
             ]
           },
           {
@@ -14867,8 +14969,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-theme-food-r2",
             "type": "fill_blank",
-            "promptUk": "Британською «рахунок у ресторані». Напишіть bill.",
-            "promptEn": "Type bill.",
+            "promptUk": "Попросіть рахунок у ресторані: вставте британський або американський варіант.",
+            "promptEn": "Ask for the restaurant bill using a British or American term.",
             "sentence": "Could we have the ___, please?",
             "accepted": [
               "bill",
@@ -14907,8 +15009,8 @@ const newUnits: UnitContent[] = [
             "accepted": [
               "We need to book a table for two",
               "We need to book a table for two.",
-              "We'd like to book a table for two",
-              "We would like to book a table for two"
+              "We have to book a table for two",
+              "We must book a table for two"
             ],
             "direction": "uk_en"
           },
@@ -15064,7 +15166,7 @@ const newUnits: UnitContent[] = [
             "promptUk": "device, charge, a bug, sign in, browse, cloud",
             "promptEn": "device, charge, a bug, sign in, browse, cloud",
             "bodyUk": "Техніка: a device; a gadget; hardware / software; an app; a browser; a charger; charge a phone (не *load a phone — калька з «завантажити» інколи плутають із download). turn on / off; plug in; run out of battery; wireless / Wi-Fi; a password; a username; sign in / log in; sign out / log out; sign up — зареєструватися (не *sign in для реєстрації). download / upload; a file, a folder, a backup; the cloud; a link; a feed; a pop-up; a cookie (у браузері).\n\nПроблеми: a bug; a crash; freeze; it won't start; restore; update / upgrade (update — оновлення, upgrade — перехід на вищий рівень). browse the web; scroll; click / tap; swipe. privacy; personal data; two-factor authentication.\n\nТипові помилки: *enter in the site — go to / visit / open; *in the internet — on the internet; *download як «заряджати»; *save in desktop без the (save it to the desktop). install / uninstall. У наступному блоці skills буде ділова IT-англійська глибше.",
-            "bodyEn": "Technology: a device; a gadget; hardware / software; an app; a browser; a charger; charge a phone (not *load a phone — a calque from “zavantazhyty” sometimes mixed up with download). turn on / off; plug in; run out of battery; wireless / Wi-Fi; a password; a username; sign in / log in; sign out / log out; sign up is registering (not *sign in for registration). download / upload; a file, a folder, a backup; the cloud; a link; a feed; a pop-up; a cookie (in a browser).\n\nProblems: a bug; a crash; freeze; it won't start; restore; update / upgrade (update is a patch, upgrade is moving to a higher tier). browse the web; scroll; click / tap; swipe. privacy; personal data; two-factor authentication.\n\nTypical mistakes: *enter in the site — go to / visit / open; *in the internet — on the internet; *download for “charge”; *save in desktop with no the (save it to the desktop). install / uninstall. In the later skills block, workplace IT English goes deeper.",
+            "bodyEn": "Technology: a device; a gadget; hardware / software; an app; a browser; a charger; charge a phone (not *load a phone — a calque from “zavantazhyty” sometimes mixed up with download). turn on / off; plug in; run out of battery; wireless / Wi-Fi; a password; a username; sign in / log in; sign out / log out; sign up is registering (not *sign in for registration). download / upload; a file, a folder, a backup; the cloud; a link; a feed; a pop-up; a cookie (in a browser).\n\nProblems: a bug; a crash; freeze; it won't start; restore; update / upgrade (an update brings something up to date, often with fixes or new features; an upgrade usually moves it to a newer or more capable version). browse the web; scroll; click / tap; swipe. privacy; personal data; two-factor authentication.\n\nTypical mistakes: *enter in the site — go to / visit / open; *in the internet — on the internet; *download for “charge”; *save in desktop with no the (save it to the desktop). install / uninstall. In the later skills block, workplace IT English goes deeper.",
             "keyPointsUk": [
               "charge a phone, не *load / *download у цьому сенсі",
               "sign up = реєстрація; sign in = вхід",
@@ -15171,7 +15273,7 @@ const newUnits: UnitContent[] = [
             "minWords": 12,
             "passRatio": 0.6,
             "sampleAnswerUk": "Sign up — зареєструватися, sign in — увійти. Зарядити телефон — charge, не download. Кажемо on the internet. Update — оновлення, upgrade — перехід на вищий рівень.",
-            "sampleAnswerEn": "Sign up is registering, and sign in is logging in. Giving a phone power is charge, not download. We say on the internet. An update is a patch, and an upgrade is moving to a higher tier."
+            "sampleAnswerEn": "Sign up is registering, and sign in is logging in. Giving a phone power is charge, not download. We say on the internet. An update brings software up to date, often with fixes or features; an upgrade usually moves it to a newer or more capable version."
           }
         ]
       },
@@ -15187,8 +15289,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "climate change, renewable, recycle, carbon footprint, waste",
             "promptEn": "climate change, renewable, recycle, carbon footprint, waste",
-            "bodyUk": "Довкілля: the environment (з the); climate change (звичайно без the); global warming; greenhouse gases; carbon dioxide; a carbon footprint; emissions; fossil fuels (oil, coal, gas); renewable energy (solar, wind, hydro); a heatwave; a flood, a drought; biodiversity; an endangered species; deforestation; pollution (air / water / noise pollution); waste; recycle, reuse, reduce; a landfill; sustainable; eco-friendly.\n\nКолокації: cut emissions; raise awareness; take action; ban single-use plastic; sort rubbish (брит.) / trash (амер.); go green. climate crisis уже політично забарвлене — знайте, що слово вибирають свідомо.\n\nТипові помилки: *the climate change з the; *environment без the, коли про довкілля загалом (protect the environment); *nature як «довкілля» в політичному сенсі (nature — природа; environment — середовище, включно з людським); ecology — наука, не завжди синонім environment у публіцистиці. waste незлічуване в «відходи» загалом; a waste of time — інше значення.",
-            "bodyEn": "The environment (with the); climate change (usually no the); global warming; greenhouse gases; carbon dioxide; a carbon footprint; emissions; fossil fuels (oil, coal, gas); renewable energy (solar, wind, hydro); a heatwave; a flood, a drought; biodiversity; an endangered species; deforestation; pollution (air / water / noise pollution); waste; recycle, reuse, reduce; a landfill; sustainable; eco-friendly.\n\nCollocations: cut emissions; raise awareness; take action; ban single-use plastic; sort rubbish (BrE) / trash (AmE); go green. climate crisis is already politically coloured — know that the word is a conscious choice.\n\nTypical mistakes: *the climate change with the; *environment with no the when it means the natural world in general (protect the environment); *nature as “the environment” in a policy sense (nature is the natural world; the environment includes the human setting); ecology is the science, not always a synonym of environment in journalism. waste is uncountable in the “rubbish” sense; a waste of time is a different meaning.",
+            "bodyUk": "Довкілля: the environment (з the); climate change (звичайно без the); global warming; greenhouse gases; carbon dioxide; a carbon footprint; emissions; fossil fuels (oil, coal, gas); renewable energy (solar, wind, hydro); a heatwave; a flood, a drought; biodiversity; an endangered species; deforestation; pollution (air / water / noise pollution); waste; recycle, reuse, reduce; a landfill; sustainable; eco-friendly.\n\nКолокації: cut emissions; raise awareness; take action; ban single-use plastic; sort rubbish (брит.) / trash (амер.); go green. climate crisis підкреслює серйозність і терміновість проблеми; добирайте вислів відповідно до контексту.\n\nТипові помилки: climate change у загальному значенні зазвичай без the; артикль можливий, коли контекст визначає конкретну зміну; *environment без the, коли про довкілля загалом (protect the environment); *nature як «довкілля» в політичному сенсі (nature — природа; environment — середовище, включно з людським); ecology — наука, не завжди синонім environment у публіцистиці. waste незлічуване в «відходи» загалом; a waste of time — інше значення.",
+            "bodyEn": "The environment (with the); climate change (usually no the); global warming; greenhouse gases; carbon dioxide; a carbon footprint; emissions; fossil fuels (oil, coal, gas); renewable energy (solar, wind, hydro); a heatwave; a flood, a drought; biodiversity; an endangered species; deforestation; pollution (air / water / noise pollution); waste; recycle, reuse, reduce; a landfill; sustainable; eco-friendly.\n\nCollocations: cut emissions; raise awareness; take action; ban single-use plastic; sort rubbish (BrE) / trash (AmE); go green. climate crisis emphasises seriousness and urgency; choose the phrase to fit the context.\n\nTypical mistakes: climate change generally takes no article, though the can identify a specific change in context; *environment with no the when it means the natural world in general (protect the environment); *nature as “the environment” in a policy sense (nature is the natural world; the environment includes the human setting); ecology is the science, not always a synonym of environment in journalism. waste is uncountable in the “rubbish” sense; a waste of time is a different meaning.",
             "keyPointsUk": [
               "the environment; climate change без the",
               "renewable energy; a carbon footprint; cut emissions",
@@ -15252,8 +15354,8 @@ const newUnits: UnitContent[] = [
             "accepted": [
               "We sort and recycle plastic",
               "We sort and recycle plastic.",
-              "We recycle plastic",
-              "We recycle plastic."
+              "We sort and recycle the plastic",
+              "We sort and recycle the plastic."
             ],
             "direction": "uk_en"
           },
@@ -15293,8 +15395,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Climate change зазвичай без артикля, а про довкілля кажемо the environment. Carbon footprint — вуглецевий слід, renewable energy — відновлювана енергія. Ecology — наука, і це не завжди синонім environment.",
-            "sampleAnswerEn": "Climate change usually has no article, and we say the environment for the natural world. A carbon footprint is the carbon we are responsible for, and renewable energy can be replenished. Ecology is the science, and it is not always a synonym of environment."
+            "sampleAnswerUk": "Climate change зазвичай без артикля, а про довкілля кажемо the environment. Carbon footprint — пов’язані з діяльністю, людиною чи продуктом викиди парникових газів, зазвичай у CO₂-еквіваленті; renewable energy — енергія з природно відновлюваних джерел. Ecology — наука, і це не завжди синонім environment.",
+            "sampleAnswerEn": "Climate change usually has no article, and we say the environment for the natural world. A carbon footprint is the greenhouse gas emissions associated with an activity, person or product, usually expressed as CO₂ equivalent; renewable energy comes from naturally replenished sources. Ecology is the science, and it is not always a synonym of environment."
           }
         ]
       },
@@ -15310,16 +15412,16 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "headline, source, biased, fake news, streaming",
             "promptEn": "headline, source, biased, fake news, streaming",
-            "bodyUk": "Медіа: the news (незлічуване, з the: I watched the news; *a news немає — a news story / a piece of news). a headline; an article; a journalist; a source; a witness; an eyewitness report; breaking news; a press conference; a broadcast; a podcast; streaming; social media (часто як множина за змістом: social media are…, хоча is теж чути). a follower; a post; share; go viral; clickbait; a paywall.\n\nКритичне читання: reliable / unreliable; biased / unbiased; a rumour; fake news; a fact-check; freedom of the press; privacy; an interview already from work. according to…; it is claimed that… — хеджування з уроку C1.\n\nТипові помилки: *a news; *informations; *I saw in internet; *media is завжди в однині (the media are часто в брит. формальному стилі). tabloid / broadsheet — типи преси у Британії. cover a story — висвітлювати.",
-            "bodyEn": "Media: the news (uncountable, with the: I watched the news; there is no *a news — a news story / a piece of news). a headline; an article; a journalist; a source; a witness; an eyewitness report; breaking news; a press conference; a broadcast; a podcast; streaming; social media (often plural in agreement: social media are…, though is is also heard). a follower; a post; share; go viral; clickbait; a paywall.\n\nCritical reading: reliable / unreliable; biased / unbiased; a rumour; fake news; a fact-check; freedom of the press; privacy; an interview already from work. according to…; it is claimed that… — hedging from the C1 lesson.\n\nTypical mistakes: *a news; *informations; *I saw in internet; *media is always singular (the media are is common in formal BrE). tabloid / broadsheet are types of press in Britain. cover a story is reporting it.",
+            "bodyUk": "Медіа: news — незлічуване: I watched the news, але Good news! без the; не *a news, а a news story / a piece of news. a headline; an article; a journalist; a source; a witness; an eyewitness report; breaking news; a press conference; a broadcast; a podcast; streaming; social media (часто як множина за змістом: social media are…, хоча is теж чути). a follower; a post; share; go viral; clickbait; a paywall.\n\nКритичне читання: reliable / unreliable; biased / unbiased; a rumour; fake news; a fact-check; freedom of the press; privacy; an interview already from work. according to…; it is claimed that… — хеджування з уроку C1.\n\nТипові помилки: *a news; *informations; *I saw in internet; *media is завжди в однині (the media are часто в брит. формальному стилі). tabloid / broadsheet — типи преси у Британії. cover a story — висвітлювати.",
+            "bodyEn": "Media: news is uncountable: I watched the news, but Good news! has no the; use a news story / a piece of news, not *a news. a headline; an article; a journalist; a source; a witness; an eyewitness report; breaking news; a press conference; a broadcast; a podcast; streaming; social media (often plural in agreement: social media are…, though is is also heard). a follower; a post; share; go viral; clickbait; a paywall.\n\nCritical reading: reliable / unreliable; biased / unbiased; a rumour; fake news; a fact-check; freedom of the press; privacy; an interview already from work. according to…; it is claimed that… — hedging from the C1 lesson.\n\nTypical mistakes: *a news; *informations; *I saw in internet; *media is always singular (the media are is common in formal BrE). tabloid / broadsheet are types of press in Britain. cover a story is reporting it.",
             "keyPointsUk": [
-              "the news — незлічуване, з the; a piece of news",
+              "news — незлічуване: the news, good news, a piece of news",
               "headline, source, breaking news, go viral, clickbait",
               "reliable / biased; a fact-check; according to",
               "Не *a news"
             ],
             "keyPointsEn": [
-              "the news is uncountable, with the; a piece of news",
+              "news is uncountable: the news, good news, a piece of news",
               "headline, source, breaking news, go viral, clickbait",
               "reliable / biased; a fact-check; according to",
               "Not *a news"
@@ -15337,14 +15439,14 @@ const newUnits: UnitContent[] = [
               "This is an important information, with a, as usual."
             ],
             "correctIndex": 0,
-            "explanationUk": "the news — незлічуване, з the.",
-            "explanationEn": "the news is uncountable, with the."
+            "explanationUk": "News незлічуване; у цій фразі кажемо the news.",
+            "explanationEn": "News is uncountable; in this phrase we say the news."
           },
           {
             "id": "en-d-theme-media-r2",
             "type": "fill_blank",
-            "promptUk": "Заголовок статті — headline. Напишіть headline.",
-            "promptEn": "Type headline.",
+            "promptUk": "Вставте слово: заголовок статті вводив в оману.",
+            "promptEn": "Complete the sentence: the title of the news article was misleading.",
             "sentence": "The ___ was misleading.",
             "accepted": [
               "headline",
@@ -15423,8 +15525,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "News незлічуване, тому кажемо the news або a piece of news, не *a news. Headline — заголовок, biased — упереджений, a fact-check — перевірка фактів. Джерело хеджуємо через according to або it is claimed that.",
-            "sampleAnswerEn": "News is uncountable, so we say the news or a piece of news, not *a news. A headline is the title, biased means leaning to one side, and a fact-check is verifying facts. We hedge a source with according to or it is claimed that."
+            "sampleAnswerUk": "News незлічуване, тому кажемо the news або a piece of news, не *a news. Headline — заголовок, biased — упереджений, a fact-check — перевірка фактів. According to називає джерело; it is claimed that повідомляє про твердження, не гарантуючи його правдивості.",
+            "sampleAnswerEn": "News is uncountable, so we say the news or a piece of news, not *a news. A headline is the title, biased means leaning to one side, and a fact-check is verifying facts. According to attributes information to a source; it is claimed that reports a claim without guaranteeing it is true."
           }
         ]
       },
@@ -15473,8 +15575,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-theme-society-r2",
             "type": "fill_blank",
-            "promptUk": "Штраф англійською. Напишіть fine.",
-            "promptEn": "Type fine.",
+            "promptUk": "Вставте слово: йому довелося сплатити штраф за порушення правил.",
+            "promptEn": "Complete the sentence: he paid a monetary penalty for breaking a rule.",
             "sentence": "He had to pay a ___.",
             "accepted": [
               "fine",
@@ -15569,7 +15671,7 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "afford, a discount, in debt, a refund, a current account",
             "promptEn": "afford, a discount, in debt, a refund, a current account",
-            "bodyUk": "Гроші: earn, spend, save, waste, invest; afford — мати змогу купити (I can't afford it). cost, charge, a fee, a price, a bargain, a discount (10% off); be worth. pay in cash / by card / by contactless; a receipt уже як фальшивий друг (чек). a refund — повернення грошей; exchange; a receipt ≠ a bill у магазині (bill частіше ресторан або рахунок до сплати).\n\nБанк: a current account (брит.) / a checking account (амер.); a savings account; a debit / credit card; a PIN; withdraw money; a cash machine / an ATM; a transfer; interest (відсотки, незлічуване в цьому сенсі); in debt / get into debt / pay off a debt; a mortgage; a loan; a budget; overdraft. cheap / inexpensive / reasonable / pricey / expensive — градація, не лише cheap/expensive.\n\nТипові помилки: *a money; *the price is expensive (the thing is expensive / the price is high); *pay the shop (pay the shop assistant / pay at the till / pay for the goods); *credit як будь-яка картка (debit знімає свої, credit — кредит). change — решта.",
+            "bodyUk": "Гроші: earn, spend, save, waste, invest; afford — мати змогу купити (I can't afford it). cost, charge, a fee, a price, a bargain, a discount (10% off); be worth. pay in cash / by card / by contactless; a receipt уже як фальшивий друг (чек). a refund — повернення грошей; exchange; a receipt ≠ a bill у магазині (bill частіше ресторан або рахунок до сплати).\n\nБанк: a current account (брит.) / a checking account (амер.); a savings account; a debit / credit card; a PIN; withdraw money; a cash machine / an ATM; a transfer; interest (відсотки, незлічуване в цьому сенсі); in debt / get into debt / pay off a debt; a mortgage; a loan; a budget; overdraft. cheap / inexpensive / reasonable / pricey / expensive — градація, не лише cheap/expensive.\n\nТипові помилки: *a money; *the price is expensive (the thing is expensive / the price is high); pay the shop is possible when the shop is the recipient; pay for the goods identifies what you are buying; *credit як будь-яка картка (debit знімає свої, credit — кредит). change — решта.",
             "bodyEn": "Money: earn, spend, save, waste, invest; afford is having enough to buy (I can't afford it). cost, charge, a fee, a price, a bargain, a discount (10% off); be worth. pay in cash / by card / by contactless; a receipt already as a false friend (the till slip). a refund is getting your money back; exchange; a receipt is not a bill in a shop (a bill is more often a restaurant or an amount to pay).\n\nThe bank: a current account (BrE) / a checking account (AmE); a savings account; a debit / credit card; a PIN; withdraw money; a cash machine / an ATM; a transfer; interest (the percentage, uncountable in this sense); in debt / get into debt / pay off a debt; a mortgage; a loan; a budget; an overdraft. cheap / inexpensive / reasonable / pricey / expensive is a scale, not only cheap/expensive.\n\nTypical mistakes: *a money; *the price is expensive (the thing is expensive / the price is high); *pay the shop (pay the shop assistant / pay at the till / pay for the goods); *credit for every card (debit spends your money, credit is borrowed). change is the money you get back.",
             "keyPointsUk": [
               "afford; a discount; a refund; a receipt",
@@ -15593,7 +15695,7 @@ const newUnits: UnitContent[] = [
               "The price is too high.",
               "The price is too expensive.",
               "I have a money.",
-              "I paid the shop, as the usual pattern."
+              "I paid for cash the goods."
             ],
             "correctIndex": 0,
             "explanationUk": "price — high/low; товар — expensive.",
@@ -15602,8 +15704,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-theme-money-r2",
             "type": "fill_blank",
-            "promptUk": "«Не можу собі дозволити» — дієслово. Напишіть afford.",
-            "promptEn": "Type afford.",
+            "promptUk": "Вставте дієслово: зараз у мене недостатньо грошей на новий ноутбук.",
+            "promptEn": "Complete the sentence: I do not have enough money for a new laptop right now.",
             "sentence": "I can't ___ a new laptop right now.",
             "accepted": [
               "afford",
@@ -15723,8 +15825,8 @@ const newUnits: UnitContent[] = [
               "The police is investigating, as usual formal BrE."
             ],
             "correctIndex": 0,
-            "explanationUk": "climate change без the.",
-            "explanationEn": "climate change with no the."
+            "explanationUk": "Climate change у загальному значенні зазвичай вживають без the.",
+            "explanationEn": "Climate change in the general sense usually takes no the."
           },
           {
             "id": "en-deep-themes-b-exam-q3",
@@ -15833,12 +15935,10 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-rd-skim-r2",
             "type": "fill_blank",
-            "promptUk": "Пошук конкретного факту — це ___ (scan).",
-            "promptEn": "Hunting for a concrete fact is ___ (scan).",
+            "promptUk": "Який спосіб читання допомагає швидко знайти конкретний рік? Вставте назву способу.",
+            "promptEn": "Complete with the name of the reading technique used to locate a specific year.",
             "sentence": "Use ___ to find the year in the text.",
             "accepted": [
-              "scan",
-              "Scan",
               "scanning",
               "Scanning"
             ]
@@ -15849,7 +15949,7 @@ const newUnits: UnitContent[] = [
             "promptUk": "У тексті може не бути слова buy, якщо питання про покупку. Що робити?",
             "promptEn": "The text may not use the word buy if the question is about a purchase. What do you do?",
             "options": [
-              "Шукати синоніми на кшталт purchase чи order.",
+              "Шукати близькі за значенням слова, як-от purchase, і перевіряти контекст.",
               "Здатися, якщо немає buy.",
               "Читати лише заголовок.",
               "Завжди перекладати кожне слово."
@@ -15858,7 +15958,7 @@ const newUnits: UnitContent[] = [
             "explanationUk": "Перед scan підготуйте синоніми.",
             "explanationEn": "Prepare synonyms before you scan.",
             "optionsEn": [
-              "Look for synonyms such as purchase or order.",
+              "Look for related wording such as purchase, then check the context.",
               "Give up if buy is missing.",
               "Read only the title.",
               "Always translate every word."
@@ -15934,37 +16034,37 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Текст не завжди каже прямо — ви робіть обґрунтований висновок",
             "promptEn": "The text does not always say it directly — you draw a justified conclusion",
-            "bodyUk": "Inference — висновок, який випливає з тексту, але не написаний тими самими словами. Якщо «She put the letter in a drawer and never mentioned it again», можна зробити висновок, що тема для неї важка або вона хоче це забути — але не що «вона знищила лист». Правильний висновок тримається на підказках: тон, контраст, прикметники, що саме пропущено.\n\nНа іспитах питання True / False / Not Given і “What can be inferred?” карають за надмір. Якщо в тексті немає достатньо підказок — відповідь Not Given, не ваша здогадка зі світу. Відрізняйте inference (обґрунтовано з тексту) від assumption (мій досвід).\n\nСтратегія: знайдіть рядок-опору, перефразуйте його своїми словами, відкиньте варіанти, що додають факти, яких немає. Типові помилки: обрати «гучний» варіант, який звучить розумно, але не з цього абзацу; сплутати author's opinion з fact.",
-            "bodyEn": "Inference is a conclusion that follows from the text but is not written in the same words. If “She put the letter in a drawer and never mentioned it again”, you may infer that the topic is hard for her or that she wants to forget it — but not that “she destroyed the letter”. A good inference rests on clues: tone, contrast, adjectives, what is left unsaid.\n\nIn exams, True / False / Not Given and “What can be inferred?” punish going too far. If the text has too few clues, the answer is Not Given, not your guess from the world. Distinguish inference (justified by the text) from assumption (my experience).\n\nA strategy: find the supporting line, rephrase it in your own words, and reject options that add facts the text does not have. Typical mistakes: choosing a “loud” option that sounds reasonable but is not from this paragraph; mixing up the author's opinion with a fact.",
+            "bodyUk": "Inference — висновок, який випливає з тексту, але не написаний тими самими словами. Якщо «She said the letter was painful to read, then put it away», можна зробити висновок, що читати лист було емоційно важко; стверджувати, що вона його знищила, підстав немає. Правильний висновок тримається на підказках: тон, контраст, прикметники, що саме пропущено.\n\nНа іспитах питання True / False / Not Given і “What can be inferred?” карають за надмір. Якщо в тексті немає достатньо підказок — відповідь Not Given, не ваша здогадка зі світу. Відрізняйте inference (обґрунтовано з тексту) від assumption (мій досвід).\n\nСтратегія: знайдіть рядок-опору, перефразуйте його своїми словами, відкиньте варіанти, що додають факти, яких немає. Типові помилки: обрати «гучний» варіант, який звучить розумно, але не з цього абзацу; сплутати author's opinion з fact.",
+            "bodyEn": "Inference is a conclusion that follows from the text but is not written in the same words. If “She said the letter was painful to read, then put it away”, you can infer that reading it was emotionally difficult; there is no evidence that she destroyed it. A good inference rests on clues: tone, contrast, adjectives, what is left unsaid.\n\nIn exams, True / False / Not Given and “What can be inferred?” punish going too far. If the text has too few clues, the answer is Not Given, not your guess from the world. Distinguish inference (justified by the text) from assumption (my experience).\n\nA strategy: find the supporting line, rephrase it in your own words, and reject options that add facts the text does not have. Typical mistakes: choosing a “loud” option that sounds reasonable but is not from this paragraph; mixing up the author's opinion with a fact.",
             "keyPointsUk": [
               "Inference випливає з підказок, не з досвіду читача",
               "Не додавайте фактів, яких немає в тексті",
-              "Not Given ≠ False: цього просто не сказано",
+              "Not Given: текст не підтверджує і не спростовує твердження; False: суперечить йому",
               "Знайдіть рядок-опору і перефразуйте"
             ],
             "keyPointsEn": [
               "An inference follows from clues, not from the reader's experience",
               "Do not add facts that are not in the text",
-              "Not Given is not False: it simply is not said",
+              "Not Given: the text neither confirms nor contradicts the claim; False: it contradicts it",
               "Find the supporting line and rephrase it"
             ]
           },
           {
             "id": "en-d-rd-infer-r1",
             "type": "mcq",
-            "promptUk": "«She put the letter in a drawer and never mentioned it again.» Що можна обґрунтовано припустити?",
-            "promptEn": "“She put the letter in a drawer and never mentioned it again.” What can you reasonably infer?",
+            "promptUk": "«She said the letter was painful to read, then put it away.» Який висновок підтверджує текст?",
+            "promptEn": "“She said the letter was painful to read, then put it away.” Which inference is supported?",
             "options": [
-              "Вона, ймовірно, не хоче до цього повертатися.",
+              "Читати лист було емоційно важко.",
               "Вона знищила лист.",
               "Лист був офіційним контрактом — як факт із речення.",
               "Вона показала листа всім колегам."
             ],
             "correctIndex": 0,
-            "explanationUk": "Висновок має триматися на «never mentioned it again», без нових фактів.",
-            "explanationEn": "The inference must rest on “never mentioned it again”, without new facts.",
+            "explanationUk": "Painful to read підтверджує емоційну складність; інших фактів про лист немає.",
+            "explanationEn": "Painful to read supports emotional difficulty; the other claims lack evidence.",
             "optionsEn": [
-              "She probably does not want to come back to it.",
+              "Reading the letter was emotionally difficult.",
               "She destroyed the letter.",
               "The letter was an official contract — as a fact from the sentence.",
               "She showed the letter to every colleague."
@@ -15972,14 +16072,13 @@ const newUnits: UnitContent[] = [
           },
           {
             "id": "en-d-rd-infer-r2",
-            "type": "fill_blank",
-            "promptUk": "Якщо в тексті цього не сказано, в IELTS часто відповідь ___ Given.",
-            "promptEn": "If the text does not say it, in IELTS the answer is often ___ Given.",
-            "sentence": "The answer may be Not ___.",
-            "accepted": [
-              "Given",
-              "given"
-            ]
+            "type": "mcq",
+            "promptUk": "Текст: «The train leaves at six.» Твердження: «The train is electric.» Яка відповідь True / False / Not Given?",
+            "promptEn": "Text: “The train leaves at six.” Claim: “The train is electric.” Is it True, False or Not Given?",
+            "options": ["Not Given", "True", "False", "Always True"],
+            "correctIndex": 0,
+            "explanationUk": "Час відправлення не підтверджує і не спростовує тип потяга.",
+            "explanationEn": "The departure time neither confirms nor contradicts the type of train."
           },
           {
             "id": "en-d-rd-infer-r3",
@@ -16053,8 +16152,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Inference — обґрунтований висновок із підказок тексту, без нових фактів. Assumption — ваше припущення з досвіду. Not Given означає, що цього не сказано, і це не те саме, що False. Варіант перевіряють рядком-опорою і перефразом.",
-            "sampleAnswerEn": "An inference is a justified conclusion from clues in the text, without new facts. An assumption is your guess from experience. Not Given means it is not said, and that is not the same as False. You check an option against a supporting line and a paraphrase."
+            "sampleAnswerUk": "Inference — обґрунтований висновок із підказок тексту, без нових фактів. Assumption — ваше припущення з досвіду. Not Given означає, що текст не підтверджує і не спростовує твердження; False означає суперечність тексту. Варіант перевіряють рядком-опорою і перефразом.",
+            "sampleAnswerEn": "An inference is a justified conclusion from clues in the text, without new facts. An assumption is your guess from experience. Not Given means the text neither confirms nor contradicts the claim; False means it contradicts the text. You check an option against a supporting line and a paraphrase."
           }
         ]
       },
@@ -16109,8 +16208,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-rd-ref-r2",
             "type": "fill_blank",
-            "promptUk": "Слово, на яке вказує займенник, називається antecedent. Напишіть antecedent.",
-            "promptEn": "Type antecedent.",
+            "promptUk": "Як називається слово або фраза, на які вказує займенник?",
+            "promptEn": "What is the term for the word or phrase a pronoun refers to?",
             "sentence": "The pronoun refers to its ___.",
             "accepted": [
               "antecedent",
@@ -16206,18 +16305,18 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Факт можна перевірити; думка містить оцінку",
             "promptEn": "A fact can be checked; an opinion contains a judgement",
-            "bodyUk": "Факт: “The team released the feature on 12 May.” Це можна перевірити. Думка: “The release was careless.” Тут оцінка. Підказки думки: I think, it seems, should, surprisingly, poor, excellent, clearly (як оцінка), allegedly (хтось стверджує). Тон автора може бути neutral, critical, enthusiastic, cautious, ironic — його тримають прикметники й модальні дієслова.\n\nНа іспитах вас можуть спитати: “Which statement is an opinion?” або “The writer's attitude is…”. Не плутайте цитату експерта (це все одно чиясь думка в тексті) з фактом дослідження, якщо немає даних. “Experts say it is unsafe” — репортаж про думку, не доведений факт у статті, якщо немає доказів.\n\nТипові помилки: прийняти впевнений тон за факт; не помітити хеджування (might, it is claimed). Поверніться до уроку C1 про hedging — ті самі маркери допомагають читати.",
-            "bodyEn": "A fact: “The team released the feature on 12 May.” That can be checked. An opinion: “The release was careless.” That is a judgement. Clues to opinion: I think, it seems, should, surprisingly, poor, excellent, clearly (as a judgement), allegedly (someone claims). The author's tone may be neutral, critical, enthusiastic, cautious, ironic — adjectives and modal verbs carry it.\n\nIn exams you may be asked: “Which statement is an opinion?” or “The writer's attitude is…”. Do not confuse an expert's quote (still someone's opinion in the text) with a research fact if there is no data. “Experts say it is unsafe” is a report of an opinion, not a proven fact in the article, if no evidence is given.\n\nTypical mistakes: taking a confident tone for a fact; missing hedging (might, it is claimed). Go back to the C1 lesson on hedging — the same markers help you read.",
+            "bodyUk": "Факт: “The team released the feature on 12 May.” Це можна перевірити. Думка: “The release was careless.” Тут оцінка. Підказки думки: I think, it seems, should, surprisingly, poor, excellent, clearly (як оцінка), allegedly (хтось стверджує). Тон автора може бути neutral, critical, enthusiastic, cautious, ironic — його тримають прикметники й модальні дієслова.\n\nНа іспитах вас можуть спитати: “Which statement is an opinion?” або “The writer's attitude is…”. Розрізняйте факт того, що експерт зробив заяву, і правдивість самої заяви. “Experts say it is unsafe” передає твердження експертів; воно може бути перевірюваним, але читачеві потрібні докази, щоб оцінити його.\n\nТипові помилки: прийняти впевнений тон за факт; не помітити хеджування (might, it is claimed). Поверніться до уроку C1 про hedging — ті самі маркери допомагають читати.",
+            "bodyEn": "A fact: “The team released the feature on 12 May.” That can be checked. An opinion: “The release was careless.” That is a judgement. Clues to opinion: I think, it seems, should, surprisingly, poor, excellent, clearly (as a judgement), allegedly (someone claims). The author's tone may be neutral, critical, enthusiastic, cautious, ironic — adjectives and modal verbs carry it.\n\nIn exams you may be asked: “Which statement is an opinion?” or “The writer's attitude is…”. Distinguish the fact that an expert made a statement from whether the statement is true. “Experts say it is unsafe” reports the experts' claim; it may be testable, but readers need evidence to assess it.\n\nTypical mistakes: taking a confident tone for a fact; missing hedging (might, it is claimed). Go back to the C1 lesson on hedging — the same markers help you read.",
             "keyPointsUk": [
               "Факт перевіряється; думка містить оцінку (careless, should)",
               "Тон: neutral, critical, cautious, enthusiastic",
-              "Цитата експерта без даних — усе одно думка в тексті",
+              "Цитата експерта може містити перевірюване твердження; перевіряйте його докази",
               "Хеджування (might, allegedly) сигналить невпевненість"
             ],
             "keyPointsEn": [
               "A fact can be checked; an opinion contains a judgement (careless, should)",
               "Tone: neutral, critical, cautious, enthusiastic",
-              "An expert quote without data is still an opinion in the text",
+              "An expert quote can contain a testable claim; check its evidence",
               "Hedging (might, allegedly) signals uncertainty"
             ]
           },
@@ -16239,8 +16338,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-rd-fact-opinion-r2",
             "type": "fill_blank",
-            "promptUk": "Слово allegedly сигналізує, що це чиєсь ___. Напишіть claim або assertion.",
-            "promptEn": "Type claim.",
+            "promptUk": "Вставте слово: allegedly позначає твердження, яке не подано як доведений факт.",
+            "promptEn": "Complete the sentence: allegedly marks an assertion that is not presented as established fact.",
             "sentence": "Allegedly marks a ___, not a proven fact.",
             "accepted": [
               "claim",
@@ -16255,16 +16354,16 @@ const newUnits: UnitContent[] = [
             "promptUk": "“Experts say it is unsafe,” без даних у статті, — це:",
             "promptEn": "“Experts say it is unsafe,” with no data in the article, is:",
             "options": [
-              "репортаж про думку, не доведений факт статті",
+              "повідомлення про твердження експертів, доказів якого стаття не наводить",
               "беззаперечний науковий факт",
               "завжди False",
               "те саме, що дата релізу"
             ],
             "correctIndex": 0,
-            "explanationUk": "Без доказів це думка, яку автор повідомляє.",
-            "explanationEn": "Without evidence it is an opinion the writer is reporting.",
+            "explanationUk": "Стаття повідомляє твердження експертів, але не наводить даних для його оцінки.",
+            "explanationEn": "The article reports the experts’ claim but supplies no data for the reader to assess it.",
             "optionsEn": [
-              "a report of an opinion, not a proven fact of the article",
+              "a report of the experts’ claim, with no supporting data presented in the article",
               "an unquestionable scientific fact",
               "always False",
               "the same as a release date"
@@ -16334,8 +16433,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Факт можна перевірити, наприклад дату релізу. Думка містить оцінку, як careless або should. Маркери хеджування — might і allegedly. Цитата експерта без даних у статті — це все одно думка, яку автор повідомляє.",
-            "sampleAnswerEn": "A fact can be checked, for example a release date. An opinion contains a judgement, such as careless or should. Hedging markers include might and allegedly. An expert quote without data in the article is still an opinion the writer is reporting."
+            "sampleAnswerUk": "Факт можна перевірити, наприклад дату релізу. Думка містить оцінку, як careless або should. Маркери хеджування — might і allegedly. Цитата експерта може містити перевірюване твердження; якщо стаття не наводить даних, її читач не може оцінити ці докази за текстом.",
+            "sampleAnswerEn": "A fact can be checked, for example a release date. An opinion contains a judgement, such as careless or should. Hedging markers include might and allegedly. An expert quote may contain a testable claim; if the article gives no data, the reader cannot assess that evidence from the text."
           }
         ]
       },
@@ -16351,8 +16450,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Спочатку skim, потім питання, потім точні рядки",
             "promptEn": "Skim first, then the questions, then the exact lines",
-            "bodyUk": "Нижче — короткий текст у стилі іспитового абзацу на тему навчання на роботі. Спочатку продивіться його на загальну ідею (1–2 речення своїми словами). Потім читайте питання і повертайтеся до рядків. Не відповідайте з пам'яті після одного швидкого читання — так легко сплутати similar і same.\n\nPassage: “Many engineering teams now run weekly ‘learning hours’, short sessions where one person explains a tool or a post-mortem. Supporters argue that this is cheaper than external training and that knowledge stays in the team. Critics point out that the same five people tend to speak, and that junior staff may feel too shy to ask questions. A trial in one Lviv company found that attendance stayed high only when sessions were limited to thirty minutes and had a published agenda. The company did not measure whether the sessions improved product quality, which leaves the main claim unproven.”\n\nЗверніть увагу: останнє речення — ключ до fact vs Not Given / unproven. which відноситься до того, що якість не вимірювали.",
-            "bodyEn": "Below is a short text in the style of an exam paragraph, on workplace learning. First skim it for the main idea (one or two sentences in your own words). Then read the questions and go back to the lines. Do not answer from memory after one fast read — it is easy to confuse similar with same.\n\nPassage: “Many engineering teams now run weekly ‘learning hours’, short sessions where one person explains a tool or a post-mortem. Supporters argue that this is cheaper than external training and that knowledge stays in the team. Critics point out that the same five people tend to speak, and that junior staff may feel too shy to ask questions. A trial in one Lviv company found that attendance stayed high only when sessions were limited to thirty minutes and had a published agenda. The company did not measure whether the sessions improved product quality, which leaves the main claim unproven.”\n\nNotice: the last sentence is the key to fact vs Not Given / unproven. which refers to the fact that quality was not measured.",
+            "bodyUk": "Нижче — короткий текст у стилі іспитового абзацу на тему навчання на роботі. Спочатку продивіться його на загальну ідею (1–2 речення своїми словами). Потім читайте питання і повертайтеся до рядків. Не відповідайте з пам'яті після одного швидкого читання — так легко сплутати similar і same.\n\nPassage: “Many engineering teams now run weekly ‘learning hours’, short sessions where one person explains a tool or a post-mortem. Supporters argue that this is cheaper than external training, that knowledge stays in the team, and that the sessions improve product quality. Critics point out that the same five people tend to speak, and that junior staff may feel too shy to ask questions. A trial in one Lviv company found that attendance stayed high only when sessions were limited to thirty minutes and had a published agenda. The company did not measure whether the sessions improved product quality, which leaves the main claim unproven.”\n\nЗверніть увагу: останнє речення — ключ до fact vs Not Given / unproven. which відноситься до того, що якість не вимірювали.",
+            "bodyEn": "Below is a short text in the style of an exam paragraph, on workplace learning. First skim it for the main idea (one or two sentences in your own words). Then read the questions and go back to the lines. Do not answer from memory after one fast read — it is easy to confuse similar with same.\n\nPassage: “Many engineering teams now run weekly ‘learning hours’, short sessions where one person explains a tool or a post-mortem. Supporters argue that this is cheaper than external training, that knowledge stays in the team, and that the sessions improve product quality. Critics point out that the same five people tend to speak, and that junior staff may feel too shy to ask questions. A trial in one Lviv company found that attendance stayed high only when sessions were limited to thirty minutes and had a published agenda. The company did not measure whether the sessions improved product quality, which leaves the main claim unproven.”\n\nNotice: the last sentence is the key to fact vs Not Given / unproven. which refers to the fact that quality was not measured.",
             "keyPointsUk": [
               "Спочатку своя фраза про головну ідею",
               "Питання → рядок у тексті, не пам'ять",
@@ -16371,7 +16470,7 @@ const newUnits: UnitContent[] = [
             "type": "comprehension",
             "promptUk": "Прочитайте текст і дайте відповіді.",
             "promptEn": "Read the passage and answer.",
-            "passage": "Many engineering teams now run weekly “learning hours”, short sessions where one person explains a tool or a post-mortem. Supporters argue that this is cheaper than external training and that knowledge stays in the team. Critics point out that the same five people tend to speak, and that junior staff may feel too shy to ask questions. A trial in one Lviv company found that attendance stayed high only when sessions were limited to thirty minutes and had a published agenda. The company did not measure whether the sessions improved product quality, which leaves the main claim unproven.",
+            "passage": "Many engineering teams now run weekly “learning hours”, short sessions where one person explains a tool or a post-mortem. Supporters argue that this is cheaper than external training, that knowledge stays in the team, and that the sessions improve product quality. Critics point out that the same five people tend to speak, and that junior staff may feel too shy to ask questions. A trial in one Lviv company found that attendance stayed high only when sessions were limited to thirty minutes and had a published agenda. The company did not measure whether the sessions improved product quality, which leaves the main claim unproven.",
             "questions": [
               {
                 "q": "Що, за прихильниками, є перевагою learning hours?",
@@ -16434,8 +16533,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-rd-passage-r3",
             "type": "fill_blank",
-            "promptUk": "Головне твердження залишається ___ (unproven).",
-            "promptEn": "The main claim is left ___ (unproven).",
+            "promptUk": "Яким залишається твердження про покращення якості, якщо його не перевірили? Вставте слово.",
+            "promptEn": "Complete the sentence: the claim about improved quality has not been verified.",
             "sentence": "The main claim is left ___.",
             "accepted": [
               "unproven",
@@ -16533,16 +16632,16 @@ const newUnits: UnitContent[] = [
             "promptUk": "Not Given означає:",
             "promptEn": "Not Given means:",
             "options": [
-              "цього не сказано в тексті",
+              "текст не підтверджує і не спростовує твердження",
               "твердження хибне",
               "твердження істинне",
               "автор точно згоден"
             ],
             "correctIndex": 0,
-            "explanationUk": "Не сказано — не те саме, що False.",
-            "explanationEn": "It is not said — that is not the same as False.",
+            "explanationUk": "Not Given означає недостатність інформації; False — суперечність тексту.",
+            "explanationEn": "Not Given means insufficient information; False means the text contradicts the statement.",
             "optionsEn": [
-              "it is not said in the text",
+              "the text neither confirms nor contradicts the statement",
               "the statement is false",
               "the statement is true",
               "the author definitely agrees"
@@ -16622,8 +16721,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Dear Mr Koval / Hi Olena — і відповідні закінчення",
             "promptEn": "Dear Mr Koval / Hi Olena — and matching closings",
-            "bodyUk": "Реєстр — це рівень офіційності. Formal: Dear Mr Koval, Dear Ms Shevchenko, Dear Sir or Madam (якщо імені немає), I am writing to…, I would be grateful if you could…, Please find attached…, Yours sincerely (ім'я відоме) / Yours faithfully (Dear Sir or Madam). Semi-formal колезі: Dear Olena, Kind regards, Best regards. Informal: Hi Olena, Thanks for…, See you tomorrow, Cheers / Best.\n\nКонтраст: Could you please send… vs Can you send… vs Send me… Контракції (I'm, don't) природні в неформальному листі, у формальному їх часто уникають (I am, do not). Don't jump from Dear Sir or Madam до Cheers. Тема листа (Subject) має бути конкретною: Invoice 184 — payment delay, не Hello.\n\nТипові помилки українських мовців: *Dear friend; *Good day як привітання в листі; *I want that you (I would like you to); *Waiting for your answer як єдине закінчення (I look forward to hearing from you — формальніше). Ім'я в підписі має збігатися з тоном.",
-            "bodyEn": "Register is the level of formality. Formal: Dear Mr Koval, Dear Ms Shevchenko, Dear Sir or Madam (if you have no name), I am writing to…, I would be grateful if you could…, Please find attached…, Yours sincerely (you know the name) / Yours faithfully (Dear Sir or Madam). Semi-formal to a colleague: Dear Olena, Kind regards, Best regards. Informal: Hi Olena, Thanks for…, See you tomorrow, Cheers / Best.\n\nA contrast: Could you please send… vs Can you send… vs Send me… Contractions (I'm, don't) are natural in an informal email; in a formal one they are often avoided (I am, do not). Do not jump from Dear Sir or Madam to Cheers. The subject line should be specific: Invoice 184 — payment delay, not Hello.\n\nTypical mistakes for Ukrainian speakers: *Dear friend; *Good day as an email greeting; *I want that you (I would like you to); *Waiting for your answer as the only closing (I look forward to hearing from you is more formal). The name in the sign-off should match the tone.",
+            "bodyUk": "Реєстр — це рівень офіційності. Formal: Dear Mr Koval, Dear Ms Shevchenko, Dear Sir or Madam (якщо імені немає), I am writing to…, I would be grateful if you could…, Please find attached…, у традиційному британському листуванні Yours sincerely (ім'я відоме) / Yours faithfully (Dear Sir or Madam); в інших країнах та електронних листах уживають інші доречні завершення. Semi-formal колезі: Dear Olena, Kind regards, Best regards. Informal: Hi Olena, Thanks for…, See you tomorrow, Cheers / Best.\n\nКонтраст: Could you please send… vs Can you send… vs Send me… Контракції (I'm, don't) природні в неформальному листі, у формальному їх часто уникають (I am, do not). Don't jump from Dear Sir or Madam до Cheers. Тема листа (Subject) має бути конкретною: Invoice 184 — payment delay, не Hello.\n\nТипові помилки українських мовців: Dear friend і Good day можуть підходити в окремих ситуаціях, але в офіційному листі до невідомого адресата краще назвати посаду чи використати нейтральне привітання; *I want that you (I would like you to); *Waiting for your answer як єдине закінчення (I look forward to hearing from you — формальніше). Ім'я в підписі має збігатися з тоном.",
+            "bodyEn": "Register is the level of formality. Formal: Dear Mr Koval, Dear Ms Shevchenko, Dear Sir or Madam (if you have no name), I am writing to…, I would be grateful if you could…, Please find attached…, in traditional British correspondence Yours sincerely (name known) / Yours faithfully (Dear Sir or Madam); other closings are also used in other countries and emails. Semi-formal to a colleague: Dear Olena, Kind regards, Best regards. Informal: Hi Olena, Thanks for…, See you tomorrow, Cheers / Best.\n\nA contrast: Could you please send… vs Can you send… vs Send me… Contractions (I'm, don't) are natural in an informal email; in a formal one they are often avoided (I am, do not). Do not jump from Dear Sir or Madam to Cheers. The subject line should be specific: Invoice 184 — payment delay, not Hello.\n\nTypical mistakes for Ukrainian speakers: Dear friend and Good day can fit some situations, but in a formal email to an unknown recipient a role or neutral greeting may be more appropriate; *I want that you (I would like you to); *Waiting for your answer as the only closing (I look forward to hearing from you is more formal). The name in the sign-off should match the tone.",
             "keyPointsUk": [
               "Dear Mr Koval + Yours sincerely; Dear Sir or Madam + Yours faithfully",
               "Hi Olena + Best / Cheers — неформально",
@@ -16640,8 +16739,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-wr-register-r1",
             "type": "mcq",
-            "promptUk": "Лист почато Dear Sir or Madam. Яке закінчення правильне?",
-            "promptEn": "The email starts Dear Sir or Madam. Which closing is right?",
+            "promptUk": "У традиційному британському листі після Dear Sir or Madam яке завершення зазвичай обирають?",
+            "promptEn": "In traditional British correspondence, which closing normally pairs with Dear Sir or Madam?",
             "options": [
               "Yours faithfully",
               "Yours sincerely, as the usual pair with Sir or Madam",
@@ -16655,8 +16754,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-wr-register-r2",
             "type": "fill_blank",
-            "promptUk": "Ім'я адресата відоме. Formal closing: Yours ___.",
-            "promptEn": "The addressee's name is known. Formal closing: Yours ___.",
+            "promptUk": "У традиційному британському листі ім’я адресата відоме. Завершіть Yours ___.",
+            "promptEn": "In traditional British correspondence the addressee’s name is known. Complete Yours ___.",
             "sentence": "Yours ___,",
             "accepted": [
               "sincerely",
@@ -16729,8 +16828,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Yours sincerely — коли ім'я відоме, Yours faithfully — після Dear Sir or Madam. Уникайте Dear friend і Good day як привітання в листі. Формальне прохання — I would be grateful if you could або I would like you to, не I want that you.",
-            "sampleAnswerEn": "Yours sincerely is for when you know the name, and Yours faithfully follows Dear Sir or Madam. Avoid Dear friend and Good day as email greetings. A formal request is I would be grateful if you could or I would like you to, not I want that you."
+            "sampleAnswerUk": "У традиційному британському листі Yours sincerely — коли ім’я відоме, Yours faithfully — після Dear Sir or Madam. Dear friend і Good day залежать від контексту; для невідомого адресата оберіть доречне нейтральне привітання. Формальне прохання — I would be grateful if you could або I would like you to, не I want that you.",
+            "sampleAnswerEn": "In traditional British correspondence Yours sincerely is used when the name is known, and Yours faithfully follows Dear Sir or Madam. Dear friend and Good day depend on context; choose an appropriate neutral greeting for an unknown recipient. A formal request is I would be grateful if you could or I would like you to, not I want that you."
           }
         ]
       },
@@ -16746,8 +16845,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Контекст, чітке прохання, строк, вдячність",
             "promptEn": "Context, a clear request, a deadline, thanks",
-            "bodyUk": "Структура прохання: (1) короткий контекст — чому пишете; (2) саме прохання одним ясним реченням; (3) потрібний строк або формат; (4) подяка і готовність уточнити. Could you please send the signed contract by Friday? If you need any extra details, I would be happy to help.\n\nВвічливість без розмитості: ASAP у формальному листі краще замінити на by 15:00 EET on Tuesday. Please could you… і I was wondering if you could… — м'якші. Please send — пряміше, доречне з колегою, з ким уже є робочі стосунки.\n\nТипові помилки: прохання поховане в довгому абзаці; два різні прохання без маркерів (також / second, could you…); *I ask you to (краще Could you / I would like to ask you to); пасивна агресія (As I already mentioned three times…). Один лист — одна головна дія, друге прохання — окремим реченням.",
-            "bodyEn": "The structure of a request: (1) a short context — why you are writing; (2) the request itself in one clear sentence; (3) the deadline or the format you need; (4) thanks and a willingness to clarify. Could you please send the signed contract by Friday? If you need any extra details, I would be happy to help.\n\nPoliteness without vagueness: in a formal email, ASAP is better replaced by by 15:00 EET on Tuesday. Please could you… and I was wondering if you could… are softer. Please send is more direct, and it is fine with a colleague you already work with.\n\nTypical mistakes: burying the request in a long paragraph; two different requests with no markers (also / second, could you…); *I ask you to (prefer Could you / I would like to ask you to); passive aggression (As I already mentioned three times…). One email — one main action; a second request goes in a separate sentence.",
+            "bodyUk": "Структура прохання: (1) короткий контекст — чому пишете; (2) саме прохання одним ясним реченням; (3) потрібний строк або формат; (4) подяка і готовність уточнити. Could you please send the signed contract by Friday? If you need any extra details, I would be happy to help.\n\nВвічливість без розмитості: ASAP у формальному листі краще замінити на by 15:00 EET on Tuesday. Please could you… і I was wondering if you could… — м'якші. Please send — пряміше, доречне з колегою, з ким уже є робочі стосунки.\n\nТипові помилки: прохання поховане в довгому абзаці; два різні прохання без маркерів (також / second, could you…); I ask you to граматично можливе, але в багатьох проханнях Could you / I would like to ask you to звучить м’якше; пасивна агресія (As I already mentioned three times…). Один лист — одна головна дія, друге прохання — окремим реченням.",
+            "bodyEn": "The structure of a request: (1) a short context — why you are writing; (2) the request itself in one clear sentence; (3) the deadline or the format you need; (4) thanks and a willingness to clarify. Could you please send the signed contract by Friday? If you need any extra details, I would be happy to help.\n\nPoliteness without vagueness: in a formal email, ASAP is better replaced by by 15:00 EET on Tuesday. Please could you… and I was wondering if you could… are softer. Please send is more direct, and it is fine with a colleague you already work with.\n\nTypical mistakes: burying the request in a long paragraph; two different requests with no markers (also / second, could you…); I ask you to is grammatical, but Could you / I would like to ask you to is often softer in a request; passive aggression (As I already mentioned three times…). One email — one main action; a second request goes in a separate sentence.",
             "keyPointsUk": [
               "Контекст → чітке прохання → строк → подяка",
               "Замість ASAP — конкретна дата й час",
@@ -16778,14 +16877,13 @@ const newUnits: UnitContent[] = [
           },
           {
             "id": "en-d-wr-request-r2",
-            "type": "fill_blank",
-            "promptUk": "Почніть ввічливе прохання: Could you ___ send… (please).",
-            "promptEn": "Start a polite request: Could you ___ send… (please).",
-            "sentence": "Could you ___ send the contract by Friday?",
-            "accepted": [
-              "please",
-              "Please"
-            ]
+            "type": "mcq",
+            "promptUk": "Яке прохання ввічливе і містить конкретний строк?",
+            "promptEn": "Which request is polite and includes a specific deadline?",
+            "options": ["Could you send the contract by Friday, please?", "Send it whenever.", "Why are you always late?", "Send it immediately!!!!!!!!"],
+            "correctIndex": 0,
+            "explanationUk": "Прохання називає документ і строк та має ввічливу форму.",
+            "explanationEn": "The request names the document and deadline and uses polite wording."
           },
           {
             "id": "en-d-wr-request-r3",
@@ -16876,13 +16974,13 @@ const newUnits: UnitContent[] = [
               "Замовлення і дата → проблема → вплив → конкретна вимога",
               "I am writing to complain about…; There appears to be a mistake",
               "Без образ, ультиматумів і «disaster» у першому реченні",
-              "Завжди вказуйте номер замовлення і бажану дію"
+              "Для скарги на замовлення вкажіть його номер і бажану дію"
             ],
             "keyPointsEn": [
               "Order and date → the problem → the impact → a concrete request",
               "I am writing to complain about…; There appears to be a mistake",
               "No insults, ultimatums or “disaster” in the first sentence",
-              "Always give the order number and the action you want"
+              "For an order complaint, give the order number and the action you want"
             ]
           },
           {
@@ -16909,8 +17007,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-wr-complaint-r2",
             "type": "fill_blank",
-            "promptUk": "Почніть: I am writing to ___ about… (complain).",
-            "promptEn": "Start: I am writing to ___ about… (complain).",
+            "promptUk": "Вставте дієслово: я пишу, щоб поскаржитися на замовлення 184.",
+            "promptEn": "Complete the sentence: I am writing to make a complaint about order 184.",
             "sentence": "I am writing to ___ about order 184.",
             "accepted": [
               "complain",
@@ -17039,8 +17137,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-wr-apology-r2",
             "type": "fill_blank",
-            "promptUk": "Формальне дієслово «вибачатися». Напишіть apologise (або apologize).",
-            "promptEn": "Type apologise.",
+            "promptUk": "Вставте формальне дієслово: я перепрошую за затримку. Приймаються британський та американський варіанти написання.",
+            "promptEn": "Complete the formal apology for a delay. British and American spellings are accepted.",
             "sentence": "I ___ for the delay.",
             "accepted": [
               "apologise",
@@ -17055,14 +17153,14 @@ const newUnits: UnitContent[] = [
             "promptUk": "Оберіть сильніше вибачення.",
             "promptEn": "Choose the stronger apology.",
             "options": [
-              "I apologise for the delay. I have uploaded the correct file, and you should have it by 17:00.",
+              "I apologise for the delay. I have uploaded the correct file and included the link below.",
               "We regret any inconvenience caused.",
               "Sorry, but it was your fault.",
               "I'm sorry you feel that way."
             ],
             "correctIndex": 0,
-            "explanationUk": "Вибачення + факт + конкретна дія і строк.",
-            "explanationEn": "An apology plus the fact plus a concrete action and a time."
+            "explanationUk": "Вибачення називає проблему і конкретну дію для її виправлення.",
+            "explanationEn": "The apology names the problem and a concrete action taken to fix it."
           },
           {
             "id": "en-d-wr-apology-r4",
@@ -17133,8 +17231,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Посилання на попередній лист, короткий повтор прохання, новий строк",
             "promptEn": "A reference to the previous email, a short repeat of the request, a new deadline",
-            "bodyUk": "Follow-up — не докір, а допомога зрушити справу. Структура: (1) Just following up on my email of 4 May about invoice 184; (2) короткий повтор, що потрібно (We still need the signed copy to close the month); (3) зручний шлях відповісти (If it is easier, a scanned photo is fine); (4) м'який строк (Could you let me know by Wednesday?). Gentle reminder / Just circling back — прийнятно, якщо не щогодини.\n\nТон: припускайте добрі наміри (you may have missed this in a busy inbox). Другий follow-up може скопіювати керівника лише за домовленістю або політикою команди, і тоді прозоро: I am copying Inna so we can close this before Friday. Не пишіть As I said FIVE times.\n\nТипові помилки: follow-up через годину; довгий лист, довший за перший; сарказм. Якщо вже відповіли — подякуйте і закрийте цикл (Thanks, received, I will send the receipt today).",
-            "bodyEn": "A follow-up is not a rebuke, it is help to move the matter on. The structure: (1) Just following up on my email of 4 May about invoice 184; (2) a short repeat of what you need (We still need the signed copy to close the month); (3) an easy way to reply (If it is easier, a scanned photo is fine); (4) a gentle deadline (Could you let me know by Wednesday?). Gentle reminder / Just circling back is fine, if not every hour.\n\nTone: assume good intent (you may have missed this in a busy inbox). A second follow-up may copy a manager only if your team agrees, and then openly: I am copying Inna so we can close this before Friday. Do not write As I said FIVE times.\n\nTypical mistakes: a follow-up after one hour; a letter longer than the first; sarcasm. If they have already replied — say thanks and close the loop (Thanks, received, I will send the receipt today).",
+            "bodyUk": "Follow-up — не докір, а допомога зрушити справу. Структура: (1) Just following up on my email of 4 May about invoice 184; (2) короткий повтор, що потрібно (We still need the signed copy to close the month); (3) зручний шлях відповісти (If it is easier, a scanned photo is fine); (4) м'який строк (Could you let me know by Wednesday?). Gentle reminder / Just circling back — прийнятно, якщо не щогодини.\n\nТон: припускайте добрі наміри (you may have missed this in a busy inbox). Другий follow-up може скопіювати керівника лише за домовленістю або політикою команди, і тоді прозоро: I am copying Inna so we can close this before Friday. Не пишіть As I said FIVE times.\n\nТипові помилки: надто часті нагадування без потреби (очікуваний час відповіді залежить від терміновості); довгий лист, довший за перший; сарказм. Якщо вже відповіли — подякуйте і закрийте цикл (Thanks, received, I will send the receipt today).",
+            "bodyEn": "A follow-up is not a rebuke, it is help to move the matter on. The structure: (1) Just following up on my email of 4 May about invoice 184; (2) a short repeat of what you need (We still need the signed copy to close the month); (3) an easy way to reply (If it is easier, a scanned photo is fine); (4) a gentle deadline (Could you let me know by Wednesday?). Gentle reminder / Just circling back is fine, if not every hour.\n\nTone: assume good intent (you may have missed this in a busy inbox). A second follow-up may copy a manager only if your team agrees, and then openly: I am copying Inna so we can close this before Friday. Do not write As I said FIVE times.\n\nTypical mistakes: unnecessary repeated reminders (an appropriate response time depends on urgency); a letter longer than the first; sarcasm. If they have already replied — say thanks and close the loop (Thanks, received, I will send the receipt today).",
             "keyPointsUk": [
               "Following up on my email of [date] about [topic]",
               "Короткий повтор + легкий спосіб відповісти + м'який строк",
@@ -17166,8 +17264,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-wr-followup-r2",
             "type": "fill_blank",
-            "promptUk": "Just ___ up on my email… Напишіть following.",
-            "promptEn": "Type following.",
+            "promptUk": "Вставте слово: я пишу ще раз щодо мого листа від 4 травня.",
+            "promptEn": "Complete the follow-up to an email sent on 4 May.",
             "sentence": "Just ___ up on my email of 4 May.",
             "accepted": [
               "following",
@@ -17271,8 +17369,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-deep-writing-email-exam-q1",
             "type": "mcq",
-            "promptUk": "Dear Sir or Madam потребує:",
-            "promptEn": "Dear Sir or Madam takes:",
+            "promptUk": "Яке завершення традиційно вживають у британському листі після Dear Sir or Madam?",
+            "promptEn": "Which closing traditionally follows Dear Sir or Madam in British correspondence?",
             "options": [
               "Yours faithfully",
               "Yours sincerely, as the usual pair",
@@ -17366,18 +17464,18 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Point, Evidence, Explain, Link",
             "promptEn": "Point, Evidence, Explain, Link",
-            "bodyUk": "PEEL — зручна рамка абзацу в есе. Point — одне твердження в першому реченні (Remote work can improve deep-focus time). Evidence — факт, приклад, коротке дослідження (A 2023 survey in our team found fewer interruptions after noon). Explain — чому це важливо, не повторюючи point тими самими словами (Fewer interruptions mean longer stretches of concentration). Link — місток до питання або наступного абзацу (However, this benefit depends on clear meeting rules).\n\nОдин абзац — одна ідея. 4–6 речень зазвичай досить для B2–C1. Не починайте всі абзаци з I think. Цифра чи короткий приклад сильніші за «багато людей кажуть».\n\nТипові помилки: тільки Point без Evidence; Evidence без Explain (читач сам здогадуйся); три ідеї в одному абзаці; переказ прикладу замість пояснення. У висновку не додавайте нову ідею — стисніть уже сказане.",
-            "bodyEn": "PEEL is a handy paragraph frame for an essay. Point is one claim in the first sentence (Remote work can improve deep-focus time). Evidence is a fact, an example, a short study (A 2023 survey in our team found fewer interruptions after noon). Explain is why that matters, without repeating the point in the same words (Fewer interruptions mean longer stretches of concentration). Link is a bridge to the question or the next paragraph (However, this benefit depends on clear meeting rules).\n\nOne paragraph — one idea. Four to six sentences are usually enough at B2–C1. Do not start every paragraph with I think. A figure or a short example is stronger than “many people say”.\n\nTypical mistakes: only a Point with no Evidence; Evidence with no Explain (the reader has to guess); three ideas in one paragraph; retelling the example instead of explaining it. In the conclusion, do not add a new idea — compress what you have already said.",
+            "bodyUk": "PEEL — зручна рамка абзацу в есе. Point — одне твердження в першому реченні (Remote work can improve deep-focus time). Evidence — доречний факт або приклад із перевіреним джерелом. Навчальний вигаданий приклад: “A team survey found fewer interruptions after noon.” У власному есе не подавайте вигадане опитування як реальне дослідження. Explain — чому це важливо, не повторюючи point тими самими словами (Fewer interruptions mean longer stretches of concentration). Link — місток до питання або наступного абзацу (However, this benefit depends on clear meeting rules).\n\nОдин абзац — одна ідея. Довжина залежить від завдання; чотири–шість речень можуть бути орієнтиром, а не обов’язковим правилом. Не починайте всі абзаци з I think. Цифра чи короткий приклад сильніші за «багато людей кажуть».\n\nТипові помилки: тільки Point без Evidence; Evidence без Explain (читач сам здогадуйся); три ідеї в одному абзаці; переказ прикладу замість пояснення. У висновку не додавайте нову ідею — стисніть уже сказане.",
+            "bodyEn": "PEEL is a handy paragraph frame for an essay. Point is one claim in the first sentence (Remote work can improve deep-focus time). Evidence is a relevant fact or example with a verifiable source. An invented teaching example: “A team survey found fewer interruptions after noon.” Do not present an invented survey as real research in your own essay. Explain is why that matters, without repeating the point in the same words (Fewer interruptions mean longer stretches of concentration). Link is a bridge to the question or the next paragraph (However, this benefit depends on clear meeting rules).\n\nOne paragraph — one idea. Length depends on the task; four to six sentences can be a guide, not a mandatory rule. Do not start every paragraph with I think. A figure or a short example is stronger than “many people say”.\n\nTypical mistakes: only a Point with no Evidence; Evidence with no Explain (the reader has to guess); three ideas in one paragraph; retelling the example instead of explaining it. In the conclusion, do not add a new idea — compress what you have already said.",
             "keyPointsUk": [
               "Point — одна ідея; Evidence — приклад або факт",
               "Explain — навіщо це важливо; Link — місток далі",
-              "Один абзац — одна ідея, 4–6 речень",
+              "Один абзац розвиває одну головну ідею; довжина залежить від завдання",
               "У висновку немає нової ідеї"
             ],
             "keyPointsEn": [
               "Point is one idea; Evidence is an example or a fact",
               "Explain is why it matters; Link is a bridge onward",
-              "One paragraph is one idea, four to six sentences",
+              "A paragraph develops one main idea; its length depends on the task",
               "The conclusion has no new idea"
             ]
           },
@@ -17405,8 +17503,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-wr-paragraph-r2",
             "type": "fill_blank",
-            "promptUk": "Перша літера PEEL — Point. Друга — ___. Напишіть Evidence.",
-            "promptEn": "Type Evidence.",
+            "promptUk": "Який елемент PEEL наводить факт або приклад на підтримку тези?",
+            "promptEn": "Which PEEL element supplies a fact or example supporting the point?",
             "sentence": "P-E-E-L: Point, ___, Explain, Link.",
             "accepted": [
               "Evidence",
@@ -17541,8 +17639,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-wr-opinion-r2",
             "type": "fill_blank",
-            "promptUk": "Мінімум слів IELTS Task 2 — число. Напишіть 250.",
-            "promptEn": "Type 250.",
+            "promptUk": "Скільки слів щонайменше потрібно написати в IELTS Writing Task 2?",
+            "promptEn": "What is the minimum word count for IELTS Writing Task 2?",
             "sentence": "Write at least ___ words.",
             "accepted": [
               "250"
@@ -17637,8 +17735,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Обидві сторони справедливо, потім ваша вага",
             "promptEn": "Both sides fairly, then your own weighting",
-            "bodyUk": "Коли завдання Discuss both views and give your own opinion, треба чесно показати два погляди і лише потім (або коротко у вступі і знову у висновку) свою вагу. Структура: вступ (обидві ідеї + ваша позиція), абзац «за» з сильним аргументом іншої сторони, абзац «проти» або ваша сторона з сильнішим аргументом, висновок. Не перетворюйте чужий погляд на карикатуру — examiner оцінює баланс.\n\nРамки: On the one hand…; Advocates of this view argue that…; On the other hand…; Critics point out that…; While I understand this argument, I would still argue that…. Поступка (While X is true, Y…) підвищує бал за coherence.\n\nТипові помилки: лише своя сторона; «одні кажуть / інші кажуть» без прикладів; неясна власна думка; дзеркальні абзаци однакових порожніх фраз. Сила — у конкретному прикладі для кожної сторони.",
-            "bodyEn": "When the task is Discuss both views and give your own opinion, you have to show two views fairly and only then (or briefly in the introduction and again in the conclusion) your own weighting. The structure: introduction (both ideas + your position), a “for” paragraph with a strong argument for the other side, a “against” or your-side paragraph with a stronger argument, a conclusion. Do not turn the other view into a cartoon — the examiner marks you for balance.\n\nFrames: On the one hand…; Advocates of this view argue that…; On the other hand…; Critics point out that…; While I understand this argument, I would still argue that…. A concession (While X is true, Y…) raises your coherence score.\n\nTypical mistakes: only your own side; “some say / others say” with no examples; an unclear own view; mirror paragraphs of empty phrases. The strength is in a concrete example for each side.",
+            "bodyUk": "Коли завдання Discuss both views and give your own opinion, треба чесно показати два погляди і лише потім (або коротко у вступі і знову у висновку) свою вагу. Структура: вступ (обидві ідеї + ваша позиція), окремий абзац для кожного з двох поглядів із аргументом та прикладом, висновок. Не перетворюйте чужий погляд на карикатуру — examiner оцінює баланс.\n\nРамки: On the one hand…; Advocates of this view argue that…; On the other hand…; Critics point out that…; While I understand this argument, I would still argue that…. Доречна поступка (While X is true, Y…) може прояснити зв’язок між аргументами, але сама фраза не гарантує вищої оцінки.\n\nТипові помилки: лише своя сторона; «одні кажуть / інші кажуть» без прикладів; неясна власна думка; дзеркальні абзаци однакових порожніх фраз. Сила — у конкретному прикладі для кожної сторони.",
+            "bodyEn": "When the task is Discuss both views and give your own opinion, you have to show two views fairly and only then (or briefly in the introduction and again in the conclusion) your own weighting. The structure: introduction (both ideas + your position), a paragraph for each of the two views, with an argument and example for each, a conclusion. Do not turn the other view into a cartoon — the examiner marks you for balance.\n\nFrames: On the one hand…; Advocates of this view argue that…; On the other hand…; Critics point out that…; While I understand this argument, I would still argue that…. A relevant concession (While X is true, Y…) can clarify the relationship between arguments, but the phrase alone does not guarantee a higher score.\n\nTypical mistakes: only your own side; “some say / others say” with no examples; an unclear own view; mirror paragraphs of empty phrases. The strength is in a concrete example for each side.",
             "keyPointsUk": [
               "Discuss both views — обидві сторони + своя думка",
               "On the one hand / On the other hand; While I understand…",
@@ -17757,8 +17855,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "У discussion треба чесно показати обидві сторони і свою думку, а не лише одну позицію. Структура — вступ, абзац за, абзац проти, висновок. Рамки On the one hand і While I understand… I would still argue that допомагають зробити поступку і зберегти свою вагу.",
-            "sampleAnswerEn": "In a discussion you have to show both sides fairly and your own view, not only one position. The structure is an introduction, a for paragraph, an against paragraph and a conclusion. Frames such as On the one hand and While I understand… I would still argue that help you make a concession and keep your weighting."
+            "sampleAnswerUk": "У discussion треба чесно показати обидві сторони і свою думку, а не лише одну позицію. Один можливий план — вступ, абзац для кожного погляду і висновок. Рамки On the one hand і While I understand… I would still argue that допомагають зробити поступку і зберегти свою вагу.",
+            "sampleAnswerEn": "In a discussion you have to show both sides fairly and your own view, not only one position. One possible structure is an introduction, a paragraph for each view, and a conclusion. Frames such as On the one hand and While I understand… I would still argue that help you make a concession and keep your weighting."
           }
         ]
       },
@@ -17774,8 +17872,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Reduced a query from 4 s to 400 ms, не Responsible for queries",
             "promptEn": "Reduced a query from 4 s to 400 ms, not Responsible for queries",
-            "bodyUk": "CV (брит.) / résumé (амер.) читають швидко. Структура: ім'я і контакти; короткий profile (3–4 рядки під ціль вакансії, не життєпис); досвід від новішого до старішого; освіта; skills / tools; за потреби languages, projects. Кожен пункт досвіду — дієслово дії в минулому (або теперішньому, якщо це поточна роль) + що зробили + результат, бажано вимірюваний: Reduced API latency from 4 s to 400 ms by adding a cache. Не: Responsible for the API. Не: Helped with various tasks.\n\nКорисні дієслова: built, shipped, designed, led, mentored, automated, reduced, improved, negotiated, documented, migrated. Підганяйте CV під вакансію: ті самі ключові слова, чесно. Обсяг часто 1–2 сторінки.\n\nТипові помилки: фото і дата народження там, де це не прийнято (у багатьох англомовних країнах цього не просять); I, my в кожному рядку (краще без займенника: Led a team of four); брехня про стек; стіна тексту без куль. Cover letter — окремий наступний урок, не копія CV.",
-            "bodyEn": "A CV (BrE) / résumé (AmE) is read fast. The structure: name and contacts; a short profile (three or four lines aimed at the vacancy, not a life story); experience from newest to oldest; education; skills / tools; and if useful, languages and projects. Each experience bullet is an action verb in the past (or the present, if this is the current role) + what you did + a result, preferably measurable: Reduced API latency from 4 s to 400 ms by adding a cache. Not: Responsible for the API. Not: Helped with various tasks.\n\nUseful verbs: built, shipped, designed, led, mentored, automated, reduced, improved, negotiated, documented, migrated. Tailor the CV to the vacancy: the same keywords, honestly. The length is often one or two pages.\n\nTypical mistakes: a photo and a date of birth where that is not expected (in many English-speaking countries they are not asked for); I and my in every line (better with no pronoun: Led a team of four); lying about the stack; a wall of text with no bullets. The cover letter is the next lesson, not a copy of the CV.",
+            "bodyUk": "CV (брит.) / résumé (амер.) читають швидко. Структура: ім'я і контакти; короткий profile (3–4 рядки під ціль вакансії, не життєпис); досвід від новішого до старішого; освіта; skills / tools; за потреби languages, projects. Кожен пункт досвіду — дієслово дії в минулому (або теперішньому, якщо це поточна роль) + що зробили + результат, бажано вимірюваний і підтверджуваний: Reduced API latency from 4 s to 400 ms by adding a cache. Не: Responsible for the API. Не: Helped with various tasks.\n\nКорисні дієслова: built, shipped, designed, led, mentored, automated, reduced, improved, negotiated, documented, migrated. Підганяйте CV під вакансію: ті самі ключові слова, чесно. Обсяг часто 1–2 сторінки.\n\nТипові помилки: фото і дата народження там, де це не прийнято (у багатьох англомовних країнах цього не просять); I, my в кожному рядку (краще без займенника: Led a team of four); брехня про стек; стіна тексту без куль. Cover letter — окремий наступний урок, не копія CV.",
+            "bodyEn": "A CV (BrE) / résumé (AmE) is read fast. The structure: name and contacts; a short profile (three or four lines aimed at the vacancy, not a life story); experience from newest to oldest; education; skills / tools; and if useful, languages and projects. Each experience bullet is an action verb in the past (or the present, if this is the current role) + what you did + a result, preferably measurable and verifiable: Reduced API latency from 4 s to 400 ms by adding a cache. Not: Responsible for the API. Not: Helped with various tasks.\n\nUseful verbs: built, shipped, designed, led, mentored, automated, reduced, improved, negotiated, documented, migrated. Tailor the CV to the vacancy: the same keywords, honestly. The length is often one or two pages.\n\nTypical mistakes: a photo and a date of birth where that is not expected (in many English-speaking countries they are not asked for); I and my in every line (better with no pronoun: Led a team of four); lying about the stack; a wall of text with no bullets. The cover letter is the next lesson, not a copy of the CV.",
             "keyPointsUk": [
               "Дієслово дії + що зробили + вимірний результат",
               "Не Responsible for… і не Helped with various tasks",
@@ -17807,12 +17905,16 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-wr-cv-r2",
             "type": "fill_blank",
-            "promptUk": "Дієслово «скоротив». Напишіть Reduced (з великої, як на початку рядка).",
-            "promptEn": "Type Reduced.",
+            "promptUk": "Вставте дієслово минулого часу: скоротив час запиту з 4 с до 400 мс.",
+            "promptEn": "Complete the CV bullet with a past-tense verb meaning made smaller.",
             "sentence": "___ query time from 4 s to 400 ms.",
             "accepted": [
               "Reduced",
-              "reduced"
+              "reduced",
+              "Lowered",
+              "lowered",
+              "Cut",
+              "cut"
             ]
           },
           {
@@ -17904,16 +18006,16 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Чому ця роль, чому ви, конкретний доказ, заклик до розмови",
             "promptEn": "Why this role, why you, a concrete proof, a call to a conversation",
-            "bodyUk": "Cover letter не переказує CV. Три короткі абзаци часто досить: (1) на яку роль і звідки ви про неї дізнались, одна фраза-гачок; (2) два конкретні докази, що ви підходите (проект, результат, спільна цінність компанії — не «я командний гравець» без прикладу); (3) готовність поговорити і подяка. I am writing to apply for the Junior Backend role advertised on your site. In my last role I reduced… I would welcome the chance to discuss this.\n\nТон semi-formal: Dear Hiring Manager, якщо імені немає; Kind regards. 3/4 сторінки максимум. Підганяйте кожен лист: згадайте продукт чи принцип компанії, не як лестощі, а як зв'язок із вашим досвідом.\n\nТипові помилки: «Я хочу розвиватися в вашій компанії» як єдина мотивація (що ви даєте їм?); копія CV; *Dear friend; стіна з 800 слів; вклали CV і в листі нічого конкретного. Closing: I look forward to hearing from you — прийнятно, якщо не єдине змістовне речення.",
-            "bodyEn": "A cover letter does not retell the CV. Three short paragraphs are often enough: (1) which role and how you heard about it, plus one hook sentence; (2) two concrete proofs that you fit (a project, a result, a value you share with the company — not “I am a team player” with no example); (3) a willingness to talk and a thank-you. I am writing to apply for the Junior Backend role advertised on your site. In my last role I reduced… I would welcome the chance to discuss this.\n\nThe tone is semi-formal: Dear Hiring Manager, if you have no name; Kind regards. Three-quarters of a page at most. Tailor every letter: mention a product or a principle of the company, not as flattery, but as a link to your experience.\n\nTypical mistakes: “I want to grow in your company” as the only motivation (what do you give them?); a copy of the CV; *Dear friend; a wall of 800 words; attaching a CV and saying nothing concrete in the letter. A closing: I look forward to hearing from you is fine, if it is not the only sentence with content.",
+            "bodyUk": "Cover letter не переказує CV. Три короткі абзаци часто досить: (1) на яку роль і звідки ви про неї дізнались, одна фраза-гачок; (2) конкретні приклади того, як ваш досвід відповідає ролі (проект, результат, спільна цінність компанії — не «я командний гравець» без прикладу); (3) готовність поговорити і подяка. I am writing to apply for the Junior Backend role advertised on your site. In my last role I reduced… I would welcome the chance to discuss this.\n\nТон semi-formal: Dear Hiring Manager, якщо імені немає; Kind regards. Зазвичай достатньо короткого листа; дотримуйтеся вимог вакансії щодо обсягу. Підганяйте кожен лист: згадайте продукт чи принцип компанії, не як лестощі, а як зв'язок із вашим досвідом.\n\nТипові помилки: «Я хочу розвиватися в вашій компанії» як єдина мотивація (що ви даєте їм?); копія CV; надто загальне привітання, яке не відповідає адресату; стіна з 800 слів; вклали CV і в листі нічого конкретного. Closing: I look forward to hearing from you — прийнятно, якщо не єдине змістовне речення.",
+            "bodyEn": "A cover letter does not retell the CV. Three short paragraphs are often enough: (1) which role and how you heard about it, plus one hook sentence; (2) concrete examples showing how your experience fits the role (a project, a result, a value you share with the company — not “I am a team player” with no example); (3) a willingness to talk and a thank-you. I am writing to apply for the Junior Backend role advertised on your site. In my last role I reduced… I would welcome the chance to discuss this.\n\nThe tone is semi-formal: Dear Hiring Manager, if you have no name; Kind regards. A concise letter is usually sufficient; follow any length requirements in the vacancy. Tailor every letter: mention a product or a principle of the company, not as flattery, but as a link to your experience.\n\nTypical mistakes: “I want to grow in your company” as the only motivation (what do you give them?); a copy of the CV; an overly generic greeting that does not fit the recipient; a wall of 800 words; attaching a CV and saying nothing concrete in the letter. A closing: I look forward to hearing from you is fine, if it is not the only sentence with content.",
             "keyPointsUk": [
-              "Не переказ CV: роль, два докази, заклик до розмови",
+              "Не переказ CV: роль, доречні приклади, готовність до розмови",
               "I am writing to apply for…; I would welcome the chance to discuss",
               "Dear Hiring Manager, якщо імені немає; Kind regards",
               "Конкретний зв'язок із компанією, не загальне «хочу розвиватися»"
             ],
             "keyPointsEn": [
-              "Not a retelling of the CV: the role, two proofs, a call to talk",
+              "Not a retelling of the CV: the role, relevant examples and willingness to talk",
               "I am writing to apply for…; I would welcome the chance to discuss",
               "Dear Hiring Manager if you have no name; Kind regards",
               "A concrete link to the company, not a vague “I want to grow”"
@@ -17925,7 +18027,7 @@ const newUnits: UnitContent[] = [
             "promptUk": "Супровідний лист має:",
             "promptEn": "A cover letter should:",
             "options": [
-              "додати два конкретні докази під цю роль, не копіювати CV",
+              "додати конкретні приклади під цю роль, не копіювати CV",
               "повністю повторити CV",
               "початися з Dear friend",
               "мати 800 слів без абзаців"
@@ -17934,7 +18036,7 @@ const newUnits: UnitContent[] = [
             "explanationUk": "Лист доповнює CV конкретним «чому ви і чому вони».",
             "explanationEn": "The letter complements the CV with a concrete “why you and why them”.",
             "optionsEn": [
-              "add two concrete proofs for this role, not copy the CV",
+              "add concrete examples relevant to the role, not copy the CV",
               "repeat the CV in full",
               "start with Dear friend",
               "be 800 words with no paragraphs"
@@ -17943,8 +18045,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-wr-cover-r2",
             "type": "fill_blank",
-            "promptUk": "I am writing to ___ for the Junior Backend role. Напишіть apply.",
-            "promptEn": "Type apply.",
+            "promptUk": "Вставте дієслово: я пишу, щоб подати заявку на посаду Junior Backend.",
+            "promptEn": "Complete the sentence: I am writing to submit an application for the Junior Backend role.",
             "sentence": "I am writing to ___ for the Junior Backend role.",
             "accepted": [
               "apply",
@@ -18032,8 +18134,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Cover letter не переказує CV, а пояснює, чому саме ця роль і ви, з двома конкретними доказами. Структура: роль і гачок, докази, запрошення до розмови. Єдине «хочу розвиватися» слабке, бо не каже, що ви даєте команді.",
-            "sampleAnswerEn": "A cover letter does not retell the CV; it explains why this role and why you, with two concrete proofs. The structure is the role and a hook, the proofs, and an invitation to talk. “I want to grow” alone is weak, because it does not say what you give the team."
+            "sampleAnswerUk": "Cover letter не переказує CV, а пояснює, чому саме ця роль і ви, з конкретними прикладами. Структура: роль і гачок, докази, запрошення до розмови. Єдине «хочу розвиватися» слабке, бо не каже, що ви даєте команді.",
+            "sampleAnswerEn": "A cover letter does not retell the CV; it explains why this role and why you, with concrete examples. The structure is the role and a hook, the proofs, and an invitation to talk. “I want to grow” alone is weak, because it does not say what you give the team."
           }
         ]
       },
@@ -18149,19 +18251,19 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Situation, problem, action, result, reflection",
             "promptEn": "Situation, problem, action, result, reflection",
-            "bodyUk": "Коротка історія на іспиті (IELTS Speaking Part 2) і на співбесіді тримається на рамці: Situation — де і коли; Problem / Task — що треба було зробити; Action — що зробили ви (не «ми якось»); Result — чим закінчилося, бажано вимірювано; Reflection — чому ви навчилися. Це близький родич STAR (Situation, Task, Action, Result).\n\nКорисні маркери часу: At first, Then, After that, In the end, Looking back. Тривалість 1–2 хвилини: не роман, не одне речення. Практикуйте вголос із таймером: хвилина на підготовку, дві на мовлення, як у Part 2.\n\nТипові помилки: загубитися в деталях інтер'єру; забути результат; говорити лише we, коли питають про ваш внесок; зупинитися через 15 секунд. Якщо забули слово — поясніть іншими (paraphrase), не мовчіть. SpeakButton у вправах допоможе почути модельну вимову підказок.",
-            "bodyEn": "A short story in an exam (IELTS Speaking Part 2) and in a job interview rests on a frame: Situation — where and when; Problem / Task — what had to be done; Action — what you did (not a vague “we somehow”); Result — how it ended, preferably measurable; Reflection — what you learned. This is a close relative of STAR (Situation, Task, Action, Result).\n\nUseful time markers: At first, Then, After that, In the end, Looking back. The length is one to two minutes: not a novel, not one sentence. Practise out loud with a timer: one minute to prepare, two to speak, as in Part 2.\n\nTypical mistakes: getting lost in interior details; forgetting the result; saying only we when they asked about your contribution; stopping after fifteen seconds. If you forget a word — explain it in other words (paraphrase), do not go silent. The SpeakButton in the exercises will help you hear model pronunciation of the prompts.",
+            "bodyUk": "Коротка історія на іспиті (IELTS Speaking Part 2) і на співбесіді тримається на рамці: Situation — де і коли; Problem / Task — що треба було зробити; Action — що зробили ви (не «ми якось»); Result — чим закінчилося, бажано вимірювано; Reflection — чому ви навчилися. Це близький родич STAR (Situation, Task, Action, Result).\n\nКорисні маркери часу: At first, Then, After that, In the end, Looking back. Тривалість 1–2 хвилини: не роман, не одне речення. Практикуйте вголос із таймером: хвилина на підготовку, дві на мовлення, як у Part 2.\n\nТипові помилки: загубитися в деталях інтер'єру; забути результат; говорити лише we, коли питають про ваш внесок; зупинитися через 15 секунд. Якщо забули слово — поясніть іншими (paraphrase), не мовчіть. Практикуйте переказ уголос і звертайте увагу на послідовність подій.",
+            "bodyEn": "A short story in an exam (IELTS Speaking Part 2) and in a job interview rests on a frame: Situation — where and when; Problem / Task — what had to be done; Action — what you did (not a vague “we somehow”); Result — how it ended, preferably measurable; Reflection — what you learned. This is a close relative of STAR (Situation, Task, Action, Result).\n\nUseful time markers: At first, Then, After that, In the end, Looking back. The length is one to two minutes: not a novel, not one sentence. Practise out loud with a timer: one minute to prepare, two to speak, as in Part 2.\n\nTypical mistakes: getting lost in interior details; forgetting the result; saying only we when they asked about your contribution; stopping after fifteen seconds. If you forget a word — explain it in other words (paraphrase), do not go silent. Practise retelling the story aloud and pay attention to the sequence of events.",
             "keyPointsUk": [
               "Situation → Task → Action → Result → Reflection (STAR+)",
               "At first, Then, In the end, Looking back",
               "1–2 хвилини; ваш внесок, не лише we",
-              "Забули слово — paraphrase, не пауза"
+              "Забули слово — зробіть коротку паузу або перефразуйте думку"
             ],
             "keyPointsEn": [
               "Situation → Task → Action → Result → Reflection (STAR+)",
               "At first, Then, In the end, Looking back",
               "One to two minutes; your contribution, not only we",
-              "If you forget a word — paraphrase, do not pause in silence"
+              "If you forget a word, pause briefly or paraphrase the idea"
             ]
           },
           {
@@ -18182,8 +18284,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-sp-story-r2",
             "type": "fill_blank",
-            "promptUk": "Останній крок після Result у розширеній рамці — ___. Напишіть Reflection.",
-            "promptEn": "Type Reflection.",
+            "promptUk": "Який додатковий крок після Result пояснює, чого ви навчилися?",
+            "promptEn": "Which additional step after Result explains what you learned?",
             "sentence": "Situation, Task, Action, Result, ___.",
             "accepted": [
               "Reflection",
@@ -18202,8 +18304,8 @@ const newUnits: UnitContent[] = [
               "перейдіть українською без потреби"
             ],
             "correctIndex": 0,
-            "explanationUk": "Paraphrase оцінюють позитивно.",
-            "explanationEn": "Paraphrase is marked positively.",
+            "explanationUk": "Перефразування допомагає висловити думку, навіть якщо конкретне слово забулося.",
+            "explanationEn": "Paraphrasing helps you express the idea even when you cannot recall a word.",
             "optionsEn": [
               "explain it in other words (paraphrase)",
               "go silent for a minute",
@@ -18281,18 +18383,18 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Гачок, три пункти, закриття, пауза",
             "promptEn": "A hook, three points, a close, a pause",
-            "bodyUk": "Шістдесят секунд — це не «прочитати слайд». План: гачок (одне речення, чому це важливо зараз); три пункти, кожен по одному реченню + приклад; закриття з закликом або питанням. Today I want to share how we cut our build time in half. First… Second… Finally… If you want the details, I can walk you through the pipeline after this.\n\nГолос: трохи повільніше, ніж у розмові; пауза після гачка і між пунктами; наголос на ключових словах (урок про sentence stress). Не вибачайтеся за англійську на старті (Sorry for my English) — це краде час і впевненість. Якщо є слайд, не читайте його дослівно.\n\nТипові помилки: хвилина вступу «отже, е-е»; десять пунктів; закінчити «ну ось»; говорити в підлогу. Запишіть себе на телефон: чи чути first / second / finally? Чи є одна ясна ідея?",
-            "bodyEn": "Sixty seconds is not “reading a slide”. The plan: a hook (one sentence on why this matters now); three points, each one sentence plus an example; a close with a call or a question. Today I want to share how we cut our build time in half. First… Second… Finally… If you want the details, I can walk you through the pipeline after this.\n\nVoice: a little slower than in conversation; a pause after the hook and between points; stress on the key words (the lesson on sentence stress). Do not apologise for your English at the start (Sorry for my English) — that steals time and confidence. If there is a slide, do not read it word for word.\n\nTypical mistakes: a minute of “so, uh” as an introduction; ten points; ending with “well, that’s it”; talking into the floor. Record yourself on your phone: can you hear first / second / finally? Is there one clear idea?",
+            "bodyUk": "Шістдесят секунд — це не «прочитати слайд». План: гачок (одне речення, чому це важливо зараз); три пункти, кожен по одному реченню + приклад; закриття з закликом або питанням. Today I want to share how we cut our build time in half. First… Second… Finally… If you want the details, I can walk you through the pipeline after this.\n\nГолос: трохи повільніше, ніж у розмові; пауза після гачка і між пунктами; наголос на ключових словах (урок про sentence stress). Не обов’язково починати з вибачення за англійську: можна одразу перейти до змісту або за потреби попросити співрозмовників говорити повільніше. Якщо є слайд, не читайте його дослівно.\n\nТипові помилки: хвилина вступу «отже, е-е»; десять пунктів; закінчити «ну ось»; говорити в підлогу. Запишіть себе на телефон: чи чути first / second / finally? Чи є одна ясна ідея?",
+            "bodyEn": "Sixty seconds is not “reading a slide”. The plan: a hook (one sentence on why this matters now); three points, each one sentence plus an example; a close with a call or a question. Today I want to share how we cut our build time in half. First… Second… Finally… If you want the details, I can walk you through the pipeline after this.\n\nVoice: a little slower than in conversation; a pause after the hook and between points; stress on the key words (the lesson on sentence stress). You do not have to apologise for your English at the start: you can begin with the content or ask listeners to speak more slowly if needed. If there is a slide, do not read it word for word.\n\nTypical mistakes: a minute of “so, uh” as an introduction; ten points; ending with “well, that’s it”; talking into the floor. Record yourself on your phone: can you hear first / second / finally? Is there one clear idea?",
             "keyPointsUk": [
               "Гачок → First / Second / Finally → закриття з питанням",
               "Трохи повільніше, паузи, наголос на ключових словах",
-              "Не Sorry for my English на старті",
+              "Почніть зі змісту; за потреби попросіть про підтримку",
               "Одна ідея, три пункти, не десять"
             ],
             "keyPointsEn": [
               "A hook → First / Second / Finally → a close with a question",
               "A little slower, pauses, stress on the key words",
-              "No Sorry for my English at the start",
+              "Start with the content; ask for support if needed",
               "One idea, three points, not ten"
             ]
           },
@@ -18320,12 +18422,14 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-sp-present-r2",
             "type": "fill_blank",
-            "promptUk": "Second… ___. Напишіть Finally (третій маркер).",
-            "promptEn": "Type Finally.",
+            "promptUk": "Вставте маркер, який вводить останній пункт переліку.",
+            "promptEn": "Insert a marker introducing the final point in the sequence.",
             "sentence": "First… Second… ___.",
             "accepted": [
               "Finally",
-              "finally"
+              "finally",
+              "Lastly",
+              "lastly"
             ]
           },
           {
@@ -18334,7 +18438,7 @@ const newUnits: UnitContent[] = [
             "promptUk": "Sorry for my English на початку презентації:",
             "promptEn": "Sorry for my English at the start of a presentation:",
             "options": [
-              "краде час і впевненість, краще почати з ідеї",
+              "не обов’язкове; можна одразу почати з ідеї",
               "обов'язкове в усіх англомовних зустрічах",
               "підвищує бал IELTS завжди",
               "замінює гачок"
@@ -18343,7 +18447,7 @@ const newUnits: UnitContent[] = [
             "explanationUk": "Почніть із змісту, не з вибачення.",
             "explanationEn": "Start with the content, not with an apology.",
             "optionsEn": [
-              "steals time and confidence; it is better to start with the idea",
+              "is not required; you can start with the idea",
               "is required in every English-language meeting",
               "always raises an IELTS score",
               "replaces the hook"
@@ -18407,8 +18511,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "План — гачок, три пункти First, Second, Finally і закриття з питанням. Говоріть трохи повільніше, з паузами і наголосом на ключових словах. Вибачення за англійську на старті краде час і впевненість, тому починають з ідеї.",
-            "sampleAnswerEn": "The plan is a hook, three points First, Second, Finally, and a close with a question. Speak a little slower, with pauses and stress on the key words. An apology for your English at the start steals time and confidence, so you start with the idea."
+            "sampleAnswerUk": "План — гачок, три пункти First, Second, Finally і закриття з питанням. Говоріть трохи повільніше, з паузами і наголосом на ключових словах. Вибачатися за англійську не обов’язково: можна одразу почати з ідеї або попросити про підтримку.",
+            "sampleAnswerEn": "The plan is a hook, three points First, Second, Finally, and a close with a question. Speak a little slower, with pauses and stress on the key words. An apology for your English is not required: you can start with the idea or ask for support."
           }
         ]
       },
@@ -18424,8 +18528,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "I see your point, but…; I'm not sure I agree; That may be true for X",
             "promptEn": "I see your point, but…; I'm not sure I agree; That may be true for X",
-            "bodyUk": "Пряме I disagree звучить жорстко в багатьох командах. М'якші формули: I see your point, but I look at it differently. I'm not sure I agree with that, because…. That may be true for the old API, but the new one behaves differently. Wouldn't it be better if we…? I might be wrong, but…. Хеджування (perhaps, it seems, a little, in some cases) зберігає обличчя співрозмовника.\n\nСильна незгода теж потрібна, коли ставка висока: I have to disagree here — this would break the SLA. Тоді підстава йде одразу. Не посміхайтеся і кажіть yes, якщо маєте на увазі no: англійське That's interesting не завжди = згода.\n\nТипові помилки українських мовців: занадто різке No; або навпаки повна згода з ввічливості, а потім тихий саботаж. Підсумок зустрічі: So, just to check, we are agreeing to… — щоб м'яка незгода не загубилася.",
-            "bodyEn": "A bare I disagree sounds harsh in many teams. Softer formulas: I see your point, but I look at it differently. I'm not sure I agree with that, because…. That may be true for the old API, but the new one behaves differently. Wouldn't it be better if we…? I might be wrong, but…. Hedging (perhaps, it seems, a little, in some cases) protects the other person's face.\n\nStrong disagreement is still needed when the stakes are high: I have to disagree here — this would break the SLA. Then the reason follows at once. Do not smile and say yes if you mean no: English That's interesting does not always mean agreement.\n\nTypical mistakes for Ukrainian speakers: a too sharp No; or, the opposite, full agreement out of politeness and then quiet sabotage. A meeting summary: So, just to check, we are agreeing to… — so that a soft disagreement is not lost.",
+            "bodyUk": "Пряме I disagree звучить жорстко в багатьох командах. М'якші формули: I see your point, but I look at it differently. I'm not sure I agree with that, because…. That may be true for the old API, but the new one behaves differently. Wouldn't it be better if we…? I might be wrong, but…. Хеджування (perhaps, it seems, a little, in some cases) зберігає обличчя співрозмовника.\n\nСильна незгода теж потрібна, коли ставка висока: I have to disagree here — this would break the SLA. Тоді підстава йде одразу. Не кажіть yes, якщо маєте на увазі no: англійське That's interesting не завжди = згода.\n\nМожливі труднощі: надто різке No або згода з ввічливості, коли насправді залишилися заперечення. Підсумок зустрічі: So, just to check, we are agreeing to… — щоб м'яка незгода не загубилася.",
+            "bodyEn": "A bare I disagree sounds harsh in many teams. Softer formulas: I see your point, but I look at it differently. I'm not sure I agree with that, because…. That may be true for the old API, but the new one behaves differently. Wouldn't it be better if we…? I might be wrong, but…. Hedging (perhaps, it seems, a little, in some cases) protects the other person's face.\n\nStrong disagreement is still needed when the stakes are high: I have to disagree here — this would break the SLA. Then the reason follows at once. Do not say yes if you mean no: English That's interesting does not always mean agreement.\n\nPossible difficulties include a very abrupt No or agreeing out of politeness when concerns remain. A meeting summary: So, just to check, we are agreeing to… — so that a soft disagreement is not lost.",
             "keyPointsUk": [
               "I see your point, but…; I'm not sure I agree, because…",
               "That may be true for X, but Y; Wouldn't it be better if…",
@@ -18463,8 +18567,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-sp-hedge-r2",
             "type": "fill_blank",
-            "promptUk": "I'm not sure I ___ with that. Напишіть agree.",
-            "promptEn": "Type agree.",
+            "promptUk": "Вставте дієслово, щоб ввічливо висловити незгоду.",
+            "promptEn": "Complete the phrase to express disagreement politely.",
             "sentence": "I'm not sure I ___ with that, because the SLA would break.",
             "accepted": [
               "agree",
@@ -18559,18 +18663,18 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Tell me about yourself — не біографія з дитсадка",
             "promptEn": "Tell me about yourself is not a biography from kindergarten",
-            "bodyUk": "Tell me about yourself — 60–90 секунд: теперішня роль, релевантний результат, чому ця вакансія. Tell me about a conflict — STAR, без пліток: проблема, що зробили ви, чим закінчилося, чого навчилися. What's your weakness? — справжня робоча слабкість + що ви вже робите (I used to over-explain in PRs; I now write a three-line summary first), не «я перфекціоніст» як прихована похвала.\n\nWhy should we hire you? — два докази з CV + зв'язок із їхнім продуктом, як у cover letter. Do you have questions for us? — завжди так: про команду, про успіх на випробувальному, про наступний крок. Зарплата: I am looking for a range of X–Y, depending on the total package — після того, як зрозуміли роль, якщо можете.\n\nТипові помилки: говорити 8 хвилин без паузи; погано про попереднього роботодавця; немає питань у кінці; зубріння тексту, який звучить як робот. Практикуйте вголос, не лише письмово.",
-            "bodyEn": "Tell me about yourself is 60–90 seconds: your current role, a relevant result, why this vacancy. Tell me about a conflict is STAR, with no gossip: the problem, what you did, how it ended, what you learned. What's your weakness? is a real work weakness plus what you are already doing (I used to over-explain in PRs; I now write a three-line summary first), not “I am a perfectionist” as hidden praise.\n\nWhy should we hire you? is two proofs from the CV plus a link to their product, as in a cover letter. Do you have questions for us? is always yes: about the team, about success in the trial period, about the next step. Salary: I am looking for a range of X–Y, depending on the total package — after you understand the role, if you can.\n\nTypical mistakes: talking for eight minutes with no pause; speaking badly of a previous employer; no questions at the end; memorising a text that sounds like a robot. Practise out loud, not only in writing.",
+            "bodyUk": "Tell me about yourself — 60–90 секунд: теперішня роль, релевантний результат, чому ця вакансія. Tell me about a conflict — STAR, без пліток: проблема, що зробили ви, чим закінчилося, чого навчилися. What's your weakness? — справжня робоча слабкість + що ви вже робите (I used to over-explain in PRs; I now write a three-line summary first), не «я перфекціоніст» як прихована похвала.\n\nWhy should we hire you? — два докази з CV + зв'язок із їхнім продуктом, як у cover letter. Do you have questions for us? — можна запитати про команду, очікування від ролі чи наступний крок; якщо все вже зрозуміло, чесно скажіть про це. Зарплата: I am looking for a range of X–Y, depending on the total package — після того, як зрозуміли роль, якщо можете.\n\nТипові помилки: говорити 8 хвилин без паузи; погано про попереднього роботодавця; немає питань у кінці; зубріння тексту, який звучить як робот. Практикуйте вголос, не лише письмово.",
+            "bodyEn": "Tell me about yourself is 60–90 seconds: your current role, a relevant result, why this vacancy. Tell me about a conflict is STAR, with no gossip: the problem, what you did, how it ended, what you learned. What's your weakness? is a real work weakness plus what you are already doing (I used to over-explain in PRs; I now write a three-line summary first), not “I am a perfectionist” as hidden praise.\n\nWhy should we hire you? is two proofs from the CV plus a link to their product, as in a cover letter. Do you have questions for us? You can ask about the team, expectations for the role or next steps; if everything is already clear, say so honestly. Salary: I am looking for a range of X–Y, depending on the total package — after you understand the role, if you can.\n\nTypical mistakes: talking for eight minutes with no pause; speaking badly of a previous employer; no questions at the end; memorising a text that sounds like a robot. Practise out loud, not only in writing.",
             "keyPointsUk": [
               "Tell me about yourself: роль, результат, чому ця вакансія",
               "Conflict — STAR без пліток; weakness — справжня + що вже робите",
-              "Завжди майте питання до них",
+              "Підготуйте питання до них, якщо вони допоможуть оцінити роль",
               "Не ганьбити попереднього роботодавця"
             ],
             "keyPointsEn": [
               "Tell me about yourself: the role, a result, why this vacancy",
               "Conflict is STAR with no gossip; a weakness is real + what you already do",
-              "Always have questions for them",
+              "Prepare questions if they will help you evaluate the role",
               "Do not speak badly of a previous employer"
             ]
           },
@@ -18598,8 +18702,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-sp-interview-r2",
             "type": "fill_blank",
-            "promptUk": "Конфлікт розповідають за рамкою ___. Напишіть STAR.",
-            "promptEn": "Type STAR.",
+            "promptUk": "Як називається рамка Situation, Task, Action, Result для розповіді про досвід?",
+            "promptEn": "What is the name of the Situation, Task, Action, Result framework?",
             "sentence": "Tell a conflict story with the ___ frame.",
             "accepted": [
               "STAR",
@@ -18729,8 +18833,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-sp-speculate-r2",
             "type": "fill_blank",
-            "promptUk": "It looks ___ if the server is down. Напишіть as.",
-            "promptEn": "Type as.",
+            "promptUk": "Вставте частку в конструкції «схоже, що сервер недоступний».",
+            "promptEn": "Complete the expression meaning that the server appears to be down.",
             "sentence": "It looks ___ if the server is down.",
             "accepted": [
               "as",
@@ -18844,7 +18948,7 @@ const newUnits: UnitContent[] = [
             "promptUk": "60-секундну презентацію краще почати з:",
             "promptEn": "A 60-second presentation is better started with:",
             "options": [
-              "гачка і ідеї, не з Sorry for my English",
+              "короткої вступної ідеї, яка пояснює тему",
               "вибачення за мову",
               "десяти пунктів одразу",
               "читання слайда дослівно як єдиний метод"
@@ -18853,7 +18957,7 @@ const newUnits: UnitContent[] = [
             "explanationUk": "Спочатку зміст.",
             "explanationEn": "Content first.",
             "optionsEn": [
-              "a hook and the idea, not Sorry for my English",
+              "a brief opening idea that explains the topic",
               "an apology for your language",
               "ten points at once",
               "reading the slide word for word as the only method"
@@ -18927,8 +19031,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "If we add X, we need to drop Y or move the date",
             "promptEn": "If we add X, we need to drop Y or move the date",
-            "bodyUk": "Переговори про scope — це не «так усім». Рамка: повторіть запит (So you would like a CSV export in this sprint); назвіть обмеження (We have three days and two engineers); запропонуйте варіанти (We can ship a basic export now and filters in the next sprint; or we move the deadline). If we add X, we'll need to drop Y or move the date — класичний trade-off.\n\nКорисні фрази: What's the must-have versus the nice-to-have? Can we descope…? That's doable if…; I can't commit to that date without looking at the backlog. Let's take this offline — коли зустріч застрягла. Підсумок письмово: As agreed, we will…\n\nТипові помилки: мовчазне «так» і зрив через тиждень; ні без варіанта; жаргон без пояснення для нетехнічного стейкхолдера. Не обіцяйте best effort як дату. Цей урок поглиблює tech-english, не повторює базові stand-up фрази.",
-            "bodyEn": "Negotiating scope is not “yes to everyone”. The frame: restate the request (So you would like a CSV export in this sprint); name the constraint (We have three days and two engineers); offer options (We can ship a basic export now and filters in the next sprint; or we move the deadline). If we add X, we'll need to drop Y or move the date is the classic trade-off.\n\nUseful phrases: What's the must-have versus the nice-to-have? Can we descope…? That's doable if…; I can't commit to that date without looking at the backlog. Let's take this offline — when the meeting is stuck. A written summary: As agreed, we will…\n\nTypical mistakes: a silent “yes” and a miss a week later; a no with no option; jargon with no explanation for a non-technical stakeholder. Do not promise best effort as a date. This lesson goes deeper than tech-english; it does not repeat basic stand-up phrases.",
+            "bodyUk": "Переговори про scope — це не «так усім». Рамка: повторіть запит (So you would like a CSV export in this sprint); назвіть обмеження (We have three days and two engineers); запропонуйте варіанти (We can ship a basic export now and filters in the next sprint; or we move the deadline). За цих обмежень можна запропонувати: If we add X, we'll need to drop Y or move the date. В інших ситуаціях можливі додаткові ресурси чи менший обсяг.\n\nКорисні фрази: What's the must-have versus the nice-to-have? Can we descope…? That's doable if…; I can't commit to that date without looking at the backlog. Let's take this offline — коли зустріч застрягла. Підсумок письмово: As agreed, we will…\n\nТипові помилки: мовчазне «так» і зрив через тиждень; ні без варіанта; жаргон без пояснення для нетехнічного стейкхолдера. Не обіцяйте best effort як дату. Цей урок поглиблює tech-english, не повторює базові stand-up фрази.",
+            "bodyEn": "Negotiating scope is not “yes to everyone”. The frame: restate the request (So you would like a CSV export in this sprint); name the constraint (We have three days and two engineers); offer options (We can ship a basic export now and filters in the next sprint; or we move the deadline). Under these constraints you might say: If we add X, we'll need to drop Y or move the date. Other situations may allow more resources or a smaller scope.\n\nUseful phrases: What's the must-have versus the nice-to-have? Can we descope…? That's doable if…; I can't commit to that date without looking at the backlog. Let's take this offline — when the meeting is stuck. A written summary: As agreed, we will…\n\nTypical mistakes: a silent “yes” and a miss a week later; a no with no option; jargon with no explanation for a non-technical stakeholder. Do not promise best effort as a date. This lesson goes deeper than tech-english; it does not repeat basic stand-up phrases.",
             "keyPointsUk": [
               "Повтор запиту → обмеження → варіанти (X, або Y, або дата)",
               "must-have vs nice-to-have; That's doable if…",
@@ -18945,8 +19049,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-biz-negotiate-r1",
             "type": "mcq",
-            "promptUk": "Класичний trade-off:",
-            "promptEn": "The classic trade-off:",
+            "promptUk": "За умови фіксованих ресурсів, коли додатковий обсяг не вміщується в строк, який компроміс можна запропонувати?",
+            "promptEn": "With fixed resources and insufficient time for the added work, which trade-off could you propose?",
             "options": [
               "If we add X, we'll need to drop Y or move the date.",
               "Yes to everything, with no date change.",
@@ -18954,8 +19058,8 @@ const newUnits: UnitContent[] = [
               "Best effort as a fixed Friday deadline."
             ],
             "correctIndex": 0,
-            "explanationUk": "Додати X — зняти Y або зрушити дату.",
-            "explanationEn": "Adding X means dropping Y or moving the date."
+            "explanationUk": "За описаних обмежень можна прибрати Y або змінити дату; інші обставини допускають інші варіанти.",
+            "explanationEn": "Under these constraints, removing Y or moving the date are possible options; other circumstances may permit alternatives."
           },
           {
             "id": "en-d-biz-negotiate-r2",
@@ -19056,7 +19160,7 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Status, risk, ask — без стіни жаргону",
             "promptEn": "Status, risk, ask — without a wall of jargon",
-            "bodyUk": "Стейкхолдер часто не хоче лог комітів. Рамка статусу: Green / amber / red (або On track / At risk / Off track); що зроблено з останнього разу; що далі; ризики і що ви вже робите; одне чітке ask (We need a decision on X by Thursday). We are on track to ship on 20 May. One risk: the vendor API is slow; we are testing a cache and will confirm on Wednesday. Ask: please approve the copy.\n\nМова: менше We refactored the orchestrator, більше Users can now export a report in one click, unless аудиторія — інженери. RAG-статус (червоний) потребує причини і плану, не лише слова red.\n\nТипові помилки: приховати ризик до п'ятниці; десять asks; статус без дати. Письмовий weekly може бути шість рядків. Цей формат працює і в Slack, і в листі.",
+            "bodyUk": "Стейкхолдер часто не хоче лог комітів. Рамка статусу: Green / amber / red (або On track / At risk / Off track); що зроблено з останнього разу; що далі; ризики і що ви вже робите; одне чітке ask (We need a decision on X by Thursday). We are on track to ship on 20 May. One risk: the vendor API is slow; we are testing a cache and will confirm on Wednesday. Ask: please approve the copy.\n\nМова: менше We refactored the orchestrator, більше Users can now export a report in one click; для інженерної аудиторії технічні подробиці теж можуть бути корисними. RAG-статус (червоний) потребує причини і плану, не лише слова red.\n\nТипові помилки: приховати ризик до п'ятниці; десять asks; статус без дати. Письмовий weekly може бути шість рядків. Цей формат працює і в Slack, і в листі.",
             "bodyEn": "A stakeholder often does not want a commit log. The status frame: Green / amber / red (or On track / At risk / Off track); what was done since last time; what is next; risks and what you are already doing; one clear ask (We need a decision on X by Thursday). We are on track to ship on 20 May. One risk: the vendor API is slow; we are testing a cache and will confirm on Wednesday. Ask: please approve the copy.\n\nLanguage: less We refactored the orchestrator, more Users can now export a report in one click, unless the audience is engineers. A RAG status of red needs a reason and a plan, not only the word red.\n\nTypical mistakes: hiding a risk until Friday; ten asks; a status with no date. A written weekly can be six lines. This format works in Slack and in email.",
             "keyPointsUk": [
               "On track / At risk / Off track + дата",
@@ -19095,8 +19199,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-biz-stakeholder-r2",
             "type": "fill_blank",
-            "promptUk": "We are on ___ to ship on 20 May. Напишіть track.",
-            "promptEn": "Type track.",
+            "promptUk": "Вставте слово: проєкт іде за планом і має вийти 20 травня.",
+            "promptEn": "Complete the status: the project is progressing as planned for a 20 May release.",
             "sentence": "We are on ___ to ship on 20 May.",
             "accepted": [
               "track",
@@ -19196,13 +19300,13 @@ const newUnits: UnitContent[] = [
             "bodyEn": "During an incident the language is short and honest. An external message: We are aware of an issue affecting login. Users may see a 500 error. We are investigating and will post the next update by 14:30 EET. Do not blame a vendor in public in the first minute. Do not promise resolved until you are sure. A workaround, if there is one: Logging in via SSO still works.\n\nAn internal channel: severity, impact (how many users), timeline, owner, next check. We are mitigating; a rollback is in progress. After the incident — a post-mortem without a hunt for someone to blame: What happened, customer impact, root cause, what went well, action items with owners and dates.\n\nTypical mistakes: silence; “everything is fine” when it is not; jargon with no impact; a post-mortem as a trial. Words: outage, degraded, mitigated, resolved, RCA (root cause analysis).",
             "keyPointsUk": [
               "What we know → what we're doing → next update at [time]",
-              "Не resolved, доки не впевнені; назвіть workaround",
+              "Не resolved, доки не впевнені; назвіть перевірений workaround, якщо він є",
               "Post-mortem: root cause і action items, не винний",
               "outage, degraded, mitigated, rollback"
             ],
             "keyPointsEn": [
               "What we know → what we're doing → next update at [time]",
-              "Not resolved until you are sure; name a workaround",
+              "Not resolved until you are sure; name a verified workaround if one exists",
               "A post-mortem: root cause and action items, not a guilty party",
               "outage, degraded, mitigated, rollback"
             ]
@@ -19231,8 +19335,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-biz-incident-r2",
             "type": "fill_blank",
-            "promptUk": "A ___ is in progress (відкат). Напишіть rollback.",
-            "promptEn": "Type rollback.",
+            "promptUk": "Вставте слово: відкат зміни триває.",
+            "promptEn": "Complete the sentence: the team is reversing a change.",
             "sentence": "A ___ is in progress.",
             "accepted": [
               "rollback",
@@ -19267,10 +19371,10 @@ const newUnits: UnitContent[] = [
             "promptEn": "Translate.",
             "source": "Ми розслідуємо проблему і дамо наступне оновлення до 14:30.",
             "accepted": [
-              "We are investigating and will post the next update by 14:30",
-              "We are investigating and will post the next update by 14:30.",
-              "We are investigating and will give the next update by 14:30",
-              "We're investigating and will post the next update by 14:30"
+              "We are investigating the issue and will post the next update by 14:30",
+              "We are investigating the issue and will post the next update by 14:30.",
+              "We are investigating the problem and will give the next update by 14:30",
+              "We're investigating the issue and will post the next update by 14:30"
             ],
             "direction": "uk_en"
           },
@@ -19366,8 +19470,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-biz-interview-r2",
             "type": "fill_blank",
-            "promptUk": "One ___ would be… (вузьке місце). Напишіть bottleneck.",
-            "promptEn": "Type bottleneck.",
+            "promptUk": "Вставте термін для обмеження, яке може сповільнити систему.",
+            "promptEn": "Complete the sentence with the term for a constraint that can limit system performance.",
             "sentence": "One ___ would be the database writes.",
             "accepted": [
               "bottleneck",
@@ -19381,7 +19485,7 @@ const newUnits: UnitContent[] = [
             "promptEn": "If you do not know the technology:",
             "options": [
               "чесно сказати і показати, з чого почнете",
-              "вигадать досвід",
+              "вигадати досвід",
               "замовкнути",
               "образити інтерв'юера"
             ],
@@ -19464,19 +19568,19 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Yesterday, today, a blocker — і ретро без звинувачень",
             "promptEn": "Yesterday, today, a blocker — and a retro without blame",
-            "bodyUk": "Stand-up: Yesterday I finished the invoice export. Today I'll review the PR and start filters. I have a blocker: I'm waiting on access to staging. Не звіт за тиждень і не демо коду. Якщо блокера немає — I have no blockers. Parking lot — тему відкласти після стендапу.\n\nПланування: estimate, story points, capacity, spike (дослідження з лімітом часу), definition of ready / of done. I would size this as a five; the unknown is the vendor API — maybe a spike first. Ретроспектива: What went well? What should we change? I liked that we…; Next time I would…; Let's try a WIP limit of two. Без імен у негативі: The hand-off was late, не Inna ruined it.\n\nТипові помилки: стендап як нарада на 40 хвилин; ретро як суд; «блокера немає» коли вже три дні чекаєте доступ. Цей урок розширює вже відомі stand-up фрази з tech-english до оцінки, spike і ретро.",
-            "bodyEn": "A stand-up: Yesterday I finished the invoice export. Today I'll review the PR and start filters. I have a blocker: I'm waiting on access to staging. It is not a weekly report and not a demo of the code. If there is no blocker — I have no blockers. A parking lot is a topic to leave until after the stand-up.\n\nPlanning: estimate, story points, capacity, a spike (research with a time limit), a definition of ready / of done. I would size this as a five; the unknown is the vendor API — maybe a spike first. A retrospective: What went well? What should we change? I liked that we…; Next time I would…; Let's try a WIP limit of two. No names in the negative: The hand-off was late, not Inna ruined it.\n\nTypical mistakes: a stand-up as a 40-minute meeting; a retro as a trial; “no blockers” when you have already been waiting three days for access. This lesson extends the stand-up phrases you already know from tech-english into estimates, spikes and the retro.",
+            "bodyUk": "Stand-up: Yesterday I finished the invoice export. Today I'll review the PR and start filters. I have a blocker: I'm waiting on access to staging. Не звіт за тиждень і не демо коду. Якщо блокера немає — I have no blockers. Parking lot — список тем, які відкладають для подальшого обговорення; домовтеся, хто і коли повернеться до них.\n\nПланування: estimate, story points, capacity, spike (дослідження з лімітом часу), definition of ready / of done. I would size this as a five; the unknown is the vendor API — maybe a spike first. Ретроспектива: What went well? What should we change? I liked that we…; Next time I would…; Let's try a WIP limit of two. Без імен у негативі: The hand-off was late, не Inna ruined it.\n\nТипові помилки: стендап як нарада на 40 хвилин; ретро як суд; «блокера немає» коли вже три дні чекаєте доступ. Цей урок розширює вже відомі stand-up фрази з tech-english до оцінки, spike і ретро.",
+            "bodyEn": "A stand-up: Yesterday I finished the invoice export. Today I'll review the PR and start filters. I have a blocker: I'm waiting on access to staging. It is not a weekly report and not a demo of the code. If there is no blocker — I have no blockers. A parking lot is a list of topics deferred for later discussion; agree who will return to each one and when.\n\nPlanning: estimate, story points, capacity, a spike (research with a time limit), a definition of ready / of done. I would size this as a five; the unknown is the vendor API — maybe a spike first. A retrospective: What went well? What should we change? I liked that we…; Next time I would…; Let's try a WIP limit of two. No names in the negative: The hand-off was late, not Inna ruined it.\n\nTypical mistakes: a stand-up as a 40-minute meeting; a retro as a trial; “no blockers” when you have already been waiting three days for access. This lesson extends the stand-up phrases you already know from tech-english into estimates, spikes and the retro.",
             "keyPointsUk": [
               "Yesterday / Today / Blocker — коротко",
               "estimate, spike, definition of done, capacity",
               "Ретро: what went well / change; без імен у негативі",
-              "Parking lot — не зараз, після стендапу"
+              "Parking lot — відкладена тема з домовленістю про подальший розгляд"
             ],
             "keyPointsEn": [
               "Yesterday / Today / Blocker — briefly",
               "estimate, spike, definition of done, capacity",
               "A retro: what went well / change; no names in the negative",
-              "A parking lot is not now, it is after the stand-up"
+              "A parking lot records a deferred topic and its follow-up"
             ]
           },
           {
@@ -19503,8 +19607,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-biz-agile-r2",
             "type": "fill_blank",
-            "promptUk": "Коротке дослідження з лімітом часу називається ___. Напишіть spike.",
-            "promptEn": "Type spike.",
+            "promptUk": "Вставте термін для обмеженого в часі дослідження перед оцінюванням задачі.",
+            "promptEn": "Complete the sentence with the term for a time-boxed investigation before estimating.",
             "sentence": "Maybe a ___ first, before we estimate.",
             "accepted": [
               "spike",
@@ -19520,7 +19624,7 @@ const newUnits: UnitContent[] = [
               "The hand-off was late. Next time I would add a checklist.",
               "Inna ruined it.",
               "Нічого не казати про проблеми.",
-              "Перетворити ретро на оцінку story points."
+              "Оцінювати людину за кількістю story points."
             ],
             "optionsEn": [
               "The hand-off was late. Next time I would add a checklist.",
@@ -19584,8 +19688,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "На стендапі кажуть, що було вчора, що сьогодні і чи є блокер. Spike — коротке дослідження з лімітом часу, перш ніж оцінювати. На ретро говорять про факти й наступні дії, наприклад The hand-off was late, без персональних звинувачень.",
-            "sampleAnswerEn": "At a stand-up you say what happened yesterday, what is happening today and whether there is a blocker. A spike is short research with a time limit, before you estimate. At a retro you talk about facts and next actions, for example The hand-off was late, without personal blame."
+            "sampleAnswerUk": "На стендапі кажуть, що було вчора, що сьогодні і чи є блокер. Spike — обмежене в часі дослідження, яке може допомогти уточнити оцінку або зняти невизначеність. На ретро говорять про факти й наступні дії, наприклад The hand-off was late, без персональних звинувачень.",
+            "sampleAnswerEn": "At a stand-up you say what happened yesterday, what is happening today and whether there is a blocker. A spike is time-boxed research that can inform an estimate or reduce uncertainty. At a retro you talk about facts and next actions, for example The hand-off was late, without personal blame."
           }
         ]
       },
@@ -19601,8 +19705,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-deep-business-it-exam-q1",
             "type": "mcq",
-            "promptUk": "Trade-off обсягу:",
-            "promptEn": "A scope trade-off:",
+            "promptUk": "Який компроміс можна запропонувати, якщо ресурсів на додатковий обсяг у строк не вистачає?",
+            "promptEn": "Which trade-off could you propose if resources cannot cover the extra scope by the deadline?",
             "options": [
               "If we add X, we'll need to drop Y or move the date.",
               "Yes to everything.",
@@ -19663,8 +19767,8 @@ const newUnits: UnitContent[] = [
             "options": [
               "Yesterday, today, a blocker",
               "Inna ruined it як стандартний формат",
-              "сорокахвилинне демо коду як норма",
-              "оцінка всіх епіків заново"
+              "тридцятихвилинне демо коду як норма",
+              "казати, що блокерів немає, коли вони є"
             ],
             "optionsEn": [
               "Yesterday, today, a blocker",
@@ -19747,8 +19851,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-ex-t1-r2",
             "type": "fill_blank",
-            "promptUk": "Мінімум слів Task 1. Напишіть 150.",
-            "promptEn": "Type 150.",
+            "promptUk": "Який мінімальний обсяг у словах для IELTS Writing Task 1?",
+            "promptEn": "What is the minimum word count for IELTS Writing Task 1?",
             "sentence": "Write at least ___ words.",
             "accepted": [
               "150"
@@ -19852,8 +19956,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "40 хвилин, 250 слів, теза, абзаци PEEL, перевірка",
             "promptEn": "40 minutes, 250 words, a thesis, PEEL paragraphs, a check",
-            "bodyUk": "Task 2 важить більше за Task 1. Час: близько 40 хвилин, з них 5 на план і 3–5 на перевірку. Прочитайте питання двічі і визначте тип: opinion, discussion, problem–solution, two-part (дві прямі відповіді). План на папері: теза, дві ідеї з прикладами. Пишіть простою точною мовою; одна-дві доречні ідіоми максимум (урок про реєстр ідіом).\n\nКритерії: Task Response (відповідь на всі частини), Coherence (абзаци і зв'язки), Lexical Resource, Grammatical Range and Accuracy. Підвищують бал: чітка теза, конкретний приклад, поступка, різноманітність речень. Знижують: memorised introductions, недолік слів, пропуск частини питання, off-topic.\n\nТипові помилки: почати писати без плану і вийти за час; підмінити discussion на чисту opinion; не перевірити артиклі та узгодження. У перевірці шукайте три речі: чи відповідь на питання повна, чи є помилки в перших реченнях абзаців, чи вистачає слів.",
-            "bodyEn": "Task 2 weighs more than Task 1. Time: about 40 minutes, including five for a plan and three to five for a check. Read the question twice and identify the type: opinion, discussion, problem–solution, two-part (two direct answers). A paper plan: a thesis, two ideas with examples. Write in simple exact language; one or two fitting idioms at most (the lesson on idiom register).\n\nThe criteria: Task Response (answering every part), Coherence (paragraphs and links), Lexical Resource, Grammatical Range and Accuracy. What raises the score: a clear thesis, a concrete example, a concession, sentence variety. What lowers it: memorised introductions, too few words, skipping part of the question, going off-topic.\n\nTypical mistakes: starting to write with no plan and running out of time; replacing a discussion with a pure opinion; not checking articles and agreement. In the check, look for three things: is the answer complete, are there errors in the first sentences of paragraphs, is there enough word count.",
+            "bodyUk": "Task 2 важить більше за Task 1. Час: близько 40 хвилин, з них 5 на план і 3–5 на перевірку. Прочитайте питання двічі і визначте тип: opinion, discussion, problem–solution, two-part (дві прямі відповіді). План на папері: теза, дві ідеї з прикладами. Пишіть простою точною мовою; добирайте лексику відповідно до стилю і завдання (урок про реєстр ідіом).\n\nКритерії: Task Response (відповідь на всі частини), Coherence (абзаци і зв'язки), Lexical Resource, Grammatical Range and Accuracy. Ясна позиція, доречні приклади та різноманітні речення можуть допомогти за критеріями; жодна окрема фраза чи поступка не гарантує бал. Знижують: memorised introductions, недолік слів, пропуск частини питання, off-topic.\n\nТипові помилки: почати писати без плану і вийти за час; підмінити discussion на чисту opinion; не перевірити артиклі та узгодження. У перевірці шукайте три речі: чи відповідь на питання повна, чи є помилки в перших реченнях абзаців, чи вистачає слів.",
+            "bodyEn": "Task 2 weighs more than Task 1. Time: about 40 minutes, including five for a plan and three to five for a check. Read the question twice and identify the type: opinion, discussion, problem–solution, two-part (two direct answers). A paper plan: a thesis, two ideas with examples. Write in simple exact language; choose vocabulary appropriate to the register and task (see the lesson on idiom register).\n\nThe criteria: Task Response (answering every part), Coherence (paragraphs and links), Lexical Resource, Grammatical Range and Accuracy. A clear position, relevant examples and sentence variety can support the assessment criteria; no individual phrase or concession guarantees a score. What lowers it: memorised introductions, too few words, skipping part of the question, going off-topic.\n\nTypical mistakes: starting to write with no plan and running out of time; replacing a discussion with a pure opinion; not checking articles and agreement. In the check, look for three things: is the answer complete, are there errors in the first sentences of paragraphs, is there enough word count.",
             "keyPointsUk": [
               "≈40 хвилин: план, текст, перевірка; 250+ слів",
               "Спочатку визначте тип питання",
@@ -19891,8 +19995,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-ex-t2-r2",
             "type": "fill_blank",
-            "promptUk": "Мінімум слів Task 2. Напишіть 250.",
-            "promptEn": "Type 250.",
+            "promptUk": "Який мінімальний обсяг у словах для IELTS Writing Task 2?",
+            "promptEn": "What is the minimum word count for IELTS Writing Task 2?",
             "sentence": "Task 2: at least ___ words.",
             "accepted": [
               "250"
@@ -19972,8 +20076,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Близько 40 хвилин ділять на план, написання і перевірку, щонайменше 250 слів. Спочатку визначають тип: opinion, discussion, problem–solution або two-part. Бал знижують memorised openings, пропуск частини питання і відхід від теми.",
-            "sampleAnswerEn": "About 40 minutes are divided into a plan, writing and a check, at least 250 words. First you identify the type: opinion, discussion, problem–solution or two-part. Memorised openings, skipping part of the question and going off-topic lower the score."
+            "sampleAnswerUk": "Близько 40 хвилин ділять на план, написання і перевірку, щонайменше 250 слів. Спочатку визначають тип: opinion, discussion, problem–solution або two-part. Критерії охоплюють Task Response, Coherence and Cohesion, Lexical Resource і Grammatical Range and Accuracy. Пропуск частини питання та відхід від теми погіршують відповідь.",
+            "sampleAnswerEn": "About 40 minutes are divided into a plan, writing and a check, at least 250 words. First you identify the type: opinion, discussion, problem–solution or two-part. The criteria cover Task Response, Coherence and Cohesion, Lexical Resource, and Grammatical Range and Accuracy. Skipping part of the question or going off-topic weakens the response."
           }
         ]
       },
@@ -19989,8 +20093,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Короткі відповіді, довгий монолог, обговорення ідей",
             "promptEn": "Short answers, a long turn, a discussion of ideas",
-            "bodyUk": "Part 1 (4–5 хв) — знайомі теми: дім, робота, звички. Відповідь: 2–4 речення, не так / ні. Part 2 (3–4 хв) — картка, 1 хвилина на нотатки, 1–2 хвилини мовлення; рамка історії зі Speaking unit. Part 3 (4–5 хв) — абстрактніші питання: причини, порівняння, майбутнє. Тут працюють It depends, припущення might, порівняння In the past… nowadays.\n\nСтратегія: розширювати відповідь причиною або коротким прикладом; якщо не зрозуміли — Sorry, could you repeat that? / Do you mean…? Це не знижує бал. Fluency важливіша за складне слово з довгою паузою. Не вчіть відповіді напам'ять цілими абзацами — examiner чує зубріння.\n\nТипові помилки: однослівні відповіді в Part 1; 20 секунд у Part 2; у Part 3 відповіді як у Part 1, без ідеї. Посмішка і темп допомагають fluency; якщо помилилися — коротко виправте і рухайтеся далі.",
-            "bodyEn": "Part 1 (4–5 min) is familiar topics: home, work, habits. The answer is two to four sentences, not yes / no. Part 2 (3–4 min) is a cue card, one minute for notes, one to two minutes of speech; the story frame from the Speaking unit. Part 3 (4–5 min) is more abstract: reasons, comparisons, the future. This is where It depends, might-speculation and In the past… nowadays work.\n\nA strategy: extend the answer with a reason or a short example; if you did not understand — Sorry, could you repeat that? / Do you mean…? That does not lower the score. Fluency matters more than a difficult word after a long pause. Do not memorise answers as whole paragraphs — the examiner can hear cramming.\n\nTypical mistakes: one-word answers in Part 1; twenty seconds in Part 2; in Part 3, answers as in Part 1, with no idea. A smile and a steady pace help fluency; if you make a mistake — correct it briefly and move on.",
+            "bodyUk": "Part 1 (4–5 хв) — знайомі теми: дім, робота, звички. Відповідь: 2–4 речення, не так / ні. Part 2 (3–4 хв) — картка, 1 хвилина на нотатки, 1–2 хвилини мовлення; рамка історії зі Speaking unit. Part 3 (4–5 хв) — абстрактніші питання: причини, порівняння, майбутнє. Тут працюють It depends, припущення might, порівняння In the past… nowadays.\n\nСтратегія: розширювати відповідь причиною або коротким прикладом; якщо не зрозуміли — Sorry, could you repeat that? / Do you mean…? Попросіть повторити запитання, якщо не зрозуміли, а потім дайте змістовну відповідь. Fluency важливіша за складне слово з довгою паузою. Не вчіть відповіді напам'ять цілими абзацами — examiner чує зубріння.\n\nТипові помилки: однослівні відповіді в Part 1; 20 секунд у Part 2; у Part 3 відповіді як у Part 1, без ідеї. Зручний темп і паузи можуть допомогти говорити зрозуміло; якщо помилилися — коротко виправте і рухайтеся далі.",
+            "bodyEn": "Part 1 (4–5 min) is familiar topics: home, work, habits. The answer is two to four sentences, not yes / no. Part 2 (3–4 min) is a cue card, one minute for notes, one to two minutes of speech; the story frame from the Speaking unit. Part 3 (4–5 min) is more abstract: reasons, comparisons, the future. This is where It depends, might-speculation and In the past… nowadays work.\n\nA strategy: extend the answer with a reason or a short example; if you did not understand — Sorry, could you repeat that? / Do you mean…? Ask for a repetition when needed, then give a substantive answer. Fluency matters more than a difficult word after a long pause. Do not memorise answers as whole paragraphs — the examiner can hear cramming.\n\nTypical mistakes: one-word answers in Part 1; twenty seconds in Part 2; in Part 3, answers as in Part 1, with no idea. A comfortable pace and pauses can help you speak clearly; if you make a mistake — correct it briefly and move on.",
             "keyPointsUk": [
               "Part 1: 2–4 речення, не так/ні",
               "Part 2: 1 хв нотатки, 1–2 хв монолог (STAR)",
@@ -20044,7 +20148,7 @@ const newUnits: UnitContent[] = [
             "promptUk": "Якщо не зрозуміли питання:",
             "promptEn": "If you did not understand the question:",
             "options": [
-              "можна сказати Could you repeat that? — бал за це не знімають",
+              "можна попросити повторити запитання, а потім відповісти",
               "треба мовчати",
               "треба відповісти навмання одним словом",
               "іспит одразу закінчується"
@@ -20053,7 +20157,7 @@ const newUnits: UnitContent[] = [
             "explanationUk": "Перепитати дозволено і розумно.",
             "explanationEn": "Asking again is allowed and wise.",
             "optionsEn": [
-              "you can say Could you repeat that? — they do not mark you down for that",
+              "you can ask the examiner to repeat the question, then answer",
               "you must stay silent",
               "you must answer at random with one word",
               "the exam ends at once"
@@ -20113,8 +20217,8 @@ const newUnits: UnitContent[] = [
             ],
             "minWords": 12,
             "passRatio": 0.6,
-            "sampleAnswerUk": "Part 1 потребує коротких розгорнутих відповідей, Part 2 — хвилину нотаток і монолог на 1–2 хвилини, Part 3 — ідеї, порівняння і It depends. Перепитати Could you repeat that можна, і за це бал не знижують.",
-            "sampleAnswerEn": "Part 1 needs short extended answers, Part 2 needs a minute of notes and a one-to-two-minute monologue, and Part 3 needs ideas, comparisons and It depends. You may ask Could you repeat that, and they do not lower the score for that."
+            "sampleAnswerUk": "Part 1 потребує коротких розгорнутих відповідей, Part 2 — хвилину нотаток і монолог на 1–2 хвилини, Part 3 — ідеї, порівняння і It depends. Якщо питання незрозуміле, можна попросити Could you repeat that?",
+            "sampleAnswerEn": "Part 1 needs short extended answers, Part 2 needs a minute of notes and a one-to-two-minute monologue, and Part 3 needs ideas, comparisons and It depends. If you do not understand, you may ask Could you repeat that?"
           }
         ]
       },
@@ -20130,18 +20234,18 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "2–5 слів, ключове слово без змін, той самий зміст",
             "promptEn": "2–5 words, the key word unchanged, the same meaning",
-            "bodyUk": "У B2 First (FCE) Use of English 4 ви маєте завершити друге речення так, щоб зміст був як у першому, використавши дане ключове слово і від 2 до 5 слів, саме слово не змінюючи. Приклад: I last saw her in 2019. SEEN → I have not SEEN her since 2019. Тут працюють граматичні сім'ї цього курсу: reported speech, passives, conditionals, wish, comparatives, phrasals, too/enough, so/such, have/get something done.\n\nСтратегія: визначте, яку конструкцію хочуть (наприклад, since + Present Perfect); порахуйте слова (скорочення I'm = два слова в цій вправі часто рахують як два: I + 'm — перевірте поточну інструкцію екзамену; historically contractions count as two). Не змінюйте KEY.\n\nТипові помилки: шість слів; змінений ключ (SEENіng); змінений зміст (never замість since); орфографія. Тренуйте пари: despite / although; not as … as; would rather; there is no point in + -ing.",
-            "bodyEn": "In B2 First (FCE) Use of English 4 you complete the second sentence so that the meaning is like the first, using the given key word and between two and five words, without changing the word itself. Example: I last saw her in 2019. SEEN → I have not SEEN her since 2019. The grammar families from this course work here: reported speech, passives, conditionals, wish, comparatives, phrasals, too/enough, so/such, have/get something done.\n\nA strategy: identify the structure they want (for example, since + Present Perfect); count the words (a contraction such as I'm is often two words in this task — I + 'm — check the current exam instructions; historically contractions count as two). Do not change the KEY.\n\nTypical mistakes: six words; a changed key (SEENing); a changed meaning (never instead of since); spelling. Practise pairs: despite / although; not as … as; would rather; there is no point in + -ing.",
+            "bodyUk": "У B2 First (FCE) Use of English 4 ви маєте завершити друге речення так, щоб зміст був як у першому, використавши дане ключове слово і від 2 до 5 слів, саме слово не змінюючи. Приклад: I last saw her in 2019. SEEN → I ___ 2019. У пропуску: have not SEEN her since (п’ять слів, включно з SEEN). Тут працюють граматичні сім'ї цього курсу: reported speech, passives, conditionals, wish, comparatives, phrasals, too/enough, so/such, have/get something done.\n\nСтратегія: визначте, яку конструкцію хочуть (наприклад, since + Present Perfect); порахуйте слова (скорочення I'm = два слова в цій вправі часто рахують як два: I + 'm — перевірте поточну інструкцію екзамену; historically contractions count as two). Не змінюйте KEY.\n\nТипові помилки: шість слів; змінений ключ (SEENіng); змінений зміст (never замість since); орфографія. Тренуйте пари: despite / although; not as … as; would rather; there is no point in + -ing.",
+            "bodyEn": "In B2 First (FCE) Use of English 4 you complete the second sentence so that the meaning is like the first, using the given key word and between two and five words, without changing the word itself. Example: I last saw her in 2019. SEEN → I ___ 2019. The gap is have not SEEN her since (five words, including SEEN). The grammar families from this course work here: reported speech, passives, conditionals, wish, comparatives, phrasals, too/enough, so/such, have/get something done.\n\nA strategy: identify the structure they want (for example, since + Present Perfect); count the words (a contraction such as I'm is often two words in this task — I + 'm — check the current exam instructions; historically contractions count as two). Do not change the KEY.\n\nTypical mistakes: six words; a changed key (SEENing); a changed meaning (never instead of since); spelling. Practise pairs: despite / although; not as … as; would rather; there is no point in + -ing.",
             "keyPointsUk": [
               "2–5 слів; ключове слово без змін",
               "Той самий зміст, інша конструкція",
-              "Приклад: have not SEEN her since 2019",
+              "Приклад пропуску: have not SEEN her since (п’ять слів)",
               "Рахуйте слова і перевіряйте орфографію"
             ],
             "keyPointsEn": [
               "2–5 words; the key word is unchanged",
               "The same meaning, a different structure",
-              "Example: have not SEEN her since 2019",
+              "Example gap: have not SEEN her since (five words)",
               "Count the words and check the spelling"
             ]
           },
@@ -20163,8 +20267,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-ex-kwt-r2",
             "type": "fill_blank",
-            "promptUk": "Максимум слів у трансформації. Напишіть 5.",
-            "promptEn": "Type 5.",
+            "promptUk": "Скільки слів максимум можна використати в пропуску Key Word Transformation?",
+            "promptEn": "What is the maximum number of words allowed in a Key Word Transformation gap?",
             "sentence": "Use between 2 and ___ words.",
             "accepted": [
               "5",
@@ -20264,8 +20368,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Граматика в пропуску; сім'я слова в контексті",
             "promptEn": "Grammar in the gap; the word family in context",
-            "bodyUk": "Open cloze (FCE Use of English 2) — короткий текст із пропусками, в кожен треба ОДНЕ слово: артиклі, прийменники, допоміжні дієслова, займенники, сполучники, такі як although, despite (потім іменник), since, whether, whom. Читайте ціле речення: This is the book ___ I was telling you about → which / that / Ø, але в open cloze зазвичай потрібне слово: which. Підказка — що стоїть перед і після пропуску.\n\nWord formation (Use of English 3): дають GREAT, треба, наприклад, GREATLY або GREATNESS — дивіться частину мови в реченні. Пригадайте префікси un-/in-/im- і суфікси з одиниці словотвору. Орфографія критична: definitely, successful, responsible → responsibility.\n\nТипові помилки: два слова в open cloze; неправильна частина мови; *unpossible; не прочитати заперечення в реченні (префікс уже потрібен). Після заповнення прочитайте абзац уголос подумки — чи звучить природно.",
-            "bodyEn": "Open cloze (FCE Use of English 2) is a short text with gaps, and each gap needs ONE word: articles, prepositions, auxiliary verbs, pronouns, conjunctions, such as although, despite (then a noun), since, whether, whom. Read the whole sentence: This is the book ___ I was telling you about → which / that / Ø, but in open cloze a word is usually required: which. The clue is what stands before and after the gap.\n\nWord formation (Use of English 3): they give GREAT, and you may need GREATLY or GREATNESS — look at the part of speech in the sentence. Remember the prefixes un-/in-/im- and the suffixes from the word-formation unit. Spelling is critical: definitely, successful, responsible → responsibility.\n\nTypical mistakes: two words in an open cloze; the wrong part of speech; *unpossible; not reading a negation in the sentence (a prefix is already needed). After filling the gaps, read the paragraph in your head — does it sound natural?",
+            "bodyUk": "Open cloze (FCE Use of English 2) — короткий текст із пропусками, в кожен треба ОДНЕ слово: артиклі, прийменники, допоміжні дієслова, займенники та сполучники. Наприклад, although і whether — сполучники, despite — прийменник, whom — займенник. Читайте ціле речення: This is the book ___ I was telling you about → which / that / Ø, але в open cloze зазвичай потрібне слово: which. Підказка — що стоїть перед і після пропуску.\n\nWord formation (Use of English 3): дають GREAT, треба, наприклад, GREATLY або GREATNESS — дивіться частину мови в реченні. Пригадайте префікси un-/in-/im- і суфікси з одиниці словотвору. Орфографія критична: definitely, successful, responsible → responsibility.\n\nТипові помилки: два слова в open cloze; неправильна частина мови; *unpossible; не прочитати заперечення в реченні (префікс уже потрібен). Після заповнення прочитайте абзац уголос подумки — чи звучить природно.",
+            "bodyEn": "Open cloze (FCE Use of English 2) is a short text with gaps, and each gap needs ONE word: articles, prepositions, auxiliary verbs, pronouns and conjunctions. For example, although and whether are conjunctions, despite is a preposition, and whom is a pronoun. Read the whole sentence: This is the book ___ I was telling you about → which / that / Ø, but in open cloze a word is usually required: which. The clue is what stands before and after the gap.\n\nWord formation (Use of English 3): they give GREAT, and you may need GREATLY or GREATNESS — look at the part of speech in the sentence. Remember the prefixes un-/in-/im- and the suffixes from the word-formation unit. Spelling is critical: definitely, successful, responsible → responsibility.\n\nTypical mistakes: two words in an open cloze; the wrong part of speech; *unpossible; not reading a negation in the sentence (a prefix is already needed). After filling the gaps, read the paragraph in your head — does it sound natural?",
             "keyPointsUk": [
               "Open cloze — одне граматичне слово на пропуск",
               "Дивіться слова ліворуч і праворуч",
@@ -20303,8 +20407,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-d-ex-cloze-r2",
             "type": "fill_blank",
-            "promptUk": "responsible → іменник. Напишіть responsibility.",
-            "promptEn": "Type responsibility.",
+            "promptUk": "Утворіть іменник від responsible.",
+            "promptEn": "Form a noun from responsible.",
             "sentence": "It is your ___.",
             "accepted": [
               "responsibility",

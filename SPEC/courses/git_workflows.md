@@ -21,29 +21,29 @@ Commit history and bisect, branching and rebase safety, conflict resolution with
 
 - `gw-hc-graph` — Commit Graph, HEAD & Staging Area (3 exercises)
 - `gw-hc-log` — Reading History & Isolating Regressions with Bisect (2 exercises)
-- `gw-hc-exam` — Checkpoint: History & Atomic Commits [exam] (2 exercises)
+- `gw-hc-exam` — Checkpoint: History & Atomic Commits [exam] (3 exercises)
 
 ### `gw_branches_rebase` — Branching, Merge & Shared-Branch Rules
 
 - `gw-br-merge-vs-rebase` — Fast-Forward, Merge vs Rebase & Shared Branches (3 exercises)
 - `gw-br-switch` — Clean Navigation with switch & restore (2 exercises)
-- `gw-br-exam` — Checkpoint: Branches & Rebase [exam] (2 exercises)
+- `gw-br-exam` — Checkpoint: Branches & Rebase [exam] (3 exercises)
 
 ### `gw_conflict_resolution` — Merge & Rebase Conflict Resolution
 
 - `gw-cr-markers` — Reading Conflict Markers & Verifying Combined Intent (3 exercises)
-- `gw-cr-exam` — Checkpoint: Conflict Resolution [exam] (2 exercises)
+- `gw-cr-exam` — Checkpoint: Conflict Resolution [exam] (3 exercises)
 
 ### `gw_code_review` — Pull Requests & Code Review Craft
 
 - `gw-rev-pr` — Scoped PRs, Self-Review & Review Habits (3 exercises)
-- `gw-rev-exam` — Checkpoint: Code Review [exam] (1 exercises)
+- `gw-rev-exam` — Checkpoint: Code Review [exam] (3 exercises)
 
 ### `gw_recovery_release_capstone` — Recovery (Reflog), Releases & ForgeBoard Conflict Lab
 
 - `gw-rr-reflog-revert` — Rescue with Reflog & Public Rollback with Revert (3 exercises)
 - `gw-forgeboard-conflict-lab` — Lab: ForgeBoard Conflict Resolution & Delivery (M8) (3 exercises)
-- `gw-rr-exam` — Checkpoint: Recovery & Release [exam] (2 exercises)
+- `gw-rr-exam` — Checkpoint: Recovery & Release [exam] (3 exercises)
 
 ## Depth now
 

@@ -340,6 +340,14 @@ export const englishContent: CourseContent = {
           difficulty: 2,
           exercises: [
             {
+              id: "en-time-concept",
+              type: "concept",
+              promptUk: "Година і пів години",
+              promptEn: "Hours and half hours",
+              bodyUk: "It's two o'clock означає 2:00. Half past two — 2:30, тобто тридцять хвилин після другої. Фраза сама не уточнює ранок чи день: за потреби додайте a.m. або p.m.",
+              bodyEn: "It's two o'clock means 2:00. Half past two means 2:30, thirty minutes after two. The phrase alone does not specify morning or afternoon; add a.m. or p.m. when needed.",
+            },
+            {
               id: "en-9-1",
               type: "mcq",
               promptUk: "It's half past two =",
@@ -394,6 +402,14 @@ export const englishContent: CourseContent = {
           difficulty: 3,
           exercises: [
             {
+              id: "en-past-simple-concept",
+              type: "concept",
+              promptUk: "Завершені події в минулому",
+              promptEn: "Completed events in the past",
+              bodyUk: "Past Simple описує завершену подію в минулому: Yesterday I went home. Правильні дієслова зазвичай додають -ed: watch → watched. Неправильні форми потрібно запам'ятовувати: go → went. Після did або did not використовують початкову форму: Did she watch? She did not go.",
+              bodyEn: "The Past Simple describes a completed past event: Yesterday I went home. Regular verbs usually add -ed: watch → watched. Irregular forms must be learned: go → went. After did or did not, use the base form: Did she watch? She did not go.",
+            },
+            {
               id: "en-11-1",
               type: "mcq",
               promptUk: "Yesterday I ___ home.",
@@ -440,7 +456,7 @@ export const englishContent: CourseContent = {
               type: "translate",
               promptUk: "Перекладіть англійською",
               source: "Де вихід на посадку?",
-              accepted: ["where is the gate", "where's the gate", "where is my gate"],
+              accepted: ["where is the gate", "where's the gate", "where is my gate", "where's my gate", "where is the boarding gate", "where's the boarding gate"],
               direction: "uk_en",
             },
           ],
@@ -498,7 +514,7 @@ export const englishContent: CourseContent = {
               type: "translate",
               promptUk: "Перекладіть англійською",
               source: "Можна меню, будь ласка?",
-              accepted: ["can i have the menu please", "can i see the menu please", "menu please"],
+              accepted: ["can i have the menu please", "can i see the menu please", "could i have the menu please", "could i see the menu please", "may i have the menu please", "may i see the menu please", "menu please"],
               direction: "uk_en",
             },
             {
@@ -524,6 +540,14 @@ export const englishContent: CourseContent = {
           baseXp: 20,
           difficulty: 2,
           exercises: [
+            {
+              id: "en-shopping-concept",
+              type: "concept",
+              promptUk: "Запитання в магазині",
+              promptEn: "Questions in a shop",
+              bodyUk: "How much does it cost? — «Скільки це коштує?». У запитанні з does основне дієслово стоїть у початковій формі: cost, не costs. Can I try this on? — прохання приміряти річ; size означає «розмір».",
+              bodyEn: "How much does it cost? asks for the price. After does, use the base verb cost, not costs. Can I try this on? is a request to try on an item; size refers to its fit or measurements.",
+            },
             {
               id: "en-15-1",
               type: "fill_blank",
@@ -598,6 +622,14 @@ export const englishContent: CourseContent = {
           difficulty: 3,
           exercises: [
             {
+              id: "en-present-continuous-concept",
+              type: "concept",
+              promptUk: "Дія зараз",
+              promptEn: "An action in progress",
+              bodyUk: "Present Continuous часто описує дію, що відбувається зараз: am / is / are + дієслово із закінченням -ing. Наприклад: I am learning; she is working; they are watching. Для регулярної звички зазвичай використовують Present Simple: She works every day.",
+              bodyEn: "The Present Continuous often describes an action happening now: am / is / are + the -ing form. For example: I am learning; she is working; they are watching. For a regular habit, the Present Simple is usually appropriate: She works every day.",
+            },
+            {
               id: "en-17-1",
               type: "mcq",
               promptUk: "She ___ right now.",
@@ -631,6 +663,14 @@ export const englishContent: CourseContent = {
           difficulty: 3,
           exercises: [
             {
+              id: "en-future-plans-concept",
+              type: "concept",
+              promptUk: "Плани з going to",
+              promptEn: "Plans with going to",
+              bodyUk: "Для наміру чи плану можна вжити am / is / are going to + початкову форму дієслова: I am going to visit Lviv. У питанні форма be стоїть перед підметом: What are you going to do? Інші форми майбутнього також можливі залежно від контексту.",
+              bodyEn: "For an intention or plan, use am / is / are going to + the base verb: I am going to visit Lviv. In a question, be comes before the subject: What are you going to do? Other future forms are also possible depending on context.",
+            },
+            {
               id: "en-18-1",
               type: "mcq",
               promptUk: "I ___ visit Lviv next week.",
@@ -657,6 +697,14 @@ export const englishContent: CourseContent = {
           difficulty: 3,
           exercises: [
             {
+              id: "en-opinions-concept",
+              type: "concept",
+              promptUk: "Висловлюємо думку",
+              promptEn: "Expressing an opinion",
+              bodyUk: "I agree означає «я згоден / згодна», I disagree — «я не згоден / не згодна», а Maybe — «можливо». Для м'якшої незгоди можна сказати I'm not sure I agree. Фраза In my opinion вводить особисту думку.",
+              bodyEn: "I agree expresses agreement; I disagree expresses disagreement; Maybe indicates uncertainty. For a softer disagreement, say I'm not sure I agree. In my opinion introduces a personal view.",
+            },
+            {
               id: "en-19-1",
               type: "match",
               promptUk: "Фрази згоди",
@@ -673,6 +721,16 @@ export const englishContent: CourseContent = {
               promptEn: "Build the English sentence: «На мою думку, це чудово».",
               words: ["In", "my", "opinion", "it", "is", "great"],
               correct: ["In", "my", "opinion", "it", "is", "great"],
+            },
+            {
+              id: "en-opinions-3",
+              type: "mcq",
+              promptUk: "Яка фраза м'яко висловлює незгоду?",
+              promptEn: "Which phrase expresses disagreement gently?",
+              options: ["I'm not sure I agree.", "I completely agree.", "Thank you for coming.", "See you tomorrow."],
+              correctIndex: 0,
+              explanationUk: "I'm not sure I agree — ввічливий спосіб сказати, що ви не зовсім згодні.",
+              explanationEn: "I'm not sure I agree is a gentle way to signal disagreement.",
             },
           ],
         },
@@ -767,6 +825,14 @@ export const englishContent: CourseContent = {
           difficulty: 3,
           exercises: [
             {
+              id: "en-email-soft-skills-concept",
+              type: "concept",
+              promptUk: "Ввічливе прохання в листі",
+              promptEn: "A polite email request",
+              bodyUk: "Could you please send the report? — ввічливе прохання надіслати звіт. Looking forward to hearing from you означає «з нетерпінням чекаю на вашу відповідь»: після прийменника to тут уживаємо форму hearing, а не hear. Вітання та завершення добирайте за контекстом і стосунками з адресатом.",
+              bodyEn: "Could you please send the report? is a polite request. Looking forward to hearing from you signals that you await a reply: here to is a preposition, followed by hearing rather than hear. Choose the greeting and closing for your context and relationship with the recipient.",
+            },
+            {
               id: "en-22-1",
               type: "mcq",
               promptUk: "Polite opener:",
@@ -851,6 +917,14 @@ export const englishContent: CourseContent = {
           isFree: true,
           exercises: [
             {
+              id: "en-weather-concept",
+              type: "concept",
+              promptUk: "Розмова про погоду",
+              promptEn: "Talking about the weather",
+              bodyUk: "How's the weather? запитує про погоду; відповідь може бути It's sunny, cloudy або rainy. Nice day, isn't it? — коротка дружня репліка із запитальним хвостиком: співрозмовник може погодитися або чемно не погодитися.",
+              bodyEn: "How's the weather? asks about the weather; a reply can be It's sunny, cloudy, or rainy. Nice day, isn't it? is a friendly remark with a question tag: the other person can agree or politely disagree.",
+            },
+            {
               id: "en-conv-1",
               type: "mcq",
               promptUk: "How's the weather? — типова відповідь:",
@@ -899,6 +973,9 @@ export const englishContent: CourseContent = {
                 "що ти робиш на цих вихідних",
                 "які в тебе плани на вихідні",
                 "чим займаєшся на вихідних",
+                "що ви робите на цих вихідних",
+                "які у вас плани на вихідні",
+                "чим ви займаєтеся на цих вихідних",
               ],
               direction: "en_uk",
             },
@@ -922,8 +999,8 @@ export const englishContent: CourseContent = {
                 "Sleep all day",
               ],
               correctIndex: 0,
-              explanationUk: "Catch up — наздогнати зв'язок / зустрітись поговорити.",
-              explanationEn: "Catch up — reconnect or meet to talk later.",
+              explanationUk: "Catch up у цьому контексті — поспілкуватися й дізнатися новини одне одного пізніше.",
+              explanationEn: "In this context, catch up means reconnecting later to share news.",
             },
           ],
         },
@@ -935,6 +1012,14 @@ export const englishContent: CourseContent = {
           difficulty: 2,
           isFree: true,
           exercises: [
+            {
+              id: "en-polite-requests-concept",
+              type: "concept",
+              promptUk: "Прохання і відповідь",
+              promptEn: "Requests and replies",
+              bodyUk: "Could you help me, please? — ввічливе прохання. Would you mind opening the window? також є проханням; після mind вживаємо форму opening. Відповідь No, not at all означає, що людина не заперечує. Ввічливість залежить від тону й контексту.",
+              bodyEn: "Could you help me, please? is a polite request. Would you mind opening the window? is another request; mind is followed by opening. No, not at all means the person does not object. Politeness also depends on tone and context.",
+            },
             {
               id: "en-conv-7",
               type: "mcq",
@@ -963,6 +1048,16 @@ export const englishContent: CourseContent = {
               promptEn: "___ you pass me the salt?",
               sentence: "___ you pass me the salt?",
               accepted: ["Could", "Would", "Can"],
+            },
+            {
+              id: "en-conv-9b",
+              type: "mcq",
+              promptUk: "На прохання Would you mind opening the window? співрозмовник відповідає No, not at all. Що це означає?",
+              promptEn: "Someone answers No, not at all to Would you mind opening the window? What does it mean?",
+              options: ["They do not object to opening it.", "They refuse to open it.", "They do not know what a window is.", "They ask you to close the door."],
+              correctIndex: 0,
+              explanationUk: "No відповідає на запитання mind: людина не заперечує.",
+              explanationEn: "No answers the question about minding: the person does not object.",
             },
           ],
         },
@@ -1032,7 +1127,7 @@ export const englishContent: CourseContent = {
             {
               id: "en-ph-1",
               type: "mcq",
-              promptUk: "How to answer a work call politely?",
+              promptUk: "Як ввічливо відповісти на робочий дзвінок і представитися?",
               promptEn: "How to answer a work call politely?",
               options: [
                 "Hello, this is Alex speaking",
@@ -1058,10 +1153,10 @@ export const englishContent: CourseContent = {
             {
               id: "en-ph-3",
               type: "fill_blank",
-              promptUk: "Could you speak a bit ___? I can't hear you.",
-              promptEn: "Could you speak a bit ___? I can't hear you.",
+              promptUk: "Попросіть говорити гучніше: Could you speak a bit ___? I can't hear you.",
+              promptEn: "Ask the person to increase their volume: Could you speak a bit ___? I can't hear you.",
               sentence: "Could you speak a bit ___? I can't hear you.",
-              accepted: ["louder", "slower", "clearer"],
+              accepted: ["louder"],
             },
           ],
         },
@@ -1102,8 +1197,10 @@ export const englishContent: CourseContent = {
               source: "Thanks for joining",
               accepted: [
                 "дякую що приєднались",
+                "дякую що приєдналися",
                 "дякую за участь",
                 "дякую що долучились",
+                "дякую що долучилися",
               ],
               direction: "en_uk",
             },
@@ -1116,6 +1213,14 @@ export const englishContent: CourseContent = {
           baseXp: 20,
           difficulty: 3,
           exercises: [
+            {
+              id: "en-meeting-clarify-concept",
+              type: "concept",
+              promptUk: "Уточнюємо домовленості",
+              promptEn: "Clarifying agreements",
+              bodyUk: "Could you expand on that? — прохання пояснити детальніше. Just to clarify, the deadline is Friday, right? допомагає перевірити спільне розуміння. Action item — завдання після зустрічі; корисно уточнити відповідального та термін.",
+              bodyEn: "Could you expand on that? asks for more detail. Just to clarify, the deadline is Friday, right? checks shared understanding. An action item is a task arising from the meeting; it helps to confirm its owner and due date.",
+            },
             {
               id: "en-mt-4",
               type: "mcq",
@@ -1158,6 +1263,14 @@ export const englishContent: CourseContent = {
           difficulty: 2,
           exercises: [
             {
+              id: "en-wrap-up-concept",
+              type: "concept",
+              promptUk: "Завершуємо дзвінок",
+              promptEn: "Wrapping up a call",
+              bodyUk: "Наприкінці робочого дзвінка підсумуйте наступні кроки: I'll send the notes after the call. Подякуйте й попрощайтеся: Thanks, talk soon. Bye! Тон обирайте відповідно до ситуації.",
+              bodyEn: "At the end of a work call, summarize next steps: I'll send the notes after the call. Thank the other person and say goodbye: Thanks, talk soon. Bye! Choose a tone that fits the situation.",
+            },
+            {
               id: "en-mt-7",
               type: "mcq",
               promptUk: "Polite goodbye on a work call:",
@@ -1196,6 +1309,14 @@ export const englishContent: CourseContent = {
           isFree: false,
           exercises: [
             {
+              id: "en-dlg-coffee-concept",
+              type: "concept",
+              promptUk: "Як зробити замовлення",
+              promptEn: "Ordering at a coffee shop",
+              bodyUk: "I'd like… — ввічливий спосіб замовити. To go або to take away означає «із собою». Якщо більше нічого не потрібно, скажіть: That will be all, thank you. Про оплату можна запитати: Can I pay by card?",
+              bodyEn: "I'd like… is a polite way to order. To go or to take away means you will take the order with you. If you need nothing else, say: That will be all, thank you. To ask about payment, say: Can I pay by card?",
+            },
+            {
               id: "en-dlg-1",
               type: "mcq",
               promptUk: "Бариста: «Can I get you anything else?» — Найкраща відповідь:",
@@ -1224,7 +1345,7 @@ export const englishContent: CourseContent = {
               promptUk: "Перекладіть англійською",
               promptEn: "Translate into English",
               source: "Чи можу я розрахуватися карткою?",
-              accepted: ["Can I pay by card?", "May I pay by card?", "Can I pay with card?"],
+              accepted: ["Can I pay by card?", "May I pay by card?", "Can I pay with a card?", "May I pay with a card?"],
               direction: "uk_en",
             },
           ],
@@ -1237,6 +1358,14 @@ export const englishContent: CourseContent = {
           difficulty: 2,
           isFree: false,
           exercises: [
+            {
+              id: "en-dlg-directions-concept",
+              type: "concept",
+              promptUk: "Як запитати дорогу",
+              promptEn: "Asking for directions",
+              bodyUk: "Запитайте How do I get to the station? — «Як дістатися станції?». Go straight означає «ідіть прямо», turn left — «поверніть ліворуч», а at the lights — «на світлофорі». Next to означає «поруч із», а around the corner — «за рогом».",
+              bodyEn: "Ask How do I get to the station? to request directions. Go straight means continue ahead, turn left changes direction, and at the lights identifies the traffic lights. Next to means beside; around the corner means just beyond the corner.",
+            },
             {
               id: "en-dlg-4",
               type: "mcq",
@@ -1282,6 +1411,14 @@ export const englishContent: CourseContent = {
           difficulty: 2,
           isFree: false,
           exercises: [
+            {
+              id: "en-dlg-appointment-concept",
+              type: "concept",
+              promptUk: "Запис і перенесення зустрічі",
+              promptEn: "Booking and rescheduling",
+              bodyUk: "I'd like to book an appointment допоможе записатися на прийом. Does 3 PM work for you? означає «Вам підходить 15:00?». Для підтвердження скажіть That time suits me; щоб перенести зустріч, попросіть Could we reschedule to Friday?",
+              bodyEn: "I'd like to book an appointment is a way to request a booking. Does 3 PM work for you? asks whether the time is convenient. Confirm with That time suits me, or request a change with Could we reschedule to Friday?",
+            },
             {
               id: "en-dlg-7",
               type: "mcq",
@@ -1396,6 +1533,14 @@ export const englishContent: CourseContent = {
           isFree: false,
           exercises: [
             {
+              id: "en-dlg-chat-concept",
+              type: "concept",
+              promptUk: "Статус і прохання про рев'ю",
+              promptEn: "Updates and review requests",
+              bodyUk: "Could you take a look when you have a chance? — ввічливе прохання переглянути роботу. У відповіді можна назвати час: I'll review it after lunch. Blocked by означає, що перешкода зупиняє роботу; I'll keep you posted означає «повідомлятиму про зміни». Touch base означає коротко зв'язатися, щоб узгодити стан справ.",
+              bodyEn: "Could you take a look when you have a chance? politely asks for a review. In your reply, you can give a time: I'll review it after lunch. Blocked by identifies an obstacle; I'll keep you posted promises updates. Touch base means to make contact briefly to coordinate or check progress.",
+            },
+            {
               id: "en-dlg-14",
               type: "mcq",
               promptUk: "Колега надсилає PR: «Could you take a look when you have a chance?» — Ввічлива згода:",
@@ -1434,6 +1579,14 @@ export const englishContent: CourseContent = {
           difficulty: 2,
           isFree: false,
           exercises: [
+            {
+              id: "en-dlg-meeting-concept",
+              type: "concept",
+              promptUk: "Репліки на зустрічі",
+              promptEn: "Joining the discussion",
+              bodyUk: "Щоб ввічливо долучитися, скажіть Sorry to jump in, but could I add a point? You're on mute означає, що мікрофон вимкнено. Let's take this offline пропонує обговорити тему окремо після зустрічі. Play devil's advocate — навмисно розглянути інший погляд, щоб перевірити ідею.",
+              bodyEn: "To join politely, say Sorry to jump in, but could I add a point? You're on mute means the microphone is off. Let's take this offline suggests discussing the topic separately after the meeting. To play devil's advocate is to consider an opposing view to test an idea.",
+            },
             {
               id: "en-dlg-17",
               type: "mcq",
@@ -1479,6 +1632,14 @@ export const englishContent: CourseContent = {
           isFree: false,
           exercises: [
             {
+              id: "en-dlg-support-concept",
+              type: "concept",
+              promptUk: "Тон у підтримці клієнтів",
+              promptEn: "A helpful support response",
+              bodyUk: "Спочатку визнайте незручність: I understand your frustration. Далі поясніть наступний крок, не обіцяючи того, чого не можете гарантувати. Thank you for your patience висловлює вдячність; steps to reproduce — це дії, за якими можна повторити проблему.",
+              bodyEn: "First acknowledge the inconvenience: I understand your frustration. Then explain the next step without promising what you cannot guarantee. Thank you for your patience expresses appreciation; steps to reproduce are the actions needed to repeat an issue.",
+            },
+            {
               id: "en-dlg-20",
               type: "mcq",
               promptUk: "Клієнт незадоволений затримкою. Найкраща відповідь:",
@@ -1519,6 +1680,14 @@ export const englishContent: CourseContent = {
           isFree: false,
           exercises: [
             {
+              id: "en-dlg-deadlines-concept",
+              type: "concept",
+              promptUk: "Терміни й компроміси",
+              promptEn: "Deadlines and trade-offs",
+              bodyUk: "Обговорюючи додаткову роботу, назвіть ризик і запропонуйте альтернативу: Could we move it to the next sprint? Scope creep — неконтрольоване розширення обсягу роботи; trade-off — компроміс між конкуруючими цілями, наприклад швидкістю та якістю. Circle back означає повернутися до обговорення пізніше; ownership — відповідальність за завдання.",
+              bodyEn: "When discussing extra work, name the risk and offer an alternative: Could we move it to the next sprint? Scope creep is uncontrolled growth in work; a trade-off is a compromise between competing goals, such as speed and quality. Circle back means return to a discussion later; ownership means responsibility for an item.",
+            },
+            {
               id: "en-dlg-23",
               type: "mcq",
               promptUk: "Менеджер просить додати фічу до релізу в п'ятницю. Як аргументувати компроміс?",
@@ -1538,7 +1707,7 @@ export const englishContent: CourseContent = {
               promptEn: "Match business idioms",
               pairs: [
                 { left: "Scope creep", right: "Неконтрольоване розширення меж проєкту" },
-                { left: "Trade-off", right: "Компроміс між швидкістю та якістю" },
+                { left: "Trade-off", right: "Компроміс між конкуруючими цілями" },
                 { left: "Hard deadline", right: "Фіксований дедлайн без можливості переносу" },
               ],
             },
@@ -1628,6 +1797,14 @@ export const englishContent: CourseContent = {
           isFree: false,
           exercises: [
             {
+              id: "en-eng-bug-concept",
+              type: "concept",
+              promptUk: "Як описати дефект",
+              promptEn: "Describing a bug",
+              bodyUk: "Steps to reproduce — послідовність дій для відтворення; expected і actual — очікуваний та фактичний результати. Додайте середовище й версію, якщо вони важливі. Також можна вказати повідомлення про помилку, прибравши секрети та персональні дані. Навіть чіткий звіт допомагає розслідуванню, але не гарантує негайного виявлення причини.",
+              bodyEn: "Steps to reproduce are the actions needed to repeat the problem; expected and actual describe what should happen and what happens instead. Include the environment and version when relevant. An error message can help too, after removing secrets and personal data. A clear report supports investigation but does not guarantee the cause is immediately known.",
+            },
+            {
               id: "en-eng-1",
               type: "mcq",
               promptUk: "Який рядок у bug report найкорисніший для розробника?",
@@ -1639,8 +1816,8 @@ export const englishContent: CourseContent = {
                 "Maybe the database is slow today.",
               ],
               correctIndex: 0,
-              explanationUk: "Чіткі кроки відтворення, очікуваний і фактичний результати дозволяють одразу локалізувати дефект.",
-              explanationEn: "Repro steps plus Expected vs Actual let the maintainer isolate the defect immediately.",
+              explanationUk: "Кроки відтворення та порівняння очікуваного й фактичного результатів допомагають розслідувати дефект.",
+              explanationEn: "Reproduction steps and expected versus actual behavior help the maintainer investigate the defect.",
             },
             {
               id: "en-eng-2",
@@ -1666,6 +1843,14 @@ export const englishContent: CourseContent = {
           isFree: false,
           exercises: [
             {
+              id: "en-eng-review-concept",
+              type: "concept",
+              promptUk: "Конструктивне рев'ю",
+              promptEn: "Constructive review",
+              bodyUk: "Опишіть конкретну поведінку й можливий наслідок, а тоді запропонуйте зміну або поставте уточнювальне запитання. Наприклад: Could we check for a missing task before reading its owner? MUST у специфікації позначає обов'язкову вимогу, коли документ визначає це слово як нормативне; її виконання потрібно перевірити.",
+              bodyEn: "Describe the specific behavior and its possible consequence, then suggest a change or ask a clarifying question. For example: Could we check for a missing task before reading its owner? MUST denotes a mandatory requirement when the specification defines the word normatively; verify that the requirement is met.",
+            },
+            {
               id: "en-eng-3",
               type: "mcq",
               promptUk: "Оберіть найбільш професійний PR review comment:",
@@ -1683,7 +1868,7 @@ export const englishContent: CourseContent = {
             {
               id: "en-eng-4",
               type: "fill_blank",
-              promptUk: "Доповніть ввічливе уточнення вимог (clarification) дієсловом на кшталт run / apply:",
+              promptUk: "Доповніть ввічливе уточнення вимог одним із дієслів run / write / apply:",
               promptEn: "Complete the polite requirements clarification (use run / write / apply):",
               sentence: "Before I ___ the migration, should archived tasks remain readable?",
               accepted: ["run", "write", "apply"],
@@ -1699,6 +1884,14 @@ export const englishContent: CourseContent = {
           isFree: false,
           exercises: [
             {
+              id: "en-eng-tradeoff-concept",
+              type: "concept",
+              promptUk: "Документація й компроміси",
+              promptEn: "Documentation and trade-offs",
+              bodyUk: "Deprecated означає, що використання можливості більше не рекомендують; сама позначка не означає, що її вже видалено. Перевіряйте версію та умови зміни в документації. Пояснюючи вибір, назвіть перевагу й обмеження: We chose X for simplicity, although Y can be faster. Продуктивність пагінації залежить від запиту, індексів і даних.",
+              bodyEn: "Deprecated means a feature is no longer recommended; the label alone does not mean it has already been removed. Check the version and change conditions in the documentation. Explain a decision with a benefit and limitation: We chose X for simplicity, although Y can be faster. Pagination performance depends on the query, indexes and data.",
+            },
+            {
               id: "en-eng-5",
               type: "mcq",
               promptUk: "У документації сказано: «Deprecated since v4.2; throws on non-ISO strings in v5.» У v4.x формат ще працює. Що це означає?",
@@ -1711,18 +1904,18 @@ export const englishContent: CourseContent = {
               ],
               optionsEn: ["The format still works in v4.x, but should be migrated before v5", "The function was already removed in v4.2", "Invalid strings are automatically corrected in v5", "It concerns CSS styles only"],
               correctIndex: 0,
-              explanationUk: "Deprecated попереджає про майбутню несумісність (breaking change) у наступній мажорній версії.",
-              explanationEn: "Deprecated warns you to migrate before the breaking change hits the next major version.",
+              explanationUk: "Тут документація окремо зазначає зміну поведінки у v5; сама позначка deprecated не визначає, коли можливість буде змінено чи видалено.",
+              explanationEn: "Here the documentation separately states the behavior change in v5; the deprecated label alone does not say when a feature will change or be removed.",
             },
             {
               id: "en-eng-6",
               type: "translate",
-              promptUk: "Перекладіть коротке пояснення компромісу: «Ми обрали offset-пагінацію заради простоти, хоча cursor швидша на великих таблицях.»",
+              promptUk: "Перекладіть пояснення компромісу, зберігаючи припущення про швидкість із наведеного речення.",
               promptEn: "Translate the tradeoff explanation cleanly into English:",
-              source: "Ми обрали offset-пагінацію заради простоти, хоча cursor швидша на великих таблицях.",
+              source: "Ми обрали offset-пагінацію заради простоти, хоча cursor-пагінація може бути швидшою на великих таблицях.",
               accepted: [
-                "We chose offset pagination for simplicity, even though cursor pagination is faster on large tables.",
-                "We chose offset pagination for simplicity, although cursor is faster on large tables.",
+                "We chose offset pagination for simplicity, even though cursor pagination can be faster on large tables.",
+                "We chose offset pagination for simplicity, although cursor pagination can be faster on large tables.",
               ],
               direction: "uk_en",
             },
@@ -1756,8 +1949,8 @@ export const englishContent: CourseContent = {
             {
               id: "en-eng-e2",
               type: "mcq",
-              promptUk: "У вимогах написано: «The endpoint MUST be idempotent for identical keys.» Що означає MUST?",
-              promptEn: "Spec reads: \"The endpoint MUST be idempotent for identical keys.\" What does MUST denote?",
+              promptUk: "Специфікація визначає MUST як нормативне слово й містить вимогу: «The endpoint MUST be idempotent for identical keys.» Що означає MUST?",
+              promptEn: "A specification defines MUST as a normative keyword and says: \"The endpoint MUST be idempotent for identical keys.\" What does MUST denote?",
               options: [
                 "Обов'язкова вимога специфікації (RFC 2119), яку необхідно покрити тестами",
                 "Необов'язкова порада на майбутнє",

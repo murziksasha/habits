@@ -107,6 +107,14 @@ const historyCommits = unit(
         ["decorate"],
         true,
       ),
+      { ...mcq(
+        "gw-hc-e3",
+        "Ви додали файл до індексу, а потім ще раз його змінили. Яка версія потрапить у звичайний коміт?",
+        "You staged a file and then edited it again. Which version enters a normal commit?",
+        ["Версія в індексі на момент коміту; пізніші неіндексовані правки залишаться в робочому дереві", "Завжди остання версія робочого файлу", "Обидві версії окремими комітами", "Файл автоматично видаляється"],
+        0,
+        why("Порівняйте git diff та git diff --staged: вони показують різні межі змін.", "Compare git diff and git diff --staged: they show different boundaries of change."),
+      ), optionsEn: ["The version in the index at commit time; later unstaged edits remain in the working tree", "Always the latest working-tree version", "Both versions in separate commits", "The file is deleted automatically"] },
     ]),
   ],
 );
@@ -198,6 +206,14 @@ const branchesRebase = unit(
         ],
         0,
       ), optionsEn: ["The target branch pointer moves to the descendant commit without creating a merge commit", "Git skips all CI tests", "All conflicts are resolved by deleting the target branch", "History is compressed into a tar.gz archive"] },
+      { ...mcq(
+        "gw-br-e3",
+        "Колега оновив спільну гілку після вашого останнього огляду; фоновий fetch міг оновити tracking ref. Що зробити перед будь-яким узгодженим переписуванням?",
+        "A teammate updated a shared branch after your last review, and a background fetch may have updated the tracking ref. What should you do before any coordinated rewrite?",
+        ["Узгодити дію, перевірити роботу колеги та явно зафіксувати очікуваний SHA для lease", "Припустити, що неявний --force-with-lease завжди захищає всю роботу", "Примусово push без перевірки", "Видалити локальний reflog"],
+        0,
+        why("Фоновий fetch може змінити неявне очікуване значення; явний SHA та координація зменшують ризик.", "A background fetch can change the implicit expected value; an explicit SHA and coordination reduce the risk."),
+      ), optionsEn: ["Coordinate, inspect the teammate's work, and explicitly record the expected SHA for the lease", "Assume implicit --force-with-lease always protects all work", "Force-push without review", "Delete the local reflog"] },
     ]),
   ],
 );
@@ -233,7 +249,7 @@ const conflictResolution = unit(
             "Сліпе «Accept Current / Incoming» може призвести до втрати важливої зміни. Читайте намір обох змін і перевіряйте тестами.",
             "Blindly picking one side drops fixes; combine both intents cleanly and run tests before staging.",
           ),
-        ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["Keep both the 401 authorization check and the pagination limit, remove markers, and run tests", "Accept current blindly and remove pagination", "Leave conflict markers in the file and commit", "Accept incoming blindly and remove the 401 check"] },
+        ) as Extract<Exercise, { type: "code_read" }>, optionsEn: ["Keep both the 401 authentication check and the pagination limit, remove markers, and run tests", "Accept current blindly and remove pagination", "Leave conflict markers in the file and commit", "Accept incoming blindly and remove the 401 check"] },
         { ...codeOrderAuto(
           "gw-cr2",
           "Повний безпечний порядок завершення конфліктного merge",
@@ -265,6 +281,14 @@ const conflictResolution = unit(
         ["continue"],
         true,
       ),
+      { ...mcq(
+        "gw-cr-e3",
+        "Під час merge одна сторона додала перевірку прав, друга — нормалізацію назви. Обидві вимоги залишаються чинними. Що перевірити перед завершенням?",
+        "During a merge, one side added an authorization check and the other normalized the title. Both requirements still apply. What should you verify before finishing?",
+        ["Зберегти обидві зміни, прибрати маркери та перевірити авторизацію і нормалізацію тестами", "Сліпо вибрати одну сторону і завершити merge", "Прибрати маркери, не читаючи результат", "Завжди пропустити конфліктний коміт через rebase --skip"],
+        0,
+        why("Відсутність маркерів лише означає текстове вирішення; перевірки підтверджують потрібну поведінку.", "Removing markers only resolves the text conflict; checks verify the intended behavior."),
+      ), optionsEn: ["Keep both changes, remove markers, and test authorization and normalization", "Blindly choose one side and finish the merge", "Remove markers without reading the result", "Always skip the conflicting commit with rebase --skip"] },
     ]),
   ],
 );
@@ -326,6 +350,22 @@ const codeReviews = unit(
         ],
         0,
       ), optionsEn: ["A focused change gives reviewers more room to examine behavior and edge cases", "Git cannot merge more than 500 lines", "Small PRs do not run CI", "Large PRs are forbidden by HTTP"] },
+      { ...mcq(
+        "gw-rev-e2",
+        "У PR endpoint перевіряє сесію, але використовує taskId із запиту без перевірки доступу до задачі. Який коментар рев’ю найбільш корисний?",
+        "A PR checks the session but uses the request's taskId without checking task access. Which review comment is most useful?",
+        ["Користувач може змінити чужу задачу; перевірмо право на конкретний taskId і додамо тест відмови", "Код поганий", "Все гаразд: наявність сесії доводить право на будь-яку задачу", "Змінимо лише пробіли"],
+        0,
+        why("Хороший коментар пов’язує конкретний ризик із перевірюваною пропозицією, не атакуючи автора.", "A useful comment links a concrete risk to a testable suggestion without attacking the author."),
+      ), optionsEn: ["A user could modify someone else's task; authorize this taskId and add a denial test", "The code is bad", "It is fine: a session grants access to every task", "Change only the whitespace"] },
+      { ...mcq(
+        "gw-rev-e3",
+        "Ви не запускали інтеграційні тести, бо локальна БД недоступна. Що зазначити в PR?",
+        "You did not run integration tests because the local database is unavailable. What should the PR say?",
+        ["Які перевірки пройшли, які пропущено та чому; попросити відповідну перевірку в доступному середовищі", "Усі тести пройшли", "Приховати факт пропуску", "Припустити, що unit-тести доводять інтеграцію з БД"],
+        0,
+        why("Прозорий звіт про перевірки дозволяє рев’юверу оцінити залишковий ризик.", "An accurate validation report lets the reviewer assess the remaining risk."),
+      ), optionsEn: ["State what passed, what was skipped and why; arrange the relevant check in an available environment", "Claim all tests passed", "Hide the skipped tests", "Assume unit tests prove database integration"] },
     ]),
   ],
 );
@@ -434,6 +474,14 @@ const recoveryReleaseCapstone = unit(
         ["reflog"],
         true,
       ),
+      { ...mcq(
+        "gw-rr-e3",
+        "Після reset --hard у reflog знайшли SHA попереднього коміту. Що безпечніше зробити спочатку, і що reflog не гарантує?",
+        "After reset --hard, reflog shows the previous commit SHA. What is the safer first step, and what does reflog not guarantee?",
+        ["Створити rescue-гілку на знайденому SHA та перевірити її; незакомічені зміни reflog не гарантує відновити", "Одразу виконати ще один reset --hard; усі незакомічені зміни гарантовано повернуться", "Видалити .git і клонувати знову: це поверне всі локальні коміти", "Зробити force-push у main без огляду"],
+        0,
+        why("Reflog допомагає знайти записані позиції посилань, доки об’єкти доступні; захисна гілка дозволяє оглянути результат.", "Reflog helps locate recorded ref positions while objects remain available; a rescue branch lets you inspect them."),
+      ), optionsEn: ["Create a rescue branch at the found SHA and inspect it; reflog does not guarantee recovery of uncommitted changes", "Immediately run another reset --hard; all uncommitted changes will return", "Delete .git and clone again to recover every local commit", "Force-push main without inspection"] },
     ]),
   ],
 );

@@ -90,7 +90,7 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Коли потрібен the",
             "promptEn": "When you need the",
-            "bodyUk": "the вживаємо, коли слухач розуміє, про який саме предмет ідеться: він уже згадувався, він єдиний у контексті (the sun, the kitchen), або його визначає уточнення (the book on the desk). З загальними ідеями в множині чи не rapах артикль часто нульовий: Books are useful.",
+            "bodyUk": "the вживаємо, коли слухач розуміє, про який саме предмет ідеться: він уже згадувався, він єдиний у контексті (the sun, the kitchen), або його визначає уточнення (the book on the desk). Коли говоримо загалом про множину чи незлічувані речовини, артикль часто не потрібен: Books are useful; Water is essential.",
             "bodyEn": "Use the when the listener knows which thing you mean: it was mentioned already, it is unique in the context (the sun, the kitchen), or a qualifier identifies it (the book on the desk). With general ideas in the plural or uncountable, the article is often zero: Books are useful.",
             "keyPointsUk": [
               "the — конкретний, відомий слухачеві",
@@ -155,7 +155,7 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Коли артикля немає",
             "promptEn": "When there is no article",
-            "bodyUk": "Нульовий артикль типовий з іменами, країнами в однині (France, але the Netherlands), мовами (English), прийомами їжі в загальному сенсі (have breakfast), і загальними не rapах: Water is essential. З установами залежить від значення: at school (як учень) vs at the school (будівля).",
+            "bodyUk": "Нульовий артикль типовий з іменами, більшістю назв країн (France, але the Netherlands), назвами мов (English), прийомами їжі в загальному сенсі (have breakfast) і незлічуваними іменниками в загальному значенні: Water is essential. З установами артикль залежить від значення: at school (як учень) та at the school (у конкретній школі).",
             "bodyEn": "The zero article is typical with names, singular country names (France, but the Netherlands), languages (English), meals in a general sense (have breakfast), and general uncountables: Water is essential. With institutions it depends on meaning: at school (as a pupil) vs at the school (the building).",
             "keyPointsUk": [
               "імена і більшість країн — без the",
@@ -205,12 +205,12 @@ const newUnits: UnitContent[] = [
             "promptUk": "Правильний варіант про воду загалом:",
             "promptEn": "The correct option about water in general:",
             "options": [
-              "Water boils at 100 degrees.",
-              "The water boils at 100 degrees. (загальне твердження)",
-              "A water boils at 100 degrees.",
-              "An water boils at 100 degrees."
+              "Water boils at 100 degrees Celsius at standard atmospheric pressure.",
+              "The water boils at 100 degrees Celsius at standard atmospheric pressure. (загальне твердження)",
+              "A water boils at 100 degrees Celsius at standard atmospheric pressure.",
+              "An water boils at 100 degrees Celsius at standard atmospheric pressure."
             ],
-            "optionsEn": ["Water boils at 100 degrees.", "The water boils at 100 degrees. (as a general statement)", "A water boils at 100 degrees.", "An water boils at 100 degrees."],
+            "optionsEn": ["Water boils at 100 degrees Celsius at standard atmospheric pressure.", "The water boils at 100 degrees Celsius at standard atmospheric pressure. (as a general statement)", "A water boils at 100 degrees Celsius at standard atmospheric pressure.", "An water boils at 100 degrees Celsius at standard atmospheric pressure."],
             "correctIndex": 0,
             "explanationUk": "Речовини в загальному значенні мають нульовий артикль: Water boils…",
             "explanationEn": "Substances in a general sense take the zero article: Water boils…"
@@ -271,11 +271,11 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-some-3",
             "type": "match",
-            "promptUk": "Зіставте",
-            "promptEn": "Match",
+            "promptUk": "Зіставте фрази зі словами, що відповідають уточненню в дужках",
+            "promptEn": "Match each phrase with the word that fits the hint in parentheses",
             "pairs": [
               {
-                "left": "I have ___ news.",
+                "left": "I have ___ news. (a small amount)",
                 "right": "some"
               },
               {
@@ -283,7 +283,7 @@ const newUnits: UnitContent[] = [
                 "right": "any"
               },
               {
-                "left": "I have ___ idea.",
+                "left": "I have ___ idea. (not one)",
                 "right": "no"
               }
             ]
@@ -303,8 +303,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Кількісні слова",
             "promptEn": "Quantifiers",
-            "bodyUk": "many і a few — з обчислюваними (many books, a few ideas). much і a little — з необчислюваними (much time, a little water). a few / a little означають «трохи, і цього досить»; few / little без a — «мало, недостатньо» (негативний відтінок). lots of підходить до обох типів у мовленні.",
-            "bodyEn": "many and a few go with countables (many books, a few ideas). much and a little go with uncountables (much time, a little water). a few / a little mean 'some, and that is enough'; few / little without a mean 'not enough' (a negative tone). lots of works with both types in speech.",
+            "bodyUk": "many і a few — зі злічуваними іменниками (many books, a few ideas). much і a little — з незлічуваними (much time, a little water). a few / a little підкреслюють, що певна кількість є; few / little без a наголошують, що її мало, часто недостатньо. Чи достатньо цієї кількості, залежить від контексту. lots of підходить до обох типів у розмовному мовленні.",
+            "bodyEn": "many and a few go with countable nouns (many books, a few ideas). much and a little go with uncountable nouns (much time, a little water). a few / a little emphasize that some exists; few / little without a emphasize scarcity, often suggesting there is not enough. Whether the amount is sufficient depends on context. lots of works with both types in informal speech.",
             "keyPointsUk": [
               "many/a few — обчислювані",
               "much/a little — необчислювані",
@@ -320,7 +320,7 @@ const newUnits: UnitContent[] = [
             "id": "en-q-1",
             "type": "mcq",
             "promptUk": "We have ___ time (необчислюване, «трохи є»).",
-            "promptEn": "We have ___ time (uncountable, 'a small amount, enough').",
+            "promptEn": "We have ___ time (uncountable, 'a small amount').",
             "options": [
               "a little",
               "a few",
@@ -378,8 +378,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Zero conditional",
             "promptEn": "Zero conditional",
-            "bodyUk": "Zero conditional описує загальні факти й інструкції: If you heat ice, it melts. Обидві частини — Present Simple. if і when майже взаємозамінні, бо умова повторювана. Коми ставлять, коли if-частина на початку.",
-            "bodyEn": "The zero conditional describes general facts and instructions: If you heat ice, it melts. Both clauses use the Present Simple. if and when are almost interchangeable, because the condition is habitual. Use a comma when the if-clause comes first.",
+            "bodyUk": "Zero conditional описує загальні закономірності: If you heat ice, it melts. У цьому шаблоні обидві частини мають Present Simple. If позначає умову, а when — випадок, який очікується або регулярно відбувається; у деяких загальних твердженнях можливі обидва слова, але їхні відтінки різняться. Після if-частини на початку зазвичай ставлять кому.",
+            "bodyEn": "The zero conditional describes general patterns: If you heat ice, it melts. In this pattern both clauses use the Present Simple. If marks a condition, while when refers to an expected or recurring occurrence; both can fit some general statements, but their meanings differ. Usually place a comma after an opening if-clause.",
             "keyPointsUk": [
               "обидві частини Present Simple",
               "загальні факти й інструкції",
@@ -398,9 +398,7 @@ const newUnits: UnitContent[] = [
             "promptEn": "Fill in the verb",
             "sentence": "If you press this button, the light ___ on. (turn)",
             "accepted": [
-              "turns",
-              "comes",
-              "goes"
+              "turns"
             ]
           },
           {
@@ -409,10 +407,10 @@ const newUnits: UnitContent[] = [
             "promptUk": "Правильний нульовий тип:",
             "promptEn": "A correct zero conditional:",
             "options": [
-              "If water reaches 100°C, it boils.",
-              "If water will reach 100°C, it boils.",
-              "If water reached 100°C, it boils.",
-              "If water reach 100°C, it boil."
+              "If you heat ice, it melts.",
+              "If you will heat ice, it melts.",
+              "If you heated ice, it melts.",
+              "If you heat ice, it melt."
             ],
             "correctIndex": 0,
             "explanationUk": "Present Simple в обох частинах.",
@@ -481,9 +479,7 @@ const newUnits: UnitContent[] = [
             "promptEn": "The future in the main clause",
             "sentence": "If she calls, I ___ you know.",
             "accepted": [
-              "will let",
-              "I'll let",
-              "will tell"
+              "will let"
             ]
           },
           {
@@ -506,7 +502,7 @@ const newUnits: UnitContent[] = [
             "type": "translate",
             "promptUk": "Перекладіть англійською",
             "promptEn": "Translate into English",
-            "source": "Якщо я побачу її, я скажу.",
+            "source": "Якщо я побачу її, я скажу їй.",
             "accepted": [
               "if i see her i will tell her",
               "if i see her i'll tell her",
@@ -549,9 +545,7 @@ const newUnits: UnitContent[] = [
             "promptEn": "Fill in the would form",
             "sentence": "If I lived closer, I ___ walk to work.",
             "accepted": [
-              "would",
-              "I'd",
-              "would walk"
+              "would"
             ]
           },
           {
@@ -610,16 +604,16 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Third conditional",
             "promptEn": "Third conditional",
-            "bodyUk": "Third conditional жалкує про минуле, яке вже не змінити: If I had left earlier, I would have caught the train. Після if — Past Perfect, у головній — would have + V3. Скорочення: If I'd left, I would've caught. Не плутайте з другим типом: тут ідеться про факт, який не стався.",
-            "bodyEn": "The third conditional regrets a past that cannot be changed: If I had left earlier, I would have caught the train. After if you use Past Perfect; the main clause uses would have + V3. Contractions: If I'd left, I would've caught. Do not confuse it with the second type: this is about a fact that did not happen.",
+            "bodyUk": "Third conditional описує уявну умову в минулому та її можливий минулий наслідок: If I had left earlier, I would have caught the train. Це може виражати жаль, але не обов'язково. Після if — Past Perfect, у головній частині — would have + V3. Скорочення: If I'd left, I would've caught.",
+            "bodyEn": "The third conditional describes an imagined past condition and its possible past result: If I had left earlier, I would have caught the train. It can express regret, but does not have to. The if-clause uses Past Perfect; the main clause uses would have + V3. Contractions: If I'd left, I would've caught.",
             "keyPointsUk": [
               "if + Past Perfect, головна + would have + V3",
-              "жаль про минуле",
+              "уявна ситуація та наслідок у минулому",
               "скорочення I'd / would've"
             ],
             "keyPointsEn": [
               "if + Past Perfect, main clause + would have + V3",
-              "regret about the past",
+              "an imagined past condition and result",
               "contractions I'd / would've"
             ]
           },
@@ -631,8 +625,7 @@ const newUnits: UnitContent[] = [
             "sentence": "If we had booked earlier, we ___ found a better room. (would have)",
             "accepted": [
               "would have",
-              "would've",
-              "would have found"
+              "would've"
             ]
           },
           {
@@ -659,7 +652,8 @@ const newUnits: UnitContent[] = [
             "accepted": [
               "якби я знав я б допоміг",
               "якби я знала я б допомогла",
-              "якби я знав, я допоміг би"
+              "якби я знав, я допоміг би",
+              "якби я знала, я допомогла б"
             ],
             "direction": "en_uk"
           }
@@ -753,8 +747,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Три робочі фразові",
             "promptEn": "Three workplace phrasals",
-            "bodyUk": "set up означає організувати або встановити (set up a meeting, set up a server). carry out — виконати план, дослідження чи наказ. follow up — зробити наступний крок після розмови чи листа (follow up with an email). Частинка не завжди віддільна: carry out the plan / carry the plan out, але follow up with когось — with лишається.",
-            "bodyEn": "set up means to organise or install (set up a meeting, set up a server). carry out means to perform a plan, a study or an order. follow up means to take the next step after a talk or a letter (follow up with an email). The particle is not always separable: carry out the plan / carry the plan out, but follow up with someone keeps with in place.",
+            "bodyUk": "set up означає організувати або встановити (set up a meeting, set up a server). carry out — виконати план, дослідження чи наказ. follow up означає продовжити дію: follow up with an email — написати листа після попереднього контакту, follow up a lead — перевірити отриману зачіпку. Carry out віддільне: carry out the plan / carry the plan out; у follow up with someone прийменник with стоїть перед людиною.",
+            "bodyEn": "set up means to organise or install (set up a meeting, set up a server). carry out means to perform a plan, a study or an order. follow up means to take further action: follow up with an email after an earlier contact, or follow up a lead by investigating it. Carry out is separable: carry out the plan / carry the plan out; in follow up with someone, with comes before the person.",
             "keyPointsUk": [
               "set up — організувати або встановити",
               "carry out — виконати",
@@ -906,17 +900,17 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Навчальні фразові",
             "promptEn": "Study phrasals",
-            "bodyUk": "look up — знайти інформацію в довіднику чи в мережі. go over — переглянути або розібрати матеріал (go over the notes). figure out — зрозуміти, розв'язати задачу самостійно. look up the word, не look the word (без up значення інше).",
-            "bodyEn": "look up means to find information in a reference or online. go over means to review or walk through material (go over the notes). figure out means to understand or solve a problem yourself. look up the word — without up, look has a different meaning.",
+            "bodyUk": "look up — знайти інформацію в довіднику чи в мережі. go over — переглянути або розібрати матеріал (go over the notes). figure out — зрозуміти щось або знайти розв'язання; це можна зробити і з чиєюсь допомогою. Look up the word означає знайти слово в довіднику; без up значення змінюється.",
+            "bodyEn": "look up means to find information in a reference or online. go over means to review or walk through material (go over the notes). figure out means to understand something or find a solution, alone or with help. Look up the word means find it in a reference; without up the meaning changes.",
             "keyPointsUk": [
               "look up — знайти в довіднику",
               "go over — переглянути матеріал",
-              "figure out — самостійно зрозуміти"
+              "figure out — зрозуміти або розв'язати"
             ],
             "keyPointsEn": [
               "look up means find in a reference",
               "go over means review material",
-              "figure out means work it out yourself"
+              "figure out means understand or solve"
             ]
           },
           {
@@ -932,8 +926,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-pv3-2",
             "type": "mcq",
-            "promptUk": "Let's ___ the exam topics once more.",
-            "promptEn": "Let's ___ the exam topics once more.",
+            "promptUk": "Оберіть фразове дієслово зі значенням «повторити матеріал»: Let's ___ the exam topics once more.",
+            "promptEn": "Choose the phrasal verb meaning 'review': Let's ___ the exam topics once more.",
             "options": [
               "go over",
               "look up",
@@ -941,14 +935,14 @@ const newUnits: UnitContent[] = [
               "take off"
             ],
             "correctIndex": 0,
-            "explanationUk": "go over — спільний перегляд.",
-            "explanationEn": "go over is a shared review."
+            "explanationUk": "go over означає переглянути або повторити матеріал; це можна робити самому чи разом.",
+            "explanationEn": "go over means to review material, either alone or together."
           },
           {
             "id": "en-pv3-3",
             "type": "order_words",
-            "promptUk": "Складіть речення",
-            "promptEn": "Build the sentence",
+            "promptUk": "Складіть речення з порядком слів figure out this error.",
+            "promptEn": "Build the sentence using the word order figure out this error.",
             "words": [
               "error",
               "this",
@@ -1092,7 +1086,9 @@ const newUnits: UnitContent[] = [
             "accepted": [
               "будь ласка зробіть наступний крок листом",
               "будь ласка напишіть наступного листа",
-              "прошу продовжити листом"
+              "прошу продовжити листом",
+              "будь ласка напишіть електронного листа",
+              "будь ласка надішліть електронного листа"
             ],
             "direction": "en_uk"
           },
@@ -1133,19 +1129,19 @@ const newUnits: UnitContent[] = [
             "keyPointsUk": [
               "said + зсув часів назад",
               "will стає would",
-              "вічні факти можна не зсувати"
+              "якщо факт і досі актуальний, час може не змінюватися"
             ],
             "keyPointsEn": [
               "said plus a tense shift back",
               "will becomes would",
-              "eternal facts can keep the present"
+              "a still-current fact can keep the present tense"
             ]
           },
           {
             "id": "en-rs-1",
             "type": "mcq",
-            "promptUk": "She said, 'I am tired.' → She said she ___ tired.",
-            "promptEn": "She said, 'I am tired.' → She said she ___ tired.",
+            "promptUk": "Передайте слова зі зсувом часу: She said, 'I am tired.' → She said she ___ tired.",
+            "promptEn": "Report the words with backshift: She said, 'I am tired.' → She said she ___ tired.",
             "options": [
               "was",
               "is",
@@ -1153,8 +1149,8 @@ const newUnits: UnitContent[] = [
               "had been"
             ],
             "correctIndex": 0,
-            "explanationUk": "Present Simple зсувається в Past Simple.",
-            "explanationEn": "Present Simple shifts to Past Simple."
+            "explanationUk": "Зі зсувом часу am стає was. Без зсуву is також можливе, якщо стан досі актуальний.",
+            "explanationEn": "With backshift, am becomes was. Without backshift, is can also be possible if the state is still current."
           },
           {
             "id": "en-rs-2",
@@ -1169,8 +1165,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-rs-3",
             "type": "translate",
-            "promptUk": "Перекладіть непрямою мовою від 'I have finished.' після she said",
-            "promptEn": "Report 'I have finished.' after she said",
+            "promptUk": "Перекладіть українською речення з непрямою мовою",
+            "promptEn": "Translate the reported statement into Ukrainian",
             "source": "She said she had finished.",
             "accepted": [
               "вона сказала що вже закінчила",
@@ -1193,24 +1189,24 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Порядок слів у непрямому питанні",
             "promptEn": "Word order in reported questions",
-            "bodyUk": "Непряме питання має порядок розповіді, не питальний: She asked where I lived, не where did I live. Для yes/no використовують if або whether: He asked if I was ready. Питальний допоміжний do/does/did зникає; зсув часів той самий, що в розповідях. Крапки замінюють знак питання.",
-            "bodyEn": "A reported question uses statement order, not question order: She asked where I lived, not where did I live. For yes/no questions use if or whether: He asked if I was ready. The auxiliary do/does/did disappears; the tense shift is the same as in statements. A full stop replaces the question mark.",
+            "bodyUk": "Непряме питання має порядок слів розповідного речення: She asked where I lived, не where did I live. Для yes/no використовують if або whether: He asked if I was ready. Допоміжне do/does/did, потрібне лише для прямого питання, зникає; зсув часу залежить від контексту. Речення She asked where I lived закінчується крапкою, але пряме питання з непрямою частиною зберігає знак питання: Do you know where she lives?",
+            "bodyEn": "A reported question uses statement word order: She asked where I lived, not where did I live. For yes/no questions use if or whether: He asked if I was ready. Auxiliary do/does/did used only to form the direct question disappears; backshift depends on context. The statement She asked where I lived ends with a full stop, but a direct question containing an embedded question keeps its question mark: Do you know where she lives?",
             "keyPointsUk": [
               "порядок слів як у розповіді",
               "yes/no → if/whether",
-              "без do/does/did"
+              "без питального допоміжного do/does/did"
             ],
             "keyPointsEn": [
               "statement word order",
               "yes/no becomes if/whether",
-              "no do/does/did"
+              "no question-forming auxiliary do/does/did"
             ]
           },
           {
             "id": "en-rq-1",
             "type": "mcq",
-            "promptUk": "'Where do you work?' → She asked where ___.",
-            "promptEn": "'Where do you work?' → She asked where ___.",
+            "promptUk": "Передайте питання зі зсувом часу: 'Where do you work?' → She asked where ___.",
+            "promptEn": "Report the question with backshift: 'Where do you work?' → She asked where ___.",
             "options": [
               "I worked",
               "do I work",
@@ -1456,9 +1452,9 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-rr-4",
             "type": "translate",
-            "promptUk": "Перекладіть непрямою",
-            "promptEn": "Report it",
-            "source": "'I will call today,' she said (повідомляємо наступного тижня).",
+            "promptUk": "Передайте англійською непрямою мовою; час розповіді зазначено в дужках.",
+            "promptEn": "Report the statement in English from the time given in parentheses.",
+            "source": "Вона сказала: «Я зателефоную сьогодні». (Ви переказуєте це наступного тижня.)",
             "accepted": [
               "she said she would call that day",
               "she said that she would call that day"
@@ -1487,8 +1483,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Три рівні місця",
             "promptEn": "Three levels of place",
-            "bodyUk": "at вказує на точку (at the door, at the station, at 14 High Street). on — на поверхні або лінії (on the table, on the wall, on Oxford Street). in — всередині об'єму або території (in the room, in Kyiv, in Ukraine). Винятки варто запам'ятати: at home (не in home), on a bus/train, in a car, at the office як місце роботи. Велике місто — in; конкретна адреса з номером — at.",
-            "bodyEn": "at marks a point (at the door, at the station, at 14 High Street). on marks a surface or a line (on the table, on the wall, on Oxford Street). in marks the inside of a volume or a territory (in the room, in Kyiv, in Ukraine). Memorise the exceptions: at home (not in home), on a bus/train, in a car, at the office as a workplace. A city takes in; a street number takes at.",
+            "bodyUk": "at часто вказує на точку (at the door, at the station, at 14 High Street). on — на поверхні (on the table, on the wall), in — всередині або на території (in the room, in Kyiv). Із назвами вулиць можливі on та, особливо в британській англійській, in. Запам'ятайте поширені вирази: at home, on a bus/train, in a car, at the office. Вибір залежить і від контексту: at the station означає на станції як у точці, а in the station — усередині будівлі.",
+            "bodyEn": "at often marks a point (at the door, at the station, at 14 High Street). on marks a surface (on the table, on the wall), and in marks an interior or area (in the room, in Kyiv). With street names, on and, especially in British English, in are possible. Learn common expressions: at home, on a bus/train, in a car, at the office. Context matters too: at the station treats it as a point, while in the station emphasizes the building's interior.",
             "keyPointsUk": [
               "at — точка, on — поверхня, in — всередина",
               "at home, on a bus, in a car",
@@ -1692,17 +1688,17 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-pd-c",
             "type": "concept",
-            "promptUk": "Дієслово + прийменник",
-            "promptEn": "Verb plus a preposition",
-            "bodyUk": "Багато дієслів вимагають фіксованого прийменника: depend on, listen to, look at, wait for, belong to, consist of, apply for, complain about, deal with, succeed in, responsible for, interested in, good at, afraid of, similar to. Це не «логіка місця» — їх треба вчитися разом із дієсловом. Після прийменника займенник у object form (depend on him), а дієслово — у -ing (succeed in doing, interested in learning).",
-            "bodyEn": "Many verbs take a fixed preposition: depend on, listen to, look at, wait for, belong to, consist of, apply for, complain about, deal with, succeed in, responsible for, interested in, good at, afraid of, similar to. This is not 'place logic' — learn them together with the verb. After a preposition the pronoun is in the object form (depend on him) and a verb takes -ing (succeed in doing, interested in learning).",
+            "promptUk": "Слова із залежними прийменниками",
+            "promptEn": "Words with dependent prepositions",
+            "bodyUk": "Вивчайте прийменники разом зі словами: дієсловами depend on, listen to, wait for, apply for, deal with, succeed in та прикметниками responsible for, interested in, good at, afraid of, similar to. Після прийменника займенник має об'єктну форму (depend on him), а якщо далі йде дієслово, зазвичай вживають форму на -ing (interested in learning).",
+            "bodyEn": "Learn prepositions with the words they follow: verbs such as depend on, listen to, wait for, apply for, deal with and succeed in, and adjectives such as responsible for, interested in, good at, afraid of and similar to. After a preposition, a pronoun takes its object form (depend on him); a following verb normally takes the -ing form (interested in learning).",
             "keyPointsUk": [
-              "фіксований прийменник треба вчити з дієсловом",
+              "вивчайте прийменник разом із дієсловом або прикметником",
               "після прийменника: object form і -ing",
               "interested in, good at, responsible for"
             ],
             "keyPointsEn": [
-              "learn the fixed preposition with the verb",
+              "learn the preposition with its verb or adjective",
               "after a preposition: object form and -ing",
               "interested in, good at, responsible for"
             ]
@@ -1749,7 +1745,7 @@ const newUnits: UnitContent[] = [
             "options": [
               "for",
               "to",
-              "on",
+              "of",
               "at"
             ],
             "correctIndex": 0,
@@ -1871,8 +1867,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-rw-2",
             "type": "fill_blank",
-            "promptUk": "Реч",
-            "promptEn": "A thing",
+            "promptUk": "Вставте відносний займенник для речі (хоча тут його також можна опустити).",
+            "promptEn": "Insert a relative pronoun for a thing (although it can also be omitted here).",
             "sentence": "This is the API ___ we documented last week.",
             "accepted": [
               "that",
@@ -1909,8 +1905,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Місце, час, приналежність",
             "promptEn": "Place, time, possession",
-            "bodyUk": "where замінює in/at which для місць: the office where I work. when — для часу: the year when we launched. whose — приналежність і для людей, і для речей: a team whose backlog is huge; a company whose CEO resigned. Не плутайте whose і who's (who is / who has). Після whose стоїть іменник, не дієслово.",
-            "bodyEn": "where replaces in/at which for places: the office where I work. when is used for time: the year when we launched. whose marks possession for both people and things: a team whose backlog is huge; a company whose CEO resigned. Do not confuse whose and who's (who is / who has). After whose comes a noun, not a verb.",
+            "bodyUk": "where може замінювати in/at which для місць: the office where I work. when — для часу: the year when we launched. whose позначає належність і для людей, і для речей: a team whose backlog is huge; a company whose CEO resigned. Не плутайте whose і who's (who is / who has). Whose визначає іменник або іменникову групу: whose car, whose new car.",
+            "bodyEn": "where can replace in/at which for places: the office where I work. when is used for time: the year when we launched. whose marks possession for people and things: a team whose backlog is huge; a company whose CEO resigned. Do not confuse whose and who's (who is / who has). Whose modifies a noun or noun phrase: whose car, whose new car.",
             "keyPointsUk": [
               "where — місце, when — час",
               "whose — приналежність (і для речей)",
@@ -1929,7 +1925,8 @@ const newUnits: UnitContent[] = [
             "promptEn": "Place",
             "sentence": "This is the desk ___ I sit.",
             "accepted": [
-              "where"
+              "where",
+              "at which"
             ]
           },
           {
@@ -1974,15 +1971,15 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Коли that/who можна опустити",
             "promptEn": "When that/who can be dropped",
-            "bodyUk": "Якщо відносний займенник є додатком, його можна опустити: the book (that) I read, the person (who) I met. Якщо він є підметом, пропускати не можна: the book that arrived (не the book arrived як відносне). Прийменник може стояти в кінці (the issue I told you about) або, формальніше, перед займенником (the issue about which I told you). Після прийменника that не ставлять: about which, не about that.",
-            "bodyEn": "If the relative pronoun is an object, you can omit it: the book (that) I read, the person (who) I met. If it is the subject, you cannot drop it: the book that arrived (not the book arrived as a relative). A preposition can go at the end (the issue I told you about) or, more formally, before the pronoun (the issue about which I told you). After a preposition, that is not used: about which, not about that.",
+            "bodyUk": "У визначальному відносному реченні займенник-додаток можна опустити: the book (that) I read, the person (who) I met. Займенник-підмет не опускають: the book that arrived. У невизначальному реченні з комами займенник теж зберігають: the book, which I read, …. Прийменник може стояти наприкінці (the issue I told you about) або, формальніше, перед займенником (the issue about which I told you). Одразу після прийменника that не ставлять.",
+            "bodyEn": "In a defining relative clause, an object pronoun can be omitted: the book (that) I read, the person (who) I met. A subject pronoun cannot be dropped: the book that arrived. Keep the pronoun in a non-defining clause with commas too: the book, which I read, …. A preposition can go at the end (the issue I told you about) or, more formally, before the pronoun (the issue about which I told you). Do not use that immediately after a preposition.",
             "keyPointsUk": [
-              "додаток можна опустити, підмет — ні",
+              "у визначальному реченні займенник-додаток можна опустити, підмет — ні",
               "прийменник часто в кінці речення",
               "після прийменника: which/whom, не that"
             ],
             "keyPointsEn": [
-              "an object pronoun can be dropped, a subject cannot",
+              "in defining clauses an object pronoun can be dropped, a subject cannot",
               "the preposition often goes at the end",
               "after a preposition use which/whom, not that"
             ]
@@ -2043,8 +2040,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Коми й додаткова інформація",
             "promptEn": "Commas and extra information",
-            "bodyUk": "Невизначальне відносне речення додає інформацію про вже відомий іменник і виділяється комами (на письмі) або паузою (в мовленні): The API, which we launched in May, is stable. Його можна викинути, і речення лишиться граматичним. that тут не використовують; which/who обов'язкові. Для людей у формальному стилі — who, не which. Такі речення не обмежують множину: my parents, who live in Lviv — обидва батьки.",
-            "bodyEn": "A non-defining relative clause adds information about an already identified noun and is set off by commas in writing (or a pause in speech): The API, which we launched in May, is stable. You can remove it and the sentence stays grammatical. that is not used here; which/who are required. For people in formal style use who, not which. These clauses do not restrict the set: my parents, who live in Lviv — both parents.",
+            "bodyUk": "Невизначальне відносне речення додає інформацію про вже відомий іменник і виділяється комами на письмі: The API, which we launched in May, is stable. Його можна прибрати, і речення лишиться граматичним. That тут не використовують, а відносне слово не опускають: наприклад, which для речі або who для людини. Такі речення не обмежують множину: my parents, who live in Lviv — обидва батьки.",
+            "bodyEn": "A non-defining relative clause adds information about an already identified noun and is set off by commas in writing: The API, which we launched in May, is stable. You can remove it and the sentence stays grammatical. That is not used here, and the relative word is retained: for example, which for a thing or who for a person. These clauses do not restrict the set: my parents, who live in Lviv — both parents.",
             "keyPointsUk": [
               "коми відокремлюють додаткову інформацію",
               "that не вживають",
@@ -2087,10 +2084,12 @@ const newUnits: UnitContent[] = [
             "type": "translate",
             "promptUk": "Перекладіть",
             "promptEn": "Translate",
-            "source": "My manager, who is on leave, asked me to lead.",
+            "source": "My manager, who is on leave, asked me to lead the meeting.",
             "accepted": [
-              "мій керівник який зараз у відпустці попросив мене вести",
-              "мій менеджер що у відпустці попросив мене очолити"
+              "мій керівник який зараз у відпустці попросив мене провести зустріч",
+              "мій менеджер що у відпустці попросив мене провести зустріч",
+              "моя керівниця яка у відпустці попросила мене провести зустріч",
+              "моя менеджерка яка у відпустці попросила мене провести зустріч"
             ],
             "direction": "en_uk"
           }
@@ -2200,7 +2199,7 @@ const newUnits: UnitContent[] = [
             "keyPointsEn": [
               "can is present ability and informal permission",
               "could is past ability or a polite request",
-              "a one-off past success takes was able to"
+              "for a one-off past success, was able to is often natural"
             ]
           },
           {
@@ -2257,17 +2256,17 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Обов'язок і порада",
             "promptEn": "Obligation and advice",
-            "bodyUk": "must — сильний обов'язок з боку мовця або внутрішня необхідність (You must rotate the keys). have to — зовнішній обов'язок (правило, закон, політика): I have to wear a badge. Заперечення різні: mustn't — заборона; don't have to — немає обов'язку (можна не робити). should / ought to — порада, не наказ: You should add tests. Для минулого обов'язку — had to; докір — should have + V3 (You should have asked).",
-            "bodyEn": "must is a strong obligation from the speaker or an inner necessity (You must rotate the keys). have to is an external obligation (a rule, a law, a policy): I have to wear a badge. The negatives differ: mustn't is a prohibition; don't have to means there is no obligation (you may skip it). should / ought to is advice, not an order: You should add tests. Past obligation is had to; a reproach is should have + past participle (You should have asked).",
+            "bodyUk": "must і have to можуть виражати сильний обов'язок. Must часто передає наголос мовця на необхідності; have to часто описує зовнішню вимогу, але обидва можливі для правил. Заперечення різні: mustn't — заборона; don't have to — відсутність обов'язку. Should / ought to часто виражають пораду: You should add tests. Минулий обов'язок — had to; should have + V3 може позначати пораду або докір щодо минулого.",
+            "bodyEn": "must and have to can both express strong obligation. Must often emphasizes the speaker's view of necessity; have to often describes an external requirement, but both can express rules. Their negatives differ: mustn't means prohibition; don't have to means no obligation. Should / ought to often express advice: You should add tests. Use had to for past obligation; should have + past participle can express advice or criticism about the past.",
             "keyPointsUk": [
-              "must — обов'язок мовця, have to — зовнішнє правило",
+              "must і have to виражають обов'язок, часто з різним акцентом",
               "mustn't ≠ don't have to",
-              "should — порада; should have — докір про минуле"
+              "should — порада; should have — оцінка минулої дії"
             ],
             "keyPointsEn": [
-              "must is the speaker's obligation, have to is an external rule",
+              "must and have to express obligation, often with different emphasis",
               "mustn't is not don't have to",
-              "should is advice; should have is a past reproach"
+              "should is advice; should have evaluates a past action"
             ]
           },
           {
@@ -2327,8 +2326,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Ступінь упевненості",
             "promptEn": "Degree of certainty",
-            "bodyUk": "must + інфінітив може означати логічний висновок, не обов'язок: The tests are red — the deploy must have failed. may / might — можливість; might часто трохи слабший. can't — логічне виключення: It can't be the DNS, we already checked. Для минулого: must have + V3 (ймовірно сталося), might have + V3 (можливо сталося), can't have + V3 (не могло статись). Не плутайте must = обов'язок і must = висновок: контекст і тон вирішують.",
-            "bodyEn": "must + infinitive can be a logical conclusion, not an obligation: The tests are red — the deploy must have failed. may / might express possibility; might is often a little weaker. can't is a logical exclusion: It can't be the DNS, we already checked. For the past: must have + past participle (probably happened), might have + past participle (possibly happened), can't have + past participle (could not have happened). Do not confuse must as obligation with must as a conclusion: context and tone decide.",
+            "bodyUk": "must може виражати сильний висновок мовця: The office is dark; they must have left. Це припущення на підставі ознак, а не доказ. May / might виражають можливість; різниця між ними залежить від контексту. Can't може виражати висновок про неможливість. Для минулого вживають must / might / can't have + V3. Значення must як обов'язку або висновку визначає контекст.",
+            "bodyEn": "must can express a strong inference: The office is dark; they must have left. This is a conclusion based on evidence, not proof. May / might express possibility; the difference depends on context. Can't can express an inference that something is impossible. For the past, use must / might / can't have + a past participle. Context distinguishes must as obligation from must as inference.",
             "keyPointsUk": [
               "must + V — також логічний висновок",
               "may/might — можливість",
@@ -2432,10 +2431,9 @@ const newUnits: UnitContent[] = [
             "type": "fill_blank",
             "promptUk": "Спонтанне рішення",
             "promptEn": "A spontaneous decision",
-            "sentence": "The build is red. I___ restart the runner.",
+            "sentence": "The build is red. I ___ restart the runner.",
             "accepted": [
-              "'ll",
-              " will"
+              "will"
             ]
           },
           {
@@ -2513,8 +2511,8 @@ const newUnits: UnitContent[] = [
           {
             "id": "en-mrv-4",
             "type": "mcq",
-            "promptUk": "You should have asked — це:",
-            "promptEn": "You should have asked is:",
+            "promptUk": "You should have asked — що може означати ця фраза?",
+            "promptEn": "What can 'You should have asked' express?",
             "options": [
               "a reproach about the past",
               "a future obligation",
@@ -2522,8 +2520,8 @@ const newUnits: UnitContent[] = [
               "a permission"
             ],
             "correctIndex": 0,
-            "explanationUk": "should have — докір щодо минулого.",
-            "explanationEn": "should have is a reproach about the past."
+            "explanationUk": "Should have може виражати докір або пораду щодо минулого; тон залежить від контексту.",
+            "explanationEn": "Should have can express criticism or advice about the past; its tone depends on context."
           }
         ],
       },
@@ -2547,8 +2545,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Структура й тон листа",
             "promptEn": "Email structure and tone",
-            "bodyUk": "Короткий службовий лист має тему, яка вже каже дію (Request: review of PR #412, не Hi), привітання, один абзац контексту, чітке прохання з дедлайном і ввічливе закінчення. Please finds attached застаріле й важке; природніше I'm attaching… або Attached is…. Could you / Would you mind м'якші за You need to. У відповіді цитуйте лише потрібне і відповідайте на кожен пункт. Unclear subjects і Reply-all без потреби витрачають час команди.",
-            "bodyEn": "A short work email has a subject that already states the action (Request: review of PR #412, not Hi), a greeting, one paragraph of context, a clear ask with a deadline, and a polite close. Please find attached is dated and heavy; I'm attaching… or Attached is… is more natural. Could you / Would you mind are softer than You need to. In a reply, quote only what is needed and answer each point. Unclear subjects and unnecessary Reply-all waste the team's time.",
+            "bodyUk": "Зрозумілий службовий лист має конкретну тему (Request: review of PR #412), привітання, необхідний контекст, чітке прохання та ввічливе закінчення. Вказуйте термін, коли він справді потрібен. Please find attached — коректна формальна фраза; простіші варіанти — I'm attaching… або Attached is…. Could you / Would you mind часто звучать м'якше за You need to. У відповіді цитуйте лише потрібне та використовуйте Reply all, коли відповідь потрібна всім адресатам.",
+            "bodyEn": "A clear work email has a specific subject (Request: review of PR #412), a greeting, the necessary context, a clear request and a polite close. Include a deadline when one is needed. Please find attached is correct and formal; simpler alternatives include I'm attaching… and Attached is…. Could you / Would you mind are often softer than You need to. Quote only what is needed in a reply and use Reply all when all recipients need the answer.",
             "keyPointsUk": [
               "тема листа має називати дію",
               "чітке прохання і дедлайн",
@@ -2622,8 +2620,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Три речення статусу",
             "promptEn": "Three sentences of status",
-            "bodyUk": "Корисний стендап: що зроблено, що далі, що блокує — коротко, без роману. Yesterday I shipped the retry logic. Today I'll add metrics. I'm blocked on access to staging. Уникайте We are working on it без деталей: назвіть артефакт і наступний крок. Якщо блокера немає, так і скажіть (No blockers). Пасив I'm being blocked by X ясніший, коли треба назвати залежність, не людину. Yesterday I was doing meetings — слабкий статус; назвіть результат.",
-            "bodyEn": "A useful stand-up is: what was done, what is next, what is blocked — short, not a novel. Yesterday I shipped the retry logic. Today I'll add metrics. I'm blocked on access to staging. Avoid We are working on it with no detail: name the artifact and the next step. If there is no blocker, say so (No blockers). The passive I'm being blocked by X is clearer when you need to name a dependency, not a person. Yesterday I was doing meetings is a weak status; name a result.",
+            "bodyUk": "Корисний стендап стисло пояснює, що зроблено, що далі та які є перешкоди: Yesterday I shipped the retry logic. Today I'll add metrics. I'm blocked on access to staging. Назвіть конкретну залежність і наступний крок, наприклад: I'm waiting for staging access; I've asked the platform team. Якщо блокера немає, можна сказати No blockers. Замість переліку зустрічей за можливості назвіть ухвалене рішення або інший результат.",
+            "bodyEn": "A useful stand-up briefly explains what was done, what is next and what is blocked: Yesterday I shipped the retry logic. Today I'll add metrics. I'm blocked on access to staging. Name the specific dependency and next step, for example: I'm waiting for staging access; I've asked the platform team. If there is no blocker, you can say No blockers. Instead of just listing meetings, mention a decision or another outcome when possible.",
             "keyPointsUk": [
               "зроблено / далі / блокер",
               "називайте артефакт і наступний крок",
@@ -2668,7 +2666,8 @@ const newUnits: UnitContent[] = [
             "source": "No blockers. I'll open the PR today.",
             "accepted": [
               "блокерів немає відкрию PR сьогодні",
-              "немає блокерів я відкрию PR сьогодні"
+              "немає блокерів я відкрию PR сьогодні",
+              "перешкод немає сьогодні я відкрию PR"
             ],
             "direction": "en_uk"
           }
@@ -2687,8 +2686,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Відтворювані звіти",
             "promptEn": "Reproducible reports",
-            "bodyUk": "Хороший баг-репорт: очікувана поведінка, фактична, кроки відтворення, середовище (браузер, версія, акаунт), логи чи скрін. Steps to reproduce нумеруйте. Severity — вплив на користувача, priority — коли чинимо. Для інциденту потрібні impact, start time, current workaround і communication plan. Уникайте It doesn't work і The system is slow без виміру (p95 latency went from 200 ms to 2 s). Після інциденту — postmortem без звинувачень: що сталося, чому, що змінимо.",
-            "bodyEn": "A good bug report has expected behaviour, actual behaviour, steps to reproduce, the environment (browser, version, account), and logs or a screenshot. Number the steps to reproduce. Severity is impact on the user; priority is when we fix it. An incident needs impact, start time, the current workaround and a communication plan. Avoid It doesn't work and The system is slow with no measurement (p95 latency went from 200 ms to 2 s). After an incident, a blameless postmortem: what happened, why, and what we will change.",
+            "bodyUk": "Баг-репорт описує очікувану й фактичну поведінку, кроки відтворення та середовище; за потреби додайте логи чи скріншот без секретів і персональних даних. Severity описує серйозність впливу, а priority — черговість роботи. Для інциденту корисні impact, start time, відомий workaround і план комунікації; невідомі деталі позначайте як невідомі. Вимірювання на кшталт p95 latency went from 200 ms to 2 s точніше за The system is slow. Після інциденту можна провести розбір без звинувачень.",
+            "bodyEn": "A bug report describes expected and actual behaviour, reproduction steps and the environment; add logs or a screenshot when useful, removing secrets and personal data. Severity describes the seriousness of the impact; priority indicates the order of work. For an incident, record impact, start time, a known workaround and a communication plan, marking unknown details as unknown. A measurement such as p95 latency went from 200 ms to 2 s is more precise than The system is slow. A blameless review can follow the incident.",
             "keyPointsUk": [
               "очікуване, фактичне, кроки, середовище",
               "severity ≠ priority",
@@ -2766,8 +2765,8 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Читач і рішення",
             "promptEn": "The reader and the decision",
-            "bodyUk": "Документація відповідає на питання конкретного читача: як запустити, як викликати API, які обмеження. Пишіть у теперішньому часі, активному стані (The service returns 409, не 409 will be returned). Приклади мають бути копійованими й правдивими. Architecture Decision Record (ADR) фіксує контекст, варіанти, рішення і наслідки — щоб через рік було зрозуміло чому, не лише що. Застаріла документація гірша за коротку: позначте дату й власника, видаляйте мертві сторінки.",
-            "bodyEn": "Documentation answers a specific reader's question: how to run it, how to call the API, what the limits are. Write in the present tense and the active voice (The service returns 409, not 409 will be returned). Examples should be copy-pasteable and true. An Architecture Decision Record (ADR) captures context, options, the decision and consequences — so that a year later you can see why, not only what. Stale documentation is worse than short documentation: date it, name an owner, and delete dead pages.",
+            "bodyUk": "Документація відповідає на питання читача: як запустити сервіс, викликати API та які є обмеження. Активний стан часто ясніший: The service returns 409; пасивний теж доречний, якщо дія важливіша за виконавця. Перевіряйте приклади й зазначайте їхні передумови. Architecture Decision Record (ADR) фіксує контекст, варіанти, рішення і наслідки. Якщо рішення змінилося, пов'яжіть попередній запис із новим, щоб зберегти історію та пояснити причину зміни.",
+            "bodyEn": "Documentation answers a reader's questions: how to run a service, call an API and understand its limits. Active voice is often clearer: The service returns 409; passive voice is useful too when the action matters more than the actor. Verify examples and state their prerequisites. An Architecture Decision Record (ADR) captures context, options, a decision and consequences. When a decision changes, link the old record to the new one to preserve the history and explain why.",
             "keyPointsUk": [
               "відповідайте на питання читача",
               "активний стан і робочі приклади",
@@ -2816,6 +2815,22 @@ const newUnits: UnitContent[] = [
               "цей приклад копіюється і був протестований на стейджинг"
             ],
             "direction": "en_uk"
+          },
+          {
+            "id": "en-td-4",
+            "type": "mcq",
+            "promptUk": "Команда змінила архітектурне рішення. Який запис допоможе майбутньому читачеві зрозуміти історію?",
+            "promptEn": "The team has changed an architecture decision. Which record helps a future reader understand its history?",
+            "options": [
+              "Позначити попередній ADR як замінений і послатися на новий із причинами зміни",
+              "Видалити попередній ADR без пояснення",
+              "Залишити суперечливі рішення без посилань",
+              "Записати лише ім'я автора"
+            ],
+            "optionsEn": ["Mark the previous ADR as superseded and link to the new rationale", "Delete the previous ADR without explanation", "Leave conflicting decisions without links", "Record only the author's name"],
+            "correctIndex": 0,
+            "explanationUk": "Пов'язані записи зберігають контекст попереднього рішення й пояснюють зміну.",
+            "explanationEn": "Linked records preserve the earlier context and explain the change."
           }
         ],
       },
@@ -2832,17 +2847,17 @@ const newUnits: UnitContent[] = [
             "type": "concept",
             "promptUk": "Порядок денний і підсумок",
             "promptEn": "Agenda and notes",
-            "bodyUk": "Зустріч без порядку денного майже завжди довша, ніж треба. Порядок: мета, пункти з часом, потрібні люди, рішення які треба прийняти. Почніть із мети в одному реченні (We are here to choose a queue). Фасилітатор стежить за часом і паркує побічні теми. Наприкінці: рішення, власники, дедліни — записані в чаті чи документі, не лише в пам'яті. If we can do this async, cancel the meeting — нормальна культура. Let's take this offline — для тем, що не для всієї кімнати.",
-            "bodyEn": "A meeting without an agenda is almost always longer than it needs to be. An agenda lists the goal, timed items, the people who are needed, and the decisions that must be taken. Start with the goal in one sentence (We are here to choose a queue). The facilitator watches the clock and parks side topics. At the end: decisions, owners, deadlines — written in chat or a doc, not only in memory. If we can do this async, cancel the meeting is a healthy culture. Let's take this offline is for topics that are not for the whole room.",
+            "bodyUk": "Порядок денний допомагає учасникам підготуватися: зазначте мету, потрібні рішення й, за потреби, час на кожен пункт. Почніть із мети: We are here to choose a queue. Побічні теми можна записати й обговорити окремо: Let's take this offline. Наприкінці зафіксуйте рішення, наступні кроки, відповідальних і погоджені терміни; відкриті питання теж зазначте. Асинхронне обговорення може замінити зустріч, якщо учасники мають змогу вчасно долучитися.",
+            "bodyEn": "An agenda helps participants prepare: state the goal, decisions needed and, when useful, time for each item. Start with the goal: We are here to choose a queue. Note side topics for separate discussion: Let's take this offline. At the end, record decisions, next steps, owners and agreed deadlines; include open questions too. An asynchronous discussion can replace a meeting when participants can contribute in time.",
             "keyPointsUk": [
               "мета в одному реченні",
               "рішення, власники, дедліни — письмово",
-              "скасовуйте зустріч, якщо можна асинхронно"
+              "оберіть асинхронне обговорення, якщо воно підходить учасникам"
             ],
             "keyPointsEn": [
               "the goal in one sentence",
               "decisions, owners, deadlines in writing",
-              "cancel the meeting if it can be async"
+              "choose an asynchronous discussion when it suits participants"
             ]
           },
           {
@@ -2858,8 +2873,8 @@ const newUnits: UnitContent[] = [
             ],
             "optionsEn": ["decisions, owners, deadlines written down", "only Thanks everyone", "another brainstorming session without notes", "leaving silently"],
             "correctIndex": 0,
-            "explanationUk": "Без запису рішення зникне.",
-            "explanationEn": "Without a written record the decision will vanish."
+            "explanationUk": "Письмовий підсумок допомагає учасникам і відсутнім зрозуміти домовленості та наступні кроки.",
+            "explanationEn": "A written summary helps participants and absent colleagues understand the agreements and next steps."
           },
           {
             "id": "en-tm-2",

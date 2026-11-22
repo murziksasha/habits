@@ -57,6 +57,14 @@ const appRouting = unit(
         ["client"],
         true,
       ),
+      { ...mcq(
+        "nx-ar-e2",
+        "Де обробити помилку в `app/dashboard/layout.tsx`, якщо `app/dashboard/error.tsx` розташований у тому самому сегменті?",
+        "Where should an error from `app/dashboard/layout.tsx` be handled if `app/dashboard/error.tsx` is in the same segment?",
+        ["У межі помилки батьківського сегмента", "Лише в error.tsx того самого сегмента", "У loading.tsx того самого сегмента", "У браузерному localStorage"],
+        0,
+        why("Межа error.tsx розташована всередині layout того самого сегмента; для root layout потрібен global-error.tsx.", "The same-segment error boundary is nested inside its layout; root layout errors require global-error.tsx."),
+      ), optionsEn: ["In the parent segment's error boundary", "Only in error.tsx of the same segment", "In loading.tsx of the same segment", "In browser localStorage"] },
     ]),
   ],
 );
@@ -116,6 +124,14 @@ const serverClientBoundaries = unit(
         ],
         0,
       ),
+      { ...mcq(
+        "nx-scb-e2",
+        "Server Component має передати інтерактивному Client Component функцію форматування дати. Який варіант коректний?",
+        "A Server Component needs a Client Component to format a date interactively. Which approach is valid?",
+        ["Передати серіалізоване значення дати й визначити звичайну функцію форматування в клієнтському модулі", "Передати довільне серверне замикання як prop", "Передати пароль БД для форматування", "Вимкнути всі props клієнтського компонента"],
+        0,
+        why("Звичайна серверна функція не серіалізується через межу; форматування можна виконати в клієнтському модулі.", "A plain server function is not serializable across the boundary; formatting can live in the client module."),
+      ), optionsEn: ["Pass a serializable date value and define the formatter in the client module", "Pass an arbitrary server closure as a prop", "Pass the database password for formatting", "Disable all props on the client component"] },
     ]),
   ],
 );
@@ -132,8 +148,8 @@ const dataAccess = unit(
       3, true, [
         mcq(
           "nx-da1",
-          "Розробник перейменував `DATABASE_URL` на `NEXT_PUBLIC_DATABASE_URL`, бо клієнтський компонент сварився на `undefined`. Що щойно сталося при збірці?",
-          "A developer renamed `DATABASE_URL` to `NEXT_PUBLIC_DATABASE_URL` to read it cleanly in a client view. What just happened in the bundle?",
+          "Розробник перейменував `DATABASE_URL` на `NEXT_PUBLIC_DATABASE_URL` і прямо звернувся до `process.env.NEXT_PUBLIC_DATABASE_URL` у клієнтському коді. Який ризик під час збірки?",
+          "A developer renamed `DATABASE_URL` to `NEXT_PUBLIC_DATABASE_URL` and directly references `process.env.NEXT_PUBLIC_DATABASE_URL` in client code. What is the build-time risk?",
           [
             "Рядок підключення та пароль БД зашили прямо у публічний JavaScript браузера — це критичний витік секрету!",
             "Next.js автоматично захистив його паролем адміна",
@@ -142,8 +158,8 @@ const dataAccess = unit(
           ],
           0,
           why(
-            "Префікс `NEXT_PUBLIC_` означає вбудовування в публічний браузерний бандл. Усі секрети й запити до БД залишаються в серверному Data Access Layer (`server-only`).",
-            "Anything prefixed `NEXT_PUBLIC_` is inlined into public client JavaScript. Keep credentials strictly on the server.",
+            "Прямі звернення до `NEXT_PUBLIC_` можуть вбудовувати значення під час збірки в браузерний JavaScript. Динамічний доступ має іншу поведінку, але префікс означає, що значення слід вважати публічним; секрети лишаються на сервері.",
+            "Direct references to `NEXT_PUBLIC_` values can be inlined into client JavaScript at build time. Dynamic lookups behave differently, but treat the prefix as public; keep credentials on the server.",
           ),
         ),
         codeFill(
@@ -170,6 +186,14 @@ const dataAccess = unit(
         ],
         0,
       ),
+      { ...mcq(
+        "nx-da-e2",
+        "Серверний модуль БД випадково імпортували у Client Component. Який захист допомагає виявити помилку на етапі збірки?",
+        "A server database module is accidentally imported by a Client Component. Which guard helps catch this during the build?",
+        ["Імпортувати `server-only` у серверному модулі та залишити доступ до БД на сервері", "Перейменувати DATABASE_URL на NEXT_PUBLIC_DATABASE_URL", "Приховати компонент CSS-стилем", "Повернути клієнту повний об’єкт з усіма секретами"],
+        0,
+        why("Маркер server-only забороняє клієнтський імпорт серверного модуля; він не замінює авторизацію.", "The server-only marker rejects a client import of the server module; it does not replace authorization."),
+      ), optionsEn: ["Import `server-only` in the server module and keep database access on the server", "Rename DATABASE_URL to NEXT_PUBLIC_DATABASE_URL", "Hide the component with CSS", "Return the full object and all secrets to the client"] },
     ]),
   ],
 );
@@ -227,6 +251,14 @@ const mutationsActions = unit(
         ],
         0,
       ),
+      { ...mcq(
+        "nx-ma-e2",
+        "Залогінений користувач змінює taskId у запиті Server Action на ID чужої задачі. Що має перевірити сервер перед оновленням?",
+        "A signed-in user changes taskId in a Server Action request to another user's task. What must the server check before updating?",
+        ["Валідність введення та право цього користувача змінювати конкретну задачу в точці доступу до даних", "Лише те, що кнопка форми була видимою", "Лише формат taskId, без перевірки прав", "Лише наявність cookie без перевірки сесії"],
+        0,
+        why("Дані клієнта не доводять право на ресурс: перевіряйте сесію, вхідні дані й права для конкретної задачі.", "Client input does not prove resource access: verify the session, input and permission for the specific task."),
+      ), optionsEn: ["Validate input and authorize this user to modify the specific task at the data-access boundary", "Only check whether the form button was visible", "Only validate taskId format without checking permission", "Only check that a cookie exists without verifying the session"] },
     ]),
   ],
 );
@@ -272,6 +304,14 @@ const identityAuthz = unit(
         ],
         0,
       ),
+      { ...mcq(
+        "nx-ia-e2",
+        "Сесія користувача дійсна, але запит вказує на задачу іншої організації. Яка перевірка ще потрібна?",
+        "The user's session is valid, but the request targets a task in another organization. What additional check is required?",
+        ["Перевірити право користувача на конкретну організацію і задачу в серверному шарі даних", "Перевірити лише довжину cookie", "Довіритися прихованій кнопці в браузері", "Додати атрибут hidden до відповіді"],
+        0,
+        why("Автентифікація встановлює особу; авторизація визначає доступ до конкретного ресурсу.", "Authentication establishes identity; authorization determines access to the specific resource."),
+      ), optionsEn: ["Authorize the user's access to the specific organization and task in the server data layer", "Check only cookie length", "Trust a hidden browser button", "Add the hidden attribute to the response"] },
     ]),
   ],
 );
@@ -298,10 +338,31 @@ const cachingFailures = unit(
           ],
           0,
           why(
-            "Читання `cookies()` / `headers()` в App Router переводить рендер у динамічний по запиту, і приватні дані ніколи не повинні потрапляти у спільний публічний кеш.",
-            "Reading per-user session cookies opts out of shared static cache so user A's private data never leaks to user B.",
+            "У Next.js 15 читання `cookies()` / `headers()` зазвичай виключає маршрут із Full Route Cache, але Data Cache може залишатися активним. Окремо перевіряйте авторизацію та не кешуйте приватні дані спільним ключем; використовуйте no-store або безпечну ізоляцію кешу.",
+            "In Next.js 15, reading cookies normally opts the route out of the Full Route Cache, but the Data Cache can still be active. Independently enforce authorization and avoid a shared cache key for private data; use no-store or safe cache isolation.",
           ),
         ),
+        { ...mcq(
+          "nx-cf-data-cache",
+          "Сторінка читає session cookie та рендериться динамічно, але функція завантаження приватних задач кешується спільним ключем. Чи достатньо динамічного рендеру для ізоляції даних?",
+          "A page reads a session cookie and renders dynamically, but its private task loader uses a shared cache key. Does dynamic rendering alone isolate user data?",
+          [
+            "Ні: Data Cache може працювати окремо; перевіряйте права та вимкніть спільний кеш приватних даних або забезпечте безпечну ізоляцію",
+            "Так: cookies автоматично очищує кожен кеш даних",
+            "Так: приховане поле HTML гарантує ізоляцію",
+            "Так: revalidatePath замінює перевірку прав",
+          ],
+          0,
+          why(
+            "Динамічний рендер і кеш даних — різні механізми. Перевірка прав потрібна до кожного доступу до приватних даних.",
+            "Dynamic rendering and the Data Cache are separate. Authorize each access to private data.",
+          ),
+        ), optionsEn: [
+          "No: the Data Cache can remain active; authorize access and avoid a shared cache key for private data",
+          "Yes: cookies automatically clears every data cache",
+          "Yes: a hidden HTML field guarantees isolation",
+          "Yes: revalidatePath replaces authorization",
+        ] },
         codeFill(
           "nx-cf2",
           "Примусово оновити кеш сторінки після успішної мутації",
@@ -326,6 +387,14 @@ const cachingFailures = unit(
         ],
         0,
       ),
+      { ...mcq(
+        "nx-cf-e2",
+        "Динамічний маршрут читає cookie, але приватні дані задач кешуються спільним ключем. Як запобігти витоку?",
+        "A dynamic route reads cookies, but private task data is cached under a shared key. How do you prevent a leak?",
+        ["Перевірити права та відмовитися від спільного кешу приватних даних або забезпечити безпечну ізоляцію", "Вважати, що cookies автоматично вимкнули Data Cache", "Приховати дані CSS-стилем", "Замінити авторизацію викликом revalidatePath"],
+        0,
+        why("Динамічний рендер не гарантує ізоляцію Data Cache; права перевіряють незалежно від кешування.", "Dynamic rendering does not guarantee Data Cache isolation; authorization is independent of caching."),
+      ), optionsEn: ["Authorize access and avoid a shared cache for private data or ensure safe isolation", "Assume cookies automatically disabled the Data Cache", "Hide the data with CSS", "Replace authorization with revalidatePath"] },
     ]),
   ],
 );
@@ -347,7 +416,7 @@ const deployDiagnosticsCapstone = unit(
           "tsx",
           "export function TaskTime() {\n  return <span>{new Date().toLocaleTimeString()}</span>;\n}",
           [
-            "Недетермінований виклик `new Date()` під час рендеру дає різну мілісекунду/таймзону на сервері і клієнті; форматуйте фіксовану дату або рендерте живий локальний час після монтування (`useEffect`)",
+            "Недетермінований виклик `new Date()` під час рендеру дає різну мілісекунду/таймзону на сервері і клієнті; передайте однаковий попередньо відформатований рядок або рендерте локальний час після монтування (`useEffect`); сама фіксована дата без однакової локалі та часової зони може форматуватися по-різному",
             "Тому що `<span>` заборонений у Next.js",
             "`toLocaleTimeString()` не працює в Google Chrome",
             "Помилка через TypeScript версію",
@@ -398,8 +467,8 @@ const deployDiagnosticsCapstone = unit(
     exam("nx-dd-exam", "Контрольна: фінальна діагностика Next.js", "Checkpoint: Next.js Full-Stack", 4, [
       mcq(
         "nx-dd-e1",
-        "Який мінімальний набір перевірок гарантує відсутність зламаної Server/Client межі перед релізом Next.js?",
-        "Which check suite catches accidentally leaking server modules or broken hydration before release?",
+        "Який набір перевірок найкраще знижує ризик помилок Server/Client межі перед релізом Next.js?",
+        "Which check suite best reduces the risk of leaking server modules or broken hydration before release?",
         [
           "Strict TypeScript check + production build (`next build`) + тести DAL/мутацій на authz/DTO + smoke перевірка завантаження сторінки",
           "Лише запуск dev server на 1 секунду",
@@ -408,6 +477,14 @@ const deployDiagnosticsCapstone = unit(
         ],
         0,
       ),
+      { ...mcq(
+        "nx-dd-e2",
+        "Сервер і браузер форматують одну дату з різними часовими зонами під час першого рендеру. Як уникнути розбіжності гідратації?",
+        "Server and browser format the same date in different time zones on the initial render. How can you avoid a hydration mismatch?",
+        ["Передати однаковий форматований рядок для першого рендеру або показати локальний час після монтування", "Припустити, що фіксована дата завжди дає однаковий локальний рядок", "Додати секрет БД у клієнтський код", "Вимкнути серверну авторизацію"],
+        0,
+        why("Однакові початкові значення та форматування узгоджують HTML сервера й перший рендер клієнта.", "Matching initial values and formatting keep server HTML and the first client render consistent."),
+      ), optionsEn: ["Pass the same formatted string for the initial render or show local time after mounting", "Assume a fixed date always has the same local formatting", "Add the database secret to client code", "Disable server authorization"] },
     ]),
   ],
 );
@@ -432,3 +509,40 @@ export const nextjsFullstackContent: CourseContent = {
     deployDiagnosticsCapstone,
   ],
 };
+
+// The base builder accepts Ukrainian choices; attach the corresponding English choices by exercise ID.
+const englishChoices: Record<string, string[]> = {
+  "nx-ar2": ["React error boundaries require a Client Component and provide an interactive reset", "Server files cannot contain JSX", "error.tsx compiles to CSS", "Routes return 204 without it"],
+  "nx-scb1": ["Put the directive on the small interactive FilterBarClient and keep server data work on the server", "Put it on the root layout to make everything client-side", "Remove hooks and use document.write", "Create an Express server for every component"],
+  "nx-scb2": ["Props crossing the RSC boundary must be serializable; an ordinary server closure is not", "Date is forbidden in JavaScript", "Client Components cannot receive props", "Page must always be async"],
+  "nx-scb-e1": ["Its imports become part of the client module graph; keep DB drivers and secrets out", "The client file runs only inside Postgres", "Private environment variables are encrypted in the browser", "Next.js silently ignores the import"],
+  "nx-da1": ["The database connection string can be inlined into public browser JavaScript", "Next.js automatically protects it with an admin password", "The value is available only on the PostgreSQL port", "Nothing: nobody can inspect client bundles"],
+  "nx-da-e1": ["Create an explicit DTO without private fields before passing RSC props", "Pass the entire raw object because JSX hides unused fields", "Store it in a NEXT_PUBLIC_ variable", "Add the hidden HTML attribute"],
+  "nx-ma1": ["No: validate input, verify the session and authorize access in the server endpoint", "Yes: a compiler hardware token closes Server Actions", "Yes, if the function returns void", "Validation is only needed in the Pages Router"],
+  "nx-ma-e1": ["Use a Route Handler for explicit APIs or webhooks and a Server Action for form-related mutations", "Server Actions cannot use PostgreSQL", "Route Handlers cannot return JSON", "There is no difference in transport"],
+  "nx-ia1": ["Verify the session and resource permissions in the data layer; a cookie's presence and middleware matcher are insufficient", "Middleware always returns 200", "Cookies do not exist over HTTPS", "Middleware slows SQL indexes"],
+  "nx-ia-e1": ["No: verify session validity and the user's authorization for the resource", "Yes, if the cookie is longer than two characters", "Yes, in a React Client Component", "Checking User-Agent alone is enough"],
+  "nx-cf1": ["User B could see user A's private tasks in the cached HTML", "User A's font changes to Arial", "Postgres deletes the browser cache", "The page becomes twice as tall"],
+  "nx-cf-e1": ["Handle the failure or render error.tsx with a clear message and retry", "Show a blank 500 screen with database passwords", "Redirect endlessly to the same page", "Delete browser local storage"],
+  "nx-dd1": ["The current time and time zone can differ on server and client; share an initial string or render local time after mount", "A span is forbidden in Next.js", "toLocaleTimeString never works in Chrome", "TypeScript itself causes the error"],
+  "nx-fb1": ["Rendering, server data access and mutations are integrated near routes with narrow client boundaries, while authorization remains essential", "Next.js removes the need for authorization", "Postgres runs in the browser", "React components no longer use props"],
+  "nx-dd-e1": ["Typecheck, production build, authorization and DTO tests, plus a page smoke test", "Run the dev server for one second", "Rename files to .jsx", "Disable use client everywhere"],
+};
+
+for (const courseUnit of nextjsFullstackContent.units) {
+  for (const courseLesson of courseUnit.lessons) {
+    for (const exercise of courseLesson.exercises) {
+      if ((exercise.type === "mcq" || exercise.type === "code_read") && englishChoices[exercise.id]) {
+        exercise.optionsEn = englishChoices[exercise.id];
+      }
+      if (exercise.type === "match" && exercise.id === "nx-ar1") {
+        exercise.pairsEn = [
+          { left: "page.tsx", right: "Makes a route segment publicly accessible" },
+          { left: "layout.tsx", right: "Shared shell that preserves state across navigation between child pages" },
+          { left: "loading.tsx", right: "Suspense fallback while segment content streams" },
+          { left: "error.tsx", right: "Client error boundary for recovery within its child segment tree" },
+        ];
+      }
+    }
+  }
+}
