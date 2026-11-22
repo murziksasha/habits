@@ -21,11 +21,11 @@ Relational modeling, constraints and migrations, parameterized CRUD, joins and k
 
 - `pg-rm-entities` — Entities, Keys & 1:N Modeling in PostgreSQL (2 exercises)
 - `pg-rm-normalization` — Avoiding Anomalies & Foreign Key Actions (1 exercises)
-- `pg-rm-exam` — Checkpoint: Relational Modeling [exam] (2 exercises)
+- `pg-rm-exam` — Checkpoint: Relational Modeling [exam] (3 exercises)
 
 ### `pg_constraints_migrations` — Constraints & Safe Schema Migrations
 
-- `pg-cm-constraints` — CHECK Constraints & Partial Unique Indexes (2 exercises)
+- `pg-cm-constraints` — CHECK Constraints & Partial Unique Indexes (3 exercises)
 - `pg-cm-migrations` — Forward-Only Versioned Migrations & Lock Safety (2 exercises)
 - `pg-cm-exam` — Checkpoint: Constraints & Migrations [exam] (2 exercises)
 

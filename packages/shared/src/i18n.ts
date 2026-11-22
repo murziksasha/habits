@@ -251,6 +251,7 @@ const uk = {
   },
   lesson: {
     check: "Перевірити",
+    undoLastPair: "Скасувати останню пару",
     continue: "Далі",
     correct: "Правильно!",
     wrong: "Неправильно",
@@ -1367,6 +1368,7 @@ const en: UiDict = {
   },
   lesson: {
     check: "Check",
+    undoLastPair: "Undo last pair",
     continue: "Continue",
     correct: "Correct!",
     wrong: "Incorrect",

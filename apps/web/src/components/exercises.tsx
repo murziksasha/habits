@@ -847,6 +847,18 @@ function MatchExercise({
             .join(" · ")}
         </p>
       )}
+      {matched.length > 0 && (
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={() => {
+            setMatched((current) => current.slice(0, -1));
+            setSelectedLeft(null);
+          }}
+        >
+          {t.lesson.undoLastPair}
+        </button>
+      )}
       <button
         type="button"
         className="btn-primary"

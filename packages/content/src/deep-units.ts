@@ -593,11 +593,15 @@ export const sqlCtePerformanceUnit: UnitContent = unit(
         ["FOR", "for"],
         false,
       ),
-      matchEx("sqlf-cte-8", "Вузол плану → значення", "Plan node → meaning", [
+      { ...matchEx("sqlf-cte-8", "Вузол плану → значення", "Plan node → meaning", [
         { left: "TABLE ACCESS FULL", right: "читає всю таблицю" },
         { left: "INDEX RANGE SCAN", right: "шукає через індекс" },
         { left: "HASH JOIN", right: "зʼєднання через хеш-таблицю" },
-      ]),
+      ]), pairsEn: [
+        { left: "TABLE ACCESS FULL", right: "Reads the whole table" },
+        { left: "INDEX RANGE SCAN", right: "Searches using an index" },
+        { left: "HASH JOIN", right: "Joins using a hash table" },
+      ] },
       { ...mcq(
         "sqlf-cte-9",
         "Для частого пошуку за lower(email) потрібен придатний шлях доступу. Що варто перевірити?",

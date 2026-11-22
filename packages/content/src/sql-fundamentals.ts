@@ -230,7 +230,7 @@ const joins = unit("joins", "JOINs", "JOINs", [
         ["LEFT", "left"],
         false,
       ),
-      matchEx(
+      { ...matchEx(
         "sqlf-j6",
         "Join types",
         "Join types",
@@ -239,7 +239,11 @@ const joins = unit("joins", "JOINs", "JOINs", [
           { left: "LEFT", right: "Усі ліві рядки та збіги / All left rows plus matches" },
           { left: "CROSS", right: "Декартів добуток / Cartesian product" },
         ],
-      ),
+      ), pairsEn: [
+        { left: "INNER", right: "Matching row pairs" },
+        { left: "LEFT", right: "All left rows plus matches" },
+        { left: "CROSS", right: "Cartesian product" },
+      ] },
     ],
   ),
   ...joinDepthLessons,

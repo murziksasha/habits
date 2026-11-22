@@ -1146,7 +1146,7 @@ const accessibleInteractions = unit(
         0,
         why("Позитивний `tabindex` ламає очікуваний порядок Tab-обходу.", "Positive `tabindex` overrides natural DOM tab order unexpectedly."),
       ), optionsEn: ["It overrides the natural tab order and can confuse keyboard users; prefer DOM order or 0/-1", "Browsers ignore CSS for positive tabindex", "tabindex only works on images", "It is forbidden on buttons"] },
-      mcq(
+      { ...mcq(
         "hs-aie4",
         "Який регіон підходить для повідомлення «Задачу додано» після збереження?",
         "Which live-region pattern fits a non-blocking «Task added» confirmation?",
@@ -1158,7 +1158,7 @@ const accessibleInteractions = unit(
         ],
         0,
         why("`role=\"status\"` + `aria-live=\"polite\"` озвучує статус без переривання користувача.", "`role=\"status\"` with `aria-live=\"polite\"` announces cleanly without stealing focus."),
-      ),
+      ), optionsEn: ["`<p role=\"status\" aria-live=\"polite\">`", "`alert()` in a loop", "`aria-hidden=\"true\"`", "`<span tabindex=\"-1\">` without a role"] },
     ]),
   ],
 );

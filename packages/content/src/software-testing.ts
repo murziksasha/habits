@@ -131,6 +131,14 @@ const testableRequirements = unit(
           "// Assert: expect HTTP 403 forbidden without mutation",
         ],
       ),
+      { ...mcq(
+        "st-req-e3",
+        "Вимога каже: користувач не може змінити чужу задачу. Яка перевірка найкраще підтверджує контракт?",
+        "The requirement says a user cannot modify another user's task. Which check best verifies the contract?",
+        ["Надіслати запит від іншого користувача, перевірити відповідь відмови та незмінність запису", "Перевірити лише, що кнопка прихована", "Замокати функцію авторизації так, щоб вона завжди повертала успіх", "Перевірити лише наявність файлу маршруту"],
+        0,
+        why("Відмова і відсутність мутації разом перевіряють спостережувану поведінку захисту.", "The denial and absence of mutation together check the observable authorization contract."),
+      ), optionsEn: ["Send a request as another user, assert denial and verify the record is unchanged", "Only check that the button is hidden", "Mock authorization to always succeed", "Only check that the route file exists"] },
     ]),
   ],
 );
@@ -250,6 +258,14 @@ const unitTestingUnit = unit(
         ["Throw"],
         true,
       ),
+      { ...mcq(
+        "st-ut-e3",
+        "Тест виконує справжню функцію, але для межі amount === threshold не перевіряє результат. Мутант змінює >= на > і виживає. Що зробити?",
+        "A test executes the real function but does not assert the result at amount === threshold. A mutant changes >= to > and survives. What should you do?",
+        ["Перевірити контракт на межі й, якщо поведінка має різнитися, додати перевірку, що проходить на оригіналі та падає на мутанті", "Оголосити 100% покриття доказом правильності", "Замокати саму функцію фіксованим результатом", "Вважати кожного мутанта еквівалентним без аналізу"],
+        0,
+        why("Покриття рядків не гарантує перевірки результату; спершу визначте очікування контракту на межі.", "Line coverage does not guarantee that the result is asserted; first establish the contract at the boundary."),
+      ), optionsEn: ["Check the boundary contract and, if behavior should differ, add a test that passes on the original and fails on the mutant", "Treat 100% coverage as proof of correctness", "Mock the function itself with a fixed result", "Assume every mutant is equivalent without analysis"] },
     ]),
   ],
 );
@@ -365,6 +381,14 @@ const boundariesFixturesUnit = unit(
         ],
         0,
       ), optionsEn: ["The API returns a deterministic error or clamps to the valid limit according to its contract", "Returns random rows from the end", "Fails with an unhandled 500", "Ignores security filters"] },
+      { ...mcq(
+        "st-bf-e3",
+        "Два паралельні воркери вставляють у спільну тестову БД адреси з локального лічильника user-1, user-2. Чому можливий конфлікт і як його уникнути?",
+        "Two parallel workers insert addresses from local counters user-1, user-2 into a shared test database. Why can they conflict, and how can you avoid it?",
+        ["Лічильники починаються окремо в кожному процесі; ізолюйте дані або додайте унікальний ідентифікатор запуску й воркера", "JavaScript гарантує єдиний лічильник для всіх процесів", "Достатньо збільшити затримку між тестами", "Унікальний індекс потрібно видалити з робочої БД"],
+        0,
+        why("Локальний лічильник не забезпечує унікальність між процесами; ізоляція має відповідати способу паралельного запуску.", "A local counter is not unique across processes; isolation must match the parallel execution model."),
+      ), optionsEn: ["Each process has its own counter; isolate data or add unique run and worker identifiers", "JavaScript guarantees one counter across processes", "Increase the delay between tests", "Remove the unique index from the production database"] },
     ]),
   ],
 );
@@ -464,6 +488,14 @@ const reactComponentTestsUnit = unit(
         ["findByRole"],
         true,
       ),
+      { ...mcq(
+        "st-rct-e3",
+        "Компонент має показати помилку для HTTP 500 і відновитися після Retry. Як змоделювати ці відповіді fetch?",
+        "A component must show an error for HTTP 500 and recover after Retry. How should the fetch responses be simulated?",
+        ["Спочатку повернути Response з ok=false і статусом 500, потім успішну відповідь; перевірити помилку й результат після Retry", "Вважати, що fetch завжди відхиляє проміс при HTTP 500", "Перевірити лише початковий спінер", "Замінити компонент фіксованим HTML"],
+        0,
+        why("HTTP-помилка зазвичай повертає Response, а мережевий збій відхиляє проміс; retry має отримати успішну відповідь.", "An HTTP error normally returns a Response, while a network failure rejects; the retry must receive a successful response."),
+      ), optionsEn: ["Return a 500 Response with ok=false first, then a successful response; assert the error and recovery after Retry", "Assume fetch always rejects on HTTP 500", "Check only the initial spinner", "Replace the component with fixed HTML"] },
     ]),
   ],
 );
@@ -573,6 +605,14 @@ const apiDbIntegrationUnit = unit(
         ["toBe"],
         true,
       ),
+      { ...mcq(
+        "st-int-e3",
+        "HTTP-сервер під час тесту комітить запис через окреме з’єднання. Тест потім відкочує власну транзакцію. Що станеться із записом?",
+        "During a test, the HTTP server commits a row through a separate connection. The test then rolls back its own transaction. What happens to that row?",
+        ["Він залишиться; потрібна узгоджена ізоляція або очищення окремої тестової БД чи схеми", "Rollback тесту автоматично відкочує всі з’єднання", "Запис автоматично видалиться після HTTP 201", "PostgreSQL завжди видаляє запис після завершення тесту"],
+        0,
+        why("Rollback діє на транзакцію конкретного з’єднання і не скасовує окремо закомічений запис.", "A rollback applies to the transaction on its connection and does not undo a separately committed write."),
+      ), optionsEn: ["It remains; use coordinated isolation or clean a separate test database or schema", "The test rollback automatically rolls back all connections", "The row is automatically deleted after HTTP 201", "PostgreSQL always deletes the row when the test ends"] },
     ]),
   ],
 );
@@ -686,6 +726,14 @@ const e2eCiCapstoneUnit = unit(
         ["Playwright trace / screenshot + логи API сервера", "Лише статус exit code 1", "Розмір node_modules", "Версія npm cache"],
         0,
       ), optionsEn: ["Playwright trace or screenshot plus API server logs", "Only exit code 1", "Size of node_modules", "npm cache version"] },
+      { ...mcq(
+        "st-e2e-e3",
+        "Тест має перевірити відповідь POST /tasks після натискання Save. Як уникнути пропуску швидкої відповіді?",
+        "A test must verify the POST /tasks response after clicking Save. How do you avoid missing a fast response?",
+        ["Почати очікування потрібного методу й шляху до кліку, потім перевірити статус і стан інтерфейсу", "Почекати фіксовані дві секунди після кліку", "Підписатися на будь-яку відповідь після завершення кліку", "Перевірити лише існування кнопки"],
+        0,
+        why("Прослуховування до дії та точний фільтр зменшують гонку і не підміняють перевірку видимого результату.", "Listening before the action and matching the request reduce a race and do not replace checking the visible result."),
+      ), optionsEn: ["Start waiting for the matching method and path before clicking, then check the status and UI state", "Wait a fixed two seconds after clicking", "Listen for any response only after the click completes", "Only check that the button exists"] },
     ]),
   ],
 );
