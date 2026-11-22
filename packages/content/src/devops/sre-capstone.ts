@@ -385,7 +385,7 @@ export const sreCapstone = unit("sre-capstone", "SRE і capstone", "SRE and the 
       en: "The target for the share of successful requests is called an:",
       lang: "text",
       code: "___",
-      ok: ["SLO"],
+      ok: ["SLO", "slo"],
     },
     {
       t: "mcq",

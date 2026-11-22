@@ -48,7 +48,7 @@ const pyValues = unit(
           "Check explicitly whether `stop` is missing (`None` identity check)",
           "python",
           "stop_seq = cfg.get(\"stop\")\nif stop_seq ___ None:\n    stop_seq = []",
-          ["is"],
+          ["is", "=="],
           true,
           why(
             "Синглтон `None` у Python завжди порівнюють через `is None` / `is not None`, а не `==`.",
@@ -154,7 +154,7 @@ const pyValues = unit(
           "Check that `reply` is NOT `None`",
           "python",
           "if reply ___ None:\n    return reply.strip()",
-          ["is not"],
+          ["is not", "!="],
           true,
         ),
         mcq(

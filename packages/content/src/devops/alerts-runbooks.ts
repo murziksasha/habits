@@ -11,7 +11,7 @@ export const alertsRunbooks = unit("alerts-runbooks", "Алерти, на які
     },
     {
       t: "fill", uk: "Заповніть regex для HTTP 5xx у чисельнику частки помилок. Трафік у вікні ненульовий.", en: "Fill the HTTP 5xx regex in the error-ratio numerator. Traffic in this window is nonzero.", lang: "promql",
-      code: "sum(rate(http_requests_total{service=\"forge-status\",code=~\"___\"}[5m]))\n/ sum(rate(http_requests_total{service=\"forge-status\"}[5m]))", ok: ["5.."],
+      code: "sum(rate(http_requests_total{service=\"forge-status\",code=~\"___\"}[5m]))\n/ sum(rate(http_requests_total{service=\"forge-status\"}[5m]))", ok: ["5..", "5.*", "5xx", "5[0-9]{2}"],
       note: why("Чисельник і знаменник мають однакові service та вікно. Для відсутнього трафіку й відсутніх метрик потрібна окрема визначена поведінка.", "Numerator and denominator use the same service and window. No traffic and missing metrics need separately defined behavior."),
     },
     {
@@ -84,7 +84,7 @@ export const alertsRunbooks = unit("alerts-runbooks", "Алерти, на які
     },
     {
       t: "fill", uk: "Додайте відсутню складову RED: rate, errors, ___.", en: "Add the missing RED component: rate, errors, ___.", lang: "text",
-      code: "forge-status API\nR = request rate\nE = request errors\nD = ___", ok: ["duration"],
+      code: "forge-status API\nR = request rate\nE = request errors\nD = ___", ok: ["duration", "Duration", "latency", "Latency"],
       note: why("Duration описує час запиту. CPU не є D у RED: CPU належить ресурсній діагностиці USE.", "Duration describes request time. CPU is not the D in RED; CPU belongs to USE resource diagnosis."),
     },
     {

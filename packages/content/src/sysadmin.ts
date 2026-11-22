@@ -145,11 +145,27 @@ const foundations = unit("foundations", "Основи відповідально
         0,
       ), optionsEn: ["Provides temporary power and time for a clean shutdown", "Replaces backups", "Assigns IP addresses", "Encrypts disks"] },
       { ...matchEx("sa-f10", "Симптом → що перевірити спочатку", "Symptom → first thing to check", [
-        { left: "Випадкові ребуті", right: "Блок живлення / розетка / UPS" },
+        { left: "Випадкові ребути", right: "Блок живлення / розетка / UPS" },
         { left: "Клацання й повільний диск", right: "HDD, негайно копіювати дані" },
         { left: "Немає лінка на кабелі", right: "Кабель, порт, NIC" },
         { left: "Гальма, диск вільний", right: "RAM і навантаження CPU" },
       ]), pairsEn: [{"left": "Random reboots", "right": "Power supply, outlet, or UPS"}, {"left": "Clicking and slow disk", "right": "HDD: copy data immediately"}, {"left": "No link on the cable", "right": "Cable, port, and NIC"}, {"left": "Slow system with free disk space", "right": "RAM and CPU load"}] },
+      { ...mcq(
+        "sa-hw-smart",
+        "Як системний адміністратор перевіряє апаратне здоров'я SSD/HDD накопичувача перед його повною відмовою?",
+        "How does a sysadmin inspect the hardware health of an SSD/HDD before it fails completely?",
+        [
+          "smartctl -H /dev/sda або smartctl -a для перегляду SMART-атрибутів",
+          "chmod 777 /dev/sda",
+          "видалити файл /etc/fstab",
+          "перезавантажити роутер",
+        ],
+        0,
+        why(
+          "Утиліта smartctl (пакет smartmontools) читає діагностичні показники накопичувача (зношення SSD, перепризначені сектори HDD, температуру, помилки читання/запису).",
+          "The smartctl utility (from smartmontools) inspects drive diagnostics (SSD wear level, reallocated sectors, drive temperature, CRC errors).",
+        ),
+      ), optionsEn: ["smartctl -H /dev/sda or smartctl -a to view SMART telemetry and attributes", "Run chmod 777 /dev/sda", "Delete /etc/fstab", "Restart the office router"] },
     ],
   ),
   lesson(
@@ -905,7 +921,7 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
   ),
   lesson(
     "sa-runbook",
-    "Принтери, кулі, ДБЖ, сторінка черговості",
+    "Принтери, спільні ресурси (shares), ДБЖ, сторінка черговості",
     "Printers, shares, UPS, one-page runbook",
     2,
     false,
@@ -948,13 +964,13 @@ const sohoCare = unit("soho-care", "Догляд за офісом", "Keep the o
       ), optionsEn: ["Should be configured and tested to trigger a clean OS shutdown before its battery runs out", "Replaces an off-site backup", "Assigns IP addresses", "Encrypts SMB"] },
       { ...mcq(
         "sa-c19",
-        "Файлова куля офісу:",
+        "Мережевий ресурс (file share) офісу:",
         "An office file share:",
         [
           "має окремих користувачів і права, не «Everyone — Full control»",
           "відкрита на весь інтернет через порт 445",
           "лежить у DMZ",
-          "не потребує бекапу, бо це куля",
+          "не потребує бекапу, бо це мережевий ресурс",
         ],
         0,
       ), optionsEn: ["Uses individual accounts and appropriate permissions, not Everyone with full control", "Is open to the whole internet on port 445", "Is placed in the DMZ", "Needs no backup because it is a share"] },
@@ -1053,7 +1069,7 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
         [
           "запитує згоду або облікові дані адміністратора, коли дія потребує підвищення прав",
           "це антивірус",
-          "це файлова куля",
+          "це спільна мережева папка (share)",
           "це DHCP-сервер",
         ],
         0,
@@ -1183,19 +1199,19 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
   ),
   lesson(
     "sa-win-shares",
-    "Кулі й зіставлені диски",
+    "Спільні ресурси (shares) й зіставлені диски",
     "Shares and mapped drives",
     2,
     false,
     [
       { ...mcq(
         "sa-w11",
-        "Ефективний дозвіл на файлову кулю Windows:",
+        "Ефективний дозвіл на спільний ресурс (share) у Windows:",
         "The effective permission on a Windows share:",
         [
           "дія має бути дозволена ефективними мережевими дозволами й дозволами NTFS",
-          "лише дозвіл кулі, NTFS ігнорується",
-          "лише NTFS, куля ігнорується",
+          "лише дозвіл спільного ресурсу (share), NTFS ігнорується",
+          "лише NTFS, мережевий дозвіл ігнорується",
           "завжди Full control для Everyone",
         ],
         0,
@@ -1218,7 +1234,7 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
       ), optionsEn: ["A drive letter referring to a UNC network share", "A physical SSD", "A USB port", "A firewall rule"] },
       { ...mcq(
         "sa-w13",
-        "Everyone — Full control на кулі офісу:",
+        "Everyone — Full control на спільному ресурсі (share) офісу:",
         "Everyone — Full control on an office share:",
         [
           "занадто широко; дайте групі, якій це справді треба",
@@ -1230,7 +1246,7 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
       ), optionsEn: ["Is overly broad; grant access to the group that needs it", "Is mandatory for printing", "Eliminates NTFS permissions", "Is the guest Wi-Fi mode"] },
       { ...mcq(
         "sa-w14",
-        "Користувач бачить кулю, але не може відкрити теку. Спершу:",
+        "Користувач бачить спільний ресурс (share), але не може відкрити теку. Спершу:",
         "The user sees the share but cannot open a folder. First:",
         [
           "перевірити обидва шари: share і NTFS",
@@ -1241,7 +1257,7 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
         0,
       ), optionsEn: ["Check both share and NTFS permissions", "Disable Defender", "Forward port 445 to the internet", "Delete the account"] },
       { ...matchEx("sa-w15", "Шар і питання", "Layer and the question it answers", [
-        { left: "Дозвіл кулі", right: "Чи пускає мережевий доступ" },
+        { left: "Дозвіл ресурсу (share)", right: "Чи пускає мережевий доступ" },
         { left: "NTFS", right: "Чи пускає файлова система" },
         { left: "Літера Z:", right: "Зіставлений шлях UNC" },
         { left: "Група, не Everyone", right: "Кому справді треба доступ" },
@@ -1282,7 +1298,7 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
         "Restart a service. Fill the cmdlet.",
         "powershell",
         "___ -Name Spooler",
-        ["Restart-Service"],
+        ["Restart-Service", "restart-service"],
         false,
         why(
           "Конвеєр PowerShell передає об'єкти, не рядки тексту як bash. Get-Service показує стан, Restart-Service перезапускає.",
@@ -1325,7 +1341,7 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
       [
         "не треба «для швидкості»",
         "треба щопонеділка",
-        "треба, щоб працювала куля",
+        "треба, щоб працював спільний ресурс",
         "треба замість оновлень",
       ],
       0,
@@ -1343,14 +1359,14 @@ const windowsClient = unit("windows-client", "Столи на Windows", "Windows
       "Cmdlet that lists files",
       "powershell",
       "___ C:\\Office",
-      ["Get-ChildItem"],
+      ["Get-ChildItem", "get-childitem", "dir", "gci", "ls"],
       false,
     ),
     { ...mcq(
       "sa-w25",
       "\\\\nas\\docs на літері Z: — це:",
       "\\\\nas\\docs on drive Z: is:",
-      ["зіставлена куля", "приватний діапазон IP", "правило ufw", "файл підкачки"],
+      ["зіставлений мережевий диск (share)", "приватний діапазон IP", "правило ufw", "файл підкачки"],
       0,
     ), optionsEn: ["A mapped network share", "A private IP range", "A ufw rule", "A paging file"] },
     { ...mcq(
@@ -1665,7 +1681,7 @@ const shell = unit("shell", "Оболонка", "The shell", [
       "Long listing including hidden names",
       "bash",
       "ls ___",
-      ["-la", "-al"],
+      ["-la", "-al", "-l -a", "-a -l", "-lah", "-hal", "-laF", "-alF"],
       true,
     ),
     { ...mcq(
@@ -2074,7 +2090,7 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
         "Search with line numbers, ignoring case",
         "bash",
         "grep ___ error /var/log/syslog",
-        ["-ni", "-in"],
+        ["-ni", "-in", "-n -i", "-i -n"],
         true,
         why(
           "Шукайте в обраній теці, не grep -R / по всьому диску зі звички: довго і шумно.",
@@ -2332,7 +2348,7 @@ const textPackages = unit("text-packages", "Текст, пакети, git", "Tex
       "Last 20 lines",
       "bash",
       "tail ___ 20 /var/log/syslog",
-      ["-n"],
+      ["-n", "--lines=", "--lines", "-lines"],
       true,
     ),
     { ...mcq(
@@ -2479,7 +2495,7 @@ const processes = unit("processes", "Процеси і служби", "Processes
         "Ask process 842 to exit politely",
         "bash",
         "kill ___ 842",
-        ["-15", "-TERM", "-s TERM"],
+        ["-15", "-TERM", "-s TERM", "-SIGTERM", "-s 15", "-s SIGTERM"],
         true,
       ),
       { ...mcq(
@@ -2539,7 +2555,7 @@ const processes = unit("processes", "Процеси і служби", "Processes
           "створює автозапуск; уже запущений процес сам не з'явиться, якщо його не було",
           "одразу зупиняє nginx",
           "те саме, що reboot",
-          "ставити пакет nginx",
+          "встановлює пакет nginx",
         ],
         0,
       ), optionsEn: ["Configures activation at boot but does not itself start the service", "Immediately stops nginx", "Is the same as reboot", "Installs nginx"] },
@@ -2594,6 +2610,22 @@ const processes = unit("processes", "Процеси і служби", "Processes
         ],
         0,
       ), optionsEn: ["The service is enabled but currently failed", "The service is disabled and therefore healthy", "Enabled means the process is certainly running", "This is df output"] },
+      { ...mcq(
+        "sa-sysctl-override",
+        "Який правильний сучасний спосіб змінити налаштування юніта systemd (наприклад, додати Restart=always), не змінюючи файл пакунка в /lib/systemd/system/?",
+        "What is the recommended modern method to adjust a systemd unit (e.g. adding Restart=always) without editing the package unit file under /lib/systemd/system/?",
+        [
+          "sudo systemctl edit <unit> (створює drop-in оверрайд у /etc/systemd/system/<unit>.d/override.conf)",
+          "chmod 777 /lib/systemd/system/<unit>",
+          "видалити службу через rm",
+          "перейменувати файл служби у .bak",
+        ],
+        0,
+        why(
+          "Оверрайди drop-in (systemctl edit) зберігаються в /etc/systemd/system/<unit>.d/override.conf, перекривають лише потрібні параметри та не затираються під час оновлення системного пакунка.",
+          "Drop-in overrides (systemctl edit) live under /etc/systemd/system/<unit>.d/override.conf, customizing specific directives without being wiped during package updates.",
+        ),
+      ), optionsEn: ["sudo systemctl edit <unit> (creates a drop-in override under /etc/systemd/system/<unit>.d/override.conf)", "chmod 777 /lib/systemd/system/<unit>", "Delete the service with rm", "Rename the unit file to .bak"] },
     ],
   ),
   lesson(
@@ -2847,7 +2879,7 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
         "HTTP headers only",
         "bash",
         "curl ___ https://example.com",
-        ["-I"],
+        ["-I", "--head", "-sI", "-Is", "-s -I", "-I -s"],
         true,
       ),
       { ...mcq(
@@ -2876,6 +2908,22 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
         ],
         0,
       ), optionsEn: ["No listener is likely, though a firewall reject can also cause refusal", "DNS for example.com is broken", "There is no route to 127.0.0.1", "ufw is disabled, so the port is occupied"] },
+      { ...mcq(
+        "sa-reach-resolve",
+        "У сучасних дистрибутивах Linux з systemd-resolved яка команда перевіряє активні DNS-сервери на інтерфейсах?",
+        "On modern Linux distributions running systemd-resolved, which command checks per-interface DNS servers?",
+        [
+          "resolvectl status або systemd-resolve --status",
+          "cat /dev/null",
+          "iptables -F",
+          "reboot --force",
+        ],
+        0,
+        why(
+          "resolvectl status показує прив'язку DNS-серверів до конкретних мережевих адаптерів (VLAN, VPN, LAN) та поточний стан кешування і DNSSEC.",
+          "resolvectl status shows per-link DNS configurations (VLAN, VPN, LAN interfaces) along with caching and DNSSEC state.",
+        ),
+      ), optionsEn: ["resolvectl status or systemd-resolve --status", "cat /dev/null", "iptables -F", "reboot --force"] },
     ],
   ),
   lesson(
@@ -2927,7 +2975,7 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
         "Show the rules",
         "bash",
         "sudo ufw ___",
-        ["status"],
+        ["status", "status verbose"],
         true,
       ),
       { ...mcq(
@@ -3012,6 +3060,40 @@ const netCli = unit("net-cli", "Мережа з консолі", "Network from t
         ["ssh-keygen"],
         true,
       ),
+      { ...codeRead(
+        "sa-ssh-config",
+        "Що налаштовує цей блок у файлі ~/.ssh/config клієнта?",
+        "What does this block configure in the client's ~/.ssh/config?",
+        "bash",
+        "Host srv-backup\n  HostName 10.8.0.50\n  User deploy\n  Port 2222\n  IdentityFile ~/.ssh/id_ed25519",
+        [
+          "дозволяє підключатись просто командою ssh srv-backup із потрібним портом, користувачем і ключем",
+          "блокує користувача deploy",
+          "видаляє ключ id_ed25519",
+          "відкриває порт 2222 для всього інтернету",
+        ],
+        0,
+        why(
+          "Файл ~/.ssh/config дозволяє створювати зручні псевдоніми серверів із фіксованими портами, ключами та користувачами, уникаючи довгих команд у терміналі.",
+          "The ~/.ssh/config client file defines host aliases with predefined ports, identities, and users, eliminating lengthy command-line arguments.",
+        ),
+      ), optionsEn: ["Allows connecting with just ssh srv-backup using the configured host, port, user, and key", "Blocks user deploy", "Deletes key id_ed25519", "Opens port 2222 to the public internet"] },
+      { ...mcq(
+        "sa-ssh-harden",
+        "Яка директива в /etc/ssh/sshd_config блокує парольний вхід і вимагає авторизацію виключно за SSH-ключами?",
+        "Which directive in /etc/ssh/sshd_config disables password authentication, requiring SSH keys exclusively?",
+        [
+          "PasswordAuthentication no",
+          "PermitEmptyPasswords yes",
+          "Port 80",
+          "X11Forwarding yes",
+        ],
+        0,
+        why(
+          "PasswordAuthentication no відключає інтерактивну перевірку паролів, запобігаючи атакам підбору (brute-force) на сервер.",
+          "PasswordAuthentication no prevents password authentication, rendering password brute-force attacks ineffective.",
+        ),
+      ), optionsEn: ["PasswordAuthentication no", "PermitEmptyPasswords yes", "Port 80", "X11Forwarding yes"] },
     ],
   ),
   exam("sa-exam-netcli", "Контрольна: мережа з консолі", "Exam: network from the shell", 4, [
@@ -3400,6 +3482,22 @@ const usersDisks = unit("users-disks-cron", "Користувачі, диски,
         ],
         0,
       ), optionsEn: ["Start the affected service and verify its status", "Run reboot -f without checking", "Remove its package", "chmod 777 on its binary"] },
+      { ...mcq(
+        "sa-disk-inodes",
+        "df -h показує 50 ГБ вільного місця, але застосунок падає з помилкою «No space left on device». Що перевірити?",
+        "df -h shows 50 GB free, but applications crash with 'No space left on device'. What do you check?",
+        [
+          "df -i — перевірити вичерпання індексних дескрипторів (inode)",
+          "ufw status — стан брандмауера",
+          "ping 8.8.8.8",
+          "змінити пароль root",
+        ],
+        0,
+        why(
+          "Кожен файл потребує inode. Мільйони крихітних файлів (наприклад, сесій або кешу) можуть повністю вичерпати ліміт inode файлової системи, навіть якщо гігабайти на диску ще вільні.",
+          "Every filesystem object requires an inode. Millions of tiny session or cache files can consume 100% of inodes while disk gigabytes remain free.",
+        ),
+      ), optionsEn: ["df -i — check for inode exhaustion (free inode table entries)", "ufw status — check firewall state", "ping 8.8.8.8", "Change root password"] },
     ],
   ),
   exam("sa-exam-users", "Контрольна: користувачі і диски", "Exam: users and disks", 4, [
@@ -3483,13 +3581,13 @@ const harden = unit("harden-recover", "Стримати і повернути", 
     [
       { ...mcq(
         "sa-hr01",
-        "Файлова куля офісу з ноутбука в кафе:",
+        "Спільний ресурс (file share) офісу з ноутбука в кафе:",
         "The office file share from a laptop in a cafe:",
         [
           "Tailscale чи ZeroTier, або тунель WireGuard чи OpenVPN; SMB не публікують у інтернет",
           "проброс порту 445",
           "DMZ на файловий сервер",
-          "надіслати кулю листом",
+          "надіслати файли листом",
         ],
         0,
         why(
@@ -3521,7 +3619,7 @@ const harden = unit("harden-recover", "Стримати і повернути", 
         ],
         0,
         why(
-          "Кав'ярня бачить лише зашифрований тунель, не SMB. Обліковий запис на overlay і права на кулі все одно потрібні: тунель не робить усіх адміністраторами.",
+          "Кав'ярня бачить лише зашифрований тунель, не SMB. Обліковий запис на overlay і права на спільний ресурс (share) все одно потрібні: тунель не робить усіх адміністраторами.",
           "The cafe sees only the encrypted tunnel, not SMB. You still need an account on the overlay and rights on the share: the tunnel does not make everyone an admin.",
         ),
       ), optionsEn: ["Authorized devices can reach each other over a virtual network without exposing SMB", "Disables NAT on the router", "Replaces backups", "Is a public DNS record"] },
@@ -4220,7 +4318,7 @@ const localTroubleshooting = unit(
           "Send SIGTERM to PID",
           "bash",
           "___ 18422",
-          ["kill"],
+          ["kill", "kill -15", "kill -TERM", "kill -s TERM", "kill -SIGTERM"],
           true,
           why(
             "`kill <pid>` за замовчуванням надсилає SIGTERM для коректного завершення.",
@@ -4258,7 +4356,7 @@ const localTroubleshooting = unit(
           "View recent systemd service logs",
           "bash",
           "___ -u forgeboard-api -n 50 --no-pager",
-          ["journalctl"],
+          ["journalctl", "sudo journalctl"],
           true,
           why(
             "`journalctl -u <unit>` читає stdout/stderr та статус сервісу.",

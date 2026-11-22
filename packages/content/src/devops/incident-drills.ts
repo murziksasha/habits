@@ -92,7 +92,7 @@ export const incidentDrills = unit("incident-drills", "Нічні зміни", "
     },
     {
       t: "fill", uk: "Заповніть умову вузла для read-only перевірки тиску на диск.", en: "Fill the node condition for a read-only disk-pressure check.", lang: "bash",
-      code: "kubectl get node node-a -o jsonpath='{.status.conditions[?(@.type==\"___\")].status}'", ok: ["DiskPressure"],
+      code: "kubectl get node node-a -o jsonpath='{.status.conditions[?(@.type==\"___\")].status}'", ok: ["DiskPressure", "diskpressure"],
       note: why("DiskPressure — стан вузла, не ознака заповнення конкретного PVC. Далі перевіряють саме файлові системи, які використовує kubelet.", "DiskPressure is a node condition, not a statement about a particular PVC. Next inspect the filesystems used by kubelet."),
     },
     {
@@ -243,7 +243,7 @@ export const incidentDrills = unit("incident-drills", "Нічні зміни", "
     },
     {
       t: "fill", uk: "Додайте відповідального до action item. За умовою власник ротації логів — Platform.", en: "Add an owner to the action item. The stated log-rotation owner is Platform.", lang: "yaml",
-      code: "action: enforce-and-test-log-retention\nowner: ___\ndue: 2026-11-17\nverify: bounded disk growth under debug load in stage", ok: ["Platform"],
+      code: "action: enforce-and-test-log-retention\nowner: ___\ndue: 2026-11-17\nverify: bounded disk growth under debug load in stage", ok: ["Platform", "platform", "platform-team"],
       note: why("Дія має власника, дату й доказ завершення. Саме призначення команди без перевірки ще не закриває завдання.", "The action has an owner, due date, and completion evidence. Assigning a team without validation does not complete the work."),
     },
     {

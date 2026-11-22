@@ -252,7 +252,7 @@ echo "STATUS: OK"
       en: "Debug without editing the file.",
       lang: "bash",
       code: "bash ___ ./collect.sh",
-      ok: ["-x"],
+      ok: ["-x", "-v", "-xv", "-vx"],
     },
     {
       t: "mcq",
