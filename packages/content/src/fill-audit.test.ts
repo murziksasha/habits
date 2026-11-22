@@ -1258,6 +1258,50 @@ it("localizes the assembled container unit and includes Quadlet startup configur
 });
 
 
+it("localizes expanded modern sysadmin exercises with valid options and keys", () => {
+  const ids = [
+    "sa-hw-smart",
+    "sa-sysctl-override",
+    "sa-reach-resolve",
+    "sa-ssh-config",
+    "sa-ssh-harden",
+    "sa-disk-inodes",
+  ];
+  const allExercises = content.sysadminContent.units.flatMap((u) => u.lessons.flatMap((l) => l.exercises));
+  for (const id of ids) {
+    const ex = allExercises.find((e) => e.id === id);
+    expect(ex, `exercise ${id} should exist`).toBeDefined();
+    if (ex?.type === "mcq" || ex?.type === "code_read") {
+      expect(ex.optionsEn, id).toHaveLength(ex.options.length);
+      expect(ex.optionsEn!.join(" "), id).not.toMatch(/[\u0400-\u04ff]/u);
+      expect(ex.correctIndex).toBeGreaterThanOrEqual(0);
+      expect(ex.correctIndex).toBeLessThan(ex.options.length);
+    }
+  }
+});
+
+
+it("localizes catalog-wide modernized exercises across web, data, security and systems", () => {
+  const checks = [
+    { course: content.nodeFundamentalsContent, id: "nf-env-file-flag" },
+    { course: content.webSecurityContent, id: "ws-sri-check" },
+    { course: content.postgresqlAppsContent, id: "pg-stat-statements-check" },
+    { course: content.postgresqlAppsContent, id: "pg-jsonb-gin-ops" },
+  ];
+  for (const { course, id } of checks) {
+    const all = course.units.flatMap((u) => u.lessons.flatMap((l) => l.exercises));
+    const ex = all.find((e) => e.id === id);
+    expect(ex, `exercise ${id} in ${course.slug} should exist`).toBeDefined();
+    if (ex?.type === "mcq" || ex?.type === "code_read") {
+      expect(ex.optionsEn, id).toHaveLength(ex.options.length);
+      expect(ex.optionsEn!.join(" "), id).not.toMatch(/[\u0400-\u04ff]/u);
+      expect(ex.correctIndex).toBeGreaterThanOrEqual(0);
+      expect(ex.correctIndex).toBeLessThan(ex.options.length);
+    }
+  }
+});
+
+
 it("provides localized choices and pairs in the DevOps Git workstation unit", () => {
   const unit = content.devopsContent.units.find((item) => item.slug === "git-workstation");
   expect(unit).toBeDefined();

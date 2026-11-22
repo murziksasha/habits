@@ -348,8 +348,8 @@ const sessionsAuthn = unit(
           "Flag protecting cookie from JavaScript access",
           "http",
           "Set-Cookie: session=abc; Path=/; ___; SameSite=Lax",
-          ["HttpOnly"],
-          true,
+          ["HttpOnly", "httponly", "Secure", "secure"],
+          false,
         ),
         withOptionsEn(mcq(
           "ws-sa-cookie-xss",
@@ -685,8 +685,8 @@ const browserSecurity = unit(
           "Enable MIME-sniffing protection for responses, including script and style loads",
           "http",
           "X-Content-Type-Options: ___",
-          ["nosniff"],
-          true,
+          ["nosniff", "nosniff;"],
+          false,
           why(
             "Встановлюйте також правильний Content-Type; цей заголовок не робить усі недовірені файли безпечними.",
             "Also set the correct Content-Type; this header does not make every untrusted file safe.",
@@ -705,6 +705,27 @@ const browserSecurity = unit(
           0,
           why("Дозволене походження не доводить довіру до кожного файлу на ньому; потрібна окрема політика для завантажень.", "An allowed origin does not establish trust in every file served from it; uploads need a separate policy."),
         ), ["The policy may allow the uploaded script; isolate and safely handle untrusted files", "CSP automatically verifies that every same-origin file is trusted", "nosniff guarantees safety for JavaScript with the correct MIME type", "Same-origin files cannot be scripts"]),
+        withOptionsEn(mcq(
+          "ws-sri-check",
+          "Який механізм гарантує, що завантажений зі стороннього CDN скрипт не був підмінений або скомпрометований?",
+          "Which mechanism ensures that a third-party CDN script has not been modified or compromised?",
+          [
+            "Subresource Integrity (SRI) з атрибутом integrity='sha384-...'",
+            "Лише заголовок X-Frame-Options: DENY",
+            "Параметр SameSite=Strict для cookies",
+            "Протокол HTTP/2 без перевірки хешу",
+          ],
+          0,
+          why(
+            "SRI звіряє криптографічний хеш файлу з очікуваним у тегу <script integrity='...'>.",
+            "Subresource Integrity compares the cryptographic hash of the fetched file with the expected value in the integrity attribute.",
+          ),
+        ), [
+          "Subresource Integrity (SRI) with an integrity='sha384-...' attribute",
+          "Only the X-Frame-Options: DENY header",
+          "The SameSite=Strict cookie parameter",
+          "HTTP/2 protocol without hash validation",
+        ]),
       ], { baseXp: 25 },
     ),
     exam("ws-bs-exam", "Контрольна: браузерна безпека", "Checkpoint: Browser Security", 4, [

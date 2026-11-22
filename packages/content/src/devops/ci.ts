@@ -277,7 +277,7 @@ export const ci = unit("ci", "CI до образу", "CI through the image", [
       en: "The short cloud token in Actions starts from trust called:",
       lang: "text",
       code: "___",
-      ok: ["OIDC"],
+      ok: ["OIDC", "oidc"],
     },
     {
       t: "mcq",

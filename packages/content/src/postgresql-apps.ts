@@ -566,6 +566,50 @@ const indexesPlansCapstone = unit(
           ],
           0,
         ), optionsEn: ["(project_id, created_at DESC): equality first, followed by the sort key","(created_at, title, body), without project_id","Four separate indexes on individual boolean columns","An index on id alone is always enough"] },
+        { ...codeRead(
+          "pg-stat-statements-check",
+          "Яке розширення PostgreSQL є золотим стандартом для виявлення повільних і найчастіших SQL-запитів у продакшені?",
+          "Which PostgreSQL extension is the gold standard for tracking slow and frequent queries in production?",
+          "sql",
+          "SELECT query, calls, total_exec_time, mean_exec_time\nFROM pg_stat_statements\nORDER BY total_exec_time DESC\nLIMIT 5;",
+          [
+            "pg_stat_statements — збирає агреговану статистику виконання нормалізованих SQL-запитів",
+            "pg_crypto — лише шифрує паролі",
+            "pg_trgm — лише для fuzzy-пошуку рядків",
+            "auto_explain — автоматично зупиняє всі повільні запити",
+          ],
+          0,
+          why(
+            "pg_stat_statements агрегує метрики (кількість викликів, сумарний та середній час) для пошуку найважчих запитів.",
+            "pg_stat_statements aggregates metrics (calls, total and mean execution time) to target the most impactful queries.",
+          ),
+        ), optionsEn: [
+          "pg_stat_statements — collects aggregated execution statistics across normalized SQL queries",
+          "pg_crypto — only handles password hashing",
+          "pg_trgm — only for trigram fuzzy string matching",
+          "auto_explain — automatically aborts all slow queries",
+        ] },
+        { ...mcq(
+          "pg-jsonb-gin-ops",
+          "Який клас операторів GIN-індексу для JSONB (jsonb_path_ops) є компактнішим і швидшим для операторів входження @>?",
+          "Which GIN operator class for JSONB (jsonb_path_ops) is more compact and faster for @> containment queries?",
+          [
+            "CREATE INDEX ON events USING gin (payload jsonb_path_ops); — хешує тільки шляхи та значення, зменшуючи розмір",
+            "CREATE INDEX ON events (payload); — звичайний B-Tree швидший для будь-якого JSONB",
+            "jsonb_path_ops заборонений для типів JSONB",
+            "GIN індекси не підтримують JSONB",
+          ],
+          0,
+          why(
+            "jsonb_path_ops створює хеші пар шлях+значення, забезпечуючи менший розмір індексу для оператора входження @>.",
+            "jsonb_path_ops hashes path+value pairs, producing smaller and faster indexes specifically for @> containment queries.",
+          ),
+        ), optionsEn: [
+          "CREATE INDEX ON events USING gin (payload jsonb_path_ops); — hashes only paths and values, reducing index size",
+          "CREATE INDEX ON events (payload); — standard B-Tree is always faster for any JSONB",
+          "jsonb_path_ops is forbidden for JSONB columns",
+          "GIN indexes do not support JSONB",
+        ] },
       ], { baseXp: 26 },
     ),
     lesson(

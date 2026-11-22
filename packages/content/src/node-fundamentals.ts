@@ -209,6 +209,19 @@ const envU = unit("env", "Env & config", "Env & config", [
         { left: "DATABASE_URL", right: "Database connection URL" },
       ] },
       { ...mcq("nf-e7", "Секретний .env уже відстежується Git. Чи видалить додавання його в .gitignore секрет з історії?", "A secret-bearing .env is already tracked by Git. Does adding it to .gitignore remove the secret from history?", ["Ні, потрібно окремо реагувати на розкритий секрет і роботу з історією", "Так, Git автоматично стирає всі попередні коміти", "Так, пароль сам зміниться", "Ні, бо Git не читає .gitignore"], 0, { explanationUk: "Ігнорування не переписує історію й не відкликає скомпрометований секрет.", explanationEn: "Ignoring a file does not rewrite history or revoke an exposed secret." }), optionsEn: ["No; the exposed secret and repository history require separate handling", "Yes, Git automatically erases all previous commits", "Yes, the password changes itself", "No, because Git never reads .gitignore"] },
+      codeFill(
+        "nf-env-file-flag",
+        "Запустити скрипт із вбудованим завантаженням .env без сторонніх пакетів (Node.js 20.6+)",
+        "Run script with built-in .env loading without external packages (Node.js 20.6+)",
+        "bash",
+        "node --___=.env index.js",
+        ["env-file"],
+        true,
+        why(
+          "Починаючи з Node.js 20.6+, прапорець --env-file завантажує змінні середовища нативно.",
+          "Starting with Node.js 20.6+, the --env-file flag loads environment variables natively without dotenv.",
+        ),
+      ),
     ],
   ),
   exam("nf-env-exam", "Контрольна: env", "Exam: env", 2, [

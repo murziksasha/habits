@@ -485,7 +485,7 @@ const reactComponentTestsUnit = unit(
         "Wait asynchronously for rendered alert role",
         "tsx",
         "const alert = await screen.___(\"alert\");",
-        ["findByRole"],
+        ["findByRole", "findByText", "findByTestId"],
         true,
       ),
       { ...mcq(

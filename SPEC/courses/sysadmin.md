@@ -15,7 +15,7 @@ From a small office to the console: network, backups, Windows desks, bash, permi
 ### `foundations` — What you are responsible for
 
 - `sa-role` — What a sysadmin owns (5 exercises)
-- `sa-hardware` — What fails in an office PC (5 exercises)
+- `sa-hardware` — What fails in an office PC (6 exercises)
 - `sa-boot` — The boot path (5 exercises)
 - `sa-sizes` — Sizes you will read (5 exercises)
 - `sa-exam-foundations` — Exam: foundations [exam] (6 exercises)
@@ -72,16 +72,16 @@ From a small office to the console: network, backups, Windows desks, bash, permi
 
 - `sa-ps` — ps and top (5 exercises)
 - `sa-signals` — Signals (5 exercises)
-- `sa-systemctl` — systemctl (6 exercises)
+- `sa-systemctl` — systemctl (7 exercises)
 - `sa-journal` — journalctl (5 exercises)
 - `sa-exam-processes` — Exam: processes [exam] (6 exercises)
 
 ### `net-cli` — Network from the shell
 
 - `sa-ip` — ip addr and ip route (5 exercises)
-- `sa-reach` — ping, ss, DNS, curl (5 exercises)
+- `sa-reach` — ping, ss, DNS, curl (6 exercises)
 - `sa-ufw` — ufw (5 exercises)
-- `sa-ssh` — SSH keys (5 exercises)
+- `sa-ssh` — SSH keys (7 exercises)
 - `sa-exam-netcli` — Exam: network from the shell [exam] (6 exercises)
 
 ### `users-disks-cron` — Users, disks, time
@@ -89,7 +89,7 @@ From a small office to the console: network, backups, Windows desks, bash, permi
 - `sa-users` — adduser, groups, visudo (5 exercises)
 - `sa-fstab` — lsblk, fstab, and RAID (8 exercises)
 - `sa-cron` — cron and timers (5 exercises)
-- `sa-diskfull` — The disk is full (5 exercises)
+- `sa-diskfull` — The disk is full (6 exercises)
 - `sa-exam-users` — Exam: users and disks [exam] (7 exercises)
 
 ### `harden-recover` — Stay up and get back
@@ -128,6 +128,18 @@ From a small office to the console: network, backups, Windows desks, bash, permi
 Applied transfer: `sa-transfer-restore` in `observability_home` diagnoses a failed file service and verifies an isolated backup restore.
 
 Additional bilingual (uk+en) lessons shipped in `packages/content/src/expansion/`.
+
+Modernized core sysadmin exercises added:
+- `sa-hw-smart`: S.M.A.R.T. disk health status verification (`smartctl -H /dev/sda`).
+- `sa-sysctl-override`: Systemd drop-in override editing without modifying vendor package units (`systemctl edit <unit>`).
+- `sa-reach-resolve`: Modern DNS resolution stack troubleshooting under systemd-resolved (`resolvectl status`).
+- `sa-ssh-config`: Client SSH config host alias setup in `~/.ssh/config`.
+- `sa-ssh-harden`: Server-side SSH hardening with `PasswordAuthentication no`.
+- `sa-disk-inodes`: Disk troubleshooting for inode exhaustion (`df -i`).
+
+Fixed translations and answer resilience:
+- Fixed Ukrainian mistranslations ("куля" replaced with "спільний ресурс / мережева папка (share)").
+- Expanded accepted command variations for `code_fill` (flags order, aliases, case insensitivity).
 
 New units:
 

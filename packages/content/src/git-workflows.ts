@@ -49,7 +49,7 @@ const historyCommits = unit(
           "Inspect staged diff right before commit",
           "bash",
           "git diff --___",
-          ["staged"],
+          ["staged", "cached"],
           true,
           why(
             "`git diff --staged` (або `--cached`) показує рівно те, що потрапить у наступний коміт.",
@@ -155,7 +155,7 @@ const branchesRebase = unit(
           "Force-push flag that checks the expected remote branch state",
           "bash",
           "git push --___-with-lease origin feat/tasks-filter",
-          ["force"],
+          ["force", "force-if-includes"],
           true,
           why(
             "`--force-with-lease` звіряє поточне значення віддаленої гілки з очікуваним. Фоновий fetch може оновити локальне посилання; для сильнішої перевірки задайте очікуваний SHA явно.",
