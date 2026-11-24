@@ -1984,7 +1984,26 @@ const eventLoopConcurrency = unit(
         "if (!res.___) throw new Error(`HTTP ${res.status}`);",
         ["ok"],
         true,
+        why("`fetch` не відхиляє проміс на 404/500 — потрібно явно перевіряти `res.ok`.", "`fetch` does not reject on 404/500 — explicitly check `res.ok`."),
       ),
+      { ...mcq(
+        "jsf-elc-e4",
+        "Що виконається першим після завершення поточного синхронного коду: `Promise.resolve().then(...)` чи `setTimeout(..., 0)`?",
+        "Which runs first after the current synchronous stack clears: `Promise.resolve().then(...)` or `setTimeout(..., 0)`?",
+        [
+          "`Promise.resolve().then(...)`, бо черга мікрозадач спустошується перед наступною макрозадачею",
+          "`setTimeout(..., 0)`, бо таймери мають вищий пріоритет за проміси",
+          "Вони завжди виконуються в довільному порядку",
+          "`Promise.then` не виконується без `async/await`",
+        ],
+        0,
+        why("Event loop після синхронного стеку спершу повністю очищає microtask queue, і лише потім бере макрозадачу з timer queue.", "After the synchronous stack, the event loop drains the microtask queue before taking the next macrotask."),
+      ), optionsEn: [
+        "`Promise.resolve().then(...)`, because the microtask queue drains before the next macrotask",
+        "`setTimeout(..., 0)`, because timers outrank promises",
+        "They always run in random order",
+        "`Promise.then` does not run without `async/await`",
+      ] },
     ]),
   ],
 );

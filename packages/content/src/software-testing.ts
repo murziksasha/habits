@@ -139,6 +139,24 @@ const testableRequirements = unit(
         0,
         why("Відмова і відсутність мутації разом перевіряють спостережувану поведінку захисту.", "The denial and absence of mutation together check the observable authorization contract."),
       ), optionsEn: ["Send a request as another user, assert denial and verify the record is unchanged", "Only check that the button is hidden", "Mock authorization to always succeed", "Only check that the route file exists"] },
+      { ...mcq(
+        "st-req-e4",
+        "Чому вимога «система має працювати швидко» непридатна як критерій тесту без уточнення?",
+        "Why is the requirement 'the system must be fast' untestable without clarification?",
+        [
+          "Вона не задає вимірюваного порогу (наприклад, p95 < 200 мс при 100 RPS) та умов перевірки",
+          "Швидкість неможливо виміряти у мілісекундах",
+          "Тести можуть перевіряти лише кольори кнопок",
+          "Vitest забороняє вимірювати час",
+        ],
+        0,
+        why("Тестована вимога містить конкретний вхід, очікуваний вихід або числовий поріг.", "A testable requirement specifies concrete inputs, expected outputs, or measurable thresholds."),
+      ), optionsEn: [
+        "It lacks a measurable threshold (e.g. p95 < 200 ms at 100 RPS) and test conditions",
+        "Speed cannot be measured in milliseconds",
+        "Tests can only check button colors",
+        "Vitest forbids measuring time",
+      ] },
     ]),
   ],
 );
@@ -266,6 +284,24 @@ const unitTestingUnit = unit(
         0,
         why("Покриття рядків не гарантує перевірки результату; спершу визначте очікування контракту на межі.", "Line coverage does not guarantee that the result is asserted; first establish the contract at the boundary."),
       ), optionsEn: ["Check the boundary contract and, if behavior should differ, add a test that passes on the original and fails on the mutant", "Treat 100% coverage as proof of correctness", "Mock the function itself with a fixed result", "Assume every mutant is equivalent without analysis"] },
+      { ...mcq(
+        "st-ut-e4",
+        "Чому unit-тест, який мокає саму функцію, яку нібито тестує, не має сенсу?",
+        "Why is a unit test that mocks the very function under test useless?",
+        [
+          "Він перевіряє лише поведінку мока, а реальний код продакшну може бути повністю зламаним",
+          "Моки працюють лише у Python",
+          "Unit-тести не можуть мати більше одного `expect`",
+          "Це збільшує швидкість процесора",
+        ],
+        0,
+        why("Тестуйте реальну логіку модуля; ізолюйте лише зовнішні I/O-залежності, коли це виправдано.", "Test the real module logic; only isolate external I/O dependencies when appropriate."),
+      ), optionsEn: [
+        "It only asserts the mock's behavior while real production code could be completely broken",
+        "Mocks only work in Python",
+        "Unit tests cannot have more than one `expect`",
+        "It increases CPU speed",
+      ] },
     ]),
   ],
 );
@@ -389,6 +425,14 @@ const boundariesFixturesUnit = unit(
         0,
         why("Локальний лічильник не забезпечує унікальність між процесами; ізоляція має відповідати способу паралельного запуску.", "A local counter is not unique across processes; isolation must match the parallel execution model."),
       ), optionsEn: ["Each process has its own counter; isolate data or add unique run and worker identifiers", "JavaScript guarantees one counter across processes", "Increase the delay between tests", "Remove the unique index from the production database"] },
+      { ...mcq(
+        "st-bf-e4",
+        "Для 1-based пагінації `page = 1, pageSize = 10` яка формула стартового індексу правильна?",
+        "For 1-based pagination `page = 1, pageSize = 10`, which start-index formula is correct?",
+        ["(page - 1) * pageSize", "page * pageSize", "(page + 1) * pageSize", "page / pageSize"],
+        0,
+        why("Для першої сторінки `page = 1` старт має бути `0`: `(1 - 1) * 10 = 0`.", "For page 1 the start offset must be 0: `(1 - 1) * 10 = 0`."),
+      ), optionsEn: ["(page - 1) * pageSize", "page * pageSize", "(page + 1) * pageSize", "page / pageSize"] },
     ]),
   ],
 );
@@ -496,6 +540,24 @@ const reactComponentTestsUnit = unit(
         0,
         why("HTTP-помилка зазвичай повертає Response, а мережевий збій відхиляє проміс; retry має отримати успішну відповідь.", "An HTTP error normally returns a Response, while a network failure rejects; the retry must receive a successful response."),
       ), optionsEn: ["Return a 500 Response with ok=false first, then a successful response; assert the error and recovery after Retry", "Assume fetch always rejects on HTTP 500", "Check only the initial spinner", "Replace the component with fixed HTML"] },
+      { ...mcq(
+        "st-rct-e4",
+        "Чому в тестах React Testing Library краще використовувати `await user.click(...)` із `userEvent.setup()`, ніж `fireEvent.click(...)`?",
+        "Why is `await user.click(...)` from `userEvent.setup()` preferred over `fireEvent.click(...)` in React Testing Library?",
+        [
+          "`userEvent` відтворює повну послідовність браузерних подій (focus, pointer, mouse, click), ближчу до реального користувача",
+          "`fireEvent` не працює з кнопками",
+          "`userEvent` автоматично тестує PostgreSQL",
+          "`fireEvent` запускає реальний Chrome",
+        ],
+        0,
+        why("Реалістична послідовність подій виявляє проблеми з фокусом, disabled-станами та клавіатурою.", "Realistic event sequences catch focus, disabled-state, and keyboard issues."),
+      ), optionsEn: [
+        "`userEvent` simulates the full browser event sequence (focus, pointer, mouse, click) closer to a real user",
+        "`fireEvent` does not work on buttons",
+        "`userEvent` automatically tests PostgreSQL",
+        "`fireEvent` launches a real Chrome browser",
+      ] },
     ]),
   ],
 );
@@ -613,6 +675,24 @@ const apiDbIntegrationUnit = unit(
         0,
         why("Rollback діє на транзакцію конкретного з’єднання і не скасовує окремо закомічений запис.", "A rollback applies to the transaction on its connection and does not undo a separately committed write."),
       ), optionsEn: ["It remains; use coordinated isolation or clean a separate test database or schema", "The test rollback automatically rolls back all connections", "The row is automatically deleted after HTTP 201", "PostgreSQL always deletes the row when the test ends"] },
+      { ...mcq(
+        "st-int-e4",
+        "Чому `TRUNCATE` або очищення таблиць у тестах можна запускати виключно проти виділеної тестової бази?",
+        "Why must `TRUNCATE` or table cleanup in tests run strictly against a dedicated test database?",
+        [
+          "Щоб випадковий запуск тестів ніколи не знищив локальні або продакшн-дані розробника чи користувачів",
+          "`TRUNCATE` не працює на тестових базах",
+          "Це прискорює `next build`",
+          "PostgreSQL забороняє `TRUNCATE` у будні дні",
+        ],
+        0,
+        why("Ізоляція тестового URL/БД (наприклад, перевірка імені БД або окремий інстанс) захищає від катастрофічної втрати даних.", "Isolating test DB URLs (checking DB name or using a dedicated instance) prevents catastrophic data loss."),
+      ), optionsEn: [
+        "So running tests can never wipe developer or production user data",
+        "`TRUNCATE` does not work on test databases",
+        "It speeds up `next build`",
+        "PostgreSQL forbids `TRUNCATE` on weekdays",
+      ] },
     ]),
   ],
 );
@@ -734,6 +814,24 @@ const e2eCiCapstoneUnit = unit(
         0,
         why("Прослуховування до дії та точний фільтр зменшують гонку і не підміняють перевірку видимого результату.", "Listening before the action and matching the request reduce a race and do not replace checking the visible result."),
       ), optionsEn: ["Start waiting for the matching method and path before clicking, then check the status and UI state", "Wait a fixed two seconds after clicking", "Listen for any response only after the click completes", "Only check that the button exists"] },
+      { ...mcq(
+        "st-e2e-e4",
+        "Чому E2E-тести в Playwright не варто будувати на крихких селекторах на кшталт `div > div:nth-child(3) > span`?",
+        "Why should Playwright E2E tests avoid brittle selectors like `div > div:nth-child(3) > span`?",
+        [
+          "Будь-яка зміна верстки чи обгортки ламає тест, тоді як `getByRole` / `getByLabel` перевіряють і поведінку, і доступність",
+          "`nth-child` заборонений у Chrome",
+          "Playwright не підтримує CSS-селектори",
+          "`getByRole` пропускає всі кліки",
+        ],
+        0,
+        why("Рольові та текстові локатори роблять E2E стійкими до рефакторингу стилів.", "Role and label locators keep E2E tests resilient to styling refactors."),
+      ), optionsEn: [
+        "Any layout wrapper change breaks the test, whereas `getByRole`/`getByLabel` verify both behavior and accessibility",
+        "`nth-child` is forbidden in Chrome",
+        "Playwright does not support CSS selectors",
+        "`getByRole` skips all clicks",
+      ] },
     ]),
   ],
 );

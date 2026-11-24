@@ -12,12 +12,12 @@ export const chessContent: CourseContent = {
     {
       slug: "rules",
       titleUk: "Правила",
-      titleEn: "Правила",
+      titleEn: "Rules",
       lessons: [
         {
           slug: "board-pieces",
           titleUk: "Дошка та фігури",
-          titleEn: "Дошка та фігури",
+          titleEn: "Board and Pieces",
           baseXp: 15,
           difficulty: 1,
           isFree: true,
@@ -47,7 +47,7 @@ export const chessContent: CourseContent = {
         {
           slug: "king-check",
           titleUk: "Шах і мат",
-          titleEn: "Шах і мат",
+          titleEn: "Check and Checkmate",
           baseXp: 18,
           difficulty: 1,
           isFree: true,
@@ -86,7 +86,7 @@ export const chessContent: CourseContent = {
         {
           slug: "special-moves",
           titleUk: "Спеціальні ходи",
-          titleEn: "Спеціальні ходи",
+          titleEn: "Special Moves",
           baseXp: 18,
           difficulty: 2,
           isFree: true,
@@ -117,12 +117,12 @@ export const chessContent: CourseContent = {
     {
       slug: "tactics",
       titleUk: "Тактика",
-      titleEn: "Тактика",
+      titleEn: "Tactics",
       lessons: [
         {
           slug: "mate-in-1-a",
           titleUk: "Мат в 1: частина А",
-          titleEn: "Мат в 1: частина А",
+          titleEn: "Mate in 1: Part A",
           baseXp: 20,
           difficulty: 2,
           isFree: true,
@@ -148,7 +148,7 @@ export const chessContent: CourseContent = {
         {
           slug: "mate-in-1-b",
           titleUk: "Мат в 1: частина Б",
-          titleEn: "Мат в 1: частина Б",
+          titleEn: "Mate in 1: Part B",
           baseXp: 20,
           difficulty: 2,
           isFree: true,
@@ -174,7 +174,7 @@ export const chessContent: CourseContent = {
         {
           slug: "forks",
           titleUk: "Вилки",
-          titleEn: "Вилки",
+          titleEn: "Forks",
           baseXp: 22,
           difficulty: 3,
           exercises: [
@@ -203,7 +203,7 @@ export const chessContent: CourseContent = {
         {
           slug: "pins-skewers",
           titleUk: "Зв'язки",
-          titleEn: "Зв'язки",
+          titleEn: "Pins and Skewers",
           baseXp: 22,
           difficulty: 3,
           exercises: [
@@ -232,7 +232,7 @@ export const chessContent: CourseContent = {
         {
           slug: "more-puzzles",
           titleUk: "Ще задачі",
-          titleEn: "Ще задачі",
+          titleEn: "More Puzzles",
           baseXp: 25,
           difficulty: 3,
           exercises: [
@@ -257,7 +257,7 @@ export const chessContent: CourseContent = {
         {
           slug: "back-rank-mates",
           titleUk: "Мати на останній горизонталі",
-          titleEn: "Мати на останній горизонталі",
+          titleEn: "Back-Rank Mates",
           baseXp: 24,
           difficulty: 3,
           exercises: [
@@ -286,7 +286,7 @@ export const chessContent: CourseContent = {
         {
           slug: "opening-ideas",
           titleUk: "Ідеї дебюту",
-          titleEn: "Ідеї дебюту",
+          titleEn: "Opening Ideas",
           baseXp: 20,
           difficulty: 2,
           exercises: [
@@ -1214,6 +1214,36 @@ export const chessContent: CourseContent = {
               correctIndex: 0,
               explanationUk: "Перевірка форсованих відповідей (Checks, Captures, Threats) рятує від зівків тактики в один-два ходи.",
               explanationEn: "Scanning checks, captures, and forcing threats first catches tactical oversights.",
+            },
+            {
+              id: "ch-ear-e3",
+              type: "chess_puzzle",
+              promptUk: "Знайдіть мат ферзем в 1 хід",
+              promptEn: "Find the queen checkmate in 1 move",
+              fen: "5k2/8/6K1/8/8/8/5Q2/8 w - - 0 1",
+              solutionSans: ["Qf7#"],
+              difficulty: 2,
+            },
+            {
+              id: "ch-ear-e4",
+              type: "mcq",
+              promptUk: "Яке головне правило тури в пішаковому ендшпілі (правило Тарраша)?",
+              promptEn: "What is Tarrasch's main rule for rooks in pawn endgames?",
+              options: [
+                "Тура має стояти позаду прохідного пішака — як свого, так і суперника",
+                "Тура завжди повинна стояти попереду прохідного пішака",
+                "Туру потрібно тримати на початковій клітинці a1",
+                "Тура ніколи не атакує пішаків",
+              ],
+              optionsEn: [
+                "Rooks belong behind passed pawns — both your own and the opponent's",
+                "Rooks should always stand in front of passed pawns",
+                "Keep the rook on its starting square a1",
+                "Rooks never attack pawns",
+              ],
+              correctIndex: 0,
+              explanationUk: "Позаду пішака простір тури зростає з кожним його кроком уперед, а прохідний суперника залишається під постійним контролем.",
+              explanationEn: "Behind a passed pawn, the rook gains scope as the pawn advances and keeps enemy passed pawns under pressure.",
             },
           ],
         },

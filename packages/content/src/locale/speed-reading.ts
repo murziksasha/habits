@@ -812,4 +812,52 @@ export const SPEED_READING_LOCALE_ENRICHMENT: Record<string, ExerciseLocaleEnric
       },
     ],
   },
+  "sr-ac-2": {
+    textEn: "Teams that write concise design decisions repeat the same arguments less often. A study of internal retrospectives at one engineering organization showed that after introducing one-page ADRs, repeated debates about the tech stack decreased. This does not prove ADRs always work, but it gives grounds to try them in a similar context.",
+  },
+  "sr-aa-2": {
+    textEn: "We doubled the number of developers, so the next release will ship twice as fast. The deadline stays the same and the scope is unchanged. Management expects linear speedup from adding people.",
+  },
+  "sr-aco-2": {
+    textEn: "A read cache reduced catalog p95 latency from 800 ms to 120 ms during peak hours. The experiment ran for two weeks in a single region. We did not measure the impact on consistency during promotions, so we do not recommend the same TTL for the shopping cart.",
+  },
+  "sr-as-2": {
+    textEn: "Goal: test whether short daily speed-reading sessions improve comprehension of technical texts. Method: 64 engineers, four weeks, control group did normal reading. Result: speed increased, and accuracy on detailed questions did not drop in the group that paused after each section. Limitations: native-language texts only, short timeframe.",
+  },
+  "sr-al-2": {
+    textEn: "The pair programming experiment was run among conference volunteers over a single day. Participants already knew how to pair and self-selected into the study. The result—higher code quality on a toy task—will not necessarily repeat in a team under a tight deadline with no pairing experience.",
+  },
+  "sr-arv-2": {
+    textEn: "Before a long read, write down in one line: what is the sample, what is the control, what is the metric, and what is the main limitation. If those four answers are missing from both the abstract and the start of the methods section, treat bold conclusions cautiously and look for the primary data source.",
+  },
+  "sr-or-2": {
+    textEn: "Goal: restore /health responses on api-prod. First check deployment status over the last 30 minutes. If a rollout is currently in progress, stop and do not scale manually. If there is no rollout, compare replicas: if only one healthy replica remains, do not delete it. After each action, record the time and result in the incident channel.",
+  },
+  "sr-ot-2": {
+    textEn: "14:01 monitoring: 5xx error rate on checkout exceeded 2 percent. 14:04 on-call confirmed payments are failing in eu-west. 14:11 rolled back inventory-svc deployment to the previous digest. 14:18 5xx returned below 0.2 percent, payments are succeeding. Impact start—no later than 14:01, recovery—14:18.",
+  },
+  "sr-ov-2": {
+    textEn: "Before a production change, summarize to yourself in three sentences: what is the goal, what is the success check, and what is the rollback condition. If you cannot name the success check, you have not finished reading the runbook. If there is no rollback condition, stop and ask.",
+  },
+  "sr-fr-2": {
+    textEn: "The first pass gives a map: where the intro is, where the method is, where the exceptions are. The second pass answers one specific question, such as 'what is the exact timeout?'. Without a question, a second pass often turns into mechanical rereading and tires you more than it teaches.",
+  },
+  "sr-ff-2": {
+    textEn: "Signs of fatigue during speed reading: you skip the word 'not', confuse 15 and 50, or cannot summarize the last paragraph. When that happens, slow down or re-check only passages with numbers and negations. Short sessions with recall are more accurate than a long chase for a WPM record.",
+  },
+  "sr-fv-2": {
+    textEn: "Three speeds: navigation—quickly finding a section; working—following the line of thought; precision—numbers, requirements, exceptions. Switch deliberately. If after working speed you cannot state the thesis, you have already driven past the key point and should go back.",
+  },
+  "sr-ri-2": {
+    textEn: "Cache-aside works like this: the application first reads the cache; on a miss, it reads the database, writes the result to the cache, and returns it. TTL limits how long a stale value can live. For frequently changing data, a short TTL reduces staleness but increases database load.",
+  },
+  "sr-rt-2": {
+    textEn: "An idempotent request can be repeated without extra effect: retrying a payment with the same key will not charge twice. This is not the same as a safe HTTP method: GET should be safe and not mutate state, whereas idempotency is about repetition. PUT is usually idempotent; POST is not if each call creates a new resource.",
+  },
+  "sr-rs-2": {
+    textEn: "Read a difficult section, close it, retell it, and mark the gaps. Return in the evening only to the gaps, not the whole section. The next day, try explaining the idea again without the text. This rhythm is shorter than rereading the entire chapter each time and better reveals what still does not stick.",
+  },
+  "sr-rrv-2": {
+    textEn: "Speed reading is useful when afterward you can state the thesis, the evidence, and one limitation. If you can only recognize sentences by sight, you trained recognition, not comprehension. Add one minute of recall at the end of each session—it is a cheaper way to raise accuracy than ten more minutes of raw RSVP.",
+  },
 };

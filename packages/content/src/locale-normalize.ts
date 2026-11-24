@@ -31,6 +31,9 @@ function withEnrichment(ex: Exercise): Exercise {
   if (enrich.passageEn && !res.passageEn) {
     res.passageEn = enrich.passageEn;
   }
+  if (enrich.textEn && !res.textEn) {
+    res.textEn = enrich.textEn;
+  }
   if (enrich.notesEn && !res.notesEn) {
     res.notesEn = enrich.notesEn;
   }

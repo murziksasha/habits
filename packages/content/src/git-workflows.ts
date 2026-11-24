@@ -115,6 +115,14 @@ const historyCommits = unit(
         0,
         why("Порівняйте git diff та git diff --staged: вони показують різні межі змін.", "Compare git diff and git diff --staged: they show different boundaries of change."),
       ), optionsEn: ["The version in the index at commit time; later unstaged edits remain in the working tree", "Always the latest working-tree version", "Both versions in separate commits", "The file is deleted automatically"] },
+      { ...mcq(
+        "gw-hc-e4",
+        "Яка команда знаходить точний коміт, що зламав тест між доброю версією `v1.0` та поганим `HEAD`?",
+        "Which command binary-searches commit history to find the exact commit that broke a test between good `v1.0` and bad `HEAD`?",
+        ["git bisect", "git blame", "git stash", "git cherry-pick"],
+        0,
+        why("`git bisect` знаходить регресію за O(log N) кроків.", "`git bisect` pinpoints a regression in O(log N) steps."),
+      ), optionsEn: ["git bisect", "git blame", "git stash", "git cherry-pick"] },
     ]),
   ],
 );
@@ -214,6 +222,14 @@ const branchesRebase = unit(
         0,
         why("Фоновий fetch може змінити неявне очікуване значення; явний SHA та координація зменшують ризик.", "A background fetch can change the implicit expected value; an explicit SHA and coordination reduce the risk."),
       ), optionsEn: ["Coordinate, inspect the teammate's work, and explicitly record the expected SHA for the lease", "Assume implicit --force-with-lease always protects all work", "Force-push without review", "Delete the local reflog"] },
+      { ...mcq(
+        "gw-br-e4",
+        "Яка команда прибирає файл з індексу (`staging area`), але зберігає його локальні зміни у робочому дереві?",
+        "Which command unstages a file from the index while preserving its edits in the working tree?",
+        ["git restore --staged <file>", "git restore <file>", "git reset --hard", "git clean -f"],
+        0,
+        why("`git restore --staged` змінює лише індекс; без `--staged` команда перезапише робочий файл.", "`git restore --staged` updates only the index; without `--staged` it overwrites the working file."),
+      ), optionsEn: ["git restore --staged <file>", "git restore <file>", "git reset --hard", "git clean -f"] },
     ]),
   ],
 );
@@ -289,6 +305,24 @@ const conflictResolution = unit(
         0,
         why("Відсутність маркерів лише означає текстове вирішення; перевірки підтверджують потрібну поведінку.", "Removing markers only resolves the text conflict; checks verify the intended behavior."),
       ), optionsEn: ["Keep both changes, remove markers, and test authorization and normalization", "Blindly choose one side and finish the merge", "Remove markers without reading the result", "Always skip the conflicting commit with rebase --skip"] },
+      { ...mcq(
+        "gw-cr-e4",
+        "Чому не можна залишати маркери `<<<<<<<`, `=======`, `>>>>>>>` навіть у коментарях або README?",
+        "Why must conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`) never remain even in comments or README?",
+        [
+          "Вони ламають компіляцію/парсери й свідчать про незавершене ручне вирішення конфлікту",
+          "Git автоматично видаляє файл із маркерами",
+          "Вони шифрують репозиторій",
+          "Вони збільшують швидкість CI",
+        ],
+        0,
+        why("Кожен конфлікт має бути повністю вирішений, очищений від маркерів і перевірений тестами.", "Every conflict must be fully resolved, stripped of markers, and verified with tests."),
+      ), optionsEn: [
+        "They break compilers/parsers and indicate an unfinished manual conflict resolution",
+        "Git automatically deletes files with markers",
+        "They encrypt the repository",
+        "They speed up CI",
+      ] },
     ]),
   ],
 );
@@ -366,6 +400,24 @@ const codeReviews = unit(
         0,
         why("Прозорий звіт про перевірки дозволяє рев’юверу оцінити залишковий ризик.", "An accurate validation report lets the reviewer assess the remaining risk."),
       ), optionsEn: ["State what passed, what was skipped and why; arrange the relevant check in an available environment", "Claim all tests passed", "Hide the skipped tests", "Assume unit tests prove database integration"] },
+      { ...mcq(
+        "gw-rev-e4",
+        "Що автор PR має зробити перед тим, як просити рев'ю у команди?",
+        "What should a PR author do before requesting a team review?",
+        [
+          "Прочитати власний diff, прибрати зайві дебаг-логи/побічні правки та переконатися, що локальні перевірки проходять",
+          "Залишити закоментований код і зламані тести для рев'ювера",
+          "Об'єднати 4 непов'язані фічі в один PR",
+          "Видалити опис PR",
+        ],
+        0,
+        why("Самоперевірка diff економить час рев'юверів і ловить очевидні промахи до рев'ю.", "Self-reviewing the diff saves reviewer time and catches obvious mistakes early."),
+      ), optionsEn: [
+        "Read their own diff, remove stray debug logs/unrelated edits, and confirm local checks pass",
+        "Leave commented-out code and broken tests for the reviewer",
+        "Bundle 4 unrelated features into one PR",
+        "Delete the PR description",
+      ] },
     ]),
   ],
 );
@@ -482,6 +534,24 @@ const recoveryReleaseCapstone = unit(
         0,
         why("Reflog допомагає знайти записані позиції посилань, доки об’єкти доступні; захисна гілка дозволяє оглянути результат.", "Reflog helps locate recorded ref positions while objects remain available; a rescue branch lets you inspect them."),
       ), optionsEn: ["Create a rescue branch at the found SHA and inspect it; reflog does not guarantee recovery of uncommitted changes", "Immediately run another reset --hard; all uncommitted changes will return", "Delete .git and clone again to recover every local commit", "Force-push main without inspection"] },
+      { ...mcq(
+        "gw-rr-e4",
+        "Чому для відкату вже опублікованого коміту в `main` використовують `git revert`, а не `git reset --hard && push --force`?",
+        "Why use `git revert` instead of `git reset --hard && push --force` to undo a commit already published to `main`?",
+        [
+          "`git revert` додає новий коміт-скасування без переписування спільної історії колег і CI",
+          "`git revert` працює лише локально без коміту",
+          "`git reset --hard` зберігає всі коміти в `main`",
+          "`git revert` видаляє всі гілки репозиторію",
+        ],
+        0,
+        why("`git revert` безпечний для спільних гілок, бо не змінює існуючі SHA-хеші.", "`git revert` is safe for shared branches because it preserves existing commit SHAs."),
+      ), optionsEn: [
+        "`git revert` adds a new inverse commit without rewriting shared history for teammates and CI",
+        "`git revert` works only locally without creating a commit",
+        "`git reset --hard` keeps all commits on `main`",
+        "`git revert` deletes all repository branches",
+      ] },
     ]),
   ],
 );

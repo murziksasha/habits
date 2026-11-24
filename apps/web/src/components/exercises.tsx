@@ -1892,7 +1892,7 @@ function ConceptExercise({
     ? (exercise.keyPointsEn as string[] | undefined) ?? (exercise.keyPointsUk as string[] | undefined)
     : (exercise.keyPointsUk as string[] | undefined) ?? (exercise.keyPointsEn as string[] | undefined)) ?? [];
   const check = exercise.check as
-    | { qUk: string; qEn?: string; options: string[]; correctIndex: number }
+    | { qUk: string; qEn?: string; options: string[]; optionsEn?: string[]; correctIndex: number }
     | undefined;
   const order = useMemo(
     () => stableOptionOrder(`${String(exercise.id)}:check`, check?.options.length ?? 0),
@@ -1934,19 +1934,27 @@ function ConceptExercise({
             {en ? check.qEn || check.qUk : check.qUk}
           </p>
           <div className="grid gap-2">
-            {order.map((original) => (
-              <button
-                key={original}
-                type="button"
-                className={clsx(
-                  "rounded-2xl border-2 px-4 py-3 text-left font-bold",
-                  selected === original ? "border-sky bg-sky/10" : "border-slate-200",
-                )}
-                onClick={() => setSelected(original)}
-              >
-                {check.options[original]}
-              </button>
-            ))}
+            {order.map((original) => {
+              const label =
+                en && check.optionsEn?.[original]
+                  ? check.optionsEn[original]
+                  : check.options[original];
+              return (
+                <button
+                  key={original}
+                  type="button"
+                  className={clsx(
+                    "rounded-2xl border-2 px-4 py-3 text-left font-bold",
+                    selected === original
+                      ? "border-sky bg-sky/10"
+                      : "border-slate-200 dark:border-slate-700",
+                  )}
+                  onClick={() => setSelected(original)}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
           <button
             className="btn-primary"

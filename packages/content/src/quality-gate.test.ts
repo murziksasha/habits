@@ -225,4 +225,56 @@ describe("content quality gate", () => {
     expect(gaps).toEqual([]);
   });
 
+  it("keeps English titles, pairs, hints, RSVP texts, and chess notes localized", () => {
+    const cyrillic = /[А-Яа-яІіЇїЄєҐґ]/u;
+    const gaps: string[] = [];
+    for (const course of ALL_COURSE_CONTENTS) {
+      for (const unit of course.units) {
+        if (cyrillic.test(unit.titleEn ?? "")) {
+          gaps.push(`unit-titleEn:${course.slug}/${unit.slug}`);
+        }
+        for (const lesson of unit.lessons) {
+          if (cyrillic.test(lesson.titleEn ?? "")) {
+            gaps.push(`lesson-titleEn:${course.slug}/${lesson.slug}`);
+          }
+          for (const ex of lesson.exercises) {
+            const loc = `${course.slug}/${lesson.slug}/${ex.id}`;
+            if (ex.type === "match") {
+              const hasCyr = ex.pairs.some((p) => cyrillic.test(p.left) || cyrillic.test(p.right));
+              if (hasCyr && (!ex.pairsEn || ex.pairsEn.length !== ex.pairs.length)) {
+                gaps.push(`${loc}:pairsEn`);
+              }
+            }
+            if (ex.type === "rsvp" && cyrillic.test(ex.text) && !nonempty(ex.textEn)) {
+              gaps.push(`${loc}:textEn`);
+            }
+            if (ex.type === "chess_lesson" && cyrillic.test(ex.notesUk) && (!nonempty(ex.notesEn) || ex.notesEn === ex.notesUk)) {
+              gaps.push(`${loc}:notesEn`);
+            }
+            if (ex.type === "logic_puzzle" && nonempty(ex.hintUk) && !nonempty(ex.hintEn)) {
+              gaps.push(`${loc}:hintEn`);
+            }
+          }
+        }
+      }
+    }
+    expect(gaps).toEqual([]);
+  });
+
+  it("requires at least 4 assessable items in non-drill unit exams", () => {
+    const passive = new Set(["concept", "rsvp", "video"]);
+    const gaps: string[] = [];
+    for (const course of ALL_COURSE_CONTENTS) {
+      if (course.slug === "typing" || course.slug === "speed_reading") continue;
+      for (const unit of course.units) {
+        for (const lesson of unit.lessons) {
+          if (!lesson.isExam) continue;
+          const count = lesson.exercises.filter((e) => !passive.has(e.type)).length;
+          if (count < 4) gaps.push(`${course.slug}/${lesson.slug}:${count}`);
+        }
+      }
+    }
+    expect(gaps).toEqual([]);
+  });
+
 });

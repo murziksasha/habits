@@ -93,6 +93,8 @@ type ExerciseBody =
       correctIndex: number;
       hintUk?: string;
       hintEn?: string;
+      explanationUk?: string;
+      explanationEn?: string;
     }
   | {
       id: string;
@@ -102,6 +104,8 @@ type ExerciseBody =
       fen: string;
       solutionSans: string[];
       difficulty: number;
+      explanationUk?: string;
+      explanationEn?: string;
     }
   | {
       id: string;

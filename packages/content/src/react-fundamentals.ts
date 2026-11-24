@@ -1329,7 +1329,26 @@ const architectureRoutingForms = unit(
         "<div ___=\"status\">Loading tasks...</div>",
         ["role"],
         true,
+        why("`role=\"status\"` повідомляє екранним читачам про непереривні оновлення статусу.", "`role=\"status\"` announces non-intrusive status updates to screen readers."),
       ),
+      { ...mcq(
+        "rf-arf-e4",
+        "Чому в React не варто зберігати похідне значення (наприклад, `filteredTasks = tasks.filter(...)`) в окремому `useState`?",
+        "Why should derived values (such as `filteredTasks = tasks.filter(...)`) not be duplicated in a separate `useState`?",
+        [
+          "Дубльований стан легко розсинхронізується з джерелом правди; похідне значення краще обчислювати під час рендеру",
+          "React забороняє `.filter()` у компонентах",
+          "`useState` не приймає масиви",
+          "Це вимикає CSS-стилі",
+        ],
+        0,
+        why("Обчислення похідних даних під час рендеру (або `useMemo` при важких розрахунках) усуває розсинхронізацію стану.", "Computing derived data during render (or `useMemo` when expensive) eliminates state drift."),
+      ), optionsEn: [
+        "Duplicated state easily drifts out of sync with the source of truth; compute derived values during render",
+        "React forbids `.filter()` inside components",
+        "`useState` does not accept arrays",
+        "It disables CSS styles",
+      ] },
     ]),
   ],
 );
