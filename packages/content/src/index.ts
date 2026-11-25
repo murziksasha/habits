@@ -170,3 +170,4 @@ export const ALL_COURSE_CONTENTS: CourseContent[] = [
   electricalEngineeringContent,
 ];
 export { ENDGAME_DRILL_SPECS } from "./chess-upgrade/endgame-drills.js";
+export { REPERTOIRES } from "./chess-openings.js";

@@ -1,4 +1,5 @@
 import { Chess, type Move, type Square } from "chess.js";
+import { buildOpeningBook, getRepertoire, openingChildren, type OpeningBookEntry } from "./openings.js";
 
 export type BotLevel = "learner" | "club" | "strong";
 
@@ -13,7 +14,19 @@ export type ChooseBotMoveOptions = {
   rng?: () => number;
   /** SAN history from the start position (repetition awareness, opening book). */
   history?: readonly string[];
+  /** "Play an opening" mode: follow this repertoire tree (both sides) while in book. */
+  openingId?: string;
 };
+
+let generatedBook: Map<string, OpeningBookEntry> | null = null;
+function repertoireBook(): Map<string, OpeningBookEntry> {
+  generatedBook ??= buildOpeningBook();
+  return generatedBook;
+}
+
+function pick<T>(list: readonly T[], rng: () => number): T | undefined {
+  return list.length ? list[Math.floor(rng() * list.length)] : undefined;
+}
 
 const PIECE_VALUES: Record<string, number> = {
   p: 100,
@@ -279,8 +292,27 @@ export function chooseBotMove(
 
   const level = normalizeLevel(levelInput);
 
-  // 1. Opening book
+  // 1a. "Play an opening": follow the chosen repertoire tree by history.
+  if (options?.openingId && options.history) {
+    const rep = getRepertoire(options.openingId);
+    const children = rep ? openingChildren(rep, options.history) : null;
+    if (children?.length) {
+      const pool = level === "learner" && children.some((c) => c.mainline) ? children.filter((c) => c.mainline) : children;
+      const weighted = pool.flatMap((c) => Array.from({ length: c.weight }, () => c.san));
+      const san = pick(weighted, rng);
+      const m = san ? legalMoves.find((x) => x.san === san) : undefined;
+      if (m) return toBotMove(m);
+    }
+  }
+
+  // 1b. Opening book: repertoire trees (learner — main lines only), then the static seed book.
   const fenKey = fen.trim().split(/\s+/).slice(0, 4).join(" ");
+  const treeEntry = repertoireBook().get(fenKey);
+  if (treeEntry) {
+    const san = pick(level === "learner" && treeEntry.mainline.length ? treeEntry.mainline : treeEntry.all, rng);
+    const m = san ? legalMoves.find((x) => x.san === san) : undefined;
+    if (m) return toBotMove(m);
+  }
   const bookEntry = OPENING_BOOK[fenKey]?.[level];
   if (bookEntry && bookEntry.length > 0) {
     const choice = bookEntry[Math.floor(rng() * bookEntry.length)];

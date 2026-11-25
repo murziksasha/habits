@@ -334,4 +334,5 @@ export { Chess, type Square };
 export * from "./bot.js";
 export * from "./puzzle.js";
 export * from "./endgame.js";
+export * from "./openings.js";
 
