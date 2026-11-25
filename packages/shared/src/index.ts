@@ -2,6 +2,7 @@ export * from "./xp.js";
 export * from "./courses.js";
 export * from "./entitlements.js";
 export * from "./chess-rating.js";
+export * from "./chess-themes.js";
 export * from "./schemas.js";
 export * from "./i18n.js";
 export * from "./achievements.js";
