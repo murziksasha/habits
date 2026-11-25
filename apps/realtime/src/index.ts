@@ -1,3 +1,5 @@
+// Must stay the first import: loads the root .env before any process.env read below.
+import "./load-env.js";
 import { createServer } from "node:http";
 import { createHash } from "node:crypto";
 import express from "express";
