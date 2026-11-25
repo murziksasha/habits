@@ -21,7 +21,7 @@ import {
   reviewSessionXp,
   reviewXpEarnedToday,
 } from "../services/exercise-learning.js";
-import { buildReviewReasons } from "../services/review-queue.js";
+import { buildReviewReasons, THEME_SIBLING_REASON } from "../services/review-queue.js";
 
 type Vars = { user: AuthedUser };
 
@@ -384,6 +384,7 @@ reviewRoutes.get("/mistakes", authMiddleware, async (c) => {
       repetitions: exerciseReviews.repetitions,
       lapses: exerciseReviews.lapses,
       dueAt: exerciseReviews.dueAt,
+      reason: exerciseReviews.reason,
       lessonTitleUk: lessons.titleUk,
       lessonTitleEn: lessons.titleEn,
       exercises: lessons.exercises,
@@ -407,6 +408,7 @@ reviewRoutes.get("/mistakes", authMiddleware, async (c) => {
         lessonTitleEn: r.lessonTitleEn || r.lessonTitleUk,
         lapses: r.lapses,
         repetitions: r.repetitions,
+        reason: r.reason === "theme_sibling" ? THEME_SIBLING_REASON : null,
         exercise,
       };
     })

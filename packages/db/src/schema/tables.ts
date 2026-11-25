@@ -6,6 +6,7 @@ import {
   pgEnum,
   pgTable,
   real,
+  smallint,
   text,
   timestamp,
   uniqueIndex,
@@ -1176,6 +1177,8 @@ export const exerciseReviews = pgTable(
     lapses: integer("lapses").notNull().default(0),
     dueAt: timestamp("due_at", { withTimezone: true }).defaultNow().notNull(),
     lastReviewedAt: timestamp("last_reviewed_at", { withTimezone: true }),
+    /** Why the row exists when not a direct miss, e.g. "theme_sibling" (chess). */
+    reason: varchar("reason", { length: 32 }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
@@ -1201,5 +1204,62 @@ export const circuitProjects = pgTable(
   (t) => [
     index("circuit_projects_user_idx").on(t.userId),
     index("circuit_projects_updated_idx").on(t.updatedAt),
+  ],
+);
+
+/** Learner puzzle rating (Glicko-2), separate from game Elo in chess_ratings. */
+export const chessPuzzleRatingsUser = pgTable("chess_puzzle_ratings_user", {
+  userId: uuid("user_id")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  rating: real("rating").notNull().default(1200),
+  rd: real("rd").notNull().default(350),
+  volatility: real("volatility").notNull().default(0.06),
+  attempts: integer("attempts").notNull().default(0),
+  placed: boolean("placed").notNull().default(false),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+/** Per-puzzle rating; seeded by sync-content (insert only), updated by the daily batch. */
+export const chessPuzzleStats = pgTable(
+  "chess_puzzle_stats",
+  {
+    exerciseId: varchar("exercise_id", { length: 128 }).primaryKey(),
+    lessonId: uuid("lesson_id").references(() => lessons.id, { onDelete: "set null" }),
+    rating: real("rating").notNull(),
+    rd: real("rd").notNull().default(150),
+    volatility: real("volatility").notNull().default(0.06),
+    themes: text("themes").array().notNull().default([]),
+    attempts: integer("attempts").notNull().default(0),
+    firstTrySolves: integer("first_try_solves").notNull().default(0),
+    ratedAt: timestamp("rated_at", { withTimezone: true }),
+  },
+  (t) => [index("chess_puzzle_stats_rating_idx").on(t.rating)],
+);
+
+export const chessPuzzleAttempts = pgTable(
+  "chess_puzzle_attempts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    exerciseId: varchar("exercise_id", { length: 128 }).notNull(),
+    lessonId: uuid("lesson_id").references(() => lessons.id, { onDelete: "set null" }),
+    result: real("result").notNull(),
+    firstAttempt: boolean("first_attempt").notNull().default(true),
+    hintsUsed: smallint("hints_used").notNull().default(0),
+    themes: text("themes").array().notNull().default([]),
+    ratingBefore: real("rating_before"),
+    ratingAfter: real("rating_after"),
+    puzzleRating: real("puzzle_rating"),
+    puzzleRd: real("puzzle_rd"),
+    msSpent: integer("ms_spent"),
+    batchedAt: timestamp("batched_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index("chess_puzzle_attempts_user_idx").on(t.userId, t.createdAt.desc()),
+    index("chess_puzzle_attempts_batch_idx").on(t.batchedAt, t.firstAttempt),
   ],
 );

@@ -295,6 +295,13 @@
             "when": 1794545500000,
             "tag": "0041_last_practiced_at",
             "breakpoints": true
+        },
+        {
+            "idx": 42,
+            "version": "7",
+            "when": 1794545600000,
+            "tag": "0042_chess_puzzle_rating",
+            "breakpoints": true
         }
     ]
 }

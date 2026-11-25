@@ -548,7 +548,7 @@ export async function submitLesson(
       if (!r.correct) return sum;
       const ex = exercises.find((e) => e.id === r.exerciseId);
       if (ex?.type === "chess_puzzle") {
-        return sum + chessPuzzleXpAward(Number(ex.difficulty ?? 1), true);
+        return sum + chessPuzzleXpAward(Number(ex.difficulty ?? 1), true, Number(r.meta?.hintsUsed ?? 0), Boolean(r.meta?.revealed));
       }
       return sum + 8;
     }, 0);

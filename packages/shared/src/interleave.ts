@@ -39,6 +39,8 @@ export const MIXED_PRACTICE_TYPES = [
   "match",
   "order_words",
   "numeric",
+  "chess_puzzle",
+  "chess_plan",
 ] as const;
 
 const MIXED_SET = new Set<string>(MIXED_PRACTICE_TYPES);
