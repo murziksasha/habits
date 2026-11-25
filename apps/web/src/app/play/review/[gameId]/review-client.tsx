@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { replayHistory } from "@eduforge/chess-core";
-import { ChessBoardFrame } from "@/components/chess-board-frame";
+import { Chess, replayHistory, type Square } from "@eduforge/chess-core";
+import { ChessBoardFrame, type BoardArrow } from "@/components/chess-board-frame";
 import { MoveHistoryPanel, type HistoryLabel } from "@/components/move-history-panel";
 import { PageLoading } from "@/components/page-loading";
 import { api, API_URL } from "@/lib/api";
@@ -76,6 +76,16 @@ export function GameReviewClient({ gameId }: { gameId: string }) {
 
   const youAreBlack = data.game.blackId === user?.id && data.game.whiteId !== user?.id;
   const ann = data.annotations.find((a) => a.ply === ply);
+  // Arrow for the engine's best move instead of the played one.
+  const arrows: BoardArrow[] = [];
+  if (ann?.bestSan) {
+    try {
+      const m = new Chess(positions.fens[ply] ?? startFen).move(ann.bestSan);
+      arrows.push([m.from as Square, m.to as Square, "rgba(22,163,74,0.8)"]);
+    } catch {
+      /* ignore */
+    }
+  }
   const labelText = (l: HistoryLabel) =>
     l === "blunder" ? t.chess.blunder : l === "mistake" || l === "possible_blunder" ? t.chess.mistake : t.chess.inaccuracy;
 
@@ -104,6 +114,8 @@ export function GameReviewClient({ gameId }: { gameId: string }) {
             interactive={false}
             lastMove={positions.moves[ply + 1] ?? null}
             boardWidth={420}
+            showControls
+            arrows={arrows}
           />
           <div className="flex justify-center gap-2" role="toolbar">
             <button type="button" className="btn-secondary" aria-label={t.chess.firstMove} onClick={() => setPly(-1)}>

@@ -51,3 +51,4 @@ export * from "./circuit-registry.js";
 export * from "./circuit-document.js";
 export * from "./ee-milestones.js";
 export * from "./session-plan.js";
+export * from "./chess-board-themes.js";

@@ -10,6 +10,7 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { useRequireAuth } from "@/lib/use-require-auth";
+import { playChessSound } from "@/lib/chess-sounds";
 
 type LineView = {
   key: string;
@@ -120,6 +121,7 @@ export function OpeningsClient() {
     const base = session.wrong ? session.tries.slice(0, -1) : session.tries;
     const attempt = [...(session.wrong ? (session.tries.at(-1) ?? []) : []), san];
     if (san !== expected) {
+      playChessSound("puzzleWrong");
       setSession({ ...session, tries: [...base, attempt], wrong: { san, correct: expected } });
       return false;
     }

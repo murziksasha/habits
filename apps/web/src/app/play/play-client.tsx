@@ -15,6 +15,8 @@ import {
 } from "@eduforge/chess-core";
 import { CHESS_TIME_CONTROLS } from "@eduforge/shared";
 import { requestBotMove } from "@/lib/chess-bot";
+import { playChessSound } from "@/lib/chess-sounds";
+import { CapturedPieces } from "@/components/captured-pieces";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
@@ -300,6 +302,22 @@ function PlayPageInner() {
     return turn === match.youAre;
   }, [match, fen, result]);
 
+  // Game start / end sounds (off unless the learner enabled sound).
+  useEffect(() => {
+    if (match && match.gameId !== "test-game") playChessSound("gameStart");
+  }, [match?.gameId]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (result) playChessSound("gameEnd");
+  }, [result]);
+
+  // Low time: a quiet tick once per second under 10 s on our own clock.
+  const myTimeMs = match ? (match.youAre === "w" ? whiteTime : blackTime) : 0;
+  const mySecond = Math.ceil(myTimeMs / 1000);
+  useEffect(() => {
+    if (!match || result || !myTurn || myTimeMs <= 0 || myTimeMs >= 10_000) return;
+    playChessSound("lowTime");
+  }, [mySecond]); // eslint-disable-line react-hooks/exhaustive-deps
+
   function formatMs(ms: number) {
     const s = Math.ceil(ms / 1000);
     const m = Math.floor(s / 60);
@@ -337,9 +355,9 @@ function PlayPageInner() {
   }
 
   function getLevelLabel(lvl: BotLevel): string {
-    if (lvl === "learner") return t.chess.levelLearner;
-    if (lvl === "club") return t.chess.levelClub;
-    return t.chess.levelStrong;
+    if (lvl === "learner") return t.chess.botNovice;
+    if (lvl === "club") return t.chess.botClub;
+    return t.chess.botStrong;
   }
 
   function startBotGame() {
@@ -691,12 +709,7 @@ function PlayPageInner() {
               <label className="label text-xs">{t.chess.botLevel}</label>
               <div className="grid grid-cols-3 gap-2">
                 {(["learner", "club", "strong"] as const).map((lvl) => {
-                  const label =
-                    lvl === "learner"
-                      ? t.chess.levelLearner
-                      : lvl === "club"
-                        ? t.chess.levelClub
-                        : t.chess.levelStrong;
+                  const label = lvl === "learner" ? t.chess.botNovice : lvl === "club" ? t.chess.botClub : t.chess.botStrong;
                   const isSelected = botLevel === lvl;
                   return (
                     <button
@@ -715,6 +728,22 @@ function PlayPageInner() {
                 })}
               </div>
             </div>
+
+            <p className="text-xs text-ink-muted" data-testid="bot-personality-desc">
+              {botLevel === "learner" ? t.chess.botNoviceDesc : botLevel === "club" ? t.chess.botClubDesc : t.chess.botStrongDesc}
+            </p>
+            <button
+              type="button"
+              className="btn-secondary w-full !py-2 text-xs"
+              data-testid="challenge-italian"
+              onClick={() => {
+                setBotLevel("club");
+                setBotColor("w");
+                setOpeningId("italian");
+              }}
+            >
+              🏆 {t.chess.challengeItalian}
+            </button>
 
             {/* Color selection */}
             <div className="space-y-1.5">
@@ -825,7 +854,13 @@ function PlayPageInner() {
                     ? `(${match.black.elo})`
                     : ""}
               </span>
-              <span className="font-mono">{formatMs(blackTime)}</span>
+              <span
+                className={`rounded px-1 font-mono ${!result && blackTime > 0 && blackTime < 30_000 ? "bg-rose-600 text-white" : ""}`}
+                data-testid="clock-black"
+                aria-label={!result && blackTime < 30_000 ? t.chess.lowTime : undefined}
+              >
+                {formatMs(blackTime)}
+              </span>
             </div>
             <div className="flex justify-between font-bold">
               <span>
@@ -836,7 +871,17 @@ function PlayPageInner() {
                     ? `(${match.white.elo})`
                     : ""}
               </span>
-              <span className="font-mono">{formatMs(whiteTime)}</span>
+              <span
+                className={`rounded px-1 font-mono ${!result && whiteTime > 0 && whiteTime < 30_000 ? "bg-rose-600 text-white" : ""}`}
+                data-testid="clock-white"
+                aria-label={!result && whiteTime < 30_000 ? t.chess.lowTime : undefined}
+              >
+                {formatMs(whiteTime)}
+              </span>
+            </div>
+            <div className="flex justify-between gap-2" aria-label={t.chess.captured}>
+              <CapturedPieces sans={history} side="w" label={`${t.chess.captured}: ${t.chess.white}`} />
+              <CapturedPieces sans={history} side="b" label={`${t.chess.captured}: ${t.chess.black}`} />
             </div>
             <p className="text-sm font-bold text-ink-muted">
               {result

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Chessboard } from "@/components/chessboard-lazy";
 import {
   Chess,
@@ -12,7 +12,9 @@ import {
   type Square,
 } from "@eduforge/chess-core";
 import { useLocale } from "@/lib/locale-context";
-import { getUI } from "@eduforge/shared";
+import { CHESS_BOARD_THEME_IDS, chessBoardSquareStyles, getUI, type ChessBoardThemeId } from "@eduforge/shared";
+import { useChessPrefs } from "@/lib/chess-prefs";
+import { playChessSound, soundForSan } from "@/lib/chess-sounds";
 
 export type ChessBoardMode = "play" | "puzzle" | "explore";
 export type PromotionPiece = "q" | "r" | "b" | "n";
@@ -35,6 +37,8 @@ export type ChessBoardFrameProps = {
   endLine?: string | null;
   onDismissEnd?: () => void;
   boardWidth?: number;
+  /** Flip, sound and board settings under the board (default: on except in explore mode). */
+  showControls?: boolean;
 };
 
 const PIECE_TYPE_TO_KEY: Record<string, "pawn" | "knight" | "bishop" | "rook" | "queen" | "king"> = {
@@ -49,9 +53,9 @@ const PIECE_TYPE_TO_KEY: Record<string, "pawn" | "knight" | "bishop" | "rook" | 
 export function ChessBoardFrame({
   fen,
   mode = "play",
-  orientation = "white",
+  orientation: orientationProp = "white",
   interactive = true,
-  viewer = orientation === "black" ? "b" : "w",
+  viewer = orientationProp === "black" ? "b" : "w",
   onMove,
   endReason = null,
   endLine = null,
@@ -60,9 +64,39 @@ export function ChessBoardFrame({
   lastMove = null,
   highlightSquares,
   arrows,
+  showControls = mode !== "explore",
 }: ChessBoardFrameProps) {
   const { locale } = useLocale();
   const t = getUI(locale);
+  const [prefs, setPrefs] = useChessPrefs();
+  const [flipped, setFlipped] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const orientation: "white" | "black" = flipped ? (orientationProp === "white" ? "black" : "white") : orientationProp;
+  const squareTheme = useMemo(() => chessBoardSquareStyles(prefs.theme), [prefs.theme]);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mq.matches);
+    const on = () => setReducedMotion(mq.matches);
+    mq.addEventListener?.("change", on);
+    return () => mq.removeEventListener?.("change", on);
+  }, []);
+
+  // Move sounds: classify the last move against the previous position.
+  const prevFen = useRef<string | null>(null);
+  useEffect(() => {
+    const before = prevFen.current;
+    prevFen.current = fen;
+    if (!before || before === fen || !lastMove || mode === "explore") return;
+    try {
+      const g = before === "start" ? new Chess() : new Chess(before);
+      const m = g.move({ from: lastMove.from as Square, to: lastMove.to as Square, promotion: "q" });
+      if (m) playChessSound(soundForSan(m.san));
+    } catch {
+      /* not a single-move step (reset, jump) */
+    }
+  }, [fen, lastMove, mode]);
 
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
   const [dests, setDests] = useState<Destination[]>([]);
@@ -426,7 +460,10 @@ export function ChessBoardFrame({
           onPromotionCheck={() => false}
           customArrows={arrows}
           areArrowsAllowed={false}
-          animationDuration={200}
+          animationDuration={reducedMotion ? 0 : 200}
+          customLightSquareStyle={squareTheme.light}
+          customDarkSquareStyle={squareTheme.dark}
+          showBoardNotation={prefs.coordinates}
         />
 
         {/* Promotion picker (queen, rook, bishop, knight) */}
@@ -541,8 +578,73 @@ export function ChessBoardFrame({
           </div>
         )}
       </div>
+
+      {showControls && (
+        <div className="mt-2 flex w-full max-w-[min(100%,480px)] flex-wrap items-center justify-center gap-2 text-xs">
+          <button
+            type="button"
+            className="btn-secondary !px-2 !py-1"
+            aria-label={t.chess.flipBoard}
+            data-testid="flip-board"
+            onClick={() => setFlipped((f) => !f)}
+          >
+            ⇅ {t.chess.flipBoard}
+          </button>
+          <button
+            type="button"
+            className="btn-secondary !px-2 !py-1"
+            aria-label={prefs.sound ? t.chess.soundOff : t.chess.soundOn}
+            aria-pressed={prefs.sound}
+            data-testid="sound-toggle"
+            onClick={() => setPrefs({ sound: !prefs.sound })}
+          >
+            {prefs.sound ? "🔊" : "🔇"} {t.chess.sound}
+          </button>
+          <button
+            type="button"
+            className="btn-secondary !px-2 !py-1"
+            aria-label={t.chess.boardSettings}
+            aria-expanded={settingsOpen}
+            data-testid="board-settings"
+            onClick={() => setSettingsOpen((o) => !o)}
+          >
+            ⚙️
+          </button>
+          {settingsOpen && (
+            <div className="flex w-full flex-wrap items-center justify-center gap-3 rounded-xl bg-surface-muted p-2" data-testid="board-settings-panel">
+              <label className="flex items-center gap-1">
+                {t.chess.boardTheme}
+                <select
+                  className="input !py-0.5 text-xs"
+                  value={prefs.theme}
+                  onChange={(e) => setPrefs({ theme: e.target.value as ChessBoardThemeId })}
+                >
+                  {CHESS_BOARD_THEME_IDS.map((id) => (
+                    <option key={id} value={id}>
+                      {themeLabel(t, id)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex items-center gap-1">
+                <input
+                  type="checkbox"
+                  checked={prefs.coordinates}
+                  data-testid="coordinates-toggle"
+                  onChange={(e) => setPrefs({ coordinates: e.target.checked })}
+                />
+                {t.chess.coordinates}
+              </label>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
+}
+
+function themeLabel(t: ReturnType<typeof getUI>, id: ChessBoardThemeId): string {
+  return id === "green" ? t.chess.themeGreen : id === "blue" ? t.chess.themeBlue : id === "wood" ? t.chess.themeWood : t.chess.themeClassic;
 }
 
 const GLYPHS: Record<"w" | "b", Record<PromotionPiece, string>> = {

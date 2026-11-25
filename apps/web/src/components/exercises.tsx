@@ -13,6 +13,7 @@ import {
   type Square,
 } from "@eduforge/chess-core";
 import { requestBotMove } from "@/lib/chess-bot";
+import { playChessSound } from "@/lib/chess-sounds";
 import {
   countWords,
   exercisePrompt,
@@ -1869,6 +1870,7 @@ function ChessPuzzleExercise({
   function finish(line: PuzzleMoveRecord[], alternative: boolean) {
     const g = replaySans(fen, line.map((m) => m.san));
     setSolved(true);
+    playChessSound("puzzleSolved");
     setMsg(alternative ? t.chess.alternativeAccepted : t.lesson.correct);
     const sans = line.map((m) => m.san);
     const playerSans = sans.filter((_, i) => i % 2 === 0);
@@ -1899,6 +1901,7 @@ function ChessPuzzleExercise({
         return false;
       }
       onWrongAttempt?.();
+      playChessSound("puzzleWrong");
       setWrongCount((c) => c + 1);
       setMsg(t.chess.wrongMove);
       setWrongFlash({ san, from, to });
@@ -2053,6 +2056,7 @@ function ChessEndgameDrillExercise({ exercise, onAnswer }: { exercise: Exercise;
   useEffect(() => {
     if (finished || status.status === "in_progress") return;
     setFinished(status.status);
+    playChessSound(status.status === "success" ? "puzzleSolved" : "puzzleWrong");
     onAnswer({ sans: moves.map((m) => m.san), hintsUsed: hintShown ? 1 : 0, reason: status.reason });
   }, [status, finished, moves, hintShown, onAnswer]);
 
