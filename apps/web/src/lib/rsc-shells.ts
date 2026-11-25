@@ -22,6 +22,7 @@ export const RSC_SHELL_ROUTES = [
   "/friends",
   "/play",
   "/play/puzzles",
+  "/play/review/[gameId]",
   "/flashcards",
   "/flashcards/[deckId]",
   "/review",

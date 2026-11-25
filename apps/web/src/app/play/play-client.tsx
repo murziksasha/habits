@@ -5,10 +5,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { io, type Socket } from "socket.io-client";
 import { ChessBoardFrame } from "@/components/chess-board-frame";
+import { MoveHistoryPanel } from "@/components/move-history-panel";
 import {
   Chess,
   chooseBotMove,
-  gameTermination,
+  evaluateBoard,
+  gameTerminationWithHistory,
   type BotLevel,
   type BotMove,
 } from "@eduforge/chess-core";
@@ -102,6 +104,11 @@ function PlayPageInner() {
   const [copied, setCopied] = useState(false);
   const [hintText, setHintText] = useState("");
   const [hintLoading, setHintLoading] = useState(false);
+  /** SAN history of the current game (threefold + move list + saved PGN). */
+  const [history, setHistory] = useState<string[]>([]);
+  const [savedGameId, setSavedGameId] = useState<string | null>(null);
+  const [drawIncoming, setDrawIncoming] = useState(false);
+  const [myGames, setMyGames] = useState<{ id: string; result: string | null; kind?: string; createdAt: string; termination?: string | null }[]>([]);
 
   // Bot practice options
   const [botLevel, setBotLevel] = useState<BotLevel>(() => {
@@ -178,6 +185,9 @@ function PlayPageInner() {
       setInviteId(null);
       setMatch({ ...m, vsBot: false });
       setFen(m.fen);
+      setHistory([]);
+      setSavedGameId(m.gameId);
+      setDrawIncoming(false);
       setWhiteTime(m.whiteTimeMs);
       setBlackTime(m.blackTimeMs);
       setResult(null);
@@ -189,20 +199,26 @@ function PlayPageInner() {
       "moved",
       (p: {
         fen: string;
+        san?: string;
         whiteTimeMs: number;
         blackTimeMs: number;
       }) => {
         setFen(p.fen);
+        if (p.san) setHistory((h) => [...h, p.san!]);
         setWhiteTime(p.whiteTimeMs);
         setBlackTime(p.blackTimeMs);
       },
     );
-    s.on("game_over", (p: { result?: string; reason?: string }) => {
+    s.on("game_over", (p: { result?: string; reason?: string; termination?: string }) => {
       setResult(p.result ?? "finished");
-      setGameOverReason(p.reason ?? null);
-      setStatus(p.reason ?? "");
+      setGameOverReason(p.reason ?? p.termination ?? null);
+      setStatus(p.reason ?? p.termination ?? "");
       setSeeking(false);
+      setDrawIncoming(false);
     });
+    s.on("draw_offered", () => setDrawIncoming(true));
+    s.on("draw_offer_expired", () => setDrawIncoming(false));
+    s.on("draw_declined", () => setStatus("draw_declined"));
 
     return () => {
       s.disconnect();
@@ -270,8 +286,11 @@ function PlayPageInner() {
       } catch {
         return;
       }
+      const san = g.history().at(-1) ?? "";
+      const next = [...history, san];
       setFen(g.fen());
-      const term = gameTermination(g.fen());
+      setHistory(next);
+      const term = gameTerminationWithHistory("startpos", next);
       if (term.over) {
         setResult(term.result);
         setGameOverReason(term.reason);
@@ -283,7 +302,28 @@ function PlayPageInner() {
       active = false;
       clearTimeout(timer);
     };
+    // history changes together with fen
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [match, fen, result]);
+
+  // Save finished bot games so they can be reviewed and analysed.
+  useEffect(() => {
+    if (!match?.vsBot || !result || savedGameId || !token || match.gameId === "test-game" || history.length === 0) return;
+    setSavedGameId("saving");
+    api<{ id: string }>("/chess/games/bot", {
+      token,
+      body: { sans: history, playerColor: match.youAre, botLevel: match.botLevel ?? "club", resigned: gameOverReason === "resign" },
+    })
+      .then((r) => setSavedGameId(r.id))
+      .catch(() => setSavedGameId(null));
+  }, [match, result, savedGameId, token, history, gameOverReason]);
+
+  useEffect(() => {
+    if (!token || match) return;
+    api<{ games: { id: string; result: string | null; kind?: string; createdAt: string; termination?: string | null }[] }>("/chess/games/me", { token })
+      .then((d) => setMyGames(d.games.filter((g) => g.result)))
+      .catch(() => undefined);
+  }, [token, match]);
 
   const orientation = match?.youAre === "b" ? "black" : "white";
   const myTurn = useMemo(() => {
@@ -368,6 +408,8 @@ function PlayPageInner() {
       botLevel,
     });
     setFen(chess.fen());
+    setHistory([]);
+    setSavedGameId(null);
     setWhiteTime(ms);
     setBlackTime(ms);
     setResult(null);
@@ -470,8 +512,10 @@ function PlayPageInner() {
       try {
         const m = g.move({ from, to, promotion });
         if (!m) return false;
+        const next = [...history, m.san];
         setFen(g.fen());
-        const term = gameTermination(g.fen());
+        setHistory(next);
+        const term = gameTerminationWithHistory("startpos", next);
         if (term.over) {
           setResult(term.result);
           setGameOverReason(term.reason);
@@ -504,6 +548,44 @@ function PlayPageInner() {
     }
     socket?.emit("resign", { gameId: match.gameId });
   }
+
+  function offerDraw() {
+    if (!match || result) return;
+    if (match.vsBot) {
+      // The bot accepts only when it stands worse than −100 cp (its point of view).
+      const g = fen === "start" ? new Chess() : new Chess(fen);
+      const white = evaluateBoard(g);
+      const botEval = match.youAre === "w" ? -white : white;
+      if (botEval <= -100) {
+        setResult("1/2-1/2");
+        setGameOverReason("agreement");
+        setStatus("bot_accepts_draw");
+      } else {
+        setStatus("bot_declines_draw");
+      }
+      return;
+    }
+    socket?.emit("offer_draw", { gameId: match.gameId }, (res: { error?: string }) => {
+      setStatus(res?.error ? res.error : "draw_offer_sent");
+    });
+  }
+
+  function answerDraw(accept: boolean) {
+    if (!match) return;
+    socket?.emit(accept ? "accept_draw" : "decline_draw", { gameId: match.gameId });
+    setDrawIncoming(false);
+  }
+
+  const statusText = (code: string) =>
+    ({
+      threefold: t.chess.threefold,
+      draw_declined: t.chess.drawDeclined,
+      draw_offer_sent: t.chess.drawOfferSent,
+      bot_accepts_draw: t.chess.botAcceptsDraw,
+      bot_declines_draw: t.chess.botDeclinesDraw,
+      checkmate: t.chess.checkmate,
+      stalemate: t.chess.stalemate,
+    })[code] ?? code;
 
   const endReason: "checkmate" | "stalemate" | null =
     gameOverReason === "checkmate" || gameOverReason === "stalemate"
@@ -698,6 +780,24 @@ function PlayPageInner() {
         </div>
       )}
 
+      {!match && myGames.length > 0 && (
+        <section className="card space-y-2" data-testid="my-games">
+          <h2 className="text-xl font-black">{t.chess.myGames}</h2>
+          <ul className="divide-y divide-slate-100">
+            {myGames.slice(0, 10).map((g) => (
+              <li key={g.id} className="flex items-center justify-between py-1 text-sm">
+                <span>
+                  {new Date(g.createdAt).toLocaleDateString(locale === "en" ? "en-GB" : "uk-UA")} · {g.kind === "bot" ? "🤖" : "🌐"} · {g.result}
+                </span>
+                <Link href={`/play/review/${g.id}`} className="underline">
+                  {t.chess.reviewGame}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {match && (
         <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
           <div
@@ -779,10 +879,33 @@ function PlayPageInner() {
                 {hintText && (
                   <p className="text-xs font-bold text-ink-muted break-words">{hintText}</p>
                 )}
+                <button className="btn-secondary w-full" onClick={offerDraw} data-testid="offer-draw">
+                  🤝 {t.chess.offerDrawFull}
+                </button>
                 <button className="btn-secondary w-full" onClick={resign}>
                   {t.chess.resign}
                 </button>
               </>
+            )}
+            {drawIncoming && !result && (
+              <div className="rounded-xl border border-sun/40 bg-sun/10 p-3 space-y-2" role="alertdialog" aria-label={t.chess.drawOffered}>
+                <p className="font-bold">{t.chess.drawOffered}</p>
+                <div className="flex gap-2">
+                  <button type="button" className="btn-primary" onClick={() => answerDraw(true)}>
+                    {t.chess.acceptDraw}
+                  </button>
+                  <button type="button" className="btn-secondary" onClick={() => answerDraw(false)}>
+                    {t.chess.declineDraw}
+                  </button>
+                </div>
+              </div>
+            )}
+            {status && match && <p className="text-xs font-bold text-ink-muted">{statusText(status)}</p>}
+            <MoveHistoryPanel sans={history} current={history.length - 1} title={t.chess.moveHistory} />
+            {result && savedGameId && savedGameId !== "saving" && match.gameId !== "test-game" && (
+              <Link href={`/play/review/${savedGameId}`} className="btn-sky w-full text-center" data-testid="review-game-link">
+                🔍 {t.chess.reviewGame}
+              </Link>
             )}
             {result && (
               <button
@@ -792,6 +915,9 @@ function PlayPageInner() {
                   setFen("start");
                   setResult(null);
                   setHintText("");
+                  setHistory([]);
+                  setSavedGameId(null);
+                  setStatus("");
                 }}
               >
                 {t.chess.newGame}

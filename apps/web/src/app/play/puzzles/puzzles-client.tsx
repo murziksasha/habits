@@ -21,6 +21,7 @@ type Rating = { rating: number; rd: number; attempts: number; placed: boolean; p
 type NextRes = { lessonId: string; puzzleRating: number; exercise: Exercise; rating: Rating };
 type AttemptRes = { correct: boolean; score: number; ratingDelta: number; rating: Rating };
 type ThemeStat = { theme: string; accuracy: number; attempts: number };
+type OwnPuzzle = { id: string; gameId: string | null; exercise: Exercise };
 
 const PLACEMENT_LENGTH = 8;
 const THEME_KEYS = (Object.keys(CHESS_THEMES) as ChessThemeKey[]).filter((k) => !META_CHESS_THEMES.has(k));
@@ -39,6 +40,9 @@ export function PuzzlesClient() {
   const [themes, setThemes] = useState<ThemeStat[]>([]);
   const [placementLeft, setPlacementLeft] = useState(0);
   const [partId, setPartId] = useState<string | null>(null);
+  const [own, setOwn] = useState<OwnPuzzle[]>([]);
+  const [ownCurrent, setOwnCurrent] = useState<OwnPuzzle | null>(null);
+  const [ownDone, setOwnDone] = useState<boolean | null>(null);
   const wrongRef = useRef(0);
   const startedAt = useRef(Date.now());
 
@@ -50,7 +54,27 @@ export function PuzzlesClient() {
     setRating(r.rating);
     setPartId(r.partId);
     setThemes(th.themes);
+    api<{ items: OwnPuzzle[] }>("/chess/personal-puzzles/due", { token })
+      .then((d) => setOwn(d.items))
+      .catch(() => undefined);
   }, [token]);
+
+  function startOwn() {
+    wrongRef.current = 0;
+    setOwnDone(null);
+    setOwnCurrent(own[0] ?? null);
+  }
+
+  async function onOwnAnswer(answer: unknown) {
+    if (!ownCurrent) return;
+    const a = (answer ?? {}) as { sans?: string[]; revealed?: boolean };
+    const res = await api<{ correct: boolean }>(`/chess/personal-puzzles/${ownCurrent.id}/attempt`, {
+      token,
+      body: { sans: a.sans ?? [], revealed: a.revealed === true, wrongAttempts: wrongRef.current },
+    });
+    setOwnDone(res.correct);
+    setOwn((list) => list.filter((x) => x.id !== ownCurrent.id));
+  }
 
   const loadNext = useCallback(
     async (m: Mode = mode) => {
@@ -206,6 +230,48 @@ export function PuzzlesClient() {
                 </option>
               ))}
             </select>
+          )}
+        </div>
+      )}
+
+      {rating.placed && !inPlacement && own.length > 0 && !ownCurrent && (
+        <div className="card flex flex-wrap items-center justify-between gap-2" data-testid="own-puzzles">
+          <p className="font-bold">
+            {t.chess.ownGamePuzzle}: {own.length}
+          </p>
+          <button type="button" className="btn-primary" onClick={startOwn}>
+            {t.chess.nextPuzzle}
+          </button>
+        </div>
+      )}
+
+      {ownCurrent && (
+        <div className="card space-y-4">
+          <p className="text-sm font-bold">
+            {t.chess.ownGamePuzzle}
+            {ownCurrent.gameId && (
+              <>
+                {" · "}
+                <Link href={`/play/review/${ownCurrent.gameId}`} className="underline">
+                  {t.chess.reviewGame}
+                </Link>
+              </>
+            )}
+          </p>
+          <ExercisePlayer
+            key={ownCurrent.id}
+            exercise={ownCurrent.exercise}
+            onAnswer={(a) => onOwnAnswer(a).catch(() => setError(t.common.error))}
+            onWrongAttempt={() => {
+              wrongRef.current += 1;
+            }}
+          />
+          {ownDone !== null && (
+            <div className="flex justify-center">
+              <button type="button" className="btn-primary" onClick={() => (own.length ? startOwn() : setOwnCurrent(null))}>
+                {t.chess.nextPuzzle}
+              </button>
+            </div>
           )}
         </div>
       )}
