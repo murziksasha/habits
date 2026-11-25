@@ -24,7 +24,7 @@ pnpm --filter @eduforge/circuit-engine build
 pnpm --filter @eduforge/db build
 ```
 
-Затем БД: `pnpm db:migrate` и `pnpm content:sync` (или `pnpm db:seed` на новой локальной БД) — см. [migrations.md](migrations.md).
+Затем БД одной командой: `pnpm migrate` (проверка журнала → миграции → `content:sync`; на своей новой локальной БД — `pnpm migrate --seed`) — см. [migrations.md](migrations.md).
 
 ## Запуск
 
@@ -52,7 +52,7 @@ pnpm dev     # turbo run dev --parallel
 | Сборка web | `pnpm --filter @eduforge/web build` | |
 | Быстрый гейт | `pnpm ci` (typecheck + unit), `pnpm ci:full` (+ интеграция) | |
 | Аудит контента | `pnpm content:audit` | |
-| Миграции | `pnpm db:check` | согласованность `drizzle/*.sql` и журнала, без БД; также в CI и в тестах `@eduforge/db` |
+| Миграции | `pnpm migrate check` | согласованность `drizzle/*.sql` и журнала, без БД; также в CI и в тестах `@eduforge/db` |
 
 ### `next build` и `NODE_ENV`
 

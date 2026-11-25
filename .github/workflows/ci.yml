@@ -33,7 +33,7 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
       - name: Migration journal check
-        run: pnpm db:check
+        run: pnpm migrate check
       - name: Lint
         run: pnpm lint
       - name: Production dependency audit

@@ -77,3 +77,22 @@ test("createMigration keeps CRLF journals as CRLF (Windows checkouts)", () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test("pnpm migrate: argument parsing and step order", async () => {
+  const { parseMigrateArgs, runSteps } = await import("./migrate.mjs");
+  assert.deepEqual(parseMigrateArgs([]), { mode: "run", seed: false });
+  assert.deepEqual(parseMigrateArgs(["--"]), { mode: "run", seed: false });
+  assert.deepEqual(parseMigrateArgs(["--seed"]), { mode: "run", seed: true });
+  assert.equal(parseMigrateArgs(["--help"]).mode, "help");
+  assert.equal(parseMigrateArgs(["-h"]).mode, "help");
+  assert.deepEqual(parseMigrateArgs(["check"]), { mode: "check", seed: false });
+  assert.deepEqual(parseMigrateArgs(["new", "chess", "tags"]), { mode: "new", seed: false, name: "chess_tags" });
+  assert.equal(parseMigrateArgs(["new", "x", "--dir", "/tmp/d"]).dir, "/tmp/d");
+  assert.equal(parseMigrateArgs(["new"]).mode, "error");
+  assert.equal(parseMigrateArgs(["check", "x"]).mode, "error");
+  assert.equal(parseMigrateArgs(["check", "--seed"]).mode, "error");
+  assert.equal(parseMigrateArgs(["--force"]).mode, "error");
+  assert.equal(parseMigrateArgs(["frobnicate"]).mode, "error");
+  assert.deepEqual(runSteps({ seed: false }).map((s) => s.id), ["check", "migrate", "content:sync"]);
+  assert.deepEqual(runSteps({ seed: true }).map((s) => s.id), ["check", "migrate", "seed"]);
+});

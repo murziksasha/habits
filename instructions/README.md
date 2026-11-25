@@ -20,7 +20,7 @@ pnpm workspaces + Turborepo (`packageManager: pnpm@11.22.0`).
 
 ## Документы
 
-- [migrations.md](migrations.md) — миграции БД, `db:migrate` / `db:seed` / `content:sync`, порядок действий после pull.
+- [migrations.md](migrations.md) — миграции БД: одна команда `pnpm migrate` (проверка → миграции → синхронизация контента), `pnpm migrate new <name>`, порядок действий после pull.
 - [stockfish.md](stockfish.md) — `STOCKFISH_PATH`, анализ партий, офлайн-QA, настройка на Windows/Linux.
 - [chess-content.md](chess-content.md) — контракт шахматного контента: типы задач, стабильные ID, QA-гейты.
 - [dev-and-testing.md](dev-and-testing.md) — установка, порядок сборки, запуск, тесты, известные падения.
