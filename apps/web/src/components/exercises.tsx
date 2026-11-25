@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { ChessBoardFrame } from "@/components/chess-board-frame";
+import { DifficultyStars } from "@/components/difficulty-stars";
 import { Chess, evaluatePuzzleMove, replaySans, type PuzzleSpec, type Square } from "@eduforge/chess-core";
 import {
   countWords,
@@ -12,6 +13,8 @@ import {
   localizeExerciseOptions,
   localizeMatchPairs,
   getUI,
+  chessThemeLabel,
+  visibleChessThemes,
   type ExplainKeyIdea,
   type CircuitDocument,
   type CircuitAnalysis,
@@ -1719,6 +1722,19 @@ function ComprehensionExercise({
 
 type PuzzleMoveRecord = { san: string; from: string; to: string };
 
+type PuzzleSourceInfo = { kind?: string; white?: string; black?: string; year?: number; event?: string; lichessId?: string; gameUrl?: string };
+
+function puzzleSourceLine(src: PuzzleSourceInfo | undefined, lichessLabel: string): { text: string; href?: string } | null {
+  if (!src) return null;
+  if (src.kind === "lichess") return { text: src.lichessId ? `${lichessLabel} · #${src.lichessId}` : lichessLabel, href: src.gameUrl };
+  const players = [src.white, src.black].filter(Boolean).join(" — ");
+  const rest = [src.event, src.year].filter(Boolean).join(", ");
+  const text = [players, rest].filter(Boolean).join(", ");
+  return text ? { text } : null;
+}
+
+const MAX_WRONG_BEFORE_REVEAL = 3;
+
 function ChessPuzzleExercise({
   exercise,
   onAnswer,
@@ -1726,9 +1742,13 @@ function ChessPuzzleExercise({
   exercise: Exercise;
   onAnswer: (a: unknown) => void;
 }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
+  const examMode = useContext(ExamModeCtx);
+  const assistance = useContext(AssistanceCtx);
   const onWrongAttempt = useContext(WrongAttemptCtx);
   const fen = String(exercise.fen);
+  const en = locale === "en";
+  const difficulty = Number(exercise.difficulty ?? 1);
   const spec = useMemo<PuzzleSpec>(
     () => ({
       fen,
@@ -1743,8 +1763,13 @@ function ChessPuzzleExercise({
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
   const [solved, setSolved] = useState(false);
+  const [revealed, setRevealed] = useState(false);
   const [wrongFlash, setWrongFlash] = useState<PuzzleMoveRecord | null>(null);
   const [endReason, setEndReason] = useState<"checkmate" | "stalemate" | null>(null);
+  const [wrongCount, setWrongCount] = useState(0);
+  const [hintStep, setHintStep] = useState<0 | 1 | 2>(0);
+  /** Display-only replay of the solution after the puzzle is finished. */
+  const [replay, setReplay] = useState<PuzzleMoveRecord[] | null>(null);
 
   const viewer = useMemo(() => {
     try {
@@ -1755,20 +1780,36 @@ function ChessPuzzleExercise({
   }, [fen]);
   const orientation = viewer === "b" ? "black" : "white";
 
+  const shown = replay ?? [...moves, ...(wrongFlash ? [wrongFlash] : [])];
   const boardFen = useMemo(() => {
-    const g = replaySans(fen, [...moves, ...(wrongFlash ? [wrongFlash] : [])].map((m) => m.san));
+    const g = replaySans(fen, shown.map((m) => m.san));
     return g ? g.fen() : fen;
-  }, [fen, moves, wrongFlash]);
-  const lastMove = wrongFlash ?? moves.at(-1) ?? null;
+  }, [fen, shown]);
+  const lastMove = shown.at(-1) ?? null;
 
   useEffect(() => {
     setMoves([]);
     setMsg("");
     setBusy(false);
     setSolved(false);
+    setRevealed(false);
     setWrongFlash(null);
     setEndReason(null);
+    setWrongCount(0);
+    setHintStep(0);
+    setReplay(null);
   }, [exercise.id]);
+
+  const done = solved || revealed;
+  const hintPiece = typeof exercise.hintPiece === "string" ? exercise.hintPiece : null;
+  const hintSquare = typeof exercise.hintSquare === "string" ? exercise.hintSquare : null;
+  const hintText1 = String((en ? exercise.hintEn : exercise.hintUk) ?? exercise.hintUk ?? "");
+  const hintText2 = String((en ? exercise.hintSquareEn : exercise.hintSquareUk) ?? exercise.hintSquareUk ?? "");
+  const canHint = !examMode && !done && Boolean(hintText1) && (difficulty <= 2 || wrongCount > 0) && hintStep < 2;
+  const highlight = done ? [] : [hintStep >= 1 ? hintPiece : null, hintStep >= 2 ? hintSquare : null].filter((x): x is string => Boolean(x));
+  const themes = visibleChessThemes(exercise.themes as string[] | undefined);
+  const explanation = String((en ? exercise.explanationEn : exercise.explanationUk) ?? exercise.explanationUk ?? "");
+  const source = puzzleSourceLine(exercise.source as PuzzleSourceInfo | undefined, t.chess.lichessSource);
 
   function restart() {
     setMoves([]);
@@ -1778,25 +1819,62 @@ function ChessPuzzleExercise({
     setEndReason(null);
   }
 
+  function useHint() {
+    const next = (hintStep + 1) as 1 | 2;
+    setHintStep(next);
+    assistance.onHintUsed?.();
+  }
+
+  function animate(line: PuzzleMoveRecord[]) {
+    setReplay([]);
+    line.forEach((_, i) => setTimeout(() => setReplay(line.slice(0, i + 1)), 600 * (i + 1)));
+    setTimeout(() => setReplay(null), 600 * (line.length + 1) + 400);
+  }
+
+  function solutionRecords(): PuzzleMoveRecord[] {
+    const g = new Chess(fen);
+    const out: PuzzleMoveRecord[] = [];
+    for (const san of spec.solutionSans) {
+      try {
+        const mv = g.move(san);
+        out.push({ san: mv.san, from: mv.from, to: mv.to });
+      } catch {
+        break;
+      }
+    }
+    return out;
+  }
+
+  function revealSolution() {
+    const line = solutionRecords();
+    setRevealed(true);
+    setMoves(line);
+    setMsg(t.chess.solutionShown);
+    assistance.onSolutionRevealed?.();
+    animate(line);
+    onAnswer({ solved: false, revealed: true, sans: line.map((m) => m.san), playerSans: [], hintsUsed: hintStep });
+  }
+
   function finish(line: PuzzleMoveRecord[], alternative: boolean) {
     const g = replaySans(fen, line.map((m) => m.san));
     setSolved(true);
     setMsg(alternative ? t.chess.alternativeAccepted : t.lesson.correct);
     const sans = line.map((m) => m.san);
     const playerSans = sans.filter((_, i) => i % 2 === 0);
+    const base = { solved: true, sans, playerSans, hintsUsed: hintStep };
     if (g?.isCheckmate()) {
       setEndReason("checkmate");
-      onAnswer({ solved: true, sans, playerSans, mate: true });
+      onAnswer({ ...base, mate: true });
     } else if (g?.isStalemate()) {
       setEndReason("stalemate");
-      onAnswer({ solved: true, sans, playerSans, stalemate: true });
+      onAnswer({ ...base, stalemate: true });
     } else {
-      onAnswer({ solved: true, sans, playerSans });
+      onAnswer(base);
     }
   }
 
   function onDrop(from: string, to: string, promotion?: "q" | "r" | "b" | "n") {
-    if (busy || solved) return false;
+    if (busy || done) return false;
     const played = moves.map((m) => m.san);
     const r = evaluatePuzzleMove(spec, played, { from, to, promotion });
     if (!r.ok) {
@@ -1810,6 +1888,7 @@ function ChessPuzzleExercise({
         return false;
       }
       onWrongAttempt?.();
+      setWrongCount((c) => c + 1);
       setMsg(t.chess.wrongMove);
       setWrongFlash({ san, from, to });
       setBusy(true);
@@ -1848,27 +1927,76 @@ function ChessPuzzleExercise({
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        <DifficultyStars value={difficulty} label={t.chess.difficultyLabel} />
+        {(!examMode || done) &&
+          themes.map((k) => (
+            <span key={k} className="rounded-full bg-surface-muted px-2 py-0.5 text-xs font-bold" data-testid="puzzle-theme">
+              {chessThemeLabel(k, en ? "en" : "uk")}
+            </span>
+          ))}
+      </div>
       <div className="mx-auto max-w-md">
         <ChessBoardFrame
           fen={boardFen}
           mode="puzzle"
           orientation={orientation}
           viewer={viewer}
-          interactive={!busy && !solved}
+          interactive={!busy && !done && !replay}
           onMove={onDrop}
           lastMove={lastMove}
-          endReason={endReason}
+          highlightSquares={highlight}
+          endReason={replay ? null : endReason}
           endLine={t.chess.puzzleSolved}
           boardWidth={360}
         />
       </div>
       {msg && <p className="font-bold text-center" role="status" aria-live="polite">{msg}</p>}
-      {moves.length > 0 && !solved && !busy && (
-        <div className="flex justify-center">
+      {hintStep >= 1 && !done && (
+        <div className="rounded-xl bg-surface-muted p-3 text-sm" data-testid="puzzle-hint-text">
+          <p>{hintText1}</p>
+          {hintStep >= 2 && hintText2 && <p className="mt-1 font-bold">{hintText2}</p>}
+        </div>
+      )}
+      <div className="flex flex-wrap justify-center gap-2">
+        {moves.length > 0 && !done && !busy && (
           <button type="button" className="btn-secondary" onClick={restart}>
             {t.chess.restartPuzzle}
           </button>
-        </div>
+        )}
+        {canHint && (
+          <button type="button" className="btn-secondary" onClick={useHint} data-testid="puzzle-hint">
+            {hintStep === 0 ? t.chess.puzzleHint : t.chess.puzzleHintMore}
+          </button>
+        )}
+        {!examMode && !done && wrongCount >= MAX_WRONG_BEFORE_REVEAL && (
+          <button type="button" className="btn-secondary" onClick={revealSolution} data-testid="puzzle-reveal">
+            {t.chess.showSolution}
+          </button>
+        )}
+        {done && !examMode && (
+          <button type="button" className="btn-secondary" onClick={() => animate(solutionRecords())} data-testid="puzzle-replay">
+            {t.chess.replaySolution}
+          </button>
+        )}
+      </div>
+      {done && !examMode && (explanation || source) && (
+        <section className="rounded-xl border border-ink/10 p-3 text-sm space-y-1" data-testid="puzzle-explanation">
+          <h3 className="font-black">{t.chess.explanation}</h3>
+          {explanation && <p>{explanation}</p>}
+          {source && (
+            <p className="text-ink-muted">
+              {t.chess.source}:{" "}
+              {source.href ? (
+                <a href={source.href} target="_blank" rel="noreferrer" className="underline">
+                  {source.text}
+                </a>
+              ) : (
+                source.text
+              )}
+            </p>
+          )}
+        </section>
       )}
     </div>
   );
