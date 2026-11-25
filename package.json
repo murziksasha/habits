@@ -18,6 +18,8 @@
     "db:generate": "pnpm --filter @eduforge/db generate",
     "db:migrate": "pnpm --filter @eduforge/db migrate",
     "db:seed": "pnpm --filter @eduforge/db seed",
+    "db:new": "node scripts/db/new-migration.mjs",
+    "db:check": "node scripts/db/check-migrations.mjs",
     "content:sync": "pnpm --filter @eduforge/db content:sync",
     "content:audit": "pnpm --filter @eduforge/chess-core build && pnpm --filter @eduforge/shared build && pnpm --filter @eduforge/content build && node scripts/course-depth-audit.mjs",
     "db:studio": "pnpm --filter @eduforge/db studio",

@@ -32,6 +32,8 @@ jobs:
         run: pnpm test:unit
       - name: Typecheck
         run: pnpm typecheck
+      - name: Migration journal check
+        run: pnpm db:check
       - name: Lint
         run: pnpm lint
       - name: Production dependency audit
