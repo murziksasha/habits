@@ -55,7 +55,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @eduforge/shared build
+      - run: pnpm --filter @eduforge/chess-core build && pnpm --filter @eduforge/shared build
       - run: pnpm --filter @eduforge/content build
       - run: pnpm --filter @eduforge/chess-core build
       - run: pnpm --filter @eduforge/judge build

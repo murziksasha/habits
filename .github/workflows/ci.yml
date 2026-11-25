@@ -22,7 +22,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @eduforge/shared build
+      - run: pnpm --filter @eduforge/chess-core build && pnpm --filter @eduforge/shared build
       - run: pnpm --filter @eduforge/content build
       - run: pnpm --filter @eduforge/chess-core build
       - run: pnpm --filter @eduforge/judge build
@@ -80,7 +80,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       # API imports @eduforge/judge — must build before integration tests
-      - run: pnpm --filter @eduforge/shared build
+      - run: pnpm --filter @eduforge/chess-core build && pnpm --filter @eduforge/shared build
       - run: pnpm --filter @eduforge/content build
       - run: pnpm --filter @eduforge/chess-core build
       - run: pnpm --filter @eduforge/judge build
@@ -102,7 +102,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @eduforge/shared build
+      - run: pnpm --filter @eduforge/chess-core build && pnpm --filter @eduforge/shared build
       - run: pnpm --filter @eduforge/content build
       - name: Content + MDX tests
         run: pnpm --filter @eduforge/content test
@@ -134,7 +134,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @eduforge/shared build
+      - run: pnpm --filter @eduforge/chess-core build && pnpm --filter @eduforge/shared build
       - run: pnpm --filter @eduforge/content build
       - run: pnpm --filter @eduforge/db test
       - run: node scripts/verify-labs.mjs

@@ -32,7 +32,7 @@ copy .env.example .env
 ### 4. Міграції + seed контенту
 
 ```bash
-pnpm --filter @eduforge/shared build
+pnpm --filter @eduforge/chess-core build && pnpm --filter @eduforge/shared build
 pnpm --filter @eduforge/content build
 pnpm --filter @eduforge/chess-core build
 pnpm db:migrate

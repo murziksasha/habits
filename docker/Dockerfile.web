@@ -22,9 +22,9 @@ COPY packages/chess-core ./packages/chess-core
 COPY packages/circuit-engine ./packages/circuit-engine
 COPY apps/web ./apps/web
 COPY turbo.json ./
-RUN pnpm --filter @eduforge/shared build \
+RUN pnpm --filter @eduforge/chess-core build \
+ && pnpm --filter @eduforge/shared build \
  && pnpm --filter @eduforge/circuit-engine build \
- && pnpm --filter @eduforge/chess-core build \
  && pnpm --filter @eduforge/web build
 
 FROM node:22-alpine AS runner
