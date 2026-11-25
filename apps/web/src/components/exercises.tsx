@@ -2064,7 +2064,7 @@ function ChessEndgameDrillExercise({ exercise, onAnswer }: { exercise: Exercise;
     let active = true;
     setThinking(true);
     const timer = setTimeout(async () => {
-      const mv = await requestBotMove(g.fen(), botLevel, { history: moves.map((m) => m.san) });
+      const mv = await requestBotMove(g.fen(), botLevel, { history: moves.map((m) => m.san), startFen: fen });
       if (!active || !mv) return;
       try {
         const r = g.move({ from: mv.from, to: mv.to, promotion: mv.promotion });

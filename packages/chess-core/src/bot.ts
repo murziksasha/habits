@@ -10,8 +10,14 @@ export type BotMove = {
   san?: string;
 };
 
+export type BotPersonality = "novice" | "club" | "strong";
+
 export type ChooseBotMoveOptions = {
   rng?: () => number;
+  /** Position the history starts from (default: the standard start). */
+  startFen?: string;
+  /** Strong: iterative-deepening time budget in ms (default 600). */
+  timeMs?: number;
   /** SAN history from the start position (repetition awareness, opening book). */
   history?: readonly string[];
   /** "Play an opening" mode: follow this repertoire tree (both sides) while in book. */
@@ -147,118 +153,311 @@ const OPENING_BOOK: Record<string, Record<BotLevel, string[]>> = {
   },
 };
 
+
+// ── Tapered evaluation ─────────────────────────────────────────────────
+// Middlegame tables above; endgame tables below. Phase from material (Fruit/PeSTO weights: N,B=1 R=2 Q=4, max 24).
+const KING_EG_TABLE: number[][] = [
+  [-50, -30, -30, -30, -30, -30, -30, -50],
+  [-30, -20, -10, -10, -10, -10, -20, -30],
+  [-30, -10, 20, 25, 25, 20, -10, -30],
+  [-30, -10, 25, 35, 35, 25, -10, -30],
+  [-30, -10, 25, 35, 35, 25, -10, -30],
+  [-30, -10, 20, 25, 25, 20, -10, -30],
+  [-30, -20, -10, -10, -10, -10, -20, -30],
+  [-50, -30, -30, -30, -30, -30, -30, -50],
+];
+const PAWN_EG_TABLE: number[][] = [
+  [0, 0, 0, 0, 0, 0, 0, 0],
+  [5, 5, 5, 5, 5, 5, 5, 5],
+  [10, 10, 10, 10, 10, 10, 10, 10],
+  [20, 20, 20, 20, 20, 20, 20, 20],
+  [35, 35, 35, 35, 35, 35, 35, 35],
+  [60, 60, 60, 60, 60, 60, 60, 60],
+  [100, 100, 100, 100, 100, 100, 100, 100],
+  [0, 0, 0, 0, 0, 0, 0, 0],
+];
+const PHASE_WEIGHT: Record<string, number> = { p: 0, n: 1, b: 1, r: 2, q: 4, k: 0 };
+const MAX_PHASE = 24;
+const MATE = 100_000;
+
+/** Game phase 0 (bare endgame) … 24 (all pieces). */
+export function gamePhase(chess: Chess): number {
+  let phase = 0;
+  for (const row of chess.board()) for (const pc of row) if (pc) phase += PHASE_WEIGHT[pc.type] ?? 0;
+  return Math.min(MAX_PHASE, phase);
+}
+
+/**
+ * Static evaluation from White's view: material + tapered piece-square tables.
+ * No move generation (cheap enough for search leaves).
+ */
+export function staticEval(chess: Chess): number {
+  const board = chess.board();
+  let mg = 0;
+  let eg = 0;
+  let phase = 0;
+  let whiteMat = 0;
+  let blackMat = 0;
+  const kings: Record<"w" | "b", [number, number]> = { w: [0, 0], b: [0, 0] };
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const pc = board[r]![c];
+      if (!pc) continue;
+      const rankIndex = 7 - r;
+      const pRank = pc.color === "w" ? rankIndex : 7 - rankIndex;
+      const v = PIECE_VALUES[pc.type] ?? 0;
+      phase += PHASE_WEIGHT[pc.type] ?? 0;
+      const mgPst = PST_MAP[pc.type]?.[pRank]?.[c] ?? 0;
+      const egPst =
+        pc.type === "k" ? (KING_EG_TABLE[pRank]?.[c] ?? 0) : pc.type === "p" ? (PAWN_EG_TABLE[pRank]?.[c] ?? 0) : mgPst;
+      const sign = pc.color === "w" ? 1 : -1;
+      if (pc.type !== "k") {
+        mg += sign * (v + mgPst);
+        eg += sign * (v + egPst);
+        if (pc.color === "w") whiteMat += v;
+        else blackMat += v;
+      } else {
+        mg += sign * mgPst;
+        eg += sign * egPst;
+        kings[pc.color] = [r, c];
+      }
+    }
+  }
+  phase = Math.min(MAX_PHASE, phase);
+  let score = Math.round((mg * phase + eg * (MAX_PHASE - phase)) / MAX_PHASE);
+  // Mop-up: with a clear material edge in the endgame, push the lone king to the edge and bring ours closer.
+  if (phase <= 6 && Math.abs(whiteMat - blackMat) >= 300) {
+    const strong = whiteMat > blackMat ? "w" : "b";
+    const weak = strong === "w" ? "b" : "w";
+    const [wr, wc] = kings[weak];
+    const [sr, sc] = kings[strong];
+    const centre = Math.max(3 - wr, wr - 4) + Math.max(3 - wc, wc - 4);
+    const dist = Math.abs(wr - sr) + Math.abs(wc - sc);
+    const mop = 10 * centre + 4 * (14 - dist);
+    score += strong === "w" ? mop : -mop;
+  }
+  return score;
+}
+
 export function evaluateBoard(chess: Chess): number {
   if (chess.isCheckmate()) {
-    return chess.turn() === "w" ? -100_000 : 100_000;
+    return chess.turn() === "w" ? -MATE : MATE;
   }
   if (chess.isDraw() || chess.isStalemate()) {
     return 0;
   }
-
-  let score = 0;
-  const board = chess.board();
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      const piece = board[r][c];
-      if (!piece) continue;
-      const v = PIECE_VALUES[piece.type] ?? 0;
-      // In chess.js, row 0 is rank 8, row 7 is rank 1
-      const rankIndex = 7 - r; // 0 for rank 1, 7 for rank 8
-      const fileIndex = c;
-
-      let pst = 0;
-      const table = PST_MAP[piece.type];
-      if (table) {
-        const pRank = piece.color === "w" ? rankIndex : 7 - rankIndex;
-        pst = table[pRank]?.[fileIndex] ?? 0;
-      }
-
-      const totalPieceScore = v + pst;
-      score += piece.color === "w" ? totalPieceScore : -totalPieceScore;
-    }
-  }
-
-  // Mobility bonus (2 cp per legal move)
-  const movesCount = chess.moves().length;
-  score += chess.turn() === "w" ? movesCount * 2 : -movesCount * 2;
-
-  // In-check penalty
-  if (chess.inCheck()) {
-    score += chess.turn() === "w" ? -40 : 40;
-  }
-
+  let score = staticEval(chess);
+  if (chess.inCheck()) score += chess.turn() === "w" ? -40 : 40;
   return score;
 }
 
-function orderMoves(moves: Move[]): Move[] {
-  return moves.slice().sort((a, b) => {
-    // 1. Captures first (MVV-LVA)
-    const aCap = a.captured
-      ? (PIECE_VALUES[a.captured] ?? 0) * 10 - (PIECE_VALUES[a.piece] ?? 0)
-      : -1;
-    const bCap = b.captured
-      ? (PIECE_VALUES[b.captured] ?? 0) * 10 - (PIECE_VALUES[b.piece] ?? 0)
-      : -1;
-    if (aCap !== bCap) return bCap - aCap;
+/** Light move: SAN plus what ordering needs (no verbose Move objects — they are ~20× slower in chess.js). */
+type LMove = { san: string; capture: string | null; piece: string; promo: string | null; check: boolean };
 
-    // 2. Promotions
-    if (a.promotion && !b.promotion) return -1;
-    if (!a.promotion && b.promotion) return 1;
+const TARGET_RE = /([a-h][1-8])(?:=[NBRQ])?[+#]?$/;
 
-    // 3. Checks
-    const aCheck = a.san.includes("+") || a.san.includes("#");
-    const bCheck = b.san.includes("+") || b.san.includes("#");
-    if (aCheck && !bCheck) return -1;
-    if (!aCheck && bCheck) return 1;
-
-    return 0;
-  });
+function lightMoves(chess: Chess): LMove[] {
+  const out: LMove[] = [];
+  for (const san of chess.moves()) {
+    const piece = /^[NBRQK]/.test(san) ? san[0]!.toLowerCase() : san.startsWith("O") ? "k" : "p";
+    let capture: string | null = null;
+    if (san.includes("x")) {
+      const sq = TARGET_RE.exec(san)?.[1];
+      capture = (sq ? chess.get(sq as Square)?.type : undefined) ?? "p"; // empty target = en passant
+    }
+    const promo = /=([NBRQ])/.exec(san)?.[1]?.toLowerCase() ?? null;
+    out.push({ san, capture, piece, promo, check: san.includes("+") || san.includes("#") });
+  }
+  return out;
 }
 
-function alphaBeta(
-  chess: Chess,
-  depth: number,
-  alpha: number,
-  beta: number,
-  maximizing: boolean,
-): number {
-  if (depth === 0 || chess.isGameOver()) {
-    return evaluateBoard(chess);
-  }
+function moveOrderScore(m: LMove): number {
+  let s = 0;
+  if (m.capture) s += 10_000 + (PIECE_VALUES[m.capture] ?? 0) * 10 - (PIECE_VALUES[m.piece] ?? 0);
+  if (m.promo) s += 9_000 + (PIECE_VALUES[m.promo] ?? 0);
+  if (m.check) s += 500;
+  return s;
+}
 
-  const moves = orderMoves(chess.moves({ verbose: true }));
-  if (moves.length === 0) {
-    return evaluateBoard(chess);
-  }
+function orderMoves(moves: LMove[], first?: string): LMove[] {
+  return moves
+    .map((m) => ({ m, s: (first && m.san === first ? 1_000_000 : 0) + moveOrderScore(m) }))
+    .sort((a, b) => b.s - a.s)
+    .map((x) => x.m);
+}
 
-  if (maximizing) {
-    let maxEval = -Infinity;
-    for (const m of moves) {
-      chess.move(m);
-      const evalScore = alphaBeta(chess, depth - 1, alpha, beta, false);
-      chess.undo();
-      maxEval = Math.max(maxEval, evalScore);
-      alpha = Math.max(alpha, evalScore);
-      if (beta <= alpha) break;
-    }
-    return maxEval;
-  } else {
-    let minEval = Infinity;
-    for (const m of moves) {
-      chess.move(m);
-      const evalScore = alphaBeta(chess, depth - 1, alpha, beta, true);
-      chess.undo();
-      minEval = Math.min(minEval, evalScore);
-      beta = Math.min(beta, evalScore);
-      if (beta <= alpha) break;
-    }
-    return minEval;
+type TtEntry = { depth: number; score: number; flag: 0 | 1 | 2; best?: string };
+
+type SearchCtx = {
+  deadline: number;
+  aborted: boolean;
+  nodes: number;
+  qDepth: number;
+  tt: Map<string, TtEntry> | null;
+  /** Positions already seen in the game (Zobrist hash → count; repetition → draw). */
+  seen: Map<string, number>;
+  path: string[];
+};
+
+class SearchAborted extends Error {}
+
+function sideEval(chess: Chess): number {
+  const e = staticEval(chess);
+  return chess.turn() === "w" ? e : -e;
+}
+
+/** Quiescence: captures and promotions only, MVV-LVA ordered, stand-pat, delta pruning, limited depth. */
+function quiesce(chess: Chess, alpha: number, beta: number, qdepth: number, ctx: SearchCtx): number {
+  ctx.nodes += 1;
+  const stand = sideEval(chess);
+  if (qdepth <= 0) return stand;
+  if (stand >= beta) return beta;
+  if (stand > alpha) alpha = stand;
+  const noisy = lightMoves(chess).filter((m) => m.capture || m.promo);
+  for (const m of orderMoves(noisy)) {
+    // Delta pruning: even winning this piece cannot lift us to alpha.
+    const gain = (m.capture ? (PIECE_VALUES[m.capture] ?? 0) : 0) + (m.promo ? 800 : 0);
+    if (stand + gain + 200 < alpha) continue;
+    chess.move(m.san);
+    const score = -quiesce(chess, -beta, -alpha, qdepth - 1, ctx);
+    chess.undo();
+    if (score >= beta) return beta;
+    if (score > alpha) alpha = score;
   }
+  return alpha;
+}
+
+function negamax(chess: Chess, depth: number, alpha: number, beta: number, ply: number, ctx: SearchCtx): number {
+  ctx.nodes += 1;
+  if ((ctx.nodes & 255) === 0 && Date.now() > ctx.deadline) {
+    ctx.aborted = true;
+    throw new SearchAborted();
+  }
+  const key = chess.hash();
+  if (ply > 0 && (ctx.path.includes(key) || (ctx.seen.get(key) ?? 0) >= 2)) return 0;
+  const moves = lightMoves(chess);
+  if (moves.length === 0) return chess.inCheck() ? -(MATE - ply) : 0;
+  if (chess.isDrawByFiftyMoves() || chess.isInsufficientMaterial()) return 0;
+  if (depth <= 0) return quiesce(chess, alpha, beta, ctx.qDepth, ctx);
+
+  const alpha0 = alpha;
+  const tte = ctx.tt?.get(key);
+  if (tte && tte.depth >= depth && Math.abs(tte.score) < MATE - 1000) {
+    if (tte.flag === 0) return tte.score;
+    if (tte.flag === 1 && tte.score >= beta) return tte.score;
+    if (tte.flag === 2 && tte.score <= alpha) return tte.score;
+  }
+  let best = -Infinity;
+  let bestSan: string | undefined;
+  ctx.path.push(key);
+  try {
+    for (const m of orderMoves(moves, tte?.best)) {
+      chess.move(m.san);
+      let score: number;
+      try {
+        score = -negamax(chess, depth - 1, -beta, -alpha, ply + 1, ctx);
+      } finally {
+        chess.undo();
+      }
+      if (score > best) {
+        best = score;
+        bestSan = m.san;
+      }
+      if (score > alpha) alpha = score;
+      if (alpha >= beta) break;
+    }
+  } finally {
+    ctx.path.pop();
+  }
+  if (ctx.tt) {
+    const flag: 0 | 1 | 2 = best <= alpha0 ? 2 : best >= beta ? 1 : 0;
+    ctx.tt.set(key, { depth, score: best, flag, best: bestSan });
+    if (ctx.tt.size > 200_000) ctx.tt.clear();
+  }
+  return best;
+}
+
+type RootScore = { move: Move; score: number };
+
+/** Score every root move (side-to-move view). Iterative deepening until `maxDepth` or the deadline. */
+function searchRoot(
+  game: Chess,
+  opts: { maxDepth: number; qDepth: number; timeMs: number; useTt: boolean; seen: Map<string, number> },
+): RootScore[] {
+  const ctx: SearchCtx = {
+    deadline: Date.now() + opts.timeMs,
+    aborted: false,
+    nodes: 0,
+    qDepth: opts.qDepth,
+    tt: opts.useTt ? new Map() : null,
+    seen: opts.seen,
+    path: [game.hash()],
+  };
+  const verbose = new Map(game.moves({ verbose: true }).map((m) => [m.san, m]));
+  let order = orderMoves(lightMoves(game));
+  let completed: RootScore[] = order.map((m) => ({ move: verbose.get(m.san)!, score: 0 }));
+  for (let depth = 1; depth <= opts.maxDepth; depth += 1) {
+    const scored: { m: LMove; score: number }[] = [];
+    let alpha = -Infinity;
+    try {
+      for (const m of order) {
+        game.move(m.san);
+        try {
+          const repeated = (opts.seen.get(game.hash()) ?? 0) >= 2;
+          let score: number;
+          if (repeated) score = 0;
+          else if (opts.useTt && alpha !== -Infinity) {
+            // Strong: null window after the first move (only the best score matters); exact re-search when it beats alpha.
+            score = -negamax(game, depth - 1, -alpha - 1, -alpha, 1, ctx);
+            if (score > alpha) score = -negamax(game, depth - 1, -Infinity, Infinity, 1, ctx);
+          } else {
+            // Club keeps exact scores for every move (it picks among near-best moves).
+            score = -negamax(game, depth - 1, -Infinity, Infinity, 1, ctx);
+          }
+          scored.push({ m, score });
+          if (score > alpha) alpha = score;
+        } finally {
+          game.undo();
+        }
+      }
+    } catch (e) {
+      if (e instanceof SearchAborted) break;
+      throw e;
+    }
+    scored.sort((a, b) => b.score - a.score);
+    completed = scored.map((x) => ({ move: verbose.get(x.m.san)!, score: x.score }));
+    order = scored.map((x) => x.m);
+    if (scored[0] && scored[0].score >= MATE - 100) break;
+    if (Date.now() > ctx.deadline) break;
+  }
+  return completed;
+}
+
+/** Positions of the game so far, for repetition awareness. */
+function seenPositions(startFen: string | undefined, history: readonly string[] | undefined): Map<string, number> {
+  const seen = new Map<string, number>();
+  if (!history?.length) return seen;
+  try {
+    const g = startFen && startFen !== "startpos" ? new Chess(startFen) : new Chess();
+    const add = () => {
+      const k = g.hash();
+      seen.set(k, (seen.get(k) ?? 0) + 1);
+    };
+    add();
+    for (const san of history) {
+      g.move(san);
+      add();
+    }
+  } catch {
+    return new Map();
+  }
+  return seen;
 }
 
 function normalizeLevel(level: BotLevel | string): BotLevel {
   const l = (level || "").toLowerCase().trim();
-  if (l === "learner" || l === "club" || l === "strong") return l;
+  if (l === "learner" || l === "novice") return "learner";
+  if (l === "club" || l === "strong") return l;
   return "club";
 }
 
@@ -271,12 +470,43 @@ function toBotMove(m: Move): BotMove {
   };
 }
 
+/** Analyse a position at a fixed depth (tests and tooling). Score is from the side to move. */
+export function analysePosition(fen: string, depth: number, qDepth = 6): { bestSan: string; score: number } | null {
+  try {
+    const g = new Chess(fen);
+    if (g.isGameOver()) return null;
+    const r = searchRoot(g, { maxDepth: depth, qDepth, timeMs: 60_000, useTt: true, seen: new Map() });
+    return r[0] ? { bestSan: r[0].move.san, score: r[0].score } : null;
+  } catch {
+    return null;
+  }
+}
+
+export type ChooseBotMoveInput = ChooseBotMoveOptions & {
+  fen: string;
+  level?: BotLevel | string;
+  personality?: BotPersonality;
+};
+
+/**
+ * Pick the bot's move. Call as `chooseBotMove(fen, level, options)` or
+ * `chooseBotMove({ fen, history, level, personality })`.
+ *
+ * - learner / novice: 1-ply with a hanging-piece check; ~25% of moves are human slips
+ *   chosen among the 5 most plausible moves (noisy static eval, no recapture check).
+ * - club: depth 2 + quiescence; sometimes picks a near-best move; in endgames slips more.
+ * - strong: iterative deepening (≤ 5 plies, ~600 ms) with quiescence, tapered eval and a transposition table.
+ */
 export function chooseBotMove(
-  fen: string,
-  levelInput: BotLevel | string,
-  options?: ChooseBotMoveOptions,
+  fenOrInput: string | ChooseBotMoveInput,
+  levelInput?: BotLevel | string,
+  maybeOptions?: ChooseBotMoveOptions,
 ): BotMove | null {
-  const rng = options?.rng ?? Math.random;
+  const input: ChooseBotMoveInput =
+    typeof fenOrInput === "string" ? { ...(maybeOptions ?? {}), fen: fenOrInput, level: levelInput } : fenOrInput;
+  const fen = input.fen;
+  const options = input;
+  const rng = options.rng ?? Math.random;
   let game: Chess;
   try {
     if (!fen || typeof fen !== "string") return null;
@@ -290,7 +520,8 @@ export function chooseBotMove(
   const legalMoves = game.moves({ verbose: true });
   if (!legalMoves.length) return null;
 
-  const level = normalizeLevel(levelInput);
+  const level = normalizeLevel(input.personality ?? input.level ?? "club");
+
 
   // 1a. "Play an opening": follow the chosen repertoire tree by history.
   if (options?.openingId && options.history) {
@@ -329,10 +560,20 @@ export function chooseBotMove(
 
   // 2. Learner: One ply. Takes hanging piece when seen, else developing/central. ~1/4 random blunder.
   if (level === "learner") {
-    // 1 in 4 random legal move
+    // ~1 in 4: a human slip — one of the 5 most plausible moves by a noisy static look,
+    // without checking recaptures (leaves pieces hanging, misses forks).
     if (rng() < 0.25) {
-      const randomMove = legalMoves[Math.floor(rng() * legalMoves.length)];
-      return toBotMove(randomMove);
+      const plausible = legalMoves
+        .map((m) => {
+          game.move(m);
+          const e = staticEval(game);
+          game.undo();
+          return { m, s: (isWhite ? e : -e) + (rng() - 0.5) * 120 };
+        })
+        .sort((a, b) => b.s - a.s)
+        .slice(0, 5);
+      const slip = plausible[Math.floor(rng() * plausible.length)] ?? plausible[0]!;
+      return toBotMove(slip.m);
     }
 
     // 1-ply evaluation
@@ -372,50 +613,29 @@ export function chooseBotMove(
     return toBotMove(scored[0].move);
   }
 
-  // 3. Club & Strong: Alpha-beta minimax with captures-first ordering
-  const depth = level === "strong" ? 3 : 2;
-  const ordered = orderMoves(legalMoves);
-
-  type Scored = { move: Move; score: number };
-  const scoredMoves: Scored[] = [];
-
-  for (const m of ordered) {
-    game.move(m);
-    // Depth is depth - 1 because we already made move m
-    const score = alphaBeta(
-      game,
-      depth - 1,
-      -Infinity,
-      Infinity,
-      !isWhite, // next turn is opponent
-    );
-    game.undo();
-
-    // Score from perspective of the side to move (higher is always better)
-    const perspectiveScore = isWhite ? score : -score;
-    scoredMoves.push({ move: m, score: perspectiveScore });
-  }
-
-  scoredMoves.sort((a, b) => b.score - a.score);
-
+  // 3. Club & Strong: negamax + quiescence (+ TT and iterative deepening for Strong).
+  const seen = seenPositions(options.startFen, options.history);
+  const scoredMoves =
+    level === "strong"
+      ? searchRoot(game, { maxDepth: 5, qDepth: 6, timeMs: options.timeMs ?? 600, useTt: true, seen })
+      : searchRoot(game, { maxDepth: 2, qDepth: 4, timeMs: options.timeMs ?? 400, useTt: false, seen });
   if (scoredMoves.length === 0) return null;
+  const bestScore = scoredMoves[0]!.score;
 
-  const bestScore = scoredMoves[0].score;
-
-  // Immediate mate or overwhelming advantage: always play best move
+  // Forced mate or overwhelming advantage: always play the best move.
   if (bestScore >= 50_000) {
-    return toBotMove(scoredMoves[0].move);
+    return toBotMove(scoredMoves[0]!.move);
   }
 
-  // Club: among moves close to best score (within 35 cp), sometimes pick second-best (~35% chance)
   if (level === "club") {
-    const closeCandidates = scoredMoves.filter((sm) => sm.score >= bestScore - 35);
-    if (closeCandidates.length > 1 && rng() < 0.35) {
-      return toBotMove(closeCandidates[1].move);
+    // Near-best alternatives ~35% of the time; in endgames the club player is sloppier (≤ 60 cp, 50%).
+    const endgame = gamePhase(game) <= 6;
+    const margin = endgame ? 60 : 35;
+    const close = scoredMoves.filter((sm) => sm.score >= bestScore - margin);
+    if (close.length > 1 && rng() < (endgame ? 0.5 : 0.35)) {
+      return toBotMove(close[1 + Math.floor(rng() * (close.length - 1))]!.move);
     }
   }
 
-  // Strong: almost no noise (if top moves tied within 3 cp, pick among them, else best)
-  return toBotMove(scoredMoves[0].move);
+  return toBotMove(scoredMoves[0]!.move);
 }
-
