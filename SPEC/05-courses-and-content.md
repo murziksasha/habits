@@ -63,6 +63,7 @@ CMS-owned courses are not overwritten. See SPEC 72 for publish gates and SPEC 93
 | `logic_puzzle` | `correctIndex` | Logic |
 | `chess_puzzle` | Learner plies of the authored line (opponent plies auto-played); any mate counts, offline-QA `acceptedAlternatives` / `alternativeLines` accepted; promotion piece chosen by the learner. Server replays and grades. | Chess |
 | `chess_plan` | `correctIndex` over exactly 3 `choices` (`{ san, explanationUk, explanationEn }`); Stockfish-verified: correct ≤ 40 cp from best, wrong ≥ 80 cp worse | Chess |
+| `chess_endgame_drill` | `{ fen, goal: win \| draw \| promote, maxMoves }` — the learner plays the position out against the bot (Web Worker). Answer `{ sans }` = the whole game; the server replays it and `checkEndgameGoal` judges by rules only (mate, promotion, stalemate / threefold / insufficient / 50-move, move limit). Success 15 XP (10 with a hint), failure 0 XP and SRS. | Chess |
 | `chess_lesson` | optional quiz MCQ | Chess |
 | `code_read` | snippet + `correctIndex` | Programming |
 | `code_output` | MCQ or accepted text | Programming |
@@ -114,3 +115,9 @@ After seed:
 - **Famous games** — positions are generated from full game scores in `packages/content/src/chess-upgrade/famous-games.ts` (Anderssen–Kieseritzky 1851, Anderssen–Dufresne 1852, Morphy–Brunswick & Isouard 1858, Greco 1620, Lasker–Bauer 1889, D. Byrne–Fischer 1956, Fischer–Spassky 1972 g6, Karpov–Unzicker 1974, Kasparov–Topalov 1999). The test replays each game with chess.js and checks that the course FEN and solution line match the game exactly. Game scores are historical facts and are not copyrighted; the course credits players, year and event in `source`.
 - **Composed studies** — Saavedra (1895) is credited as `source.kind: "composed"`.
 - Other positions are original teaching positions written for the course.
+
+### Endgame drills (phase 6)
+
+- 18 drills in `packages/content/src/chess-upgrade/endgame-drills.ts` (ids `ch-eg-*`), appended to lessons of `endgames-intro`, `ch-deep-kp-theory`, `ch-deep-rook-theory`, `ch-deep-minor-end`: 10 win/promote (opposition ×3, Lucena ×2, KBN ×2, KQ, KR, queen vs pawn) and 8 hold (Philidor ×2, Vancura ×2, rook pawn, wrong bishop, c-pawn fortress, opposite bishops).
+- `node scripts/chess-qa/endgame-drill-qa.mjs --depth 30` (after `pnpm --filter @eduforge/content build`) writes `chess-endgame-qa.generated.ts`; the gate `chess-endgame-drills.test.ts` requires win ≥ +500 cp or mate and draw within ±80 cp, and fails when a FEN changes without a re-run.
+- No tablebase: "losing the win" is judged by state only (rules draw or move limit).

@@ -3,7 +3,16 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { ChessBoardFrame } from "@/components/chess-board-frame";
 import { DifficultyStars } from "@/components/difficulty-stars";
-import { Chess, evaluatePuzzleMove, replaySans, type PuzzleSpec, type Square } from "@eduforge/chess-core";
+import {
+  Chess,
+  checkEndgameGoal,
+  evaluatePuzzleMove,
+  replaySans,
+  type EndgameGoal,
+  type PuzzleSpec,
+  type Square,
+} from "@eduforge/chess-core";
+import { requestBotMove } from "@/lib/chess-bot";
 import {
   countWords,
   exercisePrompt,
@@ -133,6 +142,8 @@ export function ExercisePlayer({
         return <ChessLessonExercise exercise={exercise} onAnswer={onAnswer} />;
       case "chess_plan":
         return <ChessPlanExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "chess_endgame_drill":
+        return <ChessEndgameDrillExercise exercise={exercise} onAnswer={onAnswer} />;
       case "video":
         return <VideoExercise exercise={exercise} onAnswer={onAnswer} />;
       case "code_judge":
@@ -2003,6 +2014,153 @@ function ChessPuzzleExercise({
 }
 
 type ChessPlanOption = { san: string; explanationUk: string; explanationEn?: string };
+
+type DrillMove = { san: string; from: string; to: string };
+
+/** Endgame drill: play the position out against the bot; goal judged by rules (server re-grades). */
+function ChessEndgameDrillExercise({ exercise, onAnswer }: { exercise: Exercise; onAnswer: (a: unknown) => void }) {
+  const { t, locale } = useLocale();
+  const examMode = useContext(ExamModeCtx);
+  const assistance = useContext(AssistanceCtx);
+  const en = locale === "en";
+  const fen = String(exercise.fen);
+  const goal = (exercise.goal as EndgameGoal) ?? "win";
+  const maxMoves = Number(exercise.maxMoves ?? 30);
+  const botLevel = exercise.botLevel === "club" ? "club" : "strong";
+  const [moves, setMoves] = useState<DrillMove[]>([]);
+  const [thinking, setThinking] = useState(false);
+  const [finished, setFinished] = useState<"success" | "fail" | null>(null);
+  const [hintShown, setHintShown] = useState(false);
+
+  const viewer = useMemo(() => {
+    try {
+      return new Chess(fen).turn();
+    } catch {
+      return "w" as const;
+    }
+  }, [fen]);
+  const boardFen = useMemo(() => replaySans(fen, moves.map((m) => m.san))?.fen() ?? fen, [fen, moves]);
+  const status = useMemo(() => checkEndgameGoal(fen, moves.map((m) => m.san), goal, maxMoves), [fen, moves, goal, maxMoves]);
+
+  useEffect(() => {
+    setMoves([]);
+    setThinking(false);
+    setFinished(null);
+    setHintShown(false);
+  }, [exercise.id]);
+
+  // Report the outcome once.
+  useEffect(() => {
+    if (finished || status.status === "in_progress") return;
+    setFinished(status.status);
+    onAnswer({ sans: moves.map((m) => m.san), hintsUsed: hintShown ? 1 : 0, reason: status.reason });
+  }, [status, finished, moves, hintShown, onAnswer]);
+
+  // Bot reply when it is the bot's turn.
+  useEffect(() => {
+    if (finished || status.status !== "in_progress") return;
+    const g = replaySans(fen, moves.map((m) => m.san));
+    if (!g || g.turn() === viewer) return;
+    let active = true;
+    setThinking(true);
+    const timer = setTimeout(async () => {
+      const mv = await requestBotMove(g.fen(), botLevel, { history: moves.map((m) => m.san) });
+      if (!active || !mv) return;
+      try {
+        const r = g.move({ from: mv.from, to: mv.to, promotion: mv.promotion });
+        setMoves((prev) => [...prev, { san: r.san, from: r.from, to: r.to }]);
+      } catch {
+        /* bot returned an illegal move — ignore */
+      }
+      setThinking(false);
+    }, 350);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+      setThinking(false);
+    };
+  }, [moves, fen, viewer, botLevel, finished, status.status]);
+
+  function onDrop(from: string, to: string, promotion?: "q" | "r" | "b" | "n") {
+    if (finished || thinking) return false;
+    const g = replaySans(fen, moves.map((m) => m.san));
+    if (!g || g.turn() !== viewer) return false;
+    try {
+      const r = g.move({ from: from as Square, to: to as Square, promotion });
+      setMoves((prev) => [...prev, { san: r.san, from: r.from, to: r.to }]);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function restart() {
+    setMoves([]);
+    setThinking(false);
+  }
+
+  const goalText = (goal === "draw" ? t.chess.endgameGoalDraw : goal === "promote" ? t.chess.endgameGoalPromote : t.chess.endgameGoalWin).replace(
+    "{n}",
+    String(maxMoves),
+  );
+  const hint = String((en ? exercise.hintEn : exercise.hintUk) ?? exercise.hintUk ?? "");
+  const explanation = String((en ? exercise.explanationEn : exercise.explanationUk) ?? exercise.explanationUk ?? "");
+  const last = moves.at(-1) ?? null;
+  const g = replaySans(fen, moves.map((m) => m.san));
+  const endReason = g?.isCheckmate() ? "checkmate" : g?.isStalemate() ? "stalemate" : null;
+
+  return (
+    <div className="space-y-4" data-testid="endgame-drill">
+      <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
+      <div className="flex flex-wrap items-center justify-center gap-3 text-sm font-bold">
+        <span className="rounded-full bg-surface-muted px-3 py-1" data-testid="endgame-goal">
+          🎯 {goalText}
+        </span>
+        <span className="rounded-full bg-surface-muted px-3 py-1" data-testid="endgame-moves-left">
+          {t.chess.movesLeft}: {status.movesLeft}
+        </span>
+      </div>
+      <div className="mx-auto max-w-md">
+        <ChessBoardFrame
+          fen={boardFen}
+          mode="play"
+          orientation={viewer === "b" ? "black" : "white"}
+          viewer={viewer}
+          interactive={!finished && !thinking}
+          onMove={onDrop}
+          lastMove={last}
+          endReason={endReason}
+          endLine={finished === "success" ? t.chess.endgameSuccess : t.chess.endgameFail}
+          boardWidth={360}
+        />
+      </div>
+      <p className="text-center font-bold" role="status" aria-live="polite">
+        {finished === "success" ? `✅ ${t.chess.endgameSuccess}` : finished === "fail" ? `❌ ${t.chess.endgameFail}` : thinking ? t.chess.opponentThinking : ""}
+      </p>
+      {hintShown && hint && !finished && <div className="rounded-xl bg-surface-muted p-3 text-sm">{hint}</div>}
+      {finished && explanation && <div className="rounded-xl bg-surface-muted p-3 text-sm">{explanation}</div>}
+      {!finished && (
+        <div className="flex flex-wrap justify-center gap-2">
+          <button type="button" className="btn-secondary" onClick={restart} disabled={moves.length === 0}>
+            {t.chess.restartPuzzle}
+          </button>
+          {!examMode && hint && !hintShown && (
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => {
+                setHintShown(true);
+                assistance.onHintUsed?.();
+              }}
+            >
+              💡 {t.chess.hint}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function ChessPlanExercise({
   exercise,

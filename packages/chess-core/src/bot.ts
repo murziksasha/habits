@@ -11,6 +11,8 @@ export type BotMove = {
 
 export type ChooseBotMoveOptions = {
   rng?: () => number;
+  /** SAN history from the start position (repetition awareness, opening book). */
+  history?: readonly string[];
 };
 
 const PIECE_VALUES: Record<string, number> = {

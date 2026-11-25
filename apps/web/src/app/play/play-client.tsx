@@ -8,13 +8,12 @@ import { ChessBoardFrame } from "@/components/chess-board-frame";
 import { MoveHistoryPanel } from "@/components/move-history-panel";
 import {
   Chess,
-  chooseBotMove,
   evaluateBoard,
   gameTerminationWithHistory,
   type BotLevel,
-  type BotMove,
 } from "@eduforge/chess-core";
 import { CHESS_TIME_CONTROLS } from "@eduforge/shared";
+import { requestBotMove } from "@/lib/chess-bot";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
@@ -44,41 +43,6 @@ type MatchInfo = {
   vsBot?: boolean;
   botLevel?: BotLevel;
 };
-
-async function requestBotMove(currentFen: string, level: BotLevel): Promise<BotMove | null> {
-  if (level === "strong" && typeof window !== "undefined" && typeof Worker !== "undefined") {
-    try {
-      const move = await new Promise<BotMove | null>((resolve, reject) => {
-        const worker = new Worker(new URL("./chess-bot-worker.ts", import.meta.url));
-        const timeout = setTimeout(() => {
-          worker.terminate();
-          reject(new Error("worker_timeout"));
-        }, 3000);
-        worker.onmessage = (e) => {
-          clearTimeout(timeout);
-          worker.terminate();
-          if (e.data?.ok) {
-            resolve(e.data.move ?? null);
-          } else {
-            reject(new Error(e.data?.error ?? "worker_failed"));
-          }
-        };
-        worker.onerror = (err) => {
-          clearTimeout(timeout);
-          worker.terminate();
-          reject(err);
-        };
-        worker.postMessage({ fen: currentFen, level: "strong" });
-      });
-      return move;
-    } catch {
-      // Strong falls back to Club if worker fails
-      return chooseBotMove(currentFen, "club");
-    }
-  }
-
-  return chooseBotMove(currentFen, level);
-}
 
 function PlayPageInner() {
   const { user, token, loading, character } = useAuth();
@@ -278,7 +242,7 @@ function PlayPageInner() {
 
     let active = true;
     const timer = setTimeout(async () => {
-      const move = await requestBotMove(game.fen(), match.botLevel ?? "club");
+      const move = await requestBotMove(game.fen(), match.botLevel ?? "club", { history });
       if (!active || !move) return;
       const g = new Chess(game.fen());
       try {
