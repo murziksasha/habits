@@ -5,11 +5,11 @@
 ## Как загружается `.env`
 
 - Единственный механизм — `loadRootEnv()` (`packages/db/src/load-env.ts`): читает **корневой** `.env` и заполняет только ещё не заданные ключи (переменная шелла важнее). Это не dotenv: `KEY=value`, `#`-комментарии, кавычки снимаются, без подстановок `${VAR}`.
-- Вызывается в: `apps/api/src/env.ts` (при старте API), `pnpm db:migrate`, `pnpm db:seed`, `pnpm content:sync`, `createDb()` из `@eduforge/db`.
-- `apps/realtime` читает `REALTIME_PORT`, `WEB_ORIGIN`, `DATABASE_URL`, `REDIS_URL` **до** вызова `createDb()`, поэтому эти значения из корневого `.env` фактически не берёт — используются переменные шелла или значения по умолчанию (совпадают с локальным Docker).
+- Вызывается в: `apps/api/src/env.ts` (при старте API), `apps/realtime/src/load-env.ts`, `pnpm db:migrate`, `pnpm db:seed`, `pnpm content:sync`, `createDb()` из `@eduforge/db`.
+- `apps/realtime`: первым импортом в `src/index.ts` идёт `./load-env.js` (тот же `loadRootEnv()`), поэтому `REALTIME_PORT`, `WEB_ORIGIN`, `DATABASE_URL`, `REDIS_URL` берутся из корневого `.env`. Этот импорт должен оставаться первым (ESM выполняет импорты по порядку) — это проверяет `src/load-env.test.ts`.
 - `apps/web` (Next.js) корневой `.env` не читает; Next загружает только `.env*` из `apps/web/` (сейчас их нет). `NEXT_PUBLIC_*` вшиваются при сборке; по умолчанию `NEXT_PUBLIC_API_URL` = `http://localhost:4000`.
 - Скрипты `scripts/chess-qa/*`, `scripts/chess-import/*` `.env` не читают — переменные задаются в шелле.
-- `docker-compose.yml` передаёт контейнерам свой набор (`DATABASE_URL`, `REDIS_URL`, `AUTH_SECRET`, `CRON_SECRET`, …), подставляя значения из `.env` через `${…}`; `STOCKFISH_PATH` туда не передаётся.
+- `docker-compose.yml` передаёт контейнерам свой набор (`DATABASE_URL`, `REDIS_URL`, `AUTH_SECRET`, `CRON_SECRET`, …), подставляя значения из `.env` через `${…}`. `STOCKFISH_PATH` для `api` задан фиксированно (`/usr/local/bin/stockfish`, движок встроен в образ) и из `.env` хоста не берётся.
 
 ## Список (из `.env.example`)
 
@@ -36,6 +36,6 @@
 | `ALLOW_PROD_SEED` | Разрешает `db:seed` при `NODE_ENV=production` |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`, `API_PUBLIC_URL`, `ALLOW_DEV_OAUTH` | Google OAuth |
 | `NODE_ENV`, `LOCALE` | Режим (`development` в шаблоне) и локаль по умолчанию (`uk`) |
-| `STOCKFISH_PATH` | Путь к UCI-движку для анализа партий, см. [stockfish.md](stockfish.md) |
+| `STOCKFISH_PATH` | Путь к UCI-движку для анализа партий (в Docker — `/usr/local/bin/stockfish`), см. [stockfish.md](stockfish.md) |
 
 Вне `.env.example`, но используются: `MFA_ENCRYPTION_KEY` (ключ для TOTP, иначе берётся `AUTH_SECRET`), `SKIP_INTEGRATION`, `SKIP_E2E`, `PLAYWRIGHT_BASE_URL`, `PLAYWRIGHT_WEB_SERVER`, `NEXT_OUTPUT=standalone`.

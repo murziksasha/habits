@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Offline Stockfish QA for opening repertoires (phase 7): the final position of every line
- * must be no worse than −50 cp for the repertoire side.
+ * must be no worse than −60 cp for the repertoire side (MIN_CP in chess-openings.test.ts).
  *
  *   pnpm --filter @eduforge/chess-core build && node scripts/chess-qa/opening-qa.mjs [--depth 20]
  *

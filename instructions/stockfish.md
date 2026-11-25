@@ -16,7 +16,7 @@ Stockfish — внешний UCI-движок. Он **не** нужен для �
 
 - `apps/api/src/env.ts` вызывает `loadRootEnv()` из `@eduforge/db` (`packages/db/src/load-env.ts`). Она читает **корневой** `.env` монорепозитория и заполняет `process.env` только для ключей, которых ещё нет. То есть `pnpm dev` / `tsx src/index.ts` подхватывают `STOCKFISH_PATH` из корневого `.env` автоматически. Переменная из шелла важнее `.env`.
 - Это самописный парсер, не dotenv: строки `KEY=value`, `#`-комментарии, кавычки снимаются; `${VAR}` и `export` не поддерживаются. Путь можно писать без кавычек и с прямыми слешами.
-- **Docker**: `docker-compose.yml` не передаёт `STOCKFISH_PATH` в сервис `api`, а `docker/Dockerfile.api` не ставит Stockfish. В контейнере анализ работает в режиме без движка, пока не добавить бинарник и переменную.
+- **Docker**: Stockfish 19 встроен в образ API (см. раздел «Docker» ниже), `STOCKFISH_PATH=/usr/local/bin/stockfish` задан и в образе, и в `docker-compose.yml` фиксированным значением (не из `.env` хоста, где у Саши Windows-путь).
 - **Офлайн-скрипты `scripts/chess-qa/*` и `scripts/chess-import/*` `.env` НЕ читают.** Переменную надо задать в шелле. Без неё они ищут только Linux-пути `/usr/games/stockfish`, `/usr/bin/stockfish`, `/usr/local/bin/stockfish`.
 
 ## Windows (машина Саши)
@@ -40,6 +40,22 @@ Stockfish — внешний UCI-движок. Он **не** нужен для �
   (в PowerShell команды соединяются `;`, не `&&`).
 - Проверить бинарник: запустить exe, ввести `uci` — должен ответить `uciok`, выйти `quit`.
 
+## Docker
+
+`docker/Dockerfile.api` содержит отдельную стадию `stockfish`:
+
+- база `node:22-alpine` (та же, что у runner, — одинаковые musl и libstdc++);
+- скачивает исходники официального тега `sf_19` с GitHub, проверяет SHA-256 (`STOCKFISH_SHA256`), собирает `make -C src build ARCH=…` (amd64 → `x86-64-sse41-popcnt`, arm64 → `armv8`, по `TARGETARCH`); NNUE-сеть скачивается Makefile'ом при сборке и вшивается в бинарник;
+- runner копирует `/usr/local/bin/stockfish` и ставит `ENV STOCKFISH_PATH=/usr/local/bin/stockfish`.
+
+Почему сборка из исходников: в Alpine пакет `stockfish` есть только в `edge/testing`, а официальные Linux-бинарники собраны под glibc и на musl не запускаются (даже с `gcompat` — `symbol not found`).
+
+Нюансы:
+
+- Первая сборка образа дольше (~0,5–3 мин на компиляцию, нужен доступ к github.com), образ API больше примерно на 100 МБ (бинарник с сетью).
+- Сменить версию: `docker compose build --build-arg STOCKFISH_TAG=sf_XX --build-arg STOCKFISH_SHA256=<sha256 архива> api`.
+- Проверить движок в контейнере: `docker compose exec api sh -c 'echo uci | $STOCKFISH_PATH'` — должен ответить `id name Stockfish 19` и `uciok`.
+
 ## Linux
 
 ```bash
@@ -56,7 +72,7 @@ CI Stockfish не запускает. Скрипты пишут `*.generated.ts`
 | Что | Команда | Результат | Гейт / порог |
 | --- | --- | --- | --- |
 | Задачи и планы (`chess_puzzle`, `chess_plan`) | `pnpm chess:qa` (полностью, `--depth 16 --jobs 4` по умолчанию), `pnpm chess:qa -- --incremental` (только изменённые), `pnpm chess:qa -- --only id1,id2 --report /tmp/qa.txt --dry` | `chess-qa.generated.ts` | `chess-qa.test.ts`: у каждой задачи свежая QA-запись, нет флагов движка (кроме явных waiver'ов). План: верный ход в пределах 40 cp от лучшего, каждый неверный хуже верного минимум на 80 cp |
-| Дебюты | `pnpm --filter @eduforge/chess-core build && node scripts/chess-qa/opening-qa.mjs [--depth 20]` | `chess-openings-qa.generated.ts` | `chess-openings.test.ts`: финальная позиция каждой линии не хуже **−60 cp** за сторону репертуара (`MIN_CP = -60`; в комментарии скрипта и в плане указано −50, фактический гейт −60) |
+| Дебюты | `pnpm --filter @eduforge/chess-core build && node scripts/chess-qa/opening-qa.mjs [--depth 20]` | `chess-openings-qa.generated.ts` | `chess-openings.test.ts`: финальная позиция каждой линии не хуже **−60 cp** за сторону репертуара (`MIN_CP = -60`; в исходном плане было −50) |
 | Эндшпили | `pnpm --filter @eduforge/content build && node scripts/chess-qa/endgame-drill-qa.mjs [--depth 24]` | `chess-endgame-qa.generated.ts` | `chess-endgame-drills.test.ts`: win/promote ≥ +500 cp или мат, draw в пределах ±80 cp. Для сложных позиций (Lucena) нужна большая глубина, например `--depth 30` |
 | Факты линий / подсказки (без движка) | `node scripts/chess-qa/chess-facts.mjs` | `chess-facts.generated.ts` | `chess-qa.test.ts` («line facts are fresh») |
 | Подбор хода для `chess_plan` | `node scripts/chess-qa/plan-probe.mjs "<fen>" [depth]` | печатает оценку каждого хода | — |

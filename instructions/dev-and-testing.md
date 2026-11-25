@@ -34,9 +34,9 @@ pnpm dev     # turbo run dev --parallel
 
 - Web: http://localhost:3000
 - API: http://localhost:4000/health, OpenAPI: http://localhost:4000/docs
-- Realtime: порт 4001
+- Realtime: порт 4001 (настройки из корневого `.env`, см. [env.md](env.md))
 
-Отдельно: `pnpm --filter @eduforge/api dev` (`tsx watch src/index.ts`), `pnpm --filter @eduforge/web dev`. Всё в Docker: `pnpm docker:up` / `pnpm docker:logs` / `pnpm docker:down` (`docker compose down -v` удаляет данные — только с согласия владельца).
+Отдельно: `pnpm --filter @eduforge/api dev` (`tsx watch src/index.ts`), `pnpm --filter @eduforge/web dev`. Всё в Docker (образ API уже содержит Stockfish 19, см. [stockfish.md](stockfish.md)): `pnpm docker:up` / `pnpm docker:logs` / `pnpm docker:down` (`docker compose down -v` удаляет данные — только с согласия владельца).
 
 ## Проверки
 
@@ -52,6 +52,7 @@ pnpm dev     # turbo run dev --parallel
 | Сборка web | `pnpm --filter @eduforge/web build` | |
 | Быстрый гейт | `pnpm ci` (typecheck + unit), `pnpm ci:full` (+ интеграция) | |
 | Аудит контента | `pnpm content:audit` | |
+| Миграции | `pnpm db:check` | согласованность `drizzle/*.sql` и журнала, без БД; также в CI и в тестах `@eduforge/db` |
 
 ### `next build` и `NODE_ENV`
 
