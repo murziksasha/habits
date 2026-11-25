@@ -50,6 +50,10 @@ Server drains clocks using elapsed time between moves; timeout decides winner.
 - Illegal moves rejected with `illegal_move`  
 - Puzzle helper: SAN compare ignoring check/mate markers  
 
+## Promotion
+
+The board never auto-queens: when a pawn reaches the last rank the learner picks Q/R/B/N in an overlay (`promote-q|r|b|n`). The chosen piece is sent with the move (`move { from, to, promotion }`) to the bot game and the realtime server.
+
 ## Board learning hints
 
 Layered UI feedback rendered via `ChessBoardFrame` on top of `@eduforge/chess-core`:

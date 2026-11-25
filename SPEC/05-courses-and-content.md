@@ -61,7 +61,8 @@ CMS-owned courses are not overwritten. See SPEC 72 for publish gates and SPEC 93
 | `rsvp` | `completed: true` | Speed reading |
 | `comprehension` | ≥ 50% questions correct | Speed reading |
 | `logic_puzzle` | `correctIndex` | Logic |
-| `chess_puzzle` | Complete authored SAN sequence, checked by the server | Chess |
+| `chess_puzzle` | Learner plies of the authored line (opponent plies auto-played); any mate counts, offline-QA `acceptedAlternatives` / `alternativeLines` accepted; promotion piece chosen by the learner. Server replays and grades. | Chess |
+| `chess_plan` | `correctIndex` over exactly 3 `choices` (`{ san, explanationUk, explanationEn }`); Stockfish-verified: correct ≤ 40 cp from best, wrong ≥ 80 cp worse | Chess |
 | `chess_lesson` | optional quiz MCQ | Chess |
 | `code_read` | snippet + `correctIndex` | Programming |
 | `code_output` | MCQ or accepted text | Programming |
@@ -97,3 +98,10 @@ After seed:
 - Email: `admin@eduforge.ua` (override `ADMIN_EMAIL`)  
 - Password: `admin12345` (override `ADMIN_PASSWORD`)  
 - Role: `admin`, plan: `free`  
+
+
+## Chess content QA (deep upgrade)
+
+- Overlay `packages/content/src/chess-upgrade/` is applied last in the chess pipeline: in-place fixes (`fixes.ts`), plan conversions (`plans.ts`), authored annotations (`annotations.ts`), Lichess real-game replacements and additions (`expansion/chess-lichess.generated.ts`, CC0, ids `ch-li-<PuzzleId>`). Exercise ids never change.
+- Offline QA: `pnpm chess:qa` (Stockfish, one process per position) writes `packages/content/src/chess-qa.generated.ts`. The vitest gate `chess-qa.test.ts` fails on stale hashes, unwaived flags (`CHESS_QA_WAIVERS`) and repeated positions without `reviewOf`.
+- Lichess import: `pnpm chess:import` (needs the filtered CSV from `scripts/chess-import/lichess-filter.mjs`); lesson → theme map in `scripts/chess-import/lesson-theme-map.mjs`.

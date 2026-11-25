@@ -27,28 +27,38 @@ const BREAK_F5: PlanSpec["choices"] = [
 ];
 
 export const CHESS_PLANS: Record<string, PlanSpec> = {
-  "ch-d-bn-closed-p1": {
-    promptUk: "Закритий центр староіндійського. Куди перебудувати коня e1?",
-    promptEn: "A closed King's Indian centre. Where should the e1-knight regroup?",
+  "ch-d-qga-p1": {
+    promptUk: "Прийнятий ферзевий гамбіт: чорні тримають пішака c4 ходом …b5. Як білим підірвати ланцюг?",
+    promptEn: "Queen's Gambit Accepted: Black holds the c4-pawn with …b5. How does White undermine the chain?",
     choices: [
-      { san: "Nd3", uk: "Кінь із d3 підтримує підрив c4–c5 і стримує f4. Це природний маршрут у закритому центрі.", en: "From d3 the knight supports the c4–c5 break and keeps an eye on f4: the natural route in a closed centre." },
-      { san: "Nb1", uk: "Пасивний відступ: кінь нічого не контролює, а чорні тим часом готують …h5 і …g4.", en: "A passive retreat: the knight controls nothing while Black prepares …h5 and …g4." },
-      { san: "h4", uk: "Відкриває королівський фланг саме там, де атакують чорні: …gxh4 і лінія g відкрита для них.", en: "Opens the kingside exactly where Black attacks: …gxh4 and the g-file opens for Black." },
+      { san: "a4", uk: "a4 б'є по b5: після …c6 axb5 cxb5 Qf3 білі виграють матеріал, а пішак c4 падає.", en: "a4 hits b5: after …c6 axb5 cxb5 Qf3 White wins material and c4 falls." },
+      { san: "d5", uk: "…e6 dxe6 Qxd1+ — ферзі розмінялися, а чорні зберегли зайвого пішака c4.", en: "…e6 dxe6 Qxd1+ — queens come off and Black keeps the extra c4-pawn." },
+      { san: "Bxc4", uk: "…bxc4 — слон за пішака.", en: "…bxc4 — a bishop for a pawn." },
     ],
-    themes: ["development", "pieceActivity"],
+    themes: ["opening", "pawnBreak"],
+  },
+  "ch-d-bn-closed-p1": {
+    promptUk: "Закритий центр староіндійського: чорні атакують на королівському фланзі. Який план у білих?",
+    promptEn: "A closed King's Indian centre: Black attacks on the kingside. What is White's plan?",
+    choices: [
+      { san: "b4", uk: "Гра на ферзевому фланзі: b4 і c5 відкривають лінію c і поле c7 для коня. У закритому центрі кожен грає на своєму фланзі.", en: "Play on the queenside: b4 and c5 open the c-file and c7 for the knight. In a closed centre each side plays on its own wing." },
+      { san: "h4", uk: "Відкриває королівський фланг саме там, де атакують чорні: …gxh4 і лінія g відкрита для них.", en: "Opens the kingside exactly where Black attacks: …gxh4 and the g-file opens for Black." },
+      { san: "Bxa7", uk: "Пішак a7 захищений турою: …Rxa7 — слон за пішака.", en: "The a7-pawn is defended by the rook: …Rxa7 — a bishop for a pawn." },
+    ],
+    themes: ["pawnBreak", "pieceActivity"],
   },
   "ch-d-breaks-p1": {
     promptUk: "Староіндійський, центр закритий ходом d5. Який план у чорних?",
     promptEn: "King's Indian, centre closed by d5. What is Black's plan?",
     choices: BREAK_F5,
     themes: ["pawnBreak"],
+    reviewOf: "ch-d-kid-attack-p1",
   },
   "ch-d-kid-attack-p1": {
     promptUk: "Мар-дель-Плата: як чорні починають атаку?",
     promptEn: "Mar del Plata: how does Black start the attack?",
     choices: BREAK_F5,
     themes: ["pawnBreak", "kingsideAttack"],
-    reviewOf: "ch-d-breaks-p1",
   },
   "ch-d-caro-adv-p1": {
     promptUk: "Каро–Канн, система з просуванням. Як чорні атакують ланцюг білих?",
@@ -86,7 +96,7 @@ export const CHESS_PLANS: Record<string, PlanSpec> = {
     choices: [
       { san: "e4", uk: "Хід Фішера: e4 підриває висячі пішаки c5/d5. Після …dxe4 або …d4 фігури білих отримують поля e4/c4 і шлях до короля.", en: "Fischer's move: e4 undermines the hanging c5/d5 pawns. After …dxe4 or …d4 White's pieces get e4/c4 and a route to the king." },
       { san: "Bc4", uk: "Груба помилка: …dxc4 — слон просто втрачений.", en: "A blunder: …dxc4 and the bishop is simply lost." },
-      { san: "g4", uk: "Ослаблює власного короля і нічого не робить проти центру чорних.", en: "Weakens White's own king and does nothing against Black's centre." },
+      { san: "Rxc5", uk: "Пішак c5 захищений ферзем f8: …Qxc5 — тура втрачена.", en: "The c5-pawn is defended by the f8-queen: …Qxc5 and the rook is lost." },
     ],
     themes: ["pawnBreak", "centre"],
     source: { kind: "game", white: "Robert Fischer", black: "Boris Spassky", year: 1972, event: "World Championship, Reykjavik, game 6" },
@@ -96,7 +106,7 @@ export const CHESS_PLANS: Record<string, PlanSpec> = {
     promptEn: "Karpov–Unzicker, 1974, move 24. The a-file is open. What should White play?",
     choices: [
       { san: "Ba7", uk: "Тихий хід Карпова: слон закриває лінію a для чорних тур, а білі тури потім її захоплюють.", en: "Karpov's quiet move: the bishop shuts the a-file for Black's rooks; later White's rooks take it over." },
-      { san: "Re2", uk: "Дає розмін на лінії a: …Rxa2 Qxa2 Ra8 — і чорні вирівнюють гру.", en: "Allows the trade on the a-file: …Rxa2 Qxa2 Ra8 and Black equalises." },
+      { san: "Nf5", uk: "…Rxa2 Qxa2 gxf5 — кінь втрачений.", en: "…Rxa2 Qxa2 gxf5 and the knight is lost." },
       { san: "Nd4", uk: "Кінь просто втрачається: …exd4.", en: "The knight is simply lost: …exd4." },
     ],
     themes: ["prophylaxis", "quietMove"],
@@ -107,8 +117,8 @@ export const CHESS_PLANS: Record<string, PlanSpec> = {
     promptEn: "London System. What is White's typical plan?",
     choices: [
       { san: "Ne5", uk: "Кінь стрибає на форпост e5, звідки його не вигнати пішаком d6. Далі f4 закріплює позицію.", en: "The knight jumps to the e5 outpost, where no d6-pawn can chase it; f4 can follow to support it." },
-      { san: "Qe2", uk: "Повільно: чорні грають …e5 і звільняють гру в центрі.", en: "Too slow: Black plays …e5 and frees the centre." },
-      { san: "a4", uk: "Хід без плану на фланзі, де нічого не відбувається; …e5 знову звільняє чорних.", en: "A planless move on a quiet wing; …e5 frees Black again." },
+      { san: "h3", uk: "Дає …Bxg3 fxg3 — пішакова структура зіпсована, а …e5 звільняє чорних.", en: "Allows …Bxg3 fxg3 — the pawn structure is damaged, and …e5 frees Black." },
+      { san: "b4", uk: "…cxb4 — пішак втрачено, і ферзевий фланг ослаблений.", en: "…cxb4 — a pawn lost and the queenside weakened." },
     ],
     themes: ["outpost"],
   },
@@ -127,8 +137,8 @@ export const CHESS_PLANS: Record<string, PlanSpec> = {
     promptEn: "English Attack, opposite-side castling. How does White attack?",
     choices: [
       { san: "g4", uk: "Пішаковий штурм: g4–g5 виганяє коня f6. При різнобічних рокіровках вирішує швидкість атаки.", en: "The pawn storm: g4–g5 kicks the f6-knight. With opposite castling, speed decides." },
-      { san: "Be2", uk: "Пасивно: чорні встигають …d5 і першими відкривають центр.", en: "Passive: Black gets in …d5 and opens the centre first." },
-      { san: "Nb3", uk: "Втрачає темп; чорні починають власну атаку …Nc6 і …b5.", en: "Loses time; Black starts the queenside attack with …Nc6 and …b5." },
+      { san: "f4", uk: "Не той штурм: …b5 і …b4 — чорні атакують першими, а пішак f4 не зачіпає короля.", en: "The wrong storm: …b5 and …b4 — Black attacks first, and f4 does not touch the king." },
+      { san: "e5", uk: "…dxe5 — пішак просто втрачено, центр відкрито без користі.", en: "…dxe5 — the pawn is simply lost and the centre opens for nothing." },
     ],
     themes: ["pawnStorm", "kingsideAttack"],
   },
@@ -389,7 +399,7 @@ export const CHESS_PLANS: Record<string, PlanSpec> = {
     promptEn: "Classical Caro-Kann. How should Black develop the light-squared bishop?",
     choices: [
       { san: "Bf5", uk: "Слон виходить на активну діагональ з темпом по коню e4 — ще до …e6.", en: "The bishop reaches its active diagonal with tempo on the e4-knight — before …e6." },
-      { san: "e6", uk: "Замикає слона c8 за пішаками — саме цього Каро–Канн уникає.", en: "Locks the c8-bishop behind the pawns — exactly what the Caro-Kann tries to avoid." },
+      { san: "c5", uk: "Nxc5 — пішак втрачено, а слон c8 так і не розвинений.", en: "Nxc5 — a pawn lost, and the c8-bishop is still undeveloped." },
       { san: "Nh6", uk: "Bxh6 — псує пішакову структуру чорних.", en: "Bxh6 ruins Black's pawn structure." },
     ],
     themes: ["development", "opening"],
@@ -399,8 +409,8 @@ export const CHESS_PLANS: Record<string, PlanSpec> = {
     promptEn: "King's Indian: White took on e5 too early with the knight. How does Black win material back?",
     choices: [
       { san: "Nxe4", uk: "…Nxe4 Nxe4 Bxe5 — чорні повертають пішака з добрими фігурами.", en: "…Nxe4 Nxe4 Bxe5 and Black regains the pawn with active pieces." },
-      { san: "h5", uk: "Повільно: Nd3 — білі зберігають зайвого пішака.", en: "Too slow: Nd3 and White keeps the extra pawn." },
-      { san: "Be6", uk: "Nf3 — кінь повертається, і зайвий пішак у білих.", en: "Nf3 — the knight retreats and White stays a pawn up." },
+      { san: "Nc6", uk: "Nxc6 bxc6 — пішакова структура зіпсована, а зайвий пішак у білих.", en: "Nxc6 bxc6 — the structure is damaged and White is still a pawn up." },
+      { san: "Bd7", uk: "Nxd7 — білі розмінюють слона і зберігають зайвого пішака.", en: "Nxd7 — White trades the bishop and keeps the extra pawn." },
     ],
     themes: ["opening"],
   },

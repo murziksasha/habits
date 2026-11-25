@@ -27,6 +27,8 @@ const DEPTH = Number(arg("--depth", "14"));
 const JOBS = Number(arg("--jobs", "4"));
 const OUT = resolve(ROOT, "packages/content/src/expansion/chess-lichess.generated.ts");
 const KEEP = 160;
+// --only r:<id>,a:<lesson>: re-pick just these targets and merge into the existing output.
+const ONLY = arg("--only", "")?.split(",").filter(Boolean) ?? [];
 
 const Chess = await loadChess();
 const { CHESS_THEMES } = await import(resolve(ROOT, "packages/shared/dist/chess-themes.js"));
@@ -86,7 +88,9 @@ function prepareUnsafe(row) {
 }
 
 // ── 1. stream candidates ──
-const buckets = new Map(TARGETS.map((t) => [tkey(t), []]));
+const ACTIVE = ONLY.length ? TARGETS.filter((t) => ONLY.includes(tkey(t))) : TARGETS;
+const previous = ONLY.length ? await import(resolve(ROOT, "packages/content/dist/expansion/chess-lichess.generated.js")) : null;
+const buckets = new Map(ACTIVE.map((t) => [tkey(t), []]));
 let header = null;
 let rows = 0;
 const rl = createInterface({ input: createReadStream(CSV), crlfDelay: Infinity });
@@ -110,7 +114,7 @@ for await (const line of rl) {
   rows += 1;
   if (row.pop < 88 || row.plays < 2500) continue;
   const themes = new Set(row.themes.split(" "));
-  for (const t of TARGETS) {
+  for (const t of ACTIVE) {
     if (!matches(t, themes, row.rating)) continue;
     const key = tkey(t);
     if (t.first) {
@@ -129,6 +133,10 @@ console.error(`scanned ${rows} rows`);
 
 // ── 2. choose + QA ──
 const used = new Set();
+if (previous) {
+  for (const e of Object.values(previous.LICHESS_REPLACEMENTS)) used.add(e.source.lichessId);
+  for (const a of previous.LICHESS_ADDITIONS) used.add(a.exercise.source.lichessId);
+}
 const picked = [];
 const report = [];
 const difficultyOf = (r) => (r < 1000 ? 1 : r < 1250 ? 2 : r < 1500 ? 3 : r < 1750 ? 4 : 5);
@@ -193,7 +201,12 @@ async function choose(t) {
   return out;
 }
 
-const results = await pool(TARGETS, JOBS, choose);
+const results = await pool(ACTIVE, JOBS, choose);
+if (previous) {
+  const redo = new Set(ACTIVE.map(tkey));
+  for (const [id, e] of Object.entries(previous.LICHESS_REPLACEMENTS)) if (!redo.has(`r:${id}`)) picked.push({ target: "replace", replaces: id, exercise: e });
+  for (const a of previous.LICHESS_ADDITIONS) if (!redo.has(`a:${a.lesson}`)) picked.push({ target: "add", lesson: a.lesson, exercise: a.exercise });
+}
 for (const r of results) picked.push(...r);
 
 const adds = picked.filter((p) => p.target === "add");
@@ -222,5 +235,6 @@ export const LICHESS_ADDITIONS: LichessAddition[] = ${JSON.stringify(
 )};
 `;
 writeFileSync(OUT, body);
-writeFileSync(resolve(ROOT, "scripts/chess-import/last-select-report.txt"), report.join("\n") + "\n");
+if (!previous) writeFileSync(resolve(ROOT, "scripts/chess-import/last-select-report.txt"), report.join("\n") + "\n");
+else console.error(report.join("\n"));
 console.error(`wrote ${OUT}: ${reps.length} replacements, ${adds.length} additions`);

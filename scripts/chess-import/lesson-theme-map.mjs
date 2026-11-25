@@ -104,6 +104,7 @@ export const TARGETS = [
   { kind: "replace", id: "ch-d-same-opp-b-p1", all: ["bishopEndgame"], rating: DEEP, prompt: P.minorEnd },
   { kind: "replace", id: "ch-deep-minor-end-exam-p5", all: ["bishopEndgame"], rating: DEEP_HARD, prompt: P.minorEnd },
   { kind: "replace", id: "ch-deep-rook-theory-exam-p5", all: ["rookEndgame", "promotion"], rating: DEEP_HARD, prompt: P.rookEnd },
+  { kind: "replace", id: "ch-d-short-side-p1", all: ["rookEndgame", "defensiveMove"], rating: DEEP, prompt: P.defence },
   { kind: "replace", id: "ch-d-triangulate-p1", all: ["pawnEndgame", "zugzwang"], rating: DEEP_HARD, prompt: P.zugzwang },
   { kind: "replace", id: "ch-deep-kp-theory-exam-p5", all: ["pawnEndgame"], rating: DEEP_HARD, prompt: P.pawnEnd },
   { kind: "replace", id: "ch-deep-famous-1-exam-p5", all: ["attackingF2F7", "sacrifice"], rating: DEEP, prompt: P.sacrifice },

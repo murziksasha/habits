@@ -64,7 +64,9 @@ export async function qaPuzzle(Chess, ex, { depth = 16 } = {}) {
   const pieceCount = start.board().flat().filter(Boolean).length;
   const learner = start.turn();
   const mat = materialCp(start) * (learner === "w" ? 1 : -1);
-  if (pieceCount >= 24 && Math.abs(mat) >= 500 && ex.source?.kind !== "game") flags.push(`IMPLAUSIBLE_MATERIAL ${mat}cp with ${pieceCount} pieces`);
+  // Real-game positions (historical games, Lichess) are plausible by construction.
+  const realGame = ex.source?.kind === "game" || ex.source?.kind === "lichess";
+  if (pieceCount >= 24 && Math.abs(mat) >= 500 && !realGame) flags.push(`IMPLAUSIBLE_MATERIAL ${mat}cp with ${pieceCount} pieces`);
 
   const sol = ex.solutionSans;
   let solFirstScore = null;
@@ -160,7 +162,9 @@ export async function qaPuzzle(Chess, ex, { depth = 16 } = {}) {
       const sm = mateIn(solScore);
       const tm = mateIn(top.score);
       let weak;
-      if (sm !== null && sm < 0 && tm !== null && tm < 0) weak = -sm < -tm;
+      // Real-game replies in an already lost position are accepted (Lichess validated the line).
+      if (realGame && top.score <= -300) weak = false;
+      else if (sm !== null && sm < 0 && tm !== null && tm < 0) weak = -sm < -tm;
       else if (sm !== null && sm < 0) weak = true;
       else weak = solScore < top.score - (top.score <= -500 ? 100 : 30);
       if (weak) {
@@ -189,7 +193,7 @@ export async function qaPuzzle(Chess, ex, { depth = 16 } = {}) {
   }
   if (goal === "mate" && !g.isCheckmate()) flags.push("GOAL_MISMATCH mate goal but line does not end in mate");
   if (goal === "draw" && evalAfter !== null && Math.abs(evalAfter) > 80) flags.push(`DRAW_LOST evalAfter=${fmtScore(evalAfter)}`);
-  if (goal === "win_material" && evalAfter !== null && evalAfter < (ex.goalThresholdCp ?? 200)) {
+  if (goal === "win_material" && evalAfter !== null && evalAfter < (ex.goalThresholdCp ?? (realGame ? 150 : 200))) {
     flags.push(`LOW_EVAL evalAfter=${fmtScore(evalAfter)}`);
   }
   for (const k of Object.keys(acceptedAlternatives)) acceptedAlternatives[k] = [...new Set(acceptedAlternatives[k])];

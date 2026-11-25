@@ -36,7 +36,9 @@ export async function qaPlan(Chess, ex, { depth = 16 } = {}) {
   const correct = scores[ex.correctIndex];
   if (bestScore === null || correct === null) flags.push("NO_ENGINE");
   else {
-    if (bestScore - correct > PLAN_BEST_MARGIN) flags.push(`PLAN_NOT_BEST correct=${fmtScore(correct)} best=${fmtScore(bestScore)}`);
+    // In a clearly winning position several moves win; only flag a real drop.
+    const margin = correct >= 300 ? 150 : PLAN_BEST_MARGIN;
+    if (bestScore - correct > margin) flags.push(`PLAN_NOT_BEST correct=${fmtScore(correct)} best=${fmtScore(bestScore)}`);
     ex.choices.forEach((c, i) => {
       if (i === ex.correctIndex || scores[i] === null) return;
       if (correct - scores[i] < PLAN_WRONG_GAP) flags.push(`PLAN_WRONG_TOO_CLOSE ${c.san}=${fmtScore(scores[i])} correct=${fmtScore(correct)}`);

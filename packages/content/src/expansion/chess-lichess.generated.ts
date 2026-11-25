@@ -1335,6 +1335,36 @@ export const LICHESS_REPLACEMENTS: Record<string, ChessPuzzleExercise> = {
       "lichessId": "AVopT",
       "gameUrl": "https://lichess.org/game/qyh4Vrn6#13"
     }
+  },
+  "ch-d-short-side-p1": {
+    "id": "ch-d-short-side-p1",
+    "type": "chess_puzzle",
+    "promptUk": "Білі ходять. Знайдіть єдиний захист.",
+    "promptEn": "White to move. Find the only defence.",
+    "fen": "8/8/1p3p2/1Rr2kpp/4p3/2P1K1P1/P6P/8 w - - 2 37",
+    "solutionSans": [
+      "Rxc5+",
+      "bxc5",
+      "a4",
+      "Ke5",
+      "a5"
+    ],
+    "goal": "win_material",
+    "difficulty": 4,
+    "rating": 1543,
+    "themes": [
+      "crushing",
+      "defensiveMove",
+      "endgame",
+      "long",
+      "quietMove",
+      "rookEndgame"
+    ],
+    "source": {
+      "kind": "lichess",
+      "lichessId": "17CM1",
+      "gameUrl": "https://lichess.org/game/AhmxgFjd/black#72"
+    }
   }
 };
 
