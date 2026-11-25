@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { and, asc, desc, eq, inArray, lt, lte, or, sql } from "drizzle-orm";
-import { activityEvents, courses, exerciseReviews, flashcardStates, lessons, userLessonProgress } from "@eduforge/db";
+import { activityEvents, chessPersonalPuzzles, courses, exerciseReviews, flashcardStates, lessons, userLessonProgress } from "@eduforge/db";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 import {
@@ -424,9 +424,16 @@ reviewRoutes.get("/mistakes", authMiddleware, async (c) => {
     .from(exerciseReviews)
     .where(eq(exerciseReviews.userId, user.id));
 
+  const [own] = await db
+    .select({ due: sql<number>`count(*) filter (where ${chessPersonalPuzzles.dueAt} <= now())::int` })
+    .from(chessPersonalPuzzles)
+    .where(eq(chessPersonalPuzzles.userId, user.id));
+
   return c.json({
     items,
     count: items.length,
+    /** Puzzles from the learner's own games (reason "own_game"), trained at /play/puzzles. */
+    ownGameDue: own?.due ?? 0,
     due: agg?.due ?? 0,
     total: agg?.total ?? 0,
     graduated: agg?.graduated ?? 0,

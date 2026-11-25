@@ -1,6 +1,17 @@
 import { Hono } from "hono";
-import { and, desc, eq } from "drizzle-orm";
-import { characters, chessGames, chessPuzzleAttempts, chessPuzzleRatingsUser, chessRatings } from "@eduforge/db";
+import { and, asc, desc, eq, lte, sql } from "drizzle-orm";
+import { gameTerminationWithHistory, replayHistory, toPgn } from "@eduforge/chess-core";
+import { chessSrsNext } from "@eduforge/shared";
+import {
+  characters,
+  chessGameAnnotations,
+  chessGames,
+  chessPersonalPuzzles,
+  chessPuzzleAttempts,
+  chessPuzzleRatingsUser,
+  chessRatings,
+} from "@eduforge/db";
+import { analysePendingGames, enqueueGameAnalysis } from "../services/chess-game-analysis.js";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { cronAuthorized, cronUnauthorized } from "../cron-auth.js";
 import { db } from "../db.js";
@@ -72,11 +83,172 @@ chessRoutes.get("/games/:id", authMiddleware, async (c) => {
   const blackChar = game.blackId
     ? await db.query.characters.findFirst({ where: eq(characters.userId, game.blackId) })
     : null;
+  const annotations = await db
+    .select()
+    .from(chessGameAnnotations)
+    .where(eq(chessGameAnnotations.gameId, game.id))
+    .orderBy(asc(chessGameAnnotations.ply));
+  if (game.status === "finished" && !game.analysisStatus) enqueueGameAnalysis(game.id);
   return c.json({
     game,
+    annotations,
     white: whiteChar ? { displayName: whiteChar.displayName } : null,
     black: blackChar ? { displayName: blackChar.displayName } : null,
   });
+});
+
+/* ——— Bot games, analysis, personal puzzles (plan §5) ——— */
+
+const BOT_LEVELS = new Set(["learner", "club", "strong", "tablebase"]);
+const GAME_KINDS = new Set(["bot", "endgame", "opening"]);
+
+chessRoutes.post("/games/bot", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const limited = await rateLimit({ key: `botgame:${user.id}`, limit: 20, windowMs: 60_000 });
+  if (!limited.ok) return c.json({ error: "rate_limited", retryAfter: limited.retryAfterSec }, 429);
+  const body = (await c.req.json().catch(() => null)) as {
+    sans?: unknown;
+    playerColor?: unknown;
+    botLevel?: unknown;
+    resigned?: unknown;
+    startFen?: unknown;
+    kind?: unknown;
+  } | null;
+  if (!body || !Array.isArray(body.sans) || body.sans.length > 600 || !body.sans.every((x) => typeof x === "string" && x.length <= 10)) {
+    return c.json({ error: "invalid_body" }, 400);
+  }
+  const color = body.playerColor === "b" ? "b" : "w";
+  const startFen = typeof body.startFen === "string" && body.startFen.length <= 100 ? body.startFen : "startpos";
+  const sans = body.sans as string[];
+  const game = replayHistory(startFen, []);
+  if (!game) return c.json({ error: "invalid_fen" }, 400);
+  const moves: { san: string; uci: string; fen: string }[] = [];
+  for (const san of sans) {
+    let mv;
+    try {
+      mv = game.move(san);
+    } catch {
+      mv = null;
+    }
+    if (!mv) return c.json({ error: "illegal_move", ply: moves.length }, 400);
+    moves.push({ san: mv.san, uci: `${mv.from}${mv.to}${mv.promotion ?? ""}`, fen: game.fen() });
+  }
+  const term = gameTerminationWithHistory(startFen, sans);
+  let result: string;
+  let termination: string;
+  if (term.over && term.result) {
+    result = term.result;
+    termination = term.reason ?? "checkmate";
+  } else if (body.resigned === true) {
+    result = color === "w" ? "0-1" : "1-0";
+    termination = "resign";
+  } else {
+    result = "*";
+    termination = "abandoned";
+  }
+  const kind = typeof body.kind === "string" && GAME_KINDS.has(body.kind) ? body.kind : "bot";
+  const [row] = await db
+    .insert(chessGames)
+    .values({
+      whiteId: color === "w" ? user.id : null,
+      blackId: color === "b" ? user.id : null,
+      fen: game.fen(),
+      pgn: moves.map((m) => m.san).join(" "),
+      moves,
+      startFen,
+      status: "finished",
+      timeControl: "bot",
+      rated: false,
+      result,
+      termination,
+      kind,
+      botLevel: typeof body.botLevel === "string" && BOT_LEVELS.has(body.botLevel) ? body.botLevel : null,
+      whiteTimeMs: 0,
+      blackTimeMs: 0,
+      finishedAt: new Date(),
+    })
+    .returning({ id: chessGames.id });
+  if (row) enqueueGameAnalysis(row.id);
+  return c.json({ id: row?.id, result, termination });
+});
+
+chessRoutes.get("/games/:id/pgn", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const game = await db.query.chessGames.findFirst({ where: eq(chessGames.id, c.req.param("id") ?? "") });
+  if (!game) return c.json({ error: "not_found" }, 404);
+  if (game.whiteId !== user.id && game.blackId !== user.id) return c.json({ error: "forbidden" }, 403);
+  const pgn = toPgn((game.pgn ?? "").split(" ").filter(Boolean), {
+    result: game.result ?? "*",
+    date: game.createdAt.toISOString().slice(0, 10).replace(/-/g, "."),
+    white: game.whiteId ? (game.whiteId === user.id ? "You" : "Opponent") : "Bot",
+    black: game.blackId ? (game.blackId === user.id ? "You" : "Opponent") : "Bot",
+    startFen: game.startFen,
+  });
+  return c.text(pgn, 200, { "content-type": "application/x-chess-pgn; charset=utf-8" });
+});
+
+chessRoutes.get("/personal-puzzles/due", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const rows = await db
+    .select()
+    .from(chessPersonalPuzzles)
+    .where(and(eq(chessPersonalPuzzles.userId, user.id), lte(chessPersonalPuzzles.dueAt, new Date())))
+    .orderBy(asc(chessPersonalPuzzles.dueAt))
+    .limit(20);
+  const [agg] = await db
+    .select({ total: sql<number>`count(*)::int` })
+    .from(chessPersonalPuzzles)
+    .where(eq(chessPersonalPuzzles.userId, user.id));
+  return c.json({ items: rows.map(personalExercise), total: agg?.total ?? 0 });
+});
+
+chessRoutes.post("/personal-puzzles/:id/attempt", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const row = await db.query.chessPersonalPuzzles.findFirst({
+    where: and(eq(chessPersonalPuzzles.id, c.req.param("id") ?? ""), eq(chessPersonalPuzzles.userId, user.id)),
+  });
+  if (!row) return c.json({ error: "not_found" }, 404);
+  const body = (await c.req.json().catch(() => null)) as { sans?: unknown; revealed?: unknown; wrongAttempts?: unknown } | null;
+  const ex = personalExercise(row).exercise;
+  const g = gradeExercise(ex as Parameters<typeof gradeExercise>[0], { sans: body?.sans, revealed: body?.revealed });
+  const clean = g.correct && clampWrongAttempts(body?.wrongAttempts) === 0;
+  const next = chessSrsNext(row.lastReviewedAt ? row : null, clean);
+  const now = new Date();
+  await db
+    .update(chessPersonalPuzzles)
+    .set({ repetitions: next.repetitions, lapses: next.lapses, dueAt: new Date(now.getTime() + next.intervalDays * 86_400_000), lastReviewedAt: now })
+    .where(eq(chessPersonalPuzzles.id, row.id));
+  return c.json({ correct: g.correct, intervalDays: next.intervalDays });
+});
+
+function personalExercise(r: typeof chessPersonalPuzzles.$inferSelect) {
+  const side = r.fen.split(" ")[1] === "b";
+  return {
+    id: r.id,
+    gameId: r.gameId,
+    ply: r.ply,
+    dueAt: r.dueAt,
+    reason: "own_game" as const,
+    exercise: {
+      id: `own-${r.id}`,
+      type: "chess_puzzle",
+      promptUk: side ? "Задача з вашої партії: чорні ходять — знайдіть найкраще продовження." : "Задача з вашої партії: білі ходять — знайдіть найкраще продовження.",
+      promptEn: side ? "From your game: Black to move — find the best continuation." : "From your game: White to move — find the best continuation.",
+      fen: r.fen,
+      solutionSans: r.solutionSans,
+      goal: r.goal,
+      themes: r.themes,
+      difficulty: 3,
+      source: { kind: "game", gameId: r.gameId ?? undefined },
+    },
+  };
+}
+
+/** Analyse finished games that were never analysed (CRON_SECRET). */
+chessRoutes.post("/cron/analyze", async (c) => {
+  if (!cronAuthorized(c)) return cronUnauthorized(c);
+  const n = await analysePendingGames(10);
+  return c.json({ ok: true, games: n });
 });
 
 chessRoutes.get("/can-rated", authMiddleware, async (c) => {
