@@ -8,6 +8,7 @@ import {
   glicko2Update,
   puzzleAttemptScore,
   puzzleRatingFromDifficulty,
+  visibleChessThemes,
   type Glicko2Rating,
 } from "@eduforge/shared";
 import { db } from "../db.js";
@@ -22,6 +23,8 @@ export type PoolPuzzle = {
   rating: number;
   rd: number;
   themes: string[];
+  /** Learner-facing themes (meta tags removed): accuracy, siblings, filters. */
+  skillThemes: string[];
   goal?: string;
   exercise: Record<string, unknown>;
 };
@@ -73,7 +76,7 @@ export function pickNextPuzzle(input: {
   // (an unbiased [R−150, R+200] window averages ≈ 47%).
   const target = R + TARGET_OFFSET;
   const weight = (p: PoolPuzzle) => {
-    const accs = p.themes.map((t) => input.themeAccuracy.get(t)).filter((x): x is number => x !== undefined);
+    const accs = p.skillThemes.map((t) => input.themeAccuracy.get(t)).filter((x): x is number => x !== undefined);
     const weakest = accs.length ? Math.min(...accs) : 0.6;
     const closeness = Math.exp(-(((p.rating - target) / 60) ** 2));
     return (0.25 + (1 - weakest)) * (0.01 + closeness);
@@ -165,6 +168,7 @@ export async function loadPuzzlePool(): Promise<PoolPuzzle[]> {
         rating: st?.rating ?? (typeof ex.rating === "number" ? ex.rating : puzzleRatingFromDifficulty(Number(ex.difficulty ?? 1))),
         rd: st?.rd ?? 150,
         themes: Array.isArray(ex.themes) ? (ex.themes as string[]) : [],
+        skillThemes: visibleChessThemes(ex.themes as string[] | undefined, 20),
         goal: typeof ex.goal === "string" ? ex.goal : undefined,
         exercise: ex,
       });

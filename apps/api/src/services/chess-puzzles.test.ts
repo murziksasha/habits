@@ -15,6 +15,7 @@ const mk = (id: string, rating: number, themes: string[] = ["fork"], unitSlug = 
   rating,
   rd: 150,
   themes,
+  skillThemes: themes,
   goal,
   exercise: { id, type: "chess_puzzle" },
 });

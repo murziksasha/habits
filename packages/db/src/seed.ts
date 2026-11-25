@@ -43,7 +43,7 @@ import {
 import bcrypt from "bcryptjs";
 import { createDb } from "./client.js";
 import { selectFlashcardInserts } from "./seed-flashcards.js";
-import { ACHIEVEMENT_CATALOG, puzzleRatingFromDifficulty, resolveCourseGroup, seedAllowed } from "@eduforge/shared";
+import { ACHIEVEMENT_CATALOG, puzzleRatingFromDifficulty, resolveCourseGroup, seedAllowed, visibleChessThemes } from "@eduforge/shared";
 import {
   achievements,
   characters,
@@ -242,7 +242,7 @@ export function chessPuzzleStatSeeds(content: (typeof allCourses)[number]): Puzz
           lessonSlug: lesson.slug,
           unitSlug: unit.slug,
           rating,
-          themes: Array.isArray(ex.themes) ? (ex.themes as string[]) : [],
+          themes: visibleChessThemes(Array.isArray(ex.themes) ? (ex.themes as string[]) : [], 20),
         });
       }
     }

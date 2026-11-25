@@ -538,9 +538,14 @@ function PlayPageInner() {
             {t.chess.rating}: <strong>{elo}</strong>
           </p>
         </div>
-        <Link href="/courses/chess" className="btn-secondary">
-          {t.chess.learn} / {t.chess.puzzles}
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/play/puzzles" className="btn-secondary" data-testid="puzzle-trainer-link">
+            🧩 {t.chess.puzzleTrainer}
+          </Link>
+          <Link href="/courses/chess" className="btn-secondary">
+            {t.chess.learn} / {t.chess.puzzles}
+          </Link>
+        </div>
       </div>
 
       {!match && (

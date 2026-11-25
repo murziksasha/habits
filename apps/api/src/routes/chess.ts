@@ -169,7 +169,7 @@ chessRoutes.post("/puzzles/:id/attempt", authMiddleware, async (c) => {
     result: score,
     firstAttempt: prior.length === 0,
     hintsUsed,
-    themes: puzzle.themes,
+    themes: puzzle.skillThemes,
     ratingBefore: learner.rating,
     ratingAfter: next.rating,
     puzzleRating: puzzle.rating,
