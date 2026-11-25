@@ -4,6 +4,8 @@ import { CHESS_QA } from "./chess-qa.generated.js";
 import { CHESS_QA_WAIVERS } from "./chess-upgrade/index.js";
 import { chessPuzzleHash } from "./chess-upgrade/hash.js";
 import { LICHESS_ADDITIONS, LICHESS_REPLACEMENTS } from "./expansion/chess-lichess.generated.js";
+import { CHESS_FACTS } from "./chess-facts.generated.js";
+import { CHESS_THEMES } from "@eduforge/shared";
 
 type AnyChess = {
   id: string;
@@ -14,6 +16,14 @@ type AnyChess = {
   correctIndex?: number;
   reviewOf?: string;
   source?: { kind: string; lichessId?: string; gameUrl?: string };
+  themes?: string[];
+  difficulty?: number;
+  hintUk?: string;
+  hintEn?: string;
+  hintSquareUk?: string;
+  explanationUk?: string;
+  explanationEn?: string;
+  explanationKind?: string;
 };
 
 const items: Array<AnyChess & { unit: string; lesson: string; isExam: boolean }> = [];
@@ -71,5 +81,37 @@ describe("chess QA gate (offline Stockfish results)", () => {
     const ids = items.map((e) => e.id);
     expect(new Set(ids).size).toBe(ids.length);
     for (const a of LICHESS_ADDITIONS) expect(a.exercise.id).toMatch(/^ch-li-[A-Za-z0-9]+$/);
+  });
+});
+
+describe("chess content contract (phase 2)", () => {
+  const puzzles = items.filter((e) => e.type === "chess_puzzle");
+
+  it("line facts are fresh (run node scripts/chess-qa/chess-facts.mjs)", () => {
+    const stale = puzzles.filter((e) => CHESS_FACTS[e.id]?.hash !== hashOf(e)).map((e) => e.id);
+    expect(stale).toEqual([]);
+  });
+
+  it("every puzzle and plan has ≥1 known theme", () => {
+    const bad = items.filter((e) => !e.themes?.length || e.themes.some((t) => !(t in CHESS_THEMES))).map((e) => `${e.id}: ${e.themes}`);
+    expect(bad).toEqual([]);
+  });
+
+  it("every puzzle has a two-step hint and a bilingual explanation", () => {
+    const bad = puzzles.filter((e) => !e.hintUk || !e.hintEn || !e.hintSquareUk || !e.explanationUk || !e.explanationEn).map((e) => e.id);
+    expect(bad).toEqual([]);
+  });
+
+  it("d4–d5, exam and famous-game puzzles (non-Lichess) have authored explanations", () => {
+    const bad = puzzles
+      .filter((e) => e.source?.kind !== "lichess" && ((e.difficulty ?? 0) >= 4 || e.isExam || e.unit.startsWith("ch-deep-famous")))
+      .filter((e) => e.explanationKind !== "authored")
+      .map((e) => e.id);
+    expect(bad).toEqual([]);
+  });
+
+  it("no Russian-style chess terms in chess copy", () => {
+    const text = JSON.stringify(items);
+    expect(text).not.toMatch(/ладейн|Лучен|ладья|слоном ладь/i);
   });
 });

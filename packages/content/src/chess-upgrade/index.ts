@@ -13,6 +13,8 @@ import { LICHESS_ADDITIONS, LICHESS_REPLACEMENTS } from "../expansion/chess-lich
 import { CHESS_FIXES, CHESS_REVIEWS } from "./fixes.js";
 import { CHESS_PLANS } from "./plans.js";
 import { CHESS_ANNOTATIONS } from "./annotations.js";
+import { CHESS_FACTS } from "../chess-facts.generated.js";
+import { buildExplanation, buildHints } from "../chess-explanation-templates.js";
 
 export { CHESS_QA_WAIVERS } from "./fixes.js";
 export { CHESS_PLANS } from "./plans.js";
@@ -40,6 +42,18 @@ function toPlan(ex: Exercise & { fen?: string }, id: string): ChessPlanExercise 
     ...(spec.source ? { source: spec.source } : {}),
     ...(spec.reviewOf ? { reviewOf: spec.reviewOf } : {}),
   };
+}
+
+/** Themes, two-step hints and template explanations from line facts (Phase 2). */
+export function withFacts(p: ChessPuzzleExercise): ChessPuzzleExercise {
+  const f = CHESS_FACTS[p.id];
+  if (!f || f.hash !== chessPuzzleHash(p.fen, p.solutionSans)) return p;
+  const themes = p.themes?.length ? p.themes : f.themes;
+  const out: ChessPuzzleExercise = { ...p, themes };
+  if (!out.hintUk) Object.assign(out, buildHints(f));
+  if (!out.explanationUk) Object.assign(out, buildExplanation(themes, f), { explanationKind: "template" as const });
+  else if (!out.explanationKind) out.explanationKind = "authored";
+  return out;
 }
 
 /** Merge offline QA (goal, alternatives) when the record matches the authored line. */
@@ -72,7 +86,7 @@ function upgradeExercise(ex: Exercise): Exercise {
   if (CHESS_REVIEWS[id]) p = { ...p, reviewOf: CHESS_REVIEWS[id] };
   const note = CHESS_ANNOTATIONS[id];
   if (note) p = { ...p, ...note };
-  return withQa(p);
+  return withFacts(withQa(p));
 }
 
 export function applyChessUpgrade(course: CourseContent): CourseContent {
@@ -88,7 +102,7 @@ export function applyChessUpgrade(course: CourseContent): CourseContent {
       ...u,
       titleUk: u.titleUk === "Туристичні ендшпілі" ? "Турові ендшпілі" : u.titleUk,
       lessons: u.lessons.map((l) => {
-        const extra = (additions.get(l.slug) ?? []).map((e) => withQa({ ...e, ...(CHESS_ANNOTATIONS[e.id] ?? {}) }));
+        const extra = (additions.get(l.slug) ?? []).map((e) => withFacts(withQa({ ...e, ...(CHESS_ANNOTATIONS[e.id] ?? {}) })));
         return { ...l, exercises: [...l.exercises.map(upgradeExercise), ...extra] };
       }),
     })),
