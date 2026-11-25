@@ -26,8 +26,33 @@ RUN pnpm --filter @eduforge/chess-core build \
  && pnpm --filter @eduforge/judge build \
  && pnpm --filter @eduforge/api build
 
+# Stockfish 19 for post-game analysis (STOCKFISH_PATH). Built from the pinned official
+# source tarball because Alpine has no stable package and the official Linux binaries
+# are glibc-linked (they do not run on musl, not even with gcompat).
+# Same base as the runner so the engine links against the same musl and libstdc++.
+FROM node:22-alpine AS stockfish
+ARG TARGETARCH
+ARG STOCKFISH_TAG=sf_19
+ARG STOCKFISH_SHA256=519b653d0d1ffb96531d982ccbe5c6a19425e8388e0e3c2f70f34b424ab32d76
+RUN apk add --no-cache g++ make curl
+WORKDIR /src
+RUN curl -fsSL -o sf.tar.gz "https://github.com/official-stockfish/Stockfish/archive/refs/tags/${STOCKFISH_TAG}.tar.gz" \
+ && echo "${STOCKFISH_SHA256}  sf.tar.gz" | sha256sum -c - \
+ && tar xzf sf.tar.gz --strip-components=1 \
+ && case "${TARGETARCH:-amd64}" in \
+      amd64) SF_ARCH=x86-64-sse41-popcnt ;; \
+      arm64) SF_ARCH=armv8 ;; \
+      *) echo "unsupported arch ${TARGETARCH}" && exit 1 ;; \
+    esac \
+ && make -C src -j"$(nproc)" build ARCH="${SF_ARCH}" \
+ && install -m 0755 src/stockfish /usr/local/bin/stockfish
+
 FROM base AS runner
 ENV NODE_ENV=production
+# libstdc++ ships with node:alpine; add it explicitly so the engine never loses it.
+RUN apk add --no-cache libstdc++
+COPY --from=stockfish /usr/local/bin/stockfish /usr/local/bin/stockfish
+ENV STOCKFISH_PATH=/usr/local/bin/stockfish
 COPY --from=build /app /app
 WORKDIR /app
 EXPOSE 4000

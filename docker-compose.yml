@@ -43,6 +43,9 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
       CRON_SECRET: ${CRON_SECRET:-}
       BACKUP_DIR: /data/backups
+      # Engine baked into the image (docker/Dockerfile.api). Fixed value, not interpolated from the host:
+      # the host .env may hold a Windows path.
+      STOCKFISH_PATH: /usr/local/bin/stockfish
     volumes:
       - backupdata:/data/backups
     ports:
