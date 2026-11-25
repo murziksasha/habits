@@ -204,6 +204,7 @@ export const exerciseSchema = z.discriminatedUnion("type", [
     correctIndex: z.number().int().min(0).max(2),
     themes: z.array(z.string().min(1)).optional(),
     source: chessSourceSchema.optional(),
+    reviewOf: z.string().optional(),
   }),
   z.object({
     ...base,

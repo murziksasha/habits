@@ -1,3 +1,4 @@
+import { applyChessUpgrade } from "./chess-upgrade/index.js";
 import { englishContent as englishRaw } from "./english.js";
 import { chessContent as chessRaw } from "./chess.js";
 import { typingContent as typingRaw } from "./typing.js";
@@ -75,7 +76,7 @@ import { expandAppliedAlgorithms } from "./expansion/applied-algorithms-exp.js";
 
 /** Skill tracks: promptEn filled via skill-prompt-en map when missing in source. */
 export const englishContent = normalizeCourseLocales(expandFoundationTransfer(expandEnglishDeep(expandEnglish(englishRaw))));
-export const chessContent = normalizeCourseLocales(expandFoundationTransfer(expandChessDeep(expandChess(chessRaw))));
+export const chessContent = normalizeCourseLocales(applyChessUpgrade(expandFoundationTransfer(expandChessDeep(expandChess(chessRaw)))));
 export const typingContent = normalizeCourseLocales(expandFoundationTransfer(expandTyping(typingRaw)));
 export const speedReadingContent = normalizeCourseLocales(expandFoundationTransfer(expandSpeedReading(speedReadingRaw)));
 export const logicContent = normalizeCourseLocales(expandFoundationTransfer(expandLogic(logicRaw)));

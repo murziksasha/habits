@@ -925,7 +925,7 @@ const newUnits: UnitContent[] = [
   },
   {
     slug: "rook-endgames-plus",
-    titleUk: "Туристичні ендшпілі",
+    titleUk: "Турові ендшпілі",
     titleEn: "Rook endgames",
     lessons: [
       {

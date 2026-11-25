@@ -1,11 +1,14 @@
 /**
  * QA rules for one chess_puzzle (see SPEC/CHESS-DEEP-UPGRADE-PLAN.md §1.5).
  */
-import { createHash } from "node:crypto";
-import { analyse, analyseSafe, fmtScore, isMateScore, mateIn, materialCp, moveUci, uciToMove } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
+import { join } from "node:path";
+import { ROOT, analyse, analyseSafe, fmtScore, isMateScore, mateIn, materialCp, moveUci, uciToMove } from "./engine.mjs";
+
+const { chessPuzzleHash } = await import(pathToFileURL(join(ROOT, "packages/chess-core/dist/index.js")).href);
 
 export function puzzleHash(ex) {
-  return createHash("sha1").update(`${ex.fen}|${ex.solutionSans.join(" ")}`).digest("hex").slice(0, 16);
+  return chessPuzzleHash(ex.fen, ex.solutionSans);
 }
 
 const DRAW_RE = /draw|нічи|stalemate|пат\b|fortress|фортец|hold|утрима/i;

@@ -430,4 +430,6 @@ export type ChessPlanExercise = {
   correctIndex: number;
   themes?: string[];
   source?: ChessSource;
+  /** Explicit repeat of another item (allowed FEN duplicate). */
+  reviewOf?: string;
 };
