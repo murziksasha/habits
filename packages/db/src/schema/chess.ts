@@ -7,6 +7,7 @@ export {
   chessPuzzleAttempts,
   chessGameAnnotations,
   chessPersonalPuzzles,
+  chessOpeningLines,
   tournamentStatusEnum,
   tournaments,
   tournamentPlayers,

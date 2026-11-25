@@ -1322,3 +1322,25 @@ export const chessPersonalPuzzles = pgTable(
     index("chess_personal_puzzles_user_due_idx").on(t.userId, t.dueAt),
   ],
 );
+
+export const chessOpeningLines = pgTable(
+  "chess_opening_lines",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    repertoireId: varchar("repertoire_id", { length: 48 }).notNull(),
+    lineKey: varchar("line_key", { length: 96 }).notNull(),
+    repetitions: integer("repetitions").notNull().default(0),
+    intervalDays: integer("interval_days").notNull().default(0),
+    lapses: integer("lapses").notNull().default(0),
+    dueAt: timestamp("due_at", { withTimezone: true }).defaultNow().notNull(),
+    lastReviewedAt: timestamp("last_reviewed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("chess_opening_lines_user_line_uq").on(t.userId, t.lineKey),
+    index("chess_opening_lines_user_due_idx").on(t.userId, t.dueAt),
+  ],
+);

@@ -7,7 +7,7 @@ import { chooseBotMove, type BotLevel, type BotMove } from "@eduforge/chess-core
 export async function requestBotMove(
   fen: string,
   level: BotLevel,
-  opts: { history?: string[]; timeoutMs?: number } = {},
+  opts: { history?: string[]; openingId?: string; timeoutMs?: number } = {},
 ): Promise<BotMove | null> {
   if (typeof window !== "undefined" && typeof Worker !== "undefined") {
     try {
@@ -28,11 +28,11 @@ export async function requestBotMove(
           worker.terminate();
           reject(err);
         };
-        worker.postMessage({ fen, level, history: opts.history });
+        worker.postMessage({ fen, level, history: opts.history, openingId: opts.openingId });
       });
     } catch {
-      return chooseBotMove(fen, level === "strong" ? "club" : level, { history: opts.history });
+      return chooseBotMove(fen, level === "strong" ? "club" : level, { history: opts.history, openingId: opts.openingId });
     }
   }
-  return chooseBotMove(fen, level, { history: opts.history });
+  return chooseBotMove(fen, level, { history: opts.history, openingId: opts.openingId });
 }

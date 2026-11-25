@@ -1,11 +1,20 @@
 import { Hono } from "hono";
 import { and, asc, desc, eq, lte, sql } from "drizzle-orm";
-import { gameTerminationWithHistory, replayHistory, toPgn } from "@eduforge/chess-core";
+import {
+  REPERTOIRES,
+  findOpeningLine,
+  gameTerminationWithHistory,
+  getRepertoire,
+  gradeOpeningAttempt,
+  replayHistory,
+  toPgn,
+} from "@eduforge/chess-core";
 import { chessSrsNext } from "@eduforge/shared";
 import {
   characters,
   chessGameAnnotations,
   chessGames,
+  chessOpeningLines,
   chessPersonalPuzzles,
   chessPuzzleAttempts,
   chessPuzzleRatingsUser,
@@ -243,6 +252,90 @@ function personalExercise(r: typeof chessPersonalPuzzles.$inferSelect) {
     },
   };
 }
+
+/** Opening repertoires with the learner's per-line SRS state (phase 7). */
+chessRoutes.get("/openings", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const rows = await db.query.chessOpeningLines.findMany({ where: eq(chessOpeningLines.userId, user.id) });
+  const byKey = new Map(rows.map((r) => [r.lineKey, r]));
+  const now = Date.now();
+  return c.json({
+    repertoires: REPERTOIRES.map((r) => ({
+      id: r.id,
+      side: r.side,
+      titleUk: r.titleUk,
+      titleEn: r.titleEn,
+      unit: r.unit,
+      lines: r.lines.map((l) => {
+        const p = byKey.get(l.key);
+        return {
+          key: l.key,
+          nameUk: l.nameUk,
+          nameEn: l.nameEn,
+          sans: l.sans,
+          comments: l.comments,
+          repetitions: p?.repetitions ?? 0,
+          lapses: p?.lapses ?? 0,
+          dueAt: p?.dueAt ?? null,
+          due: !p || p.dueAt.getTime() <= now,
+          started: Boolean(p),
+        };
+      }),
+    })),
+  });
+});
+
+/** Lines due today (already studied and due) plus how many are new. */
+chessRoutes.get("/openings/due", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const rows = await db.query.chessOpeningLines.findMany({
+    where: and(eq(chessOpeningLines.userId, user.id), lte(chessOpeningLines.dueAt, new Date())),
+    orderBy: [asc(chessOpeningLines.dueAt)],
+    limit: 50,
+  });
+  const started = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(chessOpeningLines)
+    .where(eq(chessOpeningLines.userId, user.id));
+  const total = REPERTOIRES.reduce((n, r) => n + r.lines.length, 0);
+  return c.json({
+    items: rows.map((r) => ({ repertoireId: r.repertoireId, lineKey: r.lineKey, dueAt: r.dueAt, repetitions: r.repetitions })),
+    newLines: Math.max(0, total - Number(started[0]?.n ?? 0)),
+  });
+});
+
+/**
+ * Grade one line run. Body: `{ tries: string[][] }` — for each learner move the SANs tried in order,
+ * the last being the repertoire move. Clean run → next ladder step (1/3/7/21 days); any mistake → 1 day.
+ */
+chessRoutes.post("/openings/:repertoire/lines/:lineKey/attempt", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const limited = await rateLimit({ key: `openings:${user.id}`, limit: 60, windowMs: 60_000 });
+  if (!limited.ok) return c.json({ error: "rate_limited", retryAfter: limited.retryAfterSec }, 429);
+  const repId = c.req.param("repertoire") ?? "";
+  const lineKey = decodeURIComponent(c.req.param("lineKey") ?? "");
+  const rep = getRepertoire(repId);
+  const line = rep ? findOpeningLine(repId, lineKey) : undefined;
+  if (!rep || !line) return c.json({ error: "not_found" }, 404);
+  const body = (await c.req.json().catch(() => null)) as { tries?: unknown } | null;
+  const g = gradeOpeningAttempt(rep, line, body?.tries);
+  if (!g.valid) return c.json({ error: "invalid_attempt" }, 400);
+  const prev = await db.query.chessOpeningLines.findFirst({
+    where: and(eq(chessOpeningLines.userId, user.id), eq(chessOpeningLines.lineKey, line.key)),
+  });
+  const next = chessSrsNext(prev ? prev : null, g.correct);
+  const now = new Date();
+  const values = {
+    repetitions: next.repetitions,
+    lapses: next.lapses,
+    intervalDays: next.intervalDays,
+    dueAt: new Date(now.getTime() + next.intervalDays * 86_400_000),
+    lastReviewedAt: now,
+  };
+  if (prev) await db.update(chessOpeningLines).set(values).where(eq(chessOpeningLines.id, prev.id));
+  else await db.insert(chessOpeningLines).values({ userId: user.id, repertoireId: rep.id, lineKey: line.key, ...values });
+  return c.json({ correct: g.correct, mistakes: g.mistakes, intervalDays: next.intervalDays, dueAt: values.dueAt });
+});
 
 /** Analyse finished games that were never analysed (CRON_SECRET). */
 chessRoutes.post("/cron/analyze", async (c) => {

@@ -309,6 +309,13 @@
             "when": 1794545700000,
             "tag": "0043_chess_games_history",
             "breakpoints": true
+        },
+        {
+            "idx": 44,
+            "version": "7",
+            "when": 1794545800000,
+            "tag": "0044_chess_opening_lines",
+            "breakpoints": true
         }
     ]
 }

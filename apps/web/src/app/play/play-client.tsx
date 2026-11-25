@@ -10,6 +10,7 @@ import {
   Chess,
   evaluateBoard,
   gameTerminationWithHistory,
+  REPERTOIRES,
   type BotLevel,
 } from "@eduforge/chess-core";
 import { CHESS_TIME_CONTROLS } from "@eduforge/shared";
@@ -42,6 +43,8 @@ type MatchInfo = {
   rated: boolean;
   vsBot?: boolean;
   botLevel?: BotLevel;
+  /** "Play an opening": the bot follows this repertoire tree while in book. */
+  openingId?: string;
 };
 
 function PlayPageInner() {
@@ -81,6 +84,7 @@ function PlayPageInner() {
     return "club";
   });
   const [botColor, setBotColor] = useState<"w" | "b">("w");
+  const [openingId, setOpeningId] = useState<string>(() => searchParams.get("opening") ?? "");
 
   const testFen = process.env.NODE_ENV !== "production" ? searchParams.get("testFen") : null;
 
@@ -242,7 +246,7 @@ function PlayPageInner() {
 
     let active = true;
     const timer = setTimeout(async () => {
-      const move = await requestBotMove(game.fen(), match.botLevel ?? "club", { history });
+      const move = await requestBotMove(game.fen(), match.botLevel ?? "club", { history, openingId: match.openingId });
       if (!active || !move) return;
       const g = new Chess(game.fen());
       try {
@@ -276,7 +280,7 @@ function PlayPageInner() {
     setSavedGameId("saving");
     api<{ id: string }>("/chess/games/bot", {
       token,
-      body: { sans: history, playerColor: match.youAre, botLevel: match.botLevel ?? "club", resigned: gameOverReason === "resign" },
+      body: { sans: history, playerColor: match.youAre, botLevel: match.botLevel ?? "club", resigned: gameOverReason === "resign", kind: match.openingId ? "opening" : "bot" },
     })
       .then((r) => setSavedGameId(r.id))
       .catch(() => setSavedGameId(null));
@@ -370,6 +374,7 @@ function PlayPageInner() {
       rated: false,
       vsBot: true,
       botLevel,
+      openingId: openingId || undefined,
     });
     setFen(chess.fen());
     setHistory([]);
@@ -588,6 +593,9 @@ function PlayPageInner() {
           <Link href="/play/puzzles" className="btn-secondary" data-testid="puzzle-trainer-link">
             🧩 {t.chess.puzzleTrainer}
           </Link>
+          <Link href="/play/openings" className="btn-secondary" data-testid="opening-trainer-link">
+            📖 {t.chess.openingTrainer}
+          </Link>
           <Link href="/courses/chess" className="btn-secondary">
             {t.chess.learn} / {t.chess.puzzles}
           </Link>
@@ -735,6 +743,21 @@ function PlayPageInner() {
                   ♚ {t.chess.black}
                 </button>
               </div>
+            </div>
+
+            {/* Play an opening */}
+            <div className="space-y-1.5">
+              <label className="label text-xs" htmlFor="bot-opening">
+                {t.chess.playOpening}
+              </label>
+              <select id="bot-opening" className="input text-sm" value={openingId} onChange={(e) => setOpeningId(e.target.value)}>
+                <option value="">{t.chess.openingAny}</option>
+                {REPERTOIRES.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {locale === "en" ? r.titleEn : r.titleUk}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <button className="btn-sky w-full" onClick={startBotGame}>
