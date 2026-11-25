@@ -105,3 +105,12 @@ After seed:
 - Overlay `packages/content/src/chess-upgrade/` is applied last in the chess pipeline: in-place fixes (`fixes.ts`), plan conversions (`plans.ts`), authored annotations (`annotations.ts`), Lichess real-game replacements and additions (`expansion/chess-lichess.generated.ts`, CC0, ids `ch-li-<PuzzleId>`). Exercise ids never change.
 - Offline QA: `pnpm chess:qa` (Stockfish, one process per position) writes `packages/content/src/chess-qa.generated.ts`. The vitest gate `chess-qa.test.ts` fails on stale hashes, unwaived flags (`CHESS_QA_WAIVERS`) and repeated positions without `reviewOf`.
 - Lichess import: `pnpm chess:import` (needs the filtered CSV from `scripts/chess-import/lichess-filter.mjs`); lesson → theme map in `scripts/chess-import/lesson-theme-map.mjs`.
+- Top-ups: targets with `tag: "top"` add puzzles to a lesson without re-picking its earlier ones (`node scripts/chess-import/lichess-select.mjs --only "a:<lesson>#top,…"`).
+- Curve gates (phase 4): every practice lesson in tactics / mates / endgame units has 4–6 puzzles (concept-only lessons are exempt; `mate-in-1-a` keeps its 7 legacy items), and the mean puzzle rating of those units does not drop by more than 50 inside a `COURSE_PARTS` part.
+
+### Sources and attribution
+
+- **Lichess puzzles** — [database.lichess.org](https://database.lichess.org/#puzzles), released under **CC0 1.0**. Attribution is not required, but every imported item keeps `source: { kind: "lichess", lichessId, gameUrl }` and the puzzle UI shows "Задача з бази Lichess / Lichess puzzle database" with a link to the game.
+- **Famous games** — positions are generated from full game scores in `packages/content/src/chess-upgrade/famous-games.ts` (Anderssen–Kieseritzky 1851, Anderssen–Dufresne 1852, Morphy–Brunswick & Isouard 1858, Greco 1620, Lasker–Bauer 1889, D. Byrne–Fischer 1956, Fischer–Spassky 1972 g6, Karpov–Unzicker 1974, Kasparov–Topalov 1999). The test replays each game with chess.js and checks that the course FEN and solution line match the game exactly. Game scores are historical facts and are not copyrighted; the course credits players, year and event in `source`.
+- **Composed studies** — Saavedra (1895) is credited as `source.kind: "composed"`.
+- Other positions are original teaching positions written for the course.

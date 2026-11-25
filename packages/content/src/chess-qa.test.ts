@@ -115,3 +115,109 @@ describe("chess content contract (phase 2)", () => {
     expect(text).not.toMatch(/ладейн|Лучен|ладья|слоном ладь/i);
   });
 });
+
+/** Units whose practice lessons must carry 4–6 puzzles and a rising rating curve (plan §4.2). */
+const CURVE_UNITS = new Set([
+  "tactics",
+  "endgames-intro",
+  "tactics-boost",
+  "tactics-practice-2",
+  "mixed-tactics-endgames",
+  "endgame-accuracy-review",
+  "rook-endgames-plus",
+  "calculation-hygiene",
+  "ch-deep-calc-viz",
+  "ch-deep-tactics-hidden",
+  "ch-deep-tactics-remove",
+  "ch-deep-mates-classic",
+  "ch-deep-mates-attack",
+  "ch-deep-tactics-mix",
+  "ch-deep-kp-theory",
+  "ch-deep-rook-theory",
+  "ch-deep-minor-end",
+]);
+/** Legacy authored lessons above the cap (ids kept stable; nothing is removed). */
+const OVER_CAP_OK = new Set(["mate-in-1-a"]);
+const ratingOf = (e: AnyChess & { rating?: number }) =>
+  typeof e.rating === "number" ? e.rating : [800, 1050, 1300, 1550, 1800][Math.max(1, Math.min(5, Math.round(e.difficulty ?? 1))) - 1]!;
+
+describe("chess content curve (phase 4)", () => {
+  it("every practice lesson in tactics / mates / endgame units has 4–6 puzzles", () => {
+    const bad: string[] = [];
+    for (const u of chessContent.units) {
+      if (!CURVE_UNITS.has(u.slug)) continue;
+      for (const l of u.lessons) {
+        if (l.isExam) continue;
+        const n = l.exercises.filter((e) => e.type === "chess_puzzle").length;
+        if (n === 0) continue; // concept-only lesson
+        if (n < 4 || (n > 6 && !OVER_CAP_OK.has(l.slug))) bad.push(`${u.slug}/${l.slug}: ${n}`);
+      }
+    }
+    expect(bad).toEqual([]);
+  });
+
+  it("unit mean puzzle rating does not fall inside a course part (tolerance 50)", async () => {
+    const { getCourseParts } = await import("@eduforge/shared");
+    const bad: string[] = [];
+    for (const part of getCourseParts("chess")) {
+      let best = -Infinity;
+      for (const slug of part.unitSlugs) {
+        if (!CURVE_UNITS.has(slug)) continue;
+        const rs = items.filter((i) => i.unit === slug && i.type === "chess_puzzle").map(ratingOf);
+        if (!rs.length) continue;
+        const mean = rs.reduce((a, b) => a + b, 0) / rs.length;
+        if (mean < best - 50) bad.push(`${part.id}/${slug}: ${Math.round(mean)} < ${Math.round(best)} - 50`);
+        best = Math.max(best, mean);
+      }
+    }
+    expect(bad).toEqual([]);
+  });
+
+  it("at least 250 Lichess additions, each with source attribution and a rating", () => {
+    expect(LICHESS_ADDITIONS.length).toBeGreaterThanOrEqual(250);
+    for (const a of LICHESS_ADDITIONS) {
+      expect(a.exercise.source?.kind).toBe("lichess");
+      expect(typeof (a.exercise as { rating?: number }).rating).toBe("number");
+    }
+  });
+
+  it("every puzzle has a source or is an authored teaching position", () => {
+    const lichess = items.filter((i) => i.source?.kind === "lichess").length;
+    expect(lichess).toBeGreaterThanOrEqual(250 + Object.keys(LICHESS_REPLACEMENTS).length - 5);
+  });
+});
+
+describe("famous games (phase 4.4)", async () => {
+  const { createGame } = await import("@eduforge/chess-core");
+  const { FAMOUS_GAMES, FAMOUS_POSITIONS } = await import("./chess-upgrade/famous-games.js");
+  const byId = new Map(items.map((i) => [i.id, i]));
+  const replay = (moves: string) => {
+    const g = createGame();
+    const fens = [g.fen()];
+    const sans: string[] = [];
+    for (const m of moves.split(" ")) {
+      const mv = g.move(m);
+      sans.push(mv.san);
+      fens.push(g.fen());
+    }
+    return { fens, sans };
+  };
+
+  for (const game of FAMOUS_GAMES) {
+    it(`${game.key}: game score is legal`, () => {
+      expect(() => replay(game.moves)).not.toThrow();
+    });
+  }
+
+  it("each famous-game position is the exact game position and line", () => {
+    for (const p of FAMOUS_POSITIONS) {
+      const game = FAMOUS_GAMES.find((g) => g.key === p.game)!;
+      const { fens, sans } = replay(game.moves);
+      const item = byId.get(p.id);
+      expect(item, p.id).toBeTruthy();
+      expect(item!.fen, p.id).toBe(fens[p.ply]);
+      if (p.line > 0) expect(item!.solutionSans?.slice(0, p.line), p.id).toEqual(sans.slice(p.ply, p.ply + p.line));
+      expect(item!.source?.kind, p.id).toBe("game");
+    }
+  });
+});

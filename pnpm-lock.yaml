@@ -280,6 +280,9 @@ importers:
 
   packages/content:
     devDependencies:
+      '@eduforge/chess-core':
+        specifier: workspace:*
+        version: link:../chess-core
       '@eduforge/shared':
         specifier: workspace:*
         version: link:../shared

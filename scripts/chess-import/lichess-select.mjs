@@ -52,7 +52,7 @@ const replacedIds = new Set(TARGETS.filter((t) => t.kind === "replace").map((t) 
 for (const [id, v] of courseIds) if (replacedIds.has(id) && v.ex.fen) courseFens.delete(posKey(v.ex.fen));
 
 const h = (s) => createHash("sha1").update(s).digest("hex");
-const tkey = (t) => (t.kind === "replace" ? `r:${t.id}` : `a:${t.lesson}`);
+const tkey = (t) => (t.kind === "replace" ? `r:${t.id}` : t.tag ? `a:${t.lesson}#${t.tag}` : `a:${t.lesson}`);
 
 function matches(t, themes, rating) {
   if (rating < t.rating[0] || rating > t.rating[1]) return false;
@@ -177,6 +177,7 @@ async function choose(t) {
       out.push({
         target: t.kind,
         lesson: t.lesson,
+        tag: t.tag,
         replaces: t.id,
         exercise: {
           id: t.kind === "replace" ? t.id : `ch-li-${c.id}`,
@@ -205,7 +206,10 @@ const results = await pool(ACTIVE, JOBS, choose);
 if (previous) {
   const redo = new Set(ACTIVE.map(tkey));
   for (const [id, e] of Object.entries(previous.LICHESS_REPLACEMENTS)) if (!redo.has(`r:${id}`)) picked.push({ target: "replace", replaces: id, exercise: e });
-  for (const a of previous.LICHESS_ADDITIONS) if (!redo.has(`a:${a.lesson}`)) picked.push({ target: "add", lesson: a.lesson, exercise: a.exercise });
+  for (const a of previous.LICHESS_ADDITIONS) {
+    const key = a.tag ? `a:${a.lesson}#${a.tag}` : `a:${a.lesson}`;
+    if (!redo.has(key)) picked.push({ target: "add", lesson: a.lesson, tag: a.tag, exercise: a.exercise });
+  }
 }
 for (const r of results) picked.push(...r);
 
@@ -217,7 +221,7 @@ const banner = `/* eslint-disable */
 // Picks are stable (hash-ordered), deduplicated and pass the Stockfish QA rules.
 import type { ChessPuzzleExercise } from "../types.js";
 
-export type LichessAddition = { lesson: string; exercise: ChessPuzzleExercise };
+export type LichessAddition = { lesson: string; tag?: string; exercise: ChessPuzzleExercise };
 `;
 const body = `${banner}
 /** Real-game replacements for broken or duplicated puzzles (same ids). */
@@ -229,7 +233,7 @@ export const LICHESS_REPLACEMENTS: Record<string, ChessPuzzleExercise> = ${JSON.
 
 /** New puzzles appended to teach lessons. */
 export const LICHESS_ADDITIONS: LichessAddition[] = ${JSON.stringify(
-  adds.map((a) => ({ lesson: a.lesson, exercise: a.exercise })),
+  adds.map((a) => ({ lesson: a.lesson, ...(a.tag ? { tag: a.tag } : {}), exercise: a.exercise })),
   null,
   2,
 )};
