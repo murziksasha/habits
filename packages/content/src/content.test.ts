@@ -119,6 +119,7 @@ const EXERCISE_TYPES = new Set([
   "logic_puzzle",
   "chess_puzzle",
   "chess_plan",
+  "chess_endgame_drill",
   "chess_lesson",
   "code_read",
   "code_output",

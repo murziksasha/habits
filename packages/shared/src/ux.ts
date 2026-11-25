@@ -239,6 +239,7 @@ export function exerciseTypeLabel(
     chess_puzzle: ["Шахова задача", "Chess puzzle"],
     chess_lesson: ["Шаховий урок", "Chess lesson"],
     chess_plan: ["Шаховий план", "Chess plan"],
+    chess_endgame_drill: ["Ендшпіль проти бота", "Endgame vs bot"],
     video: ["Відео", "Video"],
     concept: ["Теорія", "Concept"],
     explain: ["Поясніть своїми словами", "Explain in your own words"],

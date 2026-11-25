@@ -333,4 +333,5 @@ export function exploreDestinations(fen: string, square: string): Destination[] 
 export { Chess, type Square };
 export * from "./bot.js";
 export * from "./puzzle.js";
+export * from "./endgame.js";
 

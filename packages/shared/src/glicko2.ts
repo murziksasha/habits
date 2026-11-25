@@ -109,7 +109,7 @@ export function chessReviewIntervalDays(repetitions: number): number {
   return CHESS_REVIEW_LADDER[i]!;
 }
 
-export const CHESS_REVIEW_TYPES = new Set(["chess_puzzle", "chess_plan"]);
+export const CHESS_REVIEW_TYPES = new Set(["chess_puzzle", "chess_plan", "chess_endgame_drill"]);
 
 /** Next chess SRS state: success climbs the ladder, a miss resets to 1 day (lapses + 1). */
 export function chessSrsNext(

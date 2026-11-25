@@ -279,6 +279,16 @@ int main(){ cout << 1; return 0; }`,
     expect(gradeExercise(ex, null).correct).toBe(false);
   });
 
+  it("grades chess_endgame_drill by replaying the game on the server", () => {
+    const ex = { id: "kr", type: "chess_endgame_drill", fen: "4k3/8/4K3/8/8/8/8/7R w - - 0 1", goal: "win", maxMoves: 5 };
+    expect(gradeExercise(ex, { sans: ["Rh8#"] }).correct).toBe(true);
+    expect(gradeExercise(ex, { sans: ["Rh7", "Kf8"] }).correct).toBe(false);
+    expect(gradeExercise(ex, { sans: ["Qh8#"] }).correct).toBe(false);
+    expect(gradeExercise(ex, null).correct).toBe(false);
+    const hold = { ...ex, fen: "4k3/8/4K3/8/8/8/8/7R b - - 0 1", goal: "draw", maxMoves: 2 };
+    expect(gradeExercise(hold, { sans: ["Kf8", "Rh7", "Kg8", "Ra7"] }).correct).toBe(true);
+  });
+
   it("requires every matching pair exactly once", () => {
     const ex = { id: "match", type: "match", pairs: [{ left: "a", right: "1" }, { left: "b", right: "2" }] };
     expect(gradeExercise(ex, [{ left: "b", right: "2" }, { left: "a", right: "1" }]).correct).toBe(true);

@@ -13,11 +13,13 @@ import { LICHESS_ADDITIONS, LICHESS_REPLACEMENTS } from "../expansion/chess-lich
 import { CHESS_FIXES, CHESS_REVIEWS } from "./fixes.js";
 import { CHESS_PLANS } from "./plans.js";
 import { CHESS_ANNOTATIONS } from "./annotations.js";
+import { ENDGAME_DRILLS_BY_LESSON } from "./endgame-drills.js";
 import { CHESS_FACTS } from "../chess-facts.generated.js";
 import { buildExplanation, buildHints } from "../chess-explanation-templates.js";
 
 export { CHESS_QA_WAIVERS } from "./fixes.js";
 export { CHESS_PLANS } from "./plans.js";
+export { ENDGAME_DRILL_SPECS, ENDGAME_DRILLS_BY_LESSON } from "./endgame-drills.js";
 
 function rotation(id: string): number {
   let h = 0;
@@ -103,7 +105,8 @@ export function applyChessUpgrade(course: CourseContent): CourseContent {
       titleUk: u.titleUk === "Туристичні ендшпілі" ? "Турові ендшпілі" : u.titleUk,
       lessons: u.lessons.map((l) => {
         const extra = (additions.get(l.slug) ?? []).map((e) => withFacts(withQa({ ...e, ...(CHESS_ANNOTATIONS[e.id] ?? {}) })));
-        return { ...l, exercises: [...l.exercises.map(upgradeExercise), ...extra] };
+        const drills = ENDGAME_DRILLS_BY_LESSON.get(l.slug) ?? [];
+        return { ...l, exercises: [...l.exercises.map(upgradeExercise), ...extra, ...drills] };
       }),
     })),
   };

@@ -169,3 +169,4 @@ export const ALL_COURSE_CONTENTS: CourseContent[] = [
   browserWebApisContent,
   electricalEngineeringContent,
 ];
+export { ENDGAME_DRILL_SPECS } from "./chess-upgrade/endgame-drills.js";

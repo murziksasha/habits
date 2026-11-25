@@ -6,7 +6,7 @@
 import { gradeExplanation, type ExplainKeyIdea } from "./explain.js";
 import { jsStaticPartialScore, runJsStaticAsserts, type JsStaticAssert } from "./js-static.js";
 import { gradeNumericAnswer } from "./numeric.js";
-import { gradePuzzleLine, type PuzzleSpec } from "@eduforge/chess-core";
+import { checkEndgameGoal, gradePuzzleLine, type EndgameGoal, type PuzzleSpec } from "@eduforge/chess-core";
 
 /** Chess hint ladder: 0 none, 1 piece, 2 square. */
 export function clampHints(value: unknown): 0 | 1 | 2 {
@@ -502,6 +502,19 @@ export function gradeExercise(
           alternativesUsed: g.alternativesUsed,
           ...(g.error ? { error: g.error } : {}),
         },
+      };
+    }
+    case "chess_endgame_drill": {
+      // The server replays the whole game (learner + bot moves) and judges the goal by rules only.
+      const a = answer as { sans?: unknown; hintsUsed?: unknown } | null;
+      const sans = Array.isArray(a?.sans) ? a.sans.filter((s): s is string => typeof s === "string").slice(0, 400) : [];
+      const goal = exercise.goal as EndgameGoal;
+      const maxMoves = typeof exercise.maxMoves === "number" ? exercise.maxMoves : 50;
+      if (typeof exercise.fen !== "string" || !["win", "draw", "promote"].includes(goal)) return { correct: false };
+      const r = checkEndgameGoal(exercise.fen, sans, goal, maxMoves);
+      return {
+        correct: r.status === "success",
+        meta: { endgame: r.status, reason: r.reason, learnerMoves: r.learnerMoves, hintsUsed: clampHints(a?.hintsUsed) },
       };
     }
     case "chess_plan": {

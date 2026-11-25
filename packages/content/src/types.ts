@@ -98,6 +98,7 @@ type ExerciseBody =
     }
   | ChessPuzzleExercise
   | ChessPlanExercise
+  | ChessEndgameDrillExercise
   | {
       id: string;
       type: "chess_lesson";
@@ -417,6 +418,25 @@ export type ChessPuzzleExercise = {
   rating?: number;
   /** Explicit repeat of another puzzle (allowed FEN duplicate). */
   reviewOf?: string;
+};
+
+export type ChessEndgameDrillExercise = {
+  id: string;
+  type: "chess_endgame_drill";
+  promptUk: string;
+  promptEn?: string;
+  /** Start position; the learner is the side to move. */
+  fen: string;
+  goal: "win" | "draw" | "promote";
+  /** Learner move limit (e.g. K+R vs K — 16). */
+  maxMoves: number;
+  botLevel?: "club" | "strong";
+  themes?: string[];
+  hintUk?: string;
+  hintEn?: string;
+  explanationUk?: string;
+  explanationEn?: string;
+  source?: ChessSource;
 };
 
 export type ChessPlanExercise = {
