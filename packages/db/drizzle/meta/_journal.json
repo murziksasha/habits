@@ -302,6 +302,13 @@
             "when": 1794545600000,
             "tag": "0042_chess_puzzle_rating",
             "breakpoints": true
+        },
+        {
+            "idx": 43,
+            "version": "7",
+            "when": 1794545700000,
+            "tag": "0043_chess_games_history",
+            "breakpoints": true
         }
     ]
 }

@@ -367,6 +367,20 @@ export const chessGames = pgTable(
   blackEloDelta: integer("black_elo_delta"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   finishedAt: timestamp("finished_at", { withTimezone: true }),
+  /** "startpos" or a FEN; with `pgn`/`moves` it rebuilds the full history. */
+  startFen: text("start_fen").notNull().default("startpos"),
+  /** [{ san, uci, fen, clockMs? }] */
+  moves: jsonb("moves").$type<{ san: string; uci: string; fen: string; clockMs?: number }[]>().notNull().default([]),
+  /** online | bot | endgame | opening */
+  kind: varchar("kind", { length: 16 }).notNull().default("online"),
+  botLevel: varchar("bot_level", { length: 16 }),
+  termination: varchar("termination", { length: 24 }),
+  drawOfferBy: uuid("draw_offer_by"),
+  drawOfferPly: integer("draw_offer_ply"),
+  lastDrawOfferPlyWhite: integer("last_draw_offer_ply_white"),
+  lastDrawOfferPlyBlack: integer("last_draw_offer_ply_black"),
+  /** null | pending | done | skipped */
+  analysisStatus: varchar("analysis_status", { length: 16 }),
   },
   (t) => [
     index("chess_games_white_idx").on(t.whiteId),
@@ -1261,5 +1275,50 @@ export const chessPuzzleAttempts = pgTable(
   (t) => [
     index("chess_puzzle_attempts_user_idx").on(t.userId, t.createdAt.desc()),
     index("chess_puzzle_attempts_batch_idx").on(t.batchedAt, t.firstAttempt),
+  ],
+);
+
+export const chessGameAnnotations = pgTable(
+  "chess_game_annotations",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    gameId: uuid("game_id")
+      .notNull()
+      .references(() => chessGames.id, { onDelete: "cascade" }),
+    ply: integer("ply").notNull(),
+    evalBeforeCp: integer("eval_before_cp"),
+    evalAfterCp: integer("eval_after_cp"),
+    bestUci: varchar("best_uci", { length: 8 }),
+    bestSan: varchar("best_san", { length: 16 }),
+    /** blunder | mistake | inaccuracy */
+    label: varchar("label", { length: 16 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("chess_game_annotations_game_ply_uq").on(t.gameId, t.ply)],
+);
+
+/** Puzzles cut from the learner's own blunders; scheduled on the chess SRS ladder. */
+export const chessPersonalPuzzles = pgTable(
+  "chess_personal_puzzles",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    gameId: uuid("game_id").references(() => chessGames.id, { onDelete: "set null" }),
+    ply: integer("ply").notNull(),
+    fen: text("fen").notNull(),
+    solutionSans: text("solution_sans").array().notNull(),
+    goal: varchar("goal", { length: 16 }).notNull(),
+    themes: text("themes").array().notNull().default([]),
+    repetitions: integer("repetitions").notNull().default(0),
+    lapses: integer("lapses").notNull().default(0),
+    dueAt: timestamp("due_at", { withTimezone: true }).defaultNow().notNull(),
+    lastReviewedAt: timestamp("last_reviewed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("chess_personal_puzzles_game_ply_uq").on(t.userId, t.gameId, t.ply),
+    index("chess_personal_puzzles_user_due_idx").on(t.userId, t.dueAt),
   ],
 );

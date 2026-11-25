@@ -4,7 +4,8 @@ import express from "express";
 import cors from "cors";
 import { Server } from "socket.io";
 import { and, eq, gt } from "drizzle-orm";
-import { applyFischerIncrement, applyMove } from "@eduforge/chess-core";
+import { applyFischerIncrement, applyMoveWithHistory } from "@eduforge/chess-core";
+import { canAnswerDraw, canOfferDraw, drawOfferAfterMove } from "./draw-offer.js";
 import { allowSocketEvent } from "./event-rate-limit.js";
 import {
   characters,
@@ -185,6 +186,8 @@ async function finishGame(
     .set({
       status: "finished",
       result,
+      termination: reason.slice(0, 24),
+      drawOfferBy: null,
       whiteEloDelta: whiteDelta,
       blackEloDelta: blackDelta,
       finishedAt: new Date(),
@@ -588,7 +591,9 @@ io.on("connection", (socket) => {
         return;
       }
 
-      const applied = applyMove(game.fen, {
+      // Rebuild from start + SAN history so threefold repetition is detected online.
+      const history = (game.pgn ?? "").split(" ").filter(Boolean);
+      const applied = applyMoveWithHistory(game.startFen, history, {
         from: payload.from,
         to: payload.to,
         promotion: payload.promotion,
@@ -602,24 +607,29 @@ io.on("connection", (socket) => {
       if (turn === "w") whiteTime = applyFischerIncrement(whiteTime, inc);
       else blackTime = applyFischerIncrement(blackTime, inc);
 
-      const pgn = game.pgn ? `${game.pgn} ${applied.san}` : applied.san;
+      const pgn = game.pgn ? `${game.pgn} ${applied.move.san}` : applied.move.san;
+      const prevMoves = Array.isArray(game.moves) ? game.moves : [];
+      const drawOfferBy = drawOfferAfterMove(game.drawOfferBy, auth.user.id);
       await db
         .update(chessGames)
         .set({
-          fen: applied.fen,
+          fen: applied.move.fen,
           pgn,
+          moves: [...prevMoves, { ...applied.move, clockMs: turn === "w" ? whiteTime : blackTime }],
+          drawOfferBy,
           whiteTimeMs: whiteTime,
           blackTimeMs: blackTime,
           lastMoveAt: new Date(),
         })
         .where(eq(chessGames.id, game.id));
+      if (game.drawOfferBy && !drawOfferBy) io.to(`game:${game.id}`).emit("draw_offer_expired", { gameId: game.id });
 
       const movePayload = {
         from: payload.from,
         to: payload.to,
         promotion: payload.promotion,
-        san: applied.san,
-        fen: applied.fen,
+        san: applied.move.san,
+        fen: applied.move.fen,
         whiteTimeMs: whiteTime,
         blackTimeMs: blackTime,
       };
@@ -636,6 +646,87 @@ io.on("connection", (socket) => {
       cb?.({ ok: true, ...movePayload });
     },
   );
+
+  const drawState = (game: typeof chessGames.$inferSelect) => ({
+    whiteId: game.whiteId,
+    blackId: game.blackId,
+    status: game.status,
+    plies: (game.pgn ?? "").split(" ").filter(Boolean).length,
+    drawOfferBy: game.drawOfferBy,
+    lastDrawOfferPlyWhite: game.lastDrawOfferPlyWhite,
+    lastDrawOfferPlyBlack: game.lastDrawOfferPlyBlack,
+  });
+
+  socket.on("offer_draw", async (payload: { gameId: string }, cb?: (r: unknown) => void) => {
+    if (!allowSocketEvent(socket.id, "offer_draw", { limit: 3, windowMs: 10_000 })) {
+      cb?.({ error: "rate_limited" });
+      return;
+    }
+    const gameId = String(payload?.gameId ?? "");
+    const game = gameId ? await db.query.chessGames.findFirst({ where: eq(chessGames.id, gameId) }) : null;
+    if (!game) {
+      cb?.({ error: "not_found" });
+      return;
+    }
+    const st = drawState(game);
+    const check = canOfferDraw(st, auth.user.id);
+    if (!check.ok) {
+      cb?.({ error: check.error });
+      return;
+    }
+    await db
+      .update(chessGames)
+      .set({
+        drawOfferBy: auth.user.id,
+        drawOfferPly: st.plies,
+        ...(check.color === "w" ? { lastDrawOfferPlyWhite: st.plies } : { lastDrawOfferPlyBlack: st.plies }),
+      })
+      .where(eq(chessGames.id, game.id));
+    socket.to(`game:${game.id}`).emit("draw_offered", { gameId: game.id, by: check.color });
+    cb?.({ ok: true });
+  });
+
+  socket.on("accept_draw", async (payload: { gameId: string }, cb?: (r: unknown) => void) => {
+    if (!allowSocketEvent(socket.id, "answer_draw", { limit: 5, windowMs: 10_000 })) {
+      cb?.({ error: "rate_limited" });
+      return;
+    }
+    const gameId = String(payload?.gameId ?? "");
+    const game = gameId ? await db.query.chessGames.findFirst({ where: eq(chessGames.id, gameId) }) : null;
+    if (!game) {
+      cb?.({ error: "not_found" });
+      return;
+    }
+    const check = canAnswerDraw(drawState(game), auth.user.id);
+    if (!check.ok) {
+      cb?.({ error: check.error });
+      return;
+    }
+    const finished = await finishGame(game.id, "1/2-1/2", "agreement");
+    io.to(`game:${game.id}`).emit("game_over", finished);
+    cb?.({ ok: true });
+  });
+
+  socket.on("decline_draw", async (payload: { gameId: string }, cb?: (r: unknown) => void) => {
+    if (!allowSocketEvent(socket.id, "answer_draw", { limit: 5, windowMs: 10_000 })) {
+      cb?.({ error: "rate_limited" });
+      return;
+    }
+    const gameId = String(payload?.gameId ?? "");
+    const game = gameId ? await db.query.chessGames.findFirst({ where: eq(chessGames.id, gameId) }) : null;
+    if (!game) {
+      cb?.({ error: "not_found" });
+      return;
+    }
+    const check = canAnswerDraw(drawState(game), auth.user.id);
+    if (!check.ok) {
+      cb?.({ error: check.error });
+      return;
+    }
+    await db.update(chessGames).set({ drawOfferBy: null }).where(eq(chessGames.id, game.id));
+    socket.to(`game:${game.id}`).emit("draw_declined", { gameId: game.id });
+    cb?.({ ok: true });
+  });
 
   socket.on("resign", async (payload: { gameId: string }, cb?: (r: unknown) => void) => {
     if (!allowSocketEvent(socket.id, "resign", { limit: 5, windowMs: 10_000 })) {

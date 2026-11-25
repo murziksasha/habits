@@ -5,6 +5,8 @@ export {
   chessPuzzleRatingsUser,
   chessPuzzleStats,
   chessPuzzleAttempts,
+  chessGameAnnotations,
+  chessPersonalPuzzles,
   tournamentStatusEnum,
   tournaments,
   tournamentPlayers,
