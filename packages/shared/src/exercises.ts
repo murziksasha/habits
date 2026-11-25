@@ -14,6 +14,7 @@ export const EXERCISE_TYPES = [
   "logic_puzzle",
   "chess_puzzle",
   "chess_lesson",
+  "chess_plan",
   "code_read",
   "code_output",
   "code_fill",
@@ -63,6 +64,16 @@ export function parseExerciseShape(value: unknown): {
 export function isKnownExerciseType(type: string): type is ExerciseType {
   return (EXERCISE_TYPES as readonly string[]).includes(type);
 }
+
+export const chessSourceSchema = z.object({
+  kind: z.enum(["game", "lichess", "composed", "theory"]),
+  white: z.string().optional(),
+  black: z.string().optional(),
+  year: z.number().int().optional(),
+  event: z.string().optional(),
+  lichessId: z.string().optional(),
+  gameUrl: z.string().url().optional(),
+});
 
 const base = {
   id: z.string().min(1).max(128),
@@ -156,6 +167,43 @@ export const exerciseSchema = z.discriminatedUnion("type", [
     fen: z.string().min(1),
     solutionSans: z.array(z.string()).min(1),
     difficulty: z.number().int().min(1).max(5),
+    goal: z.enum(["mate", "win_material", "draw", "promote", "best_move"]).optional(),
+    acceptedAlternatives: z.record(z.string(), z.array(z.string().min(1))).optional(),
+    alternativeLines: z.array(z.array(z.string().min(1)).min(1)).max(3).optional(),
+    goalThresholdCp: z.number().int().optional(),
+    themes: z.array(z.string().min(1)).optional(),
+    hintUk: z.string().optional(),
+    hintEn: z.string().optional(),
+    hintSquareUk: z.string().optional(),
+    hintSquareEn: z.string().optional(),
+    hintSquare: z.string().regex(/^[a-h][1-8]$/).optional(),
+    hintPiece: z.string().regex(/^[a-h][1-8]$/).optional(),
+    explanationUk: z.string().optional(),
+    explanationEn: z.string().optional(),
+    explanationKind: z.enum(["template", "authored"]).optional(),
+    plyExplanations: z
+      .array(z.object({ ply: z.number().int().min(0), uk: z.string().min(1), en: z.string().optional() }))
+      .optional(),
+    source: chessSourceSchema.optional(),
+    rating: z.number().int().min(400).max(3200).optional(),
+    reviewOf: z.string().optional(),
+  }),
+  z.object({
+    ...base,
+    type: z.literal("chess_plan"),
+    fen: z.string().min(1),
+    choices: z
+      .array(
+        z.object({
+          san: z.string().min(1),
+          explanationUk: z.string().min(1),
+          explanationEn: z.string().optional(),
+        }),
+      )
+      .length(3),
+    correctIndex: z.number().int().min(0).max(2),
+    themes: z.array(z.string().min(1)).optional(),
+    source: chessSourceSchema.optional(),
   }),
   z.object({
     ...base,

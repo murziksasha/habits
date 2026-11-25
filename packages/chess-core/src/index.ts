@@ -109,10 +109,10 @@ export function applyMove(fen: string, move: MoveInput): {
 
 export function isPuzzleSolved(startFen: string, solutionSans: string[], playedSans: string[]): boolean {
   if (playedSans.length < solutionSans.length) return false;
-  return solutionSans.every((san, i) => normalizeSan(playedSans[i] ?? "") === normalizeSan(san));
+  return solutionSans.every((san, i) => normalizeSanLegacy(playedSans[i] ?? "") === normalizeSanLegacy(san));
 }
 
-function normalizeSan(san: string): string {
+function normalizeSanLegacy(san: string): string {
   return san.replace(/[+#]/g, "").trim();
 }
 
@@ -123,7 +123,7 @@ export function tryPuzzleMove(
 ): { ok: true; fen: string; san: string } | { ok: false; error: string } {
   const applied = applyMove(fen, move);
   if (!applied.ok) return applied;
-  if (normalizeSan(applied.san) !== normalizeSan(expectedSan)) {
+  if (normalizeSanLegacy(applied.san) !== normalizeSanLegacy(expectedSan)) {
     return { ok: false, error: "wrong_move" };
   }
   return { ok: true, fen: applied.fen, san: applied.san };
@@ -251,4 +251,5 @@ export function exploreDestinations(fen: string, square: string): Destination[] 
 
 export { Chess, type Square };
 export * from "./bot.js";
+export * from "./puzzle.js";
 

@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { ChessBoardFrame } from "@/components/chess-board-frame";
-import { Chess } from "@eduforge/chess-core";
+import { Chess, evaluatePuzzleMove, replaySans, type PuzzleSpec, type Square } from "@eduforge/chess-core";
 import {
   countWords,
   exercisePrompt,
@@ -128,6 +128,8 @@ export function ExercisePlayer({
         return <ChessPuzzleExercise exercise={exercise} onAnswer={onAnswer} />;
       case "chess_lesson":
         return <ChessLessonExercise exercise={exercise} onAnswer={onAnswer} />;
+      case "chess_plan":
+        return <ChessPlanExercise exercise={exercise} onAnswer={onAnswer} />;
       case "video":
         return <VideoExercise exercise={exercise} onAnswer={onAnswer} />;
       case "code_judge":
@@ -1715,6 +1717,8 @@ function ComprehensionExercise({
   );
 }
 
+type PuzzleMoveRecord = { san: string; from: string; to: string };
+
 function ChessPuzzleExercise({
   exercise,
   onAnswer,
@@ -1725,10 +1729,21 @@ function ChessPuzzleExercise({
   const { t } = useLocale();
   const onWrongAttempt = useContext(WrongAttemptCtx);
   const fen = String(exercise.fen);
-  const solution = (exercise.solutionSans as string[]) ?? [];
-  const [game, setGame] = useState(() => new Chess(fen));
-  const [sans, setSans] = useState<string[]>([]);
+  const spec = useMemo<PuzzleSpec>(
+    () => ({
+      fen,
+      solutionSans: (exercise.solutionSans as string[]) ?? [],
+      goal: exercise.goal as PuzzleSpec["goal"],
+      acceptedAlternatives: exercise.acceptedAlternatives as PuzzleSpec["acceptedAlternatives"],
+      alternativeLines: exercise.alternativeLines as PuzzleSpec["alternativeLines"],
+    }),
+    [fen, exercise.solutionSans, exercise.goal, exercise.acceptedAlternatives, exercise.alternativeLines],
+  );
+  const [moves, setMoves] = useState<PuzzleMoveRecord[]>([]);
   const [msg, setMsg] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [solved, setSolved] = useState(false);
+  const [wrongFlash, setWrongFlash] = useState<PuzzleMoveRecord | null>(null);
   const [endReason, setEndReason] = useState<"checkmate" | "stalemate" | null>(null);
 
   const viewer = useMemo(() => {
@@ -1740,43 +1755,94 @@ function ChessPuzzleExercise({
   }, [fen]);
   const orientation = viewer === "b" ? "black" : "white";
 
-  function onDrop(from: string, to: string) {
-    const g = new Chess(game.fen());
-    try {
-      const move = g.move({ from, to, promotion: "q" });
-      if (!move) return false;
-      const nextSans = [...sans, move.san];
-      const expected = solution[nextSans.length - 1];
-      const norm = (s: string) => s.replace(/[+#]/g, "");
-      if (expected && norm(move.san) !== norm(expected)) {
-        onWrongAttempt?.();
-        setMsg(t.chess.wrongMove);
-        setTimeout(() => {
-          setGame(new Chess(fen));
-          setSans([]);
-          setMsg("");
-          setEndReason(null);
-        }, 800);
-        return true;
-      }
-      setSans(nextSans);
-      setGame(g);
-      if (nextSans.length >= solution.length) {
-        setMsg(t.lesson.correct);
-        if (g.isCheckmate()) {
-          setEndReason("checkmate");
-          onAnswer({ solved: true, sans: nextSans, mate: true });
-        } else if (g.isStalemate()) {
-          setEndReason("stalemate");
-          onAnswer({ solved: true, sans: nextSans, stalemate: true });
-        } else {
-          onAnswer({ solved: true, sans: nextSans });
-        }
-      }
-      return true;
-    } catch {
-      return false;
+  const boardFen = useMemo(() => {
+    const g = replaySans(fen, [...moves, ...(wrongFlash ? [wrongFlash] : [])].map((m) => m.san));
+    return g ? g.fen() : fen;
+  }, [fen, moves, wrongFlash]);
+  const lastMove = wrongFlash ?? moves.at(-1) ?? null;
+
+  useEffect(() => {
+    setMoves([]);
+    setMsg("");
+    setBusy(false);
+    setSolved(false);
+    setWrongFlash(null);
+    setEndReason(null);
+  }, [exercise.id]);
+
+  function restart() {
+    setMoves([]);
+    setMsg("");
+    setSolved(false);
+    setWrongFlash(null);
+    setEndReason(null);
+  }
+
+  function finish(line: PuzzleMoveRecord[], alternative: boolean) {
+    const g = replaySans(fen, line.map((m) => m.san));
+    setSolved(true);
+    setMsg(alternative ? t.chess.alternativeAccepted : t.lesson.correct);
+    const sans = line.map((m) => m.san);
+    const playerSans = sans.filter((_, i) => i % 2 === 0);
+    if (g?.isCheckmate()) {
+      setEndReason("checkmate");
+      onAnswer({ solved: true, sans, playerSans, mate: true });
+    } else if (g?.isStalemate()) {
+      setEndReason("stalemate");
+      onAnswer({ solved: true, sans, playerSans, stalemate: true });
+    } else {
+      onAnswer({ solved: true, sans, playerSans });
     }
+  }
+
+  function onDrop(from: string, to: string, promotion?: "q" | "r" | "b" | "n") {
+    if (busy || solved) return false;
+    const played = moves.map((m) => m.san);
+    const r = evaluatePuzzleMove(spec, played, { from, to, promotion });
+    if (!r.ok) {
+      if (r.reason === "illegal" || r.reason === "not_your_turn") return false;
+      // Wrong: show the move briefly, then take back only that move.
+      const probe = replaySans(fen, played);
+      let san = "";
+      try {
+        san = probe?.move({ from, to, promotion })?.san ?? "";
+      } catch {
+        return false;
+      }
+      onWrongAttempt?.();
+      setMsg(t.chess.wrongMove);
+      setWrongFlash({ san, from, to });
+      setBusy(true);
+      setTimeout(() => {
+        setWrongFlash(null);
+        setBusy(false);
+      }, 700);
+      return true;
+    }
+    const next = [...moves, { san: r.san, from, to }];
+    setMoves(next);
+    setMsg("");
+    if (r.done) {
+      finish(next, r.alternative);
+      return true;
+    }
+    if (r.nextOpponentSan) {
+      setBusy(true);
+      setMsg(t.chess.opponentThinking);
+      const reply = r.nextOpponentSan;
+      setTimeout(() => {
+        const g = replaySans(fen, next.map((m) => m.san));
+        try {
+          const mv = g?.move(reply);
+          if (mv) setMoves([...next, { san: mv.san, from: mv.from, to: mv.to }]);
+        } catch {
+          /* QA guarantees legal replies */
+        }
+        setMsg("");
+        setBusy(false);
+      }, 500);
+    }
+    return true;
   }
 
   return (
@@ -1784,17 +1850,119 @@ function ChessPuzzleExercise({
       <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
       <div className="mx-auto max-w-md">
         <ChessBoardFrame
-          fen={game.fen()}
+          fen={boardFen}
           mode="puzzle"
           orientation={orientation}
           viewer={viewer}
+          interactive={!busy && !solved}
           onMove={onDrop}
+          lastMove={lastMove}
           endReason={endReason}
           endLine={t.chess.puzzleSolved}
           boardWidth={360}
         />
       </div>
-      {msg && <p className="font-bold text-center">{msg}</p>}
+      {msg && <p className="font-bold text-center" role="status" aria-live="polite">{msg}</p>}
+      {moves.length > 0 && !solved && !busy && (
+        <div className="flex justify-center">
+          <button type="button" className="btn-secondary" onClick={restart}>
+            {t.chess.restartPuzzle}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+type ChessPlanOption = { san: string; explanationUk: string; explanationEn?: string };
+
+function ChessPlanExercise({
+  exercise,
+  onAnswer,
+}: {
+  exercise: Exercise;
+  onAnswer: (a: unknown) => void;
+}) {
+  const { t, locale } = useLocale();
+  const examMode = useContext(ExamModeCtx);
+  const fen = String(exercise.fen);
+  const options = (exercise.choices as ChessPlanOption[] | undefined) ?? [];
+  const correctIndex = Number(exercise.correctIndex);
+  const order = useMemo(() => stableOptionOrder(`${String(exercise.id)}:plan`, options.length), [exercise.id, options.length]);
+  const [picked, setPicked] = useState<number | null>(null);
+  useEffect(() => setPicked(null), [exercise.id]);
+  const viewer = useMemo(() => {
+    try {
+      return new Chess(fen).turn();
+    } catch {
+      return "w";
+    }
+  }, [fen]);
+  const arrowFor = (i: number): [Square, Square, string] | null => {
+    const opt = options[i];
+    if (!opt) return null;
+    try {
+      const mv = new Chess(fen).move(opt.san);
+      return mv ? [mv.from, mv.to, i === correctIndex ? "rgba(34,197,94,0.85)" : "rgba(239,68,68,0.8)"] : null;
+    } catch {
+      return null;
+    }
+  };
+  const arrows = picked === null ? [] : [arrowFor(picked), picked !== correctIndex ? arrowFor(correctIndex) : null].filter(
+    (a): a is [Square, Square, string] => Boolean(a),
+  );
+  const explain = (o: ChessPlanOption) => (locale === "en" && o.explanationEn ? o.explanationEn : o.explanationUk);
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-black">{usePrompt(exercise)}</h2>
+      <p className="text-sm font-bold text-ink-muted">{t.chess.planPick}</p>
+      <div className="mx-auto max-w-md">
+        <ChessBoardFrame
+          fen={fen}
+          mode="explore"
+          orientation={viewer === "b" ? "black" : "white"}
+          viewer={viewer}
+          arrows={arrows}
+          boardWidth={360}
+        />
+      </div>
+      <div className="grid gap-2">
+        {order.map((i) => {
+          const o = options[i]!;
+          const revealed = picked !== null && !examMode;
+          return (
+            <button
+              key={i}
+              type="button"
+              data-testid={`plan-option-${i}`}
+              disabled={picked !== null}
+              className={clsx(
+                "rounded-2xl border-2 px-4 py-3 text-left",
+                picked === i ? "border-sky bg-sky/10" : "border-slate-200",
+                revealed && i === correctIndex && "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30",
+                revealed && picked === i && i !== correctIndex && "border-rose-400 bg-rose-50 dark:bg-rose-950/30",
+              )}
+              onClick={() => setPicked(i)}
+            >
+              <span className="font-black">{o.san}</span>
+              {revealed && <span className="mt-1 block text-sm">{explain(o)}</span>}
+            </button>
+          );
+        })}
+      </div>
+      {picked !== null && (
+        <>
+          {!examMode && (
+            <p className="text-center font-bold" role="status">
+              {picked === correctIndex ? t.chess.planCorrect : t.chess.planWrong}
+            </p>
+          )}
+          <button type="button" className="btn-primary" onClick={() => onAnswer(picked)}>
+            {t.lesson.continue}
+          </button>
+        </>
+      )}
     </div>
   );
 }

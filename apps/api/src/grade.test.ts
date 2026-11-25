@@ -218,10 +218,11 @@ int main(){ cout << 1; return 0; }`,
     ).toBe(true);
   });
 
-  it("grades chess puzzles from the complete authored SAN sequence", () => {
+  it("grades chess puzzles by replaying the submitted line", () => {
     const ex = {
       id: "8",
       type: "chess_puzzle",
+      fen: "6k1/5ppp/8/8/8/8/5PPP/4R1K1 w - - 0 1",
       solutionSans: ["Re8#"],
     };
     expect(gradeExercise(ex, { solved: true }).correct).toBe(false);
@@ -230,6 +231,52 @@ int main(){ cout << 1; return 0; }`,
     expect(gradeExercise(ex, { sans: ["Re8", "extra"] }).correct).toBe(false);
     expect(gradeExercise(ex, { sans: [null] }).correct).toBe(false);
     expect(gradeExercise({ ...ex, solutionSans: [] }, { sans: [] }).correct).toBe(false);
+    expect(gradeExercise({ ...ex, fen: undefined }, { sans: ["Re8"] }).correct).toBe(false);
+  });
+
+  it("accepts an alternative mate in ch-transfer-mate-check-p1", () => {
+    const ex = {
+      id: "ch-transfer-mate-check-p1",
+      type: "chess_puzzle",
+      fen: "7k/6p1/5QK1/8/8/8/8/8 w - - 0 1",
+      solutionSans: ["Qxg7#"],
+    };
+    expect(gradeExercise(ex, { sans: ["Qxg7#"] }).correct).toBe(true);
+    expect(gradeExercise(ex, { sans: ["Qd8#"] }).correct).toBe(true);
+    expect(gradeExercise(ex, { sans: ["Qf8#"] }).correct).toBe(true);
+    expect(gradeExercise(ex, { sans: ["Qf7"] }).correct).toBe(false);
+  });
+
+  it("accepts the Saavedra underpromotion line and rejects forged replies", () => {
+    const ex = {
+      id: "ch-d-ep-promote-p2",
+      type: "chess_puzzle",
+      fen: "8/2P5/8/8/3r4/8/2K5/k7 w - - 0 1",
+      solutionSans: ["c8=R", "Ra4", "Kb3"],
+    };
+    expect(gradeExercise(ex, { sans: ["c8=R", "Ra4", "Kb3"] }).correct).toBe(true);
+    expect(gradeExercise(ex, { sans: ["c8=Q", "Rc4+", "Kb3"] }).correct).toBe(false);
+    expect(gradeExercise(ex, { sans: ["c8=R", "Rd8", "Kb3"] }).correct).toBe(false);
+    expect(gradeExercise(ex, { sans: ["c8=R", "Ra4", "Kxa4"] }).correct).toBe(false);
+  });
+
+  it("a revealed chess solution is never correct and hints are clamped", () => {
+    const ex = {
+      id: "8r",
+      type: "chess_puzzle",
+      fen: "6k1/5ppp/8/8/8/8/5PPP/4R1K1 w - - 0 1",
+      solutionSans: ["Re8#"],
+    };
+    expect(gradeExercise(ex, { sans: ["Re8#"], revealed: true }).correct).toBe(false);
+    expect(gradeExercise(ex, { sans: ["Re8#"], hintsUsed: 9 }).meta?.hintsUsed).toBe(2);
+  });
+
+  it("grades chess_plan by index", () => {
+    const ex = { id: "plan", type: "chess_plan", correctIndex: 1, choices: [] };
+    expect(gradeExercise(ex, 1).correct).toBe(true);
+    expect(gradeExercise(ex, { index: 1 }).correct).toBe(true);
+    expect(gradeExercise(ex, 0).correct).toBe(false);
+    expect(gradeExercise(ex, null).correct).toBe(false);
   });
 
   it("requires every matching pair exactly once", () => {

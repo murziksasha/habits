@@ -462,13 +462,13 @@ function PlayPageInner() {
     }
   }
 
-  function onDrop(from: string, to: string) {
+  function onDrop(from: string, to: string, promotion?: "q" | "r" | "b" | "n") {
     if (!match || !myTurn) return false;
 
     if (match.vsBot) {
       const g = fen === "start" ? new Chess() : new Chess(fen);
       try {
-        const m = g.move({ from, to, promotion: "q" });
+        const m = g.move({ from, to, promotion });
         if (!m) return false;
         setFen(g.fen());
         const term = gameTermination(g.fen());
@@ -486,7 +486,7 @@ function PlayPageInner() {
     if (!socket) return false;
     socket.emit(
       "move",
-      { gameId: match.gameId, from, to, promotion: "q" },
+      { gameId: match.gameId, from, to, ...(promotion ? { promotion } : {}) },
       (res: { error?: string; fen?: string }) => {
         if (res?.error) setStatus(res.error);
         if (res?.fen) setFen(res.fen);

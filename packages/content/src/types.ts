@@ -96,17 +96,8 @@ type ExerciseBody =
       explanationUk?: string;
       explanationEn?: string;
     }
-  | {
-      id: string;
-      type: "chess_puzzle";
-      promptUk: string;
-      promptEn?: string;
-      fen: string;
-      solutionSans: string[];
-      difficulty: number;
-      explanationUk?: string;
-      explanationEn?: string;
-    }
+  | ChessPuzzleExercise
+  | ChessPlanExercise
   | {
       id: string;
       type: "chess_lesson";
@@ -379,4 +370,64 @@ export type CourseContent = {
   icon: string;
   color: string;
   units: UnitContent[];
+};
+
+export type ChessGoal = "mate" | "win_material" | "draw" | "promote" | "best_move";
+
+export type ChessSource = {
+  kind: "game" | "lichess" | "composed" | "theory";
+  white?: string;
+  black?: string;
+  year?: number;
+  event?: string;
+  lichessId?: string;
+  gameUrl?: string;
+};
+
+export type ChessPuzzleExercise = {
+  id: string;
+  type: "chess_puzzle";
+  promptUk: string;
+  promptEn?: string;
+  fen: string;
+  /** Main line: learner move, opponent reply, learner move… */
+  solutionSans: string[];
+  difficulty: number;
+  goal?: ChessGoal;
+  /** Learner ply index → other SANs that reach the goal (offline QA). */
+  acceptedAlternatives?: Record<string, string[]>;
+  /** Up to 3 full alternative lines (offline QA). */
+  alternativeLines?: string[][];
+  goalThresholdCp?: number;
+  themes?: string[];
+  /** Hint step 1: which piece. */
+  hintUk?: string;
+  hintEn?: string;
+  /** Square of the piece to look at (hint step 1 highlight). */
+  hintPiece?: string;
+  /** Hint step 2: which square / idea. */
+  hintSquareUk?: string;
+  hintSquareEn?: string;
+  hintSquare?: string;
+  explanationUk?: string;
+  explanationEn?: string;
+  explanationKind?: "template" | "authored";
+  plyExplanations?: Array<{ ply: number; uk: string; en?: string }>;
+  source?: ChessSource;
+  rating?: number;
+  /** Explicit repeat of another puzzle (allowed FEN duplicate). */
+  reviewOf?: string;
+};
+
+export type ChessPlanExercise = {
+  id: string;
+  type: "chess_plan";
+  promptUk: string;
+  promptEn?: string;
+  fen: string;
+  /** Exactly 3 candidate moves. Named `choices` (not `options`) so generic MCQ shuffling never touches it. */
+  choices: Array<{ san: string; explanationUk: string; explanationEn?: string }>;
+  correctIndex: number;
+  themes?: string[];
+  source?: ChessSource;
 };

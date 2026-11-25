@@ -6,6 +6,13 @@
 import { gradeExplanation, type ExplainKeyIdea } from "./explain.js";
 import { jsStaticPartialScore, runJsStaticAsserts, type JsStaticAssert } from "./js-static.js";
 import { gradeNumericAnswer } from "./numeric.js";
+import { gradePuzzleLine, type PuzzleSpec } from "@eduforge/chess-core";
+
+/** Chess hint ladder: 0 none, 1 piece, 2 square. */
+export function clampHints(value: unknown): 0 | 1 | 2 {
+  const n = typeof value === "number" && Number.isFinite(value) ? Math.floor(value) : 0;
+  return n <= 0 ? 0 : n >= 2 ? 2 : 1;
+}
 
 export type GradeExercise = {
   id: string;
@@ -470,15 +477,37 @@ export function gradeExercise(
       };
     }
     case "chess_puzzle": {
-      const a = answer as { sans?: unknown } | null;
-      const solution = Array.isArray(exercise.solutionSans) ? exercise.solutionSans : [];
-      const sans = Array.isArray(a?.sans) ? a.sans : [];
-      const normSan = (s: string) => s.replace(/[+#]/g, "");
+      const a = answer as { sans?: unknown; hintsUsed?: unknown; revealed?: unknown } | null;
+      const solution = Array.isArray(exercise.solutionSans)
+        ? exercise.solutionSans.filter((s): s is string => typeof s === "string")
+        : [];
+      if (typeof exercise.fen !== "string" || solution.length === 0) return { correct: false };
+      const g = gradePuzzleLine(
+        {
+          fen: exercise.fen,
+          solutionSans: solution,
+          goal: exercise.goal as PuzzleSpec["goal"],
+          acceptedAlternatives: exercise.acceptedAlternatives as PuzzleSpec["acceptedAlternatives"],
+          alternativeLines: exercise.alternativeLines as PuzzleSpec["alternativeLines"],
+        },
+        a?.sans,
+      );
+      const hintsUsed = clampHints(a?.hintsUsed);
+      const revealed = a?.revealed === true;
       return {
-        correct:
-          solution.length > 0 && sans.length === solution.length &&
-          solution.every((s, i) => typeof s === "string" && typeof sans[i] === "string" && normSan(sans[i]) === normSan(s)),
+        correct: g.solved && !revealed,
+        meta: {
+          hintsUsed,
+          revealed,
+          alternativesUsed: g.alternativesUsed,
+          ...(g.error ? { error: g.error } : {}),
+        },
       };
+    }
+    case "chess_plan": {
+      const idx =
+        typeof answer === "number" ? answer : Number((answer as { index?: number } | null)?.index);
+      return { correct: Number.isInteger(idx) && idx === exercise.correctIndex };
     }
     case "chess_lesson": {
       const quiz = exercise.quiz as { correctIndex: number } | undefined;

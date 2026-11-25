@@ -19,7 +19,8 @@
     "lint": "echo ok"
   },
   "dependencies": {
-    "zod": "^3.24.2"
+    "zod": "^3.24.2",
+    "@eduforge/chess-core": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.8.3",

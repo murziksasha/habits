@@ -7,6 +7,7 @@ import {
   checkInfo,
   destinations,
   exploreDestinations,
+  isPromotionMove,
   type Destination,
   type Square,
 } from "@eduforge/chess-core";
@@ -14,6 +15,8 @@ import { useLocale } from "@/lib/locale-context";
 import { getUI } from "@eduforge/shared";
 
 export type ChessBoardMode = "play" | "puzzle" | "explore";
+export type PromotionPiece = "q" | "r" | "b" | "n";
+export type BoardArrow = [Square, Square, string?];
 
 export type ChessBoardFrameProps = {
   fen: string;
@@ -21,7 +24,13 @@ export type ChessBoardFrameProps = {
   orientation?: "white" | "black";
   interactive?: boolean;
   viewer?: "w" | "b";
-  onMove?: (from: string, to: string) => boolean;
+  onMove?: (from: string, to: string, promotion?: PromotionPiece) => boolean;
+  /** Last played move, highlighted under check rings and selection. */
+  lastMove?: { from: string; to: string } | null;
+  /** Squares to ring (hints). */
+  highlightSquares?: string[];
+  /** Arrows (plans, hints, review). */
+  arrows?: BoardArrow[];
   endReason?: "checkmate" | "stalemate" | null;
   endLine?: string | null;
   onDismissEnd?: () => void;
@@ -48,6 +57,9 @@ export function ChessBoardFrame({
   endLine = null,
   onDismissEnd,
   boardWidth = 360,
+  lastMove = null,
+  highlightSquares,
+  arrows,
 }: ChessBoardFrameProps) {
   const { locale } = useLocale();
   const t = getUI(locale);
@@ -57,6 +69,19 @@ export function ChessBoardFrame({
   const [noMoveSquare, setNoMoveSquare] = useState<Square | null>(null);
   const [dismissed, setDismissed] = useState(false);
   const [currentWidth, setCurrentWidth] = useState(boardWidth);
+  const [pendingPromotion, setPendingPromotion] = useState<{ from: Square; to: Square } | null>(null);
+
+  /** Route a move through the promotion picker when a pawn reaches the last rank. */
+  const submitMove = useCallback(
+    (from: Square, to: Square): boolean => {
+      if (isPromotionMove(fen, from, to)) {
+        setPendingPromotion({ from, to });
+        return false;
+      }
+      return onMove?.(from, to) ?? false;
+    },
+    [fen, onMove],
+  );
 
   // Sync internal width when boardWidth prop changes
   useEffect(() => {
@@ -68,6 +93,7 @@ export function ChessBoardFrame({
     setSelectedSquare(null);
     setDests([]);
     setNoMoveSquare(null);
+    setPendingPromotion(null);
   }, [fen]);
 
   // Reset dismissed state if endReason clears
@@ -160,7 +186,7 @@ export function ChessBoardFrame({
 
       // Play or Puzzle mode
       const turn = game.turn();
-      const isMyTurn = mode === "puzzle" || turn === viewer;
+      const isMyTurn = turn === viewer;
       if (!isMyTurn) return;
 
       if (selectedSquare) {
@@ -177,7 +203,7 @@ export function ChessBoardFrame({
           setSelectedSquare(null);
           setDests([]);
           setNoMoveSquare(null);
-          onMove?.(from, square);
+          submitMove(from, square);
           return;
         }
 
@@ -223,7 +249,7 @@ export function ChessBoardFrame({
       dests,
       fen,
       handleDismiss,
-      onMove,
+      submitMove,
     ],
   );
 
@@ -231,7 +257,7 @@ export function ChessBoardFrame({
     (_piece: unknown, sourceSquare: Square) => {
       if (!interactive || endReason) return;
       const turn = game.turn();
-      const isMyTurn = mode === "puzzle" || turn === viewer;
+      const isMyTurn = turn === viewer;
       if (!isMyTurn) return;
 
       const p = game.get(sourceSquare);
@@ -253,7 +279,7 @@ export function ChessBoardFrame({
     (sourceSquare: Square, targetSquare: Square): boolean => {
       if (!interactive || endReason) return false;
       const turn = game.turn();
-      const isMyTurn = mode === "puzzle" || turn === viewer;
+      const isMyTurn = turn === viewer;
       if (!isMyTurn) return false;
 
       setSelectedSquare(null);
@@ -261,18 +287,18 @@ export function ChessBoardFrame({
       setNoMoveSquare(null);
 
       if (onMove) {
-        return onMove(sourceSquare, targetSquare);
+        return submitMove(sourceSquare, targetSquare);
       }
       return false;
     },
-    [interactive, endReason, game, mode, viewer, onMove],
+    [interactive, endReason, game, mode, viewer, onMove, submitMove],
   );
 
   const isDraggablePiece = useCallback(
     ({ piece, sourceSquare }: { piece: string; sourceSquare: Square }) => {
       if (!interactive || endReason || mode === "explore") return false;
       const turn = game.turn();
-      const isMyTurn = mode === "puzzle" || turn === viewer;
+      const isMyTurn = turn === viewer;
       if (!isMyTurn) return false;
       const p = game.get(sourceSquare);
       return Boolean(p && p.color === turn && piece.startsWith(turn));
@@ -286,6 +312,16 @@ export function ChessBoardFrame({
       Square,
       Record<string, string | number>
     >;
+
+    // 0. Last move tint (under check rings, selection and dots)
+    if (lastMove) {
+      for (const sq of [lastMove.from, lastMove.to] as Square[]) {
+        styles[sq] = { ...styles[sq], backgroundColor: "rgba(255, 213, 0, 0.35)" };
+      }
+    }
+    for (const sq of (highlightSquares ?? []) as Square[]) {
+      styles[sq] = { ...styles[sq], boxShadow: "inset 0 0 0 4px #0ea5e9" };
+    }
 
     // 1. Check rings: King and Attacker(s)
     // "After dismiss, the chip does not return. Rings stay."
@@ -330,7 +366,7 @@ export function ChessBoardFrame({
     }
 
     return styles;
-  }, [check, mode, endReason, selectedSquare, dests]);
+  }, [check, mode, endReason, selectedSquare, dests, lastMove, highlightSquares]);
 
   // Coordinates for "No legal move" overlay
   const noMoveCoords = useMemo(() => {
@@ -387,9 +423,49 @@ export function ChessBoardFrame({
           onPieceClick={(_piece, square) => handleSquareClick(square)}
           onSquareClick={(square) => handleSquareClick(square)}
           customSquareStyles={customSquareStyles}
-          autoPromoteToQueen={true}
+          onPromotionCheck={() => false}
+          customArrows={arrows}
+          areArrowsAllowed={false}
           animationDuration={200}
         />
+
+        {/* Promotion picker (queen, rook, bishop, knight) */}
+        {pendingPromotion && (
+          <div className="absolute inset-0 z-30 flex items-center justify-center bg-slate-900/40 p-4">
+            <div
+              role="dialog"
+              aria-label={t.chess.promotionTitle}
+              className="rounded-2xl border-2 border-brand bg-white p-3 text-center shadow-2xl dark:bg-slate-900"
+            >
+              <p className="mb-2 text-sm font-black">{t.chess.promotionTitle}</p>
+              <div className="flex gap-2">
+                {(["q", "r", "b", "n"] as const).map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    data-testid={`promote-${p}`}
+                    aria-label={t.chess[PIECE_TYPE_TO_KEY[p]!]}
+                    className="grid h-14 w-14 place-items-center rounded-xl border-2 border-slate-200 text-4xl hover:border-brand focus:border-brand dark:border-slate-700"
+                    onClick={() => {
+                      const pend = pendingPromotion;
+                      setPendingPromotion(null);
+                      onMove?.(pend.from, pend.to, p);
+                    }}
+                  >
+                    {promotionGlyph(game.turn(), p)}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                className="mt-2 text-xs font-bold text-ink-muted underline"
+                onClick={() => setPendingPromotion(null)}
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* No legal move badge */}
         {noMoveCoords && (
@@ -469,3 +545,11 @@ export function ChessBoardFrame({
   );
 }
 
+const GLYPHS: Record<"w" | "b", Record<PromotionPiece, string>> = {
+  w: { q: "♕", r: "♖", b: "♗", n: "♘" },
+  b: { q: "♛", r: "♜", b: "♝", n: "♞" },
+};
+
+function promotionGlyph(color: "w" | "b", piece: PromotionPiece): string {
+  return GLYPHS[color][piece];
+}

@@ -238,6 +238,7 @@ export function exerciseTypeLabel(
     comprehension: ["Розуміння", "Comprehension"],
     chess_puzzle: ["Шахова задача", "Chess puzzle"],
     chess_lesson: ["Шаховий урок", "Chess lesson"],
+    chess_plan: ["Шаховий план", "Chess plan"],
     video: ["Відео", "Video"],
     concept: ["Теорія", "Concept"],
     explain: ["Поясніть своїми словами", "Explain in your own words"],

@@ -35,6 +35,7 @@ const TYPES = [
   "comprehension",
   "chess_puzzle",
   "chess_lesson",
+  "chess_plan",
   "code_project",
   "concept",
   "explain",
@@ -172,6 +173,20 @@ function blankExercise(type: string): BuilderExercise {
         fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         solutionSans: ["e4"],
         difficulty: 1,
+      };
+    case "chess_plan":
+      return {
+        id,
+        type,
+        promptUk: "Оберіть план",
+        promptEn: "Choose the plan",
+        fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        choices: [
+          { san: "e4", explanationUk: "Займає центр.", explanationEn: "Takes the centre." },
+          { san: "a4", explanationUk: "Не бореться за центр.", explanationEn: "Does not fight for the centre." },
+          { san: "h4", explanationUk: "Послаблює короля.", explanationEn: "Weakens the king." },
+        ],
+        correctIndex: 0,
       };
     case "chess_lesson":
       return {
@@ -791,7 +806,9 @@ export function ExerciseBuilder({ exercises, onChange, onJsonSync }: Props) {
           {/* Advanced raw fields for less common shapes */}
           {(ex.type === "comprehension" ||
             ex.type === "code_project" ||
-            ex.type === "chess_lesson") && (
+            ex.type === "chess_lesson" ||
+            ex.type === "chess_plan" ||
+            ex.type === "chess_puzzle") && (
             <div>
               <label className="label">Advanced fields (JSON patch)</label>
               <textarea
