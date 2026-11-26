@@ -28,8 +28,9 @@ export async function getIdempotentResponse<T = unknown>(
   if (redis) {
     try {
       const raw = await redis.get(PREFIX + key);
-      if (!raw) return null;
-      return JSON.parse(raw) as T;
+      // A miss falls through to memory: the first response may have been stored there
+      // while Redis was still connecting or briefly down.
+      if (raw) return JSON.parse(raw) as T;
     } catch {
       /* fall through */
     }

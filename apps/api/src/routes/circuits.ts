@@ -31,12 +31,12 @@ function parseStoredDocument(document: unknown): { ok: true; document: Record<st
 
 const createProjectSchema = z.object({
   title: z.string().trim().min(1).max(255),
-  document: z.record(z.unknown()),
+  document: z.record(z.string(), z.unknown()),
 });
 
 const updateProjectSchema = z.object({
   title: z.string().trim().min(1).max(255).optional(),
-  document: z.record(z.unknown()).optional(),
+  document: z.record(z.string(), z.unknown()).optional(),
   expectedRevision: z.number().int().min(1),
 });
 

@@ -43,11 +43,13 @@ import {
 import bcrypt from "bcryptjs";
 import { createDb } from "./client.js";
 import { selectFlashcardInserts } from "./seed-flashcards.js";
-import { ACHIEVEMENT_CATALOG, resolveCourseGroup, seedAllowed } from "@eduforge/shared";
+import { resolveAdminPassword } from "./admin-password.js";
+import { ACHIEVEMENT_CATALOG, puzzleRatingFromDifficulty, resolveCourseGroup, seedAllowed, visibleChessThemes } from "@eduforge/shared";
 import {
   achievements,
   characters,
   chessRatings,
+  chessPuzzleStats,
   courses,
   flashcardDecks,
   flashcards,
@@ -226,6 +228,48 @@ export async function seedCourse(
   console.log(`Seeded course ${content.slug}`);
 }
 
+type PuzzleStatSeed = { exerciseId: string; lessonSlug: string; unitSlug: string; rating: number; themes: string[] };
+
+/** Rating seeds for every chess_puzzle in a course (content rating, else difficulty band). */
+export function chessPuzzleStatSeeds(content: (typeof allCourses)[number]): PuzzleStatSeed[] {
+  const out: PuzzleStatSeed[] = [];
+  for (const unit of content.units) {
+    for (const lesson of unit.lessons) {
+      for (const ex of lesson.exercises as Array<Record<string, unknown>>) {
+        if (ex.type !== "chess_puzzle" || typeof ex.id !== "string") continue;
+        const rating = typeof ex.rating === "number" ? ex.rating : puzzleRatingFromDifficulty(Number(ex.difficulty ?? 1));
+        out.push({
+          exerciseId: ex.id,
+          lessonSlug: lesson.slug,
+          unitSlug: unit.slug,
+          rating,
+          themes: visibleChessThemes(Array.isArray(ex.themes) ? (ex.themes as string[]) : [], 20),
+        });
+      }
+    }
+  }
+  return out;
+}
+
+/** Insert-only: existing puzzle ratings are never overwritten (themes/lesson refreshed). */
+export async function seedChessPuzzleStats(db: ReturnType<typeof createDb>) {
+  const course = (await db.select().from(courses).where(eq(courses.slug, chessContent.slug)).limit(1))[0];
+  if (!course) return;
+  const unitRows = await db.select().from(units).where(eq(units.courseId, course.id));
+  const lessonRows = await db.select({ id: lessons.id, slug: lessons.slug, unitId: lessons.unitId }).from(lessons).where(eq(lessons.courseId, course.id));
+  const unitBySlug = new Map(unitRows.map((u) => [u.slug, u.id]));
+  const lessonKey = new Map(lessonRows.map((l) => [`${l.unitId}/${l.slug}`, l.id]));
+  const seeds = chessPuzzleStatSeeds(chessContent);
+  for (const s of seeds) {
+    const lessonId = lessonKey.get(`${unitBySlug.get(s.unitSlug)}/${s.lessonSlug}`) ?? null;
+    await db
+      .insert(chessPuzzleStats)
+      .values({ exerciseId: s.exerciseId, lessonId, rating: s.rating, themes: s.themes })
+      .onConflictDoUpdate({ target: chessPuzzleStats.exerciseId, set: { lessonId, themes: s.themes } });
+  }
+  console.log(`Chess puzzle stats synced (${seeds.length} puzzles)`);
+}
+
 export async function seedFlashcards(db: ReturnType<typeof createDb>) {
   for (const deck of FLASHCARD_DECKS) {
     let d = await db.query.flashcardDecks.findFirst({
@@ -281,10 +325,11 @@ export async function seedFlashcards(db: ReturnType<typeof createDb>) {
 
 async function seedAdmin(db: ReturnType<typeof createDb>) {
   const email = process.env.ADMIN_EMAIL ?? "admin@eduforge.ua";
-  const password = process.env.ADMIN_PASSWORD ?? "admin12345";
   let user = await db.query.users.findFirst({ where: eq(users.email, email) });
   if (!user) {
-    const passwordHash = await bcrypt.hash(password, 10);
+    const check = resolveAdminPassword(process.env);
+    if (!check.ok) throw new Error(check.error);
+    const passwordHash = await bcrypt.hash(check.password, 10);
     const [created] = await db
       .insert(users)
       .values({
@@ -301,7 +346,7 @@ async function seedAdmin(db: ReturnType<typeof createDb>) {
       avatarKey: "admin",
     });
     await db.insert(chessRatings).values({ userId: user.id });
-    console.log(`Admin created: ${email} / ${password}`);
+    console.log(`Admin created: ${email} (password from ADMIN_PASSWORD)`);
   } else if (user.role !== "admin") {
     await db.update(users).set({ role: "admin" }).where(eq(users.id, user.id));
     console.log(`Promoted ${email} to admin`);
@@ -316,7 +361,7 @@ async function seedAdmin(db: ReturnType<typeof createDb>) {
     (process.env.NODE_ENV === "production" ? "" : "JBSWY3DPEHPK3PXP");
   if (totpSecret && user) {
     // Known backup code for e2e: SEED_ADMIN_BACKUP_CODE or AAAA-BBBB
-    const backupPlain = process.env.SEED_ADMIN_BACKUP_CODE ?? "AAAA-BBBB";
+    const backupPlain = process.env.SEED_ADMIN_BACKUP_CODE || "AAAA-BBBB";
     const backupHash = createHash("sha256")
       .update(`backup:${backupPlain.replace(/[\s-]/g, "").toUpperCase()}`)
       .digest("hex");
@@ -375,6 +420,12 @@ async function main() {
     );
     process.exit(1);
   }
+  const adminCheck = resolveAdminPassword(process.env);
+  if (process.env.ADMIN_PASSWORD !== undefined && !adminCheck.ok) {
+    // Set but unacceptable (e.g. weak in production): refuse before touching the DB.
+    console.error(adminCheck.error);
+    process.exit(1);
+  }
   const db = createDb();
   // Users first so accounts exist even if a course seed fails (e.g. missing enum value).
   await seedAdmin(db);
@@ -383,6 +434,7 @@ async function main() {
   }
   await seedAchievements(db);
   await seedFlashcards(db);
+  await seedChessPuzzleStats(db);
   console.log("Seed complete");
   process.exit(0);
 }

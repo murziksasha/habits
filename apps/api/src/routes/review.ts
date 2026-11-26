@@ -1,17 +1,18 @@
 import { Hono } from "hono";
 import { and, asc, desc, eq, inArray, lt, lte, or, sql } from "drizzle-orm";
-import { activityEvents, courses, exerciseReviews, flashcardStates, lessons, userLessonProgress } from "@eduforge/db";
+import { activityEvents, chessPersonalPuzzles, courses, exerciseReviews, flashcardStates, lessons, userLessonProgress } from "@eduforge/db";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 import {
   buildInterleavedSet,
-  gradeExercise,
   isFirstTry,
   isMixedPracticeExercise,
   retentionSummary,
   type MixedExercise,
 } from "@eduforge/shared";
 import { logActivity } from "../engagement.js";
+import { gradeExercise } from "../grade.js";
+import { duePersonalPuzzles, gradePersonalAnswers, OWN_GAME_LESSON_ID, personalExercise } from "../services/chess-personal.js";
 import { rateLimit } from "../rate-limit.js";
 import { grantXpToUser } from "../services/character-progression.js";
 import {
@@ -21,7 +22,7 @@ import {
   reviewSessionXp,
   reviewXpEarnedToday,
 } from "../services/exercise-learning.js";
-import { buildReviewReasons } from "../services/review-queue.js";
+import { buildReviewReasons, THEME_SIBLING_REASON } from "../services/review-queue.js";
 
 type Vars = { user: AuthedUser };
 
@@ -268,7 +269,7 @@ function parseSessionAnswers(body: unknown): SessionAnswer[] {
   return (raw.slice(0, 30) as SessionAnswer[]).filter(
     (a) =>
       typeof a?.lessonId === "string" &&
-      UUID_RE.test(a.lessonId) &&
+      (UUID_RE.test(a.lessonId) || a.lessonId === OWN_GAME_LESSON_ID) &&
       typeof a?.exerciseId === "string" &&
       a.exerciseId.length <= 128,
   );
@@ -283,17 +284,31 @@ async function gradeReviewSession(
   answers: SessionAnswer[],
   source: "mixed" | "mistakes",
 ) {
-  const lessonIds = [...new Set(answers.map((a) => a.lessonId))];
-  const lessonRows = await db
-    .select({ id: lessons.id, exercises: lessons.exercises })
-    .from(lessons)
-    .where(inArray(lessons.id, lessonIds));
+  // Puzzles from the learner's own games have their own SRS table (chess_personal_puzzles).
+  const ownAnswers = answers.filter((a) => a.lessonId === OWN_GAME_LESSON_ID);
+  const ownGraded = new Map(
+    (await gradePersonalAnswers(user.id, ownAnswers)).map((r) => [r.exerciseId, r] as const),
+  );
+  const lessonIds = [...new Set(answers.filter((a) => a.lessonId !== OWN_GAME_LESSON_ID).map((a) => a.lessonId))];
+  const lessonRows = lessonIds.length
+    ? await db
+        .select({ id: lessons.id, exercises: lessons.exercises })
+        .from(lessons)
+        .where(inArray(lessons.id, lessonIds))
+    : [];
   const byKey = new Map<string, MixedExercise>();
   for (const l of lessonRows) {
     for (const e of (l.exercises as MixedExercise[]) ?? []) byKey.set(`${l.id}:${e.id}`, e);
   }
 
   const results = answers.map((a) => {
+    if (a.lessonId === OWN_GAME_LESSON_ID) {
+      const r = ownGraded.get(a.exerciseId);
+      if (!r?.found) {
+        return { lessonId: a.lessonId, exerciseId: a.exerciseId, type: "chess_puzzle", correct: false, firstTry: false, error: "not_found" as const };
+      }
+      return { lessonId: a.lessonId, exerciseId: a.exerciseId, type: "chess_puzzle", correct: r.correct, firstTry: r.firstTry, own: true as const };
+    }
     const ex = byKey.get(`${a.lessonId}:${a.exerciseId}`);
     if (!ex || !isMixedPracticeExercise(ex)) {
       return {
@@ -305,7 +320,7 @@ async function gradeReviewSession(
         error: "not_found" as const,
       };
     }
-    const g = gradeExercise(ex, a.answer);
+    const g = gradeExercise(ex, a.answer, { userId: user.id });
     const wrongAttempts = clampWrongAttempts(a.wrongAttempts);
     return {
       lessonId: a.lessonId,
@@ -316,7 +331,7 @@ async function gradeReviewSession(
     };
   });
 
-  const valid = results.filter((r) => !("error" in r && r.error));
+  const valid = results.filter((r) => !("error" in r && r.error) && !("own" in r));
   await recordExerciseLearning(
     user.id,
     valid.map((r) => {
@@ -384,6 +399,7 @@ reviewRoutes.get("/mistakes", authMiddleware, async (c) => {
       repetitions: exerciseReviews.repetitions,
       lapses: exerciseReviews.lapses,
       dueAt: exerciseReviews.dueAt,
+      reason: exerciseReviews.reason,
       lessonTitleUk: lessons.titleUk,
       lessonTitleEn: lessons.titleEn,
       exercises: lessons.exercises,
@@ -396,7 +412,7 @@ reviewRoutes.get("/mistakes", authMiddleware, async (c) => {
     .orderBy(asc(exerciseReviews.dueAt))
     .limit(limit * 2);
 
-  const items = due
+  const lessonItems = due
     .map((r) => {
       const exercise = ((r.exercises as MixedExercise[]) ?? []).find((e) => e.id === r.exerciseId);
       if (!exercise || !isMixedPracticeExercise(exercise)) return null;
@@ -407,11 +423,28 @@ reviewRoutes.get("/mistakes", authMiddleware, async (c) => {
         lessonTitleEn: r.lessonTitleEn || r.lessonTitleUk,
         lapses: r.lapses,
         repetitions: r.repetitions,
+        reason: r.reason === "theme_sibling" ? THEME_SIBLING_REASON : null,
         exercise,
       };
     })
-    .filter((x): x is NonNullable<typeof x> => x !== null)
-    .slice(0, limit);
+    .filter((x): x is NonNullable<typeof x> => x !== null);
+
+  // Own-game puzzles share the notebook: up to a third of the session, more when lessons have fewer due.
+  const ownRows = await duePersonalPuzzles(user.id, limit);
+  const ownSlots = Math.min(ownRows.length, Math.max(Math.ceil(limit / 3), limit - lessonItems.length));
+  const items = [
+    ...lessonItems.slice(0, limit - ownSlots),
+    ...ownRows.slice(0, ownSlots).map((r) => ({
+      lessonId: OWN_GAME_LESSON_ID,
+      courseSlug: "",
+      lessonTitleUk: "З ваших партій",
+      lessonTitleEn: "From your games",
+      lapses: r.lapses,
+      repetitions: r.repetitions,
+      reason: "own_game" as const,
+      exercise: personalExercise(r).exercise as unknown as MixedExercise,
+    })),
+  ];
 
   const [agg] = await db
     .select({
@@ -422,9 +455,16 @@ reviewRoutes.get("/mistakes", authMiddleware, async (c) => {
     .from(exerciseReviews)
     .where(eq(exerciseReviews.userId, user.id));
 
+  const [own] = await db
+    .select({ due: sql<number>`count(*) filter (where ${chessPersonalPuzzles.dueAt} <= now())::int` })
+    .from(chessPersonalPuzzles)
+    .where(eq(chessPersonalPuzzles.userId, user.id));
+
   return c.json({
     items,
     count: items.length,
+    /** Due puzzles from the learner's own games (reason "own_game"); some are in `items`, all are at /play/puzzles. */
+    ownGameDue: own?.due ?? 0,
     due: agg?.due ?? 0,
     total: agg?.total ?? 0,
     graduated: agg?.graduated ?? 0,

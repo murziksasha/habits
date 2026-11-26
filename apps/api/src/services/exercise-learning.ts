@@ -2,10 +2,12 @@
  * Exercise-level learning data (SPEC 92): attempts (confidence/calibration),
  * mistake-notebook SRS and capped XP for review sessions.
  */
-import { and, eq, gte, inArray, sql } from "drizzle-orm";
-import { activityEvents, exerciseAttempts, exerciseReviews } from "@eduforge/db";
+import { and, eq, gte, inArray, lte, sql } from "drizzle-orm";
+import { activityEvents, chessPuzzleStats, exerciseAttempts, exerciseReviews } from "@eduforge/db";
 import {
   applySrsRating,
+  CHESS_REVIEW_TYPES,
+  chessSrsNext,
   isFirstTry,
   isMixedPracticeExercise,
   nextReviewDate,
@@ -33,7 +35,7 @@ export type AttemptItem = {
   variantId?: string;
 };
 
-export type AttemptSource = "lesson" | "mixed" | "mistakes";
+export type AttemptSource = "lesson" | "mixed" | "mistakes" | "puzzles";
 
 /** Types we never log as attempts (no knowledge check). */
 const SKIP_ATTEMPT_TYPES = new Set(["concept", "video", "rsvp"]);
@@ -99,6 +101,22 @@ export function planExerciseLearning(
     };
     const prev = existing.get(key);
     if (!prev && !shouldTrackMistake(outcome)) continue;
+    if (CHESS_REVIEW_TYPES.has(i.type)) {
+      // Chess uses a fixed 1 → 3 → 7 → 21 day ladder instead of SM-2 (plan §3.5).
+      const next = chessSrsNext(prev ?? null, i.correct && clampWrongAttempts(i.wrongAttempts) === 0);
+      reviews.push({
+        key,
+        lessonId: i.lessonId,
+        exerciseId: i.exerciseId,
+        ease: prev?.ease ?? 250,
+        intervalDays: next.intervalDays,
+        repetitions: next.repetitions,
+        lapses: next.lapses,
+        dueAt: nextReviewDate(now, next.intervalDays),
+        isNew: !prev,
+      });
+      continue;
+    }
     const base = prev ?? { ease: 250, intervalDays: 0, repetitions: 0, lapses: 0 };
     const next = applySrsRating(base, srsRatingFromOutcome(outcome));
     reviews.push({
@@ -172,7 +190,72 @@ export async function recordExerciseLearning(
         .where(eq(exerciseReviews.id, prev.id));
     }
   }
-  return { attempts: plan.attempts.length, tracked: plan.reviews.length };
+  const missedPuzzles = items.filter((i) => i.type === "chess_puzzle" && !i.correct);
+  let siblings = 0;
+  for (const miss of missedPuzzles.slice(0, 5)) {
+    siblings += await scheduleThemeSiblings(userId, miss.exerciseId, now).catch(() => 0);
+  }
+  return { attempts: plan.attempts.length, tracked: plan.reviews.length + siblings };
+}
+
+/** Pure pick of 1–2 theme siblings within ±150 rating, skipping already tracked puzzles. */
+export function pickThemeSiblings(
+  missed: { exerciseId: string; rating: number; themes: string[] },
+  pool: { exerciseId: string; lessonId: string | null; rating: number; themes: string[] }[],
+  tracked: Set<string>,
+  max = 2,
+): { exerciseId: string; lessonId: string }[] {
+  const themes = new Set(missed.themes);
+  return pool
+    .filter(
+      (p) =>
+        p.exerciseId !== missed.exerciseId &&
+        p.lessonId &&
+        !tracked.has(p.exerciseId) &&
+        Math.abs(p.rating - missed.rating) <= 150 &&
+        p.themes.some((t) => themes.has(t)),
+    )
+    .sort((a, b) => Math.abs(a.rating - missed.rating) - Math.abs(b.rating - missed.rating) || a.exerciseId.localeCompare(b.exerciseId))
+    .slice(0, max)
+    .map((p) => ({ exerciseId: p.exerciseId, lessonId: p.lessonId! }));
+}
+
+/** After a missed chess puzzle, queue 1–2 same-theme puzzles for tomorrow (reason "theme_sibling"). */
+async function scheduleThemeSiblings(userId: string, exerciseId: string, now: Date): Promise<number> {
+  const missed = await db.query.chessPuzzleStats.findFirst({ where: eq(chessPuzzleStats.exerciseId, exerciseId) });
+  if (!missed || !missed.themes.length) return 0;
+  const pool = await db
+    .select({
+      exerciseId: chessPuzzleStats.exerciseId,
+      lessonId: chessPuzzleStats.lessonId,
+      rating: chessPuzzleStats.rating,
+      themes: chessPuzzleStats.themes,
+    })
+    .from(chessPuzzleStats)
+    .where(
+      and(
+        sql`${chessPuzzleStats.themes} && ARRAY[${sql.join(
+          missed.themes.map((t) => sql`${t}`),
+          sql`, `,
+        )}]::text[]`,
+        gte(chessPuzzleStats.rating, missed.rating - 150),
+        lte(chessPuzzleStats.rating, missed.rating + 150),
+      ),
+    )
+    .limit(50);
+  const trackedRows = await db
+    .select({ exerciseId: exerciseReviews.exerciseId })
+    .from(exerciseReviews)
+    .where(and(eq(exerciseReviews.userId, userId), inArray(exerciseReviews.exerciseId, pool.map((p) => p.exerciseId).concat([exerciseId]))));
+  const picks = pickThemeSiblings(missed, pool, new Set(trackedRows.map((r) => r.exerciseId)));
+  const dueAt = nextReviewDate(now, 1);
+  for (const p of picks) {
+    await db
+      .insert(exerciseReviews)
+      .values({ userId, lessonId: p.lessonId, exerciseId: p.exerciseId, dueAt, reason: "theme_sibling" })
+      .onConflictDoNothing();
+  }
+  return picks.length;
 }
 
 /** XP for review sessions: 2 per first-try correct, ≤ 20 per session, ≤ 60 per UTC day. */

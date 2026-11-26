@@ -1,9 +1,10 @@
 name: E2E
 
-# Push only. Pull requests do not run this check (see CI for unit, integration, content-gate).
+# Blocking on pushes to the main branches; informational (non-blocking) on pull requests.
 on:
   push:
     branches: [main, master, dev]
+  pull_request:
 
 concurrency:
   group: e2e-${{ github.workflow }}-${{ github.ref }}
@@ -13,6 +14,8 @@ jobs:
   e2e-smoke:
     name: E2E smoke (web + api)
     runs-on: ubuntu-latest
+    # PRs: report failures without blocking the merge.
+    continue-on-error: ${{ github.event_name == 'pull_request' }}
     services:
       postgres:
         image: postgres:16-alpine
@@ -43,6 +46,8 @@ jobs:
       AUTH_SECRET: ci-test-secret
       WEB_ORIGIN: http://127.0.0.1:3000
       COOKIE_SECURE: "0"
+      # Seed has no default admin password; tests log in with the same value.
+      ADMIN_PASSWORD: admin12345
       NEXT_PUBLIC_API_URL: http://127.0.0.1:4000
       NEXT_PUBLIC_REALTIME_URL: http://127.0.0.1:4001
       SKIP_E2E: "0"
@@ -55,13 +60,15 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @eduforge/shared build
-      - run: pnpm --filter @eduforge/content build
-      - run: pnpm --filter @eduforge/chess-core build
-      - run: pnpm --filter @eduforge/judge build
-      - run: pnpm --filter @eduforge/circuit-engine build
-      - run: pnpm --filter @eduforge/db build
-      - run: pnpm --filter @eduforge/api build
+      - name: Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo/cache
+          key: turbo-${{ runner.os }}-${{ github.job }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ github.job }}-
+      # One turbo run builds each package once, in dependency order (cached in .turbo/cache).
+      - run: pnpm exec turbo run build --filter=@eduforge/chess-core --filter=@eduforge/shared --filter=@eduforge/content --filter=@eduforge/judge --filter=@eduforge/circuit-engine --filter=@eduforge/db --filter=@eduforge/api
       - run: pnpm db:migrate
       - run: pnpm db:seed
       - name: Start API

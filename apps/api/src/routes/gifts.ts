@@ -80,7 +80,7 @@ giftRoutes.get("/sent", authMiddleware, async (c) => {
 });
 
 const sendSchema = z.object({
-  toUserId: z.string().uuid(),
+  toUserId: z.string().guid(),
   giftKey: z.string().min(1),
   message: z.string().max(280).optional(),
 });

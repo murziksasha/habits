@@ -33,7 +33,7 @@ export const analyticsRoutes = new Hono<{ Variables: Vars }>();
 
 const productEventSchema = z.object({
   kind: z.string().min(1).max(64),
-  payload: z.record(z.unknown()).optional(),
+  payload: z.record(z.string(), z.unknown()).optional(),
 });
 
 /**

@@ -17,8 +17,8 @@ export function MistakesClient() {
       title={`📓 ${en ? "Mistake notebook" : "Зошит помилок"}`}
       intro={
         en
-          ? "Exercises you missed or guessed come back on a spaced schedule until you answer them confidently on the first try."
-          : "Вправи, у яких ви помилились або вгадали, повертаються за інтервальним графіком, доки ви не відповісте впевнено з першої спроби."
+          ? "Exercises you missed or guessed, and puzzles from your own games, come back on a spaced schedule until you answer them confidently on the first try."
+          : "Вправи, у яких ви помилились або вгадали, і задачі з ваших партій повертаються за інтервальним графіком, доки ви не відповісте впевнено з першої спроби."
       }
       emptyTitle={en ? "No mistakes due" : "Немає помилок до повторення"}
       emptyDescription={

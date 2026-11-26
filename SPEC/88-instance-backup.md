@@ -25,7 +25,7 @@ Admin only. `requireStepUp` when admin MFA enforcement is on.
 
 Restore refuses a different `formatVersion` or `migrationTag`. It writes `safety.json.gz` under `BACKUP_DIR` (dev default `apps/api/data/backups`, compose volume `backupdata` at `/data/backups`) and then replaces the database. Undo swaps that safety file back. The next restore overwrites the single safety file. Upload cap is 80 MB gzipped.
 
-Sessions are cleared. Sign in with the account from the file. The fresh seed password `admin12345` works only before the first restore.
+Sessions are cleared. Sign in with the account from the file. The seed admin password (`ADMIN_PASSWORD`) works only before the first restore.
 
 ## UI
 

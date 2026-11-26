@@ -65,6 +65,87 @@ export function gameTermination(fen: string): GameTermination {
   }
 }
 
+/** Replay `sans` from `startFen` ("startpos" or empty = initial position). Null if any move is illegal. */
+export function replayHistory(startFen: string | null | undefined, sans: readonly string[]): Chess | null {
+  try {
+    const game = !startFen || startFen === "startpos" ? new Chess() : new Chess(startFen);
+    for (const san of sans) {
+      if (!game.move(san)) return null;
+    }
+    return game;
+  } catch {
+    return null;
+  }
+}
+
+/** Termination with full move history (threefold repetition needs it). */
+export function gameTerminationWithHistory(startFen: string | null | undefined, sans: readonly string[]): GameTermination {
+  const game = replayHistory(startFen, sans);
+  if (!game) return { over: false, result: null, reason: null };
+  if (game.isThreefoldRepetition()) return { over: true, result: "1/2-1/2", reason: "threefold" };
+  return gameTermination(game.fen());
+}
+
+export type HistoryMove = { san: string; uci: string; fen: string };
+
+/**
+ * Apply one move on top of a history: rebuilds the game from `startFen` + `sans`
+ * so chess.js can see repetitions. Rejects illegal history or moves.
+ */
+export function applyMoveWithHistory(
+  startFen: string | null | undefined,
+  sans: readonly string[],
+  move: MoveInput,
+):
+  | ({ ok: true; move: HistoryMove } & GameTermination)
+  | { ok: false; error: string } {
+  if (!isChessSquare(move.from) || !isChessSquare(move.to)) return { ok: false, error: "illegal_move" };
+  if (move.promotion && !PROMOTIONS.has(move.promotion)) return { ok: false, error: "illegal_move" };
+  const game = replayHistory(startFen, sans);
+  if (!game) return { ok: false, error: "illegal_history" };
+  try {
+    const r = game.move({ from: move.from as Square, to: move.to as Square, promotion: move.promotion });
+    if (!r) return { ok: false, error: "illegal_move" };
+    const term = game.isThreefoldRepetition()
+      ? { over: true, result: "1/2-1/2" as const, reason: "threefold" as const }
+      : gameTermination(game.fen());
+    return { ok: true, move: { san: r.san, uci: `${r.from}${r.to}${r.promotion ?? ""}`, fen: game.fen() }, ...term };
+  } catch {
+    return { ok: false, error: "illegal_move" };
+  }
+}
+
+/** Minimal PGN export (Seven Tag Roster subset + SAN movetext). */
+export function toPgn(
+  sans: readonly string[],
+  tags: { white?: string; black?: string; result?: string; date?: string; event?: string; startFen?: string } = {},
+): string {
+  const result = tags.result ?? "*";
+  const head = [
+    `[Event "${tags.event ?? "Casual game"}"]`,
+    `[Date "${tags.date ?? "????.??.??"}"]`,
+    `[White "${tags.white ?? "?"}"]`,
+    `[Black "${tags.black ?? "?"}"]`,
+    `[Result "${result}"]`,
+  ];
+  let startMove = 1;
+  let blackFirst = false;
+  if (tags.startFen && tags.startFen !== "startpos") {
+    head.push(`[SetUp "1"]`, `[FEN "${tags.startFen}"]`);
+    const parts = tags.startFen.split(" ");
+    blackFirst = parts[1] === "b";
+    startMove = Number(parts[5] ?? 1) || 1;
+  }
+  const out: string[] = [];
+  sans.forEach((san, i) => {
+    const ply = i + (blackFirst ? 1 : 0);
+    const no = startMove + Math.floor(ply / 2);
+    if (ply % 2 === 0) out.push(`${no}. ${san}`);
+    else out.push(i === 0 ? `${no}... ${san}` : san);
+  });
+  return `${head.join("\n")}\n\n${[...out, result].join(" ")}\n`;
+}
+
 /** Fischer (increment) clock: add increment after a legal move. */
 export function applyFischerIncrement(remainingMs: number, incrementMs: number): number {
   return Math.max(0, remainingMs) + Math.max(0, incrementMs);
@@ -109,10 +190,10 @@ export function applyMove(fen: string, move: MoveInput): {
 
 export function isPuzzleSolved(startFen: string, solutionSans: string[], playedSans: string[]): boolean {
   if (playedSans.length < solutionSans.length) return false;
-  return solutionSans.every((san, i) => normalizeSan(playedSans[i] ?? "") === normalizeSan(san));
+  return solutionSans.every((san, i) => normalizeSanLegacy(playedSans[i] ?? "") === normalizeSanLegacy(san));
 }
 
-function normalizeSan(san: string): string {
+function normalizeSanLegacy(san: string): string {
   return san.replace(/[+#]/g, "").trim();
 }
 
@@ -123,7 +204,7 @@ export function tryPuzzleMove(
 ): { ok: true; fen: string; san: string } | { ok: false; error: string } {
   const applied = applyMove(fen, move);
   if (!applied.ok) return applied;
-  if (normalizeSan(applied.san) !== normalizeSan(expectedSan)) {
+  if (normalizeSanLegacy(applied.san) !== normalizeSanLegacy(expectedSan)) {
     return { ok: false, error: "wrong_move" };
   }
   return { ok: true, fen: applied.fen, san: applied.san };
@@ -251,4 +332,7 @@ export function exploreDestinations(fen: string, square: string): Destination[] 
 
 export { Chess, type Square };
 export * from "./bot.js";
+export * from "./puzzle.js";
+export * from "./endgame.js";
+export * from "./openings.js";
 

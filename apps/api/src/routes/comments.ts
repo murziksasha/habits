@@ -38,7 +38,7 @@ commentRoutes.get("/lesson/:lessonId", authMiddleware, async (c) => {
 
 const postSchema = z.object({
   body: z.string().min(1).max(2000),
-  parentId: z.string().uuid().optional().nullable(),
+  parentId: z.string().guid().optional().nullable(),
 });
 
 commentRoutes.post("/lesson/:lessonId", authMiddleware, async (c) => {

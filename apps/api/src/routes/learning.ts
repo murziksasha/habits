@@ -119,11 +119,11 @@ const startSelfVerifySchema = z.object({
   lessonSlug: z.string().min(1).max(128),
   exerciseIndex: z.number().int().min(0).default(0),
   datasetVersion: z.string().min(1).max(64).default("1"),
-  meta: z.record(z.unknown()).optional(),
+  meta: z.record(z.string(), z.unknown()).optional(),
 });
 
 const submitSelfVerifySchema = z.object({
-  sessionId: z.string().uuid(),
+  sessionId: z.string().guid(),
   answer: z.unknown(),
   hintsUsed: z.number().int().min(0).default(0),
   solutionRevealed: z.boolean().default(false),
@@ -213,7 +213,7 @@ learningRoutes.post("/self-verify/submit", authMiddleware, async (c) => {
   const ex = exercises[session.exerciseIndex] ?? exercises[0];
   if (!ex) return c.json({ error: "exercise_not_found" }, 404);
 
-  const gradeRes = gradeExercise(ex, answer);
+  const gradeRes = gradeExercise(ex, answer, { userId: user.id });
   const passed = Boolean(gradeRes.correct);
 
   const detailedFeedback = buildDetailedFeedback({

@@ -1,19 +1,24 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Chessboard } from "@/components/chessboard-lazy";
 import {
   Chess,
   checkInfo,
   destinations,
   exploreDestinations,
+  isPromotionMove,
   type Destination,
   type Square,
 } from "@eduforge/chess-core";
 import { useLocale } from "@/lib/locale-context";
-import { getUI } from "@eduforge/shared";
+import { CHESS_BOARD_THEME_IDS, chessBoardSquareStyles, type ChessBoardThemeId, type UiDict } from "@eduforge/shared";
+import { useChessPrefs } from "@/lib/chess-prefs";
+import { playChessSound, soundForSan } from "@/lib/chess-sounds";
 
 export type ChessBoardMode = "play" | "puzzle" | "explore";
+export type PromotionPiece = "q" | "r" | "b" | "n";
+export type BoardArrow = [Square, Square, string?];
 
 export type ChessBoardFrameProps = {
   fen: string;
@@ -21,11 +26,19 @@ export type ChessBoardFrameProps = {
   orientation?: "white" | "black";
   interactive?: boolean;
   viewer?: "w" | "b";
-  onMove?: (from: string, to: string) => boolean;
+  onMove?: (from: string, to: string, promotion?: PromotionPiece) => boolean;
+  /** Last played move, highlighted under check rings and selection. */
+  lastMove?: { from: string; to: string } | null;
+  /** Squares to ring (hints). */
+  highlightSquares?: string[];
+  /** Arrows (plans, hints, review). */
+  arrows?: BoardArrow[];
   endReason?: "checkmate" | "stalemate" | null;
   endLine?: string | null;
   onDismissEnd?: () => void;
   boardWidth?: number;
+  /** Flip, sound and board settings under the board (default: on except in explore mode). */
+  showControls?: boolean;
 };
 
 const PIECE_TYPE_TO_KEY: Record<string, "pawn" | "knight" | "bishop" | "rook" | "queen" | "king"> = {
@@ -40,23 +53,68 @@ const PIECE_TYPE_TO_KEY: Record<string, "pawn" | "knight" | "bishop" | "rook" | 
 export function ChessBoardFrame({
   fen,
   mode = "play",
-  orientation = "white",
+  orientation: orientationProp = "white",
   interactive = true,
-  viewer = orientation === "black" ? "b" : "w",
+  viewer = orientationProp === "black" ? "b" : "w",
   onMove,
   endReason = null,
   endLine = null,
   onDismissEnd,
   boardWidth = 360,
+  lastMove = null,
+  highlightSquares,
+  arrows,
+  showControls = mode !== "explore",
 }: ChessBoardFrameProps) {
-  const { locale } = useLocale();
-  const t = getUI(locale);
+  const { t } = useLocale();
+  const [prefs, setPrefs] = useChessPrefs();
+  const [flipped, setFlipped] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const orientation: "white" | "black" = flipped ? (orientationProp === "white" ? "black" : "white") : orientationProp;
+  const squareTheme = useMemo(() => chessBoardSquareStyles(prefs.theme), [prefs.theme]);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mq.matches);
+    const on = () => setReducedMotion(mq.matches);
+    mq.addEventListener?.("change", on);
+    return () => mq.removeEventListener?.("change", on);
+  }, []);
+
+  // Move sounds: classify the last move against the previous position.
+  const prevFen = useRef<string | null>(null);
+  useEffect(() => {
+    const before = prevFen.current;
+    prevFen.current = fen;
+    if (!before || before === fen || !lastMove || mode === "explore") return;
+    try {
+      const g = before === "start" ? new Chess() : new Chess(before);
+      const m = g.move({ from: lastMove.from as Square, to: lastMove.to as Square, promotion: "q" });
+      if (m) playChessSound(soundForSan(m.san));
+    } catch {
+      /* not a single-move step (reset, jump) */
+    }
+  }, [fen, lastMove, mode]);
 
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
   const [dests, setDests] = useState<Destination[]>([]);
   const [noMoveSquare, setNoMoveSquare] = useState<Square | null>(null);
   const [dismissed, setDismissed] = useState(false);
   const [currentWidth, setCurrentWidth] = useState(boardWidth);
+  const [pendingPromotion, setPendingPromotion] = useState<{ from: Square; to: Square } | null>(null);
+
+  /** Route a move through the promotion picker when a pawn reaches the last rank. */
+  const submitMove = useCallback(
+    (from: Square, to: Square): boolean => {
+      if (isPromotionMove(fen, from, to)) {
+        setPendingPromotion({ from, to });
+        return false;
+      }
+      return onMove?.(from, to) ?? false;
+    },
+    [fen, onMove],
+  );
 
   // Sync internal width when boardWidth prop changes
   useEffect(() => {
@@ -68,6 +126,7 @@ export function ChessBoardFrame({
     setSelectedSquare(null);
     setDests([]);
     setNoMoveSquare(null);
+    setPendingPromotion(null);
   }, [fen]);
 
   // Reset dismissed state if endReason clears
@@ -160,7 +219,7 @@ export function ChessBoardFrame({
 
       // Play or Puzzle mode
       const turn = game.turn();
-      const isMyTurn = mode === "puzzle" || turn === viewer;
+      const isMyTurn = turn === viewer;
       if (!isMyTurn) return;
 
       if (selectedSquare) {
@@ -177,7 +236,7 @@ export function ChessBoardFrame({
           setSelectedSquare(null);
           setDests([]);
           setNoMoveSquare(null);
-          onMove?.(from, square);
+          submitMove(from, square);
           return;
         }
 
@@ -223,7 +282,7 @@ export function ChessBoardFrame({
       dests,
       fen,
       handleDismiss,
-      onMove,
+      submitMove,
     ],
   );
 
@@ -231,7 +290,7 @@ export function ChessBoardFrame({
     (_piece: unknown, sourceSquare: Square) => {
       if (!interactive || endReason) return;
       const turn = game.turn();
-      const isMyTurn = mode === "puzzle" || turn === viewer;
+      const isMyTurn = turn === viewer;
       if (!isMyTurn) return;
 
       const p = game.get(sourceSquare);
@@ -253,7 +312,7 @@ export function ChessBoardFrame({
     (sourceSquare: Square, targetSquare: Square): boolean => {
       if (!interactive || endReason) return false;
       const turn = game.turn();
-      const isMyTurn = mode === "puzzle" || turn === viewer;
+      const isMyTurn = turn === viewer;
       if (!isMyTurn) return false;
 
       setSelectedSquare(null);
@@ -261,18 +320,18 @@ export function ChessBoardFrame({
       setNoMoveSquare(null);
 
       if (onMove) {
-        return onMove(sourceSquare, targetSquare);
+        return submitMove(sourceSquare, targetSquare);
       }
       return false;
     },
-    [interactive, endReason, game, mode, viewer, onMove],
+    [interactive, endReason, game, mode, viewer, onMove, submitMove],
   );
 
   const isDraggablePiece = useCallback(
     ({ piece, sourceSquare }: { piece: string; sourceSquare: Square }) => {
       if (!interactive || endReason || mode === "explore") return false;
       const turn = game.turn();
-      const isMyTurn = mode === "puzzle" || turn === viewer;
+      const isMyTurn = turn === viewer;
       if (!isMyTurn) return false;
       const p = game.get(sourceSquare);
       return Boolean(p && p.color === turn && piece.startsWith(turn));
@@ -286,6 +345,16 @@ export function ChessBoardFrame({
       Square,
       Record<string, string | number>
     >;
+
+    // 0. Last move tint (under check rings, selection and dots)
+    if (lastMove) {
+      for (const sq of [lastMove.from, lastMove.to] as Square[]) {
+        styles[sq] = { ...styles[sq], backgroundColor: "rgba(255, 213, 0, 0.35)" };
+      }
+    }
+    for (const sq of (highlightSquares ?? []) as Square[]) {
+      styles[sq] = { ...styles[sq], boxShadow: "inset 0 0 0 4px #0ea5e9" };
+    }
 
     // 1. Check rings: King and Attacker(s)
     // "After dismiss, the chip does not return. Rings stay."
@@ -330,7 +399,7 @@ export function ChessBoardFrame({
     }
 
     return styles;
-  }, [check, mode, endReason, selectedSquare, dests]);
+  }, [check, mode, endReason, selectedSquare, dests, lastMove, highlightSquares]);
 
   // Coordinates for "No legal move" overlay
   const noMoveCoords = useMemo(() => {
@@ -387,9 +456,52 @@ export function ChessBoardFrame({
           onPieceClick={(_piece, square) => handleSquareClick(square)}
           onSquareClick={(square) => handleSquareClick(square)}
           customSquareStyles={customSquareStyles}
-          autoPromoteToQueen={true}
-          animationDuration={200}
+          onPromotionCheck={() => false}
+          customArrows={arrows}
+          areArrowsAllowed={false}
+          animationDuration={reducedMotion ? 0 : 200}
+          customLightSquareStyle={squareTheme.light}
+          customDarkSquareStyle={squareTheme.dark}
+          showBoardNotation={prefs.coordinates}
         />
+
+        {/* Promotion picker (queen, rook, bishop, knight) */}
+        {pendingPromotion && (
+          <div className="absolute inset-0 z-30 flex items-center justify-center bg-slate-900/40 p-4">
+            <div
+              role="dialog"
+              aria-label={t.chess.promotionTitle}
+              className="rounded-2xl border-2 border-brand bg-white p-3 text-center shadow-2xl dark:bg-slate-900"
+            >
+              <p className="mb-2 text-sm font-black">{t.chess.promotionTitle}</p>
+              <div className="flex gap-2">
+                {(["q", "r", "b", "n"] as const).map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    data-testid={`promote-${p}`}
+                    aria-label={t.chess[PIECE_TYPE_TO_KEY[p]!]}
+                    className="grid h-14 w-14 place-items-center rounded-xl border-2 border-slate-200 text-4xl hover:border-brand focus:border-brand dark:border-slate-700"
+                    onClick={() => {
+                      const pend = pendingPromotion;
+                      setPendingPromotion(null);
+                      onMove?.(pend.from, pend.to, p);
+                    }}
+                  >
+                    {promotionGlyph(game.turn(), p)}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                className="mt-2 text-xs font-bold text-ink-muted underline"
+                onClick={() => setPendingPromotion(null)}
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* No legal move badge */}
         {noMoveCoords && (
@@ -465,7 +577,80 @@ export function ChessBoardFrame({
           </div>
         )}
       </div>
+
+      {showControls && (
+        <div className="mt-2 flex w-full max-w-[min(100%,480px)] flex-wrap items-center justify-center gap-2 text-xs">
+          <button
+            type="button"
+            className="btn-secondary !px-2 !py-1"
+            aria-label={t.chess.flipBoard}
+            data-testid="flip-board"
+            onClick={() => setFlipped((f) => !f)}
+          >
+            ⇅ {t.chess.flipBoard}
+          </button>
+          <button
+            type="button"
+            className="btn-secondary !px-2 !py-1"
+            aria-label={prefs.sound ? t.chess.soundOff : t.chess.soundOn}
+            aria-pressed={prefs.sound}
+            data-testid="sound-toggle"
+            onClick={() => setPrefs({ sound: !prefs.sound })}
+          >
+            {prefs.sound ? "🔊" : "🔇"} {t.chess.sound}
+          </button>
+          <button
+            type="button"
+            className="btn-secondary !px-2 !py-1"
+            aria-label={t.chess.boardSettings}
+            aria-expanded={settingsOpen}
+            data-testid="board-settings"
+            onClick={() => setSettingsOpen((o) => !o)}
+          >
+            ⚙️
+          </button>
+          {settingsOpen && (
+            <div className="flex w-full flex-wrap items-center justify-center gap-3 rounded-xl bg-surface-muted p-2" data-testid="board-settings-panel">
+              <label className="flex items-center gap-1">
+                {t.chess.boardTheme}
+                <select
+                  className="input !py-0.5 text-xs"
+                  value={prefs.theme}
+                  onChange={(e) => setPrefs({ theme: e.target.value as ChessBoardThemeId })}
+                >
+                  {CHESS_BOARD_THEME_IDS.map((id) => (
+                    <option key={id} value={id}>
+                      {themeLabel(t, id)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex items-center gap-1">
+                <input
+                  type="checkbox"
+                  checked={prefs.coordinates}
+                  data-testid="coordinates-toggle"
+                  onChange={(e) => setPrefs({ coordinates: e.target.checked })}
+                />
+                {t.chess.coordinates}
+              </label>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
+function themeLabel(t: UiDict, id: ChessBoardThemeId): string {
+  return id === "green" ? t.chess.themeGreen : id === "blue" ? t.chess.themeBlue : id === "wood" ? t.chess.themeWood : t.chess.themeClassic;
+}
+
+const GLYPHS: Record<"w" | "b", Record<PromotionPiece, string>> = {
+  w: { q: "♕", r: "♖", b: "♗", n: "♘" },
+  b: { q: "♛", r: "♜", b: "♝", n: "♞" },
+};
+
+function promotionGlyph(color: "w" | "b", piece: PromotionPiece): string {
+  return GLYPHS[color][piece];
+}

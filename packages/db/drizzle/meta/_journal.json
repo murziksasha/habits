@@ -295,6 +295,41 @@
             "when": 1794545500000,
             "tag": "0041_last_practiced_at",
             "breakpoints": true
+        },
+        {
+            "idx": 42,
+            "version": "7",
+            "when": 1794545600000,
+            "tag": "0042_chess_puzzle_rating",
+            "breakpoints": true
+        },
+        {
+            "idx": 43,
+            "version": "7",
+            "when": 1794545700000,
+            "tag": "0043_chess_games_history",
+            "breakpoints": true
+        },
+        {
+            "idx": 44,
+            "version": "7",
+            "when": 1794545800000,
+            "tag": "0044_chess_opening_lines",
+            "breakpoints": true
+        },
+        {
+            "idx": 45,
+            "version": "7",
+            "when": 1795667702630,
+            "tag": "0045_fk_indexes",
+            "breakpoints": true
+        },
+        {
+            "idx": 46,
+            "version": "7",
+            "when": 1795668627060,
+            "tag": "0046_user_chess_prefs",
+            "breakpoints": true
         }
     ]
 }

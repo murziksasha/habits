@@ -12,6 +12,7 @@ import { ExercisePlayer, type Exercise } from "@/components/exercises";
 import { ConfidencePicker, isConfidenceRateable } from "@/components/confidence-picker";
 
 export type PracticeItem = {
+  /** A lesson UUID, or "own_game" for a puzzle from the learner's own game (courseSlug is then ""). */
   lessonId: string;
   courseSlug: string;
   lessonTitleUk: string;
@@ -201,7 +202,7 @@ export function PracticeSession({
                   <span className={ok ? "font-black text-green-600" : "font-black text-orange-500"}>
                     {ok ? "✓" : "↺"}
                   </span>
-                  {(!ok || it.exercise.type === "circuit_lab" || it.exercise.type === "numeric") && (
+                  {it.courseSlug && (!ok || it.exercise.type === "circuit_lab" || it.exercise.type === "numeric") && (
                     <Link
                       href={`/courses/${it.courseSlug}/lessons/${it.lessonId}`}
                       className="text-sm font-bold text-sky hover:underline"
@@ -234,7 +235,7 @@ export function PracticeSession({
         <span>
           {idx + 1} / {items.length}
         </span>
-        <span>{it.courseSlug}</span>
+        <span>{it.courseSlug || (en ? it.lessonTitleEn : it.lessonTitleUk)}</span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-slate-200">
         <div className="h-full rounded-full bg-brand" style={{ width: `${Math.round((idx / items.length) * 100)}%` }} />

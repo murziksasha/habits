@@ -42,7 +42,7 @@ bookmarkRoutes.get("/check/:lessonId", authMiddleware, async (c) => {
 });
 
 const upsertSchema = z.object({
-  lessonId: z.string().uuid(),
+  lessonId: z.string().guid(),
   note: z.string().max(2000).optional(),
 });
 

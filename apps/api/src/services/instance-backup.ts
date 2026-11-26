@@ -137,6 +137,13 @@ export function orderedIncludedTableNames(): string[] {
 }
 
 export function dbPackageRoot(): string {
+  // Deployed image (`pnpm deploy`): @eduforge/db lives in node_modules with its drizzle/ folder.
+  try {
+    const root = dirname(dirname(fileURLToPath(import.meta.resolve("@eduforge/db"))));
+    if (existsSync(join(root, "drizzle", "meta", "_journal.json"))) return root;
+  } catch {
+    // not resolvable here; fall back to walking up the monorepo
+  }
   let dir = dirname(fileURLToPath(import.meta.url));
   for (let i = 0; i < 8; i++) {
     const root = join(dir, "packages", "db");

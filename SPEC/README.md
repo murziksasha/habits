@@ -1,6 +1,6 @@
 # EduForge — Product & Technical Specification
 
-This folder is the **source of truth** for the EduForge educational SaaS monorepo. All documents are written in **English**.
+This folder is the **source of truth** for the EduForge educational SaaS monorepo. Documents are written in **English** (the chess upgrade plan is in Ukrainian). Operational runbooks live in [`instructions/`](../instructions/README.md) and are written in Russian.
 
 Course programs and the depth of the seeded lessons live in [courses/](./courses/README.md), one file per slug.
 
@@ -101,6 +101,7 @@ Course programs and the depth of the seeded lessons live in [courses/](./courses
 | 91 | [Deep-learning features](./91-deep-learning-features.md) | Concept cards, forgetting-curve memory model, interleaved mixed practice, new deep lessons |
 | 92 | [Deep learning, round 2](./92-deep-learning-2.md) | Confidence calibration, mistake notebook (exercise SRS), mastery map, explain-in-own-words, MDX concept markers |
 | 93 | [Clear tasks & robust grading](./93-clear-tasks-robust-grading.md) | Condition clarification, code equivalence, server-side behavior check, editor hotkey isolation, dual mode |
+| 93 | [Learning refresh](./93-learning-refresh.md) | Learning refresh and the Oracle path (shares number 93 with the doc above) |
 | — | **[CURRENT.md](./CURRENT.md)** | **Active product surface freeze, IA, improvement checklist** |
 | — | [CONTENT-DX.md](./CONTENT-DX.md) | Content authoring DX + EN gate |
 | — | [CONTENT-EXPANSION.md](./CONTENT-EXPANSION.md) | Nov 2026 lesson expansion: +572 lessons, 3 new courses, pipeline |
@@ -109,6 +110,24 @@ Course programs and the depth of the seeded lessons live in [courses/](./courses
 | — | [COURSE-REGISTRY.md](./COURSE-REGISTRY.md) | Slug → hub → freemium matrix |
 | — | [OPS.md](./OPS.md) | Backups, multi-instance, flags, incidents |
 | — | [P2-STRATEGIC.md](./P2-STRATEGIC.md) | Judge, OTel, MDX, video, classroom, mobile foundations |
+| — | [CHESS-DEEP-UPGRADE-PLAN.md](./CHESS-DEEP-UPGRADE-PLAN.md) | Chess course deep upgrade: all phases (puzzle engine, Lichess import, bot, SRS, endgames). Written in Ukrainian |
+| — | [DEEP-ENGLISH-CHESS-PLAN.md](./DEEP-ENGLISH-CHESS-PLAN.md) | Earlier deep plan for the English and Chess tracks (PR #15) |
+| — | [IMPROVEMENTS-PLAN.md](./IMPROVEMENTS-PLAN.md) | Learning-improvements plan after the 572-lesson expansion (PR #13 follow-up) |
+| — | [CONTENT-AUDIT.md](./CONTENT-AUDIT.md) | Content spot-check and the automated quality gate |
+
+## Find by topic
+
+| Topic | Specs | Runbooks (`instructions/`, Russian) |
+| --- | --- | --- |
+| Architecture, API, data | [02](./02-architecture.md), [03](./03-domain-model.md), [04](./04-api-reference.md) | [migrations](../instructions/migrations.md), [env](../instructions/env.md) |
+| Courses and content | [05](./05-courses-and-content.md), [CONTENT-DX](./CONTENT-DX.md), [CONTENT-EXPANSION](./CONTENT-EXPANSION.md), [COURSE-DEPTH](./COURSE-DEPTH.md), [COURSE-REGISTRY](./COURSE-REGISTRY.md), [CONTENT-AUDIT](./CONTENT-AUDIT.md), [courses/](./courses/README.md) | — |
+| Chess | [07](./07-chess-realtime.md), [CHESS-DEEP-UPGRADE-PLAN](./CHESS-DEEP-UPGRADE-PLAN.md), [DEEP-ENGLISH-CHESS-PLAN](./DEEP-ENGLISH-CHESS-PLAN.md) | [chess-content](../instructions/chess-content.md), [stockfish](../instructions/stockfish.md), [realtime](../instructions/realtime.md) |
+| Learning science (SRS, review, mistakes) | [20](./20-flashcards-tutor-reports-i18n.md), [21](./21-learning-os.md), [90](./90-deep-improvements-plan.md)–[93](./93-clear-tasks-robust-grading.md), [IMPROVEMENTS-PLAN](./IMPROVEMENTS-PLAN.md) | — |
+| Frontend | [09](./09-frontend.md), [79](./79-ux-user-improvements.md)–[84](./84-ux-page-loading-sweep.md) | [web](../instructions/web.md), [lint](../instructions/lint.md) |
+| Auth, admin, backups | [08](./08-auth-billing-admin.md), [72](./72-admin-platform-v2.md), [77](./77-security-retention-pack.md), [78](./78-oauth-2fa-family-teacher.md), [88](./88-instance-backup.md), [89](./89-unverified-lifecycle.md) | [backups](../instructions/backups.md) |
+| Infrastructure, CI, ops | [10](./10-infrastructure.md), [11](./11-testing.md), [12](./12-production-ops.md), [OPS](./OPS.md), [CRON](./CRON.md) | [docker](../instructions/docker.md), [ci](../instructions/ci.md), [coverage](../instructions/coverage.md), [dev-and-testing](../instructions/dev-and-testing.md), [error-tracking](../instructions/error-tracking.md) |
+
+Every `SPEC/*.md` file is listed in this index; add a row here when you add a spec.
 
 > **Note:** Specs 01–93 are historical feature logs. Day-to-day product truth is **[CURRENT.md](./CURRENT.md)**.
 

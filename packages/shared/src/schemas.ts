@@ -28,13 +28,13 @@ export const loginSchema = z.object({
 });
 
 export const submitLessonSchema = z.object({
-  lessonId: z.string().uuid(),
+  lessonId: z.string().guid(),
   answers: z.array(
     z.object({
       exerciseId: z.string(),
       answer: z.unknown(),
       correct: z.boolean().optional(),
-      meta: z.record(z.unknown()).optional(),
+      meta: z.record(z.string(), z.unknown()).optional(),
     }),
   ),
   durationMs: z.number().int().nonnegative().optional(),
@@ -46,7 +46,7 @@ export const seekGameSchema = z.object({
 });
 
 export const chessMoveSchema = z.object({
-  gameId: z.string().uuid(),
+  gameId: z.string().guid(),
   from: z.string().min(2).max(2),
   to: z.string().min(2).max(2),
   promotion: z.enum(["q", "r", "b", "n"]).optional(),

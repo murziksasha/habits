@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, master, dev, deepImprovements]
+    branches: [main, master, dev, deepImprovements, seedFeat]
+  # Every pull request, whatever its base branch (feature → feature PRs included).
   pull_request:
-    branches: [main, master, dev, deepImprovements]
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -22,21 +22,40 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @eduforge/shared build
-      - run: pnpm --filter @eduforge/content build
-      - run: pnpm --filter @eduforge/chess-core build
-      - run: pnpm --filter @eduforge/judge build
-      - run: pnpm --filter @eduforge/circuit-engine build
-      - run: pnpm --filter @eduforge/db build
-      - name: Unit tests
-        run: pnpm test:unit
+      - name: Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo/cache
+          key: turbo-${{ runner.os }}-${{ github.job }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ github.job }}-
+      # One turbo run builds each package once, in dependency order (cached in .turbo/cache).
+      - run: pnpm exec turbo run build --filter=@eduforge/chess-core --filter=@eduforge/shared --filter=@eduforge/content --filter=@eduforge/judge --filter=@eduforge/circuit-engine --filter=@eduforge/db
+      # Unit tests with coverage; per-package baseline thresholds live in each vitest.config.ts.
+      - name: Unit tests + coverage
+        # Two packages at a time: the bot search and SPICE tests are CPU-bound and time out
+        # when every package runs instrumented in parallel on a 2-core runner.
+        run: pnpm test:coverage --concurrency=2
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: |
+            apps/*/coverage/
+            packages/*/coverage/
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Typecheck
         run: pnpm typecheck
+      - name: Migration journal check
+        run: pnpm migrate check
       - name: Lint
         run: pnpm lint
+      - name: SPEC index check
+        run: pnpm docs:check
       - name: Production dependency audit
         run: pnpm audit --prod --audit-level=high
-        continue-on-error: true
 
   integration:
     name: API integration (Postgres)
@@ -71,6 +90,8 @@ jobs:
       AUTH_SECRET: ci-test-secret
       WEB_ORIGIN: http://127.0.0.1:3000
       COOKIE_SECURE: "0"
+      # Seed has no default admin password; tests log in with the same value.
+      ADMIN_PASSWORD: admin12345
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -79,17 +100,26 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo/cache
+          key: turbo-${{ runner.os }}-${{ github.job }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ github.job }}-
       # API imports @eduforge/judge — must build before integration tests
-      - run: pnpm --filter @eduforge/shared build
-      - run: pnpm --filter @eduforge/content build
-      - run: pnpm --filter @eduforge/chess-core build
-      - run: pnpm --filter @eduforge/judge build
-      - run: pnpm --filter @eduforge/circuit-engine build
-      - run: pnpm --filter @eduforge/db build
-      - run: pnpm --filter @eduforge/api build
+      # One turbo run builds each package once, in dependency order (cached in .turbo/cache).
+      - run: pnpm exec turbo run build --filter=@eduforge/chess-core --filter=@eduforge/shared --filter=@eduforge/content --filter=@eduforge/judge --filter=@eduforge/circuit-engine --filter=@eduforge/db --filter=@eduforge/api
       - run: pnpm db:migrate
       - run: pnpm db:seed
       - run: pnpm --filter @eduforge/api test:integration
+      # Same suite with Redis unreachable: the API must fall back to memory quickly.
+      - name: API integration without Redis
+        run: pnpm --filter @eduforge/api test:integration
+        env:
+          REDIS_URL: redis://127.0.0.1:1
+      - name: Realtime game races (Postgres)
+        run: pnpm --filter @eduforge/realtime test:integration
 
   content-gate:
     name: Content integrity gate
@@ -102,8 +132,15 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @eduforge/shared build
-      - run: pnpm --filter @eduforge/content build
+      - name: Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo/cache
+          key: turbo-${{ runner.os }}-${{ github.job }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ github.job }}-
+      # One turbo run builds each package once, in dependency order (cached in .turbo/cache).
+      - run: pnpm exec turbo run build --filter=@eduforge/chess-core --filter=@eduforge/shared --filter=@eduforge/content
       - name: Content + MDX tests
         run: pnpm --filter @eduforge/content test
 
@@ -134,7 +171,14 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @eduforge/shared build
-      - run: pnpm --filter @eduforge/content build
+      - name: Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo/cache
+          key: turbo-${{ runner.os }}-${{ github.job }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ github.job }}-
+      # One turbo run builds each package once, in dependency order (cached in .turbo/cache).
+      - run: pnpm exec turbo run build --filter=@eduforge/chess-core --filter=@eduforge/shared --filter=@eduforge/content
       - run: pnpm --filter @eduforge/db test
       - run: node scripts/verify-labs.mjs

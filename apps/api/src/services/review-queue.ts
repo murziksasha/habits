@@ -7,7 +7,8 @@ export type ReviewReasonCode =
   | "many_attempts"
   | "leech"
   | "exam_related"
-  | "incomplete_progress";
+  | "incomplete_progress"
+  | "theme_sibling";
 
 export type ReviewReason = {
   code: ReviewReasonCode;
@@ -72,3 +73,10 @@ export function buildReviewReasons(input: {
   }
   return reasons;
 }
+
+/** Reason shown for a chess puzzle queued because a same-theme puzzle was missed. */
+export const THEME_SIBLING_REASON: ReviewReason = {
+  code: "theme_sibling",
+  labelUk: "Та сама тема, що й у пропущеній задачі",
+  labelEn: "Same theme as a puzzle you missed",
+};
