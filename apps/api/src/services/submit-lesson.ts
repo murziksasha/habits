@@ -241,7 +241,7 @@ export async function gradeLessonAttemptAsync(
         }
       }
     } else {
-      const graded = gradeExercise(ex, a?.answer);
+      const graded = gradeExercise(ex, a?.answer, { userId });
       results.push({ exerciseId: ex.id, type: ex.type, ...graded });
     }
   }

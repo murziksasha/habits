@@ -5,6 +5,8 @@ import { ChessBoardFrame } from "@/components/chess-board-frame";
 import { DifficultyStars } from "@/components/difficulty-stars";
 import { Chess, checkEndgameGoal, evaluatePuzzleMove, replaySans, type EndgameGoal, type PuzzleSpec, type Square } from "@eduforge/chess-core";
 import { requestBotMove } from "@/lib/chess-bot";
+import { api } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 import { playChessSound } from "@/lib/chess-sounds";
 import { localizeExerciseOptions, chessThemeLabel, visibleChessThemes } from "@eduforge/shared";
 import clsx from "clsx";
@@ -303,6 +305,7 @@ export function ChessPuzzleExercise({
 /** Endgame drill: play the position out against the bot; goal judged by rules (server re-grades). */
 export function ChessEndgameDrillExercise({ exercise, onAnswer }: { exercise: Exercise; onAnswer: (a: unknown) => void }) {
   const { t, locale } = useLocale();
+  const { token: authToken } = useAuth();
   const examMode = useContext(ExamModeCtx);
   const assistance = useContext(AssistanceCtx);
   const en = locale === "en";
@@ -314,6 +317,11 @@ export function ChessEndgameDrillExercise({ exercise, onAnswer }: { exercise: Ex
   const [thinking, setThinking] = useState(false);
   const [finished, setFinished] = useState<"success" | "fail" | null>(null);
   const [hintShown, setHintShown] = useState(false);
+  // Signed game state from the API; the server plays the defender and grading trusts only this.
+  const [drillToken, setDrillToken] = useState<string | null>(null);
+  // Unsaved exercises (admin preview) are unknown to the API: play the defender locally, ungraded.
+  const [localOnly, setLocalOnly] = useState(false);
+  const [serverError, setServerError] = useState(false);
 
   const viewer = useMemo(() => {
     try {
@@ -330,19 +338,21 @@ export function ChessEndgameDrillExercise({ exercise, onAnswer }: { exercise: Ex
     setThinking(false);
     setFinished(null);
     setHintShown(false);
+    setDrillToken(null);
+    setServerError(false);
   }, [exercise.id]);
 
   // Report the outcome once.
   useEffect(() => {
-    if (finished || status.status === "in_progress") return;
+    if (finished || status.status === "in_progress" || thinking) return;
     setFinished(status.status);
     playChessSound(status.status === "success" ? "puzzleSolved" : "puzzleWrong");
-    onAnswer({ sans: moves.map((m) => m.san), hintsUsed: hintShown ? 1 : 0, reason: status.reason });
-  }, [status, finished, moves, hintShown, onAnswer]);
+    onAnswer({ token: drillToken, hintsUsed: hintShown ? 1 : 0, reason: status.reason });
+  }, [status, finished, thinking, drillToken, hintShown, onAnswer]);
 
-  // Bot reply when it is the bot's turn.
+  // Local defender (preview only).
   useEffect(() => {
-    if (finished || status.status !== "in_progress") return;
+    if (!localOnly || finished || status.status !== "in_progress") return;
     const g = replaySans(fen, moves.map((m) => m.san));
     if (!g || g.turn() === viewer) return;
     let active = true;
@@ -363,7 +373,35 @@ export function ChessEndgameDrillExercise({ exercise, onAnswer }: { exercise: Ex
       clearTimeout(timer);
       setThinking(false);
     };
-  }, [moves, fen, viewer, botLevel, finished, status.status]);
+  }, [localOnly, moves, fen, viewer, botLevel, finished, status.status]);
+
+  async function sendToServer(prevMoves: DrillMove[], mv: { from: string; to: string; promotion?: string }) {
+    setThinking(true);
+    setServerError(false);
+    try {
+      const r = await api<{ sans: string[]; reply: DrillMove | null; token: string }>(
+        `/chess/drills/${encodeURIComponent(String(exercise.id))}/move`,
+        { token: authToken, body: { token: drillToken, move: mv } },
+      );
+      const g = replaySans(fen, []);
+      const next: DrillMove[] = [];
+      for (const san of r.sans) {
+        const m = g?.move(san);
+        if (m) next.push({ san: m.san, from: m.from, to: m.to });
+      }
+      setDrillToken(r.token);
+      setMoves(next);
+    } catch (e) {
+      if ((e as { status?: number }).status === 404) {
+        setLocalOnly(true);
+        return;
+      }
+      setMoves(prevMoves);
+      setServerError(true);
+    } finally {
+      setThinking(false);
+    }
+  }
 
   function onDrop(from: string, to: string, promotion?: "q" | "r" | "b" | "n") {
     if (finished || thinking) return false;
@@ -371,7 +409,9 @@ export function ChessEndgameDrillExercise({ exercise, onAnswer }: { exercise: Ex
     if (!g || g.turn() !== viewer) return false;
     try {
       const r = g.move({ from: from as Square, to: to as Square, promotion });
-      setMoves((prev) => [...prev, { san: r.san, from: r.from, to: r.to }]);
+      const prev = moves;
+      setMoves([...prev, { san: r.san, from: r.from, to: r.to }]);
+      if (!localOnly) void sendToServer(prev, { from: r.from, to: r.to, promotion: r.promotion });
       return true;
     } catch {
       return false;
@@ -381,6 +421,8 @@ export function ChessEndgameDrillExercise({ exercise, onAnswer }: { exercise: Ex
   function restart() {
     setMoves([]);
     setThinking(false);
+    setDrillToken(null);
+    setServerError(false);
   }
 
   const goalText = (goal === "draw" ? t.chess.endgameGoalDraw : goal === "promote" ? t.chess.endgameGoalPromote : t.chess.endgameGoalWin).replace(
@@ -419,7 +461,7 @@ export function ChessEndgameDrillExercise({ exercise, onAnswer }: { exercise: Ex
         />
       </div>
       <p className="text-center font-bold" role="status" aria-live="polite">
-        {finished === "success" ? `✅ ${t.chess.endgameSuccess}` : finished === "fail" ? `❌ ${t.chess.endgameFail}` : thinking ? t.chess.opponentThinking : ""}
+        {finished === "success" ? `✅ ${t.chess.endgameSuccess}` : finished === "fail" ? `❌ ${t.chess.endgameFail}` : thinking ? t.chess.opponentThinking : serverError ? t.chess.drillServerError : ""}
       </p>
       {hintShown && hint && !finished && <div className="rounded-xl bg-surface-muted p-3 text-sm">{hint}</div>}
       {finished && explanation && <div className="rounded-xl bg-surface-muted p-3 text-sm">{explanation}</div>}

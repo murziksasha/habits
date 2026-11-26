@@ -11,7 +11,17 @@
 | `chess_endgame_drill` | `fen`, `goal` (`win` / `draw` / `promote`), `maxMoves` 1–100, `botLevel` (`club` / `strong`), подсказка и объяснение uk/en, `source`. 18 упражнений, ID `ch-eg-*` (`chess-upgrade/endgame-drills.ts`) |
 | `chess_lesson` | `fen`, `notesUk/En`, необязательный `quiz` |
 
-Оценивает сервер (`gradeExercise` в `@eduforge/shared`). Новый тип упражнения: реестр в shared + Zod + контент + заметка в соответствующем `SPEC/`.
+Оценивает сервер (`gradeExercise` в `@eduforge/shared`; в API — обёртка `apps/api/src/grade.ts`). Новый тип упражнения: реестр в shared + Zod + контент + заметка в соответствующем `SPEC/`.
+
+## Эндшпильные тренировки: ходы защитника делает сервер
+
+- Клиент отправляет только свой ход: `POST /chess/drills/:exerciseId/move` с телом `{ token, move: { from, to, promotion? } }` (`token` — из прошлого ответа, для первого хода не нужен).
+- Сервер (`apps/api/src/services/endgame-drill.ts`) находит упражнение в опубликованных уроках (кеш 10 минут), проверяет подпись токена, легальность хода и очередь, сам выбирает ответ защитника (`chooseBotMove`, уровень из `botLevel`, 300 мс поиска) и возвращает `{ sans, reply, status, token }`.
+- Токен — `base64url(JSON).HMAC-SHA256`, ключ выводится из `AUTH_SECRET`. В нём ID упражнения, хеш FEN, пользователь (пустой для гостя), вся партия и время выдачи; живёт 24 часа.
+- При сдаче урока ответ — `{ token, hintsUsed }`. `gradeExercise` в API берёт партию только из токена; список `sans` от клиента больше не принимается (`meta.reason = "unverified"`, засчитывается как ошибка). Чужой токен, токен другого упражнения или подделка — то же самое.
+- Ошибки: `illegal_move`, `not_your_turn`, `drill_over` (409), `invalid_token`, `invalid_move`, `not_found` (404), `rate_limited` (40 ходов в минуту).
+- Предпросмотр в конструкторе (упражнение ещё не сохранено, сервер отвечает 404): защитник играет локально, результат не засчитывается.
+- Поиск защитника занимает поток API до 300 мс на ход — поэтому лимит на ходы. Тесты: `services/endgame-drill.test.ts`, `grade.test.ts`, интеграционный тест в `integration.test.ts`.
 
 ## Стабильные ID и правка на месте
 

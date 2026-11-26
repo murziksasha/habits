@@ -5,13 +5,13 @@ import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 import {
   buildInterleavedSet,
-  gradeExercise,
   isFirstTry,
   isMixedPracticeExercise,
   retentionSummary,
   type MixedExercise,
 } from "@eduforge/shared";
 import { logActivity } from "../engagement.js";
+import { gradeExercise } from "../grade.js";
 import { rateLimit } from "../rate-limit.js";
 import { grantXpToUser } from "../services/character-progression.js";
 import {
@@ -305,7 +305,7 @@ async function gradeReviewSession(
         error: "not_found" as const,
       };
     }
-    const g = gradeExercise(ex, a.answer);
+    const g = gradeExercise(ex, a.answer, { userId: user.id });
     const wrongAttempts = clampWrongAttempts(a.wrongAttempts);
     return {
       lessonId: a.lessonId,

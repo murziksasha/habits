@@ -21,11 +21,12 @@ import {
   chessRatings,
 } from "@eduforge/db";
 import { analysePendingGames, enqueueGameAnalysis } from "../services/chess-game-analysis.js";
-import { authMiddleware, type AuthedUser } from "../auth.js";
+import { authMiddleware, optionalAuth, type AuthedUser } from "../auth.js";
 import { cronAuthorized, cronUnauthorized } from "../cron-auth.js";
 import { db } from "../db.js";
 import { gradeExercise } from "../grade.js";
-import { rateLimit } from "../rate-limit.js";
+import { rateLimit, requestClientIp } from "../rate-limit.js";
+import { findDrillExercise, playDrillMove, readDrillToken } from "../services/endgame-drill.js";
 import {
   applyAttempt,
   getOrCreateLearnerRating,
@@ -516,4 +517,36 @@ chessRoutes.post("/puzzles/cron/rate", async (c) => {
   if (!cronAuthorized(c)) return cronUnauthorized(c);
   const res = await runPuzzleRatingBatch();
   return c.json({ ok: true, ...res });
+});
+
+/**
+ * Server-owned endgame drill: the learner sends only its own move (plus the token from the
+ * previous reply); the API validates it, plays the defender and signs the game so far.
+ * Lesson grading accepts only that token (apps/api/src/grade.ts).
+ */
+chessRoutes.post("/drills/:exerciseId/move", optionalAuth, async (c) => {
+  const user = c.get("user") as AuthedUser | undefined;
+  const who = user?.id ?? "";
+  const limited = await rateLimit({ key: `drill:${who || requestClientIp(c)}`, limit: 40, windowMs: 60_000 });
+  if (!limited.ok) return c.json({ error: "rate_limited", retryAfter: limited.retryAfterSec }, 429);
+  const ex = await findDrillExercise(c.req.param("exerciseId") ?? "");
+  if (!ex) return c.json({ error: "not_found" }, 404);
+  const body = (await c.req.json().catch(() => null)) as
+    | { token?: unknown; move?: { from?: unknown; to?: unknown; promotion?: unknown } }
+    | null;
+  const move = body?.move;
+  if (!move || typeof move.from !== "string" || typeof move.to !== "string") return c.json({ error: "invalid_move" }, 400);
+  let prev: string[] = [];
+  if (body?.token !== undefined && body.token !== null && body.token !== "") {
+    const read = readDrillToken(body.token, ex, who);
+    if (!read) return c.json({ error: "invalid_token" }, 400);
+    prev = read;
+  }
+  const r = playDrillMove(ex, who, prev, {
+    from: move.from,
+    to: move.to,
+    promotion: typeof move.promotion === "string" ? move.promotion : undefined,
+  });
+  if (!r.ok) return c.json({ error: r.error }, r.error === "drill_over" || r.error === "not_your_turn" ? 409 : 400);
+  return c.json({ sans: r.sans, reply: r.reply, status: r.status, token: r.token });
 });

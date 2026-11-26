@@ -5,6 +5,7 @@
 import { Secret, TOTP } from "otpauth";
 import { describe, expect, it, beforeAll } from "vitest";
 import { createApp } from "./app.js";
+import { gradeExercise } from "./grade.js";
 import { registerLearningProgressIntegrationTests } from "./learning-progress.integration.js";
 import { db } from "./db.js";
 import { users, classes, tournamentPairings, tournaments, organizations } from "@eduforge/db";
@@ -882,7 +883,28 @@ describeIntegration("API integration", () => {
       const meAfter = await json("/auth/me", { token: targetSession });
       expect(meAfter.status).toBe(401);
     });
+  });
 
+  it("plays server-owned endgame drills and grades only the signed game", async () => {
+    const id = "ch-eg-opposition-e5";
+    expect((await json(`/chess/drills/nope-${suffix}/move`, { token, body: { move: { from: "e2", to: "e4" } } })).status).toBe(404);
+    const bad = await json(`/chess/drills/${id}/move`, { token, body: { move: { from: "e6", to: "e8" } } });
+    expect(bad.status).toBe(400);
+    expect(bad.data.error).toBe("illegal_move");
+    const r = await json(`/chess/drills/${id}/move`, { token, body: { move: { from: "e6", to: "d6" } } });
+    expect(r.status).toBe(200);
+    const sans = r.data.sans as string[];
+    expect(sans[0]).toBe("Kd6");
+    expect(sans).toHaveLength(2);
+    expect(typeof r.data.token).toBe("string");
+    const forged = await json(`/chess/drills/${id}/move`, {
+      token,
+      body: { token: `${String(r.data.token).slice(0, -2)}xx`, move: { from: "d6", to: "c7" } },
+    });
+    expect(forged.status).toBe(400);
+    expect(forged.data.error).toBe("invalid_token");
+    // Lesson grading ignores a client-made game and accepts the server-signed one.
+    expect(gradeExercise({ id, type: "chess_endgame_drill", fen: "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1", goal: "promote", maxMoves: 12 }, { sans }).meta?.reason).toBe("unverified");
   });
 });
 

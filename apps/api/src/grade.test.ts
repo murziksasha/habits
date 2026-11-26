@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { gradeExercise } from "./grade.js";
+import { issueDrillToken } from "./services/endgame-drill.js";
 
 describe("gradeExercise", () => {
   it("grades mcq", () => {
@@ -279,14 +280,20 @@ int main(){ cout << 1; return 0; }`,
     expect(gradeExercise(ex, null).correct).toBe(false);
   });
 
-  it("grades chess_endgame_drill by replaying the game on the server", () => {
+  it("grades chess_endgame_drill only from a server-signed game", () => {
     const ex = { id: "kr", type: "chess_endgame_drill", fen: "4k3/8/4K3/8/8/8/8/7R w - - 0 1", goal: "win", maxMoves: 5 };
-    expect(gradeExercise(ex, { sans: ["Rh8#"] }).correct).toBe(true);
-    expect(gradeExercise(ex, { sans: ["Rh7", "Kf8"] }).correct).toBe(false);
-    expect(gradeExercise(ex, { sans: ["Qh8#"] }).correct).toBe(false);
+    const tok = (sans: string[], user = "u1") => ({ token: issueDrillToken(ex, user, sans) });
+    expect(gradeExercise(ex, tok(["Rh8#"]), { userId: "u1" }).correct).toBe(true);
+    // Client-supplied SAN lists are no longer trusted.
+    expect(gradeExercise(ex, { sans: ["Rh8#"] }).correct).toBe(false);
+    expect(gradeExercise(ex, { sans: ["Rh8#"] }).meta?.reason).toBe("unverified");
+    expect(gradeExercise(ex, tok(["Rh8#"], "u2"), { userId: "u1" }).correct).toBe(false);
+    expect(gradeExercise(ex, tok(["Rh7", "Kf8"]), { userId: "u1" }).correct).toBe(false);
     expect(gradeExercise(ex, null).correct).toBe(false);
+    const other = { ...ex, id: "kr2" };
+    expect(gradeExercise(other, tok(["Rh8#"]), { userId: "u1" }).correct).toBe(false);
     const hold = { ...ex, fen: "4k3/8/4K3/8/8/8/8/7R b - - 0 1", goal: "draw", maxMoves: 2 };
-    expect(gradeExercise(hold, { sans: ["Kf8", "Rh7", "Kg8", "Ra7"] }).correct).toBe(true);
+    expect(gradeExercise(hold, { token: issueDrillToken(hold, "u1", ["Kf8", "Rh7", "Kg8", "Ra7"]) }, { userId: "u1" }).correct).toBe(true);
   });
 
   it("requires every matching pair exactly once", () => {

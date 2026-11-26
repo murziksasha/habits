@@ -376,6 +376,7 @@ export const uk = {
     copied: "Скопійовано",
     practiceClubBot: "Практика проти клубного бота",
     promotionTitle: "Оберіть фігуру",
+    drillServerError: "Не вдалося звʼязатися із сервером — спробуйте зробити хід ще раз.",
     opponentThinking: "Суперник відповідає…",
     restartPuzzle: "Почати знову",
     planPick: "Оберіть найкращий план",

@@ -378,6 +378,7 @@ export const en: UiDict = {
     copied: "Copied",
     practiceClubBot: "Practice vs Club bot",
     promotionTitle: "Choose a piece",
+    drillServerError: "Could not reach the server — try the move again.",
     opponentThinking: "Opponent is replying…",
     restartPuzzle: "Start again",
     planPick: "Pick the best plan",

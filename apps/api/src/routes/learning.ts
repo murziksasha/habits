@@ -213,7 +213,7 @@ learningRoutes.post("/self-verify/submit", authMiddleware, async (c) => {
   const ex = exercises[session.exerciseIndex] ?? exercises[0];
   if (!ex) return c.json({ error: "exercise_not_found" }, 404);
 
-  const gradeRes = gradeExercise(ex, answer);
+  const gradeRes = gradeExercise(ex, answer, { userId: user.id });
   const passed = Boolean(gradeRes.correct);
 
   const detailedFeedback = buildDetailedFeedback({
