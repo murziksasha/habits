@@ -12,7 +12,7 @@ import {
   type Square,
 } from "@eduforge/chess-core";
 import { useLocale } from "@/lib/locale-context";
-import { CHESS_BOARD_THEME_IDS, chessBoardSquareStyles, getUI, type ChessBoardThemeId } from "@eduforge/shared";
+import { CHESS_BOARD_THEME_IDS, chessBoardSquareStyles, type ChessBoardThemeId, type UiDict } from "@eduforge/shared";
 import { useChessPrefs } from "@/lib/chess-prefs";
 import { playChessSound, soundForSan } from "@/lib/chess-sounds";
 
@@ -66,8 +66,7 @@ export function ChessBoardFrame({
   arrows,
   showControls = mode !== "explore",
 }: ChessBoardFrameProps) {
-  const { locale } = useLocale();
-  const t = getUI(locale);
+  const { t } = useLocale();
   const [prefs, setPrefs] = useChessPrefs();
   const [flipped, setFlipped] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -643,7 +642,7 @@ export function ChessBoardFrame({
   );
 }
 
-function themeLabel(t: ReturnType<typeof getUI>, id: ChessBoardThemeId): string {
+function themeLabel(t: UiDict, id: ChessBoardThemeId): string {
   return id === "green" ? t.chess.themeGreen : id === "blue" ? t.chess.themeBlue : id === "wood" ? t.chess.themeWood : t.chess.themeClassic;
 }
 
