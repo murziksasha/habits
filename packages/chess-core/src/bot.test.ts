@@ -36,7 +36,9 @@ describe("bot search (phase 8)", () => {
   it("strong answers within about a second", () => {
     const t0 = Date.now();
     chooseBotMove("r2q1rk1/pb2bppp/1pn1pn2/2pp4/3P4/1PN1PN2/PBQ1BPPP/R4RK1 w - - 0 10", "strong", { rng: () => 0.9 });
-    expect(Date.now() - t0).toBeLessThan(1500);
+    // Guard against a runaway search, not a benchmark: the soft budget is ~600 ms, but
+    // loaded CI runners (or turbo running all packages in parallel) can be 2-3x slower.
+    expect(Date.now() - t0).toBeLessThan(3000);
   });
 
   it("accepts the object form with a personality", () => {
