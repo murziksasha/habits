@@ -19,6 +19,7 @@
 | `DATABASE_URL` | Строка подключения к Postgres (API, миграции, сид) |
 | `BACKUP_DIR` | Папка undo-файлов для Admin → Backup (по умолчанию `apps/api/data/backups`) |
 | `REDIS_URL`, `REDIS_PORT` | Redis (rate limit, идемпотентность, метрики API; очередь матчмейкинга realtime); если недоступен, API пишет предупреждение `[redis]` |
+| `TRUSTED_PROXY_HOPS` | Сколько своих обратных прокси стоит перед API (для IP в rate limit). `0` (по умолчанию) — брать адрес сокета и **игнорировать** `X-Forwarded-For`: клиент может подставить туда что угодно. `1` — один прокси вроде `docker/nginx.conf`, который перезаписывает заголовок (`X-Forwarded-For $remote_addr`); API берёт самое правое значение левее доверенных прокси. В `docker-compose.yml` по умолчанию `0`, потому что порт 4000 опубликован напрямую; ставить `1` только если API доступен исключительно через nginx. Интеграционные тесты используют `1` (`vitest.integration.config.ts`) |
 | `AUTH_SECRET` | Секрет сессий; на проде ≥32 символа, иначе API не стартует |
 | `NEXTAUTH_URL`, `AUTH_URL`, `WEB_ORIGIN` | Origin веба (CORS + CSRF) |
 | `FEATURE_STRICT_CSRF`, `FEATURE_EMAIL_VERIFY`, `FEATURE_REQUIRE_EMAIL_VERIFY`, `ISSUE_BEARER_TOKENS` | Флаги безопасности/авторизации |

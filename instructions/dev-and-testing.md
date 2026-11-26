@@ -58,14 +58,11 @@ pnpm dev     # turbo run dev --parallel
 
 `next build` должен идти с `NODE_ENV=production`. Если в окружении `NODE_ENV=development` (так в `.env.example` и в некоторых шеллах), голый `npx next build` падает на пререндере `/404` с ошибкой `<Html> should not be imported outside of pages/_document`. Скрипт `pnpm --filter @eduforge/web build` (`apps/web/scripts/production-build.mjs`) сам выставляет `NODE_ENV=production`. Если запускаешь `next build` вручную — `NODE_ENV=production npx next build`.
 
-## Известные падения (не регрессии)
+## Интеграционные тесты и Redis
 
-`apps/api/src/learning-progress.integration.ts` — 2 теста падают и на чистом `seedFeat` (проверено на свежей БД, без Redis, 25.11.2026):
+Запускать интеграционные тесты **с работающим Redis** (`docker compose up -d redis` или свой `redis-server`, `REDIS_URL=redis://127.0.0.1:6379`). Конфиг по умолчанию указывает на `redis://localhost:6380`; если там ничего нет, каждый запрос к Redis ждёт переподключения, и 2 теста в `apps/api/src/learning-progress.integration.ts` падают («records attempt metadata…» — таймаут 60 с, «supports historical reconstruction…» — `expected 7 to be 8`, он зависит от первого). С Redis все тесты проходят (проверено 26.11.2026).
 
-- «records attempt metadata, repeats, failures, exam thresholds, and idempotent replay without double counting» — таймаут 60 с;
-- «supports historical reconstruction, unknown missing-lesson outcomes, UTC boundaries, and weekly recap» — `expected 7 to be 8` (строка ~309).
-
-Остальные 26 интеграционных тестов проходят. Новые падения сравнивать с этим списком.
+Тесты сами ставят `TRUSTED_PROXY_HOPS=1` и шлют уникальный `X-Forwarded-For` на каждый запрос (имитация nginx), см. [env.md](env.md).
 
 ## Правила
 
