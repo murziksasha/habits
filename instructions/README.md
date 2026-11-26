@@ -26,6 +26,7 @@ pnpm workspaces + Turborepo (`packageManager: pnpm@11.22.0`).
 - [dev-and-testing.md](dev-and-testing.md) — установка, порядок сборки, запуск, тесты, известные падения.
 - [env.md](env.md) — переменные окружения и как они загружаются.
 - [ci.md](ci.md) — GitHub Actions: что и когда запускается, turbo-кеш, e2e на PR.
+- [lint.md](lint.md) — ESLint на весь репозиторий, baseline `eslint-suppressions.json`.
 - [error-tracking.md](error-tracking.md) — Sentry по желанию (`SENTRY_DSN`), request id во всех строках лога API.
 - [web.md](web.md) — структура упражнений (по модулю на тип, `next/dynamic`), словари UI по локалям, размер бандла.
 - [coverage.md](coverage.md) — покрытие тестами: команды, базовые пороги по пакетам, артефакт CI.

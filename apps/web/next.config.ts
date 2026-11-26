@@ -35,6 +35,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Lint runs once for the whole repo (`pnpm lint`, root eslint.config.mjs + baseline);
+  // skip Next's own lint pass during `next build`.
+  eslint: { ignoreDuringBuilds: true },
   transpilePackages: ["@eduforge/shared"],
   // C++ interpreter used only in the browser for playground / code_run
   serverExternalPackages: ["JSCPP"],

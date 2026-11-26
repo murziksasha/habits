@@ -6,7 +6,8 @@
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
     "build:packages": "turbo run build --filter=./packages/*",
-    "lint": "turbo run lint",
+    "lint": "eslint . --cache --cache-location node_modules/.cache/eslint/",
+    "lint:prune-baseline": "eslint . --prune-suppressions",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "test:unit": "turbo run test --filter=@eduforge/shared --filter=@eduforge/chess-core --filter=@eduforge/circuit-engine --filter=@eduforge/content --filter=@eduforge/db --filter=@eduforge/judge --filter=@eduforge/api --filter=@eduforge/realtime --filter=@eduforge/mobile --filter=@eduforge/web",
@@ -33,7 +34,13 @@
     "chess:import": "node scripts/chess-import/lichess-select.mjs"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@next/eslint-plugin-next": "15.5.29",
+    "eslint": "^10.15.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.14.0",
     "turbo": "^2.5.4",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "typescript-eslint": "~8.73.0"
   }
 }

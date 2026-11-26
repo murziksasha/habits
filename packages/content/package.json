@@ -16,8 +16,7 @@
     "dev": "tsc --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "lint": "echo ok"
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "@eduforge/chess-core": "workspace:*",

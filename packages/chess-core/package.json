@@ -16,8 +16,7 @@
     "dev": "tsc --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "lint": "echo ok"
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "chess.js": "^1.1.0"

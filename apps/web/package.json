@@ -7,7 +7,6 @@
     "build": "node scripts/production-build.mjs",
     "start": "next start -H 0.0.0.0 -p 3000",
     "typecheck": "tsc --noEmit",
-    "lint": "echo ok",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
