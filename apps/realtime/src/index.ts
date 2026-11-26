@@ -21,6 +21,7 @@ import { Chess } from "chess.js";
 import { assignColors, type SeekEntry } from "./matchmaking.js";
 import { createRedisClient, SeekQueueStore } from "./redis-seek-queue.js";
 import { createGameService, timeControlMs } from "./game-service.js";
+import { captureException, initSentry } from "./sentry.js";
 
 const PORT = Number(process.env.REALTIME_PORT ?? 4001);
 const WEB_ORIGIN = process.env.WEB_ORIGIN ?? "http://localhost:3000";
@@ -28,6 +29,12 @@ const DATABASE_URL =
   process.env.DATABASE_URL ??
   "postgresql://eduforge:eduforge@localhost:5432/eduforge";
 const REDIS_URL = process.env.REDIS_URL;
+
+await initSentry();
+process.on("unhandledRejection", (reason) => {
+  console.error("[realtime] unhandled rejection:", reason instanceof Error ? reason.message : reason);
+  captureException(reason);
+});
 
 const db = createDb(DATABASE_URL);
 const redis = createRedisClient(REDIS_URL);
@@ -704,6 +711,7 @@ async function sweepOnce() {
     for (const f of await games.sweepStaleGames()) io.to(`game:${f.gameId}`).emit("game_over", f);
   } catch (e) {
     console.warn("[realtime] sweep failed:", e instanceof Error ? e.message : e);
+    captureException(e, { task: "sweep" });
   } finally {
     sweeping = false;
   }

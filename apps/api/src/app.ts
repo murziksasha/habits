@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { env } from "./env.js";
-import { log, latencyStats, newRequestId, recordLatency } from "./logger.js";
+import { log, latencyStats, newRequestId, recordLatency, runWithRequestId, sanitizeRequestId } from "./logger.js";
+import { captureException } from "./sentry.js";
 import { checkReady } from "./ready.js";
 import { adminRoutes } from "./routes/admin.js";
 import { authRoutes } from "./routes/auth.js";
@@ -62,18 +63,16 @@ export function createApp() {
   // Request id + structured access log + latency samples + OTel span
   app.use("*", async (c, next) => {
     const requestId =
-      c.req.header("x-request-id")?.trim() ||
-      c.req.header("x-correlation-id")?.trim() ||
+      sanitizeRequestId(c.req.header("x-request-id")) ||
+      sanitizeRequestId(c.req.header("x-correlation-id")) ||
       newRequestId();
     c.set("requestId" as never, requestId as never);
     c.header("x-request-id", requestId);
     const start = Date.now();
-    await withSpan(
-      "http.request",
-      { method: c.req.method, path: c.req.path, requestId },
-      async () => {
+    await runWithRequestId(requestId, () =>
+      withSpan("http.request", { method: c.req.method, path: c.req.path, requestId }, async () => {
         await next();
-      },
+      }),
     );
     const ms = Date.now() - start;
     recordLatency(ms, c.req.path);
@@ -216,6 +215,7 @@ export function createApp() {
     if (isUniqueViolation(err)) {
       return c.json({ error: "conflict", requestId }, 409);
     }
+    captureException(err, { requestId, method: c.req.method, path: c.req.path });
     const isProd = process.env.NODE_ENV === "production";
     return c.json(
       {

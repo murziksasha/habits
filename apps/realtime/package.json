@@ -17,6 +17,7 @@
     "@eduforge/chess-core": "workspace:*",
     "@eduforge/db": "workspace:*",
     "@eduforge/shared": "workspace:*",
+    "@sentry/node": "^11.17.0",
     "@socket.io/redis-adapter": "^8.3.0",
     "chess.js": "^1.1.0",
     "cors": "^2.8.5",
