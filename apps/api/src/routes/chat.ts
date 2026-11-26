@@ -11,7 +11,7 @@ import { sanitizeUserText } from "@eduforge/shared";
 import { z } from "zod";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
-import { clientIp, rateLimit } from "../rate-limit.js";
+import { rateLimit, requestClientIp } from "../rate-limit.js";
 
 type Vars = { user: AuthedUser };
 
@@ -66,7 +66,7 @@ chatRoutes.post("/class/:classId", authMiddleware, async (c) => {
   const classId = c.req.param("classId") as string;
   if (!(await canAccessClass(user, classId))) return c.json({ error: "forbidden" }, 403);
 
-  const ip = clientIp({ get: (n) => c.req.header(n) ?? null });
+  const ip = requestClientIp(c);
   const rl = await rateLimit({
     key: `chat:${user.id}`,
     limit: 30,

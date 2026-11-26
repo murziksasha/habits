@@ -53,7 +53,7 @@ import { oauthRoutes } from "./routes/oauth.js";
 import { familyRoutes } from "./routes/family.js";
 import { csrfOriginMiddleware } from "./csrf.js";
 import { withSpan } from "./otel.js";
-import { clientIp, rateLimit } from "./rate-limit.js";
+import { rateLimit, requestClientIp } from "./rate-limit.js";
 import { isUniqueViolation } from "./http-errors.js";
 
 export function createApp() {
@@ -113,7 +113,7 @@ export function createApp() {
       await next();
       return;
     }
-    const ip = clientIp(c.req.raw.headers);
+    const ip = requestClientIp(c);
     const rl = await rateLimit({ key: `mut:${ip}`, limit: 120, windowMs: 60_000 });
     if (!rl.ok) {
       c.header("Retry-After", String(rl.retryAfterSec));

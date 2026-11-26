@@ -218,6 +218,25 @@ describeIntegration("API integration", () => {
     expect(notFound.status).toBe(404);
   });
 
+  it("locks one account after 10 wrong passwords even from rotating IPs", async () => {
+    const victim = `itest-lock-${suffix}@eduforge.test`;
+    const reg = await json("/auth/register", {
+      method: "POST",
+      body: { email: victim, password, displayName: `Lock${suffix}` },
+    });
+    expect(reg.status).toBe(200);
+    // Every json() call uses a new X-Forwarded-For, so only the per-account limit applies.
+    for (let i = 0; i < 10; i++) {
+      const bad = await json("/auth/login", { method: "POST", body: { email: victim, password: "wrong-password" } });
+      expect(bad.status).toBe(401);
+    }
+    const locked = await json("/auth/login", { method: "POST", body: { email: victim.toUpperCase(), password } });
+    expect(locked.status).toBe(429);
+    expect(locked.data.error).toBe("rate_limited");
+    const other = await json("/auth/login", { method: "POST", body: { email, password } });
+    expect(other.status).toBe(200);
+  });
+
   it("password reset flow (dev)", async () => {
     const forgot = await json("/auth/forgot-password", {
       method: "POST",

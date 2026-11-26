@@ -79,8 +79,8 @@ parentRoutes.post("/invite", authMiddleware, async (c) => {
 /** Parent claims invite code */
 parentRoutes.post("/claim", authMiddleware, async (c) => {
   const user = c.get("user");
-  const { rateLimit, clientIp } = await import("../rate-limit.js");
-  const ip = clientIp({ get: (n) => c.req.header(n) ?? null });
+  const { rateLimit, requestClientIp } = await import("../rate-limit.js");
+  const ip = requestClientIp(c);
   const rl = await rateLimit({
     key: `parent-claim:${user.id}:${ip}`,
     limit: 10,

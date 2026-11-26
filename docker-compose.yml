@@ -46,6 +46,11 @@ services:
       # Engine baked into the image (docker/Dockerfile.api). Fixed value, not interpolated from the host:
       # the host .env may hold a Windows path.
       STOCKFISH_PATH: /usr/local/bin/stockfish
+      # Rate limits key on the client IP. 0 = use the socket address and ignore
+      # X-Forwarded-For: here the API port is published directly, so clients could
+      # forge the header. Set 1 only when the API is reachable solely through
+      # docker/nginx.conf (and stop publishing port 4000).
+      TRUSTED_PROXY_HOPS: ${TRUSTED_PROXY_HOPS:-0}
     volumes:
       - backupdata:/data/backups
     ports:
