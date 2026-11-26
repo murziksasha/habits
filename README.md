@@ -127,11 +127,7 @@ Modular admin at `/admin` (sidebar): courses (draft→publish), content tree, ap
 
 ## Admin CMS
 
-Після `pnpm db:seed` створюються акаунти:
-
-| Роль | Email | Password |
-|------|-------|----------|
-| Admin | `admin@eduforge.ua` | `admin12345` |
+`pnpm db:seed` (або `pnpm migrate --seed`) створює адміністратора з `ADMIN_EMAIL` (за замовчуванням `admin@eduforge.ua`) і паролем з **`ADMIN_PASSWORD`** — його треба задати в `.env`, значення за замовчуванням немає. У production seed відмовляє коротким (< 12 символів), опублікованим і легко вгадуваним паролям.
 
 Сторінки: `/admin`, `/admin/courses`, `/admin/content`, `/admin/appearance`, `/admin/users`, `/admin/metrics`, `/admin/security`, …
 

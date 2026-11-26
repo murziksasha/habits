@@ -26,6 +26,7 @@ pnpm workspaces + Turborepo (`packageManager: pnpm@11.22.0`).
 - [dev-and-testing.md](dev-and-testing.md) — установка, порядок сборки, запуск, тесты, известные падения.
 - [env.md](env.md) — переменные окружения и как они загружаются.
 - [ci.md](ci.md) — GitHub Actions: что и когда запускается, turbo-кеш, e2e на PR.
+- [docker.md](docker.md) — образы (пользователь `node`, `pnpm deploy`), пароли Redis/админа, порты только на 127.0.0.1.
 - [realtime.md](realtime.md) — онлайн-партии: защита от гонок, `claim_timeout`, серверный sweep, тесты.
 
 ## Главные правила (кратко)

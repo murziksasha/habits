@@ -8,8 +8,9 @@ services:
     # Host 5433 avoids clashing with other local Postgres (e.g. another compose project on 5432).
     # In-container hostname remains postgres:5432 for api/realtime.
     ports:
-      # Host port overridable when 5432 is taken by another project
-      - "${POSTGRES_PORT:-5432}:5432"
+      # Loopback only: reachable from this machine (pnpm dev, psql), not from the network.
+      # Host port overridable when 5432 is taken by another project.
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -22,10 +23,15 @@ services:
 
   redis:
     image: redis:7-alpine
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-eduforge-dev-redis}
+    # Password from env ($$ = expanded by the container shell, not by compose).
+    command: ["sh", "-c", "exec redis-server --requirepass \"$$REDIS_PASSWORD\""]
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      # Loopback only, see postgres.
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "redis-cli --no-auth-warning -a \"$$REDIS_PASSWORD\" ping | grep -q PONG"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -36,7 +42,7 @@ services:
       dockerfile: docker/Dockerfile.api
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-eduforge}:${POSTGRES_PASSWORD:-eduforge}@postgres:5432/${POSTGRES_DB:-eduforge}
-      REDIS_URL: redis://redis:6379
+      REDIS_URL: redis://:${REDIS_PASSWORD:-eduforge-dev-redis}@redis:6379
       AUTH_SECRET: ${AUTH_SECRET:-dev-secret-change-me}
       API_PORT: 4000
       WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}      # Local compose defaults to development so weak AUTH_SECRET is refused only in real production
@@ -79,7 +85,7 @@ services:
       dockerfile: docker/Dockerfile.realtime
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-eduforge}:${POSTGRES_PASSWORD:-eduforge}@postgres:5432/${POSTGRES_DB:-eduforge}
-      REDIS_URL: redis://redis:6379
+      REDIS_URL: redis://:${REDIS_PASSWORD:-eduforge-dev-redis}@redis:6379
       REALTIME_PORT: 4001
       WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}
       NODE_ENV: ${NODE_ENV:-development}
@@ -138,15 +144,18 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.api
+      # DB tools need tsx/drizzle-kit (dev dependencies), so not the slim runner.
+      target: tools
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-eduforge}:${POSTGRES_PASSWORD:-eduforge}@postgres:5432/${POSTGRES_DB:-eduforge}
-      # Dockerfile.api sets NODE_ENV=production; override so seed enrolls admin TOTP/backup
       NODE_ENV: ${NODE_ENV:-development}
-      ALLOW_PROD_SEED: ${ALLOW_PROD_SEED:-1}
-      SEED_ADMIN_TOTP_SECRET: ${SEED_ADMIN_TOTP_SECRET:-JBSWY3DPEHPK3PXP}
-      SEED_ADMIN_BACKUP_CODE: ${SEED_ADMIN_BACKUP_CODE:-AAAA-BBBB}
+      ALLOW_PROD_SEED: ${ALLOW_PROD_SEED:-0}
+      # No published defaults: an unset TOTP secret means the admin enrolls 2FA after first login.
+      SEED_ADMIN_TOTP_SECRET: ${SEED_ADMIN_TOTP_SECRET:-}
+      SEED_ADMIN_BACKUP_CODE: ${SEED_ADMIN_BACKUP_CODE:-}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@eduforge.ua}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin12345}
+      # Required (seed refuses to create the admin without it). Set in .env.
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
     command: ["sh", "-c", "pnpm --filter @eduforge/db migrate && pnpm --filter @eduforge/db seed"]
     depends_on:
       postgres:

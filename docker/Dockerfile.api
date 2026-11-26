@@ -1,5 +1,7 @@
 FROM node:22-alpine AS base
-RUN corepack enable && corepack prepare pnpm@11.22.0 --activate
+# Shared location so the non-root `node` user (tools stage) can run pnpm too.
+ENV COREPACK_HOME=/usr/local/share/corepack
+RUN corepack enable && corepack prepare pnpm@11.22.0 --activate && chmod -R a+rX /usr/local/share/corepack
 WORKDIR /app
 
 FROM base AS deps
@@ -18,13 +20,21 @@ FROM deps AS build
 COPY packages ./packages
 COPY apps/api ./apps/api
 COPY turbo.json ./
-RUN pnpm --filter @eduforge/chess-core build \
- && pnpm --filter @eduforge/shared build \
- && pnpm --filter @eduforge/circuit-engine build \
- && pnpm --filter @eduforge/content build \
- && pnpm --filter @eduforge/db build \
- && pnpm --filter @eduforge/judge build \
- && pnpm --filter @eduforge/api build
+# One turbo run: api and its workspace dependencies, each built once in graph order.
+RUN pnpm exec turbo run build --filter=@eduforge/api...
+
+# Production-only copy of the API: its dist, prod node_modules and the built
+# workspace packages (db keeps drizzle/ for instance backups). ~115 MB instead of
+# the whole monorepo with dev dependencies.
+FROM build AS deploy
+RUN pnpm deploy --legacy --filter @eduforge/api --prod /out
+
+# DB tools (migrate/seed use tsx + drizzle-kit, i.e. dev dependencies):
+# docker compose --profile tools run --rm migrate
+FROM build AS tools
+RUN chown -R node:node /app
+USER node
+CMD ["pnpm", "--filter", "@eduforge/db", "migrate"]
 
 # Stockfish 19 for post-game analysis (STOCKFISH_PATH). Built from the pinned official
 # source tarball because Alpine has no stable package and the official Linux binaries
@@ -47,15 +57,18 @@ RUN curl -fsSL -o sf.tar.gz "https://github.com/official-stockfish/Stockfish/arc
  && make -C src -j"$(nproc)" build ARCH="${SF_ARCH}" \
  && install -m 0755 src/stockfish /usr/local/bin/stockfish
 
-FROM base AS runner
+FROM node:22-alpine AS runner
 ENV NODE_ENV=production
 # libstdc++ ships with node:alpine; add it explicitly so the engine never loses it.
 RUN apk add --no-cache libstdc++
 COPY --from=stockfish /usr/local/bin/stockfish /usr/local/bin/stockfish
 ENV STOCKFISH_PATH=/usr/local/bin/stockfish
-COPY --from=build /app /app
 WORKDIR /app
+COPY --from=deploy --chown=node:node /out /app
+# Instance backups volume: created here so a fresh named volume inherits node ownership.
+RUN mkdir -p /data/backups && chown node:node /data/backups
+USER node
 EXPOSE 4000
 HEALTHCHECK --interval=10s --timeout=5s --retries=10 --start-period=20s \
   CMD node -e "fetch('http://127.0.0.1:4000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
-CMD ["pnpm", "--filter", "@eduforge/api", "start"]
+CMD ["node", "dist/index.js"]

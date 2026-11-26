@@ -19,7 +19,7 @@
     "seed": "tsx src/seed.ts",
     "content:sync": "tsx src/sync-content.ts",
     "studio": "drizzle-kit studio",
-    "test": "tsx --test src/seed-flashcards.test.ts src/labs-manifest.test.ts ../../scripts/db/migrations.test.mjs",
+    "test": "tsx --test src/admin-password.test.ts src/seed-flashcards.test.ts src/labs-manifest.test.ts ../../scripts/db/migrations.test.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "echo ok"
   },

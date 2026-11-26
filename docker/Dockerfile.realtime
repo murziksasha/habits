@@ -16,17 +16,18 @@ FROM deps AS build
 COPY packages ./packages
 COPY apps/realtime ./apps/realtime
 COPY turbo.json ./
-RUN pnpm --filter @eduforge/chess-core build \
- && pnpm --filter @eduforge/shared build \
- && pnpm --filter @eduforge/content build \
- && pnpm --filter @eduforge/db build \
- && pnpm --filter @eduforge/realtime build
+RUN pnpm exec turbo run build --filter=@eduforge/realtime...
 
-FROM base AS runner
+# Production-only copy: dist + prod node_modules + built workspace packages.
+FROM build AS deploy
+RUN pnpm deploy --legacy --filter @eduforge/realtime --prod /out
+
+FROM node:22-alpine AS runner
 ENV NODE_ENV=production
-COPY --from=build /app /app
 WORKDIR /app
+COPY --from=deploy --chown=node:node /out /app
+USER node
 EXPOSE 4001
 HEALTHCHECK --interval=10s --timeout=5s --retries=10 --start-period=20s \
   CMD node -e "fetch('http://127.0.0.1:4001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
-CMD ["pnpm", "--filter", "@eduforge/realtime", "start"]
+CMD ["node", "dist/index.js"]

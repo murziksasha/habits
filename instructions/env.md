@@ -15,7 +15,9 @@
 
 | Переменная | Назначение |
 | --- | --- |
-| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_PORT` | Postgres для docker compose |
+| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_PORT` | Postgres для docker compose (порт публикуется только на 127.0.0.1) |
+| `REDIS_PASSWORD` | Пароль Redis в docker compose (`requirepass`); входит в `REDIS_URL` контейнеров, см. [docker.md](docker.md) |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Первый администратор для seed. `ADMIN_PASSWORD` обязателен, без значения по умолчанию; в production слабые пароли отклоняются |
 | `DATABASE_URL` | Строка подключения к Postgres (API, миграции, сид) |
 | `BACKUP_DIR` | Папка undo-файлов для Admin → Backup (по умолчанию `apps/api/data/backups`) |
 | `REDIS_URL`, `REDIS_PORT` | Redis (rate limit, идемпотентность, метрики API; очередь матчмейкинга realtime); если недоступен, API не ждёт его: rate limit и идемпотентность работают в памяти, в лог раз в 30 с пишется `[redis]` (см. `dev-and-testing.md`) |

@@ -661,9 +661,9 @@ const uk = {
     backupWarning:
       "Немає свіжої копії поза цим комп’ютером. Завантажте файл і збережіть його в іншому місці.",
     backupSeedNote:
-      "Після відновлення пароль admin12345 більше не діє. Увійдіть акаунтом із файлу.",
+      "Після відновлення пароль адміністратора з початкового seed (ADMIN_PASSWORD) більше не діє. Увійдіть акаунтом із файлу.",
     backupSignedOut:
-      "Дані замінено з файлу. Увійдіть email і паролем із того ПК, де ви завантажили копію. Пароль admin12345 після відновлення не працює.",
+      "Дані замінено з файлу. Увійдіть email і паролем із того ПК, де ви завантажили копію. Пароль адміністратора з початкового seed після відновлення не працює.",
     backupUndoneLogin:
       "Повернуто попередні дані цього ПК. Увійдіть акаунтом, який був тут до останнього відновлення.",
     backupBusy: "Відновлення вже виконується.",
@@ -1876,9 +1876,9 @@ const en: UiDict = {
     backupWarning:
       "There is no fresh copy off this computer. Download the file and keep it somewhere else.",
     backupSeedNote:
-      "After a restore, admin12345 no longer works. Sign in with the account from the file.",
+      "After a restore, the initial seed admin password (ADMIN_PASSWORD) no longer works. Sign in with the account from the file.",
     backupSignedOut:
-      "Data was replaced from the file. Sign in with the email and password from the PC where you downloaded the backup. admin12345 does not work after a restore.",
+      "Data was replaced from the file. Sign in with the email and password from the PC where you downloaded the backup. The initial seed admin password does not work after a restore.",
     backupUndoneLogin:
       "This PC was put back to the data from before the last restore. Sign in with the account that was here then.",
     backupBusy: "A restore is already running.",

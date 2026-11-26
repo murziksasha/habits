@@ -78,6 +78,8 @@ jobs:
       AUTH_SECRET: ci-test-secret
       WEB_ORIGIN: http://127.0.0.1:3000
       COOKIE_SECURE: "0"
+      # Seed has no default admin password; tests log in with the same value.
+      ADMIN_PASSWORD: admin12345
       NEXT_PUBLIC_API_URL: http://127.0.0.1:4000
       NEXT_PUBLIC_REALTIME_URL: http://127.0.0.1:4001
       SKIP_E2E: "0"

@@ -23,14 +23,14 @@ Postgres + Drizzle ORM. Всё лежит в `packages/db`.
 | Команда | Что делает |
 | --- | --- |
 | `pnpm migrate` | `check` → `db:migrate` → `content:sync`. Останавливается на первом упавшем шаге с сообщением «Шаг «…» завершился с ошибкой / Step "…" failed», код выхода 1. Повторный запуск безопасен (идемпотентно). |
-| `pnpm migrate --seed` | `check` → `db:migrate` → `db:seed` вместо `content:sync` (сид включает тот же контент + демо-админа). Только для своей локальной/CI-БД. |
+| `pnpm migrate --seed` | `check` → `db:migrate` → `db:seed` вместо `content:sync` (сид включает тот же контент + администратора с паролем из обязательного `ADMIN_PASSWORD`). Только для своей локальной/CI-БД. |
 | `pnpm migrate new <name>` | Создаёт следующую миграцию `NNNN_<name>.sql` по шаблону + запись в журнале |
 | `pnpm migrate check` | Проверяет согласованность SQL-файлов и журнала, без БД |
 | `pnpm migrate --help` | Краткая справка |
 
 - Перед запуском шагов читает корневой `.env` тем же загрузчиком, что и API (`packages/db/dist/load-env.js`; если `@eduforge/db` не собран — каждый шаг всё равно читает `.env` сам), и печатает `DATABASE_URL` со скрытым паролем — видно, в какую БД идёт миграция.
 - Шаги БД запускаются как `node <tsx cli> src/…ts` в `packages/db` — без шелла и без `pnpm.cmd`.
-- **Почему `db:seed` не входит в обычный запуск:** повторно запускать его можно, но он создаёт (или повышает до admin) демо-админа `admin@eduforge.ua` с известным паролем и тестовым TOTP-секретом. На общей или продовой БД это дыра, поэтому только явно через `--seed`. На проде (`NODE_ENV=production`) сид и так откажется без `ALLOW_PROD_SEED=1`.
+- **Почему `db:seed` не входит в обычный запуск:** повторно запускать его можно, но он создаёт (или повышает до admin) администратора `ADMIN_EMAIL` (пароль — обязательный `ADMIN_PASSWORD`, вне production ещё и тестовый TOTP-секрет, если `SEED_ADMIN_TOTP_SECRET` не задан). На общей или продовой БД это дыра, поэтому только явно через `--seed`. На проде (`NODE_ENV=production`) сид и так откажется без `ALLOW_PROD_SEED=1`.
 - Старые команды `pnpm db:new`, `pnpm db:check`, `pnpm db:migrate`, `pnpm content:sync`, `pnpm db:seed` остались и работают как раньше (CI использует `pnpm db:migrate` + `pnpm db:seed` в интеграционном job'е).
 
 ## Создание и проверка миграции
@@ -107,6 +107,7 @@ initdb -D /tmp/pg-test -U postgres --auth=trust
 pg_ctl -D /tmp/pg-test -o "-p 55432 -k /tmp" -l /tmp/pg-test.log start
 createdb -h /tmp -p 55432 -U postgres habits_ci
 export DATABASE_URL=postgresql://postgres@localhost:55432/habits_ci
+export ADMIN_PASSWORD=admin12345   # seed требует явный пароль; такой допустим только не в production
 pnpm migrate --seed
 pnpm test:integration
 ```

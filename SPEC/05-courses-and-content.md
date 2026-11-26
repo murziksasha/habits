@@ -97,7 +97,7 @@ Hearts are a shared practice counter (5, then regen). Running out of hearts does
 After seed:
 
 - Email: `admin@eduforge.ua` (override `ADMIN_EMAIL`)  
-- Password: `admin12345` (override `ADMIN_PASSWORD`)  
+- Password: `ADMIN_PASSWORD` — required, no default; production refuses short/published passwords  
 - Role: `admin`, plan: `free`  
 
 

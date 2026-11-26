@@ -43,6 +43,7 @@ import {
 import bcrypt from "bcryptjs";
 import { createDb } from "./client.js";
 import { selectFlashcardInserts } from "./seed-flashcards.js";
+import { resolveAdminPassword } from "./admin-password.js";
 import { ACHIEVEMENT_CATALOG, puzzleRatingFromDifficulty, resolveCourseGroup, seedAllowed, visibleChessThemes } from "@eduforge/shared";
 import {
   achievements,
@@ -324,10 +325,11 @@ export async function seedFlashcards(db: ReturnType<typeof createDb>) {
 
 async function seedAdmin(db: ReturnType<typeof createDb>) {
   const email = process.env.ADMIN_EMAIL ?? "admin@eduforge.ua";
-  const password = process.env.ADMIN_PASSWORD ?? "admin12345";
   let user = await db.query.users.findFirst({ where: eq(users.email, email) });
   if (!user) {
-    const passwordHash = await bcrypt.hash(password, 10);
+    const check = resolveAdminPassword(process.env);
+    if (!check.ok) throw new Error(check.error);
+    const passwordHash = await bcrypt.hash(check.password, 10);
     const [created] = await db
       .insert(users)
       .values({
@@ -344,7 +346,7 @@ async function seedAdmin(db: ReturnType<typeof createDb>) {
       avatarKey: "admin",
     });
     await db.insert(chessRatings).values({ userId: user.id });
-    console.log(`Admin created: ${email} / ${password}`);
+    console.log(`Admin created: ${email} (password from ADMIN_PASSWORD)`);
   } else if (user.role !== "admin") {
     await db.update(users).set({ role: "admin" }).where(eq(users.id, user.id));
     console.log(`Promoted ${email} to admin`);
@@ -359,7 +361,7 @@ async function seedAdmin(db: ReturnType<typeof createDb>) {
     (process.env.NODE_ENV === "production" ? "" : "JBSWY3DPEHPK3PXP");
   if (totpSecret && user) {
     // Known backup code for e2e: SEED_ADMIN_BACKUP_CODE or AAAA-BBBB
-    const backupPlain = process.env.SEED_ADMIN_BACKUP_CODE ?? "AAAA-BBBB";
+    const backupPlain = process.env.SEED_ADMIN_BACKUP_CODE || "AAAA-BBBB";
     const backupHash = createHash("sha256")
       .update(`backup:${backupPlain.replace(/[\s-]/g, "").toUpperCase()}`)
       .digest("hex");
@@ -416,6 +418,12 @@ async function main() {
     console.error(
       "Refusing to seed production (demo admin passwords). Set ALLOW_PROD_SEED=1 to override.",
     );
+    process.exit(1);
+  }
+  const adminCheck = resolveAdminPassword(process.env);
+  if (process.env.ADMIN_PASSWORD !== undefined && !adminCheck.ok) {
+    // Set but unacceptable (e.g. weak in production): refuse before touching the DB.
+    console.error(adminCheck.error);
     process.exit(1);
   }
   const db = createDb();

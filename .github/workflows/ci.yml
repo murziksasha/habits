@@ -75,6 +75,8 @@ jobs:
       AUTH_SECRET: ci-test-secret
       WEB_ORIGIN: http://127.0.0.1:3000
       COOKIE_SECURE: "0"
+      # Seed has no default admin password; tests log in with the same value.
+      ADMIN_PASSWORD: admin12345
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

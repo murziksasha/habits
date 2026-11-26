@@ -60,10 +60,6 @@ Lesson editor stores `exercises` JSON; **publish** validates via Zod (`validateE
 
 ## Seeded admin
 
-Default credentials (change in production):
-
-```
-admin@eduforge.ua / admin12345
-```
+Email `ADMIN_EMAIL` (default `admin@eduforge.ua`), password `ADMIN_PASSWORD` — required, no default. In production the seed refuses passwords shorter than 12 characters, published ones (e.g. the old demo password) and guessable ones (`packages/db/src/admin-password.ts`).
 
 Dev seed may set TOTP via `SEED_ADMIN_TOTP_SECRET` (default test secret when not production).
