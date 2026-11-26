@@ -21,3 +21,18 @@ export function chessBoardSquareStyles(theme: ChessBoardThemeId): {
   const t = CHESS_BOARD_THEMES[theme] ?? CHESS_BOARD_THEMES.classic;
   return { light: { backgroundColor: t.light }, dark: { backgroundColor: t.dark } };
 }
+
+/** Board preferences stored per user (`users.chess_prefs`) and in localStorage. */
+export type ChessBoardPrefs = { theme: ChessBoardThemeId; coordinates: boolean; sound: boolean };
+
+export const DEFAULT_CHESS_BOARD_PREFS: ChessBoardPrefs = { theme: "classic", coordinates: true, sound: false };
+
+/** Keep only known keys with valid values; missing or invalid keys fall back to `base`. */
+export function normalizeChessBoardPrefs(raw: unknown, base: ChessBoardPrefs = DEFAULT_CHESS_BOARD_PREFS): ChessBoardPrefs {
+  const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+  return {
+    theme: isChessBoardTheme(r.theme) ? r.theme : base.theme,
+    coordinates: typeof r.coordinates === "boolean" ? r.coordinates : base.coordinates,
+    sound: typeof r.sound === "boolean" ? r.sound : base.sound,
+  };
+}

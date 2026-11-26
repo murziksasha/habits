@@ -58,6 +58,8 @@ export const users = pgTable("users", {
   mfaExempt: boolean("mfa_exempt").notNull().default(false),
   /** Max child seats when this user owns a family group */
   familyMaxSeats: integer("family_max_seats").notNull().default(0),
+  /** Chess board preferences synced across devices (null = never saved) */
+  chessPrefs: jsonb("chess_prefs").$type<{ theme?: string; coordinates?: boolean; sound?: boolean }>(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [

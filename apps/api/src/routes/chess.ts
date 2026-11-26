@@ -9,7 +9,7 @@ import {
   replayHistory,
   toPgn,
 } from "@eduforge/chess-core";
-import { chessSrsNext } from "@eduforge/shared";
+import { chessSrsNext, normalizeChessBoardPrefs } from "@eduforge/shared";
 import {
   characters,
   chessGameAnnotations,
@@ -19,6 +19,7 @@ import {
   chessPuzzleAttempts,
   chessPuzzleRatingsUser,
   chessRatings,
+  users,
 } from "@eduforge/db";
 import { analysePendingGames, enqueueGameAnalysis } from "../services/chess-game-analysis.js";
 import { authMiddleware, optionalAuth, type AuthedUser } from "../auth.js";
@@ -521,4 +522,23 @@ chessRoutes.post("/drills/:exerciseId/move", optionalAuth, async (c) => {
   });
   if (!r.ok) return c.json({ error: r.error }, r.error === "drill_over" || r.error === "not_your_turn" ? 409 : 400);
   return c.json({ sans: r.sans, reply: r.reply, status: r.status, token: r.token });
+});
+
+/** Board preferences synced across devices; `prefs: null` means nothing saved yet (keep local ones). */
+chessRoutes.get("/prefs", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const [row] = await db.select({ prefs: users.chessPrefs }).from(users).where(eq(users.id, user.id)).limit(1);
+  return c.json({ prefs: row?.prefs ? normalizeChessBoardPrefs(row.prefs) : null });
+});
+
+chessRoutes.put("/prefs", authMiddleware, async (c) => {
+  const user = c.get("user");
+  const limited = await rateLimit({ key: `chessprefs:${user.id}`, limit: 30, windowMs: 60_000 });
+  if (!limited.ok) return c.json({ error: "rate_limited", retryAfter: limited.retryAfterSec }, 429);
+  const body = (await c.req.json().catch(() => null)) as unknown;
+  if (!body || typeof body !== "object" || Array.isArray(body)) return c.json({ error: "invalid_prefs" }, 400);
+  const [row] = await db.select({ prefs: users.chessPrefs }).from(users).where(eq(users.id, user.id)).limit(1);
+  const prefs = normalizeChessBoardPrefs(body, normalizeChessBoardPrefs(row?.prefs));
+  await db.update(users).set({ chessPrefs: prefs }).where(eq(users.id, user.id));
+  return c.json({ prefs });
 });

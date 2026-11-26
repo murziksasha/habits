@@ -944,6 +944,20 @@ describeIntegration("API integration", () => {
     expect(after!.repetitions).toBe(1);
     expect(after!.dueAt.getTime()).toBeGreaterThan(Date.now() + 12 * 3600_000);
   });
+
+  it("stores board preferences per account", async () => {
+    expect((await json("/chess/prefs")).status).toBe(401);
+    const empty = await json("/chess/prefs", { token });
+    expect(empty.status).toBe(200);
+    expect(empty.data.prefs).toBeNull();
+    const put = await json("/chess/prefs", { method: "PUT", token, body: { theme: "green", sound: true, junk: "x" } });
+    expect(put.status).toBe(200);
+    expect(put.data.prefs).toEqual({ theme: "green", coordinates: true, sound: true });
+    const partial = await json("/chess/prefs", { method: "PUT", token, body: { coordinates: false, theme: "nope" } });
+    expect(partial.data.prefs).toEqual({ theme: "green", coordinates: false, sound: true });
+    expect((await json("/chess/prefs", { token })).data.prefs).toEqual({ theme: "green", coordinates: false, sound: true });
+    expect((await json("/chess/prefs", { method: "PUT", token, body: [1] })).status).toBe(400);
+  });
 });
 
 registerLearningProgressIntegrationTests(describeIntegration, json);
