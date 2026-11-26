@@ -13,16 +13,14 @@ docker compose up -d postgres redis   # или свой Postgres/Redis
 
 ## Порядок сборки пакетов
 
-Приложения и тесты импортируют собранные `dist/` workspace-пакетов, поэтому после pull или правок в `shared` / `chess-core` / `content` их надо пересобрать. Порядок как в CI (`.github/workflows/ci.yml`):
+Приложения и тесты импортируют собранные `dist/` workspace-пакетов, поэтому после pull или правок в `shared` / `chess-core` / `content` их надо пересобрать. Одна команда (как в CI):
 
 ```bash
-pnpm --filter @eduforge/chess-core build && pnpm --filter @eduforge/shared build
-pnpm --filter @eduforge/content build
-pnpm --filter @eduforge/chess-core build
-pnpm --filter @eduforge/judge build
-pnpm --filter @eduforge/circuit-engine build
-pnpm --filter @eduforge/db build
+pnpm build:packages          # turbo: все packages/* по графу зависимостей, каждый один раз
+pnpm exec turbo run build --filter=@eduforge/api...   # api вместе со всеми его зависимостями
 ```
+
+Turbo сам выводит порядок из `package.json` (chess-core → shared → content / circuit-engine → db; judge независим) и кеширует результат в `.turbo/cache`, так что повторная сборка без изменений занимает доли секунды.
 
 Затем БД одной командой: `pnpm migrate` (проверка журнала → миграции → `content:sync`; на своей новой локальной БД — `pnpm migrate --seed`) — см. [migrations.md](migrations.md).
 

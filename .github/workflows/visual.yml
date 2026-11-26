@@ -22,14 +22,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # hashFiles() is not available in a job-level `if`, so a tiny gate job checks
+  # out the repo and decides whether the visual job should run.
+  gate:
+    name: Visual gate
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: decide
+        name: Decide whether to run visual tests
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif [ -n "$(ls -A apps/web/e2e/__snapshots__ 2>/dev/null)" ]; then
+            # PRs only when snapshots are already committed (avoid red PRs without baselines)
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
   visual:
     name: Playwright visual baselines
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-latest
-    # PRs only when snapshots already committed (avoid red PRs without baselines)
-    if: >
-      github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'schedule' ||
-      (github.event_name == 'pull_request' && hashFiles('apps/web/e2e/__snapshots__/**') != '')
     services:
       postgres:
         image: postgres:16-alpine
@@ -73,13 +91,15 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @eduforge/chess-core build && pnpm --filter @eduforge/shared build
-      - run: pnpm --filter @eduforge/content build
-      - run: pnpm --filter @eduforge/chess-core build
-      - run: pnpm --filter @eduforge/judge build
-      - run: pnpm --filter @eduforge/circuit-engine build
-      - run: pnpm --filter @eduforge/db build
-      - run: pnpm --filter @eduforge/api build
+      - name: Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo/cache
+          key: turbo-${{ runner.os }}-${{ github.job }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ github.job }}-
+      # One turbo run builds each package once, in dependency order (cached in .turbo/cache).
+      - run: pnpm exec turbo run build --filter=@eduforge/api...
       - run: pnpm db:migrate
       - run: pnpm db:seed
       - name: Start API

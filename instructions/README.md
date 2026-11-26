@@ -25,6 +25,7 @@ pnpm workspaces + Turborepo (`packageManager: pnpm@11.22.0`).
 - [chess-content.md](chess-content.md) — контракт шахматного контента: типы задач, стабильные ID, QA-гейты.
 - [dev-and-testing.md](dev-and-testing.md) — установка, порядок сборки, запуск, тесты, известные падения.
 - [env.md](env.md) — переменные окружения и как они загружаются.
+- [ci.md](ci.md) — GitHub Actions: что и когда запускается, turbo-кеш, e2e на PR.
 
 ## Главные правила (кратко)
 
