@@ -42,6 +42,7 @@
 - **Glicko-2** (`packages/shared/src/glicko2.ts`): рейтинг ученика в задачах против рейтинга задачи. Старт 1200, RD 350, volatility 0.06, τ = 0.5. Рейтинг партий — отдельный Elo (старт 1000, только рейтинговые партии людей).
 - Подбор задач (`apps/api/src/services/chess-puzzles.ts`): режимы `mix` / `theme` / `mate` / `endgame` / `placement`; цель — рейтинг ученика −100; без повторов 14 дней; placement — 8 задач. Рейтинги задач пересчитываются ежедневно `POST /chess/puzzles/cron/rate` (`CRON_SECRET`).
 - **Интервальные повторения** (`chessSrsNext`): лестница 1 / 3 / 7 / 21 день. Ошибка → интервал 1 день, повторения сбрасываются. Применяется к `chess_puzzle`, `chess_plan`, `chess_endgame_drill`, дебютным линиям и персональным задачам из своих партий.
+- **Задачи из своих партий в «Зошиті помилок»** (`GET /review/mistakes`): до трети сессии (больше, если уроковых ошибок мало) — просроченные строки `chess_personal_puzzles`. У них `lessonId = "own_game"`, ID упражнения `own-<uuid>`, `courseSlug` пустой (ссылки на урок нет). `POST /review/mistakes/check` оценивает их на сервере только по строкам этого пользователя (чужой ID → `not_found`) и двигает их собственную лестницу SRS; в `exercise_reviews` они не пишутся. Код: `apps/api/src/services/chess-personal.ts`. На `/play/puzzles` они по-прежнему доступны отдельно.
 
 ## QA-гейты (CI, `pnpm --filter @eduforge/content test`)
 

@@ -26,6 +26,7 @@ import { cronAuthorized, cronUnauthorized } from "../cron-auth.js";
 import { db } from "../db.js";
 import { gradeExercise } from "../grade.js";
 import { rateLimit, requestClientIp } from "../rate-limit.js";
+import { applyPersonalAttempt, personalExercise } from "../services/chess-personal.js";
 import { findDrillExercise, playDrillMove, readDrillToken } from "../services/endgame-drill.js";
 import {
   applyAttempt,
@@ -220,39 +221,10 @@ chessRoutes.post("/personal-puzzles/:id/attempt", authMiddleware, async (c) => {
   if (!row) return c.json({ error: "not_found" }, 404);
   const body = (await c.req.json().catch(() => null)) as { sans?: unknown; revealed?: unknown; wrongAttempts?: unknown } | null;
   const ex = personalExercise(row).exercise;
-  const g = gradeExercise(ex as Parameters<typeof gradeExercise>[0], { sans: body?.sans, revealed: body?.revealed });
-  const clean = g.correct && clampWrongAttempts(body?.wrongAttempts) === 0;
-  const next = chessSrsNext(row.lastReviewedAt ? row : null, clean);
-  const now = new Date();
-  await db
-    .update(chessPersonalPuzzles)
-    .set({ repetitions: next.repetitions, lapses: next.lapses, dueAt: new Date(now.getTime() + next.intervalDays * 86_400_000), lastReviewedAt: now })
-    .where(eq(chessPersonalPuzzles.id, row.id));
+  const g = gradeExercise(ex as Parameters<typeof gradeExercise>[0], { sans: body?.sans, revealed: body?.revealed }, { userId: user.id });
+  const next = await applyPersonalAttempt(row, g.correct, body?.wrongAttempts);
   return c.json({ correct: g.correct, intervalDays: next.intervalDays });
 });
-
-function personalExercise(r: typeof chessPersonalPuzzles.$inferSelect) {
-  const side = r.fen.split(" ")[1] === "b";
-  return {
-    id: r.id,
-    gameId: r.gameId,
-    ply: r.ply,
-    dueAt: r.dueAt,
-    reason: "own_game" as const,
-    exercise: {
-      id: `own-${r.id}`,
-      type: "chess_puzzle",
-      promptUk: side ? "Задача з вашої партії: чорні ходять — знайдіть найкраще продовження." : "Задача з вашої партії: білі ходять — знайдіть найкраще продовження.",
-      promptEn: side ? "From your game: Black to move — find the best continuation." : "From your game: White to move — find the best continuation.",
-      fen: r.fen,
-      solutionSans: r.solutionSans,
-      goal: r.goal,
-      themes: r.themes,
-      difficulty: 3,
-      source: { kind: "game", gameId: r.gameId ?? undefined },
-    },
-  };
-}
 
 /** Opening repertoires with the learner's per-line SRS state (phase 7). */
 chessRoutes.get("/openings", authMiddleware, async (c) => {

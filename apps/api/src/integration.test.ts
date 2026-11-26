@@ -8,7 +8,7 @@ import { createApp } from "./app.js";
 import { gradeExercise } from "./grade.js";
 import { registerLearningProgressIntegrationTests } from "./learning-progress.integration.js";
 import { db } from "./db.js";
-import { users, classes, tournamentPairings, tournaments, organizations } from "@eduforge/db";
+import { users, classes, chessPersonalPuzzles, tournamentPairings, tournaments, organizations } from "@eduforge/db";
 import { eq } from "drizzle-orm";
 
 
@@ -905,6 +905,44 @@ describeIntegration("API integration", () => {
     expect(forged.data.error).toBe("invalid_token");
     // Lesson grading ignores a client-made game and accepts the server-signed one.
     expect(gradeExercise({ id, type: "chess_endgame_drill", fen: "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1", goal: "promote", maxMoves: 12 }, { sans }).meta?.reason).toBe("unverified");
+  });
+
+  it("surfaces own-game puzzles in the mistake notebook and grades them per user", async () => {
+    const me = await json("/auth/me", { token });
+    const userId = String((me.data.user as { id: string }).id);
+    const [row] = await db
+      .insert(chessPersonalPuzzles)
+      .values({ userId, ply: 30, fen: "4k3/8/4K3/8/8/8/8/7R w - - 0 1", solutionSans: ["Rh8#"], goal: "mate", themes: ["mateIn1"], dueAt: new Date(Date.now() - 1000) })
+      .returning();
+    const exerciseId = `own-${row!.id}`;
+    const list = await json("/review/mistakes?limit=10", { token });
+    expect(list.status).toBe(200);
+    const items = list.data.items as { lessonId: string; exercise: { id: string; type: string } }[];
+    const own = items.find((i) => i.exercise.id === exerciseId);
+    expect(own?.lessonId).toBe("own_game");
+    expect(own?.exercise.type).toBe("chess_puzzle");
+
+    const other = await json("/auth/register", {
+      method: "POST",
+      body: { email: `own-other-${suffix}@eduforge.test`, password, displayName: `Own${suffix}` },
+    });
+    const stranger = await json("/review/mistakes/check", {
+      token: String(other.data.token),
+      body: { answers: [{ lessonId: "own_game", exerciseId, answer: { sans: ["Rh8#"] }, wrongAttempts: 0 }] },
+    });
+    expect(stranger.status).toBe(200);
+    expect((stranger.data.results as { error?: string }[])[0]?.error).toBe("not_found");
+
+    const check = await json("/review/mistakes/check", {
+      token,
+      body: { answers: [{ lessonId: "own_game", exerciseId, answer: { sans: ["Rh8#"] }, wrongAttempts: 0 }] },
+    });
+    expect(check.status).toBe(200);
+    const r0 = (check.data.results as { correct: boolean; firstTry: boolean }[])[0];
+    expect(r0).toMatchObject({ correct: true, firstTry: true });
+    const after = await db.query.chessPersonalPuzzles.findFirst({ where: eq(chessPersonalPuzzles.id, row!.id) });
+    expect(after!.repetitions).toBe(1);
+    expect(after!.dueAt.getTime()).toBeGreaterThan(Date.now() + 12 * 3600_000);
   });
 });
 
