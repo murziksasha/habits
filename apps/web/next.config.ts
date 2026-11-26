@@ -1,4 +1,8 @@
 import type { NextConfig } from "next";
+import bundleAnalyzer from "@next/bundle-analyzer";
+
+// `pnpm --filter @eduforge/web analyze` → .next/analyze/*.html
+const withBundleAnalyzer = bundleAnalyzer({ enabled: process.env.ANALYZE === "true", openAnalyzer: false });
 
 /** COOP/COEP for WebContainers (SharedArrayBuffer) on Node Studio. */
 const isolationHeaders = [
@@ -113,4 +117,4 @@ const nextConfig: NextConfig = {
   ...(process.env.NEXT_OUTPUT === "standalone" ? { output: "standalone" as const } : {}),
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

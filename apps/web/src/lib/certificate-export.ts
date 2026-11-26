@@ -1,5 +1,4 @@
-import { toPng } from "html-to-image";
-import { jsPDF } from "jspdf";
+// html-to-image and jspdf are loaded only when the user exports a certificate.
 
 function safeFilename(name: string) {
   return name
@@ -52,6 +51,7 @@ export async function certificateToPngDataUrl(node: HTMLElement): Promise<string
     ),
   );
 
+  const { toPng } = await import("html-to-image");
   return toPng(node, {
     cacheBust: true,
     pixelRatio: 2,
@@ -74,6 +74,7 @@ export async function downloadCertificatePdf(
   filename: string,
 ): Promise<void> {
   const dataUrl = await certificateToPngDataUrl(node);
+  const { jsPDF } = await import("jspdf");
   const pdf = new jsPDF({
     orientation: "landscape",
     unit: "mm",
