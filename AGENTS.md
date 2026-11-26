@@ -9,6 +9,37 @@ Code, comments, specs, and API error codes: **English**.
 UI copy: **Ukrainian + English** through `getUI(locale)` in `@eduforge/shared` (default locale `uk`). Do not hardcode a new user-facing string in a component when a shared key belongs there.
 File writes: **UTF-8** (never UTF-16).
 
+Read the safe token rule before printing auth output, querying the database, or writing logs.
+
+## Safe token rule
+
+Never print, log, commit, paste into chat, or write into source, tests, or scratch files any live secret. That includes:
+
+- Raw session tokens (`randomBytes(32)` hex from `createSession` in `apps/api/src/auth.ts`). The httpOnly cookie is `eduforge_session`. The same value is the Bearer token when one is issued.
+- `Authorization` headers, `Set-Cookie` values, and the OAuth state cookie
+- `password_hash`, decrypted TOTP secrets (`decryptTotpSecret`), MFA backup codes, and `users.totp_secret_enc`
+- One-time tokens stored only as `token_hash`: password reset, email verification, `mfa_pending`, admin step-up
+- Access-granting invite codes: family (`family_invites.invite_code`), class (`classes.invite_code`), parent claim codes
+- Web Push rows: `endpoint`, `p256dh`, and `auth` on `push_subscriptions`
+- Env secrets and the contents of `.env` / `.env*.local`: `AUTH_SECRET`, `MFA_ENCRYPTION_KEY`, `CRON_SECRET`, `METRICS_TOKEN`, `DATABASE_URL` (password), `SMTP_PASS`, `VAPID_PRIVATE_KEY`, `XAI_API_KEY`, `OPENROUTER_API_KEY`, `GEMINI_API_KEY`, `GOOGLE_API_KEY`, `GOOGLE_CLIENT_SECRET`
+- Instance backup files under `BACKUP_DIR` / `apps/api/data/` (they hold password hashes and encrypted TOTP)
+
+How secrets are stored. Follow this when you add or change auth:
+
+- Sessions store SHA-256 hex only (`hashToken`). Never insert the raw token. Lifetime is 14 days. Production web is cookie-first. Raw Bearer in JSON only outside production or with `X-Issue-Bearer`. Do not put the session secret in `localStorage`.
+- Password reset, email verification, MFA pending, and admin step-up tokens use the same `hashToken` pattern. Show the raw value once, store only the hash.
+- Passwords are bcrypt (`hashPassword` / `verifyPassword`, cost 12). Compare through `verifyPassword`.
+- TOTP secrets are AES-256-GCM (`encryptTotpSecret`, prefix `v1:`). Key material is `MFA_ENCRYPTION_KEY`, or `AUTH_SECRET` when that is unset. The `plain:` prefix is only for local seed and e2e. Do not write a new production secret with `plain:`.
+- Backup codes are shown once and stored as SHA-256 of `backup:` plus the normalized code (`hashBackupCode`).
+- `apps/api/src/logger.ts` does not redact. Never pass a token, cookie, password, API key, or decrypted secret as log `meta`.
+- Do not send secrets to the tutor (`apps/api/src/xai.ts`).
+
+If a value must be discussed, say only whether it is set. A redacted form is the last 4 characters, or the first 8 hex characters of the hash. Never the full secret.
+
+Do not `SELECT` secret columns into the conversation to debug login. Query counts and non-secret columns. Do not commit `.env`, `.env.local`, `apps/api/data/`, or `docker-data/` (already in `.gitignore`).
+
+Seed and e2e fixtures are not live credentials: `admin12345`, TOTP `JBSWY3DPEHPK3PXP`, backup code `AAAA-BBBB`, and the placeholders in `.env.example`. Do not copy a password, TOTP secret, or token out of a real database into a test, a script, or a reply.
+
 ## Plan vs execute
 
 - **Plan** (user asks for a plan, or Plan mode): use `enter_plan_mode` / `exit_plan_mode`. Write the plan, **stop**. Do not edit code until the user approves.
