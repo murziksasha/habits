@@ -8,7 +8,7 @@ import { createApp } from "./app.js";
 import { gradeExercise } from "./grade.js";
 import { registerLearningProgressIntegrationTests } from "./learning-progress.integration.js";
 import { db } from "./db.js";
-import { users, classes, chessPersonalPuzzles, tournamentPairings, tournaments, organizations } from "@eduforge/db";
+import { users, classes, chessPersonalPuzzles, courses, lessons, tournamentPairings, tournaments, organizations, userLessonProgress } from "@eduforge/db";
 import { eq } from "drizzle-orm";
 
 
@@ -957,6 +957,38 @@ describeIntegration("API integration", () => {
     expect(partial.data.prefs).toEqual({ theme: "green", coordinates: false, sound: true });
     expect((await json("/chess/prefs", { token })).data.prefs).toEqual({ theme: "green", coordinates: false, sound: true });
     expect((await json("/chess/prefs", { method: "PUT", token, body: [1] })).status).toBe(400);
+  });
+
+  it("opens bot personalities with chess progress and refuses to save locked ones", async () => {
+    const reg = await json("/auth/register", {
+      method: "POST",
+      body: { email: `bots-${suffix}@eduforge.test`, password, displayName: `Bots${suffix}` },
+    });
+    const t = String(reg.data.token);
+    const fresh = await json("/chess/bots/unlocks", { token: t });
+    expect(fresh.status).toBe(200);
+    const u0 = fresh.data.unlocks as Record<string, { unlocked: boolean; progress: number; required: number }>;
+    expect(u0.learner!.unlocked).toBe(true);
+    expect(u0.club).toEqual({ unlocked: false, progress: 0, required: 8 });
+    expect(u0.strong!.unlocked).toBe(false);
+    expect(u0.italian_challenge!.unlocked).toBe(false);
+    const locked = await json("/chess/games/bot", { token: t, body: { sans: ["e4"], playerColor: "w", botLevel: "strong", kind: "bot" } });
+    expect(locked.status).toBe(403);
+    expect(locked.data.error).toBe("bot_locked");
+    expect((await json("/chess/games/bot", { token: t, body: { sans: ["e4"], playerColor: "w", botLevel: "learner", kind: "bot" } })).status).toBe(200);
+
+    const userId = String((await json("/auth/me", { token: t })).data.user.id);
+    const chess = await db.query.courses.findFirst({ where: eq(courses.slug, "chess") });
+    const some = await db.select({ id: lessons.id }).from(lessons).where(eq(lessons.courseId, chess!.id)).limit(8);
+    await db.insert(userLessonProgress).values(some.map((l) => ({ userId, lessonId: l.id, courseId: chess!.id, status: "completed" as const })));
+    const after = (await json("/chess/bots/unlocks", { token: t })).data.unlocks as Record<string, { unlocked: boolean }>;
+    expect(after.club!.unlocked).toBe(true);
+    expect(after.strong!.unlocked).toBe(false);
+    expect((await json("/chess/games/bot", { token: t, body: { sans: ["e4"], playerColor: "w", botLevel: "club", kind: "bot" } })).status).toBe(200);
+
+    await db.update(users).set({ role: "admin" }).where(eq(users.id, userId));
+    const admin = (await json("/chess/bots/unlocks", { token: t })).data.unlocks as Record<string, { unlocked: boolean }>;
+    expect(Object.values(admin).every((x) => x.unlocked)).toBe(true);
   });
 });
 

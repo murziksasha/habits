@@ -60,3 +60,11 @@
 - Хранятся в `localStorage` (`chess-board-prefs`, `chess-sound-enabled`) и, для вошедших пользователей, на сервере в `users.chess_prefs` (jsonb, миграция `0046_user_chess_prefs`; `null` = ещё не сохраняли).
 - `GET /chess/prefs` → `{ prefs: { theme, coordinates, sound } | null }`. `PUT /chess/prefs` принимает любые из этих ключей; неизвестные ключи и неверные значения отбрасываются (`normalizeChessBoardPrefs` в `@eduforge/shared`), остальное берётся из сохранённого. Ошибки: `invalid_prefs`, `rate_limited` (30 в минуту).
 - Клиент (`apps/web/src/lib/chess-prefs.ts`): после входа один раз за загрузку страницы забирает настройки с сервера (сервер главнее). Если на сервере пусто, а локально что-то сохранено — отправляет локальные. Каждое изменение пишется локально сразу и на сервер с задержкой 400 мс. Гости работают только с `localStorage`.
+
+## Личности бота открываются прогрессом
+
+- Правила — `BOT_UNLOCK_RULES` в `packages/shared/src/chess-bot-unlocks.ts`: «Новачок» открыт всегда; «Клубний гравець» — 8 пройденных уроков шахматного курса; «Сильний» — 30 уроков; челлендж «Італійська проти клубного гравця» — все уроки юнита `ch-deep-italian-ruy` (плюс открытый клубный игрок). Администраторам открыто всё (нужно e2e и поддержке).
+- Прогресс считает сервер (`apps/api/src/services/chess-bot-unlocks.ts`, по `user_lesson_progress` курса `chess`). `GET /chess/bots/unlocks` → `{ unlocks: { learner|club|strong|italian_challenge: { unlocked, progress, required } } }`.
+- `POST /chess/games/bot` с `kind: "bot"` и закрытым `botLevel` отвечает `403 { error: "bot_locked" }` — такая партия не сохраняется. Режимы `opening` и `endgame` не ограничиваются.
+- Страница `/play`: закрытые уровни показаны с 🔒 и подсказкой «пройдите {done}/{n} уроков»; если выбранный уровень (в том числе из `?level=`) закрыт, выбирается самый сильный открытый. Гости видят только «Новачка».
+- Пороги менять только вместе с тестами `chess-bot-unlocks.test.ts` и интеграционным тестом.

@@ -9,7 +9,7 @@ import {
   replayHistory,
   toPgn,
 } from "@eduforge/chess-core";
-import { chessSrsNext, normalizeChessBoardPrefs } from "@eduforge/shared";
+import { botLevelUnlockId, chessSrsNext, normalizeChessBoardPrefs } from "@eduforge/shared";
 import {
   characters,
   chessGameAnnotations,
@@ -28,6 +28,7 @@ import { db } from "../db.js";
 import { gradeExercise } from "../grade.js";
 import { rateLimit, requestClientIp } from "../rate-limit.js";
 import { applyPersonalAttempt, personalExercise } from "../services/chess-personal.js";
+import { chessBotUnlocksFor } from "../services/chess-bot-unlocks.js";
 import { findDrillExercise, playDrillMove, readDrillToken } from "../services/endgame-drill.js";
 import {
   applyAttempt,
@@ -111,6 +112,11 @@ chessRoutes.get("/games/:id", authMiddleware, async (c) => {
 
 /* ——— Bot games, analysis, personal puzzles (plan §5) ——— */
 
+/** Which bot personalities (and the Italian challenge) the learner has opened. */
+chessRoutes.get("/bots/unlocks", authMiddleware, async (c) => {
+  return c.json({ unlocks: await chessBotUnlocksFor(c.get("user")) });
+});
+
 const BOT_LEVELS = new Set(["learner", "club", "strong", "tablebase"]);
 const GAME_KINDS = new Set(["bot", "endgame", "opening"]);
 
@@ -159,6 +165,9 @@ chessRoutes.post("/games/bot", authMiddleware, async (c) => {
     termination = "abandoned";
   }
   const kind = typeof body.kind === "string" && GAME_KINDS.has(body.kind) ? body.kind : "bot";
+  // Personalities open with course progress; free play against a locked one is not saved.
+  const unlockId = kind === "bot" && typeof body.botLevel === "string" ? botLevelUnlockId(body.botLevel) : null;
+  if (unlockId && !(await chessBotUnlocksFor(user))[unlockId].unlocked) return c.json({ error: "bot_locked" }, 403);
   const [row] = await db
     .insert(chessGames)
     .values({

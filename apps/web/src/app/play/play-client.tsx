@@ -13,7 +13,7 @@ import {
   REPERTOIRES,
   type BotLevel,
 } from "@eduforge/chess-core";
-import { CHESS_TIME_CONTROLS } from "@eduforge/shared";
+import { CHESS_TIME_CONTROLS, type BotUnlockId, type BotUnlockState } from "@eduforge/shared";
 import { requestBotMove } from "@/lib/chess-bot";
 import { playChessSound } from "@/lib/chess-sounds";
 import { CapturedPieces } from "@/components/captured-pieces";
@@ -86,6 +86,9 @@ function PlayPageInner() {
     return "club";
   });
   const [botColor, setBotColor] = useState<"w" | "b">("w");
+  // Personalities open with chess course progress (server rules, GET /chess/bots/unlocks).
+  const [unlocks, setUnlocks] = useState<Record<BotUnlockId, BotUnlockState> | null>(null);
+  const isOpen = (id: BotUnlockId) => (unlocks ? unlocks[id].unlocked : id === "learner");
   const [openingId, setOpeningId] = useState<string>(() => searchParams.get("opening") ?? "");
 
   const testFen = process.env.NODE_ENV !== "production" ? searchParams.get("testFen") : null;
@@ -133,6 +136,23 @@ function PlayPageInner() {
     setPlayMatchActive(Boolean(match) || seeking);
     return () => setPlayMatchActive(false);
   }, [match, seeking]);
+
+  useEffect(() => {
+    if (!token) {
+      setUnlocks(null);
+      return;
+    }
+    void api<{ unlocks: Record<BotUnlockId, BotUnlockState> }>("/chess/bots/unlocks", { token })
+      .then((d) => setUnlocks(d.unlocks))
+      .catch(() => undefined);
+  }, [token]);
+
+  // Keep the picked personality open: fall back to the strongest unlocked one.
+  useEffect(() => {
+    if (isOpen(botLevel)) return;
+    setBotLevel(isOpen("club") ? "club" : "learner");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unlocks, botLevel]);
 
   useEffect(() => {
     if (!token) return;
@@ -734,18 +754,22 @@ function PlayPageInner() {
                 {(["learner", "club", "strong"] as const).map((lvl) => {
                   const label = lvl === "learner" ? t.chess.botNovice : lvl === "club" ? t.chess.botClub : t.chess.botStrong;
                   const isSelected = botLevel === lvl;
+                  const open = isOpen(lvl);
                   return (
                     <button
                       key={lvl}
                       type="button"
+                      disabled={!open}
+                      data-testid={`bot-level-${lvl}`}
+                      aria-label={open ? label : `${label} — ${t.chess.botLocked}`}
                       className={
                         isSelected
                           ? "btn-primary !py-2 !px-2 text-xs"
-                          : "btn-secondary !py-2 !px-2 text-xs"
+                          : "btn-secondary !py-2 !px-2 text-xs disabled:opacity-50"
                       }
                       onClick={() => setBotLevel(lvl)}
                     >
-                      {label}
+                      {open ? label : `🔒 ${label}`}
                     </button>
                   );
                 })}
@@ -755,9 +779,29 @@ function PlayPageInner() {
             <p className="text-xs text-ink-muted" data-testid="bot-personality-desc">
               {botLevel === "learner" ? t.chess.botNoviceDesc : botLevel === "club" ? t.chess.botClubDesc : t.chess.botStrongDesc}
             </p>
+            {(["club", "strong"] as const)
+              .filter((lvl) => !isOpen(lvl))
+              .map((lvl) => {
+                const st = unlocks?.[lvl] ?? { progress: 0, required: lvl === "club" ? 8 : 30 };
+                return (
+                  <p key={lvl} className="text-xs text-ink-muted" data-testid={`bot-unlock-${lvl}`}>
+                    🔒{" "}
+                    {t.chess.botUnlockLessons
+                      .replace("{name}", lvl === "club" ? t.chess.botClub : t.chess.botStrong)
+                      .replace("{done}", String(st.progress))
+                      .replace("{n}", String(st.required))}
+                  </p>
+                );
+              })}
+            {!isOpen("italian_challenge") && (
+              <p className="text-xs text-ink-muted" data-testid="bot-unlock-italian">
+                🔒 {t.chess.botUnlockItalian}
+              </p>
+            )}
             <button
               type="button"
-              className="btn-secondary w-full !py-2 text-xs"
+              disabled={!isOpen("italian_challenge") || !isOpen("club")}
+              className="btn-secondary w-full !py-2 text-xs disabled:opacity-50"
               data-testid="challenge-italian"
               onClick={() => {
                 setBotLevel("club");
