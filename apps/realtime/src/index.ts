@@ -1,11 +1,13 @@
+// Must stay the first import: loads the root .env before any process.env read below.
+import "./load-env.js";
 import { createServer } from "node:http";
 import { createHash } from "node:crypto";
 import express from "express";
 import cors from "cors";
 import { Server } from "socket.io";
 import { and, eq, gt } from "drizzle-orm";
-import { applyFischerIncrement, applyMove } from "@eduforge/chess-core";
-import { allowSocketEvent } from "./event-rate-limit.js";
+import { canAnswerDraw, canOfferDraw } from "./draw-offer.js";
+import { allowSocketEvent, forgetSocket } from "./event-rate-limit.js";
 import {
   characters,
   chessGames,
@@ -14,19 +16,12 @@ import {
   sessions,
   users,
 } from "@eduforge/db";
-import {
-  CHESS_TIME_CONTROLS,
-  applyElo,
-  clampElo,
-  chessGameXpAward,
-  chessMoveSchema,
-  globalXpFromCourseGain,
-  levelFromXp,
-  seekGameSchema,
-} from "@eduforge/shared";
+import { chessMoveSchema, seekGameSchema } from "@eduforge/shared";
 import { Chess } from "chess.js";
 import { assignColors, type SeekEntry } from "./matchmaking.js";
 import { createRedisClient, SeekQueueStore } from "./redis-seek-queue.js";
+import { createGameService, timeControlMs } from "./game-service.js";
+import { captureException, initSentry } from "./sentry.js";
 
 const PORT = Number(process.env.REALTIME_PORT ?? 4001);
 const WEB_ORIGIN = process.env.WEB_ORIGIN ?? "http://localhost:3000";
@@ -34,6 +29,12 @@ const DATABASE_URL =
   process.env.DATABASE_URL ??
   "postgresql://eduforge:eduforge@localhost:5432/eduforge";
 const REDIS_URL = process.env.REDIS_URL;
+
+await initSentry();
+process.on("unhandledRejection", (reason) => {
+  console.error("[realtime] unhandled rejection:", reason instanceof Error ? reason.message : reason);
+  captureException(reason);
+});
 
 const db = createDb(DATABASE_URL);
 const redis = createRedisClient(REDIS_URL);
@@ -105,121 +106,8 @@ async function authFromToken(token: string | undefined) {
   return { user, character, rating };
 }
 
-function timeControlMs(id: string) {
-  const tc = CHESS_TIME_CONTROLS.find((t) => t.id === id);
-  return tc?.initialMs ?? 300_000;
-}
-
-function timeControlIncrementMs(id: string) {
-  const tc = CHESS_TIME_CONTROLS.find((t) => t.id === id);
-  return tc?.incrementMs ?? 0;
-}
-
-async function finishGame(
-  gameId: string,
-  result: "1-0" | "0-1" | "1/2-1/2",
-  reason: string,
-) {
-  const game = await db.query.chessGames.findFirst({
-    where: eq(chessGames.id, gameId),
-  });
-  if (!game || game.status === "finished") return null;
-
-  const whiteRating = game.whiteId
-    ? await db.query.chessRatings.findFirst({
-        where: eq(chessRatings.userId, game.whiteId),
-      })
-    : null;
-  const blackRating = game.blackId
-    ? await db.query.chessRatings.findFirst({
-        where: eq(chessRatings.userId, game.blackId),
-      })
-    : null;
-
-  let whiteDelta = 0;
-  let blackDelta = 0;
-  if (game.rated && whiteRating && blackRating) {
-    const deltas = applyElo(
-      whiteRating.elo,
-      blackRating.elo,
-      result,
-      whiteRating.gamesPlayed,
-      blackRating.gamesPlayed,
-    );
-    whiteDelta = deltas.whiteDelta;
-    blackDelta = deltas.blackDelta;
-
-    const wStats =
-      result === "1-0"
-        ? { wins: whiteRating.wins + 1 }
-        : result === "0-1"
-          ? { losses: whiteRating.losses + 1 }
-          : { draws: whiteRating.draws + 1 };
-    const bStats =
-      result === "0-1"
-        ? { wins: blackRating.wins + 1 }
-        : result === "1-0"
-          ? { losses: blackRating.losses + 1 }
-          : { draws: blackRating.draws + 1 };
-
-    await db
-      .update(chessRatings)
-      .set({
-        elo: clampElo(whiteRating.elo + whiteDelta),
-        gamesPlayed: whiteRating.gamesPlayed + 1,
-        ...wStats,
-      })
-      .where(eq(chessRatings.id, whiteRating.id));
-    await db
-      .update(chessRatings)
-      .set({
-        elo: clampElo(blackRating.elo + blackDelta),
-        gamesPlayed: blackRating.gamesPlayed + 1,
-        ...bStats,
-      })
-      .where(eq(chessRatings.id, blackRating.id));
-  }
-
-  await db
-    .update(chessGames)
-    .set({
-      status: "finished",
-      result,
-      whiteEloDelta: whiteDelta,
-      blackEloDelta: blackDelta,
-      finishedAt: new Date(),
-    })
-    .where(eq(chessGames.id, gameId));
-
-  // XP awards
-  const award = async (userId: string | null, outcome: "win" | "loss" | "draw") => {
-    if (!userId) return;
-    const xp = chessGameXpAward(outcome, game.rated);
-    const ch = await db.query.characters.findFirst({
-      where: eq(characters.userId, userId),
-    });
-    if (!ch) return;
-    const gain = globalXpFromCourseGain(xp, 1.1);
-    const newXp = ch.globalXp + gain;
-    await db
-      .update(characters)
-      .set({ globalXp: newXp, globalLevel: levelFromXp(newXp) })
-      .where(eq(characters.id, ch.id));
-  };
-
-  if (result === "1-0") {
-    await award(game.whiteId, "win");
-    await award(game.blackId, "loss");
-  } else if (result === "0-1") {
-    await award(game.whiteId, "loss");
-    await award(game.blackId, "win");
-  } else {
-    await award(game.whiteId, "draw");
-    await award(game.blackId, "draw");
-  }
-
-  return { result, reason, whiteDelta, blackDelta };
-}
+const games = createGameService(db);
+const { finishGame } = games;
 
 io.use(async (socket, next) => {
   try {
@@ -556,86 +444,127 @@ io.on("connection", (socket) => {
         return;
       }
       payload = parsed.data;
-      const game = await db.query.chessGames.findFirst({
-        where: eq(chessGames.id, payload.gameId),
-      });
-      if (!game || game.status !== "active") {
-        cb?.({ error: "not_active" });
+      const out = await games.applyMove({ ...payload, userId: auth.user.id });
+      if (out.kind === "error") {
+        cb?.({ error: out.error });
         return;
       }
-      const turn = game.fen.split(" ")[1];
-      const isWhite = game.whiteId === auth.user.id;
-      const isBlack = game.blackId === auth.user.id;
-      if ((turn === "w" && !isWhite) || (turn === "b" && !isBlack)) {
-        cb?.({ error: "not_your_turn" });
+      if (out.kind === "timeout") {
+        if (out.finished) io.to(`game:${payload.gameId}`).emit("game_over", out.finished);
+        cb?.({ error: "timeout", result: out.finished?.result ?? null });
         return;
       }
-
-      // clock drain
-      const now = Date.now();
-      const last = game.lastMoveAt?.getTime() ?? now;
-      const elapsed = now - last;
-      let whiteTime = game.whiteTimeMs;
-      let blackTime = game.blackTimeMs;
-      if (turn === "w") whiteTime -= elapsed;
-      else blackTime -= elapsed;
-
-      if (whiteTime <= 0 || blackTime <= 0) {
-        const result = whiteTime <= 0 ? "0-1" : "1-0";
-        const finished = await finishGame(game.id, result as "1-0" | "0-1", "timeout");
-        io.to(`game:${game.id}`).emit("game_over", finished);
-        cb?.({ error: "timeout", result });
-        return;
-      }
-
-      const applied = applyMove(game.fen, {
-        from: payload.from,
-        to: payload.to,
-        promotion: payload.promotion,
-      });
-      if (!applied.ok) {
-        cb?.({ error: applied.error });
-        return;
-      }
-
-      const inc = timeControlIncrementMs(game.timeControl);
-      if (turn === "w") whiteTime = applyFischerIncrement(whiteTime, inc);
-      else blackTime = applyFischerIncrement(blackTime, inc);
-
-      const pgn = game.pgn ? `${game.pgn} ${applied.san}` : applied.san;
-      await db
-        .update(chessGames)
-        .set({
-          fen: applied.fen,
-          pgn,
-          whiteTimeMs: whiteTime,
-          blackTimeMs: blackTime,
-          lastMoveAt: new Date(),
-        })
-        .where(eq(chessGames.id, game.id));
-
-      const movePayload = {
-        from: payload.from,
-        to: payload.to,
-        promotion: payload.promotion,
-        san: applied.san,
-        fen: applied.fen,
-        whiteTimeMs: whiteTime,
-        blackTimeMs: blackTime,
-      };
-      io.to(`game:${game.id}`).emit("moved", movePayload);
-
-      if (applied.over && applied.result) {
-        const finished = await finishGame(
-          game.id,
-          applied.result,
-          applied.reason ?? "checkmate_or_draw",
-        );
-        io.to(`game:${game.id}`).emit("game_over", finished);
-      }
-      cb?.({ ok: true, ...movePayload });
+      if (out.drawOfferExpired) io.to(`game:${payload.gameId}`).emit("draw_offer_expired", { gameId: payload.gameId });
+      io.to(`game:${payload.gameId}`).emit("moved", out.move);
+      if (out.finished) io.to(`game:${payload.gameId}`).emit("game_over", out.finished);
+      cb?.({ ok: true, ...out.move });
     },
   );
+
+  /** The opponent's clock ran out while they are idle: either player can claim it. */
+  socket.on("claim_timeout", async (payload: { gameId: string }, cb?: (r: unknown) => void) => {
+    if (!allowSocketEvent(socket.id, "claim_timeout", { limit: 5, windowMs: 5_000 })) {
+      cb?.({ error: "rate_limited" });
+      return;
+    }
+    const gameId = String(payload?.gameId ?? "");
+    if (!gameId) {
+      cb?.({ error: "invalid" });
+      return;
+    }
+    const out = await games.claimTimeout(gameId, auth.user.id);
+    if (!out.ok) {
+      cb?.({ error: out.error, remainingMs: out.remainingMs });
+      return;
+    }
+    io.to(`game:${gameId}`).emit("game_over", out.finished);
+    cb?.({ ok: true, ...out.finished });
+  });
+
+  const drawState = (game: typeof chessGames.$inferSelect) => ({
+    whiteId: game.whiteId,
+    blackId: game.blackId,
+    status: game.status,
+    plies: (game.pgn ?? "").split(" ").filter(Boolean).length,
+    drawOfferBy: game.drawOfferBy,
+    lastDrawOfferPlyWhite: game.lastDrawOfferPlyWhite,
+    lastDrawOfferPlyBlack: game.lastDrawOfferPlyBlack,
+  });
+
+  socket.on("offer_draw", async (payload: { gameId: string }, cb?: (r: unknown) => void) => {
+    if (!allowSocketEvent(socket.id, "offer_draw", { limit: 3, windowMs: 10_000 })) {
+      cb?.({ error: "rate_limited" });
+      return;
+    }
+    const gameId = String(payload?.gameId ?? "");
+    const game = gameId ? await db.query.chessGames.findFirst({ where: eq(chessGames.id, gameId) }) : null;
+    if (!game) {
+      cb?.({ error: "not_found" });
+      return;
+    }
+    const st = drawState(game);
+    const check = canOfferDraw(st, auth.user.id);
+    if (!check.ok) {
+      cb?.({ error: check.error });
+      return;
+    }
+    await db
+      .update(chessGames)
+      .set({
+        drawOfferBy: auth.user.id,
+        drawOfferPly: st.plies,
+        ...(check.color === "w" ? { lastDrawOfferPlyWhite: st.plies } : { lastDrawOfferPlyBlack: st.plies }),
+      })
+      .where(eq(chessGames.id, game.id));
+    socket.to(`game:${game.id}`).emit("draw_offered", { gameId: game.id, by: check.color });
+    cb?.({ ok: true });
+  });
+
+  socket.on("accept_draw", async (payload: { gameId: string }, cb?: (r: unknown) => void) => {
+    if (!allowSocketEvent(socket.id, "answer_draw", { limit: 5, windowMs: 10_000 })) {
+      cb?.({ error: "rate_limited" });
+      return;
+    }
+    const gameId = String(payload?.gameId ?? "");
+    const game = gameId ? await db.query.chessGames.findFirst({ where: eq(chessGames.id, gameId) }) : null;
+    if (!game) {
+      cb?.({ error: "not_found" });
+      return;
+    }
+    const check = canAnswerDraw(drawState(game), auth.user.id);
+    if (!check.ok) {
+      cb?.({ error: check.error });
+      return;
+    }
+    const finished = await finishGame(game.id, "1/2-1/2", "agreement");
+    if (!finished) {
+      cb?.({ error: "not_active" });
+      return;
+    }
+    io.to(`game:${game.id}`).emit("game_over", finished);
+    cb?.({ ok: true });
+  });
+
+  socket.on("decline_draw", async (payload: { gameId: string }, cb?: (r: unknown) => void) => {
+    if (!allowSocketEvent(socket.id, "answer_draw", { limit: 5, windowMs: 10_000 })) {
+      cb?.({ error: "rate_limited" });
+      return;
+    }
+    const gameId = String(payload?.gameId ?? "");
+    const game = gameId ? await db.query.chessGames.findFirst({ where: eq(chessGames.id, gameId) }) : null;
+    if (!game) {
+      cb?.({ error: "not_found" });
+      return;
+    }
+    const check = canAnswerDraw(drawState(game), auth.user.id);
+    if (!check.ok) {
+      cb?.({ error: check.error });
+      return;
+    }
+    await db.update(chessGames).set({ drawOfferBy: null }).where(eq(chessGames.id, game.id));
+    socket.to(`game:${game.id}`).emit("draw_declined", { gameId: game.id });
+    cb?.({ ok: true });
+  });
 
   socket.on("resign", async (payload: { gameId: string }, cb?: (r: unknown) => void) => {
     if (!allowSocketEvent(socket.id, "resign", { limit: 5, windowMs: 10_000 })) {
@@ -651,6 +580,10 @@ io.on("connection", (socket) => {
     }
     const result = game.whiteId === auth.user.id ? "0-1" : "1-0";
     const finished = await finishGame(game.id, result, "resign");
+    if (!finished) {
+      cb?.({ error: "not_active" });
+      return;
+    }
     io.to(`game:${game.id}`).emit("game_over", finished);
     cb?.({ ok: true, result });
   });
@@ -763,8 +696,28 @@ io.on("connection", (socket) => {
       });
     }
     void seekStore.removeSocket(socket.id);
+    forgetSocket(socket.id);
   });
 });
+
+// Sweep: end games whose player went silent with the clock running (closed tab,
+// lost connection) and expire unjoined invites. Conditional updates make it safe
+// to run on every instance.
+const SWEEP_MS = Math.max(5_000, Number(process.env.REALTIME_SWEEP_MS ?? 15_000));
+let sweeping = false;
+async function sweepOnce() {
+  if (sweeping) return;
+  sweeping = true;
+  try {
+    for (const f of await games.sweepStaleGames()) io.to(`game:${f.gameId}`).emit("game_over", f);
+  } catch (e) {
+    console.warn("[realtime] sweep failed:", e instanceof Error ? e.message : e);
+    captureException(e, { task: "sweep" });
+  } finally {
+    sweeping = false;
+  }
+}
+setInterval(() => void sweepOnce(), SWEEP_MS).unref();
 
 void setupSocketAdapter().finally(() => {
   httpServer.listen(PORT, "0.0.0.0", () => {

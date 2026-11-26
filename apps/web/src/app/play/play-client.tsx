@@ -5,14 +5,18 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { io, type Socket } from "socket.io-client";
 import { ChessBoardFrame } from "@/components/chess-board-frame";
+import { MoveHistoryPanel } from "@/components/move-history-panel";
 import {
   Chess,
-  chooseBotMove,
-  gameTermination,
+  evaluateBoard,
+  gameTerminationWithHistory,
+  REPERTOIRES,
   type BotLevel,
-  type BotMove,
 } from "@eduforge/chess-core";
-import { CHESS_TIME_CONTROLS } from "@eduforge/shared";
+import { CHESS_TIME_CONTROLS, type BotUnlockId, type BotUnlockState } from "@eduforge/shared";
+import { requestBotMove } from "@/lib/chess-bot";
+import { playChessSound } from "@/lib/chess-sounds";
+import { CapturedPieces } from "@/components/captured-pieces";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
 import { api } from "@/lib/api";
@@ -41,42 +45,9 @@ type MatchInfo = {
   rated: boolean;
   vsBot?: boolean;
   botLevel?: BotLevel;
+  /** "Play an opening": the bot follows this repertoire tree while in book. */
+  openingId?: string;
 };
-
-async function requestBotMove(currentFen: string, level: BotLevel): Promise<BotMove | null> {
-  if (level === "strong" && typeof window !== "undefined" && typeof Worker !== "undefined") {
-    try {
-      const move = await new Promise<BotMove | null>((resolve, reject) => {
-        const worker = new Worker(new URL("./chess-bot-worker.ts", import.meta.url));
-        const timeout = setTimeout(() => {
-          worker.terminate();
-          reject(new Error("worker_timeout"));
-        }, 3000);
-        worker.onmessage = (e) => {
-          clearTimeout(timeout);
-          worker.terminate();
-          if (e.data?.ok) {
-            resolve(e.data.move ?? null);
-          } else {
-            reject(new Error(e.data?.error ?? "worker_failed"));
-          }
-        };
-        worker.onerror = (err) => {
-          clearTimeout(timeout);
-          worker.terminate();
-          reject(err);
-        };
-        worker.postMessage({ fen: currentFen, level: "strong" });
-      });
-      return move;
-    } catch {
-      // Strong falls back to Club if worker fails
-      return chooseBotMove(currentFen, "club");
-    }
-  }
-
-  return chooseBotMove(currentFen, level);
-}
 
 function PlayPageInner() {
   const { user, token, loading, character } = useAuth();
@@ -102,6 +73,11 @@ function PlayPageInner() {
   const [copied, setCopied] = useState(false);
   const [hintText, setHintText] = useState("");
   const [hintLoading, setHintLoading] = useState(false);
+  /** SAN history of the current game (threefold + move list + saved PGN). */
+  const [history, setHistory] = useState<string[]>([]);
+  const [savedGameId, setSavedGameId] = useState<string | null>(null);
+  const [drawIncoming, setDrawIncoming] = useState(false);
+  const [myGames, setMyGames] = useState<{ id: string; result: string | null; kind?: string; createdAt: string; termination?: string | null }[]>([]);
 
   // Bot practice options
   const [botLevel, setBotLevel] = useState<BotLevel>(() => {
@@ -110,6 +86,10 @@ function PlayPageInner() {
     return "club";
   });
   const [botColor, setBotColor] = useState<"w" | "b">("w");
+  // Personalities open with chess course progress (server rules, GET /chess/bots/unlocks).
+  const [unlocks, setUnlocks] = useState<Record<BotUnlockId, BotUnlockState> | null>(null);
+  const isOpen = (id: BotUnlockId) => (unlocks ? unlocks[id].unlocked : id === "learner");
+  const [openingId, setOpeningId] = useState<string>(() => searchParams.get("opening") ?? "");
 
   const testFen = process.env.NODE_ENV !== "production" ? searchParams.get("testFen") : null;
 
@@ -158,6 +138,23 @@ function PlayPageInner() {
   }, [match, seeking]);
 
   useEffect(() => {
+    if (!token) {
+      setUnlocks(null);
+      return;
+    }
+    void api<{ unlocks: Record<BotUnlockId, BotUnlockState> }>("/chess/bots/unlocks", { token })
+      .then((d) => setUnlocks(d.unlocks))
+      .catch(() => undefined);
+  }, [token]);
+
+  // Keep the picked personality open: fall back to the strongest unlocked one.
+  useEffect(() => {
+    if (isOpen(botLevel)) return;
+    setBotLevel(isOpen("club") ? "club" : "learner");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unlocks, botLevel]);
+
+  useEffect(() => {
     if (!token) return;
     void api<{ rating: { elo: number } }>("/chess/rating/me", { token }).then((d) =>
       setElo(d.rating.elo),
@@ -178,6 +175,9 @@ function PlayPageInner() {
       setInviteId(null);
       setMatch({ ...m, vsBot: false });
       setFen(m.fen);
+      setHistory([]);
+      setSavedGameId(m.gameId);
+      setDrawIncoming(false);
       setWhiteTime(m.whiteTimeMs);
       setBlackTime(m.blackTimeMs);
       setResult(null);
@@ -189,20 +189,26 @@ function PlayPageInner() {
       "moved",
       (p: {
         fen: string;
+        san?: string;
         whiteTimeMs: number;
         blackTimeMs: number;
       }) => {
         setFen(p.fen);
+        if (p.san) setHistory((h) => [...h, p.san!]);
         setWhiteTime(p.whiteTimeMs);
         setBlackTime(p.blackTimeMs);
       },
     );
-    s.on("game_over", (p: { result?: string; reason?: string }) => {
+    s.on("game_over", (p: { result?: string; reason?: string; termination?: string }) => {
       setResult(p.result ?? "finished");
-      setGameOverReason(p.reason ?? null);
-      setStatus(p.reason ?? "");
+      setGameOverReason(p.reason ?? p.termination ?? null);
+      setStatus(p.reason ?? p.termination ?? "");
       setSeeking(false);
+      setDrawIncoming(false);
     });
+    s.on("draw_offered", () => setDrawIncoming(true));
+    s.on("draw_offer_expired", () => setDrawIncoming(false));
+    s.on("draw_declined", () => setStatus("draw_declined"));
 
     return () => {
       s.disconnect();
@@ -252,6 +258,29 @@ function PlayPageInner() {
     return () => clearInterval(tInterval);
   }, [match, fen, result]);
 
+  // Online: when the opponent's clock reaches zero on their turn, ask the server to
+  // end the game (it re-checks the clock; the server sweep is the fallback).
+  const opponentFlagged =
+    !!match && !match.vsBot && !result &&
+    (fen === "start" ? "w" : new Chess(fen).turn()) !== match.youAre &&
+    (match.youAre === "w" ? blackTime : whiteTime) <= 0;
+  useEffect(() => {
+    if (!opponentFlagged || !socket || !match) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let cancelled = false;
+    const claim = () => {
+      socket.emit("claim_timeout", { gameId: match.gameId }, (res: { error?: string; remainingMs?: number }) => {
+        if (cancelled || !res?.error) return;
+        if (res.error === "not_timed_out") timer = setTimeout(claim, Math.min(10_000, (res.remainingMs ?? 0) + 300));
+      });
+    };
+    claim();
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [opponentFlagged, socket, match]);
+
   // Bot move when it is the bot's turn in bot games
   useEffect(() => {
     if (!match?.vsBot || result) return;
@@ -262,7 +291,7 @@ function PlayPageInner() {
 
     let active = true;
     const timer = setTimeout(async () => {
-      const move = await requestBotMove(game.fen(), match.botLevel ?? "club");
+      const move = await requestBotMove(game.fen(), match.botLevel ?? "club", { history, openingId: match.openingId });
       if (!active || !move) return;
       const g = new Chess(game.fen());
       try {
@@ -270,8 +299,11 @@ function PlayPageInner() {
       } catch {
         return;
       }
+      const san = g.history().at(-1) ?? "";
+      const next = [...history, san];
       setFen(g.fen());
-      const term = gameTermination(g.fen());
+      setHistory(next);
+      const term = gameTerminationWithHistory("startpos", next);
       if (term.over) {
         setResult(term.result);
         setGameOverReason(term.reason);
@@ -283,7 +315,28 @@ function PlayPageInner() {
       active = false;
       clearTimeout(timer);
     };
+    // history changes together with fen
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [match, fen, result]);
+
+  // Save finished bot games so they can be reviewed and analysed.
+  useEffect(() => {
+    if (!match?.vsBot || !result || savedGameId || !token || match.gameId === "test-game" || history.length === 0) return;
+    setSavedGameId("saving");
+    api<{ id: string }>("/chess/games/bot", {
+      token,
+      body: { sans: history, playerColor: match.youAre, botLevel: match.botLevel ?? "club", resigned: gameOverReason === "resign", kind: match.openingId ? "opening" : "bot" },
+    })
+      .then((r) => setSavedGameId(r.id))
+      .catch(() => setSavedGameId(null));
+  }, [match, result, savedGameId, token, history, gameOverReason]);
+
+  useEffect(() => {
+    if (!token || match) return;
+    api<{ games: { id: string; result: string | null; kind?: string; createdAt: string; termination?: string | null }[] }>("/chess/games/me", { token })
+      .then((d) => setMyGames(d.games.filter((g) => g.result)))
+      .catch(() => undefined);
+  }, [token, match]);
 
   const orientation = match?.youAre === "b" ? "black" : "white";
   const myTurn = useMemo(() => {
@@ -291,6 +344,22 @@ function PlayPageInner() {
     const turn = fen === "start" ? "w" : new Chess(fen).turn();
     return turn === match.youAre;
   }, [match, fen, result]);
+
+  // Game start / end sounds (off unless the learner enabled sound).
+  useEffect(() => {
+    if (match && match.gameId !== "test-game") playChessSound("gameStart");
+  }, [match?.gameId]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (result) playChessSound("gameEnd");
+  }, [result]);
+
+  // Low time: a quiet tick once per second under 10 s on our own clock.
+  const myTimeMs = match ? (match.youAre === "w" ? whiteTime : blackTime) : 0;
+  const mySecond = Math.ceil(myTimeMs / 1000);
+  useEffect(() => {
+    if (!match || result || !myTurn || myTimeMs <= 0 || myTimeMs >= 10_000) return;
+    playChessSound("lowTime");
+  }, [mySecond]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function formatMs(ms: number) {
     const s = Math.ceil(ms / 1000);
@@ -329,9 +398,9 @@ function PlayPageInner() {
   }
 
   function getLevelLabel(lvl: BotLevel): string {
-    if (lvl === "learner") return t.chess.levelLearner;
-    if (lvl === "club") return t.chess.levelClub;
-    return t.chess.levelStrong;
+    if (lvl === "learner") return t.chess.botNovice;
+    if (lvl === "club") return t.chess.botClub;
+    return t.chess.botStrong;
   }
 
   function startBotGame() {
@@ -366,8 +435,11 @@ function PlayPageInner() {
       rated: false,
       vsBot: true,
       botLevel,
+      openingId: openingId || undefined,
     });
     setFen(chess.fen());
+    setHistory([]);
+    setSavedGameId(null);
     setWhiteTime(ms);
     setBlackTime(ms);
     setResult(null);
@@ -462,16 +534,18 @@ function PlayPageInner() {
     }
   }
 
-  function onDrop(from: string, to: string) {
+  function onDrop(from: string, to: string, promotion?: "q" | "r" | "b" | "n") {
     if (!match || !myTurn) return false;
 
     if (match.vsBot) {
       const g = fen === "start" ? new Chess() : new Chess(fen);
       try {
-        const m = g.move({ from, to, promotion: "q" });
+        const m = g.move({ from, to, promotion });
         if (!m) return false;
+        const next = [...history, m.san];
         setFen(g.fen());
-        const term = gameTermination(g.fen());
+        setHistory(next);
+        const term = gameTerminationWithHistory("startpos", next);
         if (term.over) {
           setResult(term.result);
           setGameOverReason(term.reason);
@@ -486,7 +560,7 @@ function PlayPageInner() {
     if (!socket) return false;
     socket.emit(
       "move",
-      { gameId: match.gameId, from, to, promotion: "q" },
+      { gameId: match.gameId, from, to, ...(promotion ? { promotion } : {}) },
       (res: { error?: string; fen?: string }) => {
         if (res?.error) setStatus(res.error);
         if (res?.fen) setFen(res.fen);
@@ -504,6 +578,44 @@ function PlayPageInner() {
     }
     socket?.emit("resign", { gameId: match.gameId });
   }
+
+  function offerDraw() {
+    if (!match || result) return;
+    if (match.vsBot) {
+      // The bot accepts only when it stands worse than −100 cp (its point of view).
+      const g = fen === "start" ? new Chess() : new Chess(fen);
+      const white = evaluateBoard(g);
+      const botEval = match.youAre === "w" ? -white : white;
+      if (botEval <= -100) {
+        setResult("1/2-1/2");
+        setGameOverReason("agreement");
+        setStatus("bot_accepts_draw");
+      } else {
+        setStatus("bot_declines_draw");
+      }
+      return;
+    }
+    socket?.emit("offer_draw", { gameId: match.gameId }, (res: { error?: string }) => {
+      setStatus(res?.error ? res.error : "draw_offer_sent");
+    });
+  }
+
+  function answerDraw(accept: boolean) {
+    if (!match) return;
+    socket?.emit(accept ? "accept_draw" : "decline_draw", { gameId: match.gameId });
+    setDrawIncoming(false);
+  }
+
+  const statusText = (code: string) =>
+    ({
+      threefold: t.chess.threefold,
+      draw_declined: t.chess.drawDeclined,
+      draw_offer_sent: t.chess.drawOfferSent,
+      bot_accepts_draw: t.chess.botAcceptsDraw,
+      bot_declines_draw: t.chess.botDeclinesDraw,
+      checkmate: t.chess.checkmate,
+      stalemate: t.chess.stalemate,
+    })[code] ?? code;
 
   const endReason: "checkmate" | "stalemate" | null =
     gameOverReason === "checkmate" || gameOverReason === "stalemate"
@@ -538,9 +650,17 @@ function PlayPageInner() {
             {t.chess.rating}: <strong>{elo}</strong>
           </p>
         </div>
-        <Link href="/courses/chess" className="btn-secondary">
-          {t.chess.learn} / {t.chess.puzzles}
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/play/puzzles" className="btn-secondary" data-testid="puzzle-trainer-link">
+            🧩 {t.chess.puzzleTrainer}
+          </Link>
+          <Link href="/play/openings" className="btn-secondary" data-testid="opening-trainer-link">
+            📖 {t.chess.openingTrainer}
+          </Link>
+          <Link href="/courses/chess" className="btn-secondary">
+            {t.chess.learn} / {t.chess.puzzles}
+          </Link>
+        </div>
       </div>
 
       {!match && (
@@ -632,30 +752,65 @@ function PlayPageInner() {
               <label className="label text-xs">{t.chess.botLevel}</label>
               <div className="grid grid-cols-3 gap-2">
                 {(["learner", "club", "strong"] as const).map((lvl) => {
-                  const label =
-                    lvl === "learner"
-                      ? t.chess.levelLearner
-                      : lvl === "club"
-                        ? t.chess.levelClub
-                        : t.chess.levelStrong;
+                  const label = lvl === "learner" ? t.chess.botNovice : lvl === "club" ? t.chess.botClub : t.chess.botStrong;
                   const isSelected = botLevel === lvl;
+                  const open = isOpen(lvl);
                   return (
                     <button
                       key={lvl}
                       type="button"
+                      disabled={!open}
+                      data-testid={`bot-level-${lvl}`}
+                      aria-label={open ? label : `${label} — ${t.chess.botLocked}`}
                       className={
                         isSelected
                           ? "btn-primary !py-2 !px-2 text-xs"
-                          : "btn-secondary !py-2 !px-2 text-xs"
+                          : "btn-secondary !py-2 !px-2 text-xs disabled:opacity-50"
                       }
                       onClick={() => setBotLevel(lvl)}
                     >
-                      {label}
+                      {open ? label : `🔒 ${label}`}
                     </button>
                   );
                 })}
               </div>
             </div>
+
+            <p className="text-xs text-ink-muted" data-testid="bot-personality-desc">
+              {botLevel === "learner" ? t.chess.botNoviceDesc : botLevel === "club" ? t.chess.botClubDesc : t.chess.botStrongDesc}
+            </p>
+            {(["club", "strong"] as const)
+              .filter((lvl) => !isOpen(lvl))
+              .map((lvl) => {
+                const st = unlocks?.[lvl] ?? { progress: 0, required: lvl === "club" ? 8 : 30 };
+                return (
+                  <p key={lvl} className="text-xs text-ink-muted" data-testid={`bot-unlock-${lvl}`}>
+                    🔒{" "}
+                    {t.chess.botUnlockLessons
+                      .replace("{name}", lvl === "club" ? t.chess.botClub : t.chess.botStrong)
+                      .replace("{done}", String(st.progress))
+                      .replace("{n}", String(st.required))}
+                  </p>
+                );
+              })}
+            {!isOpen("italian_challenge") && (
+              <p className="text-xs text-ink-muted" data-testid="bot-unlock-italian">
+                🔒 {t.chess.botUnlockItalian}
+              </p>
+            )}
+            <button
+              type="button"
+              disabled={!isOpen("italian_challenge") || !isOpen("club")}
+              className="btn-secondary w-full !py-2 text-xs disabled:opacity-50"
+              data-testid="challenge-italian"
+              onClick={() => {
+                setBotLevel("club");
+                setBotColor("w");
+                setOpeningId("italian");
+              }}
+            >
+              🏆 {t.chess.challengeItalian}
+            </button>
 
             {/* Color selection */}
             <div className="space-y-1.5">
@@ -686,11 +841,44 @@ function PlayPageInner() {
               </div>
             </div>
 
+            {/* Play an opening */}
+            <div className="space-y-1.5">
+              <label className="label text-xs" htmlFor="bot-opening">
+                {t.chess.playOpening}
+              </label>
+              <select id="bot-opening" className="input text-sm" value={openingId} onChange={(e) => setOpeningId(e.target.value)}>
+                <option value="">{t.chess.openingAny}</option>
+                {REPERTOIRES.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {locale === "en" ? r.titleEn : r.titleUk}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <button className="btn-sky w-full" onClick={startBotGame}>
               {t.chess.playBot}
             </button>
           </div>
         </div>
+      )}
+
+      {!match && myGames.length > 0 && (
+        <section className="card space-y-2" data-testid="my-games">
+          <h2 className="text-xl font-black">{t.chess.myGames}</h2>
+          <ul className="divide-y divide-slate-100">
+            {myGames.slice(0, 10).map((g) => (
+              <li key={g.id} className="flex items-center justify-between py-1 text-sm">
+                <span>
+                  {new Date(g.createdAt).toLocaleDateString(locale === "en" ? "en-GB" : "uk-UA")} · {g.kind === "bot" ? "🤖" : "🌐"} · {g.result}
+                </span>
+                <Link href={`/play/review/${g.id}`} className="underline">
+                  {t.chess.reviewGame}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       {match && (
@@ -733,7 +921,13 @@ function PlayPageInner() {
                     ? `(${match.black.elo})`
                     : ""}
               </span>
-              <span className="font-mono">{formatMs(blackTime)}</span>
+              <span
+                className={`rounded px-1 font-mono ${!result && blackTime > 0 && blackTime < 30_000 ? "bg-rose-600 text-white" : ""}`}
+                data-testid="clock-black"
+                aria-label={!result && blackTime < 30_000 ? t.chess.lowTime : undefined}
+              >
+                {formatMs(blackTime)}
+              </span>
             </div>
             <div className="flex justify-between font-bold">
               <span>
@@ -744,7 +938,17 @@ function PlayPageInner() {
                     ? `(${match.white.elo})`
                     : ""}
               </span>
-              <span className="font-mono">{formatMs(whiteTime)}</span>
+              <span
+                className={`rounded px-1 font-mono ${!result && whiteTime > 0 && whiteTime < 30_000 ? "bg-rose-600 text-white" : ""}`}
+                data-testid="clock-white"
+                aria-label={!result && whiteTime < 30_000 ? t.chess.lowTime : undefined}
+              >
+                {formatMs(whiteTime)}
+              </span>
+            </div>
+            <div className="flex justify-between gap-2" aria-label={t.chess.captured}>
+              <CapturedPieces sans={history} side="w" label={`${t.chess.captured}: ${t.chess.white}`} />
+              <CapturedPieces sans={history} side="b" label={`${t.chess.captured}: ${t.chess.black}`} />
             </div>
             <p className="text-sm font-bold text-ink-muted">
               {result
@@ -774,10 +978,33 @@ function PlayPageInner() {
                 {hintText && (
                   <p className="text-xs font-bold text-ink-muted break-words">{hintText}</p>
                 )}
+                <button className="btn-secondary w-full" onClick={offerDraw} data-testid="offer-draw">
+                  🤝 {t.chess.offerDrawFull}
+                </button>
                 <button className="btn-secondary w-full" onClick={resign}>
                   {t.chess.resign}
                 </button>
               </>
+            )}
+            {drawIncoming && !result && (
+              <div className="rounded-xl border border-sun/40 bg-sun/10 p-3 space-y-2" role="alertdialog" aria-label={t.chess.drawOffered}>
+                <p className="font-bold">{t.chess.drawOffered}</p>
+                <div className="flex gap-2">
+                  <button type="button" className="btn-primary" onClick={() => answerDraw(true)}>
+                    {t.chess.acceptDraw}
+                  </button>
+                  <button type="button" className="btn-secondary" onClick={() => answerDraw(false)}>
+                    {t.chess.declineDraw}
+                  </button>
+                </div>
+              </div>
+            )}
+            {status && match && <p className="text-xs font-bold text-ink-muted">{statusText(status)}</p>}
+            <MoveHistoryPanel sans={history} current={history.length - 1} title={t.chess.moveHistory} />
+            {result && savedGameId && savedGameId !== "saving" && match.gameId !== "test-game" && (
+              <Link href={`/play/review/${savedGameId}`} className="btn-sky w-full text-center" data-testid="review-game-link">
+                🔍 {t.chess.reviewGame}
+              </Link>
             )}
             {result && (
               <button
@@ -787,6 +1014,9 @@ function PlayPageInner() {
                   setFen("start");
                   setResult(null);
                   setHintText("");
+                  setHistory([]);
+                  setSavedGameId(null);
+                  setStatus("");
                 }}
               >
                 {t.chess.newGame}

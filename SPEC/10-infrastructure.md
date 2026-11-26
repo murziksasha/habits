@@ -6,7 +6,7 @@
 pnpm install
 docker compose up postgres redis -d
 cp .env.example .env   # Windows: copy .env.example .env
-pnpm --filter @eduforge/shared build
+pnpm --filter @eduforge/chess-core build && pnpm --filter @eduforge/shared build
 pnpm --filter @eduforge/content build
 pnpm --filter @eduforge/chess-core build
 pnpm --filter @eduforge/db build

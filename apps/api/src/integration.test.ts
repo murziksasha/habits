@@ -5,9 +5,10 @@
 import { Secret, TOTP } from "otpauth";
 import { describe, expect, it, beforeAll } from "vitest";
 import { createApp } from "./app.js";
+import { gradeExercise } from "./grade.js";
 import { registerLearningProgressIntegrationTests } from "./learning-progress.integration.js";
 import { db } from "./db.js";
-import { users, classes, tournamentPairings, tournaments, organizations } from "@eduforge/db";
+import { users, classes, chessPersonalPuzzles, courses, lessons, tournamentPairings, tournaments, organizations, userLessonProgress } from "@eduforge/db";
 import { eq } from "drizzle-orm";
 
 
@@ -216,6 +217,25 @@ describeIntegration("API integration", () => {
 
     const notFound = await json("/courses/non-existent-course-slug-xyz");
     expect(notFound.status).toBe(404);
+  });
+
+  it("locks one account after 10 wrong passwords even from rotating IPs", async () => {
+    const victim = `itest-lock-${suffix}@eduforge.test`;
+    const reg = await json("/auth/register", {
+      method: "POST",
+      body: { email: victim, password, displayName: `Lock${suffix}` },
+    });
+    expect(reg.status).toBe(200);
+    // Every json() call uses a new X-Forwarded-For, so only the per-account limit applies.
+    for (let i = 0; i < 10; i++) {
+      const bad = await json("/auth/login", { method: "POST", body: { email: victim, password: "wrong-password" } });
+      expect(bad.status).toBe(401);
+    }
+    const locked = await json("/auth/login", { method: "POST", body: { email: victim.toUpperCase(), password } });
+    expect(locked.status).toBe(429);
+    expect(locked.data.error).toBe("rate_limited");
+    const other = await json("/auth/login", { method: "POST", body: { email, password } });
+    expect(other.status).toBe(200);
   });
 
   it("password reset flow (dev)", async () => {
@@ -863,7 +883,112 @@ describeIntegration("API integration", () => {
       const meAfter = await json("/auth/me", { token: targetSession });
       expect(meAfter.status).toBe(401);
     });
+  });
 
+  it("plays server-owned endgame drills and grades only the signed game", async () => {
+    const id = "ch-eg-opposition-e5";
+    expect((await json(`/chess/drills/nope-${suffix}/move`, { token, body: { move: { from: "e2", to: "e4" } } })).status).toBe(404);
+    const bad = await json(`/chess/drills/${id}/move`, { token, body: { move: { from: "e6", to: "e8" } } });
+    expect(bad.status).toBe(400);
+    expect(bad.data.error).toBe("illegal_move");
+    const r = await json(`/chess/drills/${id}/move`, { token, body: { move: { from: "e6", to: "d6" } } });
+    expect(r.status).toBe(200);
+    const sans = r.data.sans as string[];
+    expect(sans[0]).toBe("Kd6");
+    expect(sans).toHaveLength(2);
+    expect(typeof r.data.token).toBe("string");
+    const forged = await json(`/chess/drills/${id}/move`, {
+      token,
+      body: { token: `${String(r.data.token).slice(0, -2)}xx`, move: { from: "d6", to: "c7" } },
+    });
+    expect(forged.status).toBe(400);
+    expect(forged.data.error).toBe("invalid_token");
+    // Lesson grading ignores a client-made game and accepts the server-signed one.
+    expect(gradeExercise({ id, type: "chess_endgame_drill", fen: "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1", goal: "promote", maxMoves: 12 }, { sans }).meta?.reason).toBe("unverified");
+  });
+
+  it("surfaces own-game puzzles in the mistake notebook and grades them per user", async () => {
+    const me = await json("/auth/me", { token });
+    const userId = String((me.data.user as { id: string }).id);
+    const [row] = await db
+      .insert(chessPersonalPuzzles)
+      .values({ userId, ply: 30, fen: "4k3/8/4K3/8/8/8/8/7R w - - 0 1", solutionSans: ["Rh8#"], goal: "mate", themes: ["mateIn1"], dueAt: new Date(Date.now() - 1000) })
+      .returning();
+    const exerciseId = `own-${row!.id}`;
+    const list = await json("/review/mistakes?limit=10", { token });
+    expect(list.status).toBe(200);
+    const items = list.data.items as { lessonId: string; exercise: { id: string; type: string } }[];
+    const own = items.find((i) => i.exercise.id === exerciseId);
+    expect(own?.lessonId).toBe("own_game");
+    expect(own?.exercise.type).toBe("chess_puzzle");
+
+    const other = await json("/auth/register", {
+      method: "POST",
+      body: { email: `own-other-${suffix}@eduforge.test`, password, displayName: `Own${suffix}` },
+    });
+    const stranger = await json("/review/mistakes/check", {
+      token: String(other.data.token),
+      body: { answers: [{ lessonId: "own_game", exerciseId, answer: { sans: ["Rh8#"] }, wrongAttempts: 0 }] },
+    });
+    expect(stranger.status).toBe(200);
+    expect((stranger.data.results as { error?: string }[])[0]?.error).toBe("not_found");
+
+    const check = await json("/review/mistakes/check", {
+      token,
+      body: { answers: [{ lessonId: "own_game", exerciseId, answer: { sans: ["Rh8#"] }, wrongAttempts: 0 }] },
+    });
+    expect(check.status).toBe(200);
+    const r0 = (check.data.results as { correct: boolean; firstTry: boolean }[])[0];
+    expect(r0).toMatchObject({ correct: true, firstTry: true });
+    const after = await db.query.chessPersonalPuzzles.findFirst({ where: eq(chessPersonalPuzzles.id, row!.id) });
+    expect(after!.repetitions).toBe(1);
+    expect(after!.dueAt.getTime()).toBeGreaterThan(Date.now() + 12 * 3600_000);
+  });
+
+  it("stores board preferences per account", async () => {
+    expect((await json("/chess/prefs")).status).toBe(401);
+    const empty = await json("/chess/prefs", { token });
+    expect(empty.status).toBe(200);
+    expect(empty.data.prefs).toBeNull();
+    const put = await json("/chess/prefs", { method: "PUT", token, body: { theme: "green", sound: true, junk: "x" } });
+    expect(put.status).toBe(200);
+    expect(put.data.prefs).toEqual({ theme: "green", coordinates: true, sound: true });
+    const partial = await json("/chess/prefs", { method: "PUT", token, body: { coordinates: false, theme: "nope" } });
+    expect(partial.data.prefs).toEqual({ theme: "green", coordinates: false, sound: true });
+    expect((await json("/chess/prefs", { token })).data.prefs).toEqual({ theme: "green", coordinates: false, sound: true });
+    expect((await json("/chess/prefs", { method: "PUT", token, body: [1] })).status).toBe(400);
+  });
+
+  it("opens bot personalities with chess progress and refuses to save locked ones", async () => {
+    const reg = await json("/auth/register", {
+      method: "POST",
+      body: { email: `bots-${suffix}@eduforge.test`, password, displayName: `Bots${suffix}` },
+    });
+    const t = String(reg.data.token);
+    const fresh = await json("/chess/bots/unlocks", { token: t });
+    expect(fresh.status).toBe(200);
+    const u0 = fresh.data.unlocks as Record<string, { unlocked: boolean; progress: number; required: number }>;
+    expect(u0.learner!.unlocked).toBe(true);
+    expect(u0.club).toEqual({ unlocked: false, progress: 0, required: 8 });
+    expect(u0.strong!.unlocked).toBe(false);
+    expect(u0.italian_challenge!.unlocked).toBe(false);
+    const locked = await json("/chess/games/bot", { token: t, body: { sans: ["e4"], playerColor: "w", botLevel: "strong", kind: "bot" } });
+    expect(locked.status).toBe(403);
+    expect(locked.data.error).toBe("bot_locked");
+    expect((await json("/chess/games/bot", { token: t, body: { sans: ["e4"], playerColor: "w", botLevel: "learner", kind: "bot" } })).status).toBe(200);
+
+    const userId = String((await json("/auth/me", { token: t })).data.user.id);
+    const chess = await db.query.courses.findFirst({ where: eq(courses.slug, "chess") });
+    const some = await db.select({ id: lessons.id }).from(lessons).where(eq(lessons.courseId, chess!.id)).limit(8);
+    await db.insert(userLessonProgress).values(some.map((l) => ({ userId, lessonId: l.id, courseId: chess!.id, status: "completed" as const })));
+    const after = (await json("/chess/bots/unlocks", { token: t })).data.unlocks as Record<string, { unlocked: boolean }>;
+    expect(after.club!.unlocked).toBe(true);
+    expect(after.strong!.unlocked).toBe(false);
+    expect((await json("/chess/games/bot", { token: t, body: { sans: ["e4"], playerColor: "w", botLevel: "club", kind: "bot" } })).status).toBe(200);
+
+    await db.update(users).set({ role: "admin" }).where(eq(users.id, userId));
+    const admin = (await json("/chess/bots/unlocks", { token: t })).data.unlocks as Record<string, { unlocked: boolean }>;
+    expect(Object.values(admin).every((x) => x.unlocked)).toBe(true);
   });
 });
 

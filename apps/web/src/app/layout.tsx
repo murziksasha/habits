@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Manrope } from "next/font/google";
 import { AuthProvider } from "@/lib/auth-context";
 import { LocaleProvider } from "@/lib/locale-context";
@@ -22,13 +22,17 @@ export const metadata: Metadata = {
   description:
     "Англійська, шахи, друк, швидкочитання та логіка. Прокачка персонажа, рейтинг, онлайн-шахи.",
   manifest: "/manifest.webmanifest",
-  themeColor: "#58CC02",
   appleWebApp: {
     capable: true,
     title: "EduForge",
     statusBarStyle: "default",
   },
   other: { "content-language": "uk" },
+};
+
+// Next 15: themeColor belongs to the viewport export, not metadata.
+export const viewport: Viewport = {
+  themeColor: "#58CC02",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

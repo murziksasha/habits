@@ -6,6 +6,7 @@ import {
   pgEnum,
   pgTable,
   real,
+  smallint,
   text,
   timestamp,
   uniqueIndex,
@@ -57,6 +58,8 @@ export const users = pgTable("users", {
   mfaExempt: boolean("mfa_exempt").notNull().default(false),
   /** Max child seats when this user owns a family group */
   familyMaxSeats: integer("family_max_seats").notNull().default(0),
+  /** Chess board preferences synced across devices (null = never saved) */
+  chessPrefs: jsonb("chess_prefs").$type<{ theme?: string; coordinates?: boolean; sound?: boolean }>(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
@@ -77,7 +80,9 @@ export const oauthAccounts = pgTable(
     email: varchar("email", { length: 255 }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [uniqueIndex("oauth_provider_uid").on(t.provider, t.providerUserId)],
+  (t) => [uniqueIndex("oauth_provider_uid").on(t.provider, t.providerUserId),
+    index("oauth_accounts_user_id_idx").on(t.userId),
+  ],
 );
 
 /** Family group membership (owner row plus child seats). */
@@ -110,7 +115,9 @@ export const familyInvites = pgTable("family_invites", {
   inviteCode: varchar("invite_code", { length: 32 }).notNull().unique(),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  index("family_invites_owner_user_id_idx").on(t.ownerUserId),
+]);
 
 export const characters = pgTable("characters", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -192,7 +199,9 @@ export const passwordResetTokens = pgTable("password_reset_tokens", {
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   usedAt: timestamp("used_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  index("password_reset_tokens_user_id_idx").on(t.userId),
+]);
 
 export const emailVerificationTokens = pgTable("email_verification_tokens", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -203,7 +212,9 @@ export const emailVerificationTokens = pgTable("email_verification_tokens", {
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   usedAt: timestamp("used_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  index("email_verification_tokens_user_id_idx").on(t.userId),
+]);
 
 export const courses = pgTable("courses", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -234,7 +245,9 @@ export const units = pgTable("units", {
   titleUk: varchar("title_uk", { length: 128 }).notNull(),
   titleEn: varchar("title_en", { length: 128 }).notNull().default(""),
   sortOrder: integer("sort_order").notNull().default(0),
-});
+}, (t) => [
+  index("units_course_id_idx").on(t.courseId),
+]);
 
 export const lessons = pgTable("lessons", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -258,7 +271,10 @@ export const lessons = pgTable("lessons", {
   /** Content revision. Rewritten electrical engineering lessons are version 2. */
   contentVersion: integer("content_version").notNull().default(1),
   exercises: jsonb("exercises").notNull().$type<unknown[]>().default([]),
-});
+}, (t) => [
+  index("lessons_course_id_idx").on(t.courseId),
+  index("lessons_unit_id_idx").on(t.unitId),
+]);
 
 export const userCourseProgress = pgTable(
   "user_course_progress",
@@ -277,7 +293,9 @@ export const userCourseProgress = pgTable(
     completedLessons: integer("completed_lessons").notNull().default(0),
     lastLessonId: uuid("last_lesson_id"),
   },
-  (t) => [uniqueIndex("ucp_user_course").on(t.userId, t.courseId)],
+  (t) => [uniqueIndex("ucp_user_course").on(t.userId, t.courseId),
+    index("user_course_progress_course_id_idx").on(t.courseId),
+  ],
 );
 
 export const userLessonProgress = pgTable(
@@ -308,6 +326,7 @@ export const userLessonProgress = pgTable(
     uniqueIndex("ulp_user_lesson").on(t.userId, t.lessonId),
     index("ulp_user_course_status_idx").on(t.userId, t.courseId, t.status),
     index("ulp_course_completed_at_idx").on(t.courseId, t.completedAt),
+    index("user_lesson_progress_lesson_id_idx").on(t.lessonId),
   ],
 );
 
@@ -366,6 +385,20 @@ export const chessGames = pgTable(
   blackEloDelta: integer("black_elo_delta"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   finishedAt: timestamp("finished_at", { withTimezone: true }),
+  /** "startpos" or a FEN; with `pgn`/`moves` it rebuilds the full history. */
+  startFen: text("start_fen").notNull().default("startpos"),
+  /** [{ san, uci, fen, clockMs? }] */
+  moves: jsonb("moves").$type<{ san: string; uci: string; fen: string; clockMs?: number }[]>().notNull().default([]),
+  /** online | bot | endgame | opening */
+  kind: varchar("kind", { length: 16 }).notNull().default("online"),
+  botLevel: varchar("bot_level", { length: 16 }),
+  termination: varchar("termination", { length: 24 }),
+  drawOfferBy: uuid("draw_offer_by"),
+  drawOfferPly: integer("draw_offer_ply"),
+  lastDrawOfferPlyWhite: integer("last_draw_offer_ply_white"),
+  lastDrawOfferPlyBlack: integer("last_draw_offer_ply_black"),
+  /** null | pending | done | skipped */
+  analysisStatus: varchar("analysis_status", { length: 16 }),
   },
   (t) => [
     index("chess_games_white_idx").on(t.whiteId),
@@ -402,7 +435,9 @@ export const mfaPending = pgTable("mfa_pending", {
   tokenHash: text("token_hash").notNull().unique(),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  index("mfa_pending_user_id_idx").on(t.userId),
+]);
 
 /** Step-up re-auth tokens for dangerous admin actions */
 export const adminStepUpTokens = pgTable("admin_step_up_tokens", {
@@ -413,7 +448,9 @@ export const adminStepUpTokens = pgTable("admin_step_up_tokens", {
   tokenHash: text("token_hash").notNull().unique(),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  index("admin_step_up_tokens_user_id_idx").on(t.userId),
+]);
 
 /** Platform-wide settings (theme draft/published, etc.) */
 export const platformSettings = pgTable("platform_settings", {
@@ -424,7 +461,9 @@ export const platformSettings = pgTable("platform_settings", {
   updatedByUserId: uuid("updated_by_user_id").references(() => users.id, {
     onDelete: "set null",
   }),
-});
+}, (t) => [
+  index("platform_settings_updated_by_user_id_idx").on(t.updatedByUserId),
+]);
 
 /* ——— Tournaments ——— */
 export const tournamentStatusEnum = pgEnum("tournament_status", [
@@ -450,7 +489,9 @@ export const tournaments = pgTable("tournaments", {
   currentRound: integer("current_round").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   startsAt: timestamp("starts_at", { withTimezone: true }),
-});
+}, (t) => [
+  index("tournaments_host_user_id_idx").on(t.hostUserId),
+]);
 
 export const tournamentPlayers = pgTable(
   "tournament_players",
@@ -466,7 +507,9 @@ export const tournamentPlayers = pgTable(
     seed: integer("seed").notNull().default(0),
     joinedAt: timestamp("joined_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [uniqueIndex("tp_tournament_user").on(t.tournamentId, t.userId)],
+  (t) => [uniqueIndex("tp_tournament_user").on(t.tournamentId, t.userId),
+    index("tournament_players_user_id_idx").on(t.userId),
+  ],
 );
 
 export const tournamentPairings = pgTable("tournament_pairings", {
@@ -480,7 +523,12 @@ export const tournamentPairings = pgTable("tournament_pairings", {
   gameId: uuid("game_id").references(() => chessGames.id),
   result: varchar("result", { length: 16 }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  index("tournament_pairings_black_id_idx").on(t.blackId),
+  index("tournament_pairings_game_id_idx").on(t.gameId),
+  index("tournament_pairings_tournament_id_idx").on(t.tournamentId),
+  index("tournament_pairings_white_id_idx").on(t.whiteId),
+]);
 
 /* ——— B2B / Schools ——— */
 export const orgRoleEnum = pgEnum("org_role", ["owner", "teacher", "student"]);
@@ -493,7 +541,9 @@ export const organizations = pgTable("organizations", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  index("organizations_owner_user_id_idx").on(t.ownerUserId),
+]);
 
 export const organizationMembers = pgTable(
   "organization_members",
@@ -508,7 +558,9 @@ export const organizationMembers = pgTable(
     role: orgRoleEnum("role").notNull().default("student"),
     joinedAt: timestamp("joined_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [uniqueIndex("om_org_user").on(t.organizationId, t.userId)],
+  (t) => [uniqueIndex("om_org_user").on(t.organizationId, t.userId),
+    index("organization_members_user_id_idx").on(t.userId),
+  ],
 );
 
 export const classes = pgTable("classes", {
@@ -520,7 +572,10 @@ export const classes = pgTable("classes", {
   inviteCode: varchar("invite_code", { length: 16 }).notNull().unique(),
   teacherUserId: uuid("teacher_user_id").references(() => users.id),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  index("classes_organization_id_idx").on(t.organizationId),
+  index("classes_teacher_user_id_idx").on(t.teacherUserId),
+]);
 
 export const classMembers = pgTable(
   "class_members",
@@ -534,7 +589,9 @@ export const classMembers = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     joinedAt: timestamp("joined_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [uniqueIndex("cm_class_user").on(t.classId, t.userId)],
+  (t) => [uniqueIndex("cm_class_user").on(t.classId, t.userId),
+    index("class_members_user_id_idx").on(t.userId),
+  ],
 );
 
 /* ——— Engagement: achievements, notifications, activity ——— */
@@ -561,7 +618,9 @@ export const userAchievements = pgTable(
       .references(() => achievements.id, { onDelete: "cascade" }),
     unlockedAt: timestamp("unlocked_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [uniqueIndex("ua_user_ach").on(t.userId, t.achievementId)],
+  (t) => [uniqueIndex("ua_user_ach").on(t.userId, t.achievementId),
+    index("user_achievements_achievement_id_idx").on(t.achievementId),
+  ],
 );
 
 export const notifications = pgTable(
@@ -621,7 +680,9 @@ export const friendships = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [uniqueIndex("friendship_pair").on(t.requesterId, t.addresseeId)],
+  (t) => [uniqueIndex("friendship_pair").on(t.requesterId, t.addresseeId),
+    index("friendships_addressee_id_idx").on(t.addresseeId),
+  ],
 );
 
 /* ——— Weekly challenges ——— */
@@ -650,7 +711,9 @@ export const weeklyChallengeProgress = pgTable(
     xp: integer("xp").notNull().default(0),
     completedAt: timestamp("completed_at", { withTimezone: true }),
   },
-  (t) => [uniqueIndex("wcp_challenge_user").on(t.challengeId, t.userId)],
+  (t) => [uniqueIndex("wcp_challenge_user").on(t.challengeId, t.userId),
+    index("weekly_challenge_progress_user_id_idx").on(t.userId),
+  ],
 );
 
 /* ——— Course certificates ——— */
@@ -669,7 +732,9 @@ export const certificates = pgTable(
     titleEn: varchar("title_en", { length: 200 }).notNull(),
     issuedAt: timestamp("issued_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [uniqueIndex("cert_user_course").on(t.userId, t.courseId)],
+  (t) => [uniqueIndex("cert_user_course").on(t.userId, t.courseId),
+    index("certificates_course_id_idx").on(t.courseId),
+  ],
 );
 
 /* ——— Classroom homework / assignments ——— */
@@ -697,7 +762,12 @@ export const classAssignments = pgTable("class_assignments", {
     .references(() => lessons.id, { onDelete: "cascade" }),
   dueAt: timestamp("due_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  index("class_assignments_class_id_idx").on(t.classId),
+  index("class_assignments_course_id_idx").on(t.courseId),
+  index("class_assignments_created_by_user_id_idx").on(t.createdByUserId),
+  index("class_assignments_lesson_id_idx").on(t.lessonId),
+]);
 
 export const assignmentSubmissions = pgTable(
   "assignment_submissions",
@@ -714,7 +784,9 @@ export const assignmentSubmissions = pgTable(
     completedAt: timestamp("completed_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [uniqueIndex("asub_assignment_user").on(t.assignmentId, t.userId)],
+  (t) => [uniqueIndex("asub_assignment_user").on(t.assignmentId, t.userId),
+    index("assignment_submissions_user_id_idx").on(t.userId),
+  ],
 );
 
 /* ——— Parent portal ——— */
@@ -739,7 +811,9 @@ export const parentStudentLinks = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     acceptedAt: timestamp("accepted_at", { withTimezone: true }),
   },
-  (t) => [uniqueIndex("psl_parent_student").on(t.parentUserId, t.studentUserId)],
+  (t) => [uniqueIndex("psl_parent_student").on(t.parentUserId, t.studentUserId),
+    index("parent_student_links_student_user_id_idx").on(t.studentUserId),
+  ],
 );
 
 /* ——— Bookmarks, class chat, referrals ——— */
@@ -756,7 +830,9 @@ export const lessonBookmarks = pgTable(
     note: text("note").notNull().default(""),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [uniqueIndex("lb_user_lesson").on(t.userId, t.lessonId)],
+  (t) => [uniqueIndex("lb_user_lesson").on(t.userId, t.lessonId),
+    index("lesson_bookmarks_lesson_id_idx").on(t.lessonId),
+  ],
 );
 
 export const classMessages = pgTable("class_messages", {
@@ -769,7 +845,10 @@ export const classMessages = pgTable("class_messages", {
     .references(() => users.id, { onDelete: "cascade" }),
   body: text("body").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  index("class_messages_class_id_idx").on(t.classId),
+  index("class_messages_user_id_idx").on(t.userId),
+]);
 
 export const referralCodes = pgTable("referral_codes", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -794,7 +873,9 @@ export const referralRedemptions = pgTable(
       .references(() => users.id, { onDelete: "cascade" })
       .unique(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  },
+  }, (t) => [
+  index("referral_redemptions_code_id_idx").on(t.codeId),
+  ],
 );
 
 /* ——— Shop, review helpers, daily quests, notes, focus ——— */
@@ -806,7 +887,9 @@ export const shopPurchases = pgTable("shop_purchases", {
   itemId: varchar("item_id", { length: 64 }).notNull(),
   costXp: integer("cost_xp").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  index("shop_purchases_user_id_idx").on(t.userId),
+]);
 
 export const giftStatusEnum = pgEnum("gift_status", ["pending", "claimed", "expired"]);
 
@@ -867,7 +950,9 @@ export const studyNotes = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [uniqueIndex("sn_user_lesson").on(t.userId, t.lessonId)],
+  (t) => [uniqueIndex("sn_user_lesson").on(t.userId, t.lessonId),
+    index("study_notes_lesson_id_idx").on(t.lessonId),
+  ],
 );
 
 export const studySessions = pgTable("study_sessions", {
@@ -880,7 +965,9 @@ export const studySessions = pgTable("study_sessions", {
   note: varchar("note", { length: 255 }).notNull().default(""),
   startedAt: timestamp("started_at", { withTimezone: true }).defaultNow().notNull(),
   endedAt: timestamp("ended_at", { withTimezone: true }),
-});
+}, (t) => [
+  index("study_sessions_user_id_idx").on(t.userId),
+]);
 
 /* ——— Flashcards / SRS ——— */
 export const flashcardDecks = pgTable("flashcard_decks", {
@@ -895,7 +982,9 @@ export const flashcardDecks = pgTable("flashcard_decks", {
   ownerUserId: uuid("owner_user_id").references(() => users.id, { onDelete: "cascade" }),
   isSystem: boolean("is_system").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  index("flashcard_decks_owner_user_id_idx").on(t.ownerUserId),
+]);
 
 export const flashcards = pgTable("flashcards", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -908,7 +997,9 @@ export const flashcards = pgTable("flashcards", {
   tags: jsonb("tags").$type<string[]>().notNull().default([]),
   sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  index("flashcards_deck_id_idx").on(t.deckId),
+]);
 
 export const flashcardStates = pgTable(
   "flashcard_states",
@@ -931,7 +1022,9 @@ export const flashcardStates = pgTable(
     lastReviewedAt: timestamp("last_reviewed_at", { withTimezone: true }),
     lastRating: integer("last_rating"),
   },
-  (t) => [uniqueIndex("fcs_user_card").on(t.userId, t.cardId)],
+  (t) => [uniqueIndex("fcs_user_card").on(t.userId, t.cardId),
+    index("flashcard_states_card_id_idx").on(t.cardId),
+  ],
 );
 
 export const flashcardReviews = pgTable("flashcard_reviews", {
@@ -944,7 +1037,10 @@ export const flashcardReviews = pgTable("flashcard_reviews", {
     .references(() => flashcards.id, { onDelete: "cascade" }),
   rating: integer("rating").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  index("flashcard_reviews_card_id_idx").on(t.cardId),
+  index("flashcard_reviews_user_id_idx").on(t.userId),
+]);
 
 /* ——— AI tutor chat log ——— */
 export const tutorMessages = pgTable("tutor_messages", {
@@ -957,7 +1053,9 @@ export const tutorMessages = pgTable("tutor_messages", {
   courseSlug: varchar("course_slug", { length: 32 }),
   model: varchar("model", { length: 64 }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  index("tutor_messages_user_id_idx").on(t.userId),
+]);
 
 /* ——— Learning OS: placement, comments, milestones ——— */
 export const placementResults = pgTable("placement_results", {
@@ -971,7 +1069,9 @@ export const placementResults = pgTable("placement_results", {
   answers: jsonb("answers").$type<Record<string, unknown>>().notNull().default({}),
   recommendedUnitSlug: varchar("recommended_unit_slug", { length: 64 }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  index("placement_results_user_id_idx").on(t.userId),
+]);
 
 export const userUnitPlacements = pgTable(
   "user_unit_placements",
@@ -996,6 +1096,9 @@ export const userUnitPlacements = pgTable(
   (t) => [
     uniqueIndex("uup_user_unit").on(t.userId, t.unitId),
     index("uup_user_course_idx").on(t.userId, t.courseId),
+    index("user_unit_placements_course_id_idx").on(t.courseId),
+    index("user_unit_placements_placement_result_id_idx").on(t.placementResultId),
+    index("user_unit_placements_unit_id_idx").on(t.unitId),
   ],
 );
 
@@ -1010,7 +1113,10 @@ export const lessonComments = pgTable("lesson_comments", {
   body: text("body").notNull(),
   parentId: uuid("parent_id"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  index("lesson_comments_lesson_id_idx").on(t.lessonId),
+  index("lesson_comments_user_id_idx").on(t.userId),
+]);
 
 export const learningMilestones = pgTable(
   "learning_milestones",
@@ -1044,7 +1150,9 @@ export const classPlaygroundChallenges = pgTable(
     dueAt: timestamp("due_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [uniqueIndex("cpc_class_challenge").on(t.classId, t.challengeId)],
+  (t) => [uniqueIndex("cpc_class_challenge").on(t.classId, t.challengeId),
+    index("class_playground_challenges_created_by_user_id_idx").on(t.createdByUserId),
+  ],
 );
 
 /* ——— Web Push subscriptions ——— */
@@ -1061,7 +1169,9 @@ export const pushSubscriptions = pgTable(
     userAgent: varchar("user_agent", { length: 255 }).notNull().default(""),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [uniqueIndex("push_endpoint").on(t.endpoint)],
+  (t) => [uniqueIndex("push_endpoint").on(t.endpoint),
+    index("push_subscriptions_user_id_idx").on(t.userId),
+  ],
 );
 
 /* ——— Admin audit log ——— */
@@ -1126,7 +1236,9 @@ export const exerciseAttempts = pgTable(
     source: varchar("source", { length: 16 }).notNull().default("lesson"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [index("exercise_attempts_user_created_idx").on(t.userId, t.createdAt)],
+  (t) => [index("exercise_attempts_user_created_idx").on(t.userId, t.createdAt),
+    index("exercise_attempts_lesson_id_idx").on(t.lessonId),
+  ],
 );
 
 /**
@@ -1176,11 +1288,14 @@ export const exerciseReviews = pgTable(
     lapses: integer("lapses").notNull().default(0),
     dueAt: timestamp("due_at", { withTimezone: true }).defaultNow().notNull(),
     lastReviewedAt: timestamp("last_reviewed_at", { withTimezone: true }),
+    /** Why the row exists when not a direct miss, e.g. "theme_sibling" (chess). */
+    reason: varchar("reason", { length: 32 }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     uniqueIndex("exercise_reviews_user_ex_uq").on(t.userId, t.lessonId, t.exerciseId),
     index("exercise_reviews_user_due_idx").on(t.userId, t.dueAt),
+    index("exercise_reviews_lesson_id_idx").on(t.lessonId),
   ],
 );
 
@@ -1201,5 +1316,133 @@ export const circuitProjects = pgTable(
   (t) => [
     index("circuit_projects_user_idx").on(t.userId),
     index("circuit_projects_updated_idx").on(t.updatedAt),
+  ],
+);
+
+/** Learner puzzle rating (Glicko-2), separate from game Elo in chess_ratings. */
+export const chessPuzzleRatingsUser = pgTable("chess_puzzle_ratings_user", {
+  userId: uuid("user_id")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  rating: real("rating").notNull().default(1200),
+  rd: real("rd").notNull().default(350),
+  volatility: real("volatility").notNull().default(0.06),
+  attempts: integer("attempts").notNull().default(0),
+  placed: boolean("placed").notNull().default(false),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+/** Per-puzzle rating; seeded by sync-content (insert only), updated by the daily batch. */
+export const chessPuzzleStats = pgTable(
+  "chess_puzzle_stats",
+  {
+    exerciseId: varchar("exercise_id", { length: 128 }).primaryKey(),
+    lessonId: uuid("lesson_id").references(() => lessons.id, { onDelete: "set null" }),
+    rating: real("rating").notNull(),
+    rd: real("rd").notNull().default(150),
+    volatility: real("volatility").notNull().default(0.06),
+    themes: text("themes").array().notNull().default([]),
+    attempts: integer("attempts").notNull().default(0),
+    firstTrySolves: integer("first_try_solves").notNull().default(0),
+    ratedAt: timestamp("rated_at", { withTimezone: true }),
+  },
+  (t) => [index("chess_puzzle_stats_rating_idx").on(t.rating),
+    index("chess_puzzle_stats_lesson_id_idx").on(t.lessonId),
+  ],
+);
+
+export const chessPuzzleAttempts = pgTable(
+  "chess_puzzle_attempts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    exerciseId: varchar("exercise_id", { length: 128 }).notNull(),
+    lessonId: uuid("lesson_id").references(() => lessons.id, { onDelete: "set null" }),
+    result: real("result").notNull(),
+    firstAttempt: boolean("first_attempt").notNull().default(true),
+    hintsUsed: smallint("hints_used").notNull().default(0),
+    themes: text("themes").array().notNull().default([]),
+    ratingBefore: real("rating_before"),
+    ratingAfter: real("rating_after"),
+    puzzleRating: real("puzzle_rating"),
+    puzzleRd: real("puzzle_rd"),
+    msSpent: integer("ms_spent"),
+    batchedAt: timestamp("batched_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index("chess_puzzle_attempts_user_idx").on(t.userId, t.createdAt.desc()),
+    index("chess_puzzle_attempts_batch_idx").on(t.batchedAt, t.firstAttempt),
+    index("chess_puzzle_attempts_lesson_id_idx").on(t.lessonId),
+  ],
+);
+
+export const chessGameAnnotations = pgTable(
+  "chess_game_annotations",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    gameId: uuid("game_id")
+      .notNull()
+      .references(() => chessGames.id, { onDelete: "cascade" }),
+    ply: integer("ply").notNull(),
+    evalBeforeCp: integer("eval_before_cp"),
+    evalAfterCp: integer("eval_after_cp"),
+    bestUci: varchar("best_uci", { length: 8 }),
+    bestSan: varchar("best_san", { length: 16 }),
+    /** blunder | mistake | inaccuracy */
+    label: varchar("label", { length: 16 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("chess_game_annotations_game_ply_uq").on(t.gameId, t.ply)],
+);
+
+/** Puzzles cut from the learner's own blunders; scheduled on the chess SRS ladder. */
+export const chessPersonalPuzzles = pgTable(
+  "chess_personal_puzzles",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    gameId: uuid("game_id").references(() => chessGames.id, { onDelete: "set null" }),
+    ply: integer("ply").notNull(),
+    fen: text("fen").notNull(),
+    solutionSans: text("solution_sans").array().notNull(),
+    goal: varchar("goal", { length: 16 }).notNull(),
+    themes: text("themes").array().notNull().default([]),
+    repetitions: integer("repetitions").notNull().default(0),
+    lapses: integer("lapses").notNull().default(0),
+    dueAt: timestamp("due_at", { withTimezone: true }).defaultNow().notNull(),
+    lastReviewedAt: timestamp("last_reviewed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("chess_personal_puzzles_game_ply_uq").on(t.userId, t.gameId, t.ply),
+    index("chess_personal_puzzles_user_due_idx").on(t.userId, t.dueAt),
+    index("chess_personal_puzzles_game_id_idx").on(t.gameId),
+  ],
+);
+
+export const chessOpeningLines = pgTable(
+  "chess_opening_lines",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    repertoireId: varchar("repertoire_id", { length: 48 }).notNull(),
+    lineKey: varchar("line_key", { length: 96 }).notNull(),
+    repetitions: integer("repetitions").notNull().default(0),
+    intervalDays: integer("interval_days").notNull().default(0),
+    lapses: integer("lapses").notNull().default(0),
+    dueAt: timestamp("due_at", { withTimezone: true }).defaultNow().notNull(),
+    lastReviewedAt: timestamp("last_reviewed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("chess_opening_lines_user_line_uq").on(t.userId, t.lineKey),
+    index("chess_opening_lines_user_due_idx").on(t.userId, t.dueAt),
   ],
 );

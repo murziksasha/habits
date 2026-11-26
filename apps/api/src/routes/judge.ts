@@ -14,7 +14,7 @@ import {
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { rateLimit } from "../rate-limit.js";
 import { withSpan } from "../otel.js";
-import { getRedis } from "../redis.js";
+import { getRedisClient } from "../redis.js";
 import { cronAuthorized } from "../cron-auth.js";
 
 type Vars = { user: AuthedUser };
@@ -25,7 +25,7 @@ let redisAttached = false;
 function ensureJudgeRedis() {
   if (redisAttached) return;
   redisAttached = true;
-  const r = getRedis();
+  const r = getRedisClient();
   if (r) {
     attachJudgeRedis({
       lpush: (key, ...args) => r.lpush(key, ...args),

@@ -103,8 +103,16 @@ export function logicXpAward(difficulty: number, usedHint: boolean): number {
   return usedHint ? Math.max(2, Math.floor(base * 0.6)) : base;
 }
 
-export function chessPuzzleXpAward(difficulty: number, firstClear: boolean): number {
-  return (5 + difficulty * 5) + (firstClear ? 5 : 0);
+/**
+ * Chess puzzle XP. Hint step 1 costs 30%, step 2 costs 60%; showing the solution gives 0.
+ * `hintsUsed` is clamped to 0–2 (the server never trusts the client value).
+ */
+export function chessPuzzleXpAward(difficulty: number, firstClear: boolean, hintsUsed = 0, revealed = false): number {
+  if (revealed) return 0;
+  const base = 5 + difficulty * 5 + (firstClear ? 5 : 0);
+  const hints = Math.max(0, Math.min(2, Math.floor(Number(hintsUsed) || 0)));
+  const factor = hints === 0 ? 1 : hints === 1 ? 0.7 : 0.4;
+  return Math.max(1, Math.round(base * factor));
 }
 
 export function chessGameXpAward(result: "win" | "loss" | "draw", rated: boolean): number {

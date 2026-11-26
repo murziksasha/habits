@@ -283,7 +283,7 @@ friendsRoutes.get("/race", authMiddleware, async (c) => {
 
 const requestSchema = z.object({
   email: z.string().email().optional(),
-  userId: z.string().uuid().optional(),
+  userId: z.string().guid().optional(),
 });
 
 friendsRoutes.post("/request", authMiddleware, async (c) => {

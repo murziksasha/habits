@@ -241,7 +241,7 @@ export async function gradeLessonAttemptAsync(
         }
       }
     } else {
-      const graded = gradeExercise(ex, a?.answer);
+      const graded = gradeExercise(ex, a?.answer, { userId });
       results.push({ exerciseId: ex.id, type: ex.type, ...graded });
     }
   }
@@ -548,8 +548,10 @@ export async function submitLesson(
       if (!r.correct) return sum;
       const ex = exercises.find((e) => e.id === r.exerciseId);
       if (ex?.type === "chess_puzzle") {
-        return sum + chessPuzzleXpAward(Number(ex.difficulty ?? 1), true);
+        return sum + chessPuzzleXpAward(Number(ex.difficulty ?? 1), true, Number(r.meta?.hintsUsed ?? 0), Boolean(r.meta?.revealed));
       }
+      // Endgame drill: a won/held game is worth more; a hint costs a third. Failure gives 0 XP (SRS picks it up).
+      if (ex?.type === "chess_endgame_drill") return sum + (Number(r.meta?.hintsUsed ?? 0) > 0 ? 10 : 15);
       return sum + 8;
     }, 0);
   } else {

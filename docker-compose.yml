@@ -8,8 +8,9 @@ services:
     # Host 5433 avoids clashing with other local Postgres (e.g. another compose project on 5432).
     # In-container hostname remains postgres:5432 for api/realtime.
     ports:
-      # Host port overridable when 5432 is taken by another project
-      - "${POSTGRES_PORT:-5432}:5432"
+      # Loopback only: reachable from this machine (pnpm dev, psql), not from the network.
+      # Host port overridable when 5432 is taken by another project.
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -22,10 +23,15 @@ services:
 
   redis:
     image: redis:7-alpine
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-eduforge-dev-redis}
+    # Password from env ($$ = expanded by the container shell, not by compose).
+    command: ["sh", "-c", "exec redis-server --requirepass \"$$REDIS_PASSWORD\""]
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      # Loopback only, see postgres.
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "redis-cli --no-auth-warning -a \"$$REDIS_PASSWORD\" ping | grep -q PONG"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -36,13 +42,24 @@ services:
       dockerfile: docker/Dockerfile.api
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-eduforge}:${POSTGRES_PASSWORD:-eduforge}@postgres:5432/${POSTGRES_DB:-eduforge}
-      REDIS_URL: redis://redis:6379
+      REDIS_URL: redis://:${REDIS_PASSWORD:-eduforge-dev-redis}@redis:6379
       AUTH_SECRET: ${AUTH_SECRET:-dev-secret-change-me}
       API_PORT: 4000
       WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}      # Local compose defaults to development so weak AUTH_SECRET is refused only in real production
       NODE_ENV: ${NODE_ENV:-development}
       CRON_SECRET: ${CRON_SECRET:-}
       BACKUP_DIR: /data/backups
+      # Engine baked into the image (docker/Dockerfile.api). Fixed value, not interpolated from the host:
+      # the host .env may hold a Windows path.
+      STOCKFISH_PATH: /usr/local/bin/stockfish
+      # Rate limits key on the client IP. 0 = use the socket address and ignore
+      # X-Forwarded-For: here the API port is published directly, so clients could
+      # forge the header. Set 1 only when the API is reachable solely through
+      # docker/nginx.conf (and stop publishing port 4000).
+      TRUSTED_PROXY_HOPS: ${TRUSTED_PROXY_HOPS:-0}
+      # Optional error tracking (off when empty), see instructions/error-tracking.md
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-}
     volumes:
       - backupdata:/data/backups
     ports:
@@ -71,8 +88,10 @@ services:
       dockerfile: docker/Dockerfile.realtime
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-eduforge}:${POSTGRES_PASSWORD:-eduforge}@postgres:5432/${POSTGRES_DB:-eduforge}
-      REDIS_URL: redis://redis:6379
+      REDIS_URL: redis://:${REDIS_PASSWORD:-eduforge-dev-redis}@redis:6379
       REALTIME_PORT: 4001
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-}
       WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}
       NODE_ENV: ${NODE_ENV:-development}
     ports:
@@ -102,7 +121,10 @@ services:
       args:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000}
         NEXT_PUBLIC_REALTIME_URL: ${NEXT_PUBLIC_REALTIME_URL:-http://localhost:4001}
+        # Browser Sentry is baked in at build time; empty = not included in the bundle.
+        NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
     environment:
+      SENTRY_DSN: ${SENTRY_DSN:-}
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000}
       NEXT_PUBLIC_REALTIME_URL: ${NEXT_PUBLIC_REALTIME_URL:-http://localhost:4001}
       NODE_ENV: production
@@ -130,21 +152,51 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.api
+      # DB tools need tsx/drizzle-kit (dev dependencies), so not the slim runner.
+      target: tools
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-eduforge}:${POSTGRES_PASSWORD:-eduforge}@postgres:5432/${POSTGRES_DB:-eduforge}
-      # Dockerfile.api sets NODE_ENV=production; override so seed enrolls admin TOTP/backup
       NODE_ENV: ${NODE_ENV:-development}
-      ALLOW_PROD_SEED: ${ALLOW_PROD_SEED:-1}
-      SEED_ADMIN_TOTP_SECRET: ${SEED_ADMIN_TOTP_SECRET:-JBSWY3DPEHPK3PXP}
-      SEED_ADMIN_BACKUP_CODE: ${SEED_ADMIN_BACKUP_CODE:-AAAA-BBBB}
+      ALLOW_PROD_SEED: ${ALLOW_PROD_SEED:-0}
+      # No published defaults: an unset TOTP secret means the admin enrolls 2FA after first login.
+      SEED_ADMIN_TOTP_SECRET: ${SEED_ADMIN_TOTP_SECRET:-}
+      SEED_ADMIN_BACKUP_CODE: ${SEED_ADMIN_BACKUP_CODE:-}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@eduforge.ua}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin12345}
+      # Required (seed refuses to create the admin without it). Set in .env.
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
     command: ["sh", "-c", "pnpm --filter @eduforge/db migrate && pnpm --filter @eduforge/db seed"]
     depends_on:
       postgres:
         condition: service_healthy
     profiles:
       - tools
+
+  # Scheduled Postgres backups (profile: backup): pg_dump -Fc + retention.
+  #   docker compose --profile backup up -d pg-backup
+  # Files land in PG_BACKUP_DIR on the host — default ../eduforge-pg-backups, i.e.
+  # next to the repository, never inside it. Restore: scripts/db/pg-restore.sh
+  # (runbook: instructions/backups.md).
+  pg-backup:
+    image: postgres:16-alpine
+    profiles: ["backup"]
+    restart: unless-stopped
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGUSER: ${POSTGRES_USER:-eduforge}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-eduforge}
+      PGDATABASE: ${POSTGRES_DB:-eduforge}
+      BACKUP_DIR: /backups
+      BACKUP_INTERVAL_SECONDS: ${PG_BACKUP_INTERVAL_SECONDS:-86400}
+      BACKUP_KEEP_DAYS: ${PG_BACKUP_KEEP_DAYS:-14}
+      BACKUP_KEEP_MIN: ${PG_BACKUP_KEEP_MIN:-3}
+    volumes:
+      - ./scripts/db/pg-backup.sh:/usr/local/bin/pg-backup.sh:ro
+      - ${PG_BACKUP_DIR:-../eduforge-pg-backups}:/backups
+    command: ["sh", "/usr/local/bin/pg-backup.sh", "loop"]
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   # Optional OpenTelemetry collector (profile: otel)
   # Point API: OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318

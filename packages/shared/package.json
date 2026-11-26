@@ -9,6 +9,18 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./i18n/locales": {
+      "types": "./dist/i18n/locales.d.ts",
+      "import": "./dist/i18n/locales.js"
+    },
+    "./i18n/uk": {
+      "types": "./dist/i18n/uk.d.ts",
+      "import": "./dist/i18n/uk.js"
+    },
+    "./i18n/en": {
+      "types": "./dist/i18n/en.d.ts",
+      "import": "./dist/i18n/en.js"
     }
   },
   "scripts": {
@@ -16,13 +28,16 @@
     "dev": "tsc --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "lint": "echo ok"
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "zod": "^3.24.2"
+    "@eduforge/chess-core": "workspace:*",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "3.2.7",
     "typescript": "^5.8.3",
     "vitest": "^3.1.1"
-  }
+  },
+  "sideEffects": false
 }

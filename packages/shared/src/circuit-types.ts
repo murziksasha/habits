@@ -13,7 +13,7 @@ export const circuitComponentSchema = z.object({
   y: z.number().default(0),
   rotation: z.union([z.literal(0), z.literal(90), z.literal(180), z.literal(270)]).default(0),
   nodes: z.array(z.string()).default([]),
-  properties: z.record(z.union([z.string(), z.number()])).optional(),
+  properties: z.record(z.string(), z.union([z.string(), z.number()])).optional(),
 });
 
 export type CircuitComponent = z.infer<typeof circuitComponentSchema>;
@@ -102,7 +102,7 @@ export const circuitAnalysisSchema = z.object({
       fStop: z.number().positive().default(1e6),
     })
     .optional(),
-  params: z.record(z.union([z.string(), z.number()])).optional(),
+  params: z.record(z.string(), z.union([z.string(), z.number()])).optional(),
 });
 
 export type CircuitAnalysis = z.infer<typeof circuitAnalysisSchema>;
@@ -189,7 +189,7 @@ export const circuitLabExerciseSchema = z.object({
     .array(
       z.object({
         id: z.string(),
-        overrides: z.record(z.string()).optional(),
+        overrides: z.record(z.string(), z.string()).optional(),
         faults: z.array(z.string()).optional(),
         criteria: z.array(circuitCriterionSchema).min(1),
       }),

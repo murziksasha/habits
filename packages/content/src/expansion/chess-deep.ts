@@ -7517,6 +7517,17 @@ const newUnits: UnitContent[] = [
             "difficulty": 2
           },
           {
+            "id": "ch-d-prophylaxis-p2",
+            "type": "chess_puzzle",
+            "promptUk": "Петросян — Антошин, 1957: чорні дали шах конем на f2. Білі ходять — як Петросян вирішив справу?",
+            "promptEn": "Petrosian–Antoshin, 1957: Black has checked with the knight on f2. White to move — how did Petrosian settle it?",
+            "fen": "5rk1/5p1p/6p1/8/2qPP3/2B1bR2/4NnPP/5Q1K w - - 11 35",
+            "solutionSans": [
+              "Rxf2"
+            ],
+            "difficulty": 4
+          },
+          {
             "id": "ch-d-prophylaxis-m1",
             "type": "mcq",
             "promptUk": "Чим профілактика відрізняється від простої пасивності?",
@@ -13483,6 +13494,17 @@ const newUnits: UnitContent[] = [
             "fen": "r1bb1r1k/p4ppp/2p2n1N/7Q/2p5/2B2N2/qPP2PPP/2KR3R w - - 2 19",
             "solutionSans": [
               "Qxf7"
+            ],
+            "difficulty": 5
+          },
+          {
+            "id": "ch-d-tal-attack-p2",
+            "type": "chess_puzzle",
+            "promptUk": "Таль — Бенко, 1959: білі ходять. Знайдіть жертву слона, яка відкриває шлях ферзю на h6.",
+            "promptEn": "Tal–Benko, 1959: White to move. Find the bishop sacrifice that opens h6 for the queen.",
+            "fen": "1r1qr1k1/2n1p2p/p2pP1pB/2pP1p2/bp5R/5N1P/1bPQ1PP1/4RBK1 w - - 0 23",
+            "solutionSans": [
+              "Bf8"
             ],
             "difficulty": 5
           },

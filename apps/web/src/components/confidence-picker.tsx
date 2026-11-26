@@ -18,6 +18,7 @@ const RATEABLE = new Set([
   "order_words",
   "explain",
   "chess_puzzle",
+  "chess_plan",
 ]);
 
 export function isConfidenceRateable(type: string): boolean {

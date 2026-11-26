@@ -247,7 +247,7 @@ export const chessContent: CourseContent = {
             {
               id: "ch-p10",
               type: "chess_puzzle",
-              promptUk: "Мат в 1 (ладья + король)",
+              promptUk: "Мат в 1 (тура + король)",
               fen: "7k/8/6K1/8/8/8/8/R7 w - - 0 1",
               solutionSans: ["Ra8#"],
               difficulty: 1,

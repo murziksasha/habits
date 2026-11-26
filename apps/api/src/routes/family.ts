@@ -6,7 +6,7 @@ import { randomBytes } from "node:crypto";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
 import { resolveEffectivePlan } from "../services/effective-plan.js";
-import { clientIp, rateLimit } from "../rate-limit.js";
+import { rateLimit, requestClientIp } from "../rate-limit.js";
 
 type Vars = { user: AuthedUser };
 
@@ -185,7 +185,7 @@ familyRoutes.post("/invite", authMiddleware, async (c) => {
 
 familyRoutes.post("/claim", authMiddleware, async (c) => {
   const user = c.get("user");
-  const ip = clientIp({ get: (n) => c.req.header(n) ?? null });
+  const ip = requestClientIp(c);
   const rl = await rateLimit({
     key: `family-claim:${user.id}:${ip}`,
     limit: 10,
