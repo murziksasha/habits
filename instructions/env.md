@@ -29,6 +29,7 @@
 | `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_REALTIME_URL`, `INTERNAL_API_URL` | Адреса API/realtime для веба (браузер / SSR в Docker) |
 | `API_PORT`, `REALTIME_PORT`, `WEB_PORT` | Порты (4000 / 4001 / 3000) |
 | `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_ENVIRONMENT`, `SENTRY_RELEASE`, `SENTRY_TRACES_SAMPLE_RATE` | Sentry по желанию; пусто — выключен, см. [error-tracking.md](error-tracking.md) |
+| `MEMORY_RATE_LIMIT_MAX_KEYS` | Потолок ключей in-memory rate limit API (когда Redis недоступен), по умолчанию 50000, минимум 1000; сверх него вытесняются давно не использованные |
 | `REALTIME_SWEEP_MS` | Период серверного sweep онлайн-партий в мс (по умолчанию 15000, минимум 5000), см. [realtime.md](realtime.md) |
 | `NEXT_PUBLIC_CPP_RUNNER` | C++ playground: `auto` / `jscpp` / `wasm` / `mock` |
 | `NEXT_PUBLIC_WEBCONTAINERS` | Включает Node Studio (`/studio/node`) |

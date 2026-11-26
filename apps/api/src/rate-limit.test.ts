@@ -7,6 +7,8 @@ import {
   rateLimitExceeded,
   rateLimitSync,
   trustedProxyHops,
+  memoryBucketCount,
+  sweepMemoryBuckets,
 } from "./rate-limit.js";
 
 describe("rateLimit", () => {
@@ -88,5 +90,34 @@ describe("per-account failure limiter", () => {
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.retryAfterSec).toBeGreaterThan(0);
     expect((await rateLimitExceeded({ ...opts, key: "auth:login:acct:other@x.test" })).ok).toBe(true);
+  });
+});
+
+describe("memory limiter bounds", () => {
+  beforeEach(() => _resetRateLimits());
+
+  it("caps the number of keys, evicting the least recently used", () => {
+    for (let i = 0; i < 1_500; i++) rateLimitSync({ key: `k${i}`, limit: 5, windowMs: 60_000, maxKeys: 1_000 });
+    expect(memoryBucketCount()).toBeLessThanOrEqual(1_000);
+    // The newest keys survive; k0 (oldest) was evicted and starts fresh.
+    for (let i = 0; i < 5; i++) rateLimitSync({ key: "k1499", limit: 5, windowMs: 60_000, maxKeys: 1_000 });
+    expect(rateLimitSync({ key: "k1499", limit: 5, windowMs: 60_000, maxKeys: 1_000 }).ok).toBe(false);
+  });
+
+  it("a hit refreshes a key so it is not evicted first", () => {
+    for (let i = 0; i < 4; i++) rateLimitSync({ key: "hot", limit: 4, windowMs: 60_000, maxKeys: 1_000 });
+    for (let i = 0; i < 1_200; i++) {
+      rateLimitSync({ key: `cold${i}`, limit: 5, windowMs: 60_000, maxKeys: 1_000 });
+      if (i % 100 === 0) rateLimitSync({ key: "hot", limit: 4, windowMs: 60_000, maxKeys: 1_000 });
+    }
+    // still blocked: its bucket survived the evictions
+    expect(rateLimitSync({ key: "hot", limit: 4, windowMs: 60_000, maxKeys: 1_000 }).ok).toBe(false);
+  });
+
+  it("sweeps expired buckets", () => {
+    for (let i = 0; i < 50; i++) rateLimitSync({ key: `e${i}`, limit: 5, windowMs: 1_000 });
+    expect(memoryBucketCount()).toBe(50);
+    sweepMemoryBuckets(Date.now() + 2_000);
+    expect(memoryBucketCount()).toBe(0);
   });
 });

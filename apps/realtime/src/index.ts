@@ -7,7 +7,7 @@ import cors from "cors";
 import { Server } from "socket.io";
 import { and, eq, gt } from "drizzle-orm";
 import { canAnswerDraw, canOfferDraw } from "./draw-offer.js";
-import { allowSocketEvent } from "./event-rate-limit.js";
+import { allowSocketEvent, forgetSocket } from "./event-rate-limit.js";
 import {
   characters,
   chessGames,
@@ -696,6 +696,7 @@ io.on("connection", (socket) => {
       });
     }
     void seekStore.removeSocket(socket.id);
+    forgetSocket(socket.id);
   });
 });
 

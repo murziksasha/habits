@@ -2,8 +2,52 @@
 
 import { getRedis } from "./redis.js";
 
-type Bucket = { timestamps: number[] };
+/**
+ * In-memory fallback store. Bounded: a bucket expires `windowMs` after its last
+ * hit and is swept periodically; above MEMORY_RATE_LIMIT_MAX_KEYS keys the least
+ * recently used buckets are evicted (Map keeps insertion order and every hit
+ * re-inserts its key), so random keys from an attacker cannot grow memory.
+ */
+type Bucket = { timestamps: number[]; expiresAt: number };
 const buckets = new Map<string, Bucket>();
+
+export const MEMORY_RATE_LIMIT_MAX_KEYS = Math.max(
+  1_000,
+  Number(process.env.MEMORY_RATE_LIMIT_MAX_KEYS ?? 50_000) || 50_000,
+);
+const SWEEP_EVERY_MS = 60_000;
+let lastSweep = Date.now();
+
+/** Drop expired buckets; then, if still over `maxKeys`, the least recently used. */
+export function sweepMemoryBuckets(now = Date.now(), maxKeys = MEMORY_RATE_LIMIT_MAX_KEYS) {
+  for (const [k, b] of buckets) if (b.expiresAt <= now) buckets.delete(k);
+  if (buckets.size > maxKeys) {
+    let drop = buckets.size - maxKeys;
+    for (const k of buckets.keys()) {
+      if (drop-- <= 0) break;
+      buckets.delete(k);
+    }
+  }
+  lastSweep = now;
+}
+
+export function memoryBucketCount() {
+  return buckets.size;
+}
+
+function touch(key: string, bucket: Bucket, now: number, windowMs: number, maxKeys = MEMORY_RATE_LIMIT_MAX_KEYS) {
+  const last = bucket.timestamps[bucket.timestamps.length - 1] ?? now;
+  bucket.expiresAt = last + windowMs;
+  buckets.delete(key); // re-insert → most recently used at the end
+  buckets.set(key, bucket);
+  if (now - lastSweep > SWEEP_EVERY_MS) sweepMemoryBuckets(now, maxKeys);
+  // O(1) at the cap: evict the least recently used key(s).
+  while (buckets.size > maxKeys) {
+    const oldest = buckets.keys().next().value;
+    if (oldest === undefined) break;
+    buckets.delete(oldest);
+  }
+}
 
 export async function rateLimit(opts: {
   key: string;
@@ -50,20 +94,21 @@ function memoryRateLimit(opts: {
   key: string;
   limit: number;
   windowMs: number;
+  maxKeys?: number;
 }): { ok: true } | { ok: false; retryAfterSec: number } {
   const now = Date.now();
-  const bucket = buckets.get(opts.key) ?? { timestamps: [] };
+  const bucket = buckets.get(opts.key) ?? { timestamps: [], expiresAt: now + opts.windowMs };
   bucket.timestamps = bucket.timestamps.filter((t) => now - t < opts.windowMs);
 
   if (bucket.timestamps.length >= opts.limit) {
     const oldest = bucket.timestamps[0] ?? now;
     const retryAfterSec = Math.max(1, Math.ceil((opts.windowMs - (now - oldest)) / 1000));
-    buckets.set(opts.key, bucket);
+    touch(opts.key, bucket, now, opts.windowMs, opts.maxKeys);
     return { ok: false, retryAfterSec };
   }
 
   bucket.timestamps.push(now);
-  buckets.set(opts.key, bucket);
+  touch(opts.key, bucket, now, opts.windowMs, opts.maxKeys);
   return { ok: true };
 }
 
@@ -72,12 +117,15 @@ export function rateLimitSync(opts: {
   key: string;
   limit: number;
   windowMs: number;
+  /** Override the key cap (tests). */
+  maxKeys?: number;
 }): { ok: true } | { ok: false; retryAfterSec: number } {
   return memoryRateLimit(opts);
 }
 
 export function _resetRateLimits() {
   buckets.clear();
+  lastSweep = Date.now();
 }
 
 /**
