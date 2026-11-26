@@ -60,7 +60,20 @@ pnpm dev     # turbo run dev --parallel
 
 ## Интеграционные тесты и Redis
 
-Запускать интеграционные тесты **с работающим Redis** (`docker compose up -d redis` или свой `redis-server`, `REDIS_URL=redis://127.0.0.1:6379`). Конфиг по умолчанию указывает на `redis://localhost:6380`; если там ничего нет, каждый запрос к Redis ждёт переподключения, и 2 теста в `apps/api/src/learning-progress.integration.ts` падают («records attempt metadata…» — таймаут 60 с, «supports historical reconstruction…» — `expected 7 to be 8`, он зависит от первого). С Redis все тесты проходят (проверено 26.11.2026).
+Интеграционные тесты проходят **и с Redis, и без него** (проверено 26.11.2026: 29/29 в обоих режимах).
+
+- С Redis: `REDIS_URL=redis://127.0.0.1:6379` (или `docker compose up -d redis`).
+- Без Redis: не задавать `REDIS_URL` (конфиг по умолчанию указывает на `redis://localhost:6380`, где обычно ничего нет) или задать недоступный адрес, например `redis://127.0.0.1:1`.
+
+Как API ведёт себя без Redis (`apps/api/src/redis.ts`):
+
+- `enableOfflineQueue: false` — команды не копятся в очереди, пока нет соединения, а сразу падают;
+- `connectTimeout` 1 с, `commandTimeout` 500 мс, одна повторная попытка на запрос, переподключение в фоне с паузой до 5 с;
+- `getRedis()` возвращает клиента **только в статусе `ready`**; иначе rate limit и идемпотентность сразу работают в памяти процесса, без ожидания;
+- `getRedisClient()` (сырой клиент) используют только `/ready`, `/metrics` и judge — им нужно знать реальное состояние Redis;
+- предупреждение `[redis]` в логе — не чаще раза в 30 с.
+
+Тест `apps/api/src/redis.test.ts` проверяет, что с недоступным Redis 50 вызовов rate limit + идемпотентности укладываются меньше чем в 500 мс. В CI интеграционные тесты запускаются дважды: с Redis и с недоступным `REDIS_URL`.
 
 Тесты сами ставят `TRUSTED_PROXY_HOPS=1` и шлют уникальный `X-Forwarded-For` на каждый запрос (имитация nginx), см. [env.md](env.md).
 

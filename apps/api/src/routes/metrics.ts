@@ -14,7 +14,7 @@ import { resolveFeatureFlags } from "@eduforge/shared";
 import { db } from "../db.js";
 import { latencyStats } from "../logger.js";
 import { spanStats } from "../otel.js";
-import { getRedis } from "../redis.js";
+import { getRedisClient } from "../redis.js";
 import { checkReady } from "../ready.js";
 import {
   productFunnelCompare,
@@ -43,7 +43,7 @@ metricsRoutes.get("/", async (c) => {
   const [n] = await db.select({ n: sql<number>`count(*)::int` }).from(notifications);
 
   let redisOk = false;
-  const redis = getRedis();
+  const redis = getRedisClient();
   if (redis) {
     try {
       redisOk = (await redis.ping()) === "PONG";
