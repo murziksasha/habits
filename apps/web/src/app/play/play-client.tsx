@@ -238,6 +238,29 @@ function PlayPageInner() {
     return () => clearInterval(tInterval);
   }, [match, fen, result]);
 
+  // Online: when the opponent's clock reaches zero on their turn, ask the server to
+  // end the game (it re-checks the clock; the server sweep is the fallback).
+  const opponentFlagged =
+    !!match && !match.vsBot && !result &&
+    (fen === "start" ? "w" : new Chess(fen).turn()) !== match.youAre &&
+    (match.youAre === "w" ? blackTime : whiteTime) <= 0;
+  useEffect(() => {
+    if (!opponentFlagged || !socket || !match) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let cancelled = false;
+    const claim = () => {
+      socket.emit("claim_timeout", { gameId: match.gameId }, (res: { error?: string; remainingMs?: number }) => {
+        if (cancelled || !res?.error) return;
+        if (res.error === "not_timed_out") timer = setTimeout(claim, Math.min(10_000, (res.remainingMs ?? 0) + 300));
+      });
+    };
+    claim();
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [opponentFlagged, socket, match]);
+
   // Bot move when it is the bot's turn in bot games
   useEffect(() => {
     if (!match?.vsBot || result) return;

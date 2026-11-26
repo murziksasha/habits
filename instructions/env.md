@@ -26,6 +26,7 @@
 | `JUDGE_MODE`, `JUDGE_ALLOW_LOCAL`, `JUDGE_DOCKER_FALLBACK_LOCAL`, `JUDGE_ALLOW_BASH_LOCAL` | Судья кода (на проде выключен, кроме `JUDGE_MODE=docker`) |
 | `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_REALTIME_URL`, `INTERNAL_API_URL` | Адреса API/realtime для веба (браузер / SSR в Docker) |
 | `API_PORT`, `REALTIME_PORT`, `WEB_PORT` | Порты (4000 / 4001 / 3000) |
+| `REALTIME_SWEEP_MS` | Период серверного sweep онлайн-партий в мс (по умолчанию 15000, минимум 5000), см. [realtime.md](realtime.md) |
 | `NEXT_PUBLIC_CPP_RUNNER` | C++ playground: `auto` / `jscpp` / `wasm` / `mock` |
 | `NEXT_PUBLIC_WEBCONTAINERS` | Включает Node Studio (`/studio/node`) |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | Почта; без неё письма пишутся в консоль |

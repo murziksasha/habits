@@ -101,6 +101,8 @@ jobs:
         run: pnpm --filter @eduforge/api test:integration
         env:
           REDIS_URL: redis://127.0.0.1:1
+      - name: Realtime game races (Postgres)
+        run: pnpm --filter @eduforge/realtime test:integration
 
   content-gate:
     name: Content integrity gate
