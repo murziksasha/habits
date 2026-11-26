@@ -1230,6 +1230,26 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "crushing"
   ]
  },
+ "ch-d-prophylaxis-p2": {
+  "hash": "c10de722f0ce7e3c",
+  "san": "Rxf2",
+  "piece": "r",
+  "from": "f3",
+  "to": "f2",
+  "check": false,
+  "capture": "n",
+  "promotion": null,
+  "mate": false,
+  "gainCp": 320,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "middlegame",
+   "hangingPiece",
+   "oneMove",
+   "advantage"
+  ]
+ },
  "ch-d-qgd-p1": {
   "hash": "4dd4e06e8d4d19c5",
   "san": "Nxd5",
@@ -1543,6 +1563,24 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
   "sacrifice": false,
   "themes": [
    "middlegame",
+   "oneMove"
+  ]
+ },
+ "ch-d-tal-attack-p2": {
+  "hash": "515a8562069d778f",
+  "san": "Bf8",
+  "piece": "b",
+  "from": "h6",
+  "to": "f8",
+  "check": false,
+  "capture": null,
+  "promotion": null,
+  "mate": false,
+  "gainCp": 0,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "opening",
    "oneMove"
   ]
  },

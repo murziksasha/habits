@@ -120,6 +120,17 @@ export const CHESS_ANNOTATIONS: Record<string, PuzzleAnnotation> = {
   "ch-d-tal-attack-p1": A(
     "Qxf7! — ферзь іде під удар. Після …Rxf7 Nxf7+ кінь дає шах, а білі виходять із розмінів із перевагою в матеріалі й атакою.",
     "Qxf7! — the queen walks into the attack. After …Rxf7 Nxf7+ the knight checks and White comes out of the trades ahead in material, still attacking.",
+    { source: { kind: "game", white: "Mikhail Tal", black: "Vasily Smyslov", year: 1959, event: "Candidates Tournament, Bled/Zagreb/Belgrade" } },
+  ),
+  "ch-d-tal-attack-p2": A(
+    "Bf8! — слон іде під бій, щоб звільнити поле h6 для ферзя. Після 23…Rxf8 24.Qh6 загроза Qxh7#, і чорні мусять віддати матеріал: у партії 24…Rf7 25.exf7+ Kxf7 26.Qxh7+ — король чорних голий, а тура h4 вступає в атаку. Таль віддає слона заради темпу й ліній до короля.",
+    "Bf8! — the bishop walks into capture to free h6 for the queen. After 23…Rxf8 24.Qh6 White threatens Qxh7#, and Black has to give material back: the game went 24…Rf7 25.exf7+ Kxf7 26.Qxh7+ — Black's king is bare and the h4-rook joins the attack. Tal gives the bishop for time and open lines to the king.",
+    { source: { kind: "game", white: "Mikhail Tal", black: "Pal Benko", year: 1959, event: "Candidates Tournament, Bled/Zagreb/Belgrade" } },
+  ),
+  "ch-d-prophylaxis-p2": A(
+    "Rxf2! — тура забирає коня, який дав шах. Після 35…Bxf2 36.Qxf2 у білих дві легкі фігури (слон і кінь) за туру, а пішаки d4 і e4 стоять міцно. Король білих у безпеці, і в чорних не лишається ні атаки, ні контргри. Інші ходи (Kg1) лишають коня на f2 і рівну гру. Петросян охоче віддавав туру, коли отримував за неї надійні фігури й безпечного короля.",
+    "Rxf2! — the rook takes the checking knight. After 35…Bxf2 36.Qxf2 White has two minor pieces (bishop and knight) for the rook, the d4 and e4 pawns stand firm and White's king is safe; Black has neither an attack nor counterplay. Other moves (Kg1) leave the knight on f2 and the game level. Petrosian gladly gave a rook when he got sound pieces and a safe king for it.",
+    { source: { kind: "game", white: "Tigran Petrosian", black: "Vladimir Antoshin", year: 1957, event: "USSR Championship, Moscow" } },
   ),
   "ch-d-study-method-p1": A(
     "Подвійна жертва слонів Ласкера: Bxh7+ Kxh7 Qxh5+ Kg8 Bxg7! Kxg7 Qg4+ і Rf3 — тура приходить на лінію h, і король не врятується.",

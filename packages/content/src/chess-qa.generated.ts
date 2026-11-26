@@ -1742,6 +1742,20 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
    ],
    "flags": []
   },
+  "ch-d-prophylaxis-p2": {
+   "hash": "c10de722f0ce7e3c",
+   "goal": "win_material",
+   "evalAfter": 268,
+   "flags": [],
+   "plies": [
+    [
+     "Rxf2",
+     212,
+     "f3f2",
+     212
+    ]
+   ]
+  },
   "ch-d-qg-plans-p1": {
    "hash": "ba5077a6fb1384e2",
    "kind": "plan",
@@ -2269,6 +2283,20 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
      366,
      "h5f7",
      366
+    ]
+   ]
+  },
+  "ch-d-tal-attack-p2": {
+   "hash": "515a8562069d778f",
+   "goal": "win_material",
+   "evalAfter": 493,
+   "flags": [],
+   "plies": [
+    [
+     "Bf8",
+     489,
+     "h6f8",
+     489
     ]
    ]
   },

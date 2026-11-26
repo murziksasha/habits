@@ -17,6 +17,33 @@ export type FamousGame = {
 
 export const FAMOUS_GAMES: readonly FamousGame[] = [
   {
+    key: "tal-smyslov-1959",
+    white: "Mikhail Tal",
+    black: "Vasily Smyslov",
+    year: 1959,
+    event: "Candidates Tournament, Bled/Zagreb/Belgrade, round 8",
+    moves:
+      "e4 c6 d3 d5 Nd2 e5 Ngf3 Nd7 d4 dxe4 Nxe4 exd4 Qxd4 Ngf6 Bg5 Be7 O-O-O O-O Nd6 Qa5 Bc4 b5 Bd2 Qa6 Nf5 Bd8 Qh4 bxc4 Qg5 Nh5 Nh6+ Kh8 Qxh5 Qxa2 Bc3 Nf6 Qxf7",
+  },
+  {
+    key: "tal-benko-1959",
+    white: "Mikhail Tal",
+    black: "Pal Benko",
+    year: 1959,
+    event: "Candidates Tournament, Bled/Zagreb/Belgrade, round 14",
+    moves:
+      "e4 c5 Nf3 g6 d4 Bg7 d5 d6 Nc3 Nf6 Bb5+ Nbd7 a4 O-O O-O a6 Be2 Rb8 Re1 Ne8 Bf4 Nc7 Bf1 b5 Qd2 Re8 h3 Nf6 Rad1 Bd7 e5 b4 Ne4 Nxe4 Rxe4 Bxa4 Bh6 Bh8 Rde1 f6 e6 f5 Rh4 Bxb2 Bf8",
+  },
+  {
+    key: "petrosian-antoshin-1957",
+    white: "Tigran Petrosian",
+    black: "Vladimir Antoshin",
+    year: 1957,
+    event: "USSR Championship, Moscow, round 18",
+    moves:
+      "d4 Nf6 c4 e6 Nc3 Bb4 e3 d5 a3 Be7 cxd5 exd5 Bd3 O-O b4 b6 Nge2 c5 b5 a6 O-O axb5 Bxb5 Bb7 Ng3 g6 Bb2 Nc6 Nce2 Na7 Bd3 c4 Bc2 b5 f3 Nc6 e4 dxe4 fxe4 Ng4 Rf4 Ne3 Qd2 Nxc2 Qxc2 Qb6 Kh1 b4 axb4 Nxb4 Qxc4 Rxa1+ Bxa1 Ba6 Qb3 Bxe2 Nxe2 Qa6 Qd1 Bg5 Rf1 Qc4 Bc3 Nd3 Rf3 Be3 Qf1 Nf2+ Rxf2",
+  },
+  {
     key: "immortal",
     white: "Adolf Anderssen",
     black: "Lionel Kieseritzky",
@@ -115,4 +142,7 @@ export const FAMOUS_POSITIONS: readonly { id: string; game: string; ply: number;
   { id: "ch-d-karpov-model-p1", game: "karpov-unzicker", ply: 46, line: 0 },
   { id: "ch-deep-famous-2-exam-p6", game: "karpov-unzicker", ply: 58, line: 0 },
   { id: "ch-d-kasparov-topalov-p1", game: "kasparov-topalov", ply: 46, line: 3 },
+  { id: "ch-d-tal-attack-p1", game: "tal-smyslov-1959", ply: 36, line: 1 },
+  { id: "ch-d-tal-attack-p2", game: "tal-benko-1959", ply: 44, line: 1 },
+  { id: "ch-d-prophylaxis-p2", game: "petrosian-antoshin-1957", ply: 68, line: 1 },
 ];
