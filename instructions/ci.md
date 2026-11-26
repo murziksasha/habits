@@ -25,3 +25,5 @@ Job `integration` поднимает Postgres 16 и Redis 7 как сервис�
 ## Audit
 
 `pnpm audit --prod --audit-level=high` — блокирующий шаг job `unit`: high/critical уязвимость в production-зависимостях валит CI. Исправлять через обновление зависимости или `overrides` в `pnpm-workspace.yaml`.
+
+- Юнит-тесты с покрытием в CI идут по два пакета одновременно (`pnpm test:coverage --concurrency=2`): поиск бота и SPICE-тесты нагружают процессор и на 2-ядерном раннере не укладываются в таймауты при полном параллелизме. У `circuit-engine` таймаут теста 30 с.
