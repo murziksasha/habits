@@ -111,7 +111,7 @@ flashcardRoutes.get("/due", authMiddleware, async (c) => {
 });
 
 const reviewSchema = z.object({
-  cardId: z.string().uuid(),
+  cardId: z.string().guid(),
   /** 1 again, 2 hard, 3 good, 4 easy */
   rating: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]),
 });
@@ -242,7 +242,7 @@ flashcardRoutes.get("/stats", authMiddleware, async (c) => {
 });
 
 const createCardSchema = z.object({
-  deckId: z.string().uuid(),
+  deckId: z.string().guid(),
   front: z.string().min(1).max(2000),
   back: z.string().min(1).max(2000),
   hint: z.string().max(500).optional(),

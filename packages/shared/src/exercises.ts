@@ -443,7 +443,7 @@ export const exerciseSchema = z.discriminatedUnion("type", [
   z.object({
     ...base,
     type: z.literal("circuit_lab"),
-    circuit: z.union([z.record(z.unknown()), z.string()]),
+    circuit: z.union([z.record(z.string(), z.unknown()), z.string()]),
     allowedModifications: z
       .object({
         canAddComponents: z.boolean().optional(),
@@ -455,13 +455,13 @@ export const exerciseSchema = z.discriminatedUnion("type", [
       .optional(),
     analysis: z.object({
       type: z.enum(["op", "dc", "ac", "tran", "noise"]),
-      dc: z.record(z.unknown()).optional(),
-      ac: z.record(z.unknown()).optional(),
-      tran: z.record(z.unknown()).optional(),
-      noise: z.record(z.unknown()).optional(),
-      params: z.record(z.union([z.string(), z.number()])).optional(),
+      dc: z.record(z.string(), z.unknown()).optional(),
+      ac: z.record(z.string(), z.unknown()).optional(),
+      tran: z.record(z.string(), z.unknown()).optional(),
+      noise: z.record(z.string(), z.unknown()).optional(),
+      params: z.record(z.string(), z.union([z.string(), z.number()])).optional(),
     }),
-    criteria: z.array(z.record(z.unknown())).min(1),
+    criteria: z.array(z.record(z.string(), z.unknown())).min(1),
     constraints: z
       .object({
         canAddComponents: z.boolean().optional(),
@@ -476,9 +476,9 @@ export const exerciseSchema = z.discriminatedUnion("type", [
       .array(
         z.object({
           id: z.string(),
-          overrides: z.record(z.string()).optional(),
+          overrides: z.record(z.string(), z.string()).optional(),
           faults: z.array(z.string()).optional(),
-          criteria: z.array(z.record(z.unknown())).min(1),
+          criteria: z.array(z.record(z.string(), z.unknown())).min(1),
         }),
       )
       .optional(),

@@ -18,11 +18,11 @@
     "@socket.io/redis-adapter": "^8.3.0",
     "chess.js": "^1.1.0",
     "cors": "^2.8.5",
-    "drizzle-orm": "^0.41.0",
-    "express": "^4.21.2",
+    "drizzle-orm": "^0.45.4",
+    "express": "^4.22.3",
     "ioredis": "^5.6.0",
     "redis": "^4.7.1",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.4"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

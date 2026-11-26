@@ -6,3 +6,15 @@ allowBuilds:
   core-js: false
   esbuild: true
   sharp: true
+
+# Security floors for transitive dependencies (pnpm audit --prod --audit-level=high).
+# Keep the major version of each package; drop an entry once its parent ships the fix.
+overrides:
+  body-parser@<1.20.9: ">=1.20.9 <2"
+  engine.io@<6.6.10: ">=6.6.10 <7"
+  nanoid@<3.3.18: ">=3.3.18 <4"
+  postcss@<8.5.12: ">=8.5.12 <9"
+  proxy-addr@<2.0.8: ">=2.0.8 <3"
+  sharp@<0.35.5: ">=0.35.5 <0.36"
+  shell-quote@<1.11.0: ">=1.11.0 <2"
+  source-map-js@<1.2.2: ">=1.2.2 <2"

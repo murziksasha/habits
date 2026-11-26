@@ -42,11 +42,11 @@ async function isClassStudent(userId: string, classId: string) {
 }
 
 const createSchema = z.object({
-  classId: z.string().uuid(),
+  classId: z.string().guid(),
   titleUk: z.string().min(1).max(200),
   titleEn: z.string().max(200).optional(),
-  courseId: z.string().uuid(),
-  lessonId: z.string().uuid(),
+  courseId: z.string().guid(),
+  lessonId: z.string().guid(),
   dueAt: z.string().datetime().optional().nullable(),
 });
 
@@ -175,9 +175,9 @@ homeworkRoutes.get("/catalog", authMiddleware, async (c) => {
 });
 
 const bulkSchema = z.object({
-  classId: z.string().uuid(),
-  courseId: z.string().uuid(),
-  lessonIds: z.array(z.string().uuid()).min(1).max(20),
+  classId: z.string().guid(),
+  courseId: z.string().guid(),
+  lessonIds: z.array(z.string().guid()).min(1).max(20),
   titlePrefix: z.string().max(100).optional(),
   dueAt: z.string().datetime().optional().nullable(),
 });
