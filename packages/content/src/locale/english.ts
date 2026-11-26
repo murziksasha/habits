@@ -135,4 +135,99 @@ export const ENGLISH_LOCALE_ENRICHMENT: Record<string, ExerciseLocaleEnrichment>
       { left: "Task 1 graph", right: "an overview of trends" },
     ],
   },
+  "en-21-3": {
+    pairsEn: [
+      { left: "ticket", right: "travel pass / ticket" },
+      { left: "passport", right: "passport (ID)" },
+      { left: "luggage", right: "baggage / suitcases" },
+    ],
+  },
+  "en-ph-2": {
+    pairsEn: [
+      { left: "Can I take a message?", right: "May I write down a message?" },
+      { left: "You're breaking up", right: "The connection is poor" },
+      { left: "I'll call you back", right: "I will return your call" },
+    ],
+  },
+  "en-mt-6": {
+    pairsEn: [
+      { left: "Action item", right: "Task assigned after the meeting" },
+      { left: "Takeaway", right: "Main conclusion" },
+      { left: "Follow up", right: "Continue or check in later" },
+    ],
+  },
+  "en-dlg-6": {
+    pairsEn: [
+      { left: "Across the street", right: "On the opposite side of the road" },
+      { left: "Next to the pharmacy", right: "Beside the drugstore" },
+      { left: "Around the corner", right: "Just past the turn" },
+    ],
+  },
+  "en-dlg-18": {
+    pairsEn: [
+      { left: "You're on mute", right: "Your microphone is turned off" },
+      { left: "Can everyone see my screen?", right: "Is my shared display visible to all?" },
+      { left: "Let's take this offline", right: "Let's discuss this separately after the meeting" },
+    ],
+  },
+  "en-dlg-24": {
+    pairsEn: [
+      { left: "Scope creep", right: "Uncontrolled expansion of project boundaries" },
+      { left: "Trade-off", right: "Compromise between competing goals" },
+      { left: "Hard deadline", right: "Fixed due date that cannot slip" },
+    ],
+  },
+  "en-ls-1": {
+    pairsEn: [
+      { left: "review", right: "go over again" },
+      { left: "memorize", right: "commit to memory" },
+      { left: "spaced repetition", right: "timed interval review" },
+    ],
+  },
+  "en-d-pp-been-gone-r3": {
+    pairsEn: [
+      { left: "She has gone to the shop.", right: "She left and is still out" },
+      { left: "She has been to the shop.", right: "She went and is back" },
+      { left: "Have you ever been there?", right: "A life-experience question" },
+    ],
+  },
+  "en-d-narrative-mix-r2": {
+    pairsEn: [
+      { left: "I ordered coffee and sat down.", right: "Past Simple — event line" },
+      { left: "It was raining and people were talking.", right: "Past Continuous — background" },
+      { left: "I realised I had left my wallet at home.", right: "Past Perfect — earlier past" },
+    ],
+  },
+  "en-d-mod-mix-r2": {
+    pairsEn: [
+      { left: "They must have left.", right: "A past deduction" },
+      { left: "You should have written a test.", right: "Criticism or regret" },
+      { left: "I needn't have come so early.", right: "Did it in vain" },
+      { left: "You're supposed to review it today.", right: "An expectation or rule" },
+    ],
+  },
+  "en-d-link-add-r4": {
+    pairsEn: [
+      { left: "moreover / furthermore", right: "add a formal point" },
+      { left: "for example / such as", right: "give an example" },
+      { left: "namely", right: "specify what is meant" },
+      { left: "besides", right: "add an “in any case” point" },
+    ],
+  },
+  "en-d-discourse-r4": {
+    pairsEn: [
+      { left: "actually / in fact", right: "correct or mildly contradict" },
+      { left: "anyway", right: "return to the topic" },
+      { left: "by the way", right: "a side topic" },
+      { left: "as for", right: "move to a specific point" },
+    ],
+  },
+  "en-d-ash-strut-r4": {
+    pairsEn: [
+      { left: "cat / map / bad", right: "/æ/" },
+      { left: "cup / but / love", right: "/ʌ/" },
+      { left: "car / father (RP)", right: "/ɑː/" },
+      { left: "bed (not bad)", right: "/e/, a different vowel" },
+    ],
+  },
 };

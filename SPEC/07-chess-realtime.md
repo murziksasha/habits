@@ -50,6 +50,10 @@ Server drains clocks using elapsed time between moves; timeout decides winner.
 - Illegal moves rejected with `illegal_move`  
 - Puzzle helper: SAN compare ignoring check/mate markers  
 
+## Promotion
+
+The board never auto-queens: when a pawn reaches the last rank the learner picks Q/R/B/N in an overlay (`promote-q|r|b|n`). The chosen piece is sent with the move (`move { from, to, promotion }`) to the bot game and the realtime server.
+
 ## Board learning hints
 
 Layered UI feedback rendered via `ChessBoardFrame` on top of `@eduforge/chess-core`:
@@ -78,3 +82,39 @@ Counter stored on `chess_ratings.rated_games_today` + date string.
 - Socket middleware requires valid session  
 - Only white/black may join their game  
 - Turn enforcement on each move  
+
+## Game history, review and draw offers (deep upgrade, phase 5)
+
+- Moves are applied on top of the full history (`applyMoveWithHistory(start_fen, pgn SANs, move)` in `@eduforge/chess-core`), so **threefold repetition** ends online and bot games (`termination: "threefold"`).
+- `chess_games` (migration `0043_chess_games_history.sql`, additive): `start_fen`, `moves` (`[{ san, uci, fen, clockMs }]`), `kind` (`online | bot | endgame | opening`), `bot_level`, `termination`, draw-offer columns, `analysis_status`.
+- Bot games are saved on finish with `POST /chess/games/bot` (`{ sans, playerColor, botLevel, resigned }`); the server replays every move and rejects illegal ones (`400 illegal_move`). Unrated, no Elo.
+- `GET /chess/games/:id` returns `annotations` and lazily queues analysis; `GET /chess/games/:id/pgn` exports PGN; `POST /chess/cron/analyze` (CRON_SECRET) analyses finished games.
+- Analysis (`apps/api/src/services/chess-game-analysis.ts`): with `STOCKFISH_PATH`, one UCI process per game, 120 ms per position, 30 s cap; drop ≥150 cp = blunder (only within ±500), 80–149 mistake, 40–79 inaccuracy; positions above +800 are not labelled. Games under 20 plies are skipped. Each blunder becomes a row in `chess_personal_puzzles` (best engine line, 1 or 3 plies) on the 1/3/7/21 ladder (`GET /chess/personal-puzzles/due`, `POST /chess/personal-puzzles/:id/attempt`); `/review/mistakes` reports `ownGameDue`. Without an engine only material drops ≥300 cp are flagged (`possible_blunder`).
+- Draw offers (socket): `offer_draw`, `accept_draw`, `decline_draw`; events `draw_offered`, `draw_declined`, `draw_offer_expired`. One offer per player per 10 moves; a pending offer burns when the receiver moves. The bot accepts only when its own evaluation is ≤ −100 cp.
+- UI: move list beside the board (`move-history-panel.tsx`), review page `/play/review/[gameId]` (⟨⟨ ⟨ ⟩ ⟩⟩, ←/→/Home/End), "My games" on `/play`, own-game puzzles in `/play/puzzles`.
+
+## Opening repertoire trainer (deep upgrade, phase 7)
+
+- Trees: `packages/chess-core/src/openings.ts` (re-exported by `packages/content/src/chess-openings.ts`): Italian, Ruy Lopez, Queen's Gambit, London (White); Sicilian, French, Caro-Kann, King's Indian (Black). 33 lines, 5–10 moves, uk/en comments on the learner's key moves. Lines are merged into trees by SAN prefix.
+- QA: `node scripts/chess-qa/opening-qa.mjs --depth 20` writes `chess-openings-qa.generated.ts`; `chess-openings.test.ts` requires each final position ≥ −60 cp for the repertoire side (plan: −50; depth-20 noise for main-line Black theory) and fails on stale QA.
+- SRS per line: `chess_opening_lines` (migration `0044_chess_opening_lines.sql`, additive), 1/3/7/21-day ladder via `chessSrsNext`.
+- API: `GET /chess/openings` (trees + per-line state), `GET /chess/openings/due`, `POST /chess/openings/:repertoire/lines/:lineKey/attempt` with `{ tries: string[][] }` — the SANs tried at each learner move; the server checks that the last try matches the line (`400 invalid_attempt` otherwise) and counts a clean run only with no extra tries.
+- UI `/play/openings`: pick side and opening; due lines first, then new; the opponent's moves are auto-played from the line; a wrong move shows the correct one (arrow + comment) and must be replayed.
+- Bot book: generated from the trees (`buildOpeningBook`), learner level uses main lines only; "Play an opening" on `/play` makes the bot follow the chosen tree by history, then leave book.
+
+## Board, sounds and bot (deep upgrade, phase 8)
+
+- `ChessBoardFrame`: last-move highlight, flip button (`t.chess.flipBoard`), sound toggle and a settings panel (board theme `classic | green | blue | wood` from `packages/shared/src/chess-board-themes.ts`, coordinates via `showBoardNotation`, on by default). Preferences live in `localStorage` (`chess-board-prefs`, `chess-sound-enabled`) via `apps/web/src/lib/chess-prefs.ts`; animations are off under `prefers-reduced-motion`. Controls are hidden in explore mode except on the review page.
+- `captured-pieces.tsx` counts captures from the move history (promotion-safe) and shows the material difference.
+- `apps/web/src/lib/chess-sounds.ts`: synthetic Web Audio sounds (move, capture, check, castle, promote, game start/end, illegal, low time, puzzle solved/wrong); **off by default**, `AudioContext` created lazily after a gesture.
+- Clock: under 30 s the clock turns red; under 10 s a quiet tick once per second when sound is on.
+- Bot (`packages/chess-core/src/bot.ts`): negamax with quiescence (captures + promotions, MVV-LVA, stand-pat, delta pruning), tapered eval (PeSTO phase 0–24, endgame king/pawn tables, mop-up), no mobility term at leaves, Zobrist-keyed TT and iterative deepening for Strong (~600 ms), repetition awareness from `history` (+ `startFen`), mate-distance scoring. All levels run in a Web Worker (`apps/web/src/lib/chess-bot-worker.ts`). Personalities: Novice (human slips among the 5 most plausible moves), Club player (course openings, sloppier in endgames), Strong. `chooseBotMove(fen, level, opts)` or `chooseBotMove({ fen, history, level, personality })`.
+
+
+## Server-owned drills, board preferences, bot unlocks (Nov 2026)
+
+- Endgame drills: `POST /chess/drills/:exerciseId/move` `{ token?, move }` → `{ sans, reply, status, token }`. The API plays the defender and signs the game (HMAC from `AUTH_SECRET`, 24 h). Lesson grading of `chess_endgame_drill` accepts only that token; a client-sent `sans` list grades as wrong (`reason: "unverified"`).
+- Own-game puzzles appear in `GET /review/mistakes` with `lessonId: "own_game"` and are graded by `POST /review/mistakes/check` against the learner's own `chess_personal_puzzles` rows.
+- Board preferences: `GET/PUT /chess/prefs` (`users.chess_prefs`, migration 0046).
+- Bot personalities: `GET /chess/bots/unlocks`. Club opens at 8 completed chess lessons, Strong at 30, the Italian challenge after unit `ch-deep-italian-ruy`. `POST /chess/games/bot` with `kind: "bot"` and a locked level → `403 bot_locked`.
+- Runbook (Russian): [instructions/chess-content.md](../instructions/chess-content.md).

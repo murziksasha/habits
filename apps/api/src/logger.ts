@@ -1,7 +1,22 @@
 /**
  * Lightweight structured JSON logger (no extra deps).
  * Fields: ts, level, msg, requestId, service, ...meta
+ *
+ * Inside an HTTP request (see app.ts) every line automatically carries the
+ * request id from AsyncLocalStorage, so route and service logs can be joined
+ * with the access log and with Sentry events (tag `request_id`).
  */
+import { AsyncLocalStorage } from "node:async_hooks";
+
+const requestContext = new AsyncLocalStorage<{ requestId: string }>();
+
+export function runWithRequestId<T>(requestId: string, fn: () => T): T {
+  return requestContext.run({ requestId }, fn);
+}
+
+export function currentRequestId(): string | undefined {
+  return requestContext.getStore()?.requestId;
+}
 
 export type LogLevel = "debug" | "info" | "warn" | "error";
 
@@ -21,11 +36,13 @@ function minLevel(): LogLevel {
 
 function emit(level: LogLevel, msg: string, meta?: Record<string, unknown>) {
   if (LEVEL_ORDER[level] < LEVEL_ORDER[minLevel()]) return;
+  const requestId = currentRequestId();
   const line = JSON.stringify({
     ts: new Date().toISOString(),
     level,
     service: SERVICE,
     msg,
+    ...(requestId ? { requestId } : {}),
     ...meta,
   });
   if (level === "error") console.error(line);
@@ -101,6 +118,12 @@ export function latencyStats() {
     byRoute[k] = statsFrom(v);
   }
   return { ...statsFrom(latenciesMs), byRoute };
+}
+
+/** Accept a caller-supplied id only if it is short and log-safe. */
+export function sanitizeRequestId(raw: string | undefined | null): string | null {
+  const v = raw?.trim();
+  return v && /^[A-Za-z0-9._:-]{1,64}$/.test(v) ? v : null;
 }
 
 export function newRequestId(): string {

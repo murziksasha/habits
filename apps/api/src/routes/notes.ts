@@ -43,7 +43,7 @@ notesRoutes.get("/lesson/:lessonId", authMiddleware, async (c) => {
 });
 
 const upsertSchema = z.object({
-  lessonId: z.string().uuid(),
+  lessonId: z.string().guid(),
   body: z.string().max(8000),
 });
 

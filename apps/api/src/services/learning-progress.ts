@@ -54,7 +54,7 @@ function isUuid(raw: string | null | undefined): raw is string {
 
 const cursorPayloadSchema = z.object({
   createdAt: z.string().datetime(),
-  id: z.string().uuid(),
+  id: z.string().guid(),
 });
 
 export function encodeHistoryCursor(createdAt: Date, id: string): string {

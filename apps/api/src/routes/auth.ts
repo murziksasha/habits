@@ -38,7 +38,7 @@ import { cronAuthorized, cronUnauthorized } from "../cron-auth.js";
 import { db } from "../db.js";
 import { passwordResetEmail, registrationVerifyEmail, sendMail } from "../email.js";
 import { env } from "../env.js";
-import { clientIp, rateLimit } from "../rate-limit.js";
+import { normalizeEmailKey, rateLimit, rateLimitExceeded, requestClientIp } from "../rate-limit.js";
 import { runUnverifiedLifecycle } from "../services/unverified-lifecycle.js";
 import { ensureReferralCode, redeemReferralCode } from "./referrals.js";
 
@@ -50,10 +50,11 @@ async function guardAuth(
   c: {
     req: { header: (n: string) => string | undefined };
     json: (b: unknown, s: number) => Response;
+    env?: unknown;
   },
   action: string,
 ) {
-  const ip = clientIp({ get: (n) => c.req.header(n) ?? null });
+  const ip = requestClientIp(c);
   const r = await rateLimit({
     key: `auth:${action}:${ip}`,
     limit: 20,
@@ -63,6 +64,26 @@ async function guardAuth(
     return c.json({ error: "rate_limited", retryAfterSec: r.retryAfterSec }, 429);
   }
   return null;
+}
+
+/**
+ * Per-account limits on top of the per-IP guardAuth(): rotating IPs does not help
+ * brute-force one account. Only failures count (wrong password / wrong 2FA code),
+ * so normal sign-ins never use up the budget; after 10 failures in 15 minutes the
+ * account answers 429 until the window passes.
+ */
+export const ACCOUNT_FAIL_LIMIT = { limit: 10, windowMs: 15 * 60 * 1000 } as const;
+export const FORGOT_PER_EMAIL_LIMIT = { limit: 5, windowMs: 60 * 60 * 1000 } as const;
+
+export function accountFailKey(action: string, account: string): string {
+  return `auth:${action}:acct:${normalizeEmailKey(account)}`;
+}
+
+function rateLimitedResponse(
+  c: { json: (b: unknown, s: number) => Response },
+  retryAfterSec: number,
+): Response {
+  return c.json({ error: "rate_limited", retryAfterSec }, 429);
 }
 
 const EMAIL_VERIFY_MS = 30 * 24 * 60 * 60 * 1000;
@@ -162,10 +183,14 @@ authRoutes.post("/login", async (c) => {
   const body = await c.req.json().catch(() => null);
   const parsed = loginSchema.safeParse(body);
   if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
+  const failKey = accountFailKey("login", parsed.data.email);
+  const locked = await rateLimitExceeded({ key: failKey, ...ACCOUNT_FAIL_LIMIT });
+  if (!locked.ok) return rateLimitedResponse(c, locked.retryAfterSec);
   const user = await db.query.users.findFirst({
     where: eq(users.email, parsed.data.email.toLowerCase()),
   });
   if (!user?.passwordHash || !(await verifyPassword(parsed.data.password, user.passwordHash))) {
+    await rateLimit({ key: failKey, ...ACCOUNT_FAIL_LIMIT });
     return c.json({ error: "invalid_credentials" }, 401);
   }
 
@@ -509,8 +534,14 @@ authRoutes.post("/mfa/totp/verify", async (c) => {
     ),
   });
   if (!pending) return c.json({ error: "invalid_mfa_token" }, 401);
+  const mfaFailKey = accountFailKey("mfa_verify", pending.userId);
+  const mfaLocked = await rateLimitExceeded({ key: mfaFailKey, ...ACCOUNT_FAIL_LIMIT });
+  if (!mfaLocked.ok) return rateLimitedResponse(c, mfaLocked.retryAfterSec);
   const method = await verifyUserMfaCode(pending.userId, code);
-  if (!method) return c.json({ error: "invalid_code" }, 401);
+  if (!method) {
+    await rateLimit({ key: mfaFailKey, ...ACCOUNT_FAIL_LIMIT });
+    return c.json({ error: "invalid_code" }, 401);
+  }
   await consumeMfaPending(mfaToken);
   const user = await db.query.users.findFirst({ where: eq(users.id, pending.userId) });
   if (!user) return c.json({ error: "not_found" }, 404);
@@ -760,6 +791,12 @@ authRoutes.post("/forgot-password", async (c) => {
   const body = await c.req.json().catch(() => null);
   const parsed = forgotSchema.safeParse(body);
   if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
+  // Same limit whether or not the account exists (no enumeration).
+  const perEmail = await rateLimit({
+    key: `auth:forgot:acct:${normalizeEmailKey(parsed.data.email)}`,
+    ...FORGOT_PER_EMAIL_LIMIT,
+  });
+  if (!perEmail.ok) return rateLimitedResponse(c, perEmail.retryAfterSec);
 
   // Always same response (no email enumeration)
   const generic = {
@@ -795,6 +832,8 @@ authRoutes.post("/forgot-password", async (c) => {
 });
 
 authRoutes.post("/reset-password", async (c) => {
+  const limited = await guardAuth(c, "reset");
+  if (limited) return limited;
   const body = await c.req.json().catch(() => null);
   const parsed = resetSchema.safeParse(body);
   if (!parsed.success) return c.json({ error: "invalid_input" }, 400);

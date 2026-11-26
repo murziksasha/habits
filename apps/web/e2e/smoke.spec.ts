@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { loginAsAdmin } from "./helpers";
+import { ADMIN_PASSWORD, loginAsAdmin } from "./helpers";
 
 /**
  * End-to-end smoke against running stack (web + api + seeded DB).
@@ -506,7 +506,7 @@ test.describe("EduForge smoke", () => {
   test("profile share card and public profile load", async ({ page }) => {
     await page.goto("/login");
     await page.locator('input[type="email"]').fill("admin@eduforge.ua");
-    await page.locator('input[type="password"]').fill("admin12345");
+    await page.locator('input[type="password"]').fill(ADMIN_PASSWORD);
     await page.getByRole("button", { name: /Увійти|Log in/i }).click();
     await page.waitForURL(/dashboard/, { timeout: 25_000 });
     await page.goto("/profile");
@@ -524,7 +524,7 @@ test.describe("EduForge smoke", () => {
   test("friends invite link section visible", async ({ page }) => {
     await page.goto("/login");
     await page.locator('input[type="email"]').fill("admin@eduforge.ua");
-    await page.locator('input[type="password"]').fill("admin12345");
+    await page.locator('input[type="password"]').fill(ADMIN_PASSWORD);
     await page.getByRole("button", { name: /Увійти|Log in/i }).click();
     await page.waitForURL(/dashboard/, { timeout: 25_000 });
     await page.goto("/friends");
@@ -545,7 +545,7 @@ test.describe("EduForge smoke", () => {
   test("profile shows session security controls", async ({ page }) => {
     await page.goto("/login");
     await page.locator('input[type="email"]').fill("admin@eduforge.ua");
-    await page.locator('input[type="password"]').fill("admin12345");
+    await page.locator('input[type="password"]').fill(ADMIN_PASSWORD);
     await page.getByRole("button", { name: /Увійти|Log in/i }).click();
     await page.waitForURL(/dashboard/, { timeout: 25_000 });
     await page.goto("/profile");

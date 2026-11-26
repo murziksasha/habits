@@ -9,7 +9,7 @@
  * - Safe for live production updates without wiping database.
  */
 import { createDb } from "./index.js";
-import { allCourses, seedAchievements, seedCourse, seedFlashcards } from "./seed.js";
+import { allCourses, seedAchievements, seedChessPuzzleStats, seedCourse, seedFlashcards } from "./seed.js";
 
 export async function syncBuiltinContent() {
   const { loadRootEnv } = await import("./load-env.js");
@@ -24,6 +24,7 @@ export async function syncBuiltinContent() {
 
   await seedAchievements(db);
   await seedFlashcards(db);
+  await seedChessPuzzleStats(db);
 
   console.log("Built-in course content synchronization complete.");
 }

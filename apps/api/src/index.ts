@@ -3,14 +3,20 @@ import { assertProductionSecrets } from "@eduforge/shared";
 import { createApp } from "./app.js";
 import { env } from "./env.js";
 import { log } from "./logger.js";
-import { getRedis } from "./redis.js";
+import { getRedisClient } from "./redis.js";
+import { captureException, initSentry } from "./sentry.js";
 
 assertProductionSecrets(process.env);
+await initSentry("api");
+process.on("unhandledRejection", (reason) => {
+  log.error("unhandled_rejection", { err: reason instanceof Error ? reason.message : String(reason) });
+  captureException(reason);
+});
 
 const app = createApp();
 
 // Warm Redis connection if configured
-const redis = getRedis();
+const redis = getRedisClient();
 if (redis) {
   redis
     .ping()

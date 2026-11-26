@@ -11,7 +11,7 @@ import {
 } from "../auth.js";
 import { db } from "../db.js";
 import { env } from "../env.js";
-import { clientIp, rateLimit } from "../rate-limit.js";
+import { rateLimit, requestClientIp } from "../rate-limit.js";
 
 type Vars = { user: AuthedUser };
 
@@ -52,7 +52,7 @@ oauthRoutes.get("/google/start", async (c) => {
       503,
     );
   }
-  const ip = clientIp({ get: (n) => c.req.header(n) ?? null });
+  const ip = requestClientIp(c);
   const rl = await rateLimit({ key: `oauth:start:${ip}`, limit: 30, windowMs: 15 * 60_000 });
   if (!rl.ok) return c.json({ error: "rate_limited" }, 429);
 

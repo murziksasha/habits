@@ -1,6 +1,9 @@
 import type { ExerciseLocaleEnrichment } from "./types.js";
 
 export const CHESS_LOCALE_ENRICHMENT: Record<string, ExerciseLocaleEnrichment> = {
+  "ch-d-algebraic-l": {
+    "notesEn": "Algebraic notation is the international language of chess: every square has a file letter (a–h, left to right from White's side) and a rank digit (1–8, from White's side). Pawn moves list only the destination square: e4, d5. Piece moves start with the English piece letter: K (king), Q (queen), R (rook), B (bishop), N (knight — K is already taken by the king). Examples: Nf3, Bb5, Qh4.\n\nCaptures use \"x\": Bxe6, exd5. Check is \"+\", checkmate is \"#\". Castling: O-O (kingside) and O-O-O (queenside). Promotion: e8=Q or e8=N. If two identical pieces can reach the same square, add the origin file or rank: Nbd2 (knight from the b-file), R1e2 (rook from the first rank), Qh4e1.\n\nUkrainian score sheets sometimes use Кр (king), К (knight), Ф, Т, С; in international games and in this course we always use Latin KQRBN. Annotation symbols are not part of the official move record, but they are good to know: ! strong move, ? mistake, !! brilliant, ?? blunder, !? interesting, ?! dubious.\n\nCommon mistakes: confusing N and K; writing \"Ke4\" without disambiguating which knight; forgetting \"x\" or \"+\"; writing castling as \"Ke1–g1\" instead of O-O. On the diagram, White can castle on either side — that is O-O and O-O-O, not \"Rh-f1\"."
+  },
   "ch-1-1": {
     "notesEn": "White moves first. The king is the most important piece; the goal of the game is to checkmate the opponent's king.",
     "quizEn": {

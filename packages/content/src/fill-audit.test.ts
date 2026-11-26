@@ -10,7 +10,7 @@ it("teaches and localizes compute retries and token budgets", () => {
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(6);
+  expect(choices).toHaveLength(7);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -31,7 +31,7 @@ it("teaches and localizes cloud model configuration", () => {
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(6);
+  expect(choices).toHaveLength(7);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -54,7 +54,7 @@ it("teaches and localizes queue delivery and idempotency", () => {
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(6);
+  expect(choices).toHaveLength(7);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -75,7 +75,7 @@ it("teaches and localizes durable API job handoffs", () => {
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(6);
+  expect(choices).toHaveLength(7);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -96,7 +96,7 @@ it("teaches and localizes fixture evaluation and its limitations", () => {
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(6);
+  expect(choices).toHaveLength(7);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -116,7 +116,7 @@ it("teaches and localizes traces and token accounting", () => {
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(6);
+  expect(choices).toHaveLength(7);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -181,7 +181,7 @@ it("teaches and localizes vector-store filtering and version activation", () => 
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(6);
+  expect(choices).toHaveLength(7);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -202,7 +202,7 @@ it("teaches and localizes agent retrieval strategies", () => {
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(7);
+  expect(choices).toHaveLength(8);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -222,7 +222,7 @@ it("teaches and localizes multi-agent transitions with exhausted retries", () =>
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(6);
+  expect(choices).toHaveLength(7);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -248,7 +248,7 @@ it("teaches and localizes agent planning and verification", () => {
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(6);
+  expect(choices).toHaveLength(7);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -268,7 +268,7 @@ it("teaches and localizes agent tool contracts and retry safety", () => {
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(5);
+  expect(choices).toHaveLength(6);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -286,7 +286,7 @@ it("teaches and localizes choosing an agent architecture", () => {
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(6);
+  expect(choices).toHaveLength(7);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -354,7 +354,7 @@ it("teaches and localizes the support-agent design review", () => {
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(6);
+  expect(choices).toHaveLength(7);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -374,7 +374,7 @@ it("teaches and localizes AI product failure modes and evaluations", () => {
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(7);
+  expect(choices).toHaveLength(8);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -394,7 +394,7 @@ it("teaches and localizes human approval controls", () => {
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(6);
+  expect(choices).toHaveLength(7);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -414,7 +414,7 @@ it("teaches and localizes AI product briefs and the limits of retrieval scores",
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(6);
+  expect(choices).toHaveLength(7);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -434,7 +434,7 @@ it("teaches and localizes AI product routing", () => {
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(6);
+  expect(choices).toHaveLength(7);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -515,7 +515,7 @@ it("teaches and localizes dependency review and the ForgeBoard lab", () => {
     expect(unit!.lessons.find((lesson) => lesson.slug === slug)?.exercises[0]?.type, slug).toBe("concept");
   }
   const choices = unit!.lessons.flatMap((lesson) => lesson.exercises).filter((exercise) => exercise.type === "mcq");
-  expect(choices).toHaveLength(4);
+  expect(choices).toHaveLength(6);
   for (const exercise of choices) {
     if (exercise.type !== "mcq") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -546,7 +546,7 @@ it("teaches and localizes review of AI-generated diffs", () => {
   const choices = unit!.lessons.flatMap((lesson) => lesson.exercises).filter(
     (exercise) => exercise.type === "mcq" || exercise.type === "code_read",
   );
-  expect(choices).toHaveLength(4);
+  expect(choices).toHaveLength(7);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -559,7 +559,7 @@ it("teaches and localizes safe context selection", () => {
   expect(unit!.lessons.find((lesson) => lesson.slug === "ai-cs-signal")?.exercises[0]?.type).toBe("concept");
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq");
-  expect(choices).toHaveLength(2);
+  expect(choices).toHaveLength(5);
   for (const exercise of choices) {
     if (exercise.type !== "mcq") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -578,7 +578,7 @@ it("teaches and localizes AI task specifications and their ordering exercise", (
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq");
-  expect(choices).toHaveLength(3);
+  expect(choices).toHaveLength(5);
   for (const exercise of choices) {
     if (exercise.type !== "mcq") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -661,7 +661,7 @@ it("teaches and localizes the AI local-serving unit", () => {
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(7);
+  expect(choices).toHaveLength(8);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -680,7 +680,7 @@ it("teaches and localizes AI secret handling and data minimization", () => {
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(6);
+  expect(choices).toHaveLength(7);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -699,7 +699,7 @@ it("teaches and localizes AI guardrails including classifier failure", () => {
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(6);
+  expect(choices).toHaveLength(7);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -722,7 +722,7 @@ it("teaches and localizes the AI tool authorization unit", () => {
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(6);
+  expect(choices).toHaveLength(7);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -742,7 +742,7 @@ it("teaches and localizes the AI prompt-injection unit", () => {
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(6);
+  expect(choices).toHaveLength(7);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);
@@ -761,7 +761,7 @@ it("localizes choice and matching exercises in the AI tool trust-boundary unit",
   }
   const exercises = unit!.lessons.flatMap((lesson) => lesson.exercises);
   const choices = exercises.filter((exercise) => exercise.type === "mcq" || exercise.type === "code_read");
-  expect(choices).toHaveLength(7);
+  expect(choices).toHaveLength(8);
   for (const exercise of choices) {
     if (exercise.type !== "mcq" && exercise.type !== "code_read") continue;
     expect(exercise.optionsEn, exercise.id).toHaveLength(exercise.options.length);

@@ -58,7 +58,7 @@ function attachLabMeta(
 }
 import { authMiddleware, optionalAuth, type AuthedUser } from "../auth.js";
 import { db } from "../db.js";
-import { clientIp, rateLimit } from "../rate-limit.js";
+import { rateLimit, requestClientIp } from "../rate-limit.js";
 import { getCourseProgress } from "../services/home.js";
 import {
   buildGuestSubmitResult,
@@ -446,7 +446,7 @@ courseRoutes.post("/:slug/lessons/:lessonId/submit", optionalAuth, async (c) => 
   }
 
   // Guest submit
-  const ip = clientIp({ get: (n) => c.req.header(n) ?? null });
+  const ip = requestClientIp(c);
   const limited = await rateLimit({
     key: `submit:guest:${ip}`,
     limit: 30,

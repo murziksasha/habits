@@ -1,0 +1,510 @@
+{
+  "apps/api/src/integration.test.ts": {
+    "no-useless-assignment": {
+      "count": 1
+    }
+  },
+  "apps/api/src/ready.ts": {
+    "no-useless-assignment": {
+      "count": 1
+    }
+  },
+  "apps/api/src/routes/analytics.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "apps/api/src/routes/auth.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "apps/api/src/routes/character.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 2
+    }
+  },
+  "apps/api/src/routes/circuits.ts": {
+    "no-useless-assignment": {
+      "count": 1
+    }
+  },
+  "apps/api/src/routes/courses.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "apps/api/src/routes/engagement.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "apps/api/src/routes/friends.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "apps/api/src/routes/gifts.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "apps/api/src/routes/leaderboard.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "apps/api/src/routes/oauth.ts": {
+    "prefer-const": {
+      "count": 2
+    }
+  },
+  "apps/api/src/security-gates.test.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "apps/api/src/services/path-badges.ts": {
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "apps/api/src/services/submit-lesson.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "no-useless-assignment": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/achievements/page.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/courses/[slug]/lessons/[lessonId]/lesson-client.tsx": {
+    "no-empty": {
+      "count": 2
+    }
+  },
+  "apps/web/src/app/learn/learn-client.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/review/review-client.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "apps/web/src/app/tournaments/[id]/tournament-detail-client.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "apps/web/src/components/circuit/circuit-editor.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 4
+    }
+  },
+  "apps/web/src/components/circuit/circuit-symbols.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "apps/web/src/components/circuit/circuit-waveform-chart.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "apps/web/src/components/circuit/katex-math.tsx": {
+    "no-useless-escape": {
+      "count": 1
+    }
+  },
+  "apps/web/src/components/exercises/chess.tsx": {
+    "no-useless-assignment": {
+      "count": 1
+    }
+  },
+  "apps/web/src/components/exercises/code-judge.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "apps/web/src/components/exercises/numeric.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "apps/web/src/lib/auth-context.tsx": {
+    "no-useless-assignment": {
+      "count": 1
+    }
+  },
+  "apps/web/src/lib/certificate-export.ts": {
+    "no-useless-escape": {
+      "count": 1
+    }
+  },
+  "packages/circuit-engine/src/runner.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "packages/content/scripts/add-en-titles.mjs": {
+    "no-constant-condition": {
+      "count": 1
+    }
+  },
+  "packages/content/scripts/ee-units-10.mjs": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    }
+  },
+  "packages/content/scripts/ee-units-12.mjs": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 18
+    }
+  },
+  "packages/content/scripts/ee-units-14.mjs": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 7
+    }
+  },
+  "packages/content/scripts/ee-units-19.mjs": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 5
+    }
+  },
+  "packages/content/scripts/ee-units-31.mjs": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/scripts/ee-units-55.mjs": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/browser-web-apis.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/chess-explanation-templates.ts": {
+    "no-useless-assignment": {
+      "count": 2
+    }
+  },
+  "packages/content/src/electrical-engineering/stage2.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/electrical-engineering/stage4.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/electrical-engineering/stage5.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/electrical-engineering/stage6.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/electrical-engineering/stage7-rest.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/electrical-engineering/stage8.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/electrical-engineering/stage9.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/agentic-systems-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/ai-development-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/ai-product-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/ai-security-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/applied-algorithms-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/css-layout-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/devops-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/embedded-cpp-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/express-fundamentals-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/git-workflows-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/html-semantics-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/llmops-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/nextjs-fullstack-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/node-fundamentals-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/postgresql-apps-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/programming-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/python-for-ai-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/qa-theory-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/react-fundamentals-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/software-testing-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/sql-fundamentals-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/sysadmin-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/typescript-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/typing-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/expansion/web-security-exp.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/express-fundamentals.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "packages/content/src/frontend-performance.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/go-fundamentals.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/html-semantics.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/js-fundamentals.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/locale-normalize.test.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/locale/python-for-ai.ts": {
+    "no-useless-escape": {
+      "count": 66
+    }
+  },
+  "packages/content/src/node-fundamentals.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/rest-api-design.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/sysadmin.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/typescript.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/web-accessibility.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/content/src/web-security.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/judge/src/local-runner.ts": {
+    "no-useless-escape": {
+      "count": 1
+    }
+  },
+  "packages/judge/src/queue.ts": {
+    "preserve-caught-error": {
+      "count": 1
+    }
+  },
+  "packages/shared/src/character.test.ts": {
+    "prefer-const": {
+      "count": 4
+    }
+  },
+  "packages/shared/src/entitlements.ts": {
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "packages/shared/src/feedback-contract.ts": {
+    "no-useless-assignment": {
+      "count": 4
+    }
+  },
+  "packages/shared/src/grade.test.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "packages/shared/src/grade.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "no-useless-assignment": {
+      "count": 1
+    },
+    "no-useless-escape": {
+      "count": 2
+    }
+  },
+  "packages/shared/src/numeric.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "no-useless-escape": {
+      "count": 2
+    }
+  },
+  "packages/shared/src/playground.ts": {
+    "no-useless-escape": {
+      "count": 3
+    }
+  },
+  "packages/shared/src/sanitize.ts": {
+    "no-control-regex": {
+      "count": 1
+    }
+  },
+  "scripts/chess-qa/opening-qa.mjs": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "scripts/chess-qa/qa-plan.mjs": {
+    "no-useless-assignment": {
+      "count": 1
+    }
+  },
+  "scripts/chess-qa/qa-puzzle.mjs": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "scripts/count-lessons.mjs": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  }
+}

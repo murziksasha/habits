@@ -6,13 +6,13 @@
   "scripts": {
     "start": "echo \"Install Expo deps: cd apps/mobile && npx expo start\"",
     "typecheck": "tsc --noEmit",
-    "lint": "echo ok",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "build": "echo ok"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "3.2.7",
     "typescript": "^5.8.3",
     "vitest": "^3.1.1"
   }
 }
-

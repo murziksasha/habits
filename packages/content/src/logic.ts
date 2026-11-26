@@ -1,6 +1,14 @@
 import type { CourseContent, LessonContent } from "./types.js";
 
 const advancedLocale: Record<string, { promptEn: string; optionsEn?: string[]; hintEn?: string }> = {
+  "lg-1": { promptEn: "2, 4, 6, 8, ?", hintEn: "Even numbers (+2)." },
+  "lg-2": { promptEn: "1, 2, 4, 8, ?", hintEn: "Multiply by 2." },
+  "lg-5": { promptEn: "1, 1, 2, 3, 5, ?", hintEn: "Fibonacci sequence (sum of the previous two)." },
+  "lg-6": { promptEn: "10, 9, 7, 4, ?", hintEn: "Subtract 1, 2, 3, 4." },
+  "lg-7": { promptEn: "2, 3, 5, 7, 11, ?", hintEn: "Prime numbers." },
+  "lg-9": { promptEn: "A, C, E, G, ?", hintEn: "Every second letter." },
+  "lg-14": { promptEn: "2 4 / 3 6 / 4 ?", hintEn: "Second = first × 2." },
+  "lg-59": { promptEn: "3, 5, 9, 17, ?", hintEn: "Multiply by 2 and subtract 1." },
   "lg-11": { promptEn: "Repeat the alternating pattern: square, circle, square, circle, ?", optionsEn: ["square", "triangle", "diamond", "dot"], hintEn: "The two shapes alternate." },
   "lg-13": { promptEn: "In the matrix [1 2 / 3 ?], each lower entry is 2 greater than the entry above it. What replaces ?", hintEn: "Add 2 to the number directly above." },
   "lg-15": { promptEn: "Which item is not an animal: cat, dog, table, rabbit?", optionsEn: ["cat", "dog", "table", "rabbit"], hintEn: "Three are animals; one is furniture." },
@@ -120,34 +128,34 @@ export const logicContent: CourseContent = {
     {
       slug: "sequences",
       titleUk: "Послідовності",
-      titleEn: "Послідовності",
+      titleEn: "Sequences",
       lessons: [
         lesson("seq-1", "Числа 1", 1, true, [
           puzzle("lg-1", "2, 4, 6, 8, ?", "sequence", 1, ["9", "10", "12", "7"], 1, "Парні числа"),
           puzzle("lg-2", "1, 2, 4, 8, ?", "sequence", 1, ["10", "12", "16", "9"], 2, "×2"),
-        ]),
+        ], "Numbers 1"),
         lesson("seq-2", "Числа 2", 1, true, [
           puzzle("lg-3", "3, 6, 9, 12, ?", "sequence", 1, ["14", "15", "16", "18"], 1),
           puzzle("lg-4", "5, 10, 20, 40, ?", "sequence", 2, ["60", "80", "70", "50"], 1),
-        ]),
+        ], "Numbers 2"),
         lesson("seq-3", "Числа 3", 2, true, [
           puzzle("lg-5", "1, 1, 2, 3, 5, ?", "sequence", 2, ["7", "8", "9", "6"], 1, "Фібоначчі"),
           puzzle("lg-6", "10, 9, 7, 4, ?", "sequence", 2, ["0", "1", "2", "3"], 0, "-1,-2,-3,-4"),
-        ]),
+        ], "Numbers 3"),
         lesson("seq-4", "Числа 4", 2, true, [
           puzzle("lg-7", "2, 3, 5, 7, 11, ?", "sequence", 2, ["12", "13", "14", "15"], 1, "Прості"),
           puzzle("lg-8", "100, 50, 25, ?", "sequence", 2, ["12.5", "20", "10", "5"], 0),
-        ]),
+        ], "Numbers 4"),
         lesson("seq-5", "Літери", 2, true, [
           puzzle("lg-9", "A, C, E, G, ?", "sequence", 2, ["H", "I", "J", "F"], 1, "Через одну"),
           puzzle("lg-10", "Z, Y, X, W, ?", "sequence", 1, ["V", "U", "T", "S"], 0),
-        ]),
+        ], "Letters"),
       ],
     },
     {
       slug: "patterns",
       titleUk: "Патерни",
-      titleEn: "Патерни",
+      titleEn: "Patterns",
       lessons: [
         lesson("pat-1", "Фігури (текст)", 2, false, [
           puzzle(
@@ -166,7 +174,7 @@ export const logicContent: CourseContent = {
             ["▲", "■", "●", "◆"],
             1,
           ),
-        ]),
+        ], "Shapes (text)"),
         lesson("pat-2", "Матриця 2×2", 3, false, [
           puzzle(
             "lg-13",
@@ -186,7 +194,7 @@ export const logicContent: CourseContent = {
             2,
             "Друге = перше ×2",
           ),
-        ]),
+        ], "2×2 Matrix"),
         lesson("pat-3", "Odd one out 1", 2, false, [
           puzzle("lg-15", "Що з цього не є твариною: кіт, пес, стіл, кролик?", "odd_one", 1, ["кіт", "пес", "стіл", "кролик"], 2),
           puzzle("lg-16", "Що з цього не є фруктом: яблуко, груша, морква, слива?", "odd_one", 2, ["яблуко", "груша", "морква", "слива"], 2),
@@ -200,16 +208,16 @@ export const logicContent: CourseContent = {
     {
       slug: "verbal",
       titleUk: "Вербальна логіка",
-      titleEn: "Вербальна логіка",
+      titleEn: "Verbal Logic",
       lessons: [
         lesson("ver-1", "Аналогії 1", 2, false, [
           puzzle("lg-19", "День → ніч, як гаряче → ?", "verbal", 1, ["тепле", "холодне", "вогне", "сонце"], 1),
           puzzle("lg-20", "Птах живе у гнізді, а свійська бджола живе у чому?", "verbal", 2, ["мед", "вулик", "квітка", "крило"], 1),
-        ]),
+        ], "Analogies 1"),
         lesson("ver-2", "Аналогії 2", 3, false, [
           puzzle("lg-21", "Людина читає книгу. Що слухач робить із піснею?", "verbal", 2, ["пише", "слухає", "малює", "біжить"], 1),
           puzzle("lg-22", "Лікар → лікарня, як вчитель → ?", "verbal", 1, ["школа", "магазин", "парк", "музей"], 0),
-        ]),
+        ], "Analogies 2"),
         lesson("ver-3", "Умови", 3, false, [
           puzzle(
             "lg-23",
@@ -233,7 +241,7 @@ export const logicContent: CourseContent = {
             1,
             "Зворотна імплікація не працює",
           ),
-        ]),
+        ], "Conditions"),
         lesson("ver-4", "Ранжування", 3, false, [
           puzzle(
             "lg-25",
@@ -251,26 +259,26 @@ export const logicContent: CourseContent = {
             ["поїзд", "автобус", "велосипед", "усі рівні"],
             2,
           ),
-        ]),
+        ], "Ranking"),
       ],
     },
     {
       slug: "mixed",
       titleUk: "Мікс",
-      titleEn: "Мікс",
+      titleEn: "Mixed Practice",
       lessons: [
         lesson("mix-1", "Мікс 1", 3, false, [
           puzzle("lg-27", "Продовжіть подвоєння: 7, 14, 28, 56, ?", "sequence", 3, ["70", "84", "112", "98"], 2),
           puzzle("lg-28", "Що з цього є їжею, а не навчальним приладдям?", "odd_one", 1, ["ручка", "олівець", "зошит", "яблуко"], 3),
-        ]),
+        ], "Mixed 1"),
         lesson("mix-2", "Мікс 2", 3, false, [
           puzzle("lg-29", "Стіл належить до меблів. До якої категорії належить троянда?", "verbal", 2, ["сад", "квітка", "ручка", "ваза"], 1),
           puzzle("lg-30", "Продовжіть послідовність квадратів: 1, 4, 9, 16, ?", "sequence", 2, ["20", "25", "36", "18"], 1, "Квадрати"),
-        ]),
+        ], "Mixed 2"),
         lesson("mix-3", "Мікс 3", 4, false, [
           puzzle("lg-31", "Правило перетворює (2,3) на 10, (3,4) на 21, а (4,5) на 36. За правилом перше × (перше + друге) знайдіть результат для (5,6).", "pattern", 4, ["45", "51", "55", "61"], 2, "Помножте перше число на суму обох."),
           puzzle("lg-32", "Продовжіть, множачи на послідовні цілі числа: 1, 2, 6, 24, ?", "sequence", 4, ["48", "96", "120", "100"], 2, "×2 ×3 ×4 ×5"),
-        ]),
+        ], "Mixed 3"),
         lesson("mix-4", "Мікс 4", 4, false, [
           puzzle(
             "lg-33",
@@ -288,7 +296,7 @@ export const logicContent: CourseContent = {
             ["0°", "7.5°", "15°", "30°"],
             1,
           ),
-        ]),
+        ], "Mixed 4"),
         lesson("mix-5", "Фінал логіки", 5, false, [
           puzzle("lg-35", "Продовжіть, додаючи послідовні парні числа: 2, 6, 12, 20, 30, ?", "sequence", 4, ["40", "42", "44", "36"], 1, "+4 +6 +8 +10 +12"),
           puzzle(
@@ -308,15 +316,15 @@ export const logicContent: CourseContent = {
             ["16", "13", "11", "10"],
             1,
           ),
-        ]),
+        ], "Logic Finale"),
         lesson("mix-6", "Мікс 5", 4, false, [
           puzzle("lg-39", "Продовжіть, подвоюючи та додаючи одиницю: 1, 3, 7, 15, 31, ?", "sequence", 4, ["63", "62", "47", "33"], 0, "*2+1"),
           puzzle("lg-40", "Що з цього не є музичним інструментом?", "odd_one", 2, ["скрипка", "гітара", "барабан", "молоток"], 3),
-        ]),
+        ], "Mixed 5"),
         lesson("mix-7", "Мікс 6", 4, false, [
           puzzle("lg-41", "Книга має розділи. Як називаються 12 іменованих частин календарного року?", "verbal", 2, ["годинники", "години", "місяці", "хвилини"], 2),
           puzzle("lg-42", "Продовжіть послідовність квадратів: 9, 16, 25, 36, ?", "sequence", 2, ["45", "49", "64", "40"], 1, "Квадрати"),
-        ]),
+        ], "Mixed 6"),
         lesson("mix-8", "Силогізми", 4, false, [
           puzzle(
             "lg-43",
@@ -334,11 +342,11 @@ export const logicContent: CourseContent = {
             ["не собака", "собака", "птах", "невідомо"],
             0,
           ),
-        ]),
+        ], "Syllogisms"),
         lesson("mix-9", "Числові патерни", 5, false, [
           puzzle("lg-45", "Продовжіть, подвоюючи та додаючи одиницю: 2, 5, 11, 23, ?", "sequence", 5, ["47", "46", "45", "48"], 0, "*2+1"),
           puzzle("lg-46", "Продовжіть, подвоюючи та додаючи одиницю: 4, 9, 19, 39, ?", "sequence", 5, ["79", "78", "80", "59"], 0, "*2+1"),
-        ]),
+        ], "Number Patterns"),
         lesson("mix-10", "Фінал+", 5, false, [
           puzzle("lg-47", "Якщо A > B і B > C, то A ? C", "verbal", 2, [">", "<", "=", "невідомо"], 0),
           puzzle("lg-48", "Продовжіть ділення навпіл: 1/2, 1/4, 1/8, ?", "sequence", 3, ["1/10", "1/16", "1/12", "1/6"], 1),
@@ -351,7 +359,7 @@ export const logicContent: CourseContent = {
             0,
           ),
           puzzle("lg-50", "Продовжіть, віднімаючи послідовні цілі числа: 12, 11, 9, 6, 2, ?", "sequence", 4, ["-3", "-1", "0", "1"], 0, "-1-2-3-4-5"),
-        ]),
+        ], "Finale+"),
       ],
     },
     {
@@ -1141,6 +1149,52 @@ export const logicContent: CourseContent = {
                 "Ігнорувати відтворюваний тест-кейс",
               ],
               correctIndex: 0,
+              optionsEn: [
+                "Each test halves the suspect change space instead of guessing sequentially",
+                "Checking only the newest commit without a baseline",
+                "Changing 5 files at once between tests",
+                "Ignoring a reproducible test case",
+              ],
+            },
+            {
+              id: "lg-dbg-e3",
+              type: "logic_puzzle",
+              promptUk: "Чому твердження ¬(A ∧ B) еквівалентне (¬A ∨ ¬B) за законом де Моргана?",
+              promptEn: "By De Morgan's law, what is ¬(A ∧ B) logically equivalent to?",
+              category: "logic",
+              difficulty: 4,
+              options: [
+                "¬A ∨ ¬B",
+                "¬A ∧ ¬B",
+                "A ∨ B",
+                "A ∧ ¬B",
+              ],
+              correctIndex: 0,
+              explanationUk: "Заперечення кон'юнкції («неправда, що обидва істинні») означає, що принаймні один хибний: ¬A ∨ ¬B.",
+              explanationEn: "Negating a conjunction ('not both true') means at least one is false: ¬A ∨ ¬B.",
+            },
+            {
+              id: "lg-dbg-e4",
+              type: "logic_puzzle",
+              promptUk: "Якщо з «A → B» відомо, що «B хибне (¬B)», який висновок логічно обов'язковий (modus tollens)?",
+              promptEn: "Given A → B and ¬B, what conclusion follows by modus tollens?",
+              category: "deduction",
+              difficulty: 4,
+              options: [
+                "¬A (A хибне)",
+                "A істинне",
+                "B істинне",
+                "Нічого не випливає",
+              ],
+              optionsEn: [
+                "¬A (A is false)",
+                "A is true",
+                "B is true",
+                "Nothing follows",
+              ],
+              correctIndex: 0,
+              explanationUk: "Якби A було істинним, то за A → B мало б бути істинним і B, але ¬B — отже ¬A.",
+              explanationEn: "If A were true then B would have to be true by A → B; since ¬B holds, ¬A must hold.",
             },
           ],
         },

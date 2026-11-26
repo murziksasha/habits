@@ -16,10 +16,11 @@
     "dev": "tsc --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "lint": "echo ok"
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
+    "@vitest/coverage-v8": "3.2.7",
     "typescript": "^5.8.3",
     "vitest": "^3.1.1"
   }

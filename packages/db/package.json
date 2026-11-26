@@ -19,21 +19,21 @@
     "seed": "tsx src/seed.ts",
     "content:sync": "tsx src/sync-content.ts",
     "studio": "drizzle-kit studio",
-    "test": "tsx --test src/seed-flashcards.test.ts src/labs-manifest.test.ts",
-    "typecheck": "tsc --noEmit",
-    "lint": "echo ok"
+    "test": "tsx --test src/admin-password.test.ts src/seed-flashcards.test.ts src/labs-manifest.test.ts ../../scripts/db/migrations.test.mjs",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@eduforge/content": "workspace:*",
     "@eduforge/shared": "workspace:*",
+    "@opentelemetry/api": "^1.10.0",
     "bcryptjs": "^3.0.2",
-    "drizzle-orm": "^0.41.0",
+    "drizzle-orm": "^0.45.4",
     "postgres": "^3.4.5"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.14.0",
-    "drizzle-kit": "^0.30.6",
+    "drizzle-kit": "^0.31.11",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3"
   }

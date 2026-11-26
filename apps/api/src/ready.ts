@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { db } from "./db.js";
-import { getRedis } from "./redis.js";
+import { getRedisClient } from "./redis.js";
 
 export type ReadyStatus = {
   ok: boolean;
@@ -25,7 +25,7 @@ export async function checkReady(): Promise<ReadyStatus> {
   const redisUrl = process.env.REDIS_URL;
   let redis: boolean | "skipped" = "skipped";
   if (redisUrl) {
-    const client = getRedis();
+    const client = getRedisClient();
     if (!client) {
       redis = false;
     } else {

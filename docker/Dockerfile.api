@@ -1,5 +1,7 @@
 FROM node:22-alpine AS base
-RUN corepack enable && corepack prepare pnpm@11.22.0 --activate
+# Shared location so the non-root `node` user (tools stage) can run pnpm too.
+ENV COREPACK_HOME=/usr/local/share/corepack
+RUN corepack enable && corepack prepare pnpm@11.22.0 --activate && chmod -R a+rX /usr/local/share/corepack
 WORKDIR /app
 
 FROM base AS deps
@@ -18,19 +20,55 @@ FROM deps AS build
 COPY packages ./packages
 COPY apps/api ./apps/api
 COPY turbo.json ./
-RUN pnpm --filter @eduforge/shared build \
- && pnpm --filter @eduforge/circuit-engine build \
- && pnpm --filter @eduforge/content build \
- && pnpm --filter @eduforge/chess-core build \
- && pnpm --filter @eduforge/db build \
- && pnpm --filter @eduforge/judge build \
- && pnpm --filter @eduforge/api build
+# One turbo run: api and its workspace dependencies, each built once in graph order.
+RUN pnpm exec turbo run build --filter=@eduforge/api...
 
-FROM base AS runner
+# Production-only copy of the API: its dist, prod node_modules and the built
+# workspace packages (db keeps drizzle/ for instance backups). ~115 MB instead of
+# the whole monorepo with dev dependencies.
+FROM build AS deploy
+RUN pnpm deploy --legacy --filter @eduforge/api --prod /out
+
+# DB tools (migrate/seed use tsx + drizzle-kit, i.e. dev dependencies):
+# docker compose --profile tools run --rm migrate
+FROM build AS tools
+RUN chown -R node:node /app
+USER node
+CMD ["pnpm", "--filter", "@eduforge/db", "migrate"]
+
+# Stockfish 19 for post-game analysis (STOCKFISH_PATH). Built from the pinned official
+# source tarball because Alpine has no stable package and the official Linux binaries
+# are glibc-linked (they do not run on musl, not even with gcompat).
+# Same base as the runner so the engine links against the same musl and libstdc++.
+FROM node:22-alpine AS stockfish
+ARG TARGETARCH
+ARG STOCKFISH_TAG=sf_19
+ARG STOCKFISH_SHA256=519b653d0d1ffb96531d982ccbe5c6a19425e8388e0e3c2f70f34b424ab32d76
+RUN apk add --no-cache g++ make curl
+WORKDIR /src
+RUN curl -fsSL -o sf.tar.gz "https://github.com/official-stockfish/Stockfish/archive/refs/tags/${STOCKFISH_TAG}.tar.gz" \
+ && echo "${STOCKFISH_SHA256}  sf.tar.gz" | sha256sum -c - \
+ && tar xzf sf.tar.gz --strip-components=1 \
+ && case "${TARGETARCH:-amd64}" in \
+      amd64) SF_ARCH=x86-64-sse41-popcnt ;; \
+      arm64) SF_ARCH=armv8 ;; \
+      *) echo "unsupported arch ${TARGETARCH}" && exit 1 ;; \
+    esac \
+ && make -C src -j"$(nproc)" build ARCH="${SF_ARCH}" \
+ && install -m 0755 src/stockfish /usr/local/bin/stockfish
+
+FROM node:22-alpine AS runner
 ENV NODE_ENV=production
-COPY --from=build /app /app
+# libstdc++ ships with node:alpine; add it explicitly so the engine never loses it.
+RUN apk add --no-cache libstdc++
+COPY --from=stockfish /usr/local/bin/stockfish /usr/local/bin/stockfish
+ENV STOCKFISH_PATH=/usr/local/bin/stockfish
 WORKDIR /app
+COPY --from=deploy --chown=node:node /out /app
+# Instance backups volume: created here so a fresh named volume inherits node ownership.
+RUN mkdir -p /data/backups && chown node:node /data/backups
+USER node
 EXPOSE 4000
 HEALTHCHECK --interval=10s --timeout=5s --retries=10 --start-period=20s \
   CMD node -e "fetch('http://127.0.0.1:4000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
-CMD ["pnpm", "--filter", "@eduforge/api", "start"]
+CMD ["node", "dist/index.js"]

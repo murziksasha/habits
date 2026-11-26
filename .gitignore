@@ -13,3 +13,7 @@ apps/api/data/
 *.tsbuildinfo
 __pycache__/
 *.py[cod]
+
+# Postgres dumps (scripts/db/pg-backup.sh) must never be committed
+*.dump
+*.dump.partial

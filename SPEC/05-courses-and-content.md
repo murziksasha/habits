@@ -61,7 +61,9 @@ CMS-owned courses are not overwritten. See SPEC 72 for publish gates and SPEC 93
 | `rsvp` | `completed: true` | Speed reading |
 | `comprehension` | ≥ 50% questions correct | Speed reading |
 | `logic_puzzle` | `correctIndex` | Logic |
-| `chess_puzzle` | Complete authored SAN sequence, checked by the server | Chess |
+| `chess_puzzle` | Learner plies of the authored line (opponent plies auto-played); any mate counts, offline-QA `acceptedAlternatives` / `alternativeLines` accepted; promotion piece chosen by the learner. Server replays and grades. | Chess |
+| `chess_plan` | `correctIndex` over exactly 3 `choices` (`{ san, explanationUk, explanationEn }`); Stockfish-verified: correct ≤ 40 cp from best, wrong ≥ 80 cp worse | Chess |
+| `chess_endgame_drill` | `{ fen, goal: win \| draw \| promote, maxMoves }` — the learner plays the position out against the bot (Web Worker). Answer `{ sans }` = the whole game; the server replays it and `checkEndgameGoal` judges by rules only (mate, promotion, stalemate / threefold / insufficient / 50-move, move limit). Success 15 XP (10 with a hint), failure 0 XP and SRS. | Chess |
 | `chess_lesson` | optional quiz MCQ | Chess |
 | `code_read` | snippet + `correctIndex` | Programming |
 | `code_output` | MCQ or accepted text | Programming |
@@ -95,5 +97,27 @@ Hearts are a shared practice counter (5, then regen). Running out of hearts does
 After seed:
 
 - Email: `admin@eduforge.ua` (override `ADMIN_EMAIL`)  
-- Password: `admin12345` (override `ADMIN_PASSWORD`)  
+- Password: `ADMIN_PASSWORD` — required, no default; production refuses short/published passwords  
 - Role: `admin`, plan: `free`  
+
+
+## Chess content QA (deep upgrade)
+
+- Overlay `packages/content/src/chess-upgrade/` is applied last in the chess pipeline: in-place fixes (`fixes.ts`), plan conversions (`plans.ts`), authored annotations (`annotations.ts`), Lichess real-game replacements and additions (`expansion/chess-lichess.generated.ts`, CC0, ids `ch-li-<PuzzleId>`). Exercise ids never change.
+- Offline QA: `pnpm chess:qa` (Stockfish, one process per position) writes `packages/content/src/chess-qa.generated.ts`. The vitest gate `chess-qa.test.ts` fails on stale hashes, unwaived flags (`CHESS_QA_WAIVERS`) and repeated positions without `reviewOf`.
+- Lichess import: `pnpm chess:import` (needs the filtered CSV from `scripts/chess-import/lichess-filter.mjs`); lesson → theme map in `scripts/chess-import/lesson-theme-map.mjs`.
+- Top-ups: targets with `tag: "top"` add puzzles to a lesson without re-picking its earlier ones (`node scripts/chess-import/lichess-select.mjs --only "a:<lesson>#top,…"`).
+- Curve gates (phase 4): every practice lesson in tactics / mates / endgame units has 4–6 puzzles (concept-only lessons are exempt; `mate-in-1-a` keeps its 7 legacy items), and the mean puzzle rating of those units does not drop by more than 50 inside a `COURSE_PARTS` part.
+
+### Sources and attribution
+
+- **Lichess puzzles** — [database.lichess.org](https://database.lichess.org/#puzzles), released under **CC0 1.0**. Attribution is not required, but every imported item keeps `source: { kind: "lichess", lichessId, gameUrl }` and the puzzle UI shows "Задача з бази Lichess / Lichess puzzle database" with a link to the game.
+- **Famous games** — positions are generated from full game scores in `packages/content/src/chess-upgrade/famous-games.ts` (Anderssen–Kieseritzky 1851, Anderssen–Dufresne 1852, Morphy–Brunswick & Isouard 1858, Greco 1620, Lasker–Bauer 1889, D. Byrne–Fischer 1956, Fischer–Spassky 1972 g6, Karpov–Unzicker 1974, Kasparov–Topalov 1999). The test replays each game with chess.js and checks that the course FEN and solution line match the game exactly. Game scores are historical facts and are not copyrighted; the course credits players, year and event in `source`.
+- **Composed studies** — Saavedra (1895) is credited as `source.kind: "composed"`.
+- Other positions are original teaching positions written for the course.
+
+### Endgame drills (phase 6)
+
+- 18 drills in `packages/content/src/chess-upgrade/endgame-drills.ts` (ids `ch-eg-*`), appended to lessons of `endgames-intro`, `ch-deep-kp-theory`, `ch-deep-rook-theory`, `ch-deep-minor-end`: 10 win/promote (opposition ×3, Lucena ×2, KBN ×2, KQ, KR, queen vs pawn) and 8 hold (Philidor ×2, Vancura ×2, rook pawn, wrong bishop, c-pawn fortress, opposite bishops).
+- `node scripts/chess-qa/endgame-drill-qa.mjs --depth 30` (after `pnpm --filter @eduforge/content build`) writes `chess-endgame-qa.generated.ts`; the gate `chess-endgame-drills.test.ts` requires win ≥ +500 cp or mate and draw within ±80 cp, and fails when a FEN changes without a re-run.
+- No tablebase: "losing the win" is judged by state only (rules draw or move limit).

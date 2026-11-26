@@ -1214,6 +1214,8 @@ export type ExerciseType =
   | "logic_puzzle"
   | "chess_puzzle"
   | "chess_lesson"
+  | "chess_plan"
+  | "chess_endgame_drill"
   | "code_read"
   | "code_output"
   | "code_fill"

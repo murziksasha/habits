@@ -194,7 +194,7 @@ adminRoutes.get("/courses/:slug/tree", async (c) => {
 });
 
 const lessonUpsertSchema = z.object({
-  unitId: z.string().uuid().optional(),
+  unitId: z.string().guid().optional(),
   slug: z.string().min(1).max(64).optional(),
   titleUk: z.string().min(1).max(128),
   titleEn: z.string().max(128).optional(),
@@ -204,7 +204,7 @@ const lessonUpsertSchema = z.object({
   isFree: z.boolean().optional(),
   isExam: z.boolean().optional(),
   passThreshold: z.number().min(0).max(1).nullable().optional(),
-  exercises: z.array(z.record(z.unknown())).optional(),
+  exercises: z.array(z.record(z.string(), z.unknown())).optional(),
 });
 
 const courseCreateSchema = z.object({
@@ -380,8 +380,8 @@ adminRoutes.post("/lessons", async (c) => {
   const actor = c.get("user");
   const body = await c.req.json().catch(() => null);
   const parsed = lessonUpsertSchema.extend({
-    unitId: z.string().uuid(),
-    courseId: z.string().uuid(),
+    unitId: z.string().guid(),
+    courseId: z.string().guid(),
     slug: z.string().min(1).max(64),
   }).safeParse(body);
   if (!parsed.success) return c.json({ error: "invalid_input", details: parsed.error.flatten() }, 400);
@@ -461,7 +461,7 @@ adminRoutes.post("/lessons/reorder", async (c) => {
   const body = await c.req.json().catch(() => null);
   const parsed = z
     .object({
-      items: z.array(z.object({ id: z.string().uuid(), sortOrder: z.number().int() })).min(1),
+      items: z.array(z.object({ id: z.string().guid(), sortOrder: z.number().int() })).min(1),
     })
     .safeParse(body);
   if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
@@ -508,7 +508,7 @@ adminRoutes.get("/lessons/:id", async (c) => {
 });
 
 const unitSchema = z.object({
-  courseId: z.string().uuid(),
+  courseId: z.string().guid(),
   slug: z.string().min(1).max(64),
   titleUk: z.string().min(1).max(128),
   titleEn: z.string().max(128).optional(),
@@ -600,7 +600,7 @@ adminRoutes.post("/units/reorder", async (c) => {
   const body = await c.req.json().catch(() => null);
   const parsed = z
     .object({
-      items: z.array(z.object({ id: z.string().uuid(), sortOrder: z.number().int() })).min(1),
+      items: z.array(z.object({ id: z.string().guid(), sortOrder: z.number().int() })).min(1),
     })
     .safeParse(body);
   if (!parsed.success) return c.json({ error: "invalid_input" }, 400);

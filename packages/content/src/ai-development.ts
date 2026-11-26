@@ -102,7 +102,66 @@ const taskSpecs = unit(
           "Відсутність опису помилок",
         ],
         0,
+        why(
+          "Лише поєднання читання дифу й запуску поведінкових тестів на авторизацію, межі та контракти доводить відповідність специфікації.",
+          "Only diff review combined with behavioral tests for auth, boundaries, and preserved contracts proves the spec is met.",
+        ),
       ), optionsEn: ["Review the changes and test behavior, authorization, and preserved contracts","Trust the assistant without running checks","Use a large diff regardless of content","Omit error descriptions"] }),
+      ({ ...mcq(
+        "ai-ts-e2",
+        "Який елемент обов'язково вказувати в розділі «Non-Goals / Invariants»?",
+        "What belongs in the Non-Goals / Invariants section of an AI task spec?",
+        [
+          "Контракти помилок, правила доступу та модулі, які не можна змінювати",
+          "Колір теми редактора розробника",
+          "Історію всіх старих комітів за рік",
+          "Паролі до продакшн-бази даних",
+        ],
+        0,
+        why(
+          "Явні інваріанти не дають AI-асистенту мовчки зламати формат відповідей або права доступу.",
+          "Explicit invariants prevent the AI assistant from silently breaking error shapes or access rules.",
+        ),
+      ), optionsEn: [
+        "Error contracts, access rules, and modules that must remain untouched",
+        "The developer's editor color theme",
+        "A full year of git commit history",
+        "Production database passwords",
+      ] }),
+      ({ ...mcq(
+        "ai-ts-e3",
+        "Що робити, якщо вимога в задачі неоднозначна (наприклад, не вказано код помилки при порожньому списку)?",
+        "What should you do when a requirement is ambiguous (e.g., empty-list response status is unspecified)?",
+        [
+          "З'ясувати або зафіксувати явне припущення до генерації коду",
+          "Дозволити моделі самій змінити всі статуси в проєкті",
+          "Пропустити написання тестів для цього маршруту",
+          "Захардкодити 500 Internal Server Error",
+        ],
+        0,
+        why(
+          "Фіксація припущень до реалізації робить поведінку передбачуваною й легкою для перевірки.",
+          "Recording or resolving assumptions before coding keeps behavior predictable and testable.",
+        ),
+      ), optionsEn: [
+        "Resolve it or record an explicit assumption before generating code",
+        "Let the model change all status codes across the project",
+        "Skip writing tests for that route",
+        "Hardcode 500 Internal Server Error",
+      ] }),
+      codeFill(
+        "ai-ts-e4",
+        "Заповніть пропуск: очікуваний HTTP-статус для неавторизованого запиту в критеріях приймання",
+        "Fill in the expected HTTP status for an unauthenticated request in acceptance criteria",
+        "ts",
+        "expect(res.status).toBe(___); // unauthenticated request",
+        ["401"],
+        true,
+        why(
+          "Неавторизований запит (без валідної сесії) має повертати 401.",
+          "An unauthenticated request without a valid session should return 401.",
+        ),
+      ),
     ]),
   ],
 );
@@ -166,7 +225,74 @@ const contextSelection = unit(
           "Перетворити секрети в Base64 (Base64 легко декодується і не є шифруванням!)",
         ],
         0,
+        why(
+          "Зовнішні сервіси не повинні отримувати секрети, токени чи персональні дані користувачів.",
+          "External services must never receive secrets, tokens, or personal user data.",
+        ),
       ), optionsEn: ["Check authorization and processing terms, minimize data, and remove secrets and private data", "Copy the raw .env for maximum accuracy", "Add private SSH keys", "Convert secrets to Base64, which is easily decoded and is not encryption"] }),
+      ({ ...mcq(
+        "ai-cs-e2",
+        "Який набір файлів дає найвищий сигнал при виправленні валідації в маршруті Express?",
+        "Which file set gives the highest signal when fixing validation in an Express route?",
+        [
+          "Сам маршрут, його Zod-схема, формат помилок і релевантний тест",
+          "Весь каталог `node_modules` і збірка `dist/`",
+          "Тільки `README.md` і `.gitignore`",
+          "Скриншот консолі без тексту помилки",
+        ],
+        0,
+        why(
+          "Контракти (Zod-схема), реалізація маршруту та тест дають точний контекст без шуму.",
+          "Contracts (Zod schema), route implementation, and the relevant test give exact context without noise.",
+        ),
+      ), optionsEn: [
+        "The route itself, its Zod schema, error envelope, and the relevant test",
+        "The entire `node_modules` and `dist/` build output",
+        "Only `README.md` and `.gitignore`",
+        "A console screenshot without error text",
+      ] }),
+      ({ ...mcq(
+        "ai-cs-e3",
+        "Чому вставка гігантського lockfile або мініфікованого бандла шкодить якості відповіді?",
+        "Why does pasting a huge lockfile or minified bundle degrade answer quality?",
+        [
+          "Зайвий шум витісняє релевантні контракти й збільшує шанс галюцинацій",
+          "Це прискорює виконання тестів у 10 разів",
+          "Модель автоматично запускає `pnpm install`",
+          "Lockfile містить паролі адміністратора",
+        ],
+        0,
+        why(
+          "Високий рівень шуму в контексті розмиває увагу моделі та приховує ключові обмеження.",
+          "High context noise dilutes attention and obscures key constraints.",
+        ),
+      ), optionsEn: [
+        "Excess noise crowds out relevant contracts and increases hallucination risk",
+        "It speeds up test execution by 10x",
+        "The model automatically runs `pnpm install`",
+        "Lockfiles contain admin passwords",
+      ] }),
+      ({ ...mcq(
+        "ai-cs-e4",
+        "Як безпечно передати структуру конфіга в промпт, не розкриваючи реальних ключів?",
+        "How do you safely share a config structure in a prompt without exposing real keys?",
+        [
+          "Використати плейсхолдери на кшталт `DATABASE_URL=<redacted>` із `.env.example`",
+          "Замінити кожен символ ключа на Base64",
+          "Надіслати реальний `.env`, але попросити модель забути його",
+          "Перейменувати `.env` у `.txt`",
+        ],
+        0,
+        why(
+          "Плейсхолдери зберігають форму конфіга без ризику витоку секретів.",
+          "Placeholders preserve config shape without risking credential leakage.",
+        ),
+      ), optionsEn: [
+        "Use placeholders like `DATABASE_URL=<redacted>` from `.env.example`",
+        "Base64-encode every character of the key",
+        "Send the real `.env` and ask the model to forget it",
+        "Rename `.env` to `.txt`",
+      ] }),
     ]),
   ],
 );
@@ -264,7 +390,71 @@ const smallDiffsReview = unit(
           "Він видаляє git-історію автоматично",
         ],
         0,
+        why(
+          "Охайний синтаксис не гарантує перевірки прав доступу, 404 або обробки помилок.",
+          "Clean syntax does not guarantee authorization checks, 404 handling, or error propagation.",
+        ),
       ), optionsEn: ["It can pass a superficial review while breaking edge cases or authorization or inventing API guarantees","It always has a syntax error on the first line","It never compiles","It automatically deletes Git history"] }),
+      ({ ...mcq(
+        "ai-sd-e2",
+        "Який ризик несе `catch { return { ok: true, items: [] }; }` у згенерованому сервісі?",
+        "What risk does `catch { return { ok: true, items: [] }; }` introduce in a generated service?",
+        [
+          "Приховує реальний збій БД/мережі під виглядом успішної відповіді",
+          "Забороняє використання `async/await`",
+          "Збільшує розмір CSS-бандла",
+          "Автоматично перезапускає сервер",
+        ],
+        0,
+        why(
+          "Тихе проковтування помилок маскує втрату даних та ускладнює діагностику інцидентів.",
+          "Silent error swallowing masks data loss and makes incident debugging far harder.",
+        ),
+      ), optionsEn: [
+        "It hides a real DB/network failure behind a fake success response",
+        "It forbids using `async/await`",
+        "It increases CSS bundle size",
+        "It automatically restarts the server",
+      ] }),
+      ({ ...mcq(
+        "ai-sd-e3",
+        "Чому варто розбивати велику AI-задачу на малі інкременти з тестом на кожному кроці?",
+        "Why split a large AI task into small increments with a check at each step?",
+        [
+          "Легше локалізувати регресію й відкотити побічну зміну до того, як вона заплутає весь diff",
+          "Тому що Git не підтримує більше одного файлу в коміті",
+          "Щоб вимкнути перевірку типів",
+          "Щоб збільшити кількість конфліктів злиття",
+        ],
+        0,
+        why(
+          "Малі інкременти з проміжними тестами спрощують рев'ю та ізолюють побічні ефекти.",
+          "Small increments with intermediate tests simplify review and isolate side effects.",
+        ),
+      ), optionsEn: [
+        "It is easier to pinpoint regressions and revert drive-by edits before they tangle the diff",
+        "Because Git does not support more than one file per commit",
+        "To disable typechecking",
+        "To increase merge conflicts",
+      ] }),
+      ({ ...codeRead(
+        "ai-sd-e4",
+        "Яка вразливість є в рядку `await db.update(tasks).set(req.body).where(eq(tasks.id, id))`?",
+        "Which vulnerability is present in `await db.update(tasks).set(req.body).where(eq(tasks.id, id))`?",
+        "ts",
+        "await db.update(tasks).set(req.body).where(eq(tasks.id, id));",
+        [
+          "Mass assignment і відсутність перевірки власника (IDOR)",
+          "Синтаксична помилка в `await`",
+          "Неправильний імпорт `db`",
+          "Відсутність `console.log`",
+        ],
+        0,
+        why(
+          "Потрібно валідувати дозволені поля через Zod і фільтрувати за власником у `where`.",
+          "You must whitelist fields via Zod and scope the `where` clause to the owner.",
+        ),
+      ), optionsEn: ["Mass assignment and missing ownership check (IDOR)", "Syntax error in `await`", "Wrong `db` import", "Missing `console.log`"] }),
     ]),
   ],
 );
@@ -337,7 +527,74 @@ const verificationDebugging = unit(
           "Вимкнути lockfile перевірку",
         ],
         0,
+        why(
+          "Моделі інколи вигадують назви пакетів, якими можуть скористатися зловмисники (slopsquatting).",
+          "Models sometimes hallucinate package names that attackers can register (slopsquatting).",
+        ),
       ), optionsEn: ["Check whether the package exists and is authentic, needed, maintained, and appropriately licensed", "Install immediately with --force without reading the README", "Copy a token into the dependency", "Disable lockfile checks"] }),
+      ({ ...mcq(
+        "ai-vd-e2",
+        "Чому тест `expect(await Promise.resolve(true)).toBe(true)` не доводить, що rate limiter працює?",
+        "Why does `expect(await Promise.resolve(true)).toBe(true)` fail to prove a rate limiter works?",
+        [
+          "Він перевіряє захардкоджену константу і ніколи не викликає реальний код маршруту чи лімітера",
+          "Vitest не підтримує `Promise.resolve`",
+          "`toBe(true)` працює лише для чисел",
+          "Rate limiter неможливо тестувати автоматично",
+        ],
+        0,
+        why(
+          "Тавтологічний тест завжди зелений, навіть якщо весь rate limiter видалити.",
+          "A tautological test stays green even if the rate limiter is completely deleted.",
+        ),
+      ), optionsEn: [
+        "It asserts a hardcoded constant and never exercises the real route or limiter code",
+        "Vitest does not support `Promise.resolve`",
+        "`toBe(true)` only works for numbers",
+        "Rate limiters cannot be tested automatically",
+      ] }),
+      ({ ...mcq(
+        "ai-vd-e3",
+        "Як перевірити, чи реально існує метод або прапорець бібліотеки, запропонований AI?",
+        "How do you verify whether a library method or flag suggested by AI actually exists?",
+        [
+          "Звірити з установленою версією у `package.json`, типами TypeScript та офіційною документацією/кодом",
+          "Повірити впевненому тону пояснення в чаті",
+          "Запитати ту саму модель ще раз без коду",
+          "Вимкнути `tsc --noEmit`",
+        ],
+        0,
+        why(
+          "Фактична перевірка типів і вихідного коду/документації встановленої версії виявляє вигадані API одразу.",
+          "Checking types and docs/source of the installed version catches hallucinated APIs immediately.",
+        ),
+      ), optionsEn: [
+        "Check against the installed version in `package.json`, TypeScript types, and official docs/source",
+        "Trust the confident tone of the chat explanation",
+        "Ask the same model again without checking code",
+        "Disable `tsc --noEmit`",
+      ] }),
+      ({ ...mcq(
+        "ai-vd-e4",
+        "Що потрібно чесно зафіксувати у звіті після перевірки AI-зміни?",
+        "What should you state honestly in your verification report after checking an AI change?",
+        [
+          "Які саме команди/тести запускалися і які інтеграції чи середовища не перевірялися",
+          "Написати «все працює на 100%», навіть якщо БД не запускалася",
+          "Приховати пропущені тести",
+          "Вказати лише назву моделі",
+        ],
+        0,
+        why(
+          "Прозоре розмежування перевіреного й неперевіреного запобігає хибній впевненості перед релізом.",
+          "Clearly separating verified behavior from untested boundaries prevents false confidence before release.",
+        ),
+      ), optionsEn: [
+        "Which exact commands/tests ran and which integrations or environments were not tested",
+        "Claim 'everything works 100%' even when the DB was not running",
+        "Hide skipped tests",
+        "Report only the model name",
+      ] }),
     ]),
   ],
 );
@@ -448,6 +705,10 @@ const privacyDepsCapstone = unit(
         "Always keep AI-assisted changes ___ and test-verified.",
         ["small", "focused"],
         false,
+        why(
+          "Невеликий сфокусований diff легко прорев'юїти і перевірити тестами.",
+          "A small, focused diff is easy to review and verify with tests.",
+        ),
       ),
       ({ ...mcq(
         "ai-pd-e2",
@@ -460,7 +721,53 @@ const privacyDepsCapstone = unit(
           "Наявність довгих коментарів без логіки",
         ],
         0,
+        why(
+          "Тест, що відтворює баг і падає до виправлення, доводить, що перевіряється саме потрібна поведінка.",
+          "A test that reproduces the bug and fails before the fix proves it actually verifies the fix.",
+        ),
       ), optionsEn: ["A test that fails on the bug and passes after the fix, plus review of the changed lines", "The model's assurance that everything is perfect", "No red editor underlines without running tests", "Long comments without logic"] }),
+      ({ ...mcq(
+        "ai-pd-e3",
+        "Хто відповідає за безпеку, ліцензійну чистоту та коректність коду, злитого у main із допомогою AI?",
+        "Who is accountable for security, licensing, and correctness of AI-assisted code merged into main?",
+        [
+          "Автор PR і рев'ювери команди",
+          "Автоматично постачальник LLM-моделі",
+          "Лише система CI без людей",
+          "Ніхто, якщо в описі PR вказано, що код згенеровано",
+        ],
+        0,
+        why(
+          "Інструмент генерації не несе інженерної відповідальності — за злитий код відповідають автор і рев'ювери.",
+          "A code generator carries no engineering accountability; the PR author and reviewers own merged code.",
+        ),
+      ), optionsEn: [
+        "The PR author and team reviewers",
+        "Automatically the LLM provider",
+        "Only CI without human review",
+        "Nobody, if the PR description says the code was generated",
+      ] }),
+      ({ ...mcq(
+        "ai-pd-e4",
+        "Що потрібно перевірити перед додаванням нової npm-залежності, запропонованої моделлю?",
+        "What must you check before adding a new npm dependency suggested by a model?",
+        [
+          "Чи справді вона потрібна, точну назву, репутацію/підтримку, ліцензію та install-скрипти",
+          "Лише кількість зірок на випадковому форку",
+          "Чи містить вона слово `ai` у назві",
+          "Встановити з `--ignore-scripts=false` без перегляду",
+        ],
+        0,
+        why(
+          "Перевірка потреби, походження, ліцензії та підтримки захищає від slopsquatting і проблем із постачанням.",
+          "Checking necessity, provenance, license, and maintenance protects against slopsquatting and supply-chain risks.",
+        ),
+      ), optionsEn: [
+        "Whether it is truly needed, exact package name, maintenance/provenance, license, and install scripts",
+        "Only the star count of a random fork",
+        "Whether its name contains `ai`",
+        "Install it blindly without inspecting anything",
+      ] }),
     ]),
   ],
 );
@@ -629,7 +936,24 @@ const coderControl = unit(
             "Вимкнути перевірку типів",
           ],
           0,
+          why(
+            "Відкат непов'язаних змін зберігає чисту історію та зменшує ризик зламати інші виклики.",
+            "Reverting unrelated edits keeps history clean and avoids breaking callers.",
+          ),
         ), optionsEn: ["Remove unrelated refactoring and keep the focused fix and regression test","Commit everything as wip","Delete the test that caught the rename","Disable typechecking"] }),
+        codeFill(
+          "ai-cc-e4",
+          "Яка частина контекстного пакета задає незмінні правила (права доступу, формат помилок)?",
+          "Which section of a context packet specifies rules that must not break (auth, error shape)?",
+          "text",
+          "Context packet sections: Goal, Files, ___, Check.",
+          ["Invariants"],
+          false,
+          why(
+            "Інваріанти фіксують контракти, які повинні залишатися незмінними.",
+            "Invariants lock down contracts that must remain unchanged.",
+          ),
+        ),
       ],
     ),
   ],

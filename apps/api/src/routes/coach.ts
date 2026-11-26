@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { authMiddleware, type AuthedUser } from "../auth.js";
 import { getCoachHint } from "../stockfish-coach.js";
-import { clientIp, rateLimit } from "../rate-limit.js";
+import { rateLimit, requestClientIp } from "../rate-limit.js";
 
 type Vars = { user: AuthedUser };
 
@@ -14,7 +14,7 @@ const hintSchema = z.object({
 });
 
 coachRoutes.post("/hint", authMiddleware, async (c) => {
-  const ip = clientIp({ get: (n) => c.req.header(n) ?? null });
+  const ip = requestClientIp(c);
   const rl = await rateLimit({ key: `coach:${ip}`, limit: 60, windowMs: 60_000 });
   if (!rl.ok) return c.json({ error: "rate_limited", retryAfterSec: rl.retryAfterSec }, 429);
 

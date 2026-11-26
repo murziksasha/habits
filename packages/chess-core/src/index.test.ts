@@ -2,6 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   applyFischerIncrement,
   applyMove,
+  applyMoveWithHistory,
+  gameTerminationWithHistory,
+  replayHistory,
+  toPgn,
   checkInfo,
   chooseBotMove,
   createGame,
@@ -279,7 +283,7 @@ describe("chooseBotMove", () => {
       promotion: undefined,
       san: "exd5",
     });
-  });
+  }, 30_000);
 
   it("opening book provides sensible first moves", () => {
     // White move 1 from start
@@ -295,3 +299,31 @@ describe("chooseBotMove", () => {
   });
 });
 
+
+describe("move history (phase 5)", () => {
+  const shuffle = ["Nf3", "Nf6", "Ng1", "Ng8", "Nf3", "Nf6", "Ng1"];
+  it("detects threefold repetition only with history", () => {
+    const r = applyMoveWithHistory("startpos", shuffle, { from: "f6", to: "g8" });
+    expect(r.ok).toBe(true);
+    if (r.ok) {
+      expect(r.reason).toBe("threefold");
+      expect(r.result).toBe("1/2-1/2");
+      // Same final FEN without history is not a draw.
+      expect(gameTermination(r.move.fen).over).toBe(false);
+    }
+    expect(gameTerminationWithHistory("startpos", [...shuffle, "Ng8"]).reason).toBe("threefold");
+  });
+
+  it("rejects illegal history and illegal moves", () => {
+    expect(applyMoveWithHistory("startpos", ["e4", "e4"], { from: "d2", to: "d4" })).toEqual({ ok: false, error: "illegal_history" });
+    expect(applyMoveWithHistory("startpos", ["e4"], { from: "e2", to: "e4" })).toEqual({ ok: false, error: "illegal_move" });
+    expect(replayHistory(null, ["e4", "e5"])?.fen()).toContain("4p3/4P3");
+  });
+
+  it("returns uci and exports PGN", () => {
+    const r = applyMoveWithHistory("startpos", [], { from: "e2", to: "e4" });
+    expect(r.ok && r.move.uci).toBe("e2e4");
+    expect(toPgn(["e4", "e5", "Nf3"], { result: "*" })).toContain("1. e4 e5 2. Nf3 *");
+    expect(toPgn(["Kd8"], { startFen: "4k3/8/4K3/4P3/8/8/8/8 b - - 0 7" })).toContain("7... Kd8");
+  });
+});

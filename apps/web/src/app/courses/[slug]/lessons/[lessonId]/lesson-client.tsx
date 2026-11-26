@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
   exerciseExplanation,
+  exercisePrompt,
   exerciseTypeLabel,
 
   LESSON_MATE_RESULT_MS,
@@ -955,16 +956,31 @@ export function LessonClient() {
                   locale === "en" ? "en" : "uk",
                 );
                 const isEnv = Boolean(r.meta?.category === "environment_error" || r.meta?.isEnvironmentIssue);
+                const missedEx = lesson.exercises.find((e) => e.id === r.exerciseId);
+                const missedPrompt = missedEx
+                  ? exercisePrompt(locale, missedEx)
+                  : "";
+                const missedExplain = missedEx
+                  ? exerciseExplanation(missedEx, locale === "en" ? "en" : "uk")
+                  : "";
                 return (
-                  <li key={r.exerciseId || i} className="flex flex-wrap items-center gap-2">
-                    <span className={isEnv ? "text-amber-500" : "text-red-500"}>{isEnv ? "⚠️" : "✗"}</span>
-                    <span>{human}</span>
-                    {isEnv ? (
-                      <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
-                        {locale === "en" ? "Runtime issue (penalty waived)" : "Збій середовища (штраф скасовано)"}
-                      </span>
-                    ) : missing ? (
-                      <span className="text-xs text-ink-muted">· {missing}</span>
+                  <li key={r.exerciseId || i} className="space-y-1 rounded-xl bg-white/70 p-2.5 dark:bg-slate-800/60">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={isEnv ? "text-amber-500" : "text-red-500"}>{isEnv ? "⚠️" : "✗"}</span>
+                      <span>{human}</span>
+                      {isEnv ? (
+                        <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+                          {locale === "en" ? "Runtime issue (penalty waived)" : "Збій середовища (штраф скасовано)"}
+                        </span>
+                      ) : missing ? (
+                        <span className="text-xs text-ink-muted">· {missing}</span>
+                      ) : null}
+                    </div>
+                    {missedPrompt ? (
+                      <p className="text-xs font-semibold text-ink line-clamp-2">{missedPrompt}</p>
+                    ) : null}
+                    {missedExplain ? (
+                      <p className="text-xs font-medium text-ink-muted whitespace-pre-wrap">{missedExplain}</p>
                     ) : null}
                   </li>
                 );
@@ -1332,9 +1348,14 @@ export function LessonClient() {
           </div>
         )}
         {feedback === "bad" && (
-          <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-bold text-red-600 dark:border-red-900 dark:bg-red-950/40" role="status" aria-live="assertive">
+          <div className="mt-4 space-y-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-bold text-red-600 dark:border-red-900 dark:bg-red-950/40" role="status" aria-live="assertive">
             <p>{t.lesson.wrong}</p>
-            <p className="mt-1 text-xs text-red-500/80">📌 {t.lesson.addedToMistakes}</p>
+            {!lesson.isExam && feedbackExplain ? (
+              <p className="rounded-lg bg-white/70 p-2 text-xs font-semibold text-ink-muted whitespace-pre-wrap dark:bg-slate-900/60">
+                {feedbackExplain}
+              </p>
+            ) : null}
+            <p className="text-xs text-red-500/80">📌 {t.lesson.addedToMistakes}</p>
           </div>
         )}
       </div>
@@ -1344,7 +1365,9 @@ export function LessonClient() {
       {!focusMode && user && (
         <>
           <div className="card space-y-2 !py-3">
-            <label className="text-xs font-bold text-ink-muted">📔 Note</label>
+            <label className="text-xs font-bold text-ink-muted">
+              📔 {locale === "en" ? "Note" : "Нотатка"}
+            </label>
             <textarea
               className="input min-h-[72px] text-sm"
               value={noteBody}
@@ -1366,7 +1389,9 @@ export function LessonClient() {
           </div>
 
           <div className="card space-y-3">
-            <h3 className="font-black">💬 Discussion</h3>
+            <h3 className="font-black">
+              💬 {locale === "en" ? "Discussion" : "Обговорення"}
+            </h3>
             {comments.length === 0 && (
               <p className="text-sm text-ink-muted font-bold">
                 {locale === "en" ? "No comments yet" : "Коментарів ще немає"}
