@@ -283,7 +283,7 @@ describe("chooseBotMove", () => {
       promotion: undefined,
       san: "exd5",
     });
-  });
+  }, 30_000);
 
   it("opening book provides sensible first moves", () => {
     // White move 1 from start

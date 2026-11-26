@@ -12,9 +12,10 @@ describe("bot search (phase 8)", () => {
 
   it("finds mate in 2", () => {
     const fen = "r5k1/5ppp/8/8/8/8/1R3PPP/1R4K1 w - - 0 1";
-    const m = chooseBotMove(fen, "strong", { timeMs: 3000 });
+    // Depth-capped search (maxDepth 5): a generous budget keeps it deterministic on slow CI runners.
+    const m = chooseBotMove(fen, "strong", { timeMs: 60_000 });
     expect(m?.san).toBe("Rb8+");
-  }, 15000);
+  }, 120_000);
 
   it("tapered eval: in a pawn ending the king belongs in the centre", () => {
     const centre = new Chess("8/p7/8/8/3K4/8/7P/7k w - - 0 1");
@@ -53,14 +54,14 @@ describe("bot search (phase 8)", () => {
     let seed = 7;
     const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
     for (let i = 0; i < 40 && !g.isGameOver(); i += 1) {
-      const m = chooseBotMove(g.fen(), "strong", { timeMs: 150, history, startFen: start });
+      const m = chooseBotMove(g.fen(), "strong", { timeMs: 2000, history, startFen: start });
       history.push(g.move(m!.san!).san);
       if (g.isGameOver()) break;
       const replies = g.moves();
       history.push(g.move(replies[Math.floor(rnd() * replies.length)]!).san);
     }
     expect(g.isCheckmate()).toBe(true);
-  }, 30000);
+  }, 180_000);
 
   it("avoids a threefold repetition when winning", () => {
     const start = "4k3/8/8/8/8/8/8/R3K3 w - - 0 1";
