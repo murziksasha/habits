@@ -13,6 +13,8 @@ const MID = [800, 1300];
 const EXP = [1000, 1450];
 const DEEP = [1150, 1700];
 const DEEP_HARD = [1350, 1850];
+/** d5 band (difficultyOf ≥ 1750); the filter keeps ratings up to 1900. */
+const D5 = [1750, 1900];
 
 const P = {
   mate1: ["{sideUk} ходять і ставлять мат в 1 хід.", "{sideEn} to move: mate in 1."],
@@ -223,4 +225,45 @@ export const TARGETS = [
   { kind: "add", tag: "top", lesson: "ch-d-kbn-mate", all: ["mate", "endgame"], any: ["bishopEndgame", "knightEndgame"], rating: [1400, 1900], count: 3, prompt: P.mateN },
   { kind: "add", tag: "top", lesson: "ch-d-bn-ending", all: ["knightEndgame"], rating: [1550, 1850], count: 1, prompt: P.minorEnd },
   { kind: "add", tag: "top", lesson: "ch-d-same-opp-b", all: ["bishopEndgame"], rating: [1550, 1850], count: 1, prompt: P.minorEnd },
+  // ── d5 top-ups (tag "d5"): one 1750–1900 Lichess puzzle in late lessons of the deep parts,
+  // raising the d5 share toward 10% (review P2-7). Same QA rules, same 6-puzzle cap. ──
+  { kind: "add", tag: "d5", lesson: "ch-calc-cct", any: ["fork", "discoveredAttack", "hangingPiece"], rating: D5, count: 1, prompt: P.mix },
+  { kind: "add", tag: "d5", lesson: "ch-calc-count", all: ["hangingPiece"], rating: D5, count: 1, prompt: P.hanging },
+  { kind: "add", tag: "d5", lesson: "ch-calc-zwischen", all: ["intermezzo"], rating: D5, count: 1, prompt: P.intermezzo },
+  { kind: "add", tag: "d5", lesson: "ch-calc-blunder", all: ["defensiveMove"], rating: D5, count: 1, prompt: P.defence },
+  { kind: "add", tag: "d5", lesson: "ch-calc-stop", all: ["quietMove"], rating: D5, count: 1, prompt: P.quiet },
+  { kind: "add", tag: "d5", lesson: "ch-d-viz-1", all: ["mateIn2"], rating: D5, count: 1, prompt: P.mate2 },
+  { kind: "add", tag: "d5", lesson: "ch-d-candidates", all: ["advantage", "middlegame"], any: ["fork", "pin", "discoveredAttack", "deflection"], rating: D5, count: 1, prompt: P.mix },
+  { kind: "add", tag: "d5", lesson: "ch-d-quiet", all: ["quietMove"], rating: D5, count: 1, prompt: P.quiet },
+  { kind: "add", tag: "d5", lesson: "ch-d-force-first", all: ["mateIn3"], rating: D5, count: 1, prompt: P.mate3 },
+  { kind: "add", tag: "d5", lesson: "ch-d-compare-lines", all: ["long", "advantage"], rating: D5, count: 1, prompt: P.mix },
+  { kind: "add", tag: "d5", lesson: "ch-d-smothered", all: ["smotheredMate"], rating: D5, count: 1, prompt: P.smothered },
+  { kind: "add", tag: "d5", lesson: "ch-d-arabian", all: ["arabianMate"], rating: D5, count: 1, prompt: P.arabian },
+  { kind: "add", tag: "d5", lesson: "ch-d-anastasia", all: ["anastasiaMate"], rating: D5, count: 1, prompt: P.anastasia },
+  { kind: "add", tag: "d5", lesson: "ch-d-boden", all: ["bodenMate"], rating: D5, count: 1, prompt: P.boden },
+  { kind: "add", tag: "d5", lesson: "ch-d-legal", all: ["attackingF2F7", "mate", "opening"], rating: D5, count: 1, prompt: P.mateN },
+  { kind: "add", tag: "d5", lesson: "ch-d-opera-corr", all: ["operaMate"], rating: D5, count: 1, prompt: P.opera },
+  { kind: "add", tag: "d5", lesson: "ch-d-morphy-mate", all: ["morphysMate"], rating: D5, count: 1, prompt: P.morphy },
+  { kind: "add", tag: "d5", lesson: "ch-d-damiano-lolli", all: ["mate", "kingsideAttack"], any: ["hookMate", "mateIn2"], rating: D5, count: 1, prompt: P.mateN },
+  { kind: "add", tag: "d5", lesson: "ch-d-pillsbury", all: ["pillsburysMate"], rating: D5, count: 1, prompt: P.pillsbury },
+  { kind: "add", tag: "d5", lesson: "ch-d-mix-fork-pin", any: ["fork", "pin"], rating: D5, count: 1, prompt: P.mix },
+  { kind: "add", tag: "d5", lesson: "ch-d-mix-disc", any: ["discoveredAttack", "doubleCheck"], rating: D5, count: 1, prompt: P.disc },
+  { kind: "add", tag: "d5", lesson: "ch-d-mix-back", all: ["backRankMate"], rating: D5, count: 1, prompt: P.backRank },
+  { kind: "add", tag: "d5", lesson: "ch-d-mix-zwischen", all: ["intermezzo"], rating: D5, count: 1, prompt: P.intermezzo },
+  { kind: "add", tag: "d5", lesson: "ch-d-mix-exam-prep", any: ["deflection", "attraction", "clearance", "interference"], rating: D5, count: 1, prompt: P.mix },
+  { kind: "add", tag: "d5", lesson: "ch-d-same-side", all: ["kingsideAttack", "middlegame"], rating: D5, count: 1, prompt: P.kingAttack },
+  { kind: "add", tag: "d5", lesson: "ch-d-opp-castle", all: ["queensideAttack"], rating: D5, count: 1, prompt: P.kingAttack },
+  { kind: "add", tag: "d5", lesson: "ch-d-pawn-storm", all: ["kingsideAttack", "advancedPawn"], rating: D5, count: 1, prompt: P.kingAttack },
+  { kind: "add", tag: "d5", lesson: "ch-d-bxh7", all: ["sacrifice"], rating: D5, count: 1, prompt: P.greek },
+  { kind: "add", tag: "d5", lesson: "ch-d-defence", all: ["defensiveMove", "middlegame"], rating: D5, count: 1, prompt: P.defence },
+  { kind: "add", tag: "d5", lesson: "ch-d-lucena", all: ["rookEndgame", "promotion"], rating: D5, count: 1, prompt: P.promote },
+  { kind: "add", tag: "d5", lesson: "ch-d-philidor-full", all: ["rookEndgame", "defensiveMove"], rating: D5, count: 1, prompt: P.defence },
+  { kind: "add", tag: "d5", lesson: "ch-d-short-side", all: ["rookEndgame"], rating: D5, count: 1, prompt: P.rookEnd },
+  { kind: "add", tag: "d5", lesson: "ch-d-vancura", all: ["rookEndgame", "defensiveMove"], rating: D5, count: 1, prompt: P.defence },
+  { kind: "add", tag: "d5", lesson: "ch-d-rook-vs-pawn", all: ["rookEndgame", "advancedPawn"], rating: D5, count: 1, prompt: P.rookEnd },
+  { kind: "add", tag: "d5", lesson: "ch-d-two-bishops", all: ["bishopEndgame"], rating: D5, count: 1, prompt: P.minorEnd },
+  { kind: "add", tag: "d5", lesson: "ch-d-kbn-mate", all: ["mate", "endgame"], any: ["bishopEndgame", "knightEndgame"], rating: D5, count: 1, prompt: P.mateN },
+  { kind: "add", tag: "d5", lesson: "ch-d-bn-ending", all: ["knightEndgame"], rating: D5, count: 1, prompt: P.minorEnd },
+  { kind: "add", tag: "d5", lesson: "ch-d-same-opp-b", all: ["bishopEndgame"], rating: D5, count: 1, prompt: P.minorEnd },
+  { kind: "add", tag: "d5", lesson: "ch-d-queen-pawn7", all: ["queenEndgame"], rating: D5, count: 1, prompt: P.queenEnd },
 ];

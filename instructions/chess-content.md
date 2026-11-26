@@ -37,6 +37,10 @@
 1. `node scripts/chess-import/lichess-filter.mjs <lichess_db_puzzle.csv.zst> <out.csv>` — фильтр: RatingDeviation < 90, Popularity > 80, NbPlays > 1000, Rating 600–1900, не более 7 полуходов. Нужен Node 22.15+ (zstd в zlib).
 2. `pnpm chess:import -- --csv <out.csv> [--depth 14] [--jobs 4]` (`--csv` указывать всегда: значение по умолчанию `/workspace/chess-data/filtered.csv` — путь из sandbox-окружения) (= `node scripts/chess-import/lichess-select.mjs`) — стабильный выбор (sha1 от PuzzleId + цель), дедупликация, каждая задача проходит те же QA-правила (`scripts/chess-qa/qa-puzzle.mjs`). `--only r:<id>,a:<lesson>` — перевыбрать только эти цели. Результат: `packages/content/src/expansion/chess-lichess.generated.ts`, ID `ch-li-*`, в `source` обязательна CC0-атрибуция (гейт).
 
+### Доля d5 (тег `d5`)
+
+В `lesson-theme-map.mjs` 39 целей `{ tag: "d5", rating: D5 = [1750, 1900] }` — по одной задаче Lichess в поздние уроки глубоких частей (расчёт, маты, тактика-микс, атака на короля, туровые и лёгкофигурные эндшпили, гигиена расчёта). Выбрано командой `pnpm chess:import -- --csv <filtered.csv> --only a:<урок>#d5,...`, затем `pnpm chess:qa -- --incremental` и `node scripts/chess-qa/chess-facts.mjs`. Итог: d5 = 52 из 459 задач (11,3 %, было 13 из 420 — 3,1 %). Потолок 6 задач на урок и рост среднего рейтинга по юнитам сохранены (гейты в `chess-qa.test.ts`). Выше 1900 фильтр не берёт, поэтому d5 — это рейтинги 1750–1900.
+
 ## Рейтинги и повторения
 
 - **Glicko-2** (`packages/shared/src/glicko2.ts`): рейтинг ученика в задачах против рейтинга задачи. Старт 1200, RD 350, volatility 0.06, τ = 0.5. Рейтинг партий — отдельный Elo (старт 1000, только рейтинговые партии людей).

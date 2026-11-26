@@ -10375,5 +10375,1306 @@ export const LICHESS_ADDITIONS: LichessAddition[] = [
         "gameUrl": "https://lichess.org/game/owkWNdKS/black#130"
       }
     }
+  },
+  {
+    "lesson": "ch-calc-cct",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-eIyjV",
+      "type": "chess_puzzle",
+      "promptUk": "Білі ходять. Перевірте шахи, взяття і загрози — і знайдіть найкращий хід.",
+      "promptEn": "White to move. Check checks, captures and threats, then find the best move.",
+      "fen": "r4rk1/1p6/p1nb1p2/2p2qNQ/3pR3/2PP3P/PP3PP1/R5K1 w - - 0 22",
+      "solutionSans": [
+        "Rg4",
+        "fxg5",
+        "Rxg5+",
+        "Qxg5",
+        "Qxg5+"
+      ],
+      "goal": "win_material",
+      "difficulty": 5,
+      "rating": 1879,
+      "themes": [
+        "advantage",
+        "exposedKing",
+        "fork",
+        "long",
+        "middlegame",
+        "sacrifice"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "eIyjV",
+        "gameUrl": "https://lichess.org/game/RYA7Qhvs/black#42"
+      }
+    }
+  },
+  {
+    "lesson": "ch-calc-count",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-KztXj",
+      "type": "chess_puzzle",
+      "promptUk": "Білі ходять. Порахуйте: що тут незахищене?",
+      "promptEn": "White to move. Count: what is left undefended?",
+      "fen": "r4k2/pp3p1p/3p1p2/3P2q1/2P3N1/3n1Q2/PP3P2/6RK w - - 4 28",
+      "solutionSans": [
+        "Qxd3",
+        "Qh4+",
+        "Nh2"
+      ],
+      "goal": "win_material",
+      "difficulty": 5,
+      "rating": 1811,
+      "themes": [
+        "crushing",
+        "defensiveMove",
+        "endgame",
+        "hangingPiece",
+        "short"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "KztXj",
+        "gameUrl": "https://lichess.org/game/y374ZqSe/black#54"
+      }
+    }
+  },
+  {
+    "lesson": "ch-calc-zwischen",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-C96nr",
+      "type": "chess_puzzle",
+      "promptUk": "Білі ходять. Не поспішайте брати — спершу проміжний хід.",
+      "promptEn": "White to move. Do not recapture at once — play the in-between move first.",
+      "fen": "2r3rk/4bpRp/p2p3q/3PP3/8/3BQP1P/P7/7K w - - 0 37",
+      "solutionSans": [
+        "Rxg8+",
+        "Rxg8",
+        "Qxh6"
+      ],
+      "goal": "win_material",
+      "difficulty": 5,
+      "rating": 1872,
+      "themes": [
+        "crushing",
+        "intermezzo",
+        "middlegame",
+        "short"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "C96nr",
+        "gameUrl": "https://lichess.org/game/cKh4YJV4/black#72"
+      }
+    }
+  },
+  {
+    "lesson": "ch-calc-blunder",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-mFEXc",
+      "type": "chess_puzzle",
+      "promptUk": "Чорні ходять. Знайдіть єдиний захист.",
+      "promptEn": "Black to move. Find the only defence.",
+      "fen": "8/8/1p1P1pk1/4qQp1/p5P1/7P/6P1/6K1 b - - 1 46",
+      "solutionSans": [
+        "Qxf5",
+        "gxf5+",
+        "Kf7"
+      ],
+      "goal": "win_material",
+      "difficulty": 5,
+      "rating": 1864,
+      "themes": [
+        "crushing",
+        "defensiveMove",
+        "endgame",
+        "queenEndgame",
+        "short"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "mFEXc",
+        "gameUrl": "https://lichess.org/game/kU4oq0dp#91"
+      }
+    }
+  },
+  {
+    "lesson": "ch-calc-stop",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-5Clv0",
+      "type": "chess_puzzle",
+      "promptUk": "Чорні ходять. Знайдіть сильний тихий хід.",
+      "promptEn": "Black to move. Find the strong quiet move.",
+      "fen": "2r3k1/p4ppp/1q6/3p4/3Q4/1P3P2/P5PP/3R2K1 b - - 0 23",
+      "solutionSans": [
+        "Rc1",
+        "Kf2",
+        "Rxd1",
+        "Qxb6",
+        "axb6"
+      ],
+      "goal": "win_material",
+      "difficulty": 5,
+      "rating": 1829,
+      "themes": [
+        "crushing",
+        "endgame",
+        "long",
+        "pin",
+        "quietMove"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "5Clv0",
+        "gameUrl": "https://lichess.org/game/VqpFApIh#45"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-viz-1",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-r7J7V",
+      "type": "chess_puzzle",
+      "promptUk": "Білі ходять і ставлять мат у 2 ходи.",
+      "promptEn": "White to move: mate in 2.",
+      "fen": "1k1r1b2/1p3R2/p6p/Q3p1p1/8/P2q2P1/1P4P1/K7 w - - 1 38",
+      "solutionSans": [
+        "Qc7+",
+        "Ka7",
+        "Qxb7#"
+      ],
+      "goal": "mate",
+      "difficulty": 5,
+      "rating": 1838,
+      "themes": [
+        "endgame",
+        "mate",
+        "mateIn2",
+        "short"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "r7J7V",
+        "gameUrl": "https://lichess.org/game/jfF9NTVS/black#74"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-candidates",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-cBJ7g",
+      "type": "chess_puzzle",
+      "promptUk": "Чорні ходять. Перевірте шахи, взяття і загрози — і знайдіть найкращий хід.",
+      "promptEn": "Black to move. Check checks, captures and threats, then find the best move.",
+      "fen": "r1b4k/pp3ppp/4p3/4B2P/3nPnP1/1B6/PPP2P2/R4RK1 b - - 0 22",
+      "solutionSans": [
+        "Nf3+",
+        "Kh1",
+        "Nxe5"
+      ],
+      "goal": "win_material",
+      "difficulty": 5,
+      "rating": 1806,
+      "themes": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "short"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "cBJ7g",
+        "gameUrl": "https://lichess.org/game/lQKehVmt#43"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-quiet",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-pjG0Z",
+      "type": "chess_puzzle",
+      "promptUk": "Білі ходять. Знайдіть сильний тихий хід.",
+      "promptEn": "White to move. Find the strong quiet move.",
+      "fen": "8/p7/8/7p/1p3KP1/7P/Pk6/8 w - - 1 41",
+      "solutionSans": [
+        "g5",
+        "Kxa2",
+        "g6",
+        "b3",
+        "g7",
+        "b2",
+        "g8=Q+"
+      ],
+      "goal": "promote",
+      "difficulty": 5,
+      "rating": 1773,
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "pawnEndgame",
+        "promotion",
+        "quietMove",
+        "veryLong"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "pjG0Z",
+        "gameUrl": "https://lichess.org/game/PSUtEgIR/black#80"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-force-first",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-1KNGD",
+      "type": "chess_puzzle",
+      "promptUk": "Чорні ходять і ставлять мат у 3 ходи.",
+      "promptEn": "Black to move: mate in 3.",
+      "fen": "2q3k1/p5pp/2bB1n2/2p5/2Pp4/1P1P3r/P4PP1/R1Q2RK1 b - - 0 21",
+      "solutionSans": [
+        "Rh1+",
+        "Kxh1",
+        "Qh3+",
+        "Kg1",
+        "Qxg2#"
+      ],
+      "goal": "mate",
+      "difficulty": 5,
+      "rating": 1869,
+      "themes": [
+        "attraction",
+        "kingsideAttack",
+        "long",
+        "mate",
+        "mateIn3",
+        "middlegame",
+        "pin",
+        "sacrifice"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "1KNGD",
+        "gameUrl": "https://lichess.org/game/44CCYiuX#41"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-compare-lines",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-e3j5E",
+      "type": "chess_puzzle",
+      "promptUk": "Чорні ходять. Перевірте шахи, взяття і загрози — і знайдіть найкращий хід.",
+      "promptEn": "Black to move. Check checks, captures and threats, then find the best move.",
+      "fen": "1r1r2k1/pP3ppp/1p6/2b5/5P2/1P3QP1/P5BP/R1Bq1N1K b - - 0 21",
+      "solutionSans": [
+        "Qd4",
+        "Be3",
+        "Qxa1",
+        "Bxc5",
+        "bxc5"
+      ],
+      "goal": "win_material",
+      "difficulty": 5,
+      "rating": 1836,
+      "themes": [
+        "advantage",
+        "long",
+        "middlegame"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "e3j5E",
+        "gameUrl": "https://lichess.org/game/eNh9EJkB#41"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-smothered",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-jkIz5",
+      "type": "chess_puzzle",
+      "promptUk": "Чорні ходять. Спертий мат конем.",
+      "promptEn": "Black to move. Smothered mate with the knight.",
+      "fen": "r4rk1/1B3ppp/pq6/1p2P3/4n3/P4nP1/1PP3PP/R1BQ1R1K b - - 2 18",
+      "solutionSans": [
+        "Qg1+",
+        "Rxg1",
+        "Nf2#"
+      ],
+      "goal": "mate",
+      "difficulty": 5,
+      "rating": 1800,
+      "themes": [
+        "kingsideAttack",
+        "mate",
+        "mateIn2",
+        "middlegame",
+        "sacrifice",
+        "short",
+        "smotheredMate"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "jkIz5",
+        "gameUrl": "https://lichess.org/game/ATnFk7yq#35"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-arabian",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-fG0nP",
+      "type": "chess_puzzle",
+      "promptUk": "Чорні ходять. Арабський мат: тура і кінь.",
+      "promptEn": "Black to move. Arabian mate: rook and knight.",
+      "fen": "8/R7/4k1KP/2P5/4nr2/8/5b1P/3R4 b - - 0 47",
+      "solutionSans": [
+        "Rg4+",
+        "Kh7",
+        "Nf6+",
+        "Kh8",
+        "Rg8#"
+      ],
+      "goal": "mate",
+      "difficulty": 5,
+      "rating": 1815,
+      "themes": [
+        "arabianMate",
+        "endgame",
+        "long",
+        "master",
+        "masterVsMaster",
+        "mate",
+        "mateIn3"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "fG0nP",
+        "gameUrl": "https://lichess.org/game/qR0pISmQ#93"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-anastasia",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-Xz9fa",
+      "type": "chess_puzzle",
+      "promptUk": "Чорні ходять. Мат Анастасії: кінь і тура по крайній вертикалі.",
+      "promptEn": "Black to move. Anastasia's mate: knight and rook on the edge file.",
+      "fen": "3r1k2/Q1Rq1ppp/1p2p3/7P/3n2R1/8/5PP1/5K2 b - - 1 31",
+      "solutionSans": [
+        "Qb5+",
+        "Kg1",
+        "Ne2+",
+        "Kh2",
+        "Qxh5+",
+        "Rh4",
+        "Qxh4#"
+      ],
+      "goal": "mate",
+      "difficulty": 5,
+      "rating": 1772,
+      "themes": [
+        "anastasiaMate",
+        "endgame",
+        "fork",
+        "mate",
+        "mateIn4",
+        "veryLong"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "Xz9fa",
+        "gameUrl": "https://lichess.org/game/74wcBfbb#61"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-boden",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-pTJdx",
+      "type": "chess_puzzle",
+      "promptUk": "Білі ходять. Мат Бодена: два слони навхрест.",
+      "promptEn": "White to move. Boden's mate: two crossing bishops.",
+      "fen": "r1bqr1kb/1p5p/p1np2pB/2pn4/P1B1P3/5P2/1PPQ2P1/R3K1NR w KQ - 0 15",
+      "solutionSans": [
+        "Qxd5+",
+        "Be6",
+        "Qxe6+",
+        "Rxe6",
+        "Bxe6#"
+      ],
+      "goal": "mate",
+      "difficulty": 5,
+      "rating": 1840,
+      "themes": [
+        "bodenMate",
+        "kingsideAttack",
+        "long",
+        "mate",
+        "mateIn3",
+        "middlegame"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "pTJdx",
+        "gameUrl": "https://lichess.org/game/X5Z605E7/black#28"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-legal",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-jVn2C",
+      "type": "chess_puzzle",
+      "promptUk": "Чорні ходять і ставлять мат.",
+      "promptEn": "Black to move and mate.",
+      "fen": "r1b1k1nr/1p3ppp/pqnp4/2b1p3/2N1P3/2N5/PPPB1PPP/R2QKB1R b KQkq - 3 10",
+      "solutionSans": [
+        "Bxf2+",
+        "Ke2",
+        "Bg4+",
+        "Kd3",
+        "Qd4#"
+      ],
+      "goal": "mate",
+      "acceptedAlternatives": {
+        "4": [
+          "Nb4#"
+        ]
+      },
+      "difficulty": 5,
+      "rating": 1751,
+      "themes": [
+        "attackingF2F7",
+        "long",
+        "mate",
+        "mateIn3",
+        "opening"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "jVn2C",
+        "gameUrl": "https://lichess.org/game/wrWgoCDV#19"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-opera-corr",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-lsj5m",
+      "type": "chess_puzzle",
+      "promptUk": "Білі ходять. Оперний мат: тура по горизонталі під захистом слона.",
+      "promptEn": "White to move. Opera mate: rook on the back rank defended by a bishop.",
+      "fen": "2kr4/ppp2p2/2n5/3Bq1Br/2P1n2P/6P1/P2QPP2/3R1K2 w - - 3 21",
+      "solutionSans": [
+        "Be6+",
+        "fxe6",
+        "Qxd8+",
+        "Nxd8",
+        "Rxd8#"
+      ],
+      "goal": "mate",
+      "difficulty": 5,
+      "rating": 1782,
+      "themes": [
+        "discoveredAttack",
+        "long",
+        "mate",
+        "mateIn3",
+        "middlegame",
+        "operaMate",
+        "queensideAttack",
+        "sacrifice"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "lsj5m",
+        "gameUrl": "https://lichess.org/game/R3R0GzY6/black#40"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-morphy-mate",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-XfTql",
+      "type": "chess_puzzle",
+      "promptUk": "Білі ходять. Мат Морфі: слон по діагоналі і тура.",
+      "promptEn": "White to move. Morphy's mate: bishop on the diagonal and rook.",
+      "fen": "6R1/5p1b/1p2pB1k/p3P3/5PP1/2r5/5K2/8 w - - 3 55",
+      "solutionSans": [
+        "Bg5#"
+      ],
+      "goal": "mate",
+      "difficulty": 5,
+      "rating": 1851,
+      "themes": [
+        "endgame",
+        "master",
+        "masterVsMaster",
+        "mate",
+        "mateIn1",
+        "morphysMate",
+        "oneMove"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "XfTql",
+        "gameUrl": "https://lichess.org/game/b1gYtRAi/black#108"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-damiano-lolli",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-1Gxck",
+      "type": "chess_puzzle",
+      "promptUk": "Білі ходять і ставлять мат.",
+      "promptEn": "White to move and mate.",
+      "fen": "rn4k1/pq4b1/1p2prQ1/6N1/2pP4/8/PP3PP1/R3K2R w KQ - 2 20",
+      "solutionSans": [
+        "Rh8+",
+        "Kxh8",
+        "Qh7#"
+      ],
+      "goal": "mate",
+      "difficulty": 5,
+      "rating": 1772,
+      "themes": [
+        "attraction",
+        "kingsideAttack",
+        "mate",
+        "mateIn2",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "short"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "1Gxck",
+        "gameUrl": "https://lichess.org/game/IjiJfc7q/black#38"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-pillsbury",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-CfsHv",
+      "type": "chess_puzzle",
+      "promptUk": "Білі ходять. Мат Пілсбері: тура і слон проти короля в куті.",
+      "promptEn": "White to move. Pillsbury's mate: rook and bishop against the cornered king.",
+      "fen": "rr4R1/k7/2pPp3/3bP3/5P2/4K3/pR2B3/8 w - - 5 37",
+      "solutionSans": [
+        "Rg7+",
+        "Rb7",
+        "Rbxb7#"
+      ],
+      "goal": "mate",
+      "acceptedAlternatives": {
+        "2": [
+          "Rgxb7#"
+        ]
+      },
+      "difficulty": 5,
+      "rating": 1836,
+      "themes": [
+        "endgame",
+        "master",
+        "mate",
+        "mateIn2",
+        "pillsburysMate",
+        "short"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "CfsHv",
+        "gameUrl": "https://lichess.org/game/e7nnyYfP/black#72"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-mix-fork-pin",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-HoCgT",
+      "type": "chess_puzzle",
+      "promptUk": "Білі ходять. Перевірте шахи, взяття і загрози — і знайдіть найкращий хід.",
+      "promptEn": "White to move. Check checks, captures and threats, then find the best move.",
+      "fen": "8/2k1r1q1/2p2p1p/3pP3/3P4/Q5P1/2P2BK1/8 w - - 1 39",
+      "solutionSans": [
+        "Qd6+",
+        "Kb6",
+        "exf6",
+        "Qxf6",
+        "Qxf6"
+      ],
+      "goal": "win_material",
+      "difficulty": 5,
+      "rating": 1837,
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "long",
+        "master",
+        "masterVsMaster",
+        "superGM"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "HoCgT",
+        "gameUrl": "https://lichess.org/game/vI6z4SMy/black#76"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-mix-disc",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-eDb88",
+      "type": "chess_puzzle",
+      "promptUk": "Білі ходять. Відкритий напад виграє матеріал.",
+      "promptEn": "White to move. A discovered attack wins material.",
+      "fen": "4R3/ppknBpp1/2pq4/8/8/2Pb4/P4P2/3K4 w - - 2 27",
+      "solutionSans": [
+        "Bd8+",
+        "Kc8",
+        "Ba5#"
+      ],
+      "goal": "mate",
+      "acceptedAlternatives": {
+        "2": [
+          "Bb6#"
+        ]
+      },
+      "difficulty": 5,
+      "rating": 1810,
+      "themes": [
+        "discoveredAttack",
+        "discoveredCheck",
+        "endgame",
+        "mate",
+        "mateIn2",
+        "pillsburysMate",
+        "short"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "eDb88",
+        "gameUrl": "https://lichess.org/game/2Kl9Nlal/black#52"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-mix-back",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-gyFrk",
+      "type": "chess_puzzle",
+      "promptUk": "Чорні ходять. Скористайтеся слабкістю останньої горизонталі.",
+      "promptEn": "Black to move. Exploit the weak back rank.",
+      "fen": "2r4k/1p5P/p2p1rp1/3P1q2/3Q3R/8/PPP5/1K5R b - - 0 32",
+      "solutionSans": [
+        "Qxc2+",
+        "Ka1",
+        "Qc1+",
+        "Rxc1",
+        "Rxc1#"
+      ],
+      "goal": "mate",
+      "difficulty": 5,
+      "rating": 1858,
+      "themes": [
+        "backRankMate",
+        "endgame",
+        "long",
+        "mate",
+        "mateIn3",
+        "sacrifice"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "gyFrk",
+        "gameUrl": "https://lichess.org/game/0Gae9pRT#63"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-mix-zwischen",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-NmgDd",
+      "type": "chess_puzzle",
+      "promptUk": "Чорні ходять. Не поспішайте брати — спершу проміжний хід.",
+      "promptEn": "Black to move. Do not recapture at once — play the in-between move first.",
+      "fen": "r1b1k1nr/p1p2ppp/1pn5/3q4/1Q1P4/2N5/PP3PPP/R1B1KBNR b KQkq - 0 8",
+      "solutionSans": [
+        "Qe6+",
+        "Be3",
+        "Nxb4"
+      ],
+      "goal": "win_material",
+      "difficulty": 5,
+      "rating": 1818,
+      "themes": [
+        "crushing",
+        "intermezzo",
+        "opening",
+        "short"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "NmgDd",
+        "gameUrl": "https://lichess.org/game/BgJIxqKF#15"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-mix-exam-prep",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-iiW65",
+      "type": "chess_puzzle",
+      "promptUk": "Білі ходять. Перевірте шахи, взяття і загрози — і знайдіть найкращий хід.",
+      "promptEn": "White to move. Check checks, captures and threats, then find the best move.",
+      "fen": "8/7p/6p1/5p2/7P/6P1/pkr2P2/R2K4 w - - 5 43",
+      "solutionSans": [
+        "Rxa2+",
+        "Kxa2",
+        "Kxc2",
+        "Ka3",
+        "Kc3"
+      ],
+      "goal": "win_material",
+      "difficulty": 5,
+      "rating": 1825,
+      "themes": [
+        "crushing",
+        "defensiveMove",
+        "deflection",
+        "endgame",
+        "long",
+        "rookEndgame"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "iiW65",
+        "gameUrl": "https://lichess.org/game/6gmzFEck/black#84"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-same-side",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-rC1J9",
+      "type": "chess_puzzle",
+      "promptUk": "Чорні ходять. Атака на короля: знайдіть удар.",
+      "promptEn": "Black to move. Attack the king: find the blow.",
+      "fen": "r4rk1/pp4pp/2nqp3/3p1pN1/3Pn3/P1B1Q3/1PP2PPP/R3R1K1 b - - 3 15",
+      "solutionSans": [
+        "f4",
+        "Nxe4",
+        "fxe3",
+        "Nxd6",
+        "exf2+"
+      ],
+      "goal": "win_material",
+      "difficulty": 5,
+      "rating": 1801,
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "kingsideAttack",
+        "long",
+        "middlegame",
+        "sacrifice"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "rC1J9",
+        "gameUrl": "https://lichess.org/game/RAr140Wr#29"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-opp-castle",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-MXiAW",
+      "type": "chess_puzzle",
+      "promptUk": "Білі ходять. Атака на короля: знайдіть удар.",
+      "promptEn": "White to move. Attack the king: find the blow.",
+      "fen": "1k1r3r/1ppq4/1P1b1n2/4Qpp1/3P1p2/2P5/1P4P1/R1B2RK1 w - - 1 21",
+      "solutionSans": [
+        "Ra8+",
+        "Kxa8",
+        "Qa5+",
+        "Kb8",
+        "Qa7+",
+        "Kc8",
+        "Qa8#"
+      ],
+      "goal": "mate",
+      "difficulty": 5,
+      "rating": 1827,
+      "themes": [
+        "attraction",
+        "mate",
+        "mateIn4",
+        "middlegame",
+        "queensideAttack",
+        "sacrifice",
+        "veryLong"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "MXiAW",
+        "gameUrl": "https://lichess.org/game/X0vsNRsp/black#40"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-pawn-storm",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-Fa9EK",
+      "type": "chess_puzzle",
+      "promptUk": "Білі ходять. Атака на короля: знайдіть удар.",
+      "promptEn": "White to move. Attack the king: find the blow.",
+      "fen": "3r2k1/1p2q1bp/p2rP1p1/P1p2p2/2B5/1P1R4/4n1PP/1R1Q1K2 w - - 0 30",
+      "solutionSans": [
+        "Rxd6",
+        "Rxd6",
+        "Qxd6",
+        "Qxd6",
+        "e7+",
+        "Kh8",
+        "e8=Q+"
+      ],
+      "goal": "promote",
+      "difficulty": 5,
+      "rating": 1828,
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "discoveredAttack",
+        "discoveredCheck",
+        "kingsideAttack",
+        "middlegame",
+        "promotion",
+        "sacrifice",
+        "veryLong"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "Fa9EK",
+        "gameUrl": "https://lichess.org/game/l2sJjs74/black#58"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-bxh7",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-Hh4vD",
+      "type": "chess_puzzle",
+      "promptUk": "Білі ходять. Грецький дар: жертва слона на h7 (h2) і атака конем.",
+      "promptEn": "White to move. The Greek gift: sacrifice the bishop on h7 (h2) and attack with the knight.",
+      "fen": "r1b2rk1/2p2ppp/p7/1p6/6nq/1B1P1Q2/PPPN1PPb/R1B1R2K w - - 4 16",
+      "solutionSans": [
+        "Qxf7+",
+        "Rxf7",
+        "Re8#"
+      ],
+      "goal": "mate",
+      "difficulty": 5,
+      "rating": 1884,
+      "themes": [
+        "kingsideAttack",
+        "mate",
+        "mateIn2",
+        "opening",
+        "pin",
+        "sacrifice",
+        "short"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "Hh4vD",
+        "gameUrl": "https://lichess.org/game/Q2XgcbxW/black#30"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-defence",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-6XF1L",
+      "type": "chess_puzzle",
+      "promptUk": "Білі ходять. Знайдіть єдиний захист.",
+      "promptEn": "White to move. Find the only defence.",
+      "fen": "r2q2kr/pbp1n1pp/1p2p3/3n4/4Q3/B4N2/P2N1PPP/R3K2R w KQ - 0 17",
+      "solutionSans": [
+        "Qxe6+",
+        "Kf8",
+        "Ne5"
+      ],
+      "goal": "win_material",
+      "difficulty": 5,
+      "rating": 1802,
+      "themes": [
+        "crushing",
+        "defensiveMove",
+        "kingsideAttack",
+        "middlegame",
+        "short"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "6XF1L",
+        "gameUrl": "https://lichess.org/game/irGCLDeh/black#32"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-lucena",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-Ownil",
+      "type": "chess_puzzle",
+      "promptUk": "Чорні ходять. Проведіть пішака в ферзі.",
+      "promptEn": "Black to move. Push the pawn through to promote.",
+      "fen": "7R/5k2/8/4p3/4K3/6pp/8/8 b - - 1 59",
+      "solutionSans": [
+        "g2",
+        "Rxh3",
+        "g1=Q"
+      ],
+      "goal": "promote",
+      "difficulty": 5,
+      "rating": 1780,
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "promotion",
+        "rookEndgame",
+        "short"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "Ownil",
+        "gameUrl": "https://lichess.org/game/7gzK19dm#117"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-philidor-full",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-jtGW7",
+      "type": "chess_puzzle",
+      "promptUk": "Чорні ходять. Знайдіть єдиний захист.",
+      "promptEn": "Black to move. Find the only defence.",
+      "fen": "8/p3rp2/4p1k1/5P1p/1P2P2R/P1P1RK1P/8/3r4 b - - 0 38",
+      "solutionSans": [
+        "Kg5",
+        "Rxh5+",
+        "Kxh5"
+      ],
+      "goal": "win_material",
+      "difficulty": 5,
+      "rating": 1817,
+      "themes": [
+        "advantage",
+        "defensiveMove",
+        "endgame",
+        "rookEndgame",
+        "short"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "jtGW7",
+        "gameUrl": "https://lichess.org/game/CGtJhdAZ#75"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-short-side",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-kKsGe",
+      "type": "chess_puzzle",
+      "promptUk": "Чорні ходять. Туровий ендшпіль: знайдіть найкращий хід.",
+      "promptEn": "Black to move. Rook endgame: find the best move.",
+      "fen": "8/p3k3/8/P3P3/5PR1/6Pp/r7/5K2 b - - 0 43",
+      "solutionSans": [
+        "Ra1+",
+        "Kf2",
+        "h2"
+      ],
+      "goal": "win_material",
+      "difficulty": 5,
+      "rating": 1832,
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "rookEndgame",
+        "short"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "kKsGe",
+        "gameUrl": "https://lichess.org/game/ELuLVimP#85"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-vancura",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-sQOVX",
+      "type": "chess_puzzle",
+      "promptUk": "Чорні ходять. Знайдіть єдиний захист.",
+      "promptEn": "Black to move. Find the only defence.",
+      "fen": "8/p4P2/8/6k1/4PR2/1P2P1pp/P6r/5K2 b - - 0 46",
+      "solutionSans": [
+        "g2+",
+        "Kf2",
+        "Rh1"
+      ],
+      "goal": "win_material",
+      "difficulty": 5,
+      "rating": 1885,
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "defensiveMove",
+        "endgame",
+        "rookEndgame",
+        "short"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "sQOVX",
+        "gameUrl": "https://lichess.org/game/YebA56MI#91"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-rook-vs-pawn",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-KRaeT",
+      "type": "chess_puzzle",
+      "promptUk": "Білі ходять. Туровий ендшпіль: знайдіть найкращий хід.",
+      "promptEn": "White to move. Rook endgame: find the best move.",
+      "fen": "3k4/6R1/5Pp1/6rp/8/7K/8/8 w - - 0 56",
+      "solutionSans": [
+        "Rg8+",
+        "Kd7",
+        "f7"
+      ],
+      "goal": "win_material",
+      "difficulty": 5,
+      "rating": 1878,
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "rookEndgame",
+        "short"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "KRaeT",
+        "gameUrl": "https://lichess.org/game/wfdi349Z/black#110"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-two-bishops",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-0R69Q",
+      "type": "chess_puzzle",
+      "promptUk": "Білі ходять. Ендшпіль з легкими фігурами: знайдіть найкращий хід.",
+      "promptEn": "White to move. Minor-piece endgame: find the best move.",
+      "fen": "k7/8/PP6/3b1p2/1K2p3/3pB3/8/8 w - - 1 61",
+      "solutionSans": [
+        "Kc5",
+        "d2",
+        "Bxd2",
+        "e3",
+        "Bxe3"
+      ],
+      "goal": "win_material",
+      "difficulty": 5,
+      "rating": 1846,
+      "themes": [
+        "bishopEndgame",
+        "crushing",
+        "endgame",
+        "long"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "0R69Q",
+        "gameUrl": "https://lichess.org/game/UBSrdzVc/black#120"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-kbn-mate",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-waFga",
+      "type": "chess_puzzle",
+      "promptUk": "Чорні ходять і ставлять мат.",
+      "promptEn": "Black to move and mate.",
+      "fen": "5k2/4pp2/3p2p1/3P3p/3bPP1K/5P1P/3B4/8 b - - 1 34",
+      "solutionSans": [
+        "Bf2+",
+        "Kg5",
+        "Kg7",
+        "f5",
+        "f6+",
+        "Kf4",
+        "g5#"
+      ],
+      "goal": "mate",
+      "difficulty": 5,
+      "rating": 1804,
+      "themes": [
+        "bishopEndgame",
+        "endgame",
+        "mate",
+        "mateIn4",
+        "veryLong"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "waFga",
+        "gameUrl": "https://lichess.org/game/IaW7niTO#67"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-bn-ending",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-v58zo",
+      "type": "chess_puzzle",
+      "promptUk": "Чорні ходять. Ендшпіль з легкими фігурами: знайдіть найкращий хід.",
+      "promptEn": "Black to move. Minor-piece endgame: find the best move.",
+      "fen": "8/8/6p1/8/2pknPKP/8/8/3N4 b - - 5 64",
+      "solutionSans": [
+        "Nf2+",
+        "Nxf2",
+        "c3",
+        "Kg5",
+        "c2"
+      ],
+      "goal": "win_material",
+      "difficulty": 5,
+      "rating": 1838,
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "knightEndgame",
+        "long",
+        "sacrifice"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "v58zo",
+        "gameUrl": "https://lichess.org/game/cuU9ZFJV#127"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-same-opp-b",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-DDNr3",
+      "type": "chess_puzzle",
+      "promptUk": "Білі ходять. Ендшпіль з легкими фігурами: знайдіть найкращий хід.",
+      "promptEn": "White to move. Minor-piece endgame: find the best move.",
+      "fen": "8/2k5/4p2p/P6P/1PK5/4pB2/5b2/8 w - - 3 55",
+      "solutionSans": [
+        "b5",
+        "e2",
+        "Bxe2"
+      ],
+      "goal": "win_material",
+      "difficulty": 5,
+      "rating": 1878,
+      "themes": [
+        "bishopEndgame",
+        "crushing",
+        "endgame",
+        "quietMove",
+        "short"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "DDNr3",
+        "gameUrl": "https://lichess.org/game/PbK22Dtn/black#108"
+      }
+    }
+  },
+  {
+    "lesson": "ch-d-queen-pawn7",
+    "tag": "d5",
+    "exercise": {
+      "id": "ch-li-105jD",
+      "type": "chess_puzzle",
+      "promptUk": "Білі ходять. Ферзевий ендшпіль: знайдіть найкращий хід.",
+      "promptEn": "White to move. Queen endgame: find the best move.",
+      "fen": "8/5p2/2p2p2/5qkp/3Q4/P3P1P1/5P2/4K3 w - - 9 44",
+      "solutionSans": [
+        "Qf4+",
+        "Kg6",
+        "Qxf5+"
+      ],
+      "goal": "win_material",
+      "difficulty": 5,
+      "rating": 1774,
+      "themes": [
+        "crushing",
+        "endgame",
+        "queenEndgame",
+        "short"
+      ],
+      "source": {
+        "kind": "lichess",
+        "lichessId": "105jD",
+        "gameUrl": "https://lichess.org/game/73THACiY/black#86"
+      }
+    }
   }
 ];

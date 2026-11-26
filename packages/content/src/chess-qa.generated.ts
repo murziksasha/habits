@@ -3525,6 +3525,44 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
     ]
    ]
   },
+  "ch-li-0R69Q": {
+   "hash": "214c825588357434",
+   "goal": "win_material",
+   "evalAfter": 857,
+   "flags": [],
+   "plies": [
+    [
+     "Kc5",
+     716,
+     "b4c5",
+     716
+    ],
+    [
+     "d2",
+     -1246,
+     "d5b7",
+     -879
+    ],
+    [
+     "Bxd2",
+     775,
+     "e3d2",
+     775
+    ],
+    [
+     "e3",
+     -1298,
+     "d5b7",
+     -830
+    ],
+    [
+     "Bxe3",
+     761,
+     "d2e3",
+     761
+    ]
+   ]
+  },
   "ch-li-0WFIJ": {
    "hash": "8b15b64c5e6e678b",
    "goal": "win_material",
@@ -3612,6 +3650,32 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
      378,
      "g6g7",
      378
+    ]
+   ]
+  },
+  "ch-li-105jD": {
+   "hash": "1fe4084745843a37",
+   "goal": "win_material",
+   "evalAfter": 511,
+   "flags": [],
+   "plies": [
+    [
+     "Qf4+",
+     398,
+     "d4f4",
+     398
+    ],
+    [
+     "Kg6",
+     -534,
+     "f5f4",
+     -502
+    ],
+    [
+     "Qxf5+",
+     498,
+     "f4f5",
+     498
     ]
    ]
   },
@@ -3718,6 +3782,70 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
      "Rfxf8#",
      99999,
      "f1f8",
+     99999
+    ]
+   ]
+  },
+  "ch-li-1Gxck": {
+   "hash": "488c4af1f0051145",
+   "goal": "mate",
+   "evalAfter": 100000,
+   "flags": [],
+   "plies": [
+    [
+     "Rh8+",
+     99998,
+     "h1h8",
+     99998
+    ],
+    [
+     "Kxh8",
+     -99999,
+     "g8h8",
+     -99999
+    ],
+    [
+     "Qh7#",
+     99999,
+     "g6h7",
+     99999
+    ]
+   ]
+  },
+  "ch-li-1KNGD": {
+   "hash": "bdf5240b5ed939d5",
+   "goal": "mate",
+   "evalAfter": 100000,
+   "flags": [],
+   "plies": [
+    [
+     "Rh1+",
+     99997,
+     "h3h1",
+     99997
+    ],
+    [
+     "Kxh1",
+     -99998,
+     "g1h1",
+     -99998
+    ],
+    [
+     "Qh3+",
+     99998,
+     "c8h3",
+     99998
+    ],
+    [
+     "Kg1",
+     -99999,
+     "h1g1",
+     -99999
+    ],
+    [
+     "Qxg2#",
+     99999,
+     "h3g2",
      99999
     ]
    ]
@@ -4125,6 +4253,44 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
     ]
    ]
   },
+  "ch-li-5Clv0": {
+   "hash": "940b265d19ceae5f",
+   "goal": "win_material",
+   "evalAfter": 654,
+   "flags": [],
+   "plies": [
+    [
+     "Rc1",
+     582,
+     "c8c1",
+     582
+    ],
+    [
+     "Kf2",
+     -667,
+     "g1f2",
+     -667
+    ],
+    [
+     "Rxd1",
+     645,
+     "c1d1",
+     645
+    ],
+    [
+     "Qxb6",
+     -662,
+     "d4b6",
+     -662
+    ],
+    [
+     "axb6",
+     641,
+     "a7b6",
+     641
+    ]
+   ]
+  },
   "ch-li-5bWZ0": {
    "hash": "99287cca129328ff",
    "goal": "mate",
@@ -4276,6 +4442,32 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
      99999,
      "d8d1",
      99999
+    ]
+   ]
+  },
+  "ch-li-6XF1L": {
+   "hash": "70c349263963a4e5",
+   "goal": "win_material",
+   "evalAfter": 541,
+   "flags": [],
+   "plies": [
+    [
+     "Qxe6+",
+     561,
+     "e4e6",
+     561
+    ],
+    [
+     "Kf8",
+     -621,
+     "g8f8",
+     -621
+    ],
+    [
+     "Ne5",
+     527,
+     "f3e5",
+     527
     ]
    ]
   },
@@ -5416,6 +5608,32 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
     ]
    ]
   },
+  "ch-li-C96nr": {
+   "hash": "e93d0fefc58223ab",
+   "goal": "win_material",
+   "evalAfter": 613,
+   "flags": [],
+   "plies": [
+    [
+     "Rxg8+",
+     657,
+     "g7g8",
+     657
+    ],
+    [
+     "Rxg8",
+     -674,
+     "c8g8",
+     -674
+    ],
+    [
+     "Qxh6",
+     637,
+     "e3h6",
+     637
+    ]
+   ]
+  },
   "ch-li-CTXIp": {
    "hash": "31c6983e12ad4a07",
    "goal": "mate",
@@ -5451,6 +5669,63 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
      99999,
      "f7h7",
      99999
+    ]
+   ]
+  },
+  "ch-li-CfsHv": {
+   "hash": "1a6028ca1aac73bb",
+   "goal": "mate",
+   "acceptedAlternatives": {
+    "2": [
+     "Rgxb7#"
+    ]
+   },
+   "evalAfter": 100000,
+   "flags": [],
+   "plies": [
+    [
+     "Rg7+",
+     99998,
+     "g8g7",
+     99998
+    ],
+    [
+     "Rb7",
+     -99999,
+     "b8b7",
+     -99999
+    ],
+    [
+     "Rbxb7#",
+     99999,
+     "b2b7",
+     99999
+    ]
+   ]
+  },
+  "ch-li-DDNr3": {
+   "hash": "59a237752c2ba695",
+   "goal": "win_material",
+   "evalAfter": 660,
+   "flags": [],
+   "plies": [
+    [
+     "b5",
+     587,
+     "b4b5",
+     587
+    ],
+    [
+     "e2",
+     -744,
+     "c7d6",
+     -723
+    ],
+    [
+     "Bxe2",
+     638,
+     "f3e2",
+     638
     ]
    ]
   },
@@ -5734,6 +6009,56 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
     ]
    ]
   },
+  "ch-li-Fa9EK": {
+   "hash": "23dc29b8dc7a33ed",
+   "goal": "promote",
+   "evalAfter": 581,
+   "flags": [],
+   "plies": [
+    [
+     "Rxd6",
+     468,
+     "d3d6",
+     468
+    ],
+    [
+     "Rxd6",
+     -583,
+     "d8e8",
+     -517
+    ],
+    [
+     "Qxd6",
+     553,
+     "d1d6",
+     553
+    ],
+    [
+     "Qxd6",
+     -590,
+     "e2g3",
+     -590
+    ],
+    [
+     "e7+",
+     591,
+     "e6e7",
+     591
+    ],
+    [
+     "Kh8",
+     -574,
+     "g8h8",
+     -574
+    ],
+    [
+     "e8=Q+",
+     559,
+     "e7e8q",
+     559
+    ]
+   ]
+  },
   "ch-li-Fb7fm": {
    "hash": "7828238ffce06da3",
    "goal": "win_material",
@@ -5978,6 +6303,32 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
     ]
    ]
   },
+  "ch-li-Hh4vD": {
+   "hash": "aafeae445ca560bb",
+   "goal": "mate",
+   "evalAfter": 100000,
+   "flags": [],
+   "plies": [
+    [
+     "Qxf7+",
+     99998,
+     "f3f7",
+     99998
+    ],
+    [
+     "Rxf7",
+     -99999,
+     "f8f7",
+     -99999
+    ],
+    [
+     "Re8#",
+     99999,
+     "e1e8",
+     99999
+    ]
+   ]
+  },
   "ch-li-HkY6a": {
    "hash": "7391dd602d93b555",
    "goal": "promote",
@@ -6013,6 +6364,44 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
      507,
      "d7d8q",
      507
+    ]
+   ]
+  },
+  "ch-li-HoCgT": {
+   "hash": "482612c0a94bdeed",
+   "goal": "win_material",
+   "evalAfter": 658,
+   "flags": [],
+   "plies": [
+    [
+     "Qd6+",
+     616,
+     "a3d6",
+     616
+    ],
+    [
+     "Kb6",
+     -654,
+     "c7b6",
+     -654
+    ],
+    [
+     "exf6",
+     647,
+     "e5f6",
+     647
+    ],
+    [
+     "Qxf6",
+     -615,
+     "g7f6",
+     -615
+    ],
+    [
+     "Qxf6",
+     679,
+     "d6f6",
+     679
     ]
    ]
   },
@@ -6490,6 +6879,32 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
     ]
    ]
   },
+  "ch-li-KRaeT": {
+   "hash": "2f73391c7b9911ad",
+   "goal": "win_material",
+   "evalAfter": 507,
+   "flags": [],
+   "plies": [
+    [
+     "Rg8+",
+     512,
+     "g7g8",
+     512
+    ],
+    [
+     "Kd7",
+     -498,
+     "d8c7",
+     -496
+    ],
+    [
+     "f7",
+     525,
+     "f6f7",
+     525
+    ]
+   ]
+  },
   "ch-li-KYEhQ": {
    "hash": "82ee99b52a4bd651",
    "goal": "win_material",
@@ -6575,6 +6990,32 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
      473,
      "h2h1q",
      473
+    ]
+   ]
+  },
+  "ch-li-KztXj": {
+   "hash": "dc27bcb8fba05c19",
+   "goal": "win_material",
+   "evalAfter": 371,
+   "flags": [],
+   "plies": [
+    [
+     "Qxd3",
+     387,
+     "f3d3",
+     387
+    ],
+    [
+     "Qh4+",
+     -381,
+     "g5h4",
+     -381
+    ],
+    [
+     "Nh2",
+     397,
+     "g4h2",
+     397
     ]
    ]
   },
@@ -6741,6 +7182,56 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
      335,
      "c2c1q",
      335
+    ]
+   ]
+  },
+  "ch-li-MXiAW": {
+   "hash": "837a50e602a98314",
+   "goal": "mate",
+   "evalAfter": 100000,
+   "flags": [],
+   "plies": [
+    [
+     "Ra8+",
+     99996,
+     "a1a8",
+     99996
+    ],
+    [
+     "Kxa8",
+     -99997,
+     "b8a8",
+     -99997
+    ],
+    [
+     "Qa5+",
+     99997,
+     "e5a5",
+     99997
+    ],
+    [
+     "Kb8",
+     -99998,
+     "a8b8",
+     -99998
+    ],
+    [
+     "Qa7+",
+     99998,
+     "a5a7",
+     99998
+    ],
+    [
+     "Kc8",
+     -99999,
+     "b8c8",
+     -99999
+    ],
+    [
+     "Qa8#",
+     99999,
+     "a7a8",
+     99999
     ]
    ]
   },
@@ -7002,6 +7493,32 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
     ]
    ]
   },
+  "ch-li-NmgDd": {
+   "hash": "24a3604f6f3c7080",
+   "goal": "win_material",
+   "evalAfter": 522,
+   "flags": [],
+   "plies": [
+    [
+     "Qe6+",
+     464,
+     "d5e6",
+     464
+    ],
+    [
+     "Be3",
+     -496,
+     "e1d2",
+     -487
+    ],
+    [
+     "Nxb4",
+     508,
+     "c6b4",
+     508
+    ]
+   ]
+  },
   "ch-li-O7Ud9": {
    "hash": "8999fcf2592d928f",
    "goal": "win_material",
@@ -7253,6 +7770,32 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
      557,
      "e2f1",
      557
+    ]
+   ]
+  },
+  "ch-li-Ownil": {
+   "hash": "3dae0df1060d4255",
+   "goal": "promote",
+   "evalAfter": 240,
+   "flags": [],
+   "plies": [
+    [
+     "g2",
+     468,
+     "g3g2",
+     468
+    ],
+    [
+     "Rxh3",
+     -511,
+     "h8h7",
+     -494
+    ],
+    [
+     "g1=Q",
+     457,
+     "g2g1q",
+     457
     ]
    ]
   },
@@ -8156,6 +8699,20 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
     ]
    ]
   },
+  "ch-li-XfTql": {
+   "hash": "ab2150d4ce1c3a0a",
+   "goal": "mate",
+   "evalAfter": 100000,
+   "flags": [],
+   "plies": [
+    [
+     "Bg5#",
+     99999,
+     "f6g5",
+     99999
+    ]
+   ]
+  },
   "ch-li-Xs9Cu": {
    "hash": "30bbc94b354f762a",
    "goal": "win_material",
@@ -8231,6 +8788,56 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
      372,
      "e5f6",
      372
+    ]
+   ]
+  },
+  "ch-li-Xz9fa": {
+   "hash": "d05d3c45e4111488",
+   "goal": "mate",
+   "evalAfter": 100000,
+   "flags": [],
+   "plies": [
+    [
+     "Qb5+",
+     99996,
+     "d7b5",
+     99996
+    ],
+    [
+     "Kg1",
+     -99997,
+     "f1g1",
+     -99997
+    ],
+    [
+     "Ne2+",
+     99997,
+     "d4e2",
+     99997
+    ],
+    [
+     "Kh2",
+     -99998,
+     "g1h1",
+     -99998
+    ],
+    [
+     "Qxh5+",
+     99998,
+     "b5h5",
+     99998
+    ],
+    [
+     "Rh4",
+     -99999,
+     "g4h4",
+     -99999
+    ],
+    [
+     "Qxh4#",
+     99999,
+     "h5h4",
+     99999
     ]
    ]
   },
@@ -8674,6 +9281,32 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
     ]
    ]
   },
+  "ch-li-cBJ7g": {
+   "hash": "376b07a3082dc995",
+   "goal": "win_material",
+   "evalAfter": 244,
+   "flags": [],
+   "plies": [
+    [
+     "Nf3+",
+     265,
+     "d4f3",
+     265
+    ],
+    [
+     "Kh1",
+     -280,
+     "g1h1",
+     -280
+    ],
+    [
+     "Nxe5",
+     255,
+     "f3e5",
+     255
+    ]
+   ]
+  },
   "ch-li-cToFO": {
    "hash": "2d377f50c529eadd",
    "goal": "win_material",
@@ -8868,6 +9501,75 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
     ]
    ]
   },
+  "ch-li-e3j5E": {
+   "hash": "24672db7c98fea60",
+   "goal": "win_material",
+   "evalAfter": 326,
+   "flags": [],
+   "plies": [
+    [
+     "Qd4",
+     386,
+     "d1d4",
+     386
+    ],
+    [
+     "Be3",
+     -380,
+     "c1e3",
+     -380
+    ],
+    [
+     "Qxa1",
+     327,
+     "d4a1",
+     327
+    ],
+    [
+     "Bxc5",
+     -357,
+     "e3c5",
+     -357
+    ],
+    [
+     "bxc5",
+     358,
+     "b6c5",
+     358
+    ]
+   ]
+  },
+  "ch-li-eDb88": {
+   "hash": "69af158042f4682f",
+   "goal": "mate",
+   "acceptedAlternatives": {
+    "2": [
+     "Bb6#"
+    ]
+   },
+   "evalAfter": 100000,
+   "flags": [],
+   "plies": [
+    [
+     "Bd8+",
+     99998,
+     "e7d8",
+     99998
+    ],
+    [
+     "Kc8",
+     -99999,
+     "c7c8",
+     -99999
+    ],
+    [
+     "Ba5#",
+     99999,
+     "d8a5",
+     99999
+    ]
+   ]
+  },
   "ch-li-eFKhb": {
    "hash": "1af70e1655d6bad0",
    "goal": "mate",
@@ -8903,6 +9605,44 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
      99999,
      "b7f3",
      99999
+    ]
+   ]
+  },
+  "ch-li-eIyjV": {
+   "hash": "99da69bb417c2aff",
+   "goal": "win_material",
+   "evalAfter": 462,
+   "flags": [],
+   "plies": [
+    [
+     "Rg4",
+     439,
+     "e4g4",
+     439
+    ],
+    [
+     "fxg5",
+     -439,
+     "f6g5",
+     -439
+    ],
+    [
+     "Rxg5+",
+     415,
+     "g4g5",
+     415
+    ],
+    [
+     "Qxg5",
+     -453,
+     "f5g5",
+     -453
+    ],
+    [
+     "Qxg5+",
+     417,
+     "h5g5",
+     417
     ]
    ]
   },
@@ -9009,6 +9749,44 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
      "Qe7#",
      99999,
      "e8e7",
+     99999
+    ]
+   ]
+  },
+  "ch-li-fG0nP": {
+   "hash": "21a1b051f335650b",
+   "goal": "mate",
+   "evalAfter": 100000,
+   "flags": [],
+   "plies": [
+    [
+     "Rg4+",
+     99997,
+     "f4g4",
+     99997
+    ],
+    [
+     "Kh7",
+     -99998,
+     "g6h7",
+     -99998
+    ],
+    [
+     "Nf6+",
+     99998,
+     "e4f6",
+     99998
+    ],
+    [
+     "Kh8",
+     -99999,
+     "h7h8",
+     -99999
+    ],
+    [
+     "Rg8#",
+     99999,
+     "g4g8",
      99999
     ]
    ]
@@ -9427,6 +10205,44 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
     ]
    ]
   },
+  "ch-li-gyFrk": {
+   "hash": "28d22597fb26b547",
+   "goal": "mate",
+   "evalAfter": 100000,
+   "flags": [],
+   "plies": [
+    [
+     "Qxc2+",
+     99997,
+     "f5c2",
+     99997
+    ],
+    [
+     "Ka1",
+     -99998,
+     "b1a1",
+     -99998
+    ],
+    [
+     "Qc1+",
+     99998,
+     "c2c1",
+     99998
+    ],
+    [
+     "Rxc1",
+     -99999,
+     "h1c1",
+     -99999
+    ],
+    [
+     "Rxc1#",
+     99999,
+     "c8c1",
+     99999
+    ]
+   ]
+  },
   "ch-li-hRzKO": {
    "hash": "90e2c334c748fdd7",
    "goal": "win_material",
@@ -9578,6 +10394,44 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
      405,
      "a3a2",
      405
+    ]
+   ]
+  },
+  "ch-li-iiW65": {
+   "hash": "3c098dd60f9b8b72",
+   "goal": "win_material",
+   "evalAfter": 581,
+   "flags": [],
+   "plies": [
+    [
+     "Rxa2+",
+     530,
+     "a1a2",
+     530
+    ],
+    [
+     "Kxa2",
+     -569,
+     "b2a2",
+     -569
+    ],
+    [
+     "Kxc2",
+     616,
+     "d1c2",
+     616
+    ],
+    [
+     "Ka3",
+     -589,
+     "a2a1",
+     -589
+    ],
+    [
+     "Kc3",
+     514,
+     "c2c3",
+     514
     ]
    ]
   },
@@ -9771,6 +10625,49 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
     ]
    ]
   },
+  "ch-li-jVn2C": {
+   "hash": "8668b9766d02f574",
+   "goal": "mate",
+   "acceptedAlternatives": {
+    "4": [
+     "Nb4#"
+    ]
+   },
+   "evalAfter": 100000,
+   "flags": [],
+   "plies": [
+    [
+     "Bxf2+",
+     99997,
+     "c5f2",
+     99997
+    ],
+    [
+     "Ke2",
+     -99998,
+     "e1e2",
+     -99998
+    ],
+    [
+     "Bg4+",
+     99998,
+     "c8g4",
+     99998
+    ],
+    [
+     "Kd3",
+     -99999,
+     "e2d3",
+     -99999
+    ],
+    [
+     "Qd4#",
+     99999,
+     "b6d4",
+     99999
+    ]
+   ]
+  },
   "ch-li-jiVYp": {
    "hash": "baa4b4552ac66c80",
    "goal": "win_material",
@@ -9794,6 +10691,58 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
      498,
      "d5d6",
      498
+    ]
+   ]
+  },
+  "ch-li-jkIz5": {
+   "hash": "3b6634b2ac43fe2e",
+   "goal": "mate",
+   "evalAfter": 100000,
+   "flags": [],
+   "plies": [
+    [
+     "Qg1+",
+     99998,
+     "b6g1",
+     99998
+    ],
+    [
+     "Rxg1",
+     -99999,
+     "f1g1",
+     -99999
+    ],
+    [
+     "Nf2#",
+     99999,
+     "e4f2",
+     99999
+    ]
+   ]
+  },
+  "ch-li-jtGW7": {
+   "hash": "935f9cbc62a708e3",
+   "goal": "win_material",
+   "evalAfter": 447,
+   "flags": [],
+   "plies": [
+    [
+     "Kg5",
+     442,
+     "g6g5",
+     442
+    ],
+    [
+     "Rxh5+",
+     -430,
+     "c3c4",
+     -402
+    ],
+    [
+     "Kxh5",
+     418,
+     "g5h5",
+     418
     ]
    ]
   },
@@ -9934,6 +10883,32 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
      710,
      "d3e1",
      710
+    ]
+   ]
+  },
+  "ch-li-kKsGe": {
+   "hash": "2c7e305b6ca173ee",
+   "goal": "win_material",
+   "evalAfter": 429,
+   "flags": [],
+   "plies": [
+    [
+     "Ra1+",
+     393,
+     "a2a1",
+     393
+    ],
+    [
+     "Kf2",
+     -444,
+     "f1e2",
+     -428
+    ],
+    [
+     "h2",
+     426,
+     "h3h2",
+     426
     ]
    ]
   },
@@ -10129,6 +11104,44 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
     ]
    ]
   },
+  "ch-li-lsj5m": {
+   "hash": "2abc4f7273db103f",
+   "goal": "mate",
+   "evalAfter": 100000,
+   "flags": [],
+   "plies": [
+    [
+     "Be6+",
+     99997,
+     "d5e6",
+     99997
+    ],
+    [
+     "fxe6",
+     -99998,
+     "e5e6",
+     -99998
+    ],
+    [
+     "Qxd8+",
+     99998,
+     "d2d8",
+     99998
+    ],
+    [
+     "Nxd8",
+     -99999,
+     "c6d8",
+     -99999
+    ],
+    [
+     "Rxd8#",
+     99999,
+     "d1d8",
+     99999
+    ]
+   ]
+  },
   "ch-li-luXwR": {
    "hash": "9f15604562944160",
    "goal": "mate",
@@ -10166,6 +11179,32 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
      478,
      "d3d8",
      478
+    ]
+   ]
+  },
+  "ch-li-mFEXc": {
+   "hash": "9750d36ed0be420b",
+   "goal": "win_material",
+   "evalAfter": 612,
+   "flags": [],
+   "plies": [
+    [
+     "Qxf5",
+     616,
+     "e5f5",
+     616
+    ],
+    [
+     "gxf5+",
+     -681,
+     "g4f5",
+     -681
+    ],
+    [
+     "Kf7",
+     625,
+     "g6f7",
+     625
     ]
    ]
   },
@@ -10584,6 +11623,44 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
     ]
    ]
   },
+  "ch-li-pTJdx": {
+   "hash": "3ac3c001c6b02f25",
+   "goal": "mate",
+   "evalAfter": 100000,
+   "flags": [],
+   "plies": [
+    [
+     "Qxd5+",
+     99997,
+     "d2d5",
+     99997
+    ],
+    [
+     "Be6",
+     -99998,
+     "c8e6",
+     -99998
+    ],
+    [
+     "Qxe6+",
+     99998,
+     "d5e6",
+     99998
+    ],
+    [
+     "Rxe6",
+     -99999,
+     "e8e6",
+     -99999
+    ],
+    [
+     "Bxe6#",
+     99999,
+     "c4e6",
+     99999
+    ]
+   ]
+  },
   "ch-li-pWL3V": {
    "hash": "a1686427858393d6",
    "goal": "mate",
@@ -10607,6 +11684,56 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
      99999,
      "g6g7",
      99999
+    ]
+   ]
+  },
+  "ch-li-pjG0Z": {
+   "hash": "717d9eadbf70982e",
+   "goal": "promote",
+   "evalAfter": 634,
+   "flags": [],
+   "plies": [
+    [
+     "g5",
+     579,
+     "g4g5",
+     579
+    ],
+    [
+     "Kxa2",
+     -693,
+     "b2a2",
+     -693
+    ],
+    [
+     "g6",
+     627,
+     "g5g6",
+     627
+    ],
+    [
+     "b3",
+     -702,
+     "b4b3",
+     -702
+    ],
+    [
+     "g7",
+     589,
+     "g6g7",
+     589
+    ],
+    [
+     "b2",
+     -1008,
+     "a2a1",
+     -848
+    ],
+    [
+     "g8=Q+",
+     585,
+     "g7g8q",
+     585
     ]
    ]
   },
@@ -10840,6 +11967,32 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
     ]
    ]
   },
+  "ch-li-r7J7V": {
+   "hash": "8b0b46c549f19d2f",
+   "goal": "mate",
+   "evalAfter": 100000,
+   "flags": [],
+   "plies": [
+    [
+     "Qc7+",
+     99998,
+     "a5c7",
+     99998
+    ],
+    [
+     "Ka7",
+     -99999,
+     "b8a7",
+     -99999
+    ],
+    [
+     "Qxb7#",
+     99999,
+     "c7b7",
+     99999
+    ]
+   ]
+  },
   "ch-li-rBSU0": {
    "hash": "c2f7cdd87918ab82",
    "goal": "win_material",
@@ -10863,6 +12016,44 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
      529,
      "h6g6",
      529
+    ]
+   ]
+  },
+  "ch-li-rC1J9": {
+   "hash": "52a61df87b9e8e67",
+   "goal": "win_material",
+   "evalAfter": 342,
+   "flags": [],
+   "plies": [
+    [
+     "f4",
+     363,
+     "f5f4",
+     363
+    ],
+    [
+     "Nxe4",
+     -361,
+     "g5e4",
+     -361
+    ],
+    [
+     "fxe3",
+     351,
+     "f4e3",
+     351
+    ],
+    [
+     "Nxd6",
+     -373,
+     "e4d6",
+     -373
+    ],
+    [
+     "exf2+",
+     356,
+     "e3f2",
+     356
     ]
    ]
   },
@@ -11003,6 +12194,32 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
      514,
      "a7a8q",
      514
+    ]
+   ]
+  },
+  "ch-li-sQOVX": {
+   "hash": "36c8464c4f4b7260",
+   "goal": "win_material",
+   "evalAfter": 345,
+   "flags": [],
+   "plies": [
+    [
+     "g2+",
+     350,
+     "g3g2",
+     350
+    ],
+    [
+     "Kf2",
+     -360,
+     "f1f2",
+     -360
+    ],
+    [
+     "Rh1",
+     350,
+     "h2h1",
+     350
     ]
    ]
   },
@@ -11397,6 +12614,44 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
     ]
    ]
   },
+  "ch-li-v58zo": {
+   "hash": "33d8183edf0ab0a2",
+   "goal": "win_material",
+   "evalAfter": 420,
+   "flags": [],
+   "plies": [
+    [
+     "Nf2+",
+     384,
+     "e4f2",
+     384
+    ],
+    [
+     "Nxf2",
+     -435,
+     "d1f2",
+     -435
+    ],
+    [
+     "c3",
+     360,
+     "c4c3",
+     360
+    ],
+    [
+     "Kg5",
+     -514,
+     "f2h1",
+     -425
+    ],
+    [
+     "c2",
+     423,
+     "c3c2",
+     423
+    ]
+   ]
+  },
   "ch-li-v77MV": {
    "hash": "91073ae2f0f350f8",
    "goal": "win_material",
@@ -11637,6 +12892,56 @@ export const CHESS_QA: ChessQaFile = /*QA-JSON*/{
      "h4#",
      99999,
      "h3h4",
+     99999
+    ]
+   ]
+  },
+  "ch-li-waFga": {
+   "hash": "4ded17f31f52b482",
+   "goal": "mate",
+   "evalAfter": 100000,
+   "flags": [],
+   "plies": [
+    [
+     "Bf2+",
+     99996,
+     "d4f2",
+     99996
+    ],
+    [
+     "Kg5",
+     -99997,
+     "h4g5",
+     -99997
+    ],
+    [
+     "Kg7",
+     99997,
+     "f8g7",
+     99997
+    ],
+    [
+     "f5",
+     -99998,
+     "f4f5",
+     -99998
+    ],
+    [
+     "f6+",
+     99998,
+     "f7f6",
+     99998
+    ],
+    [
+     "Kf4",
+     -99999,
+     "g5f4",
+     -99999
+    ],
+    [
+     "g5#",
+     99999,
+     "g6g5",
      99999
     ]
    ]

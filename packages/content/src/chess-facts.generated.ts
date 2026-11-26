@@ -2424,6 +2424,27 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "advantage"
   ]
  },
+ "ch-li-0R69Q": {
+  "hash": "214c825588357434",
+  "san": "Kc5",
+  "piece": "k",
+  "from": "b4",
+  "to": "c5",
+  "check": false,
+  "capture": null,
+  "promotion": null,
+  "mate": false,
+  "gainCp": 200,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "endgame",
+   "bishopEndgame",
+   "quietMove",
+   "long",
+   "advantage"
+  ]
+ },
  "ch-li-0WFIJ": {
   "hash": "8b15b64c5e6e678b",
   "san": "g5",
@@ -2487,6 +2508,26 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "long"
   ]
  },
+ "ch-li-105jD": {
+  "hash": "1fe4084745843a37",
+  "san": "Qf4+",
+  "piece": "q",
+  "from": "d4",
+  "to": "f4",
+  "check": true,
+  "capture": null,
+  "promotion": null,
+  "mate": false,
+  "gainCp": 900,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "endgame",
+   "queenEndgame",
+   "short",
+   "crushing"
+  ]
+ },
  "ch-li-154cq": {
   "hash": "76b2ab794b89d939",
   "san": "Bd4+",
@@ -2546,6 +2587,50 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "mate",
    "mateIn3",
    "backRankMate",
+   "sacrifice",
+   "long",
+   "crushing"
+  ]
+ },
+ "ch-li-1Gxck": {
+  "hash": "488c4af1f0051145",
+  "san": "Rh8+",
+  "piece": "r",
+  "from": "h1",
+  "to": "h8",
+  "check": true,
+  "capture": null,
+  "promotion": null,
+  "mate": true,
+  "gainCp": 10000,
+  "fork": false,
+  "sacrifice": true,
+  "themes": [
+   "middlegame",
+   "mate",
+   "mateIn2",
+   "sacrifice",
+   "short",
+   "crushing"
+  ]
+ },
+ "ch-li-1KNGD": {
+  "hash": "bdf5240b5ed939d5",
+  "san": "Rh1+",
+  "piece": "r",
+  "from": "h3",
+  "to": "h1",
+  "check": true,
+  "capture": null,
+  "promotion": null,
+  "mate": true,
+  "gainCp": 10000,
+  "fork": false,
+  "sacrifice": true,
+  "themes": [
+   "middlegame",
+   "mate",
+   "mateIn3",
    "sacrifice",
    "long",
    "crushing"
@@ -2820,6 +2905,27 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "crushing"
   ]
  },
+ "ch-li-5Clv0": {
+  "hash": "940b265d19ceae5f",
+  "san": "Rc1",
+  "piece": "r",
+  "from": "c8",
+  "to": "c1",
+  "check": false,
+  "capture": null,
+  "promotion": null,
+  "mate": false,
+  "gainCp": 500,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "endgame",
+   "queenRookEndgame",
+   "quietMove",
+   "long",
+   "advantage"
+  ]
+ },
  "ch-li-5bWZ0": {
   "hash": "99287cca129328ff",
   "san": "Qxh7+",
@@ -2926,6 +3032,24 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "sacrifice",
    "short",
    "crushing"
+  ]
+ },
+ "ch-li-6XF1L": {
+  "hash": "70c349263963a4e5",
+  "san": "Qxe6+",
+  "piece": "q",
+  "from": "e4",
+  "to": "e6",
+  "check": true,
+  "capture": "p",
+  "promotion": null,
+  "mate": false,
+  "gainCp": 100,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "middlegame",
+   "short"
   ]
  },
  "ch-li-6jgpL": {
@@ -3715,6 +3839,25 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "advantage"
   ]
  },
+ "ch-li-C96nr": {
+  "hash": "e93d0fefc58223ab",
+  "san": "Rxg8+",
+  "piece": "r",
+  "from": "g7",
+  "to": "g8",
+  "check": true,
+  "capture": "r",
+  "promotion": null,
+  "mate": false,
+  "gainCp": 900,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "middlegame",
+   "short",
+   "crushing"
+  ]
+ },
  "ch-li-CTXIp": {
   "hash": "31c6983e12ad4a07",
   "san": "Qxf7+",
@@ -3734,6 +3877,47 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "mateIn3",
    "long",
    "crushing"
+  ]
+ },
+ "ch-li-CfsHv": {
+  "hash": "1a6028ca1aac73bb",
+  "san": "Rg7+",
+  "piece": "r",
+  "from": "g8",
+  "to": "g7",
+  "check": true,
+  "capture": null,
+  "promotion": null,
+  "mate": true,
+  "gainCp": 10000,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "middlegame",
+   "mate",
+   "mateIn2",
+   "short",
+   "crushing"
+  ]
+ },
+ "ch-li-DDNr3": {
+  "hash": "59a237752c2ba695",
+  "san": "b5",
+  "piece": "p",
+  "from": "b4",
+  "to": "b5",
+  "check": false,
+  "capture": null,
+  "promotion": null,
+  "mate": false,
+  "gainCp": 100,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "endgame",
+   "bishopEndgame",
+   "quietMove",
+   "short"
   ]
  },
  "ch-li-DDmJv": {
@@ -3903,6 +4087,26 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "crushing"
   ]
  },
+ "ch-li-Fa9EK": {
+  "hash": "23dc29b8dc7a33ed",
+  "san": "Rxd6",
+  "piece": "r",
+  "from": "d3",
+  "to": "d6",
+  "check": false,
+  "capture": "r",
+  "promotion": "q",
+  "mate": false,
+  "gainCp": 400,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "middlegame",
+   "promotion",
+   "long",
+   "advantage"
+  ]
+ },
  "ch-li-Fb7fm": {
   "hash": "7828238ffce06da3",
   "san": "g4",
@@ -4070,6 +4274,29 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "advantage"
   ]
  },
+ "ch-li-Hh4vD": {
+  "hash": "aafeae445ca560bb",
+  "san": "Qxf7+",
+  "piece": "q",
+  "from": "f3",
+  "to": "f7",
+  "check": true,
+  "capture": "p",
+  "promotion": null,
+  "mate": true,
+  "gainCp": 10000,
+  "fork": false,
+  "sacrifice": true,
+  "themes": [
+   "middlegame",
+   "mate",
+   "mateIn2",
+   "backRankMate",
+   "sacrifice",
+   "short",
+   "crushing"
+  ]
+ },
  "ch-li-HkY6a": {
   "hash": "7391dd602d93b555",
   "san": "Rd5",
@@ -4089,6 +4316,25 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "promotion",
    "sacrifice",
    "quietMove",
+   "long",
+   "crushing"
+  ]
+ },
+ "ch-li-HoCgT": {
+  "hash": "482612c0a94bdeed",
+  "san": "Qd6+",
+  "piece": "q",
+  "from": "a3",
+  "to": "d6",
+  "check": true,
+  "capture": null,
+  "promotion": null,
+  "mate": false,
+  "gainCp": 900,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "endgame",
    "long",
    "crushing"
   ]
@@ -4398,6 +4644,25 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "crushing"
   ]
  },
+ "ch-li-KRaeT": {
+  "hash": "2f73391c7b9911ad",
+  "san": "Rg8+",
+  "piece": "r",
+  "from": "g7",
+  "to": "g8",
+  "check": true,
+  "capture": null,
+  "promotion": null,
+  "mate": false,
+  "gainCp": 0,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "endgame",
+   "rookEndgame",
+   "short"
+  ]
+ },
  "ch-li-KYEhQ": {
   "hash": "82ee99b52a4bd651",
   "san": "Bd4+",
@@ -4435,6 +4700,25 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "rookEndgame",
    "promotion",
    "long",
+   "advantage"
+  ]
+ },
+ "ch-li-KztXj": {
+  "hash": "dc27bcb8fba05c19",
+  "san": "Qxd3",
+  "piece": "q",
+  "from": "f3",
+  "to": "d3",
+  "check": false,
+  "capture": "n",
+  "promotion": null,
+  "mate": false,
+  "gainCp": 320,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "middlegame",
+   "short",
    "advantage"
   ]
  },
@@ -4539,6 +4823,29 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "quietMove",
    "short",
    "advantage"
+  ]
+ },
+ "ch-li-MXiAW": {
+  "hash": "837a50e602a98314",
+  "san": "Ra8+",
+  "piece": "r",
+  "from": "a1",
+  "to": "a8",
+  "check": true,
+  "capture": null,
+  "promotion": null,
+  "mate": true,
+  "gainCp": 10000,
+  "fork": false,
+  "sacrifice": true,
+  "themes": [
+   "middlegame",
+   "mate",
+   "mateIn4",
+   "backRankMate",
+   "sacrifice",
+   "long",
+   "crushing"
   ]
  },
  "ch-li-McyGf": {
@@ -4724,6 +5031,25 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "advantage"
   ]
  },
+ "ch-li-NmgDd": {
+  "hash": "24a3604f6f3c7080",
+  "san": "Qe6+",
+  "piece": "q",
+  "from": "d5",
+  "to": "e6",
+  "check": true,
+  "capture": null,
+  "promotion": null,
+  "mate": false,
+  "gainCp": 900,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "middlegame",
+   "short",
+   "crushing"
+  ]
+ },
  "ch-li-O7Ud9": {
   "hash": "8999fcf2592d928f",
   "san": "Kg6",
@@ -4862,6 +5188,28 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "endgame",
    "queenEndgame",
    "long"
+  ]
+ },
+ "ch-li-Ownil": {
+  "hash": "3dae0df1060d4255",
+  "san": "g2",
+  "piece": "p",
+  "from": "g3",
+  "to": "g2",
+  "check": false,
+  "capture": null,
+  "promotion": "q",
+  "mate": false,
+  "gainCp": 700,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "endgame",
+   "rookEndgame",
+   "promotion",
+   "quietMove",
+   "short",
+   "crushing"
   ]
  },
  "ch-li-P7oZU": {
@@ -5481,6 +5829,27 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "short"
   ]
  },
+ "ch-li-XfTql": {
+  "hash": "ab2150d4ce1c3a0a",
+  "san": "Bg5#",
+  "piece": "b",
+  "from": "f6",
+  "to": "g5",
+  "check": true,
+  "capture": null,
+  "promotion": null,
+  "mate": true,
+  "gainCp": 10000,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "endgame",
+   "mate",
+   "mateIn1",
+   "oneMove",
+   "crushing"
+  ]
+ },
  "ch-li-Xs9Cu": {
   "hash": "30bbc94b354f762a",
   "san": "Nb6",
@@ -5539,6 +5908,27 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "middlegame",
    "quietMove",
    "short",
+   "crushing"
+  ]
+ },
+ "ch-li-Xz9fa": {
+  "hash": "d05d3c45e4111488",
+  "san": "Qb5+",
+  "piece": "q",
+  "from": "d7",
+  "to": "b5",
+  "check": true,
+  "capture": null,
+  "promotion": null,
+  "mate": true,
+  "gainCp": 10000,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "middlegame",
+   "mate",
+   "mateIn4",
+   "long",
    "crushing"
   ]
  },
@@ -5877,6 +6267,26 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "crushing"
   ]
  },
+ "ch-li-cBJ7g": {
+  "hash": "376b07a3082dc995",
+  "san": "Nf3+",
+  "piece": "n",
+  "from": "d4",
+  "to": "f3",
+  "check": true,
+  "capture": null,
+  "promotion": null,
+  "mate": false,
+  "gainCp": 330,
+  "fork": true,
+  "sacrifice": false,
+  "themes": [
+   "middlegame",
+   "fork",
+   "short",
+   "advantage"
+  ]
+ },
  "ch-li-cToFO": {
   "hash": "2d377f50c529eadd",
   "san": "O-O",
@@ -6016,6 +6426,47 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "short"
   ]
  },
+ "ch-li-e3j5E": {
+  "hash": "24672db7c98fea60",
+  "san": "Qd4",
+  "piece": "q",
+  "from": "d1",
+  "to": "d4",
+  "check": false,
+  "capture": null,
+  "promotion": null,
+  "mate": false,
+  "gainCp": 500,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "middlegame",
+   "quietMove",
+   "long",
+   "advantage"
+  ]
+ },
+ "ch-li-eDb88": {
+  "hash": "69af158042f4682f",
+  "san": "Bd8+",
+  "piece": "b",
+  "from": "e7",
+  "to": "d8",
+  "check": true,
+  "capture": null,
+  "promotion": null,
+  "mate": true,
+  "gainCp": 10000,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "middlegame",
+   "mate",
+   "mateIn2",
+   "short",
+   "crushing"
+  ]
+ },
  "ch-li-eFKhb": {
   "hash": "1af70e1655d6bad0",
   "san": "Rg8+",
@@ -6036,6 +6487,25 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "sacrifice",
    "long",
    "crushing"
+  ]
+ },
+ "ch-li-eIyjV": {
+  "hash": "99da69bb417c2aff",
+  "san": "Rg4",
+  "piece": "r",
+  "from": "e4",
+  "to": "g4",
+  "check": false,
+  "capture": null,
+  "promotion": null,
+  "mate": false,
+  "gainCp": 180,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "middlegame",
+   "quietMove",
+   "long"
   ]
  },
  "ch-li-eZbCs": {
@@ -6098,6 +6568,28 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "mate",
    "mateIn3",
    "promotion",
+   "long",
+   "crushing"
+  ]
+ },
+ "ch-li-fG0nP": {
+  "hash": "21a1b051f335650b",
+  "san": "Rg4+",
+  "piece": "r",
+  "from": "f4",
+  "to": "g4",
+  "check": true,
+  "capture": null,
+  "promotion": null,
+  "mate": true,
+  "gainCp": 10000,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "endgame",
+   "mate",
+   "mateIn3",
+   "backRankMate",
    "long",
    "crushing"
   ]
@@ -6415,6 +6907,28 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "crushing"
   ]
  },
+ "ch-li-gyFrk": {
+  "hash": "28d22597fb26b547",
+  "san": "Qxc2+",
+  "piece": "q",
+  "from": "f5",
+  "to": "c2",
+  "check": true,
+  "capture": "p",
+  "promotion": null,
+  "mate": true,
+  "gainCp": 10000,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "middlegame",
+   "mate",
+   "mateIn3",
+   "backRankMate",
+   "long",
+   "crushing"
+  ]
+ },
  "ch-li-hRzKO": {
   "hash": "90e2c334c748fdd7",
   "san": "Bxh2+",
@@ -6517,6 +7031,26 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "long"
   ]
  },
+ "ch-li-iiW65": {
+  "hash": "3c098dd60f9b8b72",
+  "san": "Rxa2+",
+  "piece": "r",
+  "from": "a1",
+  "to": "a2",
+  "check": true,
+  "capture": "p",
+  "promotion": null,
+  "mate": false,
+  "gainCp": 100,
+  "fork": false,
+  "sacrifice": true,
+  "themes": [
+   "endgame",
+   "rookEndgame",
+   "sacrifice",
+   "long"
+  ]
+ },
  "ch-li-ip4VE": {
   "hash": "2bbc60214e73ce38",
   "san": "Re7+",
@@ -6616,6 +7150,27 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "crushing"
   ]
  },
+ "ch-li-jVn2C": {
+  "hash": "8668b9766d02f574",
+  "san": "Bxf2+",
+  "piece": "b",
+  "from": "c5",
+  "to": "f2",
+  "check": true,
+  "capture": "p",
+  "promotion": null,
+  "mate": true,
+  "gainCp": 10000,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "opening",
+   "mate",
+   "mateIn3",
+   "long",
+   "crushing"
+  ]
+ },
  "ch-li-jiVYp": {
   "hash": "baa4b4552ac66c80",
   "san": "d5",
@@ -6634,6 +7189,50 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "bishopEndgame",
    "quietMove",
    "short"
+  ]
+ },
+ "ch-li-jkIz5": {
+  "hash": "3b6634b2ac43fe2e",
+  "san": "Qg1+",
+  "piece": "q",
+  "from": "b6",
+  "to": "g1",
+  "check": true,
+  "capture": null,
+  "promotion": null,
+  "mate": true,
+  "gainCp": 10000,
+  "fork": false,
+  "sacrifice": true,
+  "themes": [
+   "middlegame",
+   "mate",
+   "mateIn2",
+   "smotheredMate",
+   "sacrifice",
+   "short",
+   "crushing"
+  ]
+ },
+ "ch-li-jtGW7": {
+  "hash": "935f9cbc62a708e3",
+  "san": "Kg5",
+  "piece": "k",
+  "from": "g6",
+  "to": "g5",
+  "check": false,
+  "capture": null,
+  "promotion": null,
+  "mate": false,
+  "gainCp": 400,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "endgame",
+   "rookEndgame",
+   "quietMove",
+   "short",
+   "advantage"
   ]
  },
  "ch-li-jyjYR": {
@@ -6714,6 +7313,25 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "endgame",
    "long",
    "crushing"
+  ]
+ },
+ "ch-li-kKsGe": {
+  "hash": "2c7e305b6ca173ee",
+  "san": "Ra1+",
+  "piece": "r",
+  "from": "a2",
+  "to": "a1",
+  "check": true,
+  "capture": null,
+  "promotion": null,
+  "mate": false,
+  "gainCp": 0,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "endgame",
+   "rookEndgame",
+   "short"
   ]
  },
  "ch-li-kNltM": {
@@ -6842,6 +7460,29 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "crushing"
   ]
  },
+ "ch-li-lsj5m": {
+  "hash": "2abc4f7273db103f",
+  "san": "Be6+",
+  "piece": "b",
+  "from": "d5",
+  "to": "e6",
+  "check": true,
+  "capture": null,
+  "promotion": null,
+  "mate": true,
+  "gainCp": 10000,
+  "fork": false,
+  "sacrifice": true,
+  "themes": [
+   "middlegame",
+   "mate",
+   "mateIn3",
+   "backRankMate",
+   "sacrifice",
+   "long",
+   "crushing"
+  ]
+ },
  "ch-li-luXwR": {
   "hash": "9f15604562944160",
   "san": "Qxf8#",
@@ -6881,6 +7522,25 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "middlegame",
    "short",
    "advantage"
+  ]
+ },
+ "ch-li-mFEXc": {
+  "hash": "9750d36ed0be420b",
+  "san": "Qxf5",
+  "piece": "q",
+  "from": "e5",
+  "to": "f5",
+  "check": false,
+  "capture": "q",
+  "promotion": null,
+  "mate": false,
+  "gainCp": 0,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "endgame",
+   "queenEndgame",
+   "short"
   ]
  },
  "ch-li-mS6Ut": {
@@ -7154,6 +7814,27 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "advantage"
   ]
  },
+ "ch-li-pTJdx": {
+  "hash": "3ac3c001c6b02f25",
+  "san": "Qxd5+",
+  "piece": "q",
+  "from": "d2",
+  "to": "d5",
+  "check": true,
+  "capture": "n",
+  "promotion": null,
+  "mate": true,
+  "gainCp": 10000,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "middlegame",
+   "mate",
+   "mateIn3",
+   "long",
+   "crushing"
+  ]
+ },
  "ch-li-pWL3V": {
   "hash": "a1686427858393d6",
   "san": "Bxe6+",
@@ -7173,6 +7854,28 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "mateIn2",
    "sacrifice",
    "short",
+   "crushing"
+  ]
+ },
+ "ch-li-pjG0Z": {
+  "hash": "717d9eadbf70982e",
+  "san": "g5",
+  "piece": "p",
+  "from": "g4",
+  "to": "g5",
+  "check": false,
+  "capture": null,
+  "promotion": "q",
+  "mate": false,
+  "gainCp": 700,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "endgame",
+   "pawnEndgame",
+   "promotion",
+   "quietMove",
+   "long",
    "crushing"
   ]
  },
@@ -7322,6 +8025,27 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "crushing"
   ]
  },
+ "ch-li-r7J7V": {
+  "hash": "8b0b46c549f19d2f",
+  "san": "Qc7+",
+  "piece": "q",
+  "from": "a5",
+  "to": "c7",
+  "check": true,
+  "capture": null,
+  "promotion": null,
+  "mate": true,
+  "gainCp": 10000,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "middlegame",
+   "mate",
+   "mateIn2",
+   "short",
+   "crushing"
+  ]
+ },
  "ch-li-rBSU0": {
   "hash": "c2f7cdd87918ab82",
   "san": "Rxf4",
@@ -7339,6 +8063,25 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "endgame",
    "rookEndgame",
    "short"
+  ]
+ },
+ "ch-li-rC1J9": {
+  "hash": "52a61df87b9e8e67",
+  "san": "f4",
+  "piece": "p",
+  "from": "f5",
+  "to": "f4",
+  "check": false,
+  "capture": null,
+  "promotion": null,
+  "mate": false,
+  "gainCp": -220,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "middlegame",
+   "quietMove",
+   "long"
   ]
  },
  "ch-li-rFovC": {
@@ -7425,6 +8168,25 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "quietMove",
    "long",
    "crushing"
+  ]
+ },
+ "ch-li-sQOVX": {
+  "hash": "36c8464c4f4b7260",
+  "san": "g2+",
+  "piece": "p",
+  "from": "g3",
+  "to": "g2",
+  "check": true,
+  "capture": null,
+  "promotion": null,
+  "mate": false,
+  "gainCp": 0,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "endgame",
+   "rookEndgame",
+   "short"
   ]
  },
  "ch-li-sUE0V": {
@@ -7692,6 +8454,26 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "short"
   ]
  },
+ "ch-li-v58zo": {
+  "hash": "33d8183edf0ab0a2",
+  "san": "Nf2+",
+  "piece": "n",
+  "from": "e4",
+  "to": "f2",
+  "check": true,
+  "capture": null,
+  "promotion": null,
+  "mate": false,
+  "gainCp": -320,
+  "fork": false,
+  "sacrifice": true,
+  "themes": [
+   "endgame",
+   "knightEndgame",
+   "sacrifice",
+   "long"
+  ]
+ },
  "ch-li-v77MV": {
   "hash": "91073ae2f0f350f8",
   "san": "Bxc6+",
@@ -7855,6 +8637,28 @@ export const CHESS_FACTS: Record<string, ChessLineFacts> = {
    "mate",
    "mateIn2",
    "short",
+   "crushing"
+  ]
+ },
+ "ch-li-waFga": {
+  "hash": "4ded17f31f52b482",
+  "san": "Bf2+",
+  "piece": "b",
+  "from": "d4",
+  "to": "f2",
+  "check": true,
+  "capture": null,
+  "promotion": null,
+  "mate": true,
+  "gainCp": 10000,
+  "fork": false,
+  "sacrifice": false,
+  "themes": [
+   "endgame",
+   "bishopEndgame",
+   "mate",
+   "mateIn4",
+   "long",
    "crushing"
   ]
  },
