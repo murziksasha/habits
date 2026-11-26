@@ -30,6 +30,7 @@
     "docker:up": "docker compose up --build -d",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f",
+    "docs:check": "node scripts/docs/check-spec-index.mjs",
     "chess:qa": "node scripts/chess-qa/run-stockfish-qa.mjs",
     "chess:import": "node scripts/chess-import/lichess-select.mjs"
   },

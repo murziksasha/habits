@@ -109,3 +109,12 @@ Counter stored on `chess_ratings.rated_games_today` + date string.
 - `apps/web/src/lib/chess-sounds.ts`: synthetic Web Audio sounds (move, capture, check, castle, promote, game start/end, illegal, low time, puzzle solved/wrong); **off by default**, `AudioContext` created lazily after a gesture.
 - Clock: under 30 s the clock turns red; under 10 s a quiet tick once per second when sound is on.
 - Bot (`packages/chess-core/src/bot.ts`): negamax with quiescence (captures + promotions, MVV-LVA, stand-pat, delta pruning), tapered eval (PeSTO phase 0–24, endgame king/pawn tables, mop-up), no mobility term at leaves, Zobrist-keyed TT and iterative deepening for Strong (~600 ms), repetition awareness from `history` (+ `startFen`), mate-distance scoring. All levels run in a Web Worker (`apps/web/src/lib/chess-bot-worker.ts`). Personalities: Novice (human slips among the 5 most plausible moves), Club player (course openings, sloppier in endgames), Strong. `chooseBotMove(fen, level, opts)` or `chooseBotMove({ fen, history, level, personality })`.
+
+
+## Server-owned drills, board preferences, bot unlocks (Nov 2026)
+
+- Endgame drills: `POST /chess/drills/:exerciseId/move` `{ token?, move }` → `{ sans, reply, status, token }`. The API plays the defender and signs the game (HMAC from `AUTH_SECRET`, 24 h). Lesson grading of `chess_endgame_drill` accepts only that token; a client-sent `sans` list grades as wrong (`reason: "unverified"`).
+- Own-game puzzles appear in `GET /review/mistakes` with `lessonId: "own_game"` and are graded by `POST /review/mistakes/check` against the learner's own `chess_personal_puzzles` rows.
+- Board preferences: `GET/PUT /chess/prefs` (`users.chess_prefs`, migration 0046).
+- Bot personalities: `GET /chess/bots/unlocks`. Club opens at 8 completed chess lessons, Strong at 30, the Italian challenge after unit `ch-deep-italian-ruy`. `POST /chess/games/bot` with `kind: "bot"` and a locked level → `403 bot_locked`.
+- Runbook (Russian): [instructions/chess-content.md](../instructions/chess-content.md).

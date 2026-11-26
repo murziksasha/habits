@@ -43,3 +43,7 @@ pnpm workspaces + Turborepo (`packageManager: pnpm@11.22.0`).
 - Ошибки API — `{ error: "snake_code" }`.
 - Миграции только аддитивные, ID контента не меняются (см. [migrations.md](migrations.md)).
 - Перед `git push`, удалением/очисткой Postgres, `docker compose down -v`, `pnpm db:seed` на общей/продовой БД, правкой секретов в `.env` — спросить владельца (`AGENTS.md`).
+
+## Спецификации
+
+Индекс всех `SPEC/*.md` — [SPEC/README.md](../SPEC/README.md): таблица по номерам, планы и раздел «Find by topic» со ссылками на эти инструкции. `pnpm docs:check` (шаг CI «SPEC index check») падает, если новый файл в `SPEC/` не попал в индекс или ссылка в индексе битая.
