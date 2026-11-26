@@ -163,6 +163,33 @@ services:
     profiles:
       - tools
 
+  # Scheduled Postgres backups (profile: backup): pg_dump -Fc + retention.
+  #   docker compose --profile backup up -d pg-backup
+  # Files land in PG_BACKUP_DIR on the host — default ../eduforge-pg-backups, i.e.
+  # next to the repository, never inside it. Restore: scripts/db/pg-restore.sh
+  # (runbook: instructions/backups.md).
+  pg-backup:
+    image: postgres:16-alpine
+    profiles: ["backup"]
+    restart: unless-stopped
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGUSER: ${POSTGRES_USER:-eduforge}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-eduforge}
+      PGDATABASE: ${POSTGRES_DB:-eduforge}
+      BACKUP_DIR: /backups
+      BACKUP_INTERVAL_SECONDS: ${PG_BACKUP_INTERVAL_SECONDS:-86400}
+      BACKUP_KEEP_DAYS: ${PG_BACKUP_KEEP_DAYS:-14}
+      BACKUP_KEEP_MIN: ${PG_BACKUP_KEEP_MIN:-3}
+    volumes:
+      - ./scripts/db/pg-backup.sh:/usr/local/bin/pg-backup.sh:ro
+      - ${PG_BACKUP_DIR:-../eduforge-pg-backups}:/backups
+    command: ["sh", "/usr/local/bin/pg-backup.sh", "loop"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   # Optional OpenTelemetry collector (profile: otel)
   # Point API: OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
   otel-collector:
